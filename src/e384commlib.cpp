@@ -1,240 +1,224 @@
-#include "e4gcommlib.h"
+#include "e384commlib.h"
 
 #include <algorithm>
 
 #include "messagedispatcher.h"
-#include "messagedispatcher_epatch.h"
-#include "messagedispatcher_epatchel03d.h"
-#include "messagedispatcher_epatchel03f_4d.h"
-#include "messagedispatcher_epatchel04e.h"
-#include "messagedispatcher_epatchel03f_4e.h"
-#include "messagedispatcher_e4pel04f.h"
-#include "messagedispatcher_e4ppatchliner.h"
-#include "messagedispatcher_e8ppatchliner.h"
-#include "messagedispatcher_e4ppatchliner_el07ab.h"
-#include "messagedispatcher_e8ppatchliner_el07ab.h"
-#include "messagedispatcher_fakepatch.h"
-#include "messagedispatcher_fakep8.h"
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-#include "ftd2xx_win.h"
-
 using namespace std;
 
-namespace e4gCommLib {
+static MessageDispatcher * messageDispatcher = nullptr;
+
+static void input2String(E384clString_t i, string &s);
+static void input2Measurement(E384clMeasurement_t i, Measurement_t &m);
+
+static void string2Output(string s, E384clString_t E384CL_OUTPUT_SYMBOL o);
+static void vectorString2Output(vector <string> v, E384clStringVector_t E384CL_OUTPUT_SYMBOL o);
+static void vectorMeasurement2Output(vector <Measurement_t> v, E384clMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o);
+static void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o);
+
+#ifndef E384CL_LABVIEW_COMPATIBILITY
+namespace e384CommLib {
+#endif
 
 /*****************\
  *  Ctor / Dtor  *
 \*****************/
 
-CommLib::CommLib() {
+ErrorCodes_t init() {
 
 }
 
-CommLib::~CommLib() {
-    this->disconnect();
+ErrorCodes_t deinit() {
+
 }
 
 /************************\
  *  Connection methods  *
 \************************/
 
-ErrorCodes_t CommLib::detectDevices(
+ErrorCodes_t detectDevices(
         vector <string> &deviceIds) {
     /*! Gets number of devices */
-    DWORD numDevs;
-    bool devCountOk = getDeviceCount(numDevs);
-    if (!devCountOk) {
-        return ErrorListDeviceFailed;
+//    DWORD numDevs;
+//    bool devCountOk = getDeviceCount(numDevs);
+//    if (!devCountOk) {
+//        return ErrorListDeviceFailed;
 
-    } else if (numDevs == 0) {
-        deviceIds.clear();
-        return ErrorNoDeviceFound;
-    }
-
-//    FT_CreateDeviceInfoList(&numDevs);
-//    FT_DEVICE_LIST_INFO_NODE * devInfo;
-//    FT_GetDeviceInfoList(devInfo, &numDevs);
-//    for (unsigned int i = 0; i < numDevs; i++) {
-//        printf("Dev %d:\n", i);
-//        printf(" Flags=0x%x\n", devInfo[i].Flags);
-//        printf(" Type=0x%x\n", devInfo[i].Type);
-//        printf(" ID=0x%x\n", devInfo[i].ID);
-//        printf(" LocId=0x%x\n", devInfo[i].LocId);
-//        printf(" SerialNumber=%s\n", devInfo[i].SerialNumber);
-//        printf(" Description=%s\n", devInfo[i].Description);
-//        printf(" ftHandle=0x%x\n", devInfo[i].ftHandle);
+//    } else if (numDevs == 0) {
+//        deviceIds.clear();
+//        return ErrorNoDeviceFound;
 //    }
 
-    deviceIds.clear();
-    string deviceName;
+//    deviceIds.clear();
+//    string deviceName;
 
-    /*! Lists all serial numbers */
-    for (uint32_t i = 0; i < numDevs; i++) {
-        deviceName = getDeviceSerial(i, true);
-        if (find(deviceIds.begin(), deviceIds.end(), deviceName) == deviceIds.end()) {
-            /*! Adds only new devices (no distinction between channels A and B creates duplicates) */
-            if (deviceName.size() > 0) {
-                /*! Devices with an open channel are detected wrongly and their name is an empty string */
-                deviceIds.push_back(getDeviceSerial(i, true));
-            }
-        }
-    }
+//    /*! Lists all serial numbers */
+//    for (uint32_t i = 0; i < numDevs; i++) {
+//        deviceName = getDeviceSerial(i, true);
+//        if (find(deviceIds.begin(), deviceIds.end(), deviceName) == deviceIds.end()) {
+//            /*! Adds only new devices (no distinction between channels A and B creates duplicates) */
+//            if (deviceName.size() > 0) {
+//                /*! Devices with an open channel are detected wrongly and their name is an empty string */
+//                deviceIds.push_back(getDeviceSerial(i, true));
+//            }
+//        }
+//    }
 
     return Success;
 }
 
-ErrorCodes_t CommLib::connect(
+ErrorCodes_t connect(
         string deviceId) {
 
     ErrorCodes_t ret = Success;
-    if (messageDispatcher == nullptr) {
-        /*! Initializes eeprom */
-        /*! \todo FCON questa info dovrà essere appresa dal device detector e condivisa qui dal metodo connect */
-        FtdiEepromId_t ftdiEepromId = FtdiEepromId56;
-        if (deviceId == "ePatch Demo") {
-            ftdiEepromId = FtdiEepromIdDemo;
-        }
+//    if (messageDispatcher == nullptr) {
+//        /*! Initializes eeprom */
+//        /*! \todo FCON questa info dovrà essere appresa dal device detector e condivisa qui dal metodo connect */
+//        FtdiEepromId_t ftdiEepromId = FtdiEepromId56;
+//        if (deviceId == "ePatch Demo") {
+//            ftdiEepromId = FtdiEepromIdDemo;
+//        }
 
-        if (deviceId == "eP8 Demo") {
-            ftdiEepromId = FtdiEepromIdDemo;
-        }
+//        if (deviceId == "eP8 Demo") {
+//            ftdiEepromId = FtdiEepromIdDemo;
+//        }
 
-        /*! ftdiEeprom is deleted by the messageDispatcher if one is created successfully */
-        FtdiEeprom * ftdiEeprom = nullptr;
-        switch (ftdiEepromId) {
-        case FtdiEepromId56:
-            ftdiEeprom = new FtdiEeprom56(deviceId);
-            break;
+//        /*! ftdiEeprom is deleted by the messageDispatcher if one is created successfully */
+//        FtdiEeprom * ftdiEeprom = nullptr;
+//        switch (ftdiEepromId) {
+//        case FtdiEepromId56:
+//            ftdiEeprom = new FtdiEeprom56(deviceId);
+//            break;
 
-        case FtdiEepromIdDemo:
-            ftdiEeprom = new FtdiEepromDemo(deviceId);
-            break;
-        }
+//        case FtdiEepromIdDemo:
+//            ftdiEeprom = new FtdiEepromDemo(deviceId);
+//            break;
+//        }
 
-        DeviceTuple_t deviceTuple = ftdiEeprom->getDeviceTuple();
-        DeviceTypes_t deviceType;
+//        DeviceTuple_t deviceTuple = ftdiEeprom->getDeviceTuple();
+//        DeviceTypes_t deviceType;
 
-        ret = MessageDispatcher::getDeviceType(deviceTuple, deviceType);
-        if (ret != Success) {
-            if (ftdiEeprom != nullptr) {
-                delete ftdiEeprom;
-            }
-            return ErrorDeviceTypeNotRecognized;
-        }
+//        ret = MessageDispatcher::getDeviceType(deviceTuple, deviceType);
+//        if (ret != Success) {
+//            if (ftdiEeprom != nullptr) {
+//                delete ftdiEeprom;
+//            }
+//            return ErrorDeviceTypeNotRecognized;
+//        }
 
-        switch (deviceType) {
-        case DeviceEPatchEL03D:
-            messageDispatcher = new MessageDispatcher_ePatchEL03D(deviceId);
-            break;
+//        switch (deviceType) {
+//        case DeviceEPatchEL03D:
+//            messageDispatcher = new MessageDispatcher_ePatchEL03D(deviceId);
+//            break;
 
-        case DeviceEPatchEL03D_V01:
-            messageDispatcher = new MessageDispatcher_ePatchEL03D_V01(deviceId);
-            break;
+//        case DeviceEPatchEL03D_V01:
+//            messageDispatcher = new MessageDispatcher_ePatchEL03D_V01(deviceId);
+//            break;
 
-        case DeviceEPatchEL03D_V00:
-            messageDispatcher = new MessageDispatcher_ePatchEL03D_V00(deviceId);
-            break;
+//        case DeviceEPatchEL03D_V00:
+//            messageDispatcher = new MessageDispatcher_ePatchEL03D_V00(deviceId);
+//            break;
 
-        case DeviceEPatchEL03F_4D:
-            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D(deviceId);
-            break;
+//        case DeviceEPatchEL03F_4D:
+//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D(deviceId);
+//            break;
 
-        case DeviceEPatchEL03F_4D_V02:
-            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D_V02(deviceId);
-            break;
+//        case DeviceEPatchEL03F_4D_V02:
+//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D_V02(deviceId);
+//            break;
 
-        case DeviceEPatchEL03F_4D_V01:
-            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D_V01(deviceId);
-            break;
+//        case DeviceEPatchEL03F_4D_V01:
+//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D_V01(deviceId);
+//            break;
 
-        case DeviceEPatchEL03F_4D_V00:
-            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D_V00(deviceId);
-            break;
+//        case DeviceEPatchEL03F_4D_V00:
+//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D_V00(deviceId);
+//            break;
 
-        case DeviceEPatchEL03F_4E:
-            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E(deviceId);
-            break;
+//        case DeviceEPatchEL03F_4E:
+//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E(deviceId);
+//            break;
 
-        case DeviceEPatchEL03F_4E_V02:
-            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E_V02(deviceId);
-            break;
+//        case DeviceEPatchEL03F_4E_V02:
+//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E_V02(deviceId);
+//            break;
 
-        case DeviceEPatchEL03F_4E_V01:
-            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E_V01(deviceId);
-            break;
+//        case DeviceEPatchEL03F_4E_V01:
+//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E_V01(deviceId);
+//            break;
 
-        case DeviceEPatchEL03F_4E_V00:
-            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E_V00(deviceId);
-            break;
+//        case DeviceEPatchEL03F_4E_V00:
+//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E_V00(deviceId);
+//            break;
 
-        case DeviceEPatchEL04E:
-            messageDispatcher = new MessageDispatcher_ePatchEL04E(deviceId);
-            break;
+//        case DeviceEPatchEL04E:
+//            messageDispatcher = new MessageDispatcher_ePatchEL04E(deviceId);
+//            break;
 
-        case DeviceEPatchEL04F:
-            messageDispatcher = new MessageDispatcher_ePatchEL04F(deviceId);
-            break;
+//        case DeviceEPatchEL04F:
+//            messageDispatcher = new MessageDispatcher_ePatchEL04F(deviceId);
+//            break;
 
-        case DeviceE4PEL04F:
-            messageDispatcher = new MessageDispatcher_e4PEL04F(deviceId);
-            break;
+//        case DeviceE4PEL04F:
+//            messageDispatcher = new MessageDispatcher_e4PEL04F(deviceId);
+//            break;
 
-        case DeviceE4PPatchLiner:
-            messageDispatcher = new MessageDispatcher_e4PPatchliner(deviceId);
-            break;
+//        case DeviceE4PPatchLiner:
+//            messageDispatcher = new MessageDispatcher_e4PPatchliner(deviceId);
+//            break;
 
-        case DeviceE8PPatchLiner:
-            messageDispatcher = new MessageDispatcher_e8PPatchliner(deviceId);
-            break;
+//        case DeviceE8PPatchLiner:
+//            messageDispatcher = new MessageDispatcher_e8PPatchliner(deviceId);
+//            break;
 
-        case DeviceE4PPatchLinerEL07AB:
-            messageDispatcher = new MessageDispatcher_e4PPatchliner_el07ab(deviceId);
-            break;
+//        case DeviceE4PPatchLinerEL07AB:
+//            messageDispatcher = new MessageDispatcher_e4PPatchliner_el07ab(deviceId);
+//            break;
 
-        case DeviceE8PPatchLinerEL07AB:
-            messageDispatcher = new MessageDispatcher_e8PPatchliner_el07ab(deviceId);
-            break;
+//        case DeviceE8PPatchLinerEL07AB:
+//            messageDispatcher = new MessageDispatcher_e8PPatchliner_el07ab(deviceId);
+//            break;
 
-        case DeviceFakePatch:
-            messageDispatcher = new MessageDispatcher_fakePatch(deviceId);
-            break;
+//        case DeviceFakePatch:
+//            messageDispatcher = new MessageDispatcher_fakePatch(deviceId);
+//            break;
 
-        case DeviceFakeP8:
-            messageDispatcher = new MessageDispatcher_fakeP8(deviceId);
-            break;
+//        case DeviceFakeP8:
+//            messageDispatcher = new MessageDispatcher_fakeP8(deviceId);
+//            break;
 
-        case DeviceEPatchDlp:
-            messageDispatcher = new MessageDispatcher_ePatchDlp(deviceId);
-            break;
+//        case DeviceEPatchDlp:
+//            messageDispatcher = new MessageDispatcher_ePatchDlp(deviceId);
+//            break;
 
-        default:
-            if (ftdiEeprom != nullptr) {
-                delete ftdiEeprom;
-            }
-            return ErrorDeviceTypeNotRecognized;
-        }
+//        default:
+//            if (ftdiEeprom != nullptr) {
+//                delete ftdiEeprom;
+//            }
+//            return ErrorDeviceTypeNotRecognized;
+//        }
 
-        if (messageDispatcher != nullptr) {
-            ret = messageDispatcher->connect(ftdiEeprom);
+//        if (messageDispatcher != nullptr) {
+//            ret = messageDispatcher->connect(ftdiEeprom);
 
-            if (ret != Success) {
-                messageDispatcher->disconnect();
-                delete messageDispatcher;
-                messageDispatcher = nullptr;
-            }
-        }
+//            if (ret != Success) {
+//                messageDispatcher->disconnect();
+//                delete messageDispatcher;
+//                messageDispatcher = nullptr;
+//            }
+//        }
 
-    } else {
-        ret = ErrorDeviceAlreadyConnected;
-    }
+//    } else {
+//        ret = ErrorDeviceAlreadyConnected;
+//    }
     return ret;
 }
 
-ErrorCodes_t CommLib::enableRxMessageType(
+ErrorCodes_t enableRxMessageType(
         MsgTypeId_t messageType,
         bool flag) {
     ErrorCodes_t ret;
@@ -247,7 +231,7 @@ ErrorCodes_t CommLib::enableRxMessageType(
     return ret;
 }
 
-ErrorCodes_t CommLib::disconnect() {
+ErrorCodes_t disconnect() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->disconnect();
@@ -266,7 +250,7 @@ ErrorCodes_t CommLib::disconnect() {
  *  Tx methods  *
 \****************/
 
-ErrorCodes_t CommLib::ping() {
+ErrorCodes_t ping() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->ping();
@@ -277,7 +261,7 @@ ErrorCodes_t CommLib::ping() {
     return ret;
 }
 
-ErrorCodes_t CommLib::abort() {
+ErrorCodes_t abort() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->abort();
@@ -288,7 +272,7 @@ ErrorCodes_t CommLib::abort() {
     return ret;
 }
 
-ErrorCodes_t CommLib::turnVoltageStimulusOn(
+ErrorCodes_t turnVoltageStimulusOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -300,7 +284,7 @@ ErrorCodes_t CommLib::turnVoltageStimulusOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnCurrentStimulusOn(
+ErrorCodes_t turnCurrentStimulusOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -312,7 +296,7 @@ ErrorCodes_t CommLib::turnCurrentStimulusOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnVoltageReaderOn(
+ErrorCodes_t turnVoltageReaderOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -324,7 +308,7 @@ ErrorCodes_t CommLib::turnVoltageReaderOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnCurrentReaderOn(
+ErrorCodes_t turnCurrentReaderOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -336,7 +320,7 @@ ErrorCodes_t CommLib::turnCurrentReaderOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::setChannelsSources(
+ErrorCodes_t setChannelsSources(
         int16_t voltageSourcesIdx,
         int16_t currentSourcesIdx) {
     ErrorCodes_t ret;
@@ -349,7 +333,7 @@ ErrorCodes_t CommLib::setChannelsSources(
     return ret;
 }
 
-ErrorCodes_t CommLib::setVoltageHoldTuner(
+ErrorCodes_t setVoltageHoldTuner(
         uint16_t channelIdx,
         Measurement_t voltage) {
     ErrorCodes_t ret;
@@ -362,7 +346,7 @@ ErrorCodes_t CommLib::setVoltageHoldTuner(
     return ret;
 }
 
-ErrorCodes_t CommLib::setCurrentHoldTuner(
+ErrorCodes_t setCurrentHoldTuner(
         uint16_t channelIdx,
         Measurement_t current) {
     ErrorCodes_t ret;
@@ -375,7 +359,7 @@ ErrorCodes_t CommLib::setCurrentHoldTuner(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnOnLsbNoise(
+ErrorCodes_t turnOnLsbNoise(
         bool flag) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -387,7 +371,7 @@ ErrorCodes_t CommLib::turnOnLsbNoise(
     return ret;
 }
 
-ErrorCodes_t CommLib::setVCCurrentRange(
+ErrorCodes_t setVCCurrentRange(
         uint16_t currentRangeIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -399,7 +383,7 @@ ErrorCodes_t CommLib::setVCCurrentRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::setCCCurrentRange(
+ErrorCodes_t setCCCurrentRange(
         uint16_t currentRangeIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -411,7 +395,7 @@ ErrorCodes_t CommLib::setCCCurrentRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::setVCVoltageRange(
+ErrorCodes_t setVCVoltageRange(
         uint16_t voltageRangeIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -423,7 +407,7 @@ ErrorCodes_t CommLib::setVCVoltageRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::setCCVoltageRange(
+ErrorCodes_t setCCVoltageRange(
         uint16_t voltageRangeIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -435,7 +419,7 @@ ErrorCodes_t CommLib::setCCVoltageRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::setSamplingRate(
+ErrorCodes_t setSamplingRate(
         uint16_t samplingRateIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -447,7 +431,7 @@ ErrorCodes_t CommLib::setSamplingRate(
     return ret;
 }
 
-ErrorCodes_t CommLib::setFilterRatio(
+ErrorCodes_t setFilterRatio(
         uint16_t filterRatioIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -459,7 +443,7 @@ ErrorCodes_t CommLib::setFilterRatio(
     return ret;
 }
 
-ErrorCodes_t CommLib::setUpsamplingRatio(
+ErrorCodes_t setUpsamplingRatio(
         uint16_t upsamplingRatioIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -471,10 +455,10 @@ ErrorCodes_t CommLib::setUpsamplingRatio(
     return ret;
 }
 
-ErrorCodes_t CommLib::setDigitalFilter(
-        E4GCL_ARGIN double cutoffFrequency,
-        E4GCL_ARGIN bool lowPassFlag,
-        E4GCL_ARGIN bool activeFlag) {
+ErrorCodes_t setDigitalFilter(
+        E384CL_ARGIN double cutoffFrequency,
+        E384CL_ARGIN bool lowPassFlag,
+        E384CL_ARGIN bool activeFlag) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->setDigitalFilter(cutoffFrequency, lowPassFlag, activeFlag);
@@ -485,7 +469,7 @@ ErrorCodes_t CommLib::setDigitalFilter(
     return ret;
 }
 
-ErrorCodes_t CommLib::digitalOffsetCompensation(
+ErrorCodes_t digitalOffsetCompensation(
         uint16_t channelIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -497,7 +481,7 @@ ErrorCodes_t CommLib::digitalOffsetCompensation(
     return ret;
 }
 
-ErrorCodes_t CommLib::digitalOffsetCompensationOverride(
+ErrorCodes_t digitalOffsetCompensationOverride(
         uint16_t channelIdx,
         Measurement_t value) {
     ErrorCodes_t ret;
@@ -510,7 +494,7 @@ ErrorCodes_t CommLib::digitalOffsetCompensationOverride(
     return ret;
 }
 
-ErrorCodes_t CommLib::digitalOffsetCompensationInquiry(
+ErrorCodes_t digitalOffsetCompensationInquiry(
         uint16_t channelIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -522,7 +506,7 @@ ErrorCodes_t CommLib::digitalOffsetCompensationInquiry(
     return ret;
 }
 
-ErrorCodes_t CommLib::setVcCurrentOffsetDelta(
+ErrorCodes_t setVcCurrentOffsetDelta(
         uint16_t channelIdx,
         Measurement_t value) {
     ErrorCodes_t ret;
@@ -535,7 +519,7 @@ ErrorCodes_t CommLib::setVcCurrentOffsetDelta(
     return ret;
 }
 
-ErrorCodes_t CommLib::setCcVoltageOffsetDelta(
+ErrorCodes_t setCcVoltageOffsetDelta(
         uint16_t channelIdx,
         Measurement_t value) {
     ErrorCodes_t ret;
@@ -548,7 +532,7 @@ ErrorCodes_t CommLib::setCcVoltageOffsetDelta(
     return ret;
 }
 
-ErrorCodes_t CommLib::zap(
+ErrorCodes_t zap(
         Measurement_t duration,
         uint16_t channelIdx) {
     ErrorCodes_t ret;
@@ -561,7 +545,7 @@ ErrorCodes_t CommLib::zap(
     return ret;
 }
 
-ErrorCodes_t CommLib::setVoltageStimulusLpf(
+ErrorCodes_t setVoltageStimulusLpf(
         uint16_t filterIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -573,7 +557,7 @@ ErrorCodes_t CommLib::setVoltageStimulusLpf(
     return ret;
 }
 
-ErrorCodes_t CommLib::setCurrentStimulusLpf(
+ErrorCodes_t setCurrentStimulusLpf(
         uint16_t filterIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -585,7 +569,7 @@ ErrorCodes_t CommLib::setCurrentStimulusLpf(
     return ret;
 }
 
-ErrorCodes_t CommLib::enableStimulus(
+ErrorCodes_t enableStimulus(
         uint16_t channelIdx,
         bool on) {
     ErrorCodes_t ret;
@@ -598,7 +582,7 @@ ErrorCodes_t CommLib::enableStimulus(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnLedOn(
+ErrorCodes_t turnLedOn(
         uint16_t ledIndex,
         bool on) {
     ErrorCodes_t ret;
@@ -611,7 +595,7 @@ ErrorCodes_t CommLib::turnLedOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::setSlave(
+ErrorCodes_t setSlave(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -623,7 +607,7 @@ ErrorCodes_t CommLib::setSlave(
     return ret;
 }
 
-ErrorCodes_t CommLib::setConstantSwitches() {
+ErrorCodes_t setConstantSwitches() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->setConstantSwitches();
@@ -634,7 +618,7 @@ ErrorCodes_t CommLib::setConstantSwitches() {
     return ret;
 }
 
-ErrorCodes_t CommLib::setCompensationsChannel(
+ErrorCodes_t setCompensationsChannel(
         uint16_t channelIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -646,7 +630,7 @@ ErrorCodes_t CommLib::setCompensationsChannel(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnVoltageCompensationsOn(
+ErrorCodes_t turnVoltageCompensationsOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -658,7 +642,7 @@ ErrorCodes_t CommLib::turnVoltageCompensationsOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnCurrentCompensationsOn(
+ErrorCodes_t turnCurrentCompensationsOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -670,7 +654,7 @@ ErrorCodes_t CommLib::turnCurrentCompensationsOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnPipetteCompensationOn(
+ErrorCodes_t turnPipetteCompensationOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -682,7 +666,7 @@ ErrorCodes_t CommLib::turnPipetteCompensationOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnCCPipetteCompensationOn(
+ErrorCodes_t turnCCPipetteCompensationOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -694,7 +678,7 @@ ErrorCodes_t CommLib::turnCCPipetteCompensationOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnMembraneCompensationOn(
+ErrorCodes_t turnMembraneCompensationOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -706,7 +690,7 @@ ErrorCodes_t CommLib::turnMembraneCompensationOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnAccessResistanceCompensationOn(
+ErrorCodes_t turnAccessResistanceCompensationOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -718,7 +702,7 @@ ErrorCodes_t CommLib::turnAccessResistanceCompensationOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnAccessResistanceCorrectionOn(
+ErrorCodes_t turnAccessResistanceCorrectionOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -730,7 +714,7 @@ ErrorCodes_t CommLib::turnAccessResistanceCorrectionOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnAccessResistancePredictionOn(
+ErrorCodes_t turnAccessResistancePredictionOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -742,7 +726,7 @@ ErrorCodes_t CommLib::turnAccessResistancePredictionOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnLeakConductanceCompensationOn(
+ErrorCodes_t turnLeakConductanceCompensationOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -754,7 +738,7 @@ ErrorCodes_t CommLib::turnLeakConductanceCompensationOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::turnBridgeBalanceCompensationOn(
+ErrorCodes_t turnBridgeBalanceCompensationOn(
         bool on) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -766,7 +750,7 @@ ErrorCodes_t CommLib::turnBridgeBalanceCompensationOn(
     return ret;
 }
 
-ErrorCodes_t CommLib::setPipetteCompensationOptions(
+ErrorCodes_t setPipetteCompensationOptions(
         uint16_t optionIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -778,7 +762,7 @@ ErrorCodes_t CommLib::setPipetteCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::setCCPipetteCompensationOptions(
+ErrorCodes_t setCCPipetteCompensationOptions(
         uint16_t optionIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -790,7 +774,7 @@ ErrorCodes_t CommLib::setCCPipetteCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::setMembraneCompensationOptions(
+ErrorCodes_t setMembraneCompensationOptions(
         uint16_t optionIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -802,7 +786,7 @@ ErrorCodes_t CommLib::setMembraneCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::setAccessResistanceCompensationOptions(
+ErrorCodes_t setAccessResistanceCompensationOptions(
         uint16_t optionIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -814,7 +798,7 @@ ErrorCodes_t CommLib::setAccessResistanceCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::setAccessResistanceCorrectionOptions(
+ErrorCodes_t setAccessResistanceCorrectionOptions(
         uint16_t optionIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -826,7 +810,7 @@ ErrorCodes_t CommLib::setAccessResistanceCorrectionOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::setAccessResistancePredictionOptions(
+ErrorCodes_t setAccessResistancePredictionOptions(
         uint16_t optionIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -838,7 +822,7 @@ ErrorCodes_t CommLib::setAccessResistancePredictionOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::setLeakConductanceCompensationOptions(
+ErrorCodes_t setLeakConductanceCompensationOptions(
         uint16_t optionIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -850,7 +834,7 @@ ErrorCodes_t CommLib::setLeakConductanceCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::setBridgeBalanceCompensationOptions(
+ErrorCodes_t setBridgeBalanceCompensationOptions(
         uint16_t optionIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -862,7 +846,7 @@ ErrorCodes_t CommLib::setBridgeBalanceCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::setPipetteCapacitance(
+ErrorCodes_t setPipetteCapacitance(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -874,7 +858,7 @@ ErrorCodes_t CommLib::setPipetteCapacitance(
     return ret;
 }
 
-ErrorCodes_t CommLib::setCCPipetteCapacitance(
+ErrorCodes_t setCCPipetteCapacitance(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -886,7 +870,7 @@ ErrorCodes_t CommLib::setCCPipetteCapacitance(
     return ret;
 }
 
-ErrorCodes_t CommLib::setMembraneCapacitance(
+ErrorCodes_t setMembraneCapacitance(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -898,7 +882,7 @@ ErrorCodes_t CommLib::setMembraneCapacitance(
     return ret;
 }
 
-ErrorCodes_t CommLib::setAccessResistance(
+ErrorCodes_t setAccessResistance(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -910,7 +894,7 @@ ErrorCodes_t CommLib::setAccessResistance(
     return ret;
 }
 
-ErrorCodes_t CommLib::setAccessResistanceCorrectionPercentage(
+ErrorCodes_t setAccessResistanceCorrectionPercentage(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -922,7 +906,7 @@ ErrorCodes_t CommLib::setAccessResistanceCorrectionPercentage(
     return ret;
 }
 
-ErrorCodes_t CommLib::setAccessResistanceCorrectionLag(
+ErrorCodes_t setAccessResistanceCorrectionLag(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -934,7 +918,7 @@ ErrorCodes_t CommLib::setAccessResistanceCorrectionLag(
     return ret;
 }
 
-ErrorCodes_t CommLib::setAccessResistancePredictionGain(
+ErrorCodes_t setAccessResistancePredictionGain(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -946,7 +930,7 @@ ErrorCodes_t CommLib::setAccessResistancePredictionGain(
     return ret;
 }
 
-ErrorCodes_t CommLib::setAccessResistancePredictionPercentage(
+ErrorCodes_t setAccessResistancePredictionPercentage(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -958,7 +942,7 @@ ErrorCodes_t CommLib::setAccessResistancePredictionPercentage(
     return ret;
 }
 
-ErrorCodes_t CommLib::setAccessResistancePredictionBandwidthGain(
+ErrorCodes_t setAccessResistancePredictionBandwidthGain(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -970,7 +954,7 @@ ErrorCodes_t CommLib::setAccessResistancePredictionBandwidthGain(
     return ret;
 }
 
-ErrorCodes_t CommLib::setAccessResistancePredictionTau(
+ErrorCodes_t setAccessResistancePredictionTau(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -982,7 +966,7 @@ ErrorCodes_t CommLib::setAccessResistancePredictionTau(
     return ret;
 }
 
-ErrorCodes_t CommLib::setLeakConductance(
+ErrorCodes_t setLeakConductance(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -994,7 +978,7 @@ ErrorCodes_t CommLib::setLeakConductance(
     return ret;
 }
 
-ErrorCodes_t CommLib::setBridgeBalanceResistance(
+ErrorCodes_t setBridgeBalanceResistance(
         Measurement_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1006,12 +990,12 @@ ErrorCodes_t CommLib::setBridgeBalanceResistance(
     return ret;
 }
 
-ErrorCodes_t CommLib::setDigitalTriggerOutput(
-        E4GCL_ARGIN uint16_t triggerIdx,
-        E4GCL_ARGIN bool terminator,
-        E4GCL_ARGIN bool polarity,
-        E4GCL_ARGIN uint16_t triggerId,
-        E4GCL_ARGIN Measurement_t delay) {
+ErrorCodes_t setDigitalTriggerOutput(
+        E384CL_ARGIN uint16_t triggerIdx,
+        E384CL_ARGIN bool terminator,
+        E384CL_ARGIN bool polarity,
+        E384CL_ARGIN uint16_t triggerId,
+        E384CL_ARGIN Measurement_t delay) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->setDigitalTriggerOutput(triggerIdx, terminator, polarity, triggerId, delay);
@@ -1022,7 +1006,7 @@ ErrorCodes_t CommLib::setDigitalTriggerOutput(
     return ret;
 }
 
-ErrorCodes_t CommLib::setVoltageProtocolStructure(uint16_t protId,
+ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
         uint16_t itemsNum,
         uint16_t sweepsNum,
         Measurement_t vRest) {
@@ -1036,7 +1020,7 @@ ErrorCodes_t CommLib::setVoltageProtocolStructure(uint16_t protId,
     return ret;
 }
 
-ErrorCodes_t CommLib::voltStepTimeStep(
+ErrorCodes_t voltStepTimeStep(
         Measurement_t v0,
         Measurement_t vStep,
         Measurement_t t0,
@@ -1055,7 +1039,7 @@ ErrorCodes_t CommLib::voltStepTimeStep(
     return ret;
 }
 
-ErrorCodes_t CommLib::voltRamp(
+ErrorCodes_t voltRamp(
         Measurement_t v0,
         Measurement_t vFinal,
         Measurement_t t,
@@ -1073,7 +1057,7 @@ ErrorCodes_t CommLib::voltRamp(
     return ret;
 }
 
-ErrorCodes_t CommLib::voltSin(
+ErrorCodes_t voltSin(
         Measurement_t v0,
         Measurement_t vAmp,
         Measurement_t freq,
@@ -1091,7 +1075,7 @@ ErrorCodes_t CommLib::voltSin(
     return ret;
 }
 
-ErrorCodes_t CommLib::startProtocol() {
+ErrorCodes_t startProtocol() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->startProtocol();
@@ -1102,7 +1086,7 @@ ErrorCodes_t CommLib::startProtocol() {
     return ret;
 }
 
-ErrorCodes_t CommLib::setCurrentProtocolStructure(uint16_t protId,
+ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
         uint16_t itemsNum,
         uint16_t sweepsNum,
         Measurement_t iRest) {
@@ -1116,7 +1100,7 @@ ErrorCodes_t CommLib::setCurrentProtocolStructure(uint16_t protId,
     return ret;
 }
 
-ErrorCodes_t CommLib::currStepTimeStep(
+ErrorCodes_t currStepTimeStep(
         Measurement_t i0,
         Measurement_t iStep,
         Measurement_t t0,
@@ -1135,7 +1119,7 @@ ErrorCodes_t CommLib::currStepTimeStep(
     return ret;
 }
 
-ErrorCodes_t CommLib::currRamp(
+ErrorCodes_t currRamp(
         Measurement_t i0,
         Measurement_t iFinal,
         Measurement_t t,
@@ -1153,7 +1137,7 @@ ErrorCodes_t CommLib::currRamp(
     return ret;
 }
 
-ErrorCodes_t CommLib::currSin(
+ErrorCodes_t currSin(
         Measurement_t i0,
         Measurement_t iAmp,
         Measurement_t freq,
@@ -1171,7 +1155,7 @@ ErrorCodes_t CommLib::currSin(
     return ret;
 }
 
-ErrorCodes_t CommLib::resetChip(bool reset) {
+ErrorCodes_t resetChip(bool reset) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->resetChip(reset);
@@ -1182,7 +1166,7 @@ ErrorCodes_t CommLib::resetChip(bool reset) {
     return ret;
 }
 
-ErrorCodes_t CommLib::resetDigitalOffsetCompensation(bool reset) {
+ErrorCodes_t resetDigitalOffsetCompensation(bool reset) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->resetDigitalOffsetCompensation(reset);
@@ -1193,7 +1177,7 @@ ErrorCodes_t CommLib::resetDigitalOffsetCompensation(bool reset) {
     return ret;
 }
 
-ErrorCodes_t CommLib::resetFpga() {
+ErrorCodes_t resetFpga() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->resetFpga();
@@ -1204,7 +1188,7 @@ ErrorCodes_t CommLib::resetFpga() {
     return ret;
 }
 
-ErrorCodes_t CommLib::getCalibrationConfiguration(
+ErrorCodes_t getCalibrationConfiguration(
         CalibrationConfiguration_t * &calibrationConfiguration) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1216,7 +1200,7 @@ ErrorCodes_t CommLib::getCalibrationConfiguration(
     return ret;
 }
 
-ErrorCodes_t CommLib::getCalibrationEepromSize(
+ErrorCodes_t getCalibrationEepromSize(
         uint32_t &size) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1228,7 +1212,7 @@ ErrorCodes_t CommLib::getCalibrationEepromSize(
     return ret;
 }
 
-ErrorCodes_t CommLib::writeCalibrationEeprom(
+ErrorCodes_t writeCalibrationEeprom(
         vector <uint32_t> value,
         vector <uint32_t> address,
         vector <uint32_t> size) {
@@ -1242,7 +1226,7 @@ ErrorCodes_t CommLib::writeCalibrationEeprom(
     return ret;
 }
 
-ErrorCodes_t CommLib::readCalibrationEeprom(
+ErrorCodes_t readCalibrationEeprom(
         vector <uint32_t> &value,
         vector <uint32_t> address,
         vector <uint32_t> size) {
@@ -1256,7 +1240,7 @@ ErrorCodes_t CommLib::readCalibrationEeprom(
     return ret;
 }
 
-ErrorCodes_t CommLib::getSwitchesStatus(std::vector <uint16_t> &words, std::vector <std::vector <std::string>> &names) {
+ErrorCodes_t getSwitchesStatus(std::vector <uint16_t> &words, std::vector <std::vector <std::string>> &names) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getSwitchesStatus(words, names);
@@ -1267,7 +1251,7 @@ ErrorCodes_t CommLib::getSwitchesStatus(std::vector <uint16_t> &words, std::vect
     return ret;
 }
 
-ErrorCodes_t CommLib::singleSwitchDebug(uint16_t word, uint16_t bit, bool flag) {
+ErrorCodes_t singleSwitchDebug(uint16_t word, uint16_t bit, bool flag) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->singleSwitchDebug(word, bit, flag);
@@ -1278,7 +1262,7 @@ ErrorCodes_t CommLib::singleSwitchDebug(uint16_t word, uint16_t bit, bool flag) 
     return ret;
 }
 
-ErrorCodes_t CommLib::multiSwitchDebug(vector <uint16_t> words) {
+ErrorCodes_t multiSwitchDebug(vector <uint16_t> words) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->multiSwitchDebug(words);
@@ -1289,7 +1273,7 @@ ErrorCodes_t CommLib::multiSwitchDebug(vector <uint16_t> words) {
     return ret;
 }
 
-ErrorCodes_t CommLib::singleRegisterDebug(uint16_t index, uint16_t value) {
+ErrorCodes_t singleRegisterDebug(uint16_t index, uint16_t value) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->singleRegisterDebug(index, value);
@@ -1304,9 +1288,9 @@ ErrorCodes_t CommLib::singleRegisterDebug(uint16_t index, uint16_t value) {
  *  Rx methods  *
 \****************/
 
-ErrorCodes_t CommLib::isDeviceUpgradable(
-        E4GCL_ARGOUT std::string &upgradeNotes,
-        E4GCL_ARGOUT std::string &notificationTag) {
+ErrorCodes_t isDeviceUpgradable(
+        E384CL_ARGOUT std::string &upgradeNotes,
+        E384CL_ARGOUT std::string &notificationTag) {
     ErrorCodes_t ret = Success;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->isDeviceUpgradable(upgradeNotes, notificationTag);
@@ -1317,12 +1301,12 @@ ErrorCodes_t CommLib::isDeviceUpgradable(
     return ret;
 }
 
-ErrorCodes_t CommLib::getDeviceInfo(
-        E4GCL_ARGOUT std::string &deviceId,
-        E4GCL_ARGOUT std::string &deviceName,
-        E4GCL_ARGOUT uint8_t &deviceVersion,
-        E4GCL_ARGOUT uint8_t &deviceSubversion,
-        E4GCL_ARGOUT uint32_t &firmwareVersion) {
+ErrorCodes_t getDeviceInfo(
+        E384CL_ARGOUT std::string &deviceId,
+        E384CL_ARGOUT std::string &deviceName,
+        E384CL_ARGOUT uint8_t &deviceVersion,
+        E384CL_ARGOUT uint8_t &deviceSubversion,
+        E384CL_ARGOUT uint32_t &firmwareVersion) {
     ErrorCodes_t ret = Success;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getDeviceInfo(deviceId, deviceName, deviceVersion, deviceSubversion, firmwareVersion);
@@ -1333,11 +1317,11 @@ ErrorCodes_t CommLib::getDeviceInfo(
     return ret;
 }
 
-ErrorCodes_t CommLib::getDeviceInfo(
-        E4GCL_ARGOUT std::string deviceId,
-        E4GCL_ARGOUT uint8_t &deviceVersion,
-        E4GCL_ARGOUT uint8_t &deviceSubversion,
-        E4GCL_ARGOUT uint32_t &firmwareVersion) {
+ErrorCodes_t getDeviceInfo(
+        E384CL_ARGOUT std::string deviceId,
+        E384CL_ARGOUT uint8_t &deviceVersion,
+        E384CL_ARGOUT uint8_t &deviceSubversion,
+        E384CL_ARGOUT uint32_t &firmwareVersion) {
     ErrorCodes_t ret = Success;
     /*! Initializes eeprom */
     /*! \todo FCON questa info dovrà essere appresa dal device detector e condivisa qui dal metodo connect */
@@ -1375,7 +1359,7 @@ ErrorCodes_t CommLib::getDeviceInfo(
     return ret;
 }
 
-ErrorCodes_t CommLib::getNextMessage(
+ErrorCodes_t getNextMessage(
         RxOutput_t &rxOutput) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1387,7 +1371,7 @@ ErrorCodes_t CommLib::getNextMessage(
     return ret;
 }
 
-ErrorCodes_t CommLib::getChannelsNumber(
+ErrorCodes_t getChannelsNumber(
         uint32_t &currentChannelsNum,
         uint32_t &voltageChannelsNum) {
     ErrorCodes_t ret;
@@ -1400,7 +1384,7 @@ ErrorCodes_t CommLib::getChannelsNumber(
     return ret;
 }
 
-ErrorCodes_t CommLib::getAvailableChannelsSources(
+ErrorCodes_t getAvailableChannelsSources(
         ChannelSources_t &voltageSourcesIdxs,
         ChannelSources_t &currentSourcesIdxs) {
     ErrorCodes_t ret;
@@ -1413,7 +1397,7 @@ ErrorCodes_t CommLib::getAvailableChannelsSources(
     return ret;
 }
 
-ErrorCodes_t CommLib::hasVoltageHoldTuner() {
+ErrorCodes_t hasVoltageHoldTuner() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasVoltageHoldTuner();
@@ -1424,7 +1408,7 @@ ErrorCodes_t CommLib::hasVoltageHoldTuner() {
     return ret;
 }
 
-ErrorCodes_t CommLib::hasCurrentHoldTuner() {
+ErrorCodes_t hasCurrentHoldTuner() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasCurrentHoldTuner();
@@ -1435,11 +1419,13 @@ ErrorCodes_t CommLib::hasCurrentHoldTuner() {
     return ret;
 }
 
-ErrorCodes_t CommLib::getVCCurrentRanges(
-        vector <RangedMeasurement_t> &currentRanges) {
+ErrorCodes_t getVCCurrentRanges(
+        E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL currentRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t> currentRanges;
         ret = messageDispatcher->getVCCurrentRanges(currentRanges);
+        vectorRangedMeasurement2Output(currentRanges, currentRangesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1447,11 +1433,13 @@ ErrorCodes_t CommLib::getVCCurrentRanges(
     return ret;
 }
 
-ErrorCodes_t CommLib::getCCCurrentRanges(
-        vector <RangedMeasurement_t> &currentRanges) {
+ErrorCodes_t getCCCurrentRanges(
+        E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL currentRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t> currentRanges;
         ret = messageDispatcher->getCCCurrentRanges(currentRanges);
+        vectorRangedMeasurement2Output(currentRanges, currentRangesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1459,7 +1447,7 @@ ErrorCodes_t CommLib::getCCCurrentRanges(
     return ret;
 }
 
-ErrorCodes_t CommLib::getVCCurrentRange(
+ErrorCodes_t getVCCurrentRange(
         RangedMeasurement_t &currentRange) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1471,7 +1459,7 @@ ErrorCodes_t CommLib::getVCCurrentRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::getCCCurrentRange(
+ErrorCodes_t getCCCurrentRange(
         RangedMeasurement_t &currentRange) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1483,7 +1471,7 @@ ErrorCodes_t CommLib::getCCCurrentRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::getVCVoltageRanges(
+ErrorCodes_t getVCVoltageRanges(
         vector <RangedMeasurement_t> &voltageRanges) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1495,7 +1483,7 @@ ErrorCodes_t CommLib::getVCVoltageRanges(
     return ret;
 }
 
-ErrorCodes_t CommLib::getCCVoltageRanges(
+ErrorCodes_t getCCVoltageRanges(
         vector <RangedMeasurement_t> &voltageRanges) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1507,7 +1495,7 @@ ErrorCodes_t CommLib::getCCVoltageRanges(
     return ret;
 }
 
-ErrorCodes_t CommLib::getVCVoltageRange(
+ErrorCodes_t getVCVoltageRange(
         RangedMeasurement_t &voltageRange) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1519,7 +1507,7 @@ ErrorCodes_t CommLib::getVCVoltageRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::getCCVoltageRange(
+ErrorCodes_t getCCVoltageRange(
         RangedMeasurement_t &voltageRange) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1531,7 +1519,7 @@ ErrorCodes_t CommLib::getCCVoltageRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::getSamplingRates(
+ErrorCodes_t getSamplingRates(
         vector <Measurement_t> &samplingRates) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1543,7 +1531,7 @@ ErrorCodes_t CommLib::getSamplingRates(
     return ret;
 }
 
-ErrorCodes_t CommLib::getRealSamplingRates(
+ErrorCodes_t getRealSamplingRates(
         vector <Measurement_t> &samplingRates) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1555,7 +1543,7 @@ ErrorCodes_t CommLib::getRealSamplingRates(
     return ret;
 }
 
-ErrorCodes_t CommLib::getFilterRatios(
+ErrorCodes_t getFilterRatios(
         vector <Measurement_t> &filterRatios) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1567,7 +1555,7 @@ ErrorCodes_t CommLib::getFilterRatios(
     return ret;
 }
 
-ErrorCodes_t CommLib::getUpsamplingRatios(
+ErrorCodes_t getUpsamplingRatios(
         vector <Measurement_t> &upsamplingRatios) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1579,7 +1567,7 @@ ErrorCodes_t CommLib::getUpsamplingRatios(
     return ret;
 }
 
-ErrorCodes_t CommLib::getVoltageProtocolRange(
+ErrorCodes_t getVoltageProtocolRange(
         unsigned int rangeIdx,
         RangedMeasurement_t &voltageProtocolRange) {
     ErrorCodes_t ret;
@@ -1592,7 +1580,7 @@ ErrorCodes_t CommLib::getVoltageProtocolRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::getCurrentProtocolRange(
+ErrorCodes_t getCurrentProtocolRange(
         unsigned int rangeIdx,
         RangedMeasurement_t &currentProtocolRange) {
     ErrorCodes_t ret;
@@ -1605,7 +1593,7 @@ ErrorCodes_t CommLib::getCurrentProtocolRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::getTimeProtocolRange(
+ErrorCodes_t getTimeProtocolRange(
         RangedMeasurement_t &timeProtocolRange) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1617,7 +1605,7 @@ ErrorCodes_t CommLib::getTimeProtocolRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::getFrequencyProtocolRange(
+ErrorCodes_t getFrequencyProtocolRange(
         RangedMeasurement_t &frequencyProtocolRange) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1629,8 +1617,8 @@ ErrorCodes_t CommLib::getFrequencyProtocolRange(
     return ret;
 }
 
-ErrorCodes_t CommLib::getMaxOutputTriggers(
-        E4GCL_ARGOUT unsigned int &maxTriggersNum) {
+ErrorCodes_t getMaxOutputTriggers(
+        E384CL_ARGOUT unsigned int &maxTriggersNum) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getMaxOutputTriggers(maxTriggersNum);
@@ -1641,8 +1629,8 @@ ErrorCodes_t CommLib::getMaxOutputTriggers(
     return ret;
 }
 
-ErrorCodes_t CommLib::getOutputTriggersNum(
-        E4GCL_ARGOUT unsigned int &triggersNum) {
+ErrorCodes_t getOutputTriggersNum(
+        E384CL_ARGOUT unsigned int &triggersNum) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getOutputTriggersNum(triggersNum);
@@ -1653,8 +1641,8 @@ ErrorCodes_t CommLib::getOutputTriggersNum(
     return ret;
 }
 
-ErrorCodes_t CommLib::getMaxProtocolItems(
-        E4GCL_ARGOUT unsigned int &maxItemsNum) {
+ErrorCodes_t getMaxProtocolItems(
+        E384CL_ARGOUT unsigned int &maxItemsNum) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getMaxProtocolItems(maxItemsNum);
@@ -1665,7 +1653,7 @@ ErrorCodes_t CommLib::getMaxProtocolItems(
     return ret;
 }
 
-ErrorCodes_t CommLib::hasProtocolStep() {
+ErrorCodes_t hasProtocolStep() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasProtocolStep();
@@ -1676,7 +1664,7 @@ ErrorCodes_t CommLib::hasProtocolStep() {
     return ret;
 }
 
-ErrorCodes_t CommLib::hasProtocolRamp() {
+ErrorCodes_t hasProtocolRamp() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasProtocolRamp();
@@ -1687,7 +1675,7 @@ ErrorCodes_t CommLib::hasProtocolRamp() {
     return ret;
 }
 
-ErrorCodes_t CommLib::hasProtocolSin() {
+ErrorCodes_t hasProtocolSin() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasProtocolSin();
@@ -1698,7 +1686,7 @@ ErrorCodes_t CommLib::hasProtocolSin() {
     return ret;
 }
 
-ErrorCodes_t CommLib::getVoltageStimulusLpfs(
+ErrorCodes_t getVoltageStimulusLpfs(
         std::vector <std::string> &filterOptions) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1710,7 +1698,7 @@ ErrorCodes_t CommLib::getVoltageStimulusLpfs(
     return ret;
 }
 
-ErrorCodes_t CommLib::getCurrentStimulusLpfs(
+ErrorCodes_t getCurrentStimulusLpfs(
         std::vector <std::string> &filterOptions) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1722,7 +1710,7 @@ ErrorCodes_t CommLib::getCurrentStimulusLpfs(
     return ret;
 }
 
-ErrorCodes_t CommLib::getLedsNumber(
+ErrorCodes_t getLedsNumber(
         uint16_t &ledsNum) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1734,7 +1722,7 @@ ErrorCodes_t CommLib::getLedsNumber(
     return ret;
 }
 
-ErrorCodes_t CommLib::getLedsColors(
+ErrorCodes_t getLedsColors(
         vector <uint32_t> &ledsColors) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1746,7 +1734,7 @@ ErrorCodes_t CommLib::getLedsColors(
     return ret;
 }
 
-ErrorCodes_t CommLib::hasSlaveModality() {
+ErrorCodes_t hasSlaveModality() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasSlaveModality();
@@ -1757,8 +1745,8 @@ ErrorCodes_t CommLib::hasSlaveModality() {
     return ret;
 }
 
-ErrorCodes_t CommLib::getClampingModalities(
-        E4GCL_ARGOUT std::vector <uint16_t> &clampingModalities) {
+ErrorCodes_t getClampingModalities(
+        E384CL_ARGOUT std::vector <uint16_t> &clampingModalities) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getClampingModalities(clampingModalities);
@@ -1769,8 +1757,8 @@ ErrorCodes_t CommLib::getClampingModalities(
     return ret;
 }
 
-ErrorCodes_t CommLib::multimeterStuckHazard(
-        E4GCL_ARGOUT bool &stuckFlag) {
+ErrorCodes_t multimeterStuckHazard(
+        E384CL_ARGOUT bool &stuckFlag) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->multimeterStuckHazard(stuckFlag);
@@ -1781,7 +1769,7 @@ ErrorCodes_t CommLib::multimeterStuckHazard(
     return ret;
 }
 
-ErrorCodes_t CommLib::hasPipetteCompensation() {
+ErrorCodes_t hasPipetteCompensation() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasPipetteCompensation();
@@ -1792,7 +1780,7 @@ ErrorCodes_t CommLib::hasPipetteCompensation() {
     return ret;
 }
 
-ErrorCodes_t CommLib::hasCCPipetteCompensation() {
+ErrorCodes_t hasCCPipetteCompensation() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasCCPipetteCompensation();
@@ -1803,7 +1791,7 @@ ErrorCodes_t CommLib::hasCCPipetteCompensation() {
     return ret;
 }
 
-ErrorCodes_t CommLib::hasMembraneCompensation() {
+ErrorCodes_t hasMembraneCompensation() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasMembraneCompensation();
@@ -1814,7 +1802,7 @@ ErrorCodes_t CommLib::hasMembraneCompensation() {
     return ret;
 }
 
-ErrorCodes_t CommLib::hasAccessResistanceCompensation() {
+ErrorCodes_t hasAccessResistanceCompensation() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasResistanceCompensation();
@@ -1825,7 +1813,7 @@ ErrorCodes_t CommLib::hasAccessResistanceCompensation() {
     return ret;
 }
 
-ErrorCodes_t CommLib::hasAccessResistanceCorrection() {
+ErrorCodes_t hasAccessResistanceCorrection() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasResistanceCorrection();
@@ -1836,7 +1824,7 @@ ErrorCodes_t CommLib::hasAccessResistanceCorrection() {
     return ret;
 }
 
-ErrorCodes_t CommLib::hasAccessResistancePrediction() {
+ErrorCodes_t hasAccessResistancePrediction() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasResistancePrediction();
@@ -1847,7 +1835,7 @@ ErrorCodes_t CommLib::hasAccessResistancePrediction() {
     return ret;
 }
 
-ErrorCodes_t CommLib::hasLeakConductanceCompensation() {
+ErrorCodes_t hasLeakConductanceCompensation() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasLeakConductanceCompensation();
@@ -1858,7 +1846,7 @@ ErrorCodes_t CommLib::hasLeakConductanceCompensation() {
     return ret;
 }
 
-ErrorCodes_t CommLib::hasBridgeBalanceCompensation() {
+ErrorCodes_t hasBridgeBalanceCompensation() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasBridgeBalanceCompensation();
@@ -1869,7 +1857,7 @@ ErrorCodes_t CommLib::hasBridgeBalanceCompensation() {
     return ret;
 }
 
-ErrorCodes_t CommLib::getPipetteCompensationOptions(
+ErrorCodes_t getPipetteCompensationOptions(
         vector <string> &options) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1881,7 +1869,7 @@ ErrorCodes_t CommLib::getPipetteCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::getCCPipetteCompensationOptions(
+ErrorCodes_t getCCPipetteCompensationOptions(
         vector <string> &options) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1893,7 +1881,7 @@ ErrorCodes_t CommLib::getCCPipetteCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::getMembraneCompensationOptions(
+ErrorCodes_t getMembraneCompensationOptions(
         vector <string> &options) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1905,7 +1893,7 @@ ErrorCodes_t CommLib::getMembraneCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::getAccessResistanceCompensationOptions(
+ErrorCodes_t getAccessResistanceCompensationOptions(
         vector <string> &options) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1917,7 +1905,7 @@ ErrorCodes_t CommLib::getAccessResistanceCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::getAccessResistanceCorrectionOptions(
+ErrorCodes_t getAccessResistanceCorrectionOptions(
         vector <string> &options) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1929,7 +1917,7 @@ ErrorCodes_t CommLib::getAccessResistanceCorrectionOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::getAccessResistancePredictionOptions(
+ErrorCodes_t getAccessResistancePredictionOptions(
         vector <string> &options) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1941,7 +1929,7 @@ ErrorCodes_t CommLib::getAccessResistancePredictionOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::getLeakConductanceCompensationOptions(
+ErrorCodes_t getLeakConductanceCompensationOptions(
         vector <string> &options) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1953,7 +1941,7 @@ ErrorCodes_t CommLib::getLeakConductanceCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::getBridgeBalanceCompensationOptions(
+ErrorCodes_t getBridgeBalanceCompensationOptions(
         vector <string> &options) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1965,7 +1953,7 @@ ErrorCodes_t CommLib::getBridgeBalanceCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t CommLib::getLiquidJunctionControl(
+ErrorCodes_t getLiquidJunctionControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1977,7 +1965,7 @@ ErrorCodes_t CommLib::getLiquidJunctionControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getPipetteCapacitanceControl(
+ErrorCodes_t getPipetteCapacitanceControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1989,7 +1977,7 @@ ErrorCodes_t CommLib::getPipetteCapacitanceControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getCCPipetteCapacitanceControl(
+ErrorCodes_t getCCPipetteCapacitanceControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2001,7 +1989,7 @@ ErrorCodes_t CommLib::getCCPipetteCapacitanceControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getMembraneCapacitanceControl(
+ErrorCodes_t getMembraneCapacitanceControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2013,7 +2001,7 @@ ErrorCodes_t CommLib::getMembraneCapacitanceControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getAccessResistanceControl(
+ErrorCodes_t getAccessResistanceControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2025,7 +2013,7 @@ ErrorCodes_t CommLib::getAccessResistanceControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getResistanceCorrectionPercentageControl(
+ErrorCodes_t getResistanceCorrectionPercentageControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2037,7 +2025,7 @@ ErrorCodes_t CommLib::getResistanceCorrectionPercentageControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getResistanceCorrectionLagControl(
+ErrorCodes_t getResistanceCorrectionLagControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2049,7 +2037,7 @@ ErrorCodes_t CommLib::getResistanceCorrectionLagControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getResistancePredictionGainControl(
+ErrorCodes_t getResistancePredictionGainControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2061,7 +2049,7 @@ ErrorCodes_t CommLib::getResistancePredictionGainControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getResistancePredictionPercentageControl(
+ErrorCodes_t getResistancePredictionPercentageControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2073,7 +2061,7 @@ ErrorCodes_t CommLib::getResistancePredictionPercentageControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getResistancePredictionBandwidthGainControl(
+ErrorCodes_t getResistancePredictionBandwidthGainControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2085,7 +2073,7 @@ ErrorCodes_t CommLib::getResistancePredictionBandwidthGainControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getResistancePredictionTauControl(
+ErrorCodes_t getResistancePredictionTauControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2097,7 +2085,7 @@ ErrorCodes_t CommLib::getResistancePredictionTauControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getLeakConductanceControl(
+ErrorCodes_t getLeakConductanceControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2109,7 +2097,7 @@ ErrorCodes_t CommLib::getLeakConductanceControl(
     return ret;
 }
 
-ErrorCodes_t CommLib::getBridgeBalanceResistanceControl(
+ErrorCodes_t getBridgeBalanceResistanceControl(
         CompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2121,4 +2109,102 @@ ErrorCodes_t CommLib::getBridgeBalanceResistanceControl(
     return ret;
 }
 
-} // namespace e4gCommLib
+#ifndef E384CL_LABVIEW_COMPATIBILITY
+} // namespace e384CommLib
+#endif
+
+void input2String(E384clString_t i, string &s) {
+#ifdef E4DCCOMMLIB_STATIC
+    s = i;
+#else
+    s = string((char *)LStrBuf(* i), LStrLen(* i));
+#endif
+}
+
+void input2Measurement(E384clMeasurement_t i, Measurement_t &m) {
+#ifdef E4DCCOMMLIB_STATIC
+    m = i;
+#else
+    m.value = i.value;
+    m.prefix = i.prefix;
+    input2String(i.unit, m.unit);
+#endif
+}
+
+void string2Output(string s, E384clString_t E384CL_OUTPUT_SYMBOL o) {
+#ifdef E4DCCOMMLIB_STATIC
+    o = s;
+#else
+    MgErr err = NumericArrayResize(uB, 1, (UHandle *)&o, s.length());
+    if (!err) {
+         MoveBlock(s.c_str(), LStrBuf(* o), s.length());
+         LStrLen(* o) = s.length();
+    }
+#endif
+}
+
+void vectorString2Output(vector <string> v, E384clStringVector_t E384CL_OUTPUT_SYMBOL o) {
+#ifdef E4DCCOMMLIB_STATIC
+    o = v;
+#else
+    string a;
+    for (auto s : v) {
+        a += s + ",";
+    }
+    string2Output(a, o);
+#endif
+}
+
+void vectorMeasurement2Output(vector <Measurement_t> v, E384clMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o) {
+#ifdef E4DCCOMMLIB_STATIC
+    o = v;
+#else
+    int offset = 0;
+    MgErr err = DSSetHSzClr(* o, Offset(LMeas, item)+sizeof(CharMeasurement_t)*v.size());
+    if (!err) {
+        for (auto m : v) {
+            CharMeasurement_t * meas = LVecItem(** o, offset);
+            meas->value = m.value;
+            meas->prefix = m.prefix;
+
+            size_t unitSize = m.unit.length();
+            meas->unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
+            if (meas->unit == nullptr) {
+                return;
+            }
+            MoveBlock(&m.unit, LStrBuf(*(meas->unit)), unitSize);
+            LStrLen(* meas->unit) = unitSize;
+            offset++;
+        }
+        LVecLen(** o) = v.size();
+    }
+#endif
+}
+
+void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o) {
+#ifdef E4DCCOMMLIB_STATIC
+    o = v;
+#else
+    int offset = 0;
+    MgErr err = DSSetHSzClr(* o, Offset(LRange, item)+sizeof(CharRangedMeasurement_t)*v.size());
+    if (!err) {
+        for (auto r : v) {
+            CharRangedMeasurement_t * range = LVecItem(** o, offset);
+            range->min = r.min;
+            range->max = r.max;
+            range->step = r.step;
+            range->prefix = r.prefix;
+
+            size_t unitSize = r.unit.length();
+            range->unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
+            if (range->unit == nullptr) {
+                return;
+            }
+            MoveBlock(&r.unit, LStrBuf(*(range->unit)), unitSize);
+            LStrLen(* range->unit) = unitSize;
+            offset++;
+        }
+        LVecLen(** o) = v.size();
+    }
+#endif
+}

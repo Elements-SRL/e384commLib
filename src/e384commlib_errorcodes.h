@@ -1,15 +1,17 @@
-/*! \file e4gcommlib_errorcodes.h
- * \brief Defines error codes returned by methods in e4gCommLib namespace.
+/*! \file e384commlib_errorcodes.h
+ * \brief Defines error codes returned by methods in e384CommLib namespace.
  */
-#ifndef E4GCOMMLIB_ERRORCODES_H
-#define E4GCOMMLIB_ERRORCODES_H
+#ifndef E384COMMLIB_ERRORCODES_H
+#define E384COMMLIB_ERRORCODES_H
 
-namespace e4gCommLib {
+#ifndef E384CL_LABVIEW_COMPATIBILITY
+namespace e384CommLib {
+#endif
 
 /*! \enum ErrorGroups_t
  *  \brief Enumerated error groups.
  */
-typedef enum {
+typedef enum ErrorGroups {
     ErrorGroupDeviceDetection =     0x00010000, /*!< Error codes related to device detection errors. */
     ErrorGroupEepromCommunication = 0x00020000, /*!< Error codes related to eeprom communication errors. */
     ErrorGroupDeviceConnection =    0x00030000, /*!< Error codes related to connection errors. */
@@ -21,7 +23,7 @@ typedef enum {
 /*! \enum ErrorCodes_t
  *  \brief Enumerated error codes.
  */
-typedef enum {
+typedef enum ErrorCodes {
     Success =                                                           0x00000000, /*!< Method returns with no errors. */
 
     ErrorNoDeviceFound =                ErrorGroupDeviceDetection +     0x00000001, /*!< Error returned when no devices are detected. */
@@ -70,6 +72,8 @@ typedef enum {
     ErrorUnknown =                                                      0xFFFFFFFF  /*!< Undefined error. */
 } ErrorCodes_t;
 
-} // e4gCommLib
+#ifndef E384CL_LABVIEW_COMPATIBILITY
+} // e384CommLib
+#endif
 
-#endif // E4GCOMMLIB_ERRORCODES_H
+#endif // E384COMMLIB_ERRORCODES_H

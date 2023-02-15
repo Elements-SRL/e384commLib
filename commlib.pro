@@ -1,7 +1,5 @@
 QT       -= core gui
 
-include (./quietWarnings.pri)
-
 CONFIG(debug, debug|release) {
     TARGET = e384commlibd
     DEFINES += DEBUGPRINT
@@ -12,53 +10,38 @@ CONFIG(release, debug|release) {
 }
 
 TEMPLATE = lib
-CONFIG += c++11
+CONFIG += c++14
 
 # use as static library
-DEFINES += E384COMMLIB_STATIC
+#DEFINES += E384COMMLIB_STATIC
+
+contains(DEFINES, E384COMMLIB_STATIC) {
 CONFIG += staticlib
-
+} else {
 # or create .dll
-#DEFINES += E384COMMLIB_LIBRARY
+DEFINES += E384COMMLIB_LIBRARY
+DEFINES += E384CL_LABVIEW_COMPATIBILITY
+}
 
-include(../version.pri)
+include(version.pri)
 
 DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
     "VERSION_MINOR=$$VERSION_MINOR"\
-    "VERSION_BUILD=$$VERSION_BUILD"
+    "VERSION_PATCH=$$VERSION_PATCH"
 
-VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_BUILD}
+VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    e384commlib.cpp \
-    ftdieeprom.cpp \
-    ftdieeprom56.cpp \
-    ftdieepromdemo.cpp \
-    calibrationeeprom.cpp \
-    messagedispatcher.cpp
+    src/e384commlib.cpp
 
 HEADERS += \
-    e384commlib_global.h \
-    e384commlib_errorcodes.h \
-    e384commlib.h \
-    ftdieeprom.h \
-    ftdieeprom56.h \
-    ftdieepromdemo.h \
-    calibrationeeprom.h \
-    messagedispatcher.h
+    src/e384commlib_global.h \
+    src/e384commlib_global_addendum.h \
+    src/e384commlib_errorcodes.h \
+    src/e384commlib.h \
+    src/messagedispatcher.h
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
+INCLUDEPATH += ./src
+DEPENDPATH += ./src
 
-INCLUDEPATH += ./
-
-DEPENDPATH += ./
-
-unix: INCLUDEPATH += /usr/local/include
-unix: DEPENDPATH += /usr/local/include
-
-include (./ftd2xx/includeftd2xx.pri)
-
-LIBS += -L$$PWD/ftd2xx/win/x86 -lMPSSE
+include(LabVIEW/includelabview.pri)
