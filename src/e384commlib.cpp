@@ -21,6 +21,7 @@ static void vectorMeasurement2Output(vector <Measurement_t> v, E384clMeasurement
 static void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o);
 
 template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o);
+template<typename I_t, typename O_t> void input2NumericVector(I_t E384CL_VECTOR_OUTPUT_SYMBOL v, O_t &o, int inputLength);
 
 #ifndef E384CL_LABVIEW_COMPATIBILITY
 namespace e384CommLib {
@@ -2329,3 +2330,13 @@ template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t E384CL
 #endif
 }
 
+template<typename I_t, typename O_t> void input2NumericVector(I_t E384CL_VECTOR_OUTPUT_SYMBOL v, O_t &o, int inputLength){
+#ifndef E384CL_LABVIEW_COMPATIBILITY
+    o = v;
+#else
+    o.resize(inputLength);
+    for(unsigned int i = 0; i<o.size(); i++){
+        o[i] = v[i];
+    }
+#endif
+}
