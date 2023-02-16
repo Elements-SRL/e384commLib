@@ -334,6 +334,8 @@ typedef Measurement_t E384clMeasurement_t;
 typedef std::vector <Measurement_t> E384clMeasurementVector_t;
 typedef RangedMeasurement_t E384clRangedMeasurement_t;
 typedef std::vector <RangedMeasurement_t> E384clRangedMeasurementVector_t;
+typedef std::vector <uint16_t> E384clUint16Vector_t;
+typedef std::vector <uint32_t> E384clUint32Vector_t;
 #define E384CL_OUTPUT_SYMBOL &
 #define E384CL_VECTOR_OUTPUT_SYMBOL
 } // namespace e4dcCommLib
@@ -344,6 +346,8 @@ typedef CharMeasurement_t E384clMeasurement_t;
 typedef LMeasHandle E384clMeasurementVector_t;
 typedef CharRangedMeasurement_t E384clRangedMeasurement_t;
 typedef LRangeHandle E384clRangedMeasurementVector_t;
+typedef uint16_t E384clUint16Vector_t;
+typedef uint32_t E384clUint32Vector_t;
 #define E384CL_OUTPUT_SYMBOL
 #define E384CL_VECTOR_OUTPUT_SYMBOL *
 #endif

@@ -1341,7 +1341,7 @@ ErrorCodes_t getLedsNumber(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLedsColors(
-        E384CL_ARGOUT std::vector <uint32_t> &ledsColors);
+        E384CL_ARGOUT E384clUint32Vector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL ledsColors);
 
 /*! \brief Check if the device can work as a slave (triggered by digital input).
  *

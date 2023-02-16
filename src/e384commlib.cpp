@@ -20,6 +20,8 @@ static void vectorString2Output(vector <string> v, E384clStringVector_t E384CL_O
 static void vectorMeasurement2Output(vector <Measurement_t> v, E384clMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o);
 static void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o);
 
+template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o);
+
 #ifndef E384CL_LABVIEW_COMPATIBILITY
 namespace e384CommLib {
 #endif
@@ -1811,10 +1813,12 @@ ErrorCodes_t getLedsNumber(
 }
 
 ErrorCodes_t getLedsColors(
-        vector <uint32_t> &ledsColors) {
+        E384clUint32Vector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL ledsColorsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <uint32_t> ledsColors;
         ret = messageDispatcher->getLedsColors(ledsColors);
+        numericVector2Output<std::vector <uint32_t>, E384clUint32Vector_t>(ledsColors, ledsColorsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1834,10 +1838,12 @@ ErrorCodes_t hasSlaveModality() {
 }
 
 ErrorCodes_t getClampingModalities(
-        E384CL_ARGOUT std::vector <uint16_t> &clampingModalities) {
+        E384clUint16Vector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL clampingModalitiesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <uint16_t> clampingModalities;
         ret = messageDispatcher->getClampingModalities(clampingModalities);
+        numericVector2Output<std::vector <uint16_t>, E384clUint16Vector_t>(clampingModalities, clampingModalitiesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2218,7 +2224,7 @@ ErrorCodes_t getBridgeBalanceResistanceControl(
 #endif
 
 void input2String(E384clString_t i, string &s) {
-#ifdef E4DCCOMMLIB_STATIC
+#ifndef E384CL_LABVIEW_COMPATIBILITY
     s = i;
 #else
     s = string((char *)LStrBuf(* i), LStrLen(* i));
@@ -2226,7 +2232,7 @@ void input2String(E384clString_t i, string &s) {
 }
 
 void input2Measurement(E384clMeasurement_t i, Measurement_t &m) {
-#ifdef E4DCCOMMLIB_STATIC
+#ifndef E384CL_LABVIEW_COMPATIBILITY
     m = i;
 #else
     m.value = i.value;
@@ -2236,7 +2242,7 @@ void input2Measurement(E384clMeasurement_t i, Measurement_t &m) {
 }
 
 void string2Output(string s, E384clString_t E384CL_OUTPUT_SYMBOL o) {
-#ifdef E4DCCOMMLIB_STATIC
+#ifndef E384CL_LABVIEW_COMPATIBILITY
     o = s;
 #else
     MgErr err = NumericArrayResize(uB, 1, (UHandle *)&o, s.length());
@@ -2248,7 +2254,7 @@ void string2Output(string s, E384clString_t E384CL_OUTPUT_SYMBOL o) {
 }
 
 void vectorString2Output(vector <string> v, E384clStringVector_t E384CL_OUTPUT_SYMBOL o) {
-#ifdef E4DCCOMMLIB_STATIC
+#ifndef E384CL_LABVIEW_COMPATIBILITY
     o = v;
 #else
     string a;
@@ -2260,7 +2266,7 @@ void vectorString2Output(vector <string> v, E384clStringVector_t E384CL_OUTPUT_S
 }
 
 void vectorMeasurement2Output(vector <Measurement_t> v, E384clMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o) {
-#ifdef E4DCCOMMLIB_STATIC
+#ifndef E384CL_LABVIEW_COMPATIBILITY
     o = v;
 #else
     int offset = 0;
@@ -2286,7 +2292,7 @@ void vectorMeasurement2Output(vector <Measurement_t> v, E384clMeasurementVector_
 }
 
 void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o) {
-#ifdef E4DCCOMMLIB_STATIC
+#ifndef E384CL_LABVIEW_COMPATIBILITY
     o = v;
 #else
     int offset = 0;
@@ -2312,3 +2318,14 @@ void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, E384clRanged
     }
 #endif
 }
+
+template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL o){
+#ifndef E384CL_LABVIEW_COMPATIBILITY
+    o = v;
+#else
+    for(unsigned int i = 0; i<v.size(); i++){
+        o[i] = v[i];
+    }
+#endif
+}
+
