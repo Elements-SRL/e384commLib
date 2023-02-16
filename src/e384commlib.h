@@ -166,7 +166,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setVoltageHoldTuner(
         E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN Measurement_t voltage);
+        E384CL_ARGIN E384clMeasurement_t voltage);
 
 /*! \brief Set the holding current tuner. This value is added to the whole current protocol currently applied and to the following.
  *
@@ -178,7 +178,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentHoldTuner(
         E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN Measurement_t current);
+        E384CL_ARGIN E384clMeasurement_t current);
 
 /*! \brief Turns on/off a uniform noise additive noise with the same range as the LSB on received data.
  *
@@ -306,7 +306,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t digitalOffsetCompensationOverride(
         E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Request for voltage offset set by digital offset compensation.
  * After this message is received the device will send a message with voltage offset set
@@ -332,7 +332,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setVcCurrentOffsetDelta(
         E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Correct the calibration offset of the voltage acquired in CC.
  *
@@ -344,7 +344,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCcVoltageOffsetDelta(
         E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Zap.
  * A big voltage is applied in order to break the membrane.
@@ -356,7 +356,7 @@ ErrorCodes_t setCcVoltageOffsetDelta(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t zap(
-        E384CL_ARGIN Measurement_t duration,
+        E384CL_ARGIN E384clMeasurement_t duration,
         E384CL_ARGIN uint16_t channelIdx);
 
 /*! \brief Sets the low pass filter on the voltage stimulus.
@@ -624,7 +624,7 @@ ErrorCodes_t setBridgeBalanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setPipetteCapacitance(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets the value of the pipette capacitance for current clamp.
  *
@@ -634,7 +634,7 @@ ErrorCodes_t setPipetteCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCCPipetteCapacitance(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets the value of the membrane capacitance.
  *
@@ -644,7 +644,7 @@ ErrorCodes_t setCCPipetteCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setMembraneCapacitance(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets the value of the access resistance.
  *
@@ -654,7 +654,7 @@ ErrorCodes_t setMembraneCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistance(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets the value for the access resistance correction percentage.
  *
@@ -664,7 +664,7 @@ ErrorCodes_t setAccessResistance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistanceCorrectionPercentage(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets the value for the access resistance correction lag.
  *
@@ -674,7 +674,7 @@ ErrorCodes_t setAccessResistanceCorrectionPercentage(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistanceCorrectionLag(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets the value for the access resistance prediction gain.
  *
@@ -684,7 +684,7 @@ ErrorCodes_t setAccessResistanceCorrectionLag(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistancePredictionGain(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets the value for the access resistance prediction percentage.
  *
@@ -694,7 +694,7 @@ ErrorCodes_t setAccessResistancePredictionGain(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistancePredictionPercentage(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets the value for the access resistance prediction bandwidth gain.
  *
@@ -704,7 +704,7 @@ ErrorCodes_t setAccessResistancePredictionPercentage(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistancePredictionBandwidthGain(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets the value for the access resistance prediction tau.
  *
@@ -714,7 +714,7 @@ ErrorCodes_t setAccessResistancePredictionBandwidthGain(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistancePredictionTau(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets the value for the leak conductance.
  *
@@ -724,7 +724,7 @@ ErrorCodes_t setAccessResistancePredictionTau(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setLeakConductance(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets the value of the access resistance for bridge balance.
  *
@@ -734,7 +734,7 @@ ErrorCodes_t setLeakConductance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setBridgeBalanceResistance(
-        E384CL_ARGIN Measurement_t value);
+        E384CL_ARGIN E384clMeasurement_t value);
 
 /*! \brief Sets a digital trigger output to be activated during the next protocol.
  *
@@ -752,7 +752,7 @@ ErrorCodes_t setDigitalTriggerOutput(
         E384CL_ARGIN bool terminator,
         E384CL_ARGIN bool polarity,
         E384CL_ARGIN uint16_t triggerId,
-        E384CL_ARGIN Measurement_t delay);
+        E384CL_ARGIN E384clMeasurement_t delay);
 
 /*! \brief Describes the structure of an incoming voltage protocol.
  *
@@ -769,7 +769,7 @@ ErrorCodes_t setVoltageProtocolStructure(
         E384CL_ARGIN uint16_t protId,
         E384CL_ARGIN uint16_t itemsNum,
         E384CL_ARGIN uint16_t sweepsNum,
-        E384CL_ARGIN Measurement_t vRest);
+        E384CL_ARGIN E384clMeasurement_t vRest);
 
 /*! \brief Commits a voltage protocol item consisting of a constant voltage.
  *  Steps can be defined for both voltage and duration to make them change at any iteration.
@@ -791,10 +791,10 @@ ErrorCodes_t setVoltageProtocolStructure(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltStepTimeStep(
-        E384CL_ARGIN Measurement_t v0,
-        E384CL_ARGIN Measurement_t vStep,
-        E384CL_ARGIN Measurement_t t0,
-        E384CL_ARGIN Measurement_t tStep,
+        E384CL_ARGIN E384clMeasurement_t v0,
+        E384CL_ARGIN E384clMeasurement_t vStep,
+        E384CL_ARGIN E384clMeasurement_t t0,
+        E384CL_ARGIN E384clMeasurement_t tStep,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -818,9 +818,9 @@ ErrorCodes_t voltStepTimeStep(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltRamp(
-        E384CL_ARGIN Measurement_t v0,
-        E384CL_ARGIN Measurement_t vFinal,
-        E384CL_ARGIN Measurement_t t,
+        E384CL_ARGIN E384clMeasurement_t v0,
+        E384CL_ARGIN E384clMeasurement_t vFinal,
+        E384CL_ARGIN E384clMeasurement_t t,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -844,9 +844,9 @@ ErrorCodes_t voltRamp(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltSin(
-        E384CL_ARGIN Measurement_t v0,
-        E384CL_ARGIN Measurement_t vAmp,
-        E384CL_ARGIN Measurement_t freq,
+        E384CL_ARGIN E384clMeasurement_t v0,
+        E384CL_ARGIN E384clMeasurement_t vAmp,
+        E384CL_ARGIN E384clMeasurement_t freq,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -876,7 +876,7 @@ ErrorCodes_t setCurrentProtocolStructure(
         E384CL_ARGIN uint16_t protId,
         E384CL_ARGIN uint16_t itemsNum,
         E384CL_ARGIN uint16_t sweepsNum,
-        E384CL_ARGIN Measurement_t iRest);
+        E384CL_ARGIN E384clMeasurement_t iRest);
 
 /*! \brief Commits a current protocol item consisting of a constant current.
  *  Steps can be defined for both current and duration to make them change at any iteration.
@@ -898,10 +898,10 @@ ErrorCodes_t setCurrentProtocolStructure(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currStepTimeStep(
-        E384CL_ARGIN Measurement_t i0,
-        E384CL_ARGIN Measurement_t iStep,
-        E384CL_ARGIN Measurement_t t0,
-        E384CL_ARGIN Measurement_t tStep,
+        E384CL_ARGIN E384clMeasurement_t i0,
+        E384CL_ARGIN E384clMeasurement_t iStep,
+        E384CL_ARGIN E384clMeasurement_t t0,
+        E384CL_ARGIN E384clMeasurement_t tStep,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -925,9 +925,9 @@ ErrorCodes_t currStepTimeStep(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currRamp(
-        E384CL_ARGIN Measurement_t i0,
-        E384CL_ARGIN Measurement_t iFinal,
-        E384CL_ARGIN Measurement_t t,
+        E384CL_ARGIN E384clMeasurement_t i0,
+        E384CL_ARGIN E384clMeasurement_t iFinal,
+        E384CL_ARGIN E384clMeasurement_t t,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -951,9 +951,9 @@ ErrorCodes_t currRamp(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currSin(
-        E384CL_ARGIN Measurement_t i0,
-        E384CL_ARGIN Measurement_t iAmp,
-        E384CL_ARGIN Measurement_t freq,
+        E384CL_ARGIN E384clMeasurement_t i0,
+        E384CL_ARGIN E384clMeasurement_t iAmp,
+        E384CL_ARGIN E384clMeasurement_t freq,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -1022,7 +1022,7 @@ ErrorCodes_t writeCalibrationEeprom(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t readCalibrationEeprom(
-        E384CL_ARGIN std::vector <uint32_t> &value,
+        E384CL_ARGOUT std::vector <uint32_t> &value,
         E384CL_ARGIN std::vector <uint32_t> address,
         E384CL_ARGIN std::vector <uint32_t> size);
 
@@ -1131,7 +1131,7 @@ ErrorCodes_t getCCCurrentRange(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVCVoltageRanges(
-        E384CL_ARGOUT std::vector <RangedMeasurement_t> &voltageRanges);
+        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL voltageRanges);
 
 /*! \brief Get the voltage ranges available in current clamp for the device.
  *
@@ -1141,7 +1141,7 @@ ErrorCodes_t getVCVoltageRanges(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCVoltageRanges(
-        E384CL_ARGOUT std::vector <RangedMeasurement_t> &voltageRanges);
+        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL voltageRanges);
 
 /*! \brief Get the voltage range currently applied for voltage clamp.
  *
@@ -1171,7 +1171,7 @@ ErrorCodes_t getCCVoltageRange(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getSamplingRates(
-        E384CL_ARGOUT std::vector <Measurement_t> &samplingRates);
+        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL samplingRates);
 
 /*! \brief Get the real sampling rates available for the device.
  *
@@ -1182,7 +1182,7 @@ ErrorCodes_t getSamplingRates(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getRealSamplingRates(
-        E384CL_ARGOUT std::vector <Measurement_t> &samplingRates);
+        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL samplingRates);
 
 /*! \brief Get the filter ratios available for the device.
  *
@@ -1192,7 +1192,7 @@ ErrorCodes_t getRealSamplingRates(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getFilterRatios(
-        E384CL_ARGOUT std::vector <Measurement_t> &filterRatios);
+        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL filterRatios);
 
 /*! \brief Get the upsampling ratios available for the device.
  *
@@ -1202,7 +1202,7 @@ ErrorCodes_t getFilterRatios(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getUpsamplingRatios(
-        E384CL_ARGOUT std::vector <Measurement_t> &upsamplingRatios);
+        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL upsamplingRatios);
 
 /*! \brief Get the voltage range for voltage protocols.
  *
@@ -1311,7 +1311,7 @@ ErrorCodes_t hasProtocolSin(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVoltageStimulusLpfs(
-        E384CL_ARGOUT std::vector <std::string> &filterOptions);
+        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL filterOptions);
 
 /*! \brief Get the available options for the current stimulus low pass filter.
  *
@@ -1321,7 +1321,7 @@ ErrorCodes_t getVoltageStimulusLpfs(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCurrentStimulusLpfs(
-        E384CL_ARGOUT std::vector <std::string> &filterOptions);
+        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL filterOptions);
 
 /*! \brief Get the number of LEDs for the device.
  *
@@ -1453,7 +1453,7 @@ ErrorCodes_t hasBridgeBalanceCompensation(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getPipetteCompensationOptions(
-        E384CL_ARGOUT std::vector <std::string> &options);
+        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
 
 /*! \brief Get options for the pipette compensation for current clamp.
  *
@@ -1463,7 +1463,7 @@ ErrorCodes_t getPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCPipetteCompensationOptions(
-        E384CL_ARGOUT std::vector <std::string> &options);
+        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
 
 /*! \brief Get options for the membrane compensation.
  *
@@ -1473,7 +1473,7 @@ ErrorCodes_t getCCPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getMembraneCompensationOptions(
-        E384CL_ARGOUT std::vector <std::string> &options);
+        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
 
 /*! \brief Get options for the access resistance compensation.
  * \note Resistance compensation includes resistance correction and prediction.
@@ -1484,7 +1484,7 @@ ErrorCodes_t getMembraneCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCompensationOptions(
-        E384CL_ARGOUT std::vector <std::string> &options);
+        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
 
 /*! \brief Get options for the access resistance correction.
  *
@@ -1494,7 +1494,7 @@ ErrorCodes_t getAccessResistanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCorrectionOptions(
-        E384CL_ARGOUT std::vector <std::string> &options);
+        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
 
 /*! \brief Get options for the access resistance prediction.
  *
@@ -1504,7 +1504,7 @@ ErrorCodes_t getAccessResistanceCorrectionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionOptions(
-        E384CL_ARGOUT std::vector <std::string> &options);
+        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
 
 /*! \brief Get options for the leak conductance compensation.
  *
@@ -1514,7 +1514,7 @@ ErrorCodes_t getAccessResistancePredictionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLeakConductanceCompensationOptions(
-        E384CL_ARGOUT std::vector <std::string> &options);
+        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
 
 /*! \brief Get options for the bridge balance compensation.
  *
@@ -1524,7 +1524,7 @@ ErrorCodes_t getLeakConductanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceCompensationOptions(
-        E384CL_ARGOUT std::vector <std::string> &options);
+        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
 
 /*! \brief Get the specifications of the control for the liquid junction.
  *

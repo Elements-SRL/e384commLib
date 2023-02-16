@@ -261,17 +261,6 @@ ErrorCodes_t ping() {
     return ret;
 }
 
-ErrorCodes_t abort() {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->abort();
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
 ErrorCodes_t turnVoltageStimulusOn(
         bool on) {
     ErrorCodes_t ret;
@@ -335,9 +324,11 @@ ErrorCodes_t setChannelsSources(
 
 ErrorCodes_t setVoltageHoldTuner(
         uint16_t channelIdx,
-        Measurement_t voltage) {
+        E384clMeasurement_t voltageIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t voltage;
+        input2Measurement(voltageIn, voltage);
         ret = messageDispatcher->setVoltageHoldTuner(channelIdx, voltage);
 
     } else {
@@ -348,9 +339,11 @@ ErrorCodes_t setVoltageHoldTuner(
 
 ErrorCodes_t setCurrentHoldTuner(
         uint16_t channelIdx,
-        Measurement_t current) {
+        E384clMeasurement_t currentIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t current;
+        input2Measurement(currentIn, current);
         ret = messageDispatcher->setCurrentHoldTuner(channelIdx, current);
 
     } else {
@@ -483,9 +476,11 @@ ErrorCodes_t digitalOffsetCompensation(
 
 ErrorCodes_t digitalOffsetCompensationOverride(
         uint16_t channelIdx,
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->digitalOffsetCompensationOverride(channelIdx, value);
 
     } else {
@@ -508,9 +503,11 @@ ErrorCodes_t digitalOffsetCompensationInquiry(
 
 ErrorCodes_t setVcCurrentOffsetDelta(
         uint16_t channelIdx,
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setVcCurrentOffsetDelta(channelIdx, value);
 
     } else {
@@ -521,9 +518,11 @@ ErrorCodes_t setVcCurrentOffsetDelta(
 
 ErrorCodes_t setCcVoltageOffsetDelta(
         uint16_t channelIdx,
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setCcVoltageOffsetDelta(channelIdx, value);
 
     } else {
@@ -533,10 +532,12 @@ ErrorCodes_t setCcVoltageOffsetDelta(
 }
 
 ErrorCodes_t zap(
-        Measurement_t duration,
+        E384clMeasurement_t durationIn,
         uint16_t channelIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t duration;
+        input2Measurement(durationIn, duration);
         ret = messageDispatcher->zap(duration, channelIdx);
 
     } else {
@@ -847,9 +848,11 @@ ErrorCodes_t setBridgeBalanceCompensationOptions(
 }
 
 ErrorCodes_t setPipetteCapacitance(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setPipetteCapacitance(value);
 
     } else {
@@ -859,9 +862,11 @@ ErrorCodes_t setPipetteCapacitance(
 }
 
 ErrorCodes_t setCCPipetteCapacitance(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setCCPipetteCapacitance(value);
 
     } else {
@@ -871,9 +876,11 @@ ErrorCodes_t setCCPipetteCapacitance(
 }
 
 ErrorCodes_t setMembraneCapacitance(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setMembraneCapacitance(value);
 
     } else {
@@ -883,9 +890,11 @@ ErrorCodes_t setMembraneCapacitance(
 }
 
 ErrorCodes_t setAccessResistance(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setAccessResistance(value);
 
     } else {
@@ -895,9 +904,11 @@ ErrorCodes_t setAccessResistance(
 }
 
 ErrorCodes_t setAccessResistanceCorrectionPercentage(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setResistanceCorrectionPercentage(value);
 
     } else {
@@ -907,9 +918,11 @@ ErrorCodes_t setAccessResistanceCorrectionPercentage(
 }
 
 ErrorCodes_t setAccessResistanceCorrectionLag(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setResistanceCorrectionLag(value);
 
     } else {
@@ -919,9 +932,11 @@ ErrorCodes_t setAccessResistanceCorrectionLag(
 }
 
 ErrorCodes_t setAccessResistancePredictionGain(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setResistancePredictionGain(value);
 
     } else {
@@ -931,9 +946,11 @@ ErrorCodes_t setAccessResistancePredictionGain(
 }
 
 ErrorCodes_t setAccessResistancePredictionPercentage(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setResistancePredictionPercentage(value);
 
     } else {
@@ -943,9 +960,11 @@ ErrorCodes_t setAccessResistancePredictionPercentage(
 }
 
 ErrorCodes_t setAccessResistancePredictionBandwidthGain(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setResistancePredictionBandwidthGain(value);
 
     } else {
@@ -955,9 +974,11 @@ ErrorCodes_t setAccessResistancePredictionBandwidthGain(
 }
 
 ErrorCodes_t setAccessResistancePredictionTau(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setResistancePredictionTau(value);
 
     } else {
@@ -967,9 +988,11 @@ ErrorCodes_t setAccessResistancePredictionTau(
 }
 
 ErrorCodes_t setLeakConductance(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setLeakConductance(value);
 
     } else {
@@ -979,9 +1002,11 @@ ErrorCodes_t setLeakConductance(
 }
 
 ErrorCodes_t setBridgeBalanceResistance(
-        Measurement_t value) {
+        E384clMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t value;
+        input2Measurement(valueIn, value);
         ret = messageDispatcher->setBridgeBalanceResistance(value);
 
     } else {
@@ -995,9 +1020,11 @@ ErrorCodes_t setDigitalTriggerOutput(
         E384CL_ARGIN bool terminator,
         E384CL_ARGIN bool polarity,
         E384CL_ARGIN uint16_t triggerId,
-        E384CL_ARGIN Measurement_t delay) {
+        E384CL_ARGIN E384clMeasurement_t delayIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t delay;
+        input2Measurement(delayIn, delay);
         ret = messageDispatcher->setDigitalTriggerOutput(triggerIdx, terminator, polarity, triggerId, delay);
 
     } else {
@@ -1009,9 +1036,11 @@ ErrorCodes_t setDigitalTriggerOutput(
 ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
         uint16_t itemsNum,
         uint16_t sweepsNum,
-        Measurement_t vRest) {
+        E384clMeasurement_t vRestIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t vRest;
+        input2Measurement(vRestIn, vRest);
         ret = messageDispatcher->setVoltageProtocolStructure(protId, itemsNum, sweepsNum, vRest);
 
     } else {
@@ -1021,16 +1050,24 @@ ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
 }
 
 ErrorCodes_t voltStepTimeStep(
-        Measurement_t v0,
-        Measurement_t vStep,
-        Measurement_t t0,
-        Measurement_t tStep,
+        E384clMeasurement_t v0In,
+        E384clMeasurement_t vStepIn,
+        E384clMeasurement_t t0In,
+        E384clMeasurement_t tStepIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
         uint16_t applySteps) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t v0;
+        Measurement_t vStep;
+        Measurement_t t0;
+        Measurement_t tStep;
+        input2Measurement(v0In, v0);
+        input2Measurement(vStepIn, vStep);
+        input2Measurement(t0In, t0);
+        input2Measurement(tStepIn, tStep);
         ret = messageDispatcher->voltStepTimeStep(v0, vStep, t0, tStep, currentItem, nextItem, repsNum, applySteps);
 
     } else {
@@ -1040,15 +1077,21 @@ ErrorCodes_t voltStepTimeStep(
 }
 
 ErrorCodes_t voltRamp(
-        Measurement_t v0,
-        Measurement_t vFinal,
-        Measurement_t t,
+        E384clMeasurement_t v0In,
+        E384clMeasurement_t vFinalIn,
+        E384clMeasurement_t tIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
         uint16_t applySteps) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t v0;
+        Measurement_t vFinal;
+        Measurement_t t;
+        input2Measurement(v0In, v0);
+        input2Measurement(vFinalIn, vFinal);
+        input2Measurement(tIn, t);
         ret = messageDispatcher->voltRamp(v0, vFinal, t, currentItem, nextItem, repsNum, applySteps);
 
     } else {
@@ -1058,15 +1101,21 @@ ErrorCodes_t voltRamp(
 }
 
 ErrorCodes_t voltSin(
-        Measurement_t v0,
-        Measurement_t vAmp,
-        Measurement_t freq,
+        E384clMeasurement_t v0In,
+        E384clMeasurement_t vAmpIn,
+        E384clMeasurement_t freqIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
         uint16_t applySteps) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t v0;
+        Measurement_t vAmp;
+        Measurement_t freq;
+        input2Measurement(v0In, v0);
+        input2Measurement(vAmpIn, vAmp);
+        input2Measurement(freqIn, freq);
         ret = messageDispatcher->voltSin(v0, vAmp, freq, currentItem, nextItem, repsNum, applySteps);
 
     } else {
@@ -1089,9 +1138,11 @@ ErrorCodes_t startProtocol() {
 ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
         uint16_t itemsNum,
         uint16_t sweepsNum,
-        Measurement_t iRest) {
+        E384clMeasurement_t iRestIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t iRest;
+        input2Measurement(iRestIn, iRest);
         ret = messageDispatcher->setCurrentProtocolStructure(protId, itemsNum, sweepsNum, iRest);
 
     } else {
@@ -1101,16 +1152,24 @@ ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
 }
 
 ErrorCodes_t currStepTimeStep(
-        Measurement_t i0,
-        Measurement_t iStep,
-        Measurement_t t0,
-        Measurement_t tStep,
+        E384clMeasurement_t i0In,
+        E384clMeasurement_t iStepIn,
+        E384clMeasurement_t t0In,
+        E384clMeasurement_t tStepIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
         uint16_t applySteps) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t i0;
+        Measurement_t iStep;
+        Measurement_t t0;
+        Measurement_t tStep;
+        input2Measurement(i0In, i0);
+        input2Measurement(iStepIn, iStep);
+        input2Measurement(t0In, t0);
+        input2Measurement(tStepIn, tStep);
         ret = messageDispatcher->currStepTimeStep(i0, iStep, t0, tStep, currentItem, nextItem, repsNum, applySteps);
 
     } else {
@@ -1120,15 +1179,21 @@ ErrorCodes_t currStepTimeStep(
 }
 
 ErrorCodes_t currRamp(
-        Measurement_t i0,
-        Measurement_t iFinal,
-        Measurement_t t,
+        E384clMeasurement_t i0In,
+        E384clMeasurement_t iFinalIn,
+        E384clMeasurement_t tIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
         uint16_t applySteps) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t i0;
+        Measurement_t iFinal;
+        Measurement_t t;
+        input2Measurement(i0In, i0);
+        input2Measurement(iFinalIn, iFinal);
+        input2Measurement(tIn, t);
         ret = messageDispatcher->currRamp(i0, iFinal, t, currentItem, nextItem, repsNum, applySteps);
 
     } else {
@@ -1138,15 +1203,21 @@ ErrorCodes_t currRamp(
 }
 
 ErrorCodes_t currSin(
-        Measurement_t i0,
-        Measurement_t iAmp,
-        Measurement_t freq,
+        E384clMeasurement_t i0In,
+        E384clMeasurement_t iAmpIn,
+        E384clMeasurement_t freqIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
         uint16_t applySteps) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        Measurement_t i0;
+        Measurement_t iAmp;
+        Measurement_t freq;
+        input2Measurement(i0In, i0);
+        input2Measurement(iAmpIn, iAmp);
+        input2Measurement(freqIn, freq);
         ret = messageDispatcher->currSin(i0, iAmp, freq, currentItem, nextItem, repsNum, applySteps);
 
     } else {
@@ -1472,10 +1543,12 @@ ErrorCodes_t getCCCurrentRange(
 }
 
 ErrorCodes_t getVCVoltageRanges(
-        vector <RangedMeasurement_t> &voltageRanges) {
+        E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL voltageRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t> voltageRanges;
         ret = messageDispatcher->getVCVoltageRanges(voltageRanges);
+        vectorRangedMeasurement2Output(voltageRanges, voltageRangesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1484,10 +1557,12 @@ ErrorCodes_t getVCVoltageRanges(
 }
 
 ErrorCodes_t getCCVoltageRanges(
-        vector <RangedMeasurement_t> &voltageRanges) {
+        E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL voltageRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t> voltageRanges;
         ret = messageDispatcher->getCCVoltageRanges(voltageRanges);
+        vectorRangedMeasurement2Output(voltageRanges, voltageRangesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1520,10 +1595,12 @@ ErrorCodes_t getCCVoltageRange(
 }
 
 ErrorCodes_t getSamplingRates(
-        vector <Measurement_t> &samplingRates) {
+        E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL samplingRatesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t> samplingRates;
         ret = messageDispatcher->getSamplingRates(samplingRates);
+        vectorRangedMeasurement2Output(samplingRates, samplingRatesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1532,10 +1609,12 @@ ErrorCodes_t getSamplingRates(
 }
 
 ErrorCodes_t getRealSamplingRates(
-        vector <Measurement_t> &samplingRates) {
+        E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL samplingRatesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t> samplingRates;
         ret = messageDispatcher->getRealSamplingRates(samplingRates);
+        vectorRangedMeasurement2Output(samplingRates, samplingRatesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1544,10 +1623,13 @@ ErrorCodes_t getRealSamplingRates(
 }
 
 ErrorCodes_t getFilterRatios(
-        vector <Measurement_t> &filterRatios) {
+        E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL filterRatiosOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t> filterRatios;
         ret = messageDispatcher->getFilterRatios(filterRatios);
+        vectorRangedMeasurement2Output(filterRatios, filterRatiosOut);
+
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1556,10 +1638,12 @@ ErrorCodes_t getFilterRatios(
 }
 
 ErrorCodes_t getUpsamplingRatios(
-        vector <Measurement_t> &upsamplingRatios) {
+        E384clRangedMeasurementVector_t E384CL_VECTOR_OUTPUT_SYMBOL E384CL_OUTPUT_SYMBOL upsamplingRatiosOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t> upsamplingRatios;
         ret = messageDispatcher->getUpsamplingRatios(upsamplingRatios);
+        vectorRangedMeasurement2Output(upsamplingRatios, upsamplingRatiosOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1687,10 +1771,12 @@ ErrorCodes_t hasProtocolSin() {
 }
 
 ErrorCodes_t getVoltageStimulusLpfs(
-        std::vector <std::string> &filterOptions) {
+        E384clStringVector_t E384CL_OUTPUT_SYMBOL filterOptionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <std::string> filterOptions;
         ret = messageDispatcher->getVoltageStimulusLpfs(filterOptions);
+        vectorString2Output(filterOptions, filterOptionsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1699,10 +1785,12 @@ ErrorCodes_t getVoltageStimulusLpfs(
 }
 
 ErrorCodes_t getCurrentStimulusLpfs(
-        std::vector <std::string> &filterOptions) {
+        E384clStringVector_t E384CL_OUTPUT_SYMBOL filterOptionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <std::string> filterOptions;
         ret = messageDispatcher->getCurrentStimulusLpfs(filterOptions);
+        vectorString2Output(filterOptions, filterOptionsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1858,10 +1946,12 @@ ErrorCodes_t hasBridgeBalanceCompensation() {
 }
 
 ErrorCodes_t getPipetteCompensationOptions(
-        vector <string> &options) {
+        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <std::string> options;
         ret = messageDispatcher->getPipetteCompensationOptions(options);
+        vectorString2Output(options, optionsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1870,10 +1960,12 @@ ErrorCodes_t getPipetteCompensationOptions(
 }
 
 ErrorCodes_t getCCPipetteCompensationOptions(
-        vector <string> &options) {
+        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <std::string> options;
         ret = messageDispatcher->getCCPipetteCompensationOptions(options);
+        vectorString2Output(options, optionsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1882,10 +1974,12 @@ ErrorCodes_t getCCPipetteCompensationOptions(
 }
 
 ErrorCodes_t getMembraneCompensationOptions(
-        vector <string> &options) {
+        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <std::string> options;
         ret = messageDispatcher->getMembraneCompensationOptions(options);
+        vectorString2Output(options, optionsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1894,10 +1988,12 @@ ErrorCodes_t getMembraneCompensationOptions(
 }
 
 ErrorCodes_t getAccessResistanceCompensationOptions(
-        vector <string> &options) {
+        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <std::string> options;
         ret = messageDispatcher->getResistanceCompensationOptions(options);
+        vectorString2Output(options, optionsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1906,10 +2002,12 @@ ErrorCodes_t getAccessResistanceCompensationOptions(
 }
 
 ErrorCodes_t getAccessResistanceCorrectionOptions(
-        vector <string> &options) {
+        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <std::string> options;
         ret = messageDispatcher->getResistanceCorrectionOptions(options);
+        vectorString2Output(options, optionsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1918,10 +2016,12 @@ ErrorCodes_t getAccessResistanceCorrectionOptions(
 }
 
 ErrorCodes_t getAccessResistancePredictionOptions(
-        vector <string> &options) {
+        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <std::string> options;
         ret = messageDispatcher->getResistancePredictionOptions(options);
+        vectorString2Output(options, optionsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1930,10 +2030,12 @@ ErrorCodes_t getAccessResistancePredictionOptions(
 }
 
 ErrorCodes_t getLeakConductanceCompensationOptions(
-        vector <string> &options) {
+        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <std::string> options;
         ret = messageDispatcher->getLeakConductanceCompensationOptions(options);
+        vectorString2Output(options, optionsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1942,10 +2044,12 @@ ErrorCodes_t getLeakConductanceCompensationOptions(
 }
 
 ErrorCodes_t getBridgeBalanceCompensationOptions(
-        vector <string> &options) {
+        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <std::string> options;
         ret = messageDispatcher->getBridgeBalanceCompensationOptions(options);
+        vectorString2Output(options, optionsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
