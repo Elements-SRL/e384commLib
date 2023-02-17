@@ -60,7 +60,7 @@ ErrorCodes_t detectDevices(
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t connect(
+ErrorCodes_t connectDevice(
         E384CL_ARGIN E384clString_t deviceId);
 
 /*! \brief Filter messages returned by getNextMessage by message type.
@@ -82,7 +82,7 @@ ErrorCodes_t enableRxMessageType(
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t disconnect(
+ErrorCodes_t disconnectDevice(
         E384CL_ARGVOID);
 
 /****************\

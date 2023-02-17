@@ -48,6 +48,7 @@ typedef enum ErrorCodes {
     ErrorConnectionFpgaResetFailed =    ErrorGroupDeviceConnection +    0x00000007, /*!< Error returned when failed to reset the FPGA during connection. */
     ErrorConnectionChipResetFailed =    ErrorGroupDeviceConnection +    0x00000008, /*!< Error returned when failed to reset the chip during connection. */
     ErrorDeviceDisconnectionFailed =    ErrorGroupDeviceConnection +    0x00000009, /*!< Error returned when disconnection from a device fails. */
+    ErrorDeviceFwLoadingFailed =        ErrorGroupDeviceConnection +    0x0000000A, /*!< Error returned when the FPGA FW is not correctly loaded. */
 
     ErrorSendMessageFailed =            ErrorGroupDeviceCommands +      0x00000001, /*!< Error returned when sending a message to a device fails. */
     ErrorCommandNotImplemented =        ErrorGroupDeviceCommands +      0x00000002, /*!< Error returned when trying to use a command that is not implemented for the current device. */

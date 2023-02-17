@@ -32,16 +32,20 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/e384commlib.cpp
+    src/e384commlib.cpp \
+    src/messagedispatcher.cpp \
+    src/messagedispatcher_opalkelly.cpp
 
 HEADERS += \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
     src/e384commlib.h \
-    src/messagedispatcher.h
+    src/messagedispatcher.h \
+    src/messagedispatcher_opalkelly.h
 
 INCLUDEPATH += ./src
 DEPENDPATH += ./src
 
 include(LabVIEW/includelabview.pri)
+include(frontPanel/includefrontpanel.pri)

@@ -186,11 +186,6 @@ typedef enum DeviceTypes {
     DevicesNum
 } DeviceTypes_t;
 
-/*! \def E384CL_OUT_STRUCT_UINT_DATA_LEN
- * \brief Max size of unsigned integers returned by struct e384CommLib::RxOutput_t.
- */
-#define E384CL_OUT_STRUCT_UINT_DATA_LEN 0x10
-
 /*! \def E384CL_OUT_STRUCT_DATA_LEN
  * \brief Max size of double precision numbers returned by struct e384CommLib::RxOutput_t.
  */
@@ -208,14 +203,6 @@ typedef struct RxOutput {
     uint16_t protocolSweepIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionHeader this field holds the sweep index of the following data in the current protocol */
     uint32_t firstSampleOffset = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionData this field holds the data offset wrt the protocol first sample */
     uint16_t dataLen = 0; /*!< Number of data samples available in field data */
-    uint16_t uintData[E384CL_OUT_STRUCT_UINT_DATA_LEN]; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionSaturation this field holds the index of the saturated channels:
-                                                        *   Each channel is associated a bit, which is high if the channel is saturated. */
-    double data[E384CL_OUT_STRUCT_DATA_LEN]; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionData this field holds the voltage and current data.
-                                             *   Data samples are organized in time samples, so if the device has 2 voltage channels V[ch, t] and 3 current channels I[ch, t] data will be:
-                                             *   V[0, 0], V[1, 0], I[0, 0], I[1, 0], I[2, 0], V[0, 1], V[1, 1], I[0, 1], ...
-                                             *   When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdDigitalOffsetComp or MsgDirectionDeviceToEdr + MsgTypeIdDigitalOffsetCompInquiry, data will contain only one float
-                                             *   Corresponding to the voltage of the liquid junction.
-                                             *   Data are always expressed in the same unit as the last received CommLib::setVoltageRange(uint16_t) and CommLib::setCurrentRange(uint16_t) commands. */
 } RxOutput_t;
 
 /*! \enum UnitPfx_t

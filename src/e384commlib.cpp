@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "messagedispatcher.h"
+#include "okFrontPanelDLL.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -11,6 +12,10 @@
 using namespace std;
 
 static MessageDispatcher * messageDispatcher = nullptr;
+
+/*! Private functions prototypes */
+static string getDeviceSerial(int index);
+static bool getDeviceCount(int &numDevs);
 
 static void input2String(E384clString_t i, string &s);
 static void input2Measurement(E384clMeasurement_t i, Measurement_t &m);
@@ -43,180 +48,70 @@ ErrorCodes_t deinit() {
 \************************/
 
 ErrorCodes_t detectDevices(
-        vector <string> &deviceIds) {
+        E384clStringVector_t E384CL_OUTPUT_SYMBOL deviceIdsOut) {
+    vector <string> deviceIds;
     /*! Gets number of devices */
-//    DWORD numDevs;
-//    bool devCountOk = getDeviceCount(numDevs);
-//    if (!devCountOk) {
-//        return ErrorListDeviceFailed;
+    int numDevs;
+    bool devCountOk = getDeviceCount(numDevs);
+    if (!devCountOk) {
+        return ErrorListDeviceFailed;
 
-//    } else if (numDevs == 0) {
-//        deviceIds.clear();
-//        return ErrorNoDeviceFound;
-//    }
+    } else if (numDevs == 0) {
+        deviceIds.clear();
+        return ErrorNoDeviceFound;
+    }
 
-//    deviceIds.clear();
-//    string deviceName;
+    deviceIds.clear();
 
-//    /*! Lists all serial numbers */
-//    for (uint32_t i = 0; i < numDevs; i++) {
-//        deviceName = getDeviceSerial(i, true);
-//        if (find(deviceIds.begin(), deviceIds.end(), deviceName) == deviceIds.end()) {
-//            /*! Adds only new devices (no distinction between channels A and B creates duplicates) */
-//            if (deviceName.size() > 0) {
-//                /*! Devices with an open channel are detected wrongly and their name is an empty string */
-//                deviceIds.push_back(getDeviceSerial(i, true));
-//            }
-//        }
-//    }
+    /*! Lists all serial numbers */
+    for (int i = 0; i < numDevs; i++) {
+        deviceIds.push_back(getDeviceSerial(i));
+    }
+    vectorString2Output(deviceIds, deviceIdsOut);
 
     return Success;
 }
 
-ErrorCodes_t connect(
-        string deviceId) {
+ErrorCodes_t connectDevice(
+        E384clString_t deviceIdIn) {
 
     ErrorCodes_t ret = Success;
-//    if (messageDispatcher == nullptr) {
-//        /*! Initializes eeprom */
-//        /*! \todo FCON questa info dovrà essere appresa dal device detector e condivisa qui dal metodo connect */
-//        FtdiEepromId_t ftdiEepromId = FtdiEepromId56;
-//        if (deviceId == "ePatch Demo") {
-//            ftdiEepromId = FtdiEepromIdDemo;
-//        }
+    if (messageDispatcher == nullptr) {
+        string deviceId;
+        input2String(deviceIdIn, deviceId);
 
-//        if (deviceId == "eP8 Demo") {
-//            ftdiEepromId = FtdiEepromIdDemo;
-//        }
+        DeviceTypes_t deviceType;
+        ret = MessageDispatcher::getDeviceType(deviceId, deviceType);
+        if (ret != Success) {
+            return ErrorDeviceTypeNotRecognized;
+        }
 
-//        /*! ftdiEeprom is deleted by the messageDispatcher if one is created successfully */
-//        FtdiEeprom * ftdiEeprom = nullptr;
-//        switch (ftdiEepromId) {
-//        case FtdiEepromId56:
-//            ftdiEeprom = new FtdiEeprom56(deviceId);
-//            break;
+        switch (deviceType) {
+        case Device384Nanopores:
+            messageDispatcher = new MessageDispatcher_ePatchEL03D(deviceId);
+            break;
 
-//        case FtdiEepromIdDemo:
-//            ftdiEeprom = new FtdiEepromDemo(deviceId);
-//            break;
-//        }
+        case Device384PatchClamp:
+            messageDispatcher = new MessageDispatcher_ePatchEL03D_V01(deviceId);
+            break;
 
-//        DeviceTuple_t deviceTuple = ftdiEeprom->getDeviceTuple();
-//        DeviceTypes_t deviceType;
+        default:
+            return ErrorDeviceTypeNotRecognized;
+        }
 
-//        ret = MessageDispatcher::getDeviceType(deviceTuple, deviceType);
-//        if (ret != Success) {
-//            if (ftdiEeprom != nullptr) {
-//                delete ftdiEeprom;
-//            }
-//            return ErrorDeviceTypeNotRecognized;
-//        }
+        if (messageDispatcher != nullptr) {
+            ret = messageDispatcher->connect();
 
-//        switch (deviceType) {
-//        case DeviceEPatchEL03D:
-//            messageDispatcher = new MessageDispatcher_ePatchEL03D(deviceId);
-//            break;
+            if (ret != Success) {
+                messageDispatcher->disconnect();
+                delete messageDispatcher;
+                messageDispatcher = nullptr;
+            }
+        }
 
-//        case DeviceEPatchEL03D_V01:
-//            messageDispatcher = new MessageDispatcher_ePatchEL03D_V01(deviceId);
-//            break;
-
-//        case DeviceEPatchEL03D_V00:
-//            messageDispatcher = new MessageDispatcher_ePatchEL03D_V00(deviceId);
-//            break;
-
-//        case DeviceEPatchEL03F_4D:
-//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D(deviceId);
-//            break;
-
-//        case DeviceEPatchEL03F_4D_V02:
-//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D_V02(deviceId);
-//            break;
-
-//        case DeviceEPatchEL03F_4D_V01:
-//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D_V01(deviceId);
-//            break;
-
-//        case DeviceEPatchEL03F_4D_V00:
-//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4D_V00(deviceId);
-//            break;
-
-//        case DeviceEPatchEL03F_4E:
-//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E(deviceId);
-//            break;
-
-//        case DeviceEPatchEL03F_4E_V02:
-//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E_V02(deviceId);
-//            break;
-
-//        case DeviceEPatchEL03F_4E_V01:
-//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E_V01(deviceId);
-//            break;
-
-//        case DeviceEPatchEL03F_4E_V00:
-//            messageDispatcher = new MessageDispatcher_ePatchEL03F_4E_V00(deviceId);
-//            break;
-
-//        case DeviceEPatchEL04E:
-//            messageDispatcher = new MessageDispatcher_ePatchEL04E(deviceId);
-//            break;
-
-//        case DeviceEPatchEL04F:
-//            messageDispatcher = new MessageDispatcher_ePatchEL04F(deviceId);
-//            break;
-
-//        case DeviceE4PEL04F:
-//            messageDispatcher = new MessageDispatcher_e4PEL04F(deviceId);
-//            break;
-
-//        case DeviceE4PPatchLiner:
-//            messageDispatcher = new MessageDispatcher_e4PPatchliner(deviceId);
-//            break;
-
-//        case DeviceE8PPatchLiner:
-//            messageDispatcher = new MessageDispatcher_e8PPatchliner(deviceId);
-//            break;
-
-//        case DeviceE4PPatchLinerEL07AB:
-//            messageDispatcher = new MessageDispatcher_e4PPatchliner_el07ab(deviceId);
-//            break;
-
-//        case DeviceE8PPatchLinerEL07AB:
-//            messageDispatcher = new MessageDispatcher_e8PPatchliner_el07ab(deviceId);
-//            break;
-
-//        case DeviceFakePatch:
-//            messageDispatcher = new MessageDispatcher_fakePatch(deviceId);
-//            break;
-
-//        case DeviceFakeP8:
-//            messageDispatcher = new MessageDispatcher_fakeP8(deviceId);
-//            break;
-
-//        case DeviceEPatchDlp:
-//            messageDispatcher = new MessageDispatcher_ePatchDlp(deviceId);
-//            break;
-
-//        default:
-//            if (ftdiEeprom != nullptr) {
-//                delete ftdiEeprom;
-//            }
-//            return ErrorDeviceTypeNotRecognized;
-//        }
-
-//        if (messageDispatcher != nullptr) {
-//            ret = messageDispatcher->connect(ftdiEeprom);
-
-//            if (ret != Success) {
-//                messageDispatcher->disconnect();
-//                delete messageDispatcher;
-//                messageDispatcher = nullptr;
-//            }
-//        }
-
-//    } else {
-//        ret = ErrorDeviceAlreadyConnected;
-//    }
+    } else {
+        ret = ErrorDeviceAlreadyConnected;
+    }
     return ret;
 }
 
@@ -233,7 +128,7 @@ ErrorCodes_t enableRxMessageType(
     return ret;
 }
 
-ErrorCodes_t disconnect() {
+ErrorCodes_t disconnectDevice() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->disconnect();
@@ -2222,6 +2117,28 @@ ErrorCodes_t getBridgeBalanceResistanceControl(
 #ifndef E384CL_LABVIEW_COMPATIBILITY
 } // namespace e384CommLib
 #endif
+
+/*! Private functions */
+string getDeviceSerial(int index) {
+    string serial;
+    int numDevs;
+    getDeviceCount(numDevs);
+    if (index < numDevs) {
+        okCFrontPanel okDev;
+        okDev.GetDeviceCount();
+        serial = okDev.GetDeviceListSerial(index);
+        return serial;
+
+    } else {
+        return "";
+    }
+}
+
+bool getDeviceCount(int &numDevs) {
+    okCFrontPanel okDev;
+    numDevs = okDev.GetDeviceCount();
+    return true;
+}
 
 void input2String(E384clString_t i, string &s) {
 #ifndef E384CL_LABVIEW_COMPATIBILITY
