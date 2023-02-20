@@ -116,19 +116,6 @@ ErrorCodes_t connectDevice(
     return ret;
 }
 
-ErrorCodes_t enableRxMessageType(
-        MsgTypeId_t messageType,
-        bool flag) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->enableRxMessageType(messageType, flag);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
 ErrorCodes_t disconnectDevice() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -322,30 +309,6 @@ ErrorCodes_t setSamplingRate(
     return ret;
 }
 
-ErrorCodes_t setFilterRatio(
-        uint16_t filterRatioIdx) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setFilterRatio(filterRatioIdx);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t setUpsamplingRatio(
-        uint16_t upsamplingRatioIdx) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setUpsamplingRatio(upsamplingRatioIdx);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
 ErrorCodes_t setDigitalFilter(
         E384CL_ARGIN double cutoffFrequency,
         E384CL_ARGIN bool lowPassFlag,
@@ -499,29 +462,6 @@ ErrorCodes_t setSlave(
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->setSlave(on);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t setConstantSwitches() {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setConstantSwitches();
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t setCompensationsChannel(
-        uint16_t channelIdx) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setCompensationsChannel(channelIdx);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1591,35 +1531,6 @@ ErrorCodes_t getRealSamplingRates(
     return ret;
 }
 
-ErrorCodes_t getFilterRatios(
-        E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL filterRatiosOut) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t> filterRatios;
-        ret = messageDispatcher->getFilterRatios(filterRatios);
-        vectorRangedMeasurement2Output(filterRatios, filterRatiosOut);
-
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t getUpsamplingRatios(
-        E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL upsamplingRatiosOut) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t> upsamplingRatios;
-        ret = messageDispatcher->getUpsamplingRatios(upsamplingRatios);
-        vectorRangedMeasurement2Output(upsamplingRatios, upsamplingRatiosOut);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
 ErrorCodes_t getVoltageProtocolRange(
         unsigned int rangeIdx,
         RangedMeasurement_t &voltageProtocolRange) {
@@ -1811,18 +1722,6 @@ ErrorCodes_t getClampingModalities(
         std::vector <uint16_t> clampingModalities;
         ret = messageDispatcher->getClampingModalities(clampingModalities);
         numericVector2Output<std::vector <uint16_t>, E384clUint16Vector_t>(clampingModalities, clampingModalitiesOut);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t multimeterStuckHazard(
-        E384CL_ARGOUT bool &stuckFlag) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->multimeterStuckHazard(stuckFlag);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2031,7 +1930,7 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
 }
 
 ErrorCodes_t getLiquidJunctionControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getLiquidJunctionControl(control);
@@ -2043,7 +1942,7 @@ ErrorCodes_t getLiquidJunctionControl(
 }
 
 ErrorCodes_t getPipetteCapacitanceControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getPipetteCapacitanceControl(control);
@@ -2055,7 +1954,7 @@ ErrorCodes_t getPipetteCapacitanceControl(
 }
 
 ErrorCodes_t getCCPipetteCapacitanceControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getCCPipetteCapacitanceControl(control);
@@ -2067,7 +1966,7 @@ ErrorCodes_t getCCPipetteCapacitanceControl(
 }
 
 ErrorCodes_t getMembraneCapacitanceControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getMembraneCapacitanceControl(control);
@@ -2079,7 +1978,7 @@ ErrorCodes_t getMembraneCapacitanceControl(
 }
 
 ErrorCodes_t getAccessResistanceControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getAccessResistanceControl(control);
@@ -2091,7 +1990,7 @@ ErrorCodes_t getAccessResistanceControl(
 }
 
 ErrorCodes_t getResistanceCorrectionPercentageControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistanceCorrectionPercentageControl(control);
@@ -2103,7 +2002,7 @@ ErrorCodes_t getResistanceCorrectionPercentageControl(
 }
 
 ErrorCodes_t getResistanceCorrectionLagControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistanceCorrectionLagControl(control);
@@ -2115,7 +2014,7 @@ ErrorCodes_t getResistanceCorrectionLagControl(
 }
 
 ErrorCodes_t getResistancePredictionGainControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistancePredictionGainControl(control);
@@ -2127,7 +2026,7 @@ ErrorCodes_t getResistancePredictionGainControl(
 }
 
 ErrorCodes_t getResistancePredictionPercentageControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistancePredictionPercentageControl(control);
@@ -2139,7 +2038,7 @@ ErrorCodes_t getResistancePredictionPercentageControl(
 }
 
 ErrorCodes_t getResistancePredictionBandwidthGainControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistancePredictionBandwidthGainControl(control);
@@ -2151,7 +2050,7 @@ ErrorCodes_t getResistancePredictionBandwidthGainControl(
 }
 
 ErrorCodes_t getResistancePredictionTauControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistancePredictionTauControl(control);
@@ -2163,7 +2062,7 @@ ErrorCodes_t getResistancePredictionTauControl(
 }
 
 ErrorCodes_t getLeakConductanceControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getLeakConductanceControl(control);
@@ -2175,7 +2074,7 @@ ErrorCodes_t getLeakConductanceControl(
 }
 
 ErrorCodes_t getBridgeBalanceResistanceControl(
-        CompensationControl_t &control) {
+        E384clCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getBridgeBalanceResistanceControl(control);

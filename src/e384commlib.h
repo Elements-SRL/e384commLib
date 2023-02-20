@@ -63,18 +63,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t connectDevice(
         E384CL_ARGIN E384clString_t deviceId);
 
-/*! \brief Filter messages returned by getNextMessage by message type.
- *
- * \param messageType [in] Message type to filter.
- * \param flag [in] True to return the selected message type; false to filter it out.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t enableRxMessageType(
-        E384CL_ARGIN MsgTypeId_t messageType,
-        E384CL_ARGIN bool flag);
-
 /*! \brief Disconnects from connected device.
  * Calling this method if no device is connected will return an error code.
  *
@@ -240,33 +228,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setSamplingRate(
         E384CL_ARGIN uint16_t samplingRateIdx);
 
-/*! \brief Set the filter ratio.
- * The filter ratio is the ratio between the sampling rate and the signal bandwitdh.
- * e.g. 2 if no filter is applied
- *
- * \param filterRatioIdx [in] Index of the filter ratio to be set.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setFilterRatio(
-        E384CL_ARGIN uint16_t filterRatioIdx);
-
-/*! \brief Set the upsampling ratio.
- * The upsampling ratio is the ratio between the real data sampling rate and the
- * one set with method #setSamplingRate.
- * \note The HW structure that performs upsampling preserves the bandwidth,
- * so the upsampling can be used instead of filters to have a bandwidth lower than
- * half sampling rate without filtering.
- *
- * \param upsamplingRatioIdx [in] Index of the upsampling ratio to be set.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setUpsamplingRatio(
-        E384CL_ARGIN uint16_t upsamplingRatioIdx);
-
 /*! \brief Set a digital filter.
  *
  * \param cutoffFrequency [in] The cut-off frequency in kHz of the filter.
@@ -413,27 +374,6 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setSlave(
         E384CL_ARGIN bool on);
-
-/*! \brief Sets switches that are not controlled by widget.
- *
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setConstantSwitches(
-        E384CL_ARGVOID);
-
-/*! \brief Select the channel for compesantions settings.
- *  Call this method before other compensations control methods, in order to select which channel
- *  those methods should apply to.
- *
- * \param channelIdx [in] Channel index that compensations methods will be applied to.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setCompensationsChannel(
-        E384CL_ARGIN uint16_t channelIdx);
 
 /*! \brief Turn on/off the voltage compesantions.
  *
@@ -1105,12 +1045,14 @@ ErrorCodes_t readCalibrationEeprom(
 /*! \brief Get the next message from the queue sent by the connected device.
  *
  * \param rxOutput [out] Struct containing info on the received message.
+ * \param data [out] array of output data.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getNextMessage(
-        E384CL_ARGOUT RxOutput_t &rxOutput);
+        E384CL_ARGOUT RxOutput_t &rxOutput,
+        E384CL_ARGOUT data);
 
 /*! \brief Get the number of channels for the device.
  *
@@ -1255,26 +1197,6 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getRealSamplingRates(
         E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL samplingRates);
-
-/*! \brief Get the filter ratios available for the device.
- *
- * \param filterRatios [out] Array containing all the available filter ratios.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getFilterRatios(
-        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL filterRatios);
-
-/*! \brief Get the upsampling ratios available for the device.
- *
- * \param upsamplingRatios [out] Array containing all the available upsampling ratios.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getUpsamplingRatios(
-        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL upsamplingRatios);
 
 /*! \brief Get the voltage range for voltage protocols.
  *
@@ -1433,16 +1355,6 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getClampingModalities(
         E384CL_ARGOUT std::vector <uint16_t> &clampingModalities);
-
-/*! \brief Tells if the device's multimeter can get stuck when it saturates in current clamp.
- *
- * \param stuckFlag [out] true if the device's multimeter can get stuck when it saturates in current clamp, false otherwise.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t multimeterStuckHazard(
-        E384CL_ARGOUT bool &stuckFlag);
 
 /*! \brief Tell if the device implements pipette compensation.
  *
@@ -1606,7 +1518,7 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLiquidJunctionControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the pipette capacitance.
  *
@@ -1616,7 +1528,7 @@ ErrorCodes_t getLiquidJunctionControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getPipetteCapacitanceControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the pipette capacitance for current clamp.
  *
@@ -1626,7 +1538,7 @@ ErrorCodes_t getPipetteCapacitanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCPipetteCapacitanceControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the membrane capacitance.
  *
@@ -1636,7 +1548,7 @@ ErrorCodes_t getCCPipetteCapacitanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getMembraneCapacitanceControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the access resistance.
  *
@@ -1646,7 +1558,7 @@ ErrorCodes_t getMembraneCapacitanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance correction percentage.
  *
@@ -1656,7 +1568,7 @@ ErrorCodes_t getAccessResistanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistanceCorrectionPercentageControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance correction lag.
  *
@@ -1666,7 +1578,7 @@ ErrorCodes_t getResistanceCorrectionPercentageControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistanceCorrectionLagControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction gain.
  *
@@ -1676,7 +1588,7 @@ ErrorCodes_t getResistanceCorrectionLagControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionGainControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction percentage.
  *
@@ -1686,7 +1598,7 @@ ErrorCodes_t getResistancePredictionGainControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionPercentageControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction bandwidth gain.
  *
@@ -1696,7 +1608,7 @@ ErrorCodes_t getResistancePredictionPercentageControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionBandwidthGainControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction tau.
  *
@@ -1706,7 +1618,7 @@ ErrorCodes_t getResistancePredictionBandwidthGainControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionTauControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the leak conductance.
  *
@@ -1716,7 +1628,7 @@ ErrorCodes_t getResistancePredictionTauControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLeakConductanceControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the bridge balance resistance.
  *
@@ -1726,7 +1638,7 @@ ErrorCodes_t getLeakConductanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceResistanceControl(
-        E384CL_ARGOUT CompensationControl_t &control);
+        E384CL_ARGOUT E384clCompensationControl_t &control);
 
 // NEW MICHELANGELO'S GETS
 /*! \brief Gets the value of the pipette capacitance for voltage clamp for each channel.
