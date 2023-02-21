@@ -147,10 +147,17 @@ ErrorCodes_t ping() {
 }
 
 ErrorCodes_t turnVoltageStimulusOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn  = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnVoltageStimulusOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnVoltageStimulusOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -159,10 +166,17 @@ ErrorCodes_t turnVoltageStimulusOn(
 }
 
 ErrorCodes_t turnCurrentStimulusOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnCurrentStimulusOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnCurrentStimulusOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -171,10 +185,17 @@ ErrorCodes_t turnCurrentStimulusOn(
 }
 
 ErrorCodes_t turnVoltageReaderOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnVoltageReaderOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnVoltageReaderOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -183,10 +204,17 @@ ErrorCodes_t turnVoltageReaderOn(
 }
 
 ErrorCodes_t turnCurrentReaderOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthI = 0n) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnCurrentReaderOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnCurrentReaderOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -238,10 +266,17 @@ ErrorCodes_t setCurrentHoldTuner(
 }
 
 ErrorCodes_t turnOnLsbNoise(
-        bool flag) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL flagValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnOnLsbNoise(flag);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> flagValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(flagValuesIn, flagValues, vectorLengthIn);
+        ret = messageDispatcher->turnOnLsbNoise(channelIndexes, flagValues, vectorLengthIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -470,10 +505,17 @@ ErrorCodes_t setSlave(
 }
 
 ErrorCodes_t turnVoltageCompensationsOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnVoltageCompensationsOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnVoltageCompensationsOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -482,10 +524,17 @@ ErrorCodes_t turnVoltageCompensationsOn(
 }
 
 ErrorCodes_t turnCurrentCompensationsOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnCurrentCompensationsOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnCurrentCompensationsOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -494,10 +543,17 @@ ErrorCodes_t turnCurrentCompensationsOn(
 }
 
 ErrorCodes_t turnPipetteCompensationOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnPipetteCompensationOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnPipetteCompensationOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -506,10 +562,17 @@ ErrorCodes_t turnPipetteCompensationOn(
 }
 
 ErrorCodes_t turnCCPipetteCompensationOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnCCPipetteCompensationOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnCCPipetteCompensationOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -518,10 +581,17 @@ ErrorCodes_t turnCCPipetteCompensationOn(
 }
 
 ErrorCodes_t turnMembraneCompensationOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnMembraneCompensationOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnMembraneCompensationOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -530,10 +600,17 @@ ErrorCodes_t turnMembraneCompensationOn(
 }
 
 ErrorCodes_t turnAccessResistanceCompensationOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnResistanceCompensationOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnResistanceCompensationOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -542,10 +619,17 @@ ErrorCodes_t turnAccessResistanceCompensationOn(
 }
 
 ErrorCodes_t turnAccessResistanceCorrectionOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnResistanceCorrectionOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnResistanceCorrectionOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -554,10 +638,17 @@ ErrorCodes_t turnAccessResistanceCorrectionOn(
 }
 
 ErrorCodes_t turnAccessResistancePredictionOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnResistancePredictionOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnResistancePredictionOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -566,10 +657,17 @@ ErrorCodes_t turnAccessResistancePredictionOn(
 }
 
 ErrorCodes_t turnLeakConductanceCompensationOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnLeakConductanceCompensationOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnLeakConductanceCompensationOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -578,10 +676,17 @@ ErrorCodes_t turnLeakConductanceCompensationOn(
 }
 
 ErrorCodes_t turnBridgeBalanceCompensationOn(
-        bool on) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnBridgeBalanceCompensationOn(on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnBridgeBalanceCompensationOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -590,10 +695,17 @@ ErrorCodes_t turnBridgeBalanceCompensationOn(
 }
 
 ErrorCodes_t setPipetteCompensationOptions(
-        uint16_t optionIdx) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setPipetteCompensationOptions(optionIdx);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<uint16_t> optionIndexes;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+        ret = messageDispatcher->setPipetteCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -602,10 +714,17 @@ ErrorCodes_t setPipetteCompensationOptions(
 }
 
 ErrorCodes_t setCCPipetteCompensationOptions(
-        uint16_t optionIdx) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setCCPipetteCompensationOptions(optionIdx);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<uint16_t> optionIndexes;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+        ret = messageDispatcher->setCCPipetteCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -614,10 +733,17 @@ ErrorCodes_t setCCPipetteCompensationOptions(
 }
 
 ErrorCodes_t setMembraneCompensationOptions(
-        uint16_t optionIdx) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setMembraneCompensationOptions(optionIdx);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<uint16_t> optionIndexes;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+        ret = messageDispatcher->setMembraneCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -626,10 +752,17 @@ ErrorCodes_t setMembraneCompensationOptions(
 }
 
 ErrorCodes_t setAccessResistanceCompensationOptions(
-        uint16_t optionIdx) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setResistanceCompensationOptions(optionIdx);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<uint16_t> optionIndexes;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+        ret = messageDispatcher->setResistanceCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -638,10 +771,17 @@ ErrorCodes_t setAccessResistanceCompensationOptions(
 }
 
 ErrorCodes_t setAccessResistanceCorrectionOptions(
-        uint16_t optionIdx) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setResistanceCorrectionOptions(optionIdx);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<uint16_t> optionIndexes;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+        ret = messageDispatcher->setResistanceCorrectionOptions(channelIndexes, optionIndexes, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -650,10 +790,17 @@ ErrorCodes_t setAccessResistanceCorrectionOptions(
 }
 
 ErrorCodes_t setAccessResistancePredictionOptions(
-        uint16_t optionIdx) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setResistancePredictionOptions(optionIdx);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<uint16_t> optionIndexes;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+        ret = messageDispatcher->setResistancePredictionOptions(channelIndexes, optionIndexes, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -662,10 +809,17 @@ ErrorCodes_t setAccessResistancePredictionOptions(
 }
 
 ErrorCodes_t setLeakConductanceCompensationOptions(
-        uint16_t optionIdx) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setLeakConductanceCompensationOptions(optionIdx);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<uint16_t> optionIndexes;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+        ret = messageDispatcher->setLeakConductanceCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -674,10 +828,17 @@ ErrorCodes_t setLeakConductanceCompensationOptions(
 }
 
 ErrorCodes_t setBridgeBalanceCompensationOptions(
-        uint16_t optionIdx) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setBridgeBalanceCompensationOptions(optionIdx);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<uint16_t> optionIndexes;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+        ret = messageDispatcher->setBridgeBalanceCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;

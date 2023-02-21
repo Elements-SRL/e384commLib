@@ -86,51 +86,75 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t ping(
         E384CL_ARGVOID);
 
-/*! \brief Turn on/off the voltage stimulus.
+/*! \brief Turn on/off the voltage stimulus for each channel.
  *
- * \param on [in] True to turn the voltage stimulus on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the voltage stimulus on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageStimulusOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off the current stimulus.
+/*! \brief Turn on/off the current stimulus for each channel.
  *
- * \param on [in] True to turn the current stimulus on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the current stimulus on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentStimulusOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off the voltage reader.
+/*! \brief Turn on/off the voltage reader for each channel.
  *  \note The voltage is read by the current clamp ADC.
  *  \note In some devices the ADC can't be turned on independently of the DAC.
  *  \note This only activates the circuitry: in order to have the device return the desired channels use #setChannelsSources.
  *
- * \param on [in] True to turn the voltage reader on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the voltage reader on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageReaderOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off the current reader.
+/*! \brief Turn on/off the current reader for each channel.
  *  \note The current is read by the current clamp ADC.
  *  \note In some devices the ADC can't be turned on independently of the DAC.
  *  \note This only activates the circuitry: in order to have the device return the desired channels use #setChannelsSources.
  *
- * \param on [in] True to turn the current reader on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the current reader on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentReaderOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
 /*! \brief Set the data sources for all channels.
  *
@@ -170,13 +194,19 @@ ErrorCodes_t setCurrentHoldTuner(
 
 /*! \brief Turns on/off a uniform noise additive noise with the same range as the LSB on received data.
  *
- * \param flag [in] True to turn on LSB additive noise, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  flagValuesIn [in] Array of booleans, one for each channel: True to turn on LSB additive noise, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnOnLsbNoise(
-        E384CL_ARGIN bool flag);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL flagValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
 /*! \brief Set the current range for voltage clamp.
  *
@@ -375,186 +405,294 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setSlave(
         E384CL_ARGIN bool on);
 
-/*! \brief Turn on/off the voltage compesantions.
+/*! \brief Turn on/off the voltage compesantions for each channel.
  *
- * \param on [in] True to turn the voltage compensations on, false to turn them off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the voltage compensations on, false to turn them off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageCompensationsOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off the current stimulus.
+/*! \brief Turn on/off the current stimulus for each channel.
  *
- * \param on [in] True to turn the current compensations on, false to turn them off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the current compensations on, false to turn them off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentCompensationsOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off pipette compensation.
+/*! \brief Turn on/off pipette compensation for each channel.
  *
- * \param on [in] True to turn the pipette compensation on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the pipette compensation on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnPipetteCompensationOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off pipette compensation for current clamp.
+/*! \brief Turn on/off pipette compensation for current clamp for each channel.
  *
- * \param on [in] True to turn the pipette compensation for current clamp on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the pipette compensation for current clamp on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCCPipetteCompensationOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off membrane compensation.
+/*! \brief Turn on/off membrane compensation for each channel.
  *
- * \param on [in] True to turn the membrane compensation on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the membrane compensation on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnMembraneCompensationOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off access resistance compensation.
+/*! \brief Turn on/off access resistance compensation for each channel.
  * \note Resistance compensation includes resistance correction and prediction.
  *
- * \param on [in] True to turn the resistance compensation on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the resistance compensation on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnAccessResistanceCompensationOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off access resistance correction.
+/*! \brief Turn on/off access resistance correction for each channel.
  *
- * \param on [in] True to turn the resistance correction on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the resistance correction on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnAccessResistanceCorrectionOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off access resistance prediction.
+/*! \brief Turn on/off access resistance prediction for each channel.
  *
- * \param on [in] True to turn the resistance prediction on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the resistance prediction on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnAccessResistancePredictionOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off leak conductance compensation.
+/*! \brief Turn on/off leak conductance compensation for each channel.
  *
- * \param on [in] True to turn the leak conductance compensation on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the leak conductance compensation on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnLeakConductanceCompensationOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Turn on/off bridge balance compensation.
+/*! \brief Turn on/off bridge balance compensation for each channel.
  *
- * \param on [in] True to turn the bridge balance compensation on, false to turn it off.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the bridge balance compensation on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnBridgeBalanceCompensationOn(
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Set options for pipette compensation (voltage clamp).
+/*! \brief Set options for pipette compensation (voltage clamp) for each channel.
  *
- * \param optionIdx [in] Option index.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param optionIndexesIn [in] Option indexes.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setPipetteCompensationOptions(
-        E384CL_ARGIN uint16_t optionIdx);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Set options for pipette compensation (current clamp).
+/*! \brief Set options for pipette compensation (current clamp) for each channel.
  *
- * \param optionIdx [in] Option index.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param optionIndexesIn [in] Option indexes.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCCPipetteCompensationOptions(
-        E384CL_ARGIN uint16_t optionIdx);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Set options for membrane compensation.
+/*! \brief Set options for membrane compensation for each channel.
  *
- * \param optionIdx [in] Option index.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param optionIndexesIn [in] Option indexes.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setMembraneCompensationOptions(
-        E384CL_ARGIN uint16_t optionIdx);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Set options for resistance compensation.
+/*! \brief Set options for resistance compensation for each channel.
  *
- * \param optionIdx [in] Option index.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param optionIndexesIn [in] Option indexes.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistanceCompensationOptions(
-        E384CL_ARGIN uint16_t optionIdx);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Set options for resistance correction.
+/*! \brief Set options for resistance correction for each channel.
  *
- * \param optionIdx [in] Option index.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param optionIndexesIn [in] Option indexes.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistanceCorrectionOptions(
-        E384CL_ARGIN uint16_t optionIdx);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Set options for resistance prediction.
+/*! \brief Set options for resistance prediction for each channel.
  *
- * \param optionIdx [in] Option index.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param optionIndexesIn [in] Option indexes.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistancePredictionOptions(
-        E384CL_ARGIN uint16_t optionIdx);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Set options for leak conductance compensation.
+/*! \brief Set options for leak conductance compensation for each channel.
  *
- * \param optionIdx [in] Option index.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param optionIndexesIn [in] Option indexes.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setLeakConductanceCompensationOptions(
-        E384CL_ARGIN uint16_t optionIdx);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
-/*! \brief Set options for bridge balance compensation.
+/*! \brief Set options for bridge balance compensation for each channel.
  *
- * \param optionIdx [in] Option index.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param optionIndexesIn [in] Option indexes.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setBridgeBalanceCompensationOptions(
-        E384CL_ARGIN uint16_t optionIdx);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
 /*! \brief Sets the value of the pipette capacitance for voltage clamp for each channel.
  *
