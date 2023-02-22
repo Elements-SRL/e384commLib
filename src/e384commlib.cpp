@@ -285,10 +285,11 @@ ErrorCodes_t turnOnLsbNoise(
 }
 
 ErrorCodes_t setVCCurrentRange(
-        uint16_t currentRangeIdx) {
+        uint16_t currentRangeIdx,
+        bool applyFlagIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setVCCurrentRange(currentRangeIdx);
+        ret = messageDispatcher->setVCCurrentRange(currentRangeIdx, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;

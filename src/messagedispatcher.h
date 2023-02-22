@@ -33,6 +33,8 @@
 #define RX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
 
 #define TX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
+#define TX_MSG_BUFFER_SIZE 0x100
+#define TX_MSG_BUFFER_MASK (TX_MSG_BUFFER_SIZE-1)
 
 class MessageDispatcher {
 public:
@@ -54,6 +56,18 @@ public:
     virtual void sendCommandsToDevice() = 0;
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
 
+    /****************\
+     *  Tx methods  *
+    \****************/
+
+    ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
+
+    /****************\
+     *  Rx methods  *
+    \****************/
+
+    ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
+
 protected:
 
     enum rxMessageTypes{rxMessageDataLoad, rxMessageDataHeader, rxMessageDataTail, rxMessageStatus, rxMessageVoltageOffset, rxMessageNum};
@@ -61,6 +75,8 @@ protected:
     /*************\
      *  Methods  *
     \*************/
+
+    void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage);
 
     /****************\
      *  Parameters  *
@@ -178,7 +194,7 @@ protected:
     uint16_t rxDataWordLength; /*!< Number data words in rx frames */
     uint32_t rxBufferReadOffset = 0; /*!< Offset of the part of buffer to be processed  */
     unsigned int maxOutputPacketsNum;
-    std::vector <uint16_t> txStatus; /*!< Status of the bytes written */
+    std::vector <uint16_t> txStatus; /*!< Status of the words written */
     uint16_t txModifiedStartingWord;
     uint16_t txModifiedEndingWord;
 

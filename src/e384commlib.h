@@ -211,12 +211,14 @@ ErrorCodes_t turnOnLsbNoise(
 /*! \brief Set the current range for voltage clamp.
  *
  * \param currentRangeIdx [in] Index of the current range to be set.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setVCCurrentRange(
-        E384CL_ARGIN uint16_t currentRangeIdx);
+        E384CL_ARGIN uint16_t currentRangeIdx,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Set the current range for current clamp.
  *
