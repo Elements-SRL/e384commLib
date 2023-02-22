@@ -30,6 +30,10 @@
 #define INT28_MAX (static_cast <double> (0x7FFFFFF))
 #define INT28_MIN (-INT28_MAX-1.0)
 
+#define RX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
+
+#define TX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
+
 class MessageDispatcher {
 public:
 
@@ -52,6 +56,8 @@ public:
 
 protected:
 
+    enum rxMessageTypes{rxMessageDataLoad, rxMessageDataHeader, rxMessageDataTail, rxMessageStatus, rxMessageVoltageOffset, rxMessageNum};
+
     /*************\
      *  Methods  *
     \*************/
@@ -60,9 +66,20 @@ protected:
      *  Parameters  *
     \****************/
 
+    uint16_t rxSyncWord;
+    uint16_t txSyncWord;
+
+    uint16_t txCrcInitialValue = 0xFFFF;
+
+    int packetsPerFrame = 16;
+
     uint16_t voltageChannelsNum = 1;
     uint16_t currentChannelsNum = 1;
     uint16_t totalChannelsNum = voltageChannelsNum+currentChannelsNum;
+
+    std::vector<uint16_t> rxWordOffsets;
+    std::vector<uint16_t> rxWordLengths;
+
 
     BoolCoder * asicResetCoder = nullptr;
 
@@ -72,9 +89,15 @@ protected:
     uint16_t defaultVcCurrentRangeIdx;
     BoolCoder * vcCurrentRangeCoder = nullptr;
 
+    uint32_t vcVoltageRangesNum;
+    uint32_t selectedVcVoltageRangeIdx = 0;
+    std::vector <RangedMeasurement_t> vcVoltageRangesArray;
+    uint16_t defaultVcVoltageRangeIdx;
+    BoolCoder * vcVoltageRangeCoder = nullptr;
+
     std::vector <BoolCoder *> digitalOffsetCompensationCoders;
 
-    DoubleCoder * VRestCoder = nullptr;
+    DoubleCoder * stimRestCoder = nullptr;
 
 
     /***************\
@@ -82,10 +105,30 @@ protected:
     \***************/
 
     std::string deviceId;
+    std::string deviceName;
 
     bool connected = false;
     bool threadsStarted = false;
     bool stopConnectionFlag = false;
+
+    int commonReadFrameLength;
+
+    /*! Write data buffer management */
+    uint8_t * txRawBuffer; /*!< Raw outgoing data to the device */
+    std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */
+    std::vector <uint16_t> txMsgOffsetWord; /*!< Buffer of offset word in txMsgBuffer */
+    std::vector <uint16_t> txMsgLength; /*!< Buffer of txMsgBuffer length */
+    uint32_t txMsgBufferWriteOffset = 0; /*!< Offset of the part of buffer to be written */
+    uint32_t txMsgBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
+    uint16_t txDataWords;
+    uint16_t txMaxWords;
+    uint16_t rxDataWordOffset; /*!< Offset of data words in rx frames */
+    uint16_t rxDataWordLength; /*!< Number data words in rx frames */
+    uint32_t rxBufferReadOffset = 0; /*!< Offset of the part of buffer to be processed  */
+    unsigned int maxOutputPacketsNum;
+    std::vector <uint16_t> txStatus; /*!< Status of the bytes written */
+    uint16_t txModifiedStartingWord;
+    uint16_t txModifiedEndingWord;
 
     /********************************************\
      *  Multi-thread synchronization variables  *

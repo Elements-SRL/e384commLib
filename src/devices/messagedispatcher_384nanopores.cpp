@@ -3,21 +3,7 @@
 MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di) :
     MessageDispatcher_OpalKelly(di) {
 
-    /*! Current ranges */
-    /*! VC */
-    vcCurrentRangesNum = VCCurrentRangesNum;
-    vcCurrentRangesArray.resize(vcCurrentRangesNum);
-    vcCurrentRangesArray[VCCurrentRange4uA].min = -4000000.0;
-    vcCurrentRangesArray[VCCurrentRange4uA].max = 4000000.0;
-    vcCurrentRangesArray[VCCurrentRange4uA].step = vcCurrentRangesArray[VCCurrentRange4uA].max/SHORT_MAX;
-    vcCurrentRangesArray[VCCurrentRange4uA].prefix = UnitPfxPico;
-    vcCurrentRangesArray[VCCurrentRange4uA].unit = "A";
-    vcCurrentRangesArray[VCCurrentRange200nA].min = -200000.0;
-    vcCurrentRangesArray[VCCurrentRange200nA].max = 200000.0;
-    vcCurrentRangesArray[VCCurrentRange200nA].step = vcCurrentRangesArray[VCCurrentRange200nA].max/SHORT_MAX;
-    vcCurrentRangesArray[VCCurrentRange200nA].prefix = UnitPfxPico;
-    vcCurrentRangesArray[VCCurrentRange200nA].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange200nA;
+
 
 
 
@@ -64,7 +50,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     doubleConfig.maxValue = 511.0;
     doubleConfig.resolution = 1.0;
     doubleConfig.offset = 0.0;
-    VRestCoder = new DoubleTwosCompCoder(doubleConfig);
+    stimRestCoder = new DoubleTwosCompCoder(doubleConfig);
 
 
 
@@ -78,66 +64,69 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 
     deviceName = "384NanoPores";
 
-    rxChannel = 'A';
-    txChannel = 'A';
-
     rxSyncWord = 0x5aa5;
     txSyncWord = 0x5aa5;
 
-    packetsPerFrame = 16;
+    packetsPerFrame = 1;
 
-    fsmStateChannelsNum = 8;
-    voltageChannelsNum = 1;
-    currentChannelsNum = 16;
-    totalChannelsNum = fsmStateChannelsNum+voltageChannelsNum+currentChannelsNum;
+    voltageChannelsNum = 384;
+    currentChannelsNum = 384;
+    totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
-    rxDataWordOffset = 0;
-    rxDataWordLength = (fsmStateChannelsNum/2+voltageChannelsNum+currentChannelsNum)*packetsPerFrame;
+    rxWordOffsets.resize(rxMessageNum);
+    rxWordLengths.resize(rxMessageNum);
+    rxWordOffsets[rxMessageDataLoad] = 0;
+    rxWordLengths[rxMessageDataLoad] = (voltageChannelsNum+currentChannelsNum)*packetsPerFrame;
 
-    commonReadFrameLength = FTD_RX_SYNC_WORD_SIZE+rxDataWordLength*FTD_RX_WORD_SIZE;
+    rxWordOffsets[rxMessageDataHeader] = rxWordOffsets[rxMessageDataLoad] + rxWordLengths[rxMessageDataLoad];
+    rxWordLengths[rxMessageDataHeader] = 4;
 
-    maxOutputPacketsNum = E4RCL_DATA_ARRAY_SIZE/totalChannelsNum;
+    rxWordOffsets[rxMessageDataTail] = rxWordOffsets[rxMessageDataHeader] + rxWordLengths[rxMessageDataHeader];
+    rxWordLengths[rxMessageDataTail] = 1;
 
-    txDataWords = 438;
+    rxWordOffsets[rxMessageStatus] = rxWordOffsets[rxMessageDataTail] + rxWordLengths[rxMessageDataTail];
+    rxWordLengths[rxMessageStatus] = 1;
+
+    rxWordOffsets[rxMessageVoltageOffset] = rxWordOffsets[rxMessageStatus] + rxWordLengths[rxMessageStatus];
+    rxWordLengths[rxMessageVoltageOffset] = currentChannelsNum;
+
+
+    commonReadFrameLength = sizeof(rxSyncWord)/RX_WORD_SIZE + 2 + rxWordLengths[rxMessageDataLoad];
+
+    maxOutputPacketsNum = E384CL_DATA_ARRAY_SIZE/totalChannelsNum;
+
+    txDataWords = 874+0; // ANCORA NON DEFINITO, AGGIORNARE
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
-    txMaxWords = txDataWords+4; /*! Additional words are header, offset, length and CRC */
+    txMaxWords = sizeof(txSyncWord)/TX_WORD_SIZE + 2 + txDataWords + sizeof(txCrcInitialValue)/TX_WORD_SIZE; /*! Additional words are header, offset, length and CRC */
 
     /*! Current ranges */
     /*! VC */
-    currentRangesNum = CurrentRangesNum;
-    currentRangesArray.resize(currentRangesNum);
-    currentRangesArray[CurrentRange4uA].min = -4000000.0;
-    currentRangesArray[CurrentRange4uA].max = 4000000.0;
-    currentRangesArray[CurrentRange4uA].step = currentRangesArray[CurrentRange4uA].max/SHORT_MAX;
-    currentRangesArray[CurrentRange4uA].prefix = UnitPfxPico;
-    currentRangesArray[CurrentRange4uA].unit = "A";
-    currentRangesArray[CurrentRange200nA].min = -200000.0;
-    currentRangesArray[CurrentRange200nA].max = 200000.0;
-    currentRangesArray[CurrentRange200nA].step = currentRangesArray[CurrentRange200nA].max/SHORT_MAX;
-    currentRangesArray[CurrentRange200nA].prefix = UnitPfxPico;
-    currentRangesArray[CurrentRange200nA].unit = "A";
-    defaultCurrentRangeIdx = CurrentRange200nA;
-
-    sequencingCurrentRangeIdx = CurrentRange200nA;
-    conditioningCurrentRangeIdx = CurrentRange4uA;
+    vcCurrentRangesNum = VCCurrentRangesNum;
+    vcCurrentRangesArray.resize(vcCurrentRangesNum);
+    vcCurrentRangesArray[VCCurrentRange4uA].min = -4000000.0;
+    vcCurrentRangesArray[VCCurrentRange4uA].max = 4000000.0;
+    vcCurrentRangesArray[VCCurrentRange4uA].step = vcCurrentRangesArray[VCCurrentRange4uA].max/SHORT_MAX;
+    vcCurrentRangesArray[VCCurrentRange4uA].prefix = UnitPfxPico;
+    vcCurrentRangesArray[VCCurrentRange4uA].unit = "A";
+    vcCurrentRangesArray[VCCurrentRange200nA].min = -200000.0;
+    vcCurrentRangesArray[VCCurrentRange200nA].max = 200000.0;
+    vcCurrentRangesArray[VCCurrentRange200nA].step = vcCurrentRangesArray[VCCurrentRange200nA].max/SHORT_MAX;
+    vcCurrentRangesArray[VCCurrentRange200nA].prefix = UnitPfxPico;
+    vcCurrentRangesArray[VCCurrentRange200nA].unit = "A";
+    defaultVcCurrentRangeIdx = VCCurrentRange200nA;
 
     /*! Voltage ranges */
     /*! VC */
-    conditioningVoltageGain = 10.0;
-    voltageRangesNum = VoltageRangesNum;
-    voltageRangesArray.resize(voltageRangesNum);
-    voltageRangesArray[VoltageRange500mV].min = -500.0;
-    voltageRangesArray[VoltageRange500mV].max = 500.0;
-    voltageRangesArray[VoltageRange500mV].step = 0.0625;
-    voltageRangesArray[VoltageRange500mV].prefix = UnitPfxMilli;
-    voltageRangesArray[VoltageRange500mV].unit = "V";
-    voltageRangesArray[VoltageRange15V].min = -15000.0;
-    voltageRangesArray[VoltageRange15V].max = 15000.0;
-    voltageRangesArray[VoltageRange15V].step = -0.0625*conditioningVoltageGain;
-    voltageRangesArray[VoltageRange15V].prefix = UnitPfxMilli;
-    voltageRangesArray[VoltageRange15V].unit = "V";
-    defaultVoltageRangeIdx = VoltageRange500mV;
+    vcVoltageRangesNum = VCVoltageRangesNum;
+    vcVoltageRangesArray.resize(vcVoltageRangesNum);
+    vcVoltageRangesArray[VCVoltageRange500mV].min = -500.0;
+    vcVoltageRangesArray[VCVoltageRange500mV].max = 500.0;
+    vcVoltageRangesArray[VCVoltageRange500mV].step = 0.0125;
+    vcVoltageRangesArray[VCVoltageRange500mV].prefix = UnitPfxMilli;
+    vcVoltageRangesArray[VCVoltageRange500mV].unit = "V";
+
+    defaultVcVoltageRangeIdx = VCVoltageRange500mV;
 
     voltageRangesWithOffsetArray.resize(voltageRangesNum);
     for (unsigned int voltageRangeIdx = 0; voltageRangeIdx < voltageRangesNum; voltageRangeIdx++) {

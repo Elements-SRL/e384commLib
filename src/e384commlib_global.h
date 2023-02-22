@@ -74,6 +74,13 @@
  */
 #define E384CL_ARGVOID void
 
+/*! \def E384CL_DATA_ARRAY_SIZE
+ * \brief Size of data array.
+ * When calling method readData data corresponding to at most #E384CL_DATA_ARRAY_SIZE samples is returned.
+ * When calling method readData provide an array of float with at least #E384CL_DATA_ARRAY_SIZE items.
+ */
+#define E384CL_DATA_ARRAY_SIZE (65536)
+
 #ifndef E384CL_LABVIEW_COMPATIBILITY
 namespace e384CommLib {
 #endif
