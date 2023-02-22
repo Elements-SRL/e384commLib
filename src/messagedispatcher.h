@@ -82,6 +82,8 @@ protected:
 
 
     BoolCoder * asicResetCoder = nullptr;
+    BoolCoder * fpgaResetCoder = nullptr;
+    BoolCoder * docResetCoder = nullptr; //DOC = digital offset compensation
 
     uint32_t vcCurrentRangesNum;
     uint32_t selectedVcCurrentRangeIdx = 0;
@@ -94,6 +96,56 @@ protected:
     std::vector <RangedMeasurement_t> vcVoltageRangesArray;
     uint16_t defaultVcVoltageRangeIdx;
     BoolCoder * vcVoltageRangeCoder = nullptr;
+
+    uint32_t ccCurrentRangesNum;
+    uint32_t selectedCcCurrentRangeIdx = 0;
+    std::vector <RangedMeasurement_t> ccCurrentRangesArray;
+    uint16_t defaultCcCurrentRangeIdx;
+    BoolCoder * ccCurrentRangeCoder = nullptr;
+
+    uint32_t ccVoltageRangesNum;
+    uint32_t selectedCcVoltageRangeIdx = 0;
+    std::vector <RangedMeasurement_t> ccVoltageRangesArray;
+    uint16_t defaultCcVoltageRangeIdx;
+    BoolCoder * ccVoltageRangeCoder = nullptr;
+
+    uint32_t vcCurrentFiltersNum;
+    uint32_t selectedVcCurrentFilterIdx = 0;
+    std::vector <Measurement_t> vcCurrentFiltersArray;
+    uint16_t defaultVcCurrentFilterIdx;
+    BoolCoder * vcCurrentFilterCoder = nullptr;
+
+    uint32_t vcVoltageFiltersNum;
+    uint32_t selectedVcVoltageFilterIdx = 0;
+    std::vector <Measurement_t> vcVoltageFiltersArray;
+    uint16_t defaultVcVoltageFilterIdx;
+    BoolCoder * vcVoltageFilterCoder = nullptr;
+
+    uint32_t ccCurrentFiltersNum;
+    uint32_t selectedCcCurrentFilterIdx = 0;
+    std::vector <Measurement_t> ccCurrentFiltersArray;
+    uint16_t defaultCcCurrentFilterIdx;
+    BoolCoder * ccCurrentFilterCoder = nullptr;
+
+    uint32_t ccVoltageFiltersNum;
+    uint32_t selectedCcVoltageFilterIdx = 0;
+    std::vector <Measurement_t> ccVoltageFiltersArray;
+    uint16_t defaultCcVoltageFilterIdx;
+    BoolCoder * ccVoltageFilterCoder = nullptr;
+
+    uint32_t samplingRatesNum;
+    std::vector <Measurement_t> samplingRatesArray;
+    unsigned int defaultSamplingRateIdx = 0;
+    std::vector <Measurement_t> realSamplingRatesArray;
+    std::vector <Measurement_t> bandwidthsArray;
+    std::vector <Measurement_t> integrationStepArray;
+    BoolCoder * samplingRateCoder;
+
+    bool voltageOffsetControlImplemented = false;
+    RangedMeasurement_t voltageOffsetRange;
+
+    bool currentOffsetControlImplemented = false;
+    RangedMeasurement_t currentOffsetRange;
 
     std::vector <BoolCoder *> digitalOffsetCompensationCoders;
 
@@ -129,6 +181,21 @@ protected:
     std::vector <uint16_t> txStatus; /*!< Status of the bytes written */
     uint16_t txModifiedStartingWord;
     uint16_t txModifiedEndingWord;
+
+    double currentResolution = 1.0;
+    double voltageResolution = 1.0;
+
+    double voltageOffsetCorrected = 0.0; /*!< Value currently corrected in applied voltages by the device (expressed in the unit of the liquid junction control) */
+    double voltageOffsetCorrection = 0.0; /*!< Value to be used to correct the measured voltage values (expressed in the unit of current voltage range) */
+
+    RangedMeasurement_t voltageRange;
+    RangedMeasurement_t currentRange;
+
+    Measurement_t samplingRate = {200.0, UnitPfxKilo, "Hz"};
+    Measurement_t integrationStep = {5.0, UnitPfxMicro, "s"};
+
+    std::vector <Measurement_t> selectedVoltageOffset;
+    std::vector <Measurement_t> selectedCurrentOffset;
 
     /********************************************\
      *  Multi-thread synchronization variables  *

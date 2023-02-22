@@ -32,6 +32,24 @@ protected:
         CCVoltageRangesNum = 0
     };
 
+    enum VCCurrentFilters {
+        VCCurrentFilter100kHz,
+        VCCurrentFilter20kHz,
+        VCCurrentFiltersNum
+    };
+
+    enum VCVoltageFilters {
+        VCVoltageFiltersNum = 0
+    };
+
+    enum CCCurrentFilters {
+        CCCurrentFiltersNum = 0
+    };
+
+    enum CCVoltageFilters {
+        CCVoltageFiltersNum = 0
+    };
+
     enum SamplingRates {
         SamplingRate100Hz,
         SamplingRatesNum
