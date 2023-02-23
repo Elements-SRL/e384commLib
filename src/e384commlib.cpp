@@ -360,10 +360,17 @@ ErrorCodes_t setDigitalFilter(
 }
 
 ErrorCodes_t digitalOffsetCompensation(
-        uint16_t channelIdx) {
+        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->digitalOffsetCompensation(channelIdx);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->digitalOffsetCompensation(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;

@@ -167,6 +167,18 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     boolConfig.bitsNum = 4;
     samplingRateCoder = new BoolArrayCoder(boolConfig);
 
+    /*! Clamping mode */
+    boolConfig.initialWord = 0;
+    boolConfig.initialBit = 7;
+    boolConfig.bitsNum = 8;
+    clampingModeCoder = new BoolArrayCoder(boolConfig);
+
+    /*! DOC override */
+    boolConfig.initialWord = 0;
+    boolConfig.initialBit = 9;
+    boolConfig.bitsNum = 1;
+    docOverrideCoder = new BoolArrayCoder(boolConfig);
+
     /*! Current range VC */
     boolConfig.initialWord = 1;
     boolConfig.initialBit = 0;
@@ -181,9 +193,9 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 
     /*! Current filter VC */
     boolConfig.initialWord = 2;
-    boolConfig.initialBit = 4;
+    boolConfig.initialBit = 0;//4;
     boolConfig.bitsNum = 4;
-    ccVoltageFilterCoder = new BoolArrayCoder(boolConfig);
+    vcCurrentFilterCoder = new BoolArrayCoder(boolConfig);
 
     /*! Voltage filter VC */
     // undefined

@@ -279,13 +279,19 @@ ErrorCodes_t setDigitalFilter(
  * acquired current is 0. When the compensation ends the device sends a message with
  * the compensated voltage, that can be used as an estimate of the liquid junction voltage.
  *
- * \param channelIdx [in] Index of the channel to compensate.
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the pipette compensation on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t digitalOffsetCompensation(
-        E384CL_ARGIN uint16_t channelIdx);
+        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
+        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn);
 
 /*! \brief Override digital offset compensation value.
  * Override the liquid junction voltage value. This also becomes the starting point of an

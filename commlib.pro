@@ -46,7 +46,8 @@ HEADERS += \
     src/commandcoder.h \
     src/messagedispatcher.h \
     src/messagedispatcher_opalkelly.h \
-    src/devices/messagedispatcher_384nanopores.h
+    src/devices/messagedispatcher_384nanopores.h \
+    src/utils.h
 
 INCLUDEPATH += ./src \
     ./src/devices

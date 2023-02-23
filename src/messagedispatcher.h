@@ -61,12 +61,26 @@ public:
     \****************/
 
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
+    ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
+    ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
+    ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
+
+    ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx);
+    ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx);
+
+    ErrorCodes_t digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
     /****************\
      *  Rx methods  *
     \****************/
 
     ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
+    ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
+    ErrorCodes_t getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
+    ErrorCodes_t getCCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
+
+    ErrorCodes_t getVoltageStimulusLpfs(std::vector <std::string> &filterOptions);
+    ErrorCodes_t getCurrentStimulusLpfs(std::vector <std::string> &filterOptions);
 
 protected:
 
@@ -100,6 +114,10 @@ protected:
     BoolCoder * asicResetCoder = nullptr;
     BoolCoder * fpgaResetCoder = nullptr;
     BoolCoder * docResetCoder = nullptr; //DOC = digital offset compensation
+    BoolCoder * samplingRateCoder = nullptr;
+    BoolCoder * clampingModeCoder = nullptr;
+    BoolCoder * docOverrideCoder = nullptr;
+
 
     uint32_t vcCurrentRangesNum;
     uint32_t selectedVcCurrentRangeIdx = 0;
@@ -155,7 +173,6 @@ protected:
     std::vector <Measurement_t> realSamplingRatesArray;
     std::vector <Measurement_t> bandwidthsArray;
     std::vector <Measurement_t> integrationStepArray;
-    BoolCoder * samplingRateCoder;
 
     bool voltageOffsetControlImplemented = false;
     RangedMeasurement_t voltageOffsetRange;

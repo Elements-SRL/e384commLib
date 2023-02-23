@@ -7,6 +7,7 @@
 #include <math.h>
 #include <random>
 #include <algorithm>
+#include "utils.h"
 
 static const uint16_t crc16CcittTable[256] = {
     0x0000U, 0x1021U, 0x2042U, 0x3063U, 0x4084U, 0x50A5U, 0x60C6U, 0x70E7U,
@@ -279,15 +280,107 @@ ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool
     }
 }
 
+ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) {
+    if (vcVoltageRangeCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (voltageRangeIdx >= vcVoltageRangesNum) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        vcVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) {
+    if (ccCurrentRangeCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (currentRangeIdx >= ccCurrentRangesNum) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        ccCurrentRangeCoder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) {
+    if (ccVoltageRangeCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (voltageRangeIdx >= ccVoltageRangesNum) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        ccVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag) {
+    if (digitalOffsetCompensationCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(auto i : channelIndexes){
+            digitalOffsetCompensationCoders[i]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
 /****************\
  *  Rx methods  *
 \****************/
 
 ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
-    // visto che pax lo farebbe, lo farà: controllare che il deep copy funzioni
-
     currentRanges = vcCurrentRangesArray;
+    return Success;
 }
+
+ErrorCodes_t MessageDispatcher::getVCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
+     voltageRanges = vcVoltageRangesArray;
+     return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
+    currentRanges = ccCurrentRangesArray;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
+     voltageRanges = ccVoltageRangesArray;
+     return Success;
+}
+
+ErrorCodes_t getVoltageStimulusLpfs(std::vector <std::string> &filterOptions){
+        for(int i = 0; i < vcVoltageFiltersArray.size(); i++){
+            filterOptions[i] = vcVoltageFiltersArray[i].niceLabel();
+        }
+}
+
 
 /*********************\
  *  Private methods  *
