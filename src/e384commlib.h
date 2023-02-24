@@ -100,7 +100,7 @@ ErrorCodes_t turnVoltageStimulusOn(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off the current stimulus for each channel.
  *
@@ -116,45 +116,37 @@ ErrorCodes_t turnCurrentStimulusOn(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off the voltage reader for each channel.
  *  \note The voltage is read by the current clamp ADC.
  *  \note In some devices the ADC can't be turned on independently of the DAC.
  *  \note This only activates the circuitry: in order to have the device return the desired channels use #setChannelsSources.
  *
- * \param channelIndexesIn [in] Channel indexes.
- * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the voltage reader on, false to turn it off.
+ * \param  onValueIn [in] Boolean, one for each channel: True to turn the voltage reader on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
- * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageReaderOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN bool E384CL_VECTOR_SYMBOL onValueIn,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Turn on/off the current reader for each channel.
  *  \note The current is read by the current clamp ADC.
  *  \note In some devices the ADC can't be turned on independently of the DAC.
  *  \note This only activates the circuitry: in order to have the device return the desired channels use #setChannelsSources.
  *
- * \param channelIndexesIn [in] Channel indexes.
- * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the current reader on, false to turn it off.
+ * \param onValueIn [in] Boolean, one for each channel: True to turn the current reader on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
- * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentReaderOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN bool E384CL_VECTOR_SYMBOL onValueIn,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Set the data sources for all channels.
  *
@@ -206,7 +198,7 @@ ErrorCodes_t turnOnLsbNoise(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL flagValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set the current range for voltage clamp.
  *
@@ -291,7 +283,7 @@ ErrorCodes_t digitalOffsetCompensation(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Override digital offset compensation value.
  * Override the liquid junction voltage value. This also becomes the starting point of an
@@ -427,7 +419,7 @@ ErrorCodes_t turnVoltageCompensationsOn(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off the current stimulus for each channel.
  *
@@ -443,7 +435,7 @@ ErrorCodes_t turnCurrentCompensationsOn(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off pipette compensation for each channel.
  *
@@ -459,7 +451,7 @@ ErrorCodes_t turnPipetteCompensationOn(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off pipette compensation for current clamp for each channel.
  *
@@ -475,7 +467,7 @@ ErrorCodes_t turnCCPipetteCompensationOn(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off membrane compensation for each channel.
  *
@@ -508,7 +500,7 @@ ErrorCodes_t turnAccessResistanceCompensationOn(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off access resistance correction for each channel.
  *
@@ -524,7 +516,7 @@ ErrorCodes_t turnAccessResistanceCorrectionOn(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off access resistance prediction for each channel.
  *
@@ -540,7 +532,7 @@ ErrorCodes_t turnAccessResistancePredictionOn(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off leak conductance compensation for each channel.
  *
@@ -556,7 +548,7 @@ ErrorCodes_t turnLeakConductanceCompensationOn(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off bridge balance compensation for each channel.
  *
@@ -572,7 +564,7 @@ ErrorCodes_t turnBridgeBalanceCompensationOn(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set options for pipette compensation (voltage clamp) for each channel.
  *
@@ -588,7 +580,7 @@ ErrorCodes_t setPipetteCompensationOptions(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set options for pipette compensation (current clamp) for each channel.
  *
@@ -604,7 +596,7 @@ ErrorCodes_t setCCPipetteCompensationOptions(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set options for membrane compensation for each channel.
  *
@@ -620,7 +612,7 @@ ErrorCodes_t setMembraneCompensationOptions(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set options for resistance compensation for each channel.
  *
@@ -636,7 +628,7 @@ ErrorCodes_t setAccessResistanceCompensationOptions(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set options for resistance correction for each channel.
  *
@@ -652,7 +644,7 @@ ErrorCodes_t setAccessResistanceCorrectionOptions(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set options for resistance prediction for each channel.
  *
@@ -668,7 +660,7 @@ ErrorCodes_t setAccessResistancePredictionOptions(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set options for leak conductance compensation for each channel.
  *
@@ -684,7 +676,7 @@ ErrorCodes_t setLeakConductanceCompensationOptions(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set options for bridge balance compensation for each channel.
  *
@@ -700,7 +692,7 @@ ErrorCodes_t setBridgeBalanceCompensationOptions(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value of the pipette capacitance for voltage clamp for each channel.
  *
@@ -716,7 +708,7 @@ ErrorCodes_t setPipetteCapacitance(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value of the pipette capacitance for current clamp for each channel.
  *
@@ -732,7 +724,7 @@ ErrorCodes_t setCCPipetteCapacitance(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value of the membrane capacitance for each channel.
  *
@@ -748,7 +740,7 @@ ErrorCodes_t setMembraneCapacitance(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value of the access resistance for each channel.
  *
@@ -764,7 +756,7 @@ ErrorCodes_t setAccessResistance(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value for the access resistance correction percentage for each channel.
  *
@@ -780,7 +772,7 @@ ErrorCodes_t setAccessResistanceCorrectionPercentage(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value for the access resistance correction lag for each channel.
  *
@@ -796,7 +788,7 @@ ErrorCodes_t setAccessResistanceCorrectionLag(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value for the access resistance prediction gain for each channel.
  *
@@ -812,7 +804,7 @@ ErrorCodes_t setAccessResistancePredictionGain(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value for the access resistance prediction percentage for each channel.
  *
@@ -828,7 +820,7 @@ ErrorCodes_t setAccessResistancePredictionPercentage(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value for the access resistance prediction bandwidth gain for each channel.
  *
@@ -844,7 +836,7 @@ ErrorCodes_t setAccessResistancePredictionBandwidthGain(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value for the access resistance prediction tau for each channel.
  *
@@ -860,7 +852,7 @@ ErrorCodes_t setAccessResistancePredictionTau(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value for the leak conductance for each channel.
  *
@@ -876,7 +868,7 @@ ErrorCodes_t setLeakConductance(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets the value of the access resistance for bridge balance for each channel.
  *
@@ -892,7 +884,7 @@ ErrorCodes_t setBridgeBalanceResistance(
         E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Sets a digital trigger output to be activated during the next protocol.
  *
@@ -1801,7 +1793,7 @@ ErrorCodes_t getPipetteCapacitance(
         E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the pipette capacitance for current clamp for each channel.
  *
@@ -1817,7 +1809,7 @@ ErrorCodes_t getCCPipetteCapacitance(
         E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the mebrane capacitance for each channel.
  *
@@ -1833,7 +1825,7 @@ ErrorCodes_t getMembraneCapacitance(
         E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of theaccess resistance for each channel.
  *
@@ -1849,7 +1841,7 @@ ErrorCodes_t getAccessResistance(
         E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the resistance correction percentage for each channel.
  *
@@ -1865,7 +1857,7 @@ ErrorCodes_t getAccessResistanceCorrectionPercentage(
         E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the resistance correction lag for each channel.
  *
@@ -1881,7 +1873,7 @@ ErrorCodes_t getAccessResistanceCorrectionLag(
         E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the access resistance prediction gain for each channel.
  *
@@ -1897,7 +1889,7 @@ ErrorCodes_t getAccessResistancePredictionGain(
         E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the access resistance prediction percentage for each channel.
  *
@@ -1913,7 +1905,7 @@ ErrorCodes_t getAccessResistancePredictionPercentage(
         E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the access resistance prediction bandwidth gain for each channel.
  *
@@ -1945,7 +1937,7 @@ ErrorCodes_t getAccessResistancePredictionTau(
         E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the leak conductance for each channel.
  *
@@ -1961,7 +1953,7 @@ ErrorCodes_t getLeakConductance(
         E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the bridge balance resistance for each channel.
  *
@@ -1977,7 +1969,7 @@ ErrorCodes_t getBridgeBalanceResistance(
         E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 // END NEW MICHELANGELO'S GETS
 

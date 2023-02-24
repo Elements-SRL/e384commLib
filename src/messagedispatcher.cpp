@@ -272,7 +272,7 @@ ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool
 
     } else {
         vcCurrentRangeCoder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-
+        selectedVcCurrentRangeIdx = currentRangeIdx;
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -289,7 +289,7 @@ ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool
 
     } else {
         vcVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-
+        selectedVcVoltageRangeIdx = voltageRangeIdx;
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -306,7 +306,7 @@ ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t currentRangeIdx, bool
 
     } else {
         ccCurrentRangeCoder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-
+        selectedCcCurrentRangeIdx = currentRangeIdx;
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -323,7 +323,7 @@ ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool
 
     } else {
         ccVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-
+        selectedCcVoltageRangeIdx = voltageRangeIdx;
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -351,6 +351,97 @@ ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(vector<uint16_t> chann
     }
 }
 
+ErrorCodes_t  MessageDispatcher::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn){
+    if (vcVoltageFilterCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (filterIdx >= vcVoltageFiltersNum) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        vcVoltageFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedVcVoltageFilterIdx = filterIdx;
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t  MessageDispatcher::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn){
+    if (ccCurrentFilterCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (filterIdx >= ccCurrentFiltersNum) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        ccCurrentFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedCcCurrentFilterIdx = filterIdx;
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setAdcFilter(){
+    // Still to be properly implemented
+    if(amIinVoltageClamp){
+        if (vcCurrentFilterCoder != nullptr) {
+            vcCurrentFilterCoder->encode(sr2LpfVcMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedVcCurrentFilterIdx = sr2LpfVcMap[selectedSamplingRateIdx];
+        }
+    }else{
+        if (ccVoltageFilterCoder != nullptr) {
+            ccVoltageFilterCoder->encode(sr2LpfCcMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedCcVoltageFilterIdx = sr2LpfCcMap[selectedSamplingRateIdx];
+        }
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn) {
+    if (samplingRateCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (samplingRateIdx >= samplingRatesNum) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        samplingRateCoder->encode(samplingRateIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedSamplingRateIdx = samplingRateIdx;
+        setAdcFilter();
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool onValueIn, bool applyFlagIn){
+    if(onValueIn == true){
+        amIinVoltageClamp = true;
+    }else{
+        amIinVoltageClamp = false;
+    }
+    setAdcFilter();
+    /*
+     * Still missing the actual method implementation
+     */
+}
+
+ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool onValueIn, bool applyFlagIn){
+    if(onValueIn == true){
+        amIinVoltageClamp = false;
+    }else{
+        amIinVoltageClamp = true;
+    }
+    setAdcFilter();
+    /*
+     * Still missing the actual method implementation
+     */
+}
+
 /****************\
  *  Rx methods  *
 \****************/
@@ -375,9 +466,15 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRanges(std::vector <RangedMeasuremen
      return Success;
 }
 
-ErrorCodes_t getVoltageStimulusLpfs(std::vector <std::string> &filterOptions){
-        for(int i = 0; i < vcVoltageFiltersArray.size(); i++){
+ErrorCodes_t MessageDispatcher::getVoltageStimulusLpfs(std::vector <std::string> &filterOptions){
+        for(uint16_t i = 0; i < vcVoltageFiltersArray.size(); i++){
             filterOptions[i] = vcVoltageFiltersArray[i].niceLabel();
+        }
+}
+
+ErrorCodes_t MessageDispatcher::getCurrentStimulusLpfs(std::vector <std::string> &filterOptions){
+        for(uint16_t i = 0; i < ccCurrentFiltersArray.size(); i++){
+            filterOptions[i] = ccCurrentFiltersArray[i].niceLabel();
         }
 }
 
