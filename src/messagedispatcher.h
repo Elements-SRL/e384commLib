@@ -67,10 +67,16 @@ public:
     ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
     ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
 
-    ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx);
-    ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx);
+    ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
+    ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
 
     ErrorCodes_t digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+
+    ErrorCodes_t setAdcFilter();
+    ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn);
+
+    ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
+    ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
 
     /****************\
      *  Rx methods  *
@@ -118,7 +124,7 @@ protected:
     BoolCoder * asicResetCoder = nullptr;
     BoolCoder * fpgaResetCoder = nullptr;
     BoolCoder * docResetCoder = nullptr; //DOC = digital offset compensation
-    BoolCoder * samplingRateCoder = nullptr;
+
     BoolCoder * clampingModeCoder = nullptr;
     BoolCoder * docOverrideCoder = nullptr;
 
@@ -173,10 +179,14 @@ protected:
 
     uint32_t samplingRatesNum;
     std::vector <Measurement_t> samplingRatesArray;
-    unsigned int defaultSamplingRateIdx = 0;
     std::vector <Measurement_t> realSamplingRatesArray;
-    std::vector <Measurement_t> bandwidthsArray;
     std::vector <Measurement_t> integrationStepArray;
+    unsigned int defaultSamplingRateIdx = 0;
+    BoolCoder * samplingRateCoder = nullptr;
+    std::unordered_map<uint16_t, uint16_t> sr2LpfVcMap;
+    std::unordered_map<uint16_t, uint16_t> sr2LpfCcMap;
+
+
 
     bool voltageOffsetControlImplemented = false;
     RangedMeasurement_t voltageOffsetRange;
@@ -205,6 +215,9 @@ protected:
     /*! Read data buffer management */
     uint16_t rxMaxWords;
     uint32_t maxInputFrameSize;
+
+    bool amIinVoltageClamp = false;
+    uint16_t selectedSamplingRateIdx;
 
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */

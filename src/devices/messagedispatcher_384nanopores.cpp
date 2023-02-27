@@ -118,6 +118,14 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     integrationStepArray[SamplingRate100Hz].prefix = UnitPfxNone;
     integrationStepArray[SamplingRate100Hz].unit = "s";
 
+    // mapping ADC Voltage Clamp
+    sr2LpfVcMap = {
+      {SamplingRate100Hz, VCCurrentFilter20kHz}
+    };
+
+    // mapping ADC Current Clamp
+    // undefined
+
     /*! This will never change so it makes sense to initialize it here */
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
@@ -126,6 +134,13 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     voltageResolution =voltageRange.step;
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
+
+    // Selected default Idx
+    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
+    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
+    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
+    selectedSamplingRateIdx = defaultSamplingRateIdx;
+
 
     selectedVoltageOffset.resize(currentChannelsNum);
     voltageOffsetRange = vcVoltageRangesArray[VCVoltageRange500mV];

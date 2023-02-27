@@ -150,7 +150,7 @@ ErrorCodes_t turnVoltageStimulusOn(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn  = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -169,7 +169,7 @@ ErrorCodes_t turnCurrentStimulusOn(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -185,17 +185,11 @@ ErrorCodes_t turnCurrentStimulusOn(
 }
 
 ErrorCodes_t turnVoltageReaderOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
-        bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        bool onValueIn,
+        bool applyFlagIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        std::vector<uint16_t> channelIndexes;
-        std::vector<bool> onValues;
-        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-        ret = messageDispatcher->turnVoltageReaderOn(channelIndexes, onValues, applyFlagIn);
+        ret = messageDispatcher->turnVoltageReaderOn(onValueIn, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -204,17 +198,11 @@ ErrorCodes_t turnVoltageReaderOn(
 }
 
 ErrorCodes_t turnCurrentReaderOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
-        bool applyFlagIn,
-        int vectorLengthI = 0n) {
+        bool onValueIn,
+        bool applyFlagIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        std::vector<uint16_t> channelIndexes;
-        std::vector<bool> onValues;
-        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-        ret = messageDispatcher->turnCurrentReaderOn(channelIndexes, onValues, applyFlagIn);
+        ret = messageDispatcher->turnCurrentReaderOn(onValueIn, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -269,7 +257,7 @@ ErrorCodes_t turnOnLsbNoise(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL flagValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -363,7 +351,7 @@ ErrorCodes_t digitalOffsetCompensation(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -516,7 +504,7 @@ ErrorCodes_t turnVoltageCompensationsOn(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -535,7 +523,7 @@ ErrorCodes_t turnCurrentCompensationsOn(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -554,7 +542,7 @@ ErrorCodes_t turnPipetteCompensationOn(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -573,7 +561,7 @@ ErrorCodes_t turnCCPipetteCompensationOn(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -611,7 +599,7 @@ ErrorCodes_t turnAccessResistanceCompensationOn(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -630,7 +618,7 @@ ErrorCodes_t turnAccessResistanceCorrectionOn(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -649,7 +637,7 @@ ErrorCodes_t turnAccessResistancePredictionOn(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -668,7 +656,7 @@ ErrorCodes_t turnLeakConductanceCompensationOn(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -687,7 +675,7 @@ ErrorCodes_t turnBridgeBalanceCompensationOn(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -706,7 +694,7 @@ ErrorCodes_t setPipetteCompensationOptions(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -725,7 +713,7 @@ ErrorCodes_t setCCPipetteCompensationOptions(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -744,7 +732,7 @@ ErrorCodes_t setMembraneCompensationOptions(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -763,7 +751,7 @@ ErrorCodes_t setAccessResistanceCompensationOptions(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -782,7 +770,7 @@ ErrorCodes_t setAccessResistanceCorrectionOptions(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -801,7 +789,7 @@ ErrorCodes_t setAccessResistancePredictionOptions(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -820,7 +808,7 @@ ErrorCodes_t setLeakConductanceCompensationOptions(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -839,7 +827,7 @@ ErrorCodes_t setBridgeBalanceCompensationOptions(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -858,7 +846,7 @@ ErrorCodes_t setPipetteCapacitance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -878,7 +866,7 @@ ErrorCodes_t setCCPipetteCapacitance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -898,7 +886,7 @@ ErrorCodes_t setMembraneCapacitance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -918,7 +906,7 @@ ErrorCodes_t setAccessResistance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -938,7 +926,7 @@ ErrorCodes_t setAccessResistanceCorrectionPercentage(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -958,7 +946,7 @@ ErrorCodes_t setAccessResistanceCorrectionLag(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -978,7 +966,7 @@ ErrorCodes_t setAccessResistancePredictionGain(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -998,7 +986,7 @@ ErrorCodes_t setAccessResistancePredictionPercentage(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -1018,7 +1006,7 @@ ErrorCodes_t setAccessResistancePredictionBandwidthGain(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -1038,7 +1026,7 @@ ErrorCodes_t setAccessResistancePredictionTau(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -1058,7 +1046,7 @@ ErrorCodes_t setLeakConductance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -1078,7 +1066,7 @@ ErrorCodes_t setBridgeBalanceResistance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
         bool applyFlagIn,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -2260,7 +2248,7 @@ ErrorCodes_t getPipetteCapacitance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -2283,7 +2271,7 @@ ErrorCodes_t getCCPipetteCapacitance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -2306,7 +2294,7 @@ ErrorCodes_t getMembraneCapacitance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -2329,7 +2317,7 @@ ErrorCodes_t getAccessResistance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -2352,7 +2340,7 @@ ErrorCodes_t getAccessResistanceCorrectionPercentage(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -2375,7 +2363,7 @@ ErrorCodes_t getAccessResistanceCorrectionLag(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -2398,7 +2386,7 @@ ErrorCodes_t getAccessResistancePredictionGain(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -2421,7 +2409,7 @@ ErrorCodes_t getAccessResistancePredictionPercentage(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -2444,7 +2432,7 @@ ErrorCodes_t getAccessResistancePredictionBandwidthGain(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -2490,7 +2478,7 @@ ErrorCodes_t getLeakConductance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
@@ -2513,7 +2501,7 @@ ErrorCodes_t getBridgeBalanceResistance(
         E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
         E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
         E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
-        int vectorLengthIn = 0) {
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector<uint16_t> channelIndexes;
