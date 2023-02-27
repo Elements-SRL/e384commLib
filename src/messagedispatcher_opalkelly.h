@@ -33,12 +33,6 @@ protected:
     virtual void sendCommandsToDevice() override;
     virtual void readDataFromDevice() override;
 
-    void storeDataLoadFrame();
-    void storeDataHeaderFrame();
-    void storeDataTailFrame();
-    void storeStatusFrame();
-    void storeVoltageOffsetFrame();
-
     ErrorCodes_t initializeBuffers();
     ErrorCodes_t deinitializeBuffers();
 
@@ -55,9 +49,6 @@ protected:
     \***************/
 
     uint8_t * rxTransferBuffer = nullptr; /*!< Raw data from the device obtained during last transfer */
-    uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */
-    uint32_t rxRawBufferReadOffset = 0; /*!< Device Rx buffer offset position in which data are collected by the outputDataBuffer */
-    uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
 
 //    uint8_t * txRawBuffer; /*!< Raw outgoing data to the device */
 

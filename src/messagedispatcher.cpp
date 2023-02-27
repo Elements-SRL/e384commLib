@@ -478,10 +478,67 @@ ErrorCodes_t MessageDispatcher::getCurrentStimulusLpfs(std::vector <std::string>
         }
 }
 
-
 /*********************\
  *  Private methods  *
 \*********************/
+
+void MessageDispatcher::storeDataLoadFrame() {
+    uint16_t value;
+
+    for (int packetIdx = 0; packetIdx < packetsPerFrame; packetIdx++) {
+        for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
+            value = 0;
+
+            for (unsigned int byteIdx = 0; byteIdx < RX_WORD_SIZE; byteIdx++) {
+                value <<= 8;
+                value += *(rxRawBuffer+rxRawBufferReadOffset);
+                rxRawBufferReadOffset = (rxRawBufferReadOffset+1)&rxRawBufferMask;
+            }
+
+            outputDataBuffer[outputBufferWriteOffset][idx] = value;
+        }
+
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            value = 0;
+
+            for (unsigned int byteIdx = 0; byteIdx < RX_WORD_SIZE; byteIdx++) {
+                value <<= 8;
+                value += *(rxRawBuffer+rxRawBufferReadOffset);
+                rxRawBufferReadOffset = (rxRawBufferReadOffset+1)&rxRawBufferMask;
+            }
+
+            outputDataBuffer[outputBufferWriteOffset][voltageChannelsNum+idx] = value;
+        }
+#ifdef DEBUG_PRINT
+//        fwrite((uint8_t*)outputDataBuffer[outputBufferWriteOffset], 2, totalChannelsNum, rxFid1);
+#endif
+        outputBufferWriteOffset = (outputBufferWriteOffset+1)&E4RCL_OUTPUT_BUFFER_MASK;
+    }
+    outputBufferAvailablePackets += packetsPerFrame;
+
+    /*! If too many packets are written but not read from the user the buffer saturates */
+//    if (outputBufferAvailablePackets > E4RCL_OUTPUT_BUFFER_SIZE/totalChannelsNum) {
+//        outputBufferAvailablePackets = E4RCL_OUTPUT_BUFFER_SIZE/totalChannelsNum; /*!< Saturates available packets */
+//        outputBufferReadOffset = outputBufferWriteOffset; /*! Move read offset just on top of the write offset so that it can read up to 1 position before after a full buffer read */
+//        outputBufferOverflowFlag = true;
+//    }
+}
+
+void MessageDispatcher::storeDataHeaderFrame() {
+
+}
+
+void MessageDispatcher::storeDataTailFrame() {
+
+}
+
+void MessageDispatcher::storeStatusFrame() {
+
+}
+
+void MessageDispatcher::storeVoltageOffsetFrame() {
+
+}
 
 void MessageDispatcher::stackOutgoingMessage(vector <uint16_t> &txDataMessage) {
     if (txModifiedEndingWord > txModifiedStartingWord) {
@@ -502,4 +559,8 @@ void MessageDispatcher::stackOutgoingMessage(vector <uint16_t> &txDataMessage) {
 
         txMsgBufferNotEmpty.notify_all();
     }
+}
+
+uint16_t MessageDispatcher::popUint16FromRxRawBuffer() {
+
 }

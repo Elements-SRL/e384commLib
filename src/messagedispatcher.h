@@ -100,7 +100,15 @@ protected:
 
     virtual void readDataFromDevice() = 0;
     virtual void sendCommandsToDevice() = 0;
+
+    void storeDataLoadFrame();
+    void storeDataHeaderFrame();
+    void storeDataTailFrame();
+    void storeStatusFrame();
+    void storeVoltageOffsetFrame();
+
     void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage);
+    uint16_t popUint16FromRxRawBuffer();
 
     /****************\
      *  Parameters  *
@@ -218,6 +226,12 @@ protected:
 
     bool amIinVoltageClamp = false;
     uint16_t selectedSamplingRateIdx;
+
+    /*! Read data buffer management */
+    uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */
+    uint32_t rxRawBufferReadOffset = 0; /*!< Device Rx buffer offset position in which data are collected by the outputDataBuffer */
+    uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
+    uint32_t rxRawBufferMask;
 
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */
