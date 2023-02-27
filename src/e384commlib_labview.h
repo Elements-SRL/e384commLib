@@ -50,7 +50,7 @@ ErrorCodes_t deinit(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t detectDevices(
-        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL deviceIds);
+        E384CL_ARGOUT LStrHandle deviceIds);
 
 /*! \brief Connects to a specific device
  * Calling this method if a device is already connected will return an error code.
@@ -61,7 +61,7 @@ ErrorCodes_t detectDevices(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t connectDevice(
-        E384CL_ARGIN E384clString_t deviceId);
+        E384CL_ARGIN LStrHandle deviceId);
 
 /*! \brief Disconnects from connected device.
  * Calling this method if no device is connected will return an error code.
@@ -97,8 +97,8 @@ ErrorCodes_t ping(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageStimulusOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -113,8 +113,8 @@ ErrorCodes_t turnVoltageStimulusOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentStimulusOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -130,7 +130,7 @@ ErrorCodes_t turnCurrentStimulusOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageReaderOn(
-        E384CL_ARGIN bool E384CL_VECTOR_SYMBOL onValueIn,
+        E384CL_ARGIN bool * onValueIn,
         E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Turn on/off the current reader for each channel.
@@ -145,7 +145,7 @@ ErrorCodes_t turnVoltageReaderOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentReaderOn(
-        E384CL_ARGIN bool E384CL_VECTOR_SYMBOL onValueIn,
+        E384CL_ARGIN bool * onValueIn,
         E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Set the data sources for all channels.
@@ -170,7 +170,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setVoltageHoldTuner(
         E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN E384clMeasurement_t voltage);
+        E384CL_ARGIN CharMeasurement_t voltage);
 
 /*! \brief Set the holding current tuner. This value is added to the whole current protocol currently applied and to the following.
  *
@@ -182,7 +182,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentHoldTuner(
         E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN E384clMeasurement_t current);
+        E384CL_ARGIN CharMeasurement_t current);
 
 /*! \brief Turns on/off a uniform noise additive noise with the same range as the LSB on received data.
  *
@@ -195,8 +195,8 @@ ErrorCodes_t setCurrentHoldTuner(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnOnLsbNoise(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL flagValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * flagValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -280,8 +280,8 @@ ErrorCodes_t setDigitalFilter(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t digitalOffsetCompensation(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -297,7 +297,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t digitalOffsetCompensationOverride(
         E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN E384clMeasurement_t value);
+        E384CL_ARGIN CharMeasurement_t value);
 
 /*! \brief Request for voltage offset set by digital offset compensation.
  * After this message is received the device will send a message with voltage offset set
@@ -323,7 +323,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setVcCurrentOffsetDelta(
         E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN E384clMeasurement_t value);
+        E384CL_ARGIN CharMeasurement_t value);
 
 /*! \brief Correct the calibration offset of the voltage acquired in CC.
  *
@@ -335,7 +335,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCcVoltageOffsetDelta(
         E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN E384clMeasurement_t value);
+        E384CL_ARGIN CharMeasurement_t value);
 
 /*! \brief Zap.
  * A big voltage is applied in order to break the membrane.
@@ -347,7 +347,7 @@ ErrorCodes_t setCcVoltageOffsetDelta(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t zap(
-        E384CL_ARGIN E384clMeasurement_t duration,
+        E384CL_ARGIN CharMeasurement_t duration,
         E384CL_ARGIN uint16_t channelIdx);
 
 /*! \brief Sets the low pass filter on the voltage stimulus.
@@ -416,8 +416,8 @@ ErrorCodes_t setSlave(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageCompensationsOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -432,8 +432,8 @@ ErrorCodes_t turnVoltageCompensationsOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentCompensationsOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -448,8 +448,8 @@ ErrorCodes_t turnCurrentCompensationsOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnPipetteCompensationOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -464,8 +464,8 @@ ErrorCodes_t turnPipetteCompensationOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCCPipetteCompensationOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -480,8 +480,8 @@ ErrorCodes_t turnCCPipetteCompensationOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnMembraneCompensationOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn);
 
@@ -497,8 +497,8 @@ ErrorCodes_t turnMembraneCompensationOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnAccessResistanceCompensationOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -513,8 +513,8 @@ ErrorCodes_t turnAccessResistanceCompensationOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnAccessResistanceCorrectionOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -529,8 +529,8 @@ ErrorCodes_t turnAccessResistanceCorrectionOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnAccessResistancePredictionOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -545,8 +545,8 @@ ErrorCodes_t turnAccessResistancePredictionOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnLeakConductanceCompensationOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -561,8 +561,8 @@ ErrorCodes_t turnLeakConductanceCompensationOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnBridgeBalanceCompensationOn(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -577,8 +577,8 @@ ErrorCodes_t turnBridgeBalanceCompensationOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setPipetteCompensationOptions(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -593,8 +593,8 @@ ErrorCodes_t setPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCCPipetteCompensationOptions(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -609,8 +609,8 @@ ErrorCodes_t setCCPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setMembraneCompensationOptions(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -625,8 +625,8 @@ ErrorCodes_t setMembraneCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistanceCompensationOptions(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -641,8 +641,8 @@ ErrorCodes_t setAccessResistanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistanceCorrectionOptions(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -657,8 +657,8 @@ ErrorCodes_t setAccessResistanceCorrectionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistancePredictionOptions(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -673,8 +673,8 @@ ErrorCodes_t setAccessResistancePredictionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setLeakConductanceCompensationOptions(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -689,8 +689,8 @@ ErrorCodes_t setLeakConductanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setBridgeBalanceCompensationOptions(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * optionIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -705,8 +705,8 @@ ErrorCodes_t setBridgeBalanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setPipetteCapacitance(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -721,8 +721,8 @@ ErrorCodes_t setPipetteCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCCPipetteCapacitance(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -737,8 +737,8 @@ ErrorCodes_t setCCPipetteCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setMembraneCapacitance(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -753,8 +753,8 @@ ErrorCodes_t setMembraneCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistance(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -769,8 +769,8 @@ ErrorCodes_t setAccessResistance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistanceCorrectionPercentage(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -785,8 +785,8 @@ ErrorCodes_t setAccessResistanceCorrectionPercentage(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistanceCorrectionLag(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -801,8 +801,8 @@ ErrorCodes_t setAccessResistanceCorrectionLag(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistancePredictionGain(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -817,8 +817,8 @@ ErrorCodes_t setAccessResistancePredictionGain(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistancePredictionPercentage(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -833,8 +833,8 @@ ErrorCodes_t setAccessResistancePredictionPercentage(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistancePredictionBandwidthGain(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -849,8 +849,8 @@ ErrorCodes_t setAccessResistancePredictionBandwidthGain(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistancePredictionTau(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -865,8 +865,8 @@ ErrorCodes_t setAccessResistancePredictionTau(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setLeakConductance(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -881,8 +881,8 @@ ErrorCodes_t setLeakConductance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setBridgeBalanceResistance(
-        E384CL_ARGIN E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGIN E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -902,7 +902,7 @@ ErrorCodes_t setDigitalTriggerOutput(
         E384CL_ARGIN bool terminator,
         E384CL_ARGIN bool polarity,
         E384CL_ARGIN uint16_t triggerId,
-        E384CL_ARGIN E384clMeasurement_t delay);
+        E384CL_ARGIN CharMeasurement_t delay);
 
 /*! \brief Describes the structure of an incoming voltage protocol.
  *
@@ -919,7 +919,7 @@ ErrorCodes_t setVoltageProtocolStructure(
         E384CL_ARGIN uint16_t protId,
         E384CL_ARGIN uint16_t itemsNum,
         E384CL_ARGIN uint16_t sweepsNum,
-        E384CL_ARGIN E384clMeasurement_t vRest);
+        E384CL_ARGIN CharMeasurement_t vRest);
 
 /*! \brief Commits a voltage protocol item consisting of a constant voltage.
  *  Steps can be defined for both voltage and duration to make them change at any iteration.
@@ -941,10 +941,10 @@ ErrorCodes_t setVoltageProtocolStructure(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltStepTimeStep(
-        E384CL_ARGIN E384clMeasurement_t v0,
-        E384CL_ARGIN E384clMeasurement_t vStep,
-        E384CL_ARGIN E384clMeasurement_t t0,
-        E384CL_ARGIN E384clMeasurement_t tStep,
+        E384CL_ARGIN CharMeasurement_t v0,
+        E384CL_ARGIN CharMeasurement_t vStep,
+        E384CL_ARGIN CharMeasurement_t t0,
+        E384CL_ARGIN CharMeasurement_t tStep,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -968,9 +968,9 @@ ErrorCodes_t voltStepTimeStep(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltRamp(
-        E384CL_ARGIN E384clMeasurement_t v0,
-        E384CL_ARGIN E384clMeasurement_t vFinal,
-        E384CL_ARGIN E384clMeasurement_t t,
+        E384CL_ARGIN CharMeasurement_t v0,
+        E384CL_ARGIN CharMeasurement_t vFinal,
+        E384CL_ARGIN CharMeasurement_t t,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -994,9 +994,9 @@ ErrorCodes_t voltRamp(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltSin(
-        E384CL_ARGIN E384clMeasurement_t v0,
-        E384CL_ARGIN E384clMeasurement_t vAmp,
-        E384CL_ARGIN E384clMeasurement_t freq,
+        E384CL_ARGIN CharMeasurement_t v0,
+        E384CL_ARGIN CharMeasurement_t vAmp,
+        E384CL_ARGIN CharMeasurement_t freq,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -1026,7 +1026,7 @@ ErrorCodes_t setCurrentProtocolStructure(
         E384CL_ARGIN uint16_t protId,
         E384CL_ARGIN uint16_t itemsNum,
         E384CL_ARGIN uint16_t sweepsNum,
-        E384CL_ARGIN E384clMeasurement_t iRest);
+        E384CL_ARGIN CharMeasurement_t iRest);
 
 /*! \brief Commits a current protocol item consisting of a constant current.
  *  Steps can be defined for both current and duration to make them change at any iteration.
@@ -1048,10 +1048,10 @@ ErrorCodes_t setCurrentProtocolStructure(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currStepTimeStep(
-        E384CL_ARGIN E384clMeasurement_t i0,
-        E384CL_ARGIN E384clMeasurement_t iStep,
-        E384CL_ARGIN E384clMeasurement_t t0,
-        E384CL_ARGIN E384clMeasurement_t tStep,
+        E384CL_ARGIN CharMeasurement_t i0,
+        E384CL_ARGIN CharMeasurement_t iStep,
+        E384CL_ARGIN CharMeasurement_t t0,
+        E384CL_ARGIN CharMeasurement_t tStep,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -1075,9 +1075,9 @@ ErrorCodes_t currStepTimeStep(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currRamp(
-        E384CL_ARGIN E384clMeasurement_t i0,
-        E384CL_ARGIN E384clMeasurement_t iFinal,
-        E384CL_ARGIN E384clMeasurement_t t,
+        E384CL_ARGIN CharMeasurement_t i0,
+        E384CL_ARGIN CharMeasurement_t iFinal,
+        E384CL_ARGIN CharMeasurement_t t,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -1101,9 +1101,9 @@ ErrorCodes_t currRamp(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currSin(
-        E384CL_ARGIN E384clMeasurement_t i0,
-        E384CL_ARGIN E384clMeasurement_t iAmp,
-        E384CL_ARGIN E384clMeasurement_t freq,
+        E384CL_ARGIN CharMeasurement_t i0,
+        E384CL_ARGIN CharMeasurement_t iAmp,
+        E384CL_ARGIN CharMeasurement_t freq,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -1243,7 +1243,7 @@ ErrorCodes_t hasCurrentHoldTuner(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVCCurrentRanges(
-        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL currentRanges);
+        E384CL_ARGOUT LRangeHandle * currentRanges);
 
 /*! \brief Get the current ranges available in current clamp for the device.
  *
@@ -1253,7 +1253,7 @@ ErrorCodes_t getVCCurrentRanges(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCCurrentRanges(
-        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL currentRanges);
+        E384CL_ARGOUT LRangeHandle * currentRanges);
 
 /*! \brief Get the current range currently applied for voltage clamp.
  *
@@ -1283,7 +1283,7 @@ ErrorCodes_t getCCCurrentRange(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVCVoltageRanges(
-        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL voltageRanges);
+        E384CL_ARGOUT LRangeHandle * voltageRanges);
 
 /*! \brief Get the voltage ranges available in current clamp for the device.
  *
@@ -1293,7 +1293,7 @@ ErrorCodes_t getVCVoltageRanges(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCVoltageRanges(
-        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL voltageRanges);
+        E384CL_ARGOUT LRangeHandle * voltageRanges);
 
 /*! \brief Get the voltage range currently applied for voltage clamp.
  *
@@ -1323,7 +1323,7 @@ ErrorCodes_t getCCVoltageRange(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getSamplingRates(
-        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL samplingRates);
+        E384CL_ARGOUT LRangeHandle * samplingRates);
 
 /*! \brief Get the real sampling rates available for the device.
  *
@@ -1334,7 +1334,7 @@ ErrorCodes_t getSamplingRates(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getRealSamplingRates(
-        E384CL_ARGOUT E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL samplingRates);
+        E384CL_ARGOUT LRangeHandle * samplingRates);
 
 /*! \brief Get the voltage range for voltage protocols.
  *
@@ -1443,7 +1443,7 @@ ErrorCodes_t hasProtocolSin(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVoltageStimulusLpfs(
-        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL filterOptions);
+        E384CL_ARGOUT LStrHandle filterOptions);
 
 /*! \brief Get the available options for the current stimulus low pass filter.
  *
@@ -1453,7 +1453,7 @@ ErrorCodes_t getVoltageStimulusLpfs(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCurrentStimulusLpfs(
-        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL filterOptions);
+        E384CL_ARGOUT LStrHandle filterOptions);
 
 /*! \brief Get the number of LEDs for the device.
  *
@@ -1473,7 +1473,7 @@ ErrorCodes_t getLedsNumber(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLedsColors(
-        E384CL_ARGOUT E384clUint32Vector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL ledsColors);
+        E384CL_ARGOUT uint32_t * ledsColors);
 
 /*! \brief Check if the device can work as a slave (triggered by digital input).
  *
@@ -1575,7 +1575,7 @@ ErrorCodes_t hasBridgeBalanceCompensation(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getPipetteCompensationOptions(
-        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
+        E384CL_ARGOUT LStrHandle options);
 
 /*! \brief Get options for the pipette compensation for current clamp.
  *
@@ -1585,7 +1585,7 @@ ErrorCodes_t getPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCPipetteCompensationOptions(
-        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
+        E384CL_ARGOUT LStrHandle options);
 
 /*! \brief Get options for the membrane compensation.
  *
@@ -1595,7 +1595,7 @@ ErrorCodes_t getCCPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getMembraneCompensationOptions(
-        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
+        E384CL_ARGOUT LStrHandle options);
 
 /*! \brief Get options for the access resistance compensation.
  * \note Resistance compensation includes resistance correction and prediction.
@@ -1606,7 +1606,7 @@ ErrorCodes_t getMembraneCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCompensationOptions(
-        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
+        E384CL_ARGOUT LStrHandle options);
 
 /*! \brief Get options for the access resistance correction.
  *
@@ -1616,7 +1616,7 @@ ErrorCodes_t getAccessResistanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCorrectionOptions(
-        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
+        E384CL_ARGOUT LStrHandle options);
 
 /*! \brief Get options for the access resistance prediction.
  *
@@ -1626,7 +1626,7 @@ ErrorCodes_t getAccessResistanceCorrectionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionOptions(
-        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
+        E384CL_ARGOUT LStrHandle options);
 
 /*! \brief Get options for the leak conductance compensation.
  *
@@ -1636,7 +1636,7 @@ ErrorCodes_t getAccessResistancePredictionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLeakConductanceCompensationOptions(
-        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
+        E384CL_ARGOUT LStrHandle options);
 
 /*! \brief Get options for the bridge balance compensation.
  *
@@ -1646,7 +1646,7 @@ ErrorCodes_t getLeakConductanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceCompensationOptions(
-        E384CL_ARGOUT E384clStringVector_t E384CL_OUTPUT_SYMBOL options);
+        E384CL_ARGOUT LStrHandle options);
 
 /*! \brief Get the specifications of the control for the liquid junction.
  *
@@ -1656,7 +1656,7 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLiquidJunctionControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the pipette capacitance.
  *
@@ -1666,7 +1666,7 @@ ErrorCodes_t getLiquidJunctionControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getPipetteCapacitanceControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the pipette capacitance for current clamp.
  *
@@ -1676,7 +1676,7 @@ ErrorCodes_t getPipetteCapacitanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCPipetteCapacitanceControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the membrane capacitance.
  *
@@ -1686,7 +1686,7 @@ ErrorCodes_t getCCPipetteCapacitanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getMembraneCapacitanceControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the access resistance.
  *
@@ -1696,7 +1696,7 @@ ErrorCodes_t getMembraneCapacitanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance correction percentage.
  *
@@ -1706,7 +1706,7 @@ ErrorCodes_t getAccessResistanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistanceCorrectionPercentageControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance correction lag.
  *
@@ -1716,7 +1716,7 @@ ErrorCodes_t getResistanceCorrectionPercentageControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistanceCorrectionLagControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction gain.
  *
@@ -1726,7 +1726,7 @@ ErrorCodes_t getResistanceCorrectionLagControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionGainControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction percentage.
  *
@@ -1736,7 +1736,7 @@ ErrorCodes_t getResistancePredictionGainControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionPercentageControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction bandwidth gain.
  *
@@ -1746,7 +1746,7 @@ ErrorCodes_t getResistancePredictionPercentageControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionBandwidthGainControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction tau.
  *
@@ -1756,7 +1756,7 @@ ErrorCodes_t getResistancePredictionBandwidthGainControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionTauControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the leak conductance.
  *
@@ -1766,7 +1766,7 @@ ErrorCodes_t getResistancePredictionTauControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLeakConductanceControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the bridge balance resistance.
  *
@@ -1776,7 +1776,7 @@ ErrorCodes_t getLeakConductanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceResistanceControl(
-        E384CL_ARGOUT E384clCompensationControl_t &control);
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 // NEW MICHELANGELO'S GETS
 /*! \brief Gets the value of the pipette capacitance for voltage clamp for each channel.
@@ -1790,9 +1790,9 @@ ErrorCodes_t getBridgeBalanceResistanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getPipetteCapacitance(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the pipette capacitance for current clamp for each channel.
@@ -1806,9 +1806,9 @@ ErrorCodes_t getPipetteCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCPipetteCapacitance(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the mebrane capacitance for each channel.
@@ -1822,9 +1822,9 @@ ErrorCodes_t getCCPipetteCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getMembraneCapacitance(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of theaccess resistance for each channel.
@@ -1838,9 +1838,9 @@ ErrorCodes_t getMembraneCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistance(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the resistance correction percentage for each channel.
@@ -1854,9 +1854,9 @@ ErrorCodes_t getAccessResistance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCorrectionPercentage(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the resistance correction lag for each channel.
@@ -1870,9 +1870,9 @@ ErrorCodes_t getAccessResistanceCorrectionPercentage(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCorrectionLag(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the access resistance prediction gain for each channel.
@@ -1886,9 +1886,9 @@ ErrorCodes_t getAccessResistanceCorrectionLag(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionGain(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the access resistance prediction percentage for each channel.
@@ -1902,9 +1902,9 @@ ErrorCodes_t getAccessResistancePredictionGain(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionPercentage(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the access resistance prediction bandwidth gain for each channel.
@@ -1918,9 +1918,9 @@ ErrorCodes_t getAccessResistancePredictionPercentage(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionBandwidthGain(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn);
 
 /*! \brief Gets the value of the access resistance prediction tau for each channel.
@@ -1934,9 +1934,9 @@ ErrorCodes_t getAccessResistancePredictionBandwidthGain(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionTau(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the leak conductance for each channel.
@@ -1950,9 +1950,9 @@ ErrorCodes_t getAccessResistancePredictionTau(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLeakConductance(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the bridge balance resistance for each channel.
@@ -1966,9 +1966,9 @@ ErrorCodes_t getLeakConductance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceResistance(
-        E384CL_ARGIN  E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384CL_ARGOUT E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384CL_ARGOUT E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        E384CL_ARGIN  uint16_t * channelIndexesIn,
+        E384CL_ARGOUT double * channelValuesOut,
+        E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
 // END NEW MICHELANGELO'S GETS

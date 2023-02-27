@@ -14,16 +14,16 @@ static MessageDispatcher * messageDispatcher = nullptr;
 
 /*! Private functions prototypes */
 
-static void input2String(E384clString_t i, string &s);
-static void input2Measurement(E384clMeasurement_t i, Measurement_t &m);
+static void input2String(LStrHandle i, string &s);
+static void input2Measurement(CharMeasurement_t i, Measurement_t &m);
 
-static void string2Output(string s, E384clString_t E384CL_OUTPUT_SYMBOL o);
-static void vectorString2Output(vector <string> v, E384clStringVector_t E384CL_OUTPUT_SYMBOL o);
-static void vectorMeasurement2Output(vector <Measurement_t> v, E384clMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL o);
-static void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL o);
+static void string2Output(string s, LStrHandle o);
+static void vectorString2Output(vector <string> v, LStrHandle o);
+static void vectorMeasurement2Output(vector <Measurement_t> v, LMeasHandle * o);
+static void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, LRangeHandle * o);
 
-template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL o);
-template<typename I_t, typename O_t> void input2NumericVector(I_t E384CL_VECTOR_SYMBOL v, O_t &o, int inputLength);
+template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t * o);
+template<typename I_t, typename O_t> void input2NumericVector(I_t * v, O_t &o, int inputLength);
 
 #ifndef E384CL_LABVIEW_COMPATIBILITY
 namespace e384CommLib {
@@ -46,7 +46,7 @@ ErrorCodes_t deinit() {
 \************************/
 
 ErrorCodes_t detectDevices(
-        E384clStringVector_t E384CL_OUTPUT_SYMBOL deviceIdsOut) {
+        LStrHandle deviceIdsOut) {
     vector <string> deviceIds;
 
     MessageDispatcher::detectDevices(deviceIds);
@@ -57,7 +57,7 @@ ErrorCodes_t detectDevices(
 }
 
 ErrorCodes_t connectDevice(
-        E384clString_t deviceIdIn) {
+        LStrHandle deviceIdIn) {
 
     ErrorCodes_t ret = Success;
     if (messageDispatcher == nullptr) {
@@ -103,8 +103,8 @@ ErrorCodes_t ping() {
 }
 
 ErrorCodes_t turnVoltageStimulusOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -122,8 +122,8 @@ ErrorCodes_t turnVoltageStimulusOn(
 }
 
 ErrorCodes_t turnCurrentStimulusOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -181,7 +181,7 @@ ErrorCodes_t setChannelsSources(
 
 ErrorCodes_t setVoltageHoldTuner(
         uint16_t channelIdx,
-        E384clMeasurement_t voltageIn) {
+        CharMeasurement_t voltageIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         Measurement_t voltage;
@@ -196,7 +196,7 @@ ErrorCodes_t setVoltageHoldTuner(
 
 ErrorCodes_t setCurrentHoldTuner(
         uint16_t channelIdx,
-        E384clMeasurement_t currentIn) {
+        CharMeasurement_t currentIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         Measurement_t current;
@@ -210,8 +210,8 @@ ErrorCodes_t setCurrentHoldTuner(
 }
 
 ErrorCodes_t turnOnLsbNoise(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL flagValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * flagValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -304,8 +304,8 @@ ErrorCodes_t setDigitalFilter(
 }
 
 ErrorCodes_t digitalOffsetCompensation(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -324,7 +324,7 @@ ErrorCodes_t digitalOffsetCompensation(
 
 ErrorCodes_t digitalOffsetCompensationOverride(
         uint16_t channelIdx,
-        E384clMeasurement_t valueIn) {
+        CharMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         Measurement_t value;
@@ -351,7 +351,7 @@ ErrorCodes_t digitalOffsetCompensationInquiry(
 
 ErrorCodes_t setVcCurrentOffsetDelta(
         uint16_t channelIdx,
-        E384clMeasurement_t valueIn) {
+        CharMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         Measurement_t value;
@@ -366,7 +366,7 @@ ErrorCodes_t setVcCurrentOffsetDelta(
 
 ErrorCodes_t setCcVoltageOffsetDelta(
         uint16_t channelIdx,
-        E384clMeasurement_t valueIn) {
+        CharMeasurement_t valueIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         Measurement_t value;
@@ -380,7 +380,7 @@ ErrorCodes_t setCcVoltageOffsetDelta(
 }
 
 ErrorCodes_t zap(
-        E384clMeasurement_t durationIn,
+        CharMeasurement_t durationIn,
         uint16_t channelIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -457,8 +457,8 @@ ErrorCodes_t setSlave(
 }
 
 ErrorCodes_t turnVoltageCompensationsOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -476,8 +476,8 @@ ErrorCodes_t turnVoltageCompensationsOn(
 }
 
 ErrorCodes_t turnCurrentCompensationsOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -495,8 +495,8 @@ ErrorCodes_t turnCurrentCompensationsOn(
 }
 
 ErrorCodes_t turnPipetteCompensationOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -514,8 +514,8 @@ ErrorCodes_t turnPipetteCompensationOn(
 }
 
 ErrorCodes_t turnCCPipetteCompensationOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -533,8 +533,8 @@ ErrorCodes_t turnCCPipetteCompensationOn(
 }
 
 ErrorCodes_t turnMembraneCompensationOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -552,8 +552,8 @@ ErrorCodes_t turnMembraneCompensationOn(
 }
 
 ErrorCodes_t turnAccessResistanceCompensationOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -571,8 +571,8 @@ ErrorCodes_t turnAccessResistanceCompensationOn(
 }
 
 ErrorCodes_t turnAccessResistanceCorrectionOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -590,8 +590,8 @@ ErrorCodes_t turnAccessResistanceCorrectionOn(
 }
 
 ErrorCodes_t turnAccessResistancePredictionOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -609,8 +609,8 @@ ErrorCodes_t turnAccessResistancePredictionOn(
 }
 
 ErrorCodes_t turnLeakConductanceCompensationOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -628,8 +628,8 @@ ErrorCodes_t turnLeakConductanceCompensationOn(
 }
 
 ErrorCodes_t turnBridgeBalanceCompensationOn(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL onValuesIn,
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -647,8 +647,8 @@ ErrorCodes_t turnBridgeBalanceCompensationOn(
 }
 
 ErrorCodes_t setPipetteCompensationOptions(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        uint16_t * channelIndexesIn,
+        uint16_t * optionIndexesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -666,8 +666,8 @@ ErrorCodes_t setPipetteCompensationOptions(
 }
 
 ErrorCodes_t setCCPipetteCompensationOptions(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        uint16_t * channelIndexesIn,
+        uint16_t * optionIndexesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -685,8 +685,8 @@ ErrorCodes_t setCCPipetteCompensationOptions(
 }
 
 ErrorCodes_t setMembraneCompensationOptions(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        uint16_t * channelIndexesIn,
+        uint16_t * optionIndexesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -704,8 +704,8 @@ ErrorCodes_t setMembraneCompensationOptions(
 }
 
 ErrorCodes_t setAccessResistanceCompensationOptions(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        uint16_t * channelIndexesIn,
+        uint16_t * optionIndexesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -723,8 +723,8 @@ ErrorCodes_t setAccessResistanceCompensationOptions(
 }
 
 ErrorCodes_t setAccessResistanceCorrectionOptions(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        uint16_t * channelIndexesIn,
+        uint16_t * optionIndexesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -742,8 +742,8 @@ ErrorCodes_t setAccessResistanceCorrectionOptions(
 }
 
 ErrorCodes_t setAccessResistancePredictionOptions(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        uint16_t * channelIndexesIn,
+        uint16_t * optionIndexesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -761,8 +761,8 @@ ErrorCodes_t setAccessResistancePredictionOptions(
 }
 
 ErrorCodes_t setLeakConductanceCompensationOptions(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        uint16_t * channelIndexesIn,
+        uint16_t * optionIndexesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -780,8 +780,8 @@ ErrorCodes_t setLeakConductanceCompensationOptions(
 }
 
 ErrorCodes_t setBridgeBalanceCompensationOptions(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL optionIndexesIn,
+        uint16_t * channelIndexesIn,
+        uint16_t * optionIndexesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -799,8 +799,8 @@ ErrorCodes_t setBridgeBalanceCompensationOptions(
 }
 
 ErrorCodes_t setPipetteCapacitance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -819,8 +819,8 @@ ErrorCodes_t setPipetteCapacitance(
 }
 
 ErrorCodes_t setCCPipetteCapacitance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -839,8 +839,8 @@ ErrorCodes_t setCCPipetteCapacitance(
 }
 
 ErrorCodes_t setMembraneCapacitance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -859,8 +859,8 @@ ErrorCodes_t setMembraneCapacitance(
 }
 
 ErrorCodes_t setAccessResistance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -879,8 +879,8 @@ ErrorCodes_t setAccessResistance(
 }
 
 ErrorCodes_t setAccessResistanceCorrectionPercentage(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -899,8 +899,8 @@ ErrorCodes_t setAccessResistanceCorrectionPercentage(
 }
 
 ErrorCodes_t setAccessResistanceCorrectionLag(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -919,8 +919,8 @@ ErrorCodes_t setAccessResistanceCorrectionLag(
 }
 
 ErrorCodes_t setAccessResistancePredictionGain(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -939,8 +939,8 @@ ErrorCodes_t setAccessResistancePredictionGain(
 }
 
 ErrorCodes_t setAccessResistancePredictionPercentage(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -959,8 +959,8 @@ ErrorCodes_t setAccessResistancePredictionPercentage(
 }
 
 ErrorCodes_t setAccessResistancePredictionBandwidthGain(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -979,8 +979,8 @@ ErrorCodes_t setAccessResistancePredictionBandwidthGain(
 }
 
 ErrorCodes_t setAccessResistancePredictionTau(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -999,8 +999,8 @@ ErrorCodes_t setAccessResistancePredictionTau(
 }
 
 ErrorCodes_t setLeakConductance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -1019,8 +1019,8 @@ ErrorCodes_t setLeakConductance(
 }
 
 ErrorCodes_t setBridgeBalanceResistance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL channelValuesIn,
+        uint16_t * channelIndexesIn,
+        double * channelValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -1042,7 +1042,7 @@ ErrorCodes_t setDigitalTriggerOutput(
         E384CL_ARGIN bool terminator,
         E384CL_ARGIN bool polarity,
         E384CL_ARGIN uint16_t triggerId,
-        E384CL_ARGIN E384clMeasurement_t delayIn) {
+        E384CL_ARGIN CharMeasurement_t delayIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         Measurement_t delay;
@@ -1058,7 +1058,7 @@ ErrorCodes_t setDigitalTriggerOutput(
 ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
         uint16_t itemsNum,
         uint16_t sweepsNum,
-        E384clMeasurement_t vRestIn) {
+        CharMeasurement_t vRestIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         Measurement_t vRest;
@@ -1072,10 +1072,10 @@ ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
 }
 
 ErrorCodes_t voltStepTimeStep(
-        E384clMeasurement_t v0In,
-        E384clMeasurement_t vStepIn,
-        E384clMeasurement_t t0In,
-        E384clMeasurement_t tStepIn,
+        CharMeasurement_t v0In,
+        CharMeasurement_t vStepIn,
+        CharMeasurement_t t0In,
+        CharMeasurement_t tStepIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1099,9 +1099,9 @@ ErrorCodes_t voltStepTimeStep(
 }
 
 ErrorCodes_t voltRamp(
-        E384clMeasurement_t v0In,
-        E384clMeasurement_t vFinalIn,
-        E384clMeasurement_t tIn,
+        CharMeasurement_t v0In,
+        CharMeasurement_t vFinalIn,
+        CharMeasurement_t tIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1123,9 +1123,9 @@ ErrorCodes_t voltRamp(
 }
 
 ErrorCodes_t voltSin(
-        E384clMeasurement_t v0In,
-        E384clMeasurement_t vAmpIn,
-        E384clMeasurement_t freqIn,
+        CharMeasurement_t v0In,
+        CharMeasurement_t vAmpIn,
+        CharMeasurement_t freqIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1160,7 +1160,7 @@ ErrorCodes_t startProtocol() {
 ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
         uint16_t itemsNum,
         uint16_t sweepsNum,
-        E384clMeasurement_t iRestIn) {
+        CharMeasurement_t iRestIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         Measurement_t iRest;
@@ -1174,10 +1174,10 @@ ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
 }
 
 ErrorCodes_t currStepTimeStep(
-        E384clMeasurement_t i0In,
-        E384clMeasurement_t iStepIn,
-        E384clMeasurement_t t0In,
-        E384clMeasurement_t tStepIn,
+        CharMeasurement_t i0In,
+        CharMeasurement_t iStepIn,
+        CharMeasurement_t t0In,
+        CharMeasurement_t tStepIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1201,9 +1201,9 @@ ErrorCodes_t currStepTimeStep(
 }
 
 ErrorCodes_t currRamp(
-        E384clMeasurement_t i0In,
-        E384clMeasurement_t iFinalIn,
-        E384clMeasurement_t tIn,
+        CharMeasurement_t i0In,
+        CharMeasurement_t iFinalIn,
+        CharMeasurement_t tIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1225,9 +1225,9 @@ ErrorCodes_t currRamp(
 }
 
 ErrorCodes_t currSin(
-        E384clMeasurement_t i0In,
-        E384clMeasurement_t iAmpIn,
-        E384clMeasurement_t freqIn,
+        CharMeasurement_t i0In,
+        CharMeasurement_t iAmpIn,
+        CharMeasurement_t freqIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1513,7 +1513,7 @@ ErrorCodes_t hasCurrentHoldTuner() {
 }
 
 ErrorCodes_t getVCCurrentRanges(
-        E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL currentRangesOut) {
+        LRangeHandle * currentRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         vector <RangedMeasurement_t> currentRanges;
@@ -1527,7 +1527,7 @@ ErrorCodes_t getVCCurrentRanges(
 }
 
 ErrorCodes_t getCCCurrentRanges(
-        E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL currentRangesOut) {
+        LRangeHandle * currentRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         vector <RangedMeasurement_t> currentRanges;
@@ -1565,7 +1565,7 @@ ErrorCodes_t getCCCurrentRange(
 }
 
 ErrorCodes_t getVCVoltageRanges(
-        E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL voltageRangesOut) {
+        LRangeHandle * voltageRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         vector <RangedMeasurement_t> voltageRanges;
@@ -1579,7 +1579,7 @@ ErrorCodes_t getVCVoltageRanges(
 }
 
 ErrorCodes_t getCCVoltageRanges(
-        E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL voltageRangesOut) {
+        LRangeHandle * voltageRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         vector <RangedMeasurement_t> voltageRanges;
@@ -1617,7 +1617,7 @@ ErrorCodes_t getCCVoltageRange(
 }
 
 ErrorCodes_t getSamplingRates(
-        E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL samplingRatesOut) {
+        LRangeHandle * samplingRatesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         vector <RangedMeasurement_t> samplingRates;
@@ -1631,7 +1631,7 @@ ErrorCodes_t getSamplingRates(
 }
 
 ErrorCodes_t getRealSamplingRates(
-        E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL samplingRatesOut) {
+        LRangeHandle * samplingRatesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         vector <RangedMeasurement_t> samplingRates;
@@ -1764,7 +1764,7 @@ ErrorCodes_t hasProtocolSin() {
 }
 
 ErrorCodes_t getVoltageStimulusLpfs(
-        E384clStringVector_t E384CL_OUTPUT_SYMBOL filterOptionsOut) {
+        LStrHandle filterOptionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <std::string> filterOptions;
@@ -1778,7 +1778,7 @@ ErrorCodes_t getVoltageStimulusLpfs(
 }
 
 ErrorCodes_t getCurrentStimulusLpfs(
-        E384clStringVector_t E384CL_OUTPUT_SYMBOL filterOptionsOut) {
+        LStrHandle filterOptionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <std::string> filterOptions;
@@ -1804,12 +1804,12 @@ ErrorCodes_t getLedsNumber(
 }
 
 ErrorCodes_t getLedsColors(
-        E384clUint32Vector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL ledsColorsOut) {
+        uint32_t * ledsColorsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <uint32_t> ledsColors;
         ret = messageDispatcher->getLedsColors(ledsColors);
-        numericVector2Output<std::vector <uint32_t>, E384clUint32Vector_t>(ledsColors, ledsColorsOut);
+        numericVector2Output<std::vector <uint32_t>, uint32_t>(ledsColors, ledsColorsOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1829,12 +1829,12 @@ ErrorCodes_t hasSlaveModality() {
 }
 
 ErrorCodes_t getClampingModalities(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL clampingModalitiesOut) {
+        uint16_t * clampingModalitiesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <uint16_t> clampingModalities;
         ret = messageDispatcher->getClampingModalities(clampingModalities);
-        numericVector2Output<std::vector <uint16_t>, E384clUint16Vector_t>(clampingModalities, clampingModalitiesOut);
+        numericVector2Output<std::vector <uint16_t>, uint16_t>(clampingModalities, clampingModalitiesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1931,7 +1931,7 @@ ErrorCodes_t hasBridgeBalanceCompensation() {
 }
 
 ErrorCodes_t getPipetteCompensationOptions(
-        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
+        LStrHandle optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <std::string> options;
@@ -1945,7 +1945,7 @@ ErrorCodes_t getPipetteCompensationOptions(
 }
 
 ErrorCodes_t getCCPipetteCompensationOptions(
-        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
+        LStrHandle optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <std::string> options;
@@ -1959,7 +1959,7 @@ ErrorCodes_t getCCPipetteCompensationOptions(
 }
 
 ErrorCodes_t getMembraneCompensationOptions(
-        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
+        LStrHandle optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <std::string> options;
@@ -1973,7 +1973,7 @@ ErrorCodes_t getMembraneCompensationOptions(
 }
 
 ErrorCodes_t getAccessResistanceCompensationOptions(
-        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
+        LStrHandle optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <std::string> options;
@@ -1987,7 +1987,7 @@ ErrorCodes_t getAccessResistanceCompensationOptions(
 }
 
 ErrorCodes_t getAccessResistanceCorrectionOptions(
-        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
+        LStrHandle optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <std::string> options;
@@ -2001,7 +2001,7 @@ ErrorCodes_t getAccessResistanceCorrectionOptions(
 }
 
 ErrorCodes_t getAccessResistancePredictionOptions(
-        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
+        LStrHandle optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <std::string> options;
@@ -2015,7 +2015,7 @@ ErrorCodes_t getAccessResistancePredictionOptions(
 }
 
 ErrorCodes_t getLeakConductanceCompensationOptions(
-        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
+        LStrHandle optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <std::string> options;
@@ -2029,7 +2029,7 @@ ErrorCodes_t getLeakConductanceCompensationOptions(
 }
 
 ErrorCodes_t getBridgeBalanceCompensationOptions(
-        E384clStringVector_t E384CL_OUTPUT_SYMBOL optionsOut) {
+        LStrHandle optionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <std::string> options;
@@ -2043,7 +2043,7 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
 }
 
 ErrorCodes_t getLiquidJunctionControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getLiquidJunctionControl(control);
@@ -2055,7 +2055,7 @@ ErrorCodes_t getLiquidJunctionControl(
 }
 
 ErrorCodes_t getPipetteCapacitanceControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getPipetteCapacitanceControl(control);
@@ -2067,7 +2067,7 @@ ErrorCodes_t getPipetteCapacitanceControl(
 }
 
 ErrorCodes_t getCCPipetteCapacitanceControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getCCPipetteCapacitanceControl(control);
@@ -2079,7 +2079,7 @@ ErrorCodes_t getCCPipetteCapacitanceControl(
 }
 
 ErrorCodes_t getMembraneCapacitanceControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getMembraneCapacitanceControl(control);
@@ -2091,7 +2091,7 @@ ErrorCodes_t getMembraneCapacitanceControl(
 }
 
 ErrorCodes_t getAccessResistanceControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getAccessResistanceControl(control);
@@ -2103,7 +2103,7 @@ ErrorCodes_t getAccessResistanceControl(
 }
 
 ErrorCodes_t getResistanceCorrectionPercentageControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistanceCorrectionPercentageControl(control);
@@ -2115,7 +2115,7 @@ ErrorCodes_t getResistanceCorrectionPercentageControl(
 }
 
 ErrorCodes_t getResistanceCorrectionLagControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistanceCorrectionLagControl(control);
@@ -2127,7 +2127,7 @@ ErrorCodes_t getResistanceCorrectionLagControl(
 }
 
 ErrorCodes_t getResistancePredictionGainControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistancePredictionGainControl(control);
@@ -2139,7 +2139,7 @@ ErrorCodes_t getResistancePredictionGainControl(
 }
 
 ErrorCodes_t getResistancePredictionPercentageControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistancePredictionPercentageControl(control);
@@ -2151,7 +2151,7 @@ ErrorCodes_t getResistancePredictionPercentageControl(
 }
 
 ErrorCodes_t getResistancePredictionBandwidthGainControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistancePredictionBandwidthGainControl(control);
@@ -2163,7 +2163,7 @@ ErrorCodes_t getResistancePredictionBandwidthGainControl(
 }
 
 ErrorCodes_t getResistancePredictionTauControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getResistancePredictionTauControl(control);
@@ -2175,7 +2175,7 @@ ErrorCodes_t getResistancePredictionTauControl(
 }
 
 ErrorCodes_t getLeakConductanceControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getLeakConductanceControl(control);
@@ -2187,7 +2187,7 @@ ErrorCodes_t getLeakConductanceControl(
 }
 
 ErrorCodes_t getBridgeBalanceResistanceControl(
-        E384clCompensationControl_t &control) {
+        CharCompensationControl_t &control) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getBridgeBalanceResistanceControl(control);
@@ -2201,9 +2201,9 @@ ErrorCodes_t getBridgeBalanceResistanceControl(
 // NEW MICHELANGELO'S GETS
 
 ErrorCodes_t getPipetteCapacitance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2214,8 +2214,8 @@ ErrorCodes_t getPipetteCapacitance(
 
         ret = messageDispatcher->getPipetteCapacitance(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2224,9 +2224,9 @@ ErrorCodes_t getPipetteCapacitance(
 }
 
 ErrorCodes_t getCCPipetteCapacitance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2237,8 +2237,8 @@ ErrorCodes_t getCCPipetteCapacitance(
 
         ret = messageDispatcher->getCCPipetteCapacitance(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2247,9 +2247,9 @@ ErrorCodes_t getCCPipetteCapacitance(
 }
 
 ErrorCodes_t getMembraneCapacitance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2260,8 +2260,8 @@ ErrorCodes_t getMembraneCapacitance(
 
         ret = messageDispatcher->getMembraneCapacitance(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2270,9 +2270,9 @@ ErrorCodes_t getMembraneCapacitance(
 }
 
 ErrorCodes_t getAccessResistance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2283,8 +2283,8 @@ ErrorCodes_t getAccessResistance(
 
         ret = messageDispatcher->getAccessResistance(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2293,9 +2293,9 @@ ErrorCodes_t getAccessResistance(
 }
 
 ErrorCodes_t getAccessResistanceCorrectionPercentage(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2306,8 +2306,8 @@ ErrorCodes_t getAccessResistanceCorrectionPercentage(
 
         ret = messageDispatcher->getAccessResistanceCorrectionPercentage(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2316,9 +2316,9 @@ ErrorCodes_t getAccessResistanceCorrectionPercentage(
 }
 
 ErrorCodes_t getAccessResistanceCorrectionLag(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2329,8 +2329,8 @@ ErrorCodes_t getAccessResistanceCorrectionLag(
 
         ret = messageDispatcher->getAccessResistanceCorrectionLag(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2339,9 +2339,9 @@ ErrorCodes_t getAccessResistanceCorrectionLag(
 }
 
 ErrorCodes_t getAccessResistancePredictionGain(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2352,8 +2352,8 @@ ErrorCodes_t getAccessResistancePredictionGain(
 
         ret = messageDispatcher->getAccessResistancePredictionGain(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2362,9 +2362,9 @@ ErrorCodes_t getAccessResistancePredictionGain(
 }
 
 ErrorCodes_t getAccessResistancePredictionPercentage(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2375,8 +2375,8 @@ ErrorCodes_t getAccessResistancePredictionPercentage(
 
         ret = messageDispatcher->getAccessResistancePredictionPercentage(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2385,9 +2385,9 @@ ErrorCodes_t getAccessResistancePredictionPercentage(
 }
 
 ErrorCodes_t getAccessResistancePredictionBandwidthGain(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2398,8 +2398,8 @@ ErrorCodes_t getAccessResistancePredictionBandwidthGain(
 
         ret = messageDispatcher->getAccessResistancePredictionBandwidthGain(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2408,9 +2408,9 @@ ErrorCodes_t getAccessResistancePredictionBandwidthGain(
 }
 
 ErrorCodes_t getAccessResistancePredictionTau(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn = 0) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2421,8 +2421,8 @@ ErrorCodes_t getAccessResistancePredictionTau(
 
         ret = messageDispatcher->getAccessResistancePredictionTau(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2431,9 +2431,9 @@ ErrorCodes_t getAccessResistancePredictionTau(
 }
 
 ErrorCodes_t getLeakConductance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2444,8 +2444,8 @@ ErrorCodes_t getLeakConductance(
 
         ret = messageDispatcher->getLeakConductance(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2454,9 +2454,9 @@ ErrorCodes_t getLeakConductance(
 }
 
 ErrorCodes_t getBridgeBalanceResistance(
-        E384clUint16Vector_t E384CL_VECTOR_SYMBOL channelIndexesIn,
-        E384clDoubleVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL channelValuesOut,
-        E384clBoolVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL activeNotActiveOut,
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
         int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -2467,8 +2467,8 @@ ErrorCodes_t getBridgeBalanceResistance(
 
         ret = messageDispatcher->getBridgeBalanceResistance(channelIndexes, channelValues, activeNotActive);
 
-        numericVector2Output<std::vector <double>, E384clDoubleVector_t>(channelValues, channelValuesOut);
-        numericVector2Output<std::vector <bool>, E384clBoolVector_t>(activeNotActive, activeNotActiveOut);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2483,7 +2483,7 @@ ErrorCodes_t getBridgeBalanceResistance(
 #endif
 
 /*! Private functions */
-void input2String(E384clString_t i, string &s) {
+void input2String(LStrHandle i, string &s) {
 #ifndef E384CL_LABVIEW_COMPATIBILITY
     s = i;
 #else
@@ -2491,7 +2491,7 @@ void input2String(E384clString_t i, string &s) {
 #endif
 }
 
-void input2Measurement(E384clMeasurement_t i, Measurement_t &m) {
+void input2Measurement(CharMeasurement_t i, Measurement_t &m) {
 #ifndef E384CL_LABVIEW_COMPATIBILITY
     m = i;
 #else
@@ -2501,7 +2501,7 @@ void input2Measurement(E384clMeasurement_t i, Measurement_t &m) {
 #endif
 }
 
-void string2Output(string s, E384clString_t E384CL_OUTPUT_SYMBOL o) {
+void string2Output(string s, LStrHandle o) {
 #ifndef E384CL_LABVIEW_COMPATIBILITY
     o = s;
 #else
@@ -2513,7 +2513,7 @@ void string2Output(string s, E384clString_t E384CL_OUTPUT_SYMBOL o) {
 #endif
 }
 
-void vectorString2Output(vector <string> v, E384clStringVector_t E384CL_OUTPUT_SYMBOL o) {
+void vectorString2Output(vector <string> v, LStrHandle o) {
 #ifndef E384CL_LABVIEW_COMPATIBILITY
     o = v;
 #else
@@ -2525,7 +2525,7 @@ void vectorString2Output(vector <string> v, E384clStringVector_t E384CL_OUTPUT_S
 #endif
 }
 
-void vectorMeasurement2Output(vector <Measurement_t> v, E384clMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL o) {
+void vectorMeasurement2Output(vector <Measurement_t> v, LMeasHandle * o) {
 #ifndef E384CL_LABVIEW_COMPATIBILITY
     o = v;
 #else
@@ -2551,7 +2551,7 @@ void vectorMeasurement2Output(vector <Measurement_t> v, E384clMeasurementVector_
 #endif
 }
 
-void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, E384clRangedMeasurementVector_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL o) {
+void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, LRangeHandle * o) {
 #ifndef E384CL_LABVIEW_COMPATIBILITY
     o = v;
 #else
@@ -2579,7 +2579,7 @@ void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, E384clRanged
 #endif
 }
 
-template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t E384CL_VECTOR_SYMBOL E384CL_OUTPUT_SYMBOL o){
+template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t * o){
 #ifndef E384CL_LABVIEW_COMPATIBILITY
     o = v;
 #else
@@ -2589,7 +2589,7 @@ template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t E384CL
 #endif
 }
 
-template<typename I_t, typename O_t> void input2NumericVector(I_t E384CL_VECTOR_SYMBOL v, O_t &o, int inputLength){
+template<typename I_t, typename O_t> void input2NumericVector(I_t * v, O_t &o, int inputLength){
 #ifndef E384CL_LABVIEW_COMPATIBILITY
     o = v;
 #else
