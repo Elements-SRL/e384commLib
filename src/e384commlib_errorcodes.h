@@ -17,7 +17,8 @@ typedef enum ErrorGroups {
     ErrorGroupDeviceConnection =    0x00030000, /*!< Error codes related to connection errors. */
     ErrorGroupDeviceCommands =      0x00040000, /*!< Error codes related to failed commands to the device. */
     ErrorGroupDeviceFeatures =      0x00050000, /*!< Error codes related to wrongly used features. */
-    ErrorGroupDeviceIssues =        0x00060000  /*!< Error codes related to issues with the device. */
+    ErrorGroupDeviceIssues =        0x00060000, /*!< Error codes related to issues with the device. */
+    ErrorGroupLibraryIssues =       0x00070000  /*!< Error codes related to issues with the library. */
 } ErrorGroups_t;
 
 /*! \enum ErrorCodes_t
@@ -69,6 +70,8 @@ typedef enum ErrorCodes {
     ErrorUpgradesNotAvailable =         ErrorGroupDeviceFeatures +      0x00000001, /*!< Error returned when there are no upgrades available for the current device. */
 
     ErrorExpiredDevice =                ErrorGroupDeviceIssues +        0x00000000, /*!< Error returned when the device has expired */
+
+    ErrorMemoryInitialization =         ErrorGroupLibraryIssues +       0x00000000, /*!< Error returned when the library fails to initialize the memory */
 
     ErrorUnknown =                                                      0xFFFFFFFF  /*!< Undefined error. */
 } ErrorCodes_t;

@@ -31,10 +31,10 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     rxWordOffsets[rxMessageVoltageOffset] = rxWordOffsets[rxMessageStatus] + rxWordLengths[rxMessageStatus];
     rxWordLengths[rxMessageVoltageOffset] = currentChannelsNum;
 
-
-    commonReadFrameLength = sizeof(rxSyncWord)/RX_WORD_SIZE + 2 + rxWordLengths[rxMessageDataLoad];
-
     maxOutputPacketsNum = E384CL_DATA_ARRAY_SIZE/totalChannelsNum;
+
+    rxMaxWords = 0; // ANCORA NON DEFINITO, AGGIORNARE
+    maxInputFrameSize = rxMaxWords*RX_WORD_SIZE;
 
     txDataWords = 874+0; // ANCORA NON DEFINITO, AGGIORNARE
     txModifiedStartingWord = txDataWords;

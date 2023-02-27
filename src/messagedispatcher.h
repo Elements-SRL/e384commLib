@@ -31,9 +31,13 @@
 #define INT28_MIN (-INT28_MAX-1.0)
 
 #define RX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
+#define RX_DEFAULT_MIN_PACKETS_NUMBER 10
+#define RX_DEFAULT_FEW_PACKETS_SLEEP_US 2000
+#define RX_FEW_PACKETS_COEFF 0.01 /*!< = 10.0/1000.0: 10.0 because I want to get data once every 10ms, 1000 to convert sampling rate from Hz to kHz */
+#define RX_MAX_BYTES_TO_WAIT_FOR 16384
 
 #define TX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
-#define TX_MSG_BUFFER_SIZE 0x100
+#define TX_MSG_BUFFER_SIZE 0x100 /*!< Number of messages. Always use a power of 2 for efficient circular buffer management through index masking */
 #define TX_MSG_BUFFER_MASK (TX_MSG_BUFFER_SIZE-1)
 
 class MessageDispatcher {
@@ -52,8 +56,6 @@ public:
 
     virtual ErrorCodes_t connect();
     virtual ErrorCodes_t disconnect();
-    virtual void readDataFromDevice() = 0;
-    virtual void sendCommandsToDevice() = 0;
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
 
     /****************\
@@ -90,6 +92,8 @@ protected:
      *  Methods  *
     \*************/
 
+    virtual void readDataFromDevice() = 0;
+    virtual void sendCommandsToDevice() = 0;
     void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage);
 
     /****************\
@@ -184,7 +188,6 @@ protected:
 
     DoubleCoder * stimRestCoder = nullptr;
 
-
     /***************\
      *  Variables  *
     \***************/
@@ -196,10 +199,14 @@ protected:
     bool threadsStarted = false;
     bool stopConnectionFlag = false;
 
-    int commonReadFrameLength;
+    uint32_t minPacketsNumber = RX_DEFAULT_MIN_PACKETS_NUMBER;
+    uint32_t fewPacketsSleepUs = RX_DEFAULT_FEW_PACKETS_SLEEP_US;
+
+    /*! Read data buffer management */
+    uint16_t rxMaxWords;
+    uint32_t maxInputFrameSize;
 
     /*! Write data buffer management */
-    uint8_t * txRawBuffer; /*!< Raw outgoing data to the device */
     std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */
     std::vector <uint16_t> txMsgOffsetWord; /*!< Buffer of offset word in txMsgBuffer */
     std::vector <uint16_t> txMsgLength; /*!< Buffer of txMsgBuffer length */
@@ -207,9 +214,6 @@ protected:
     uint32_t txMsgBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
     uint16_t txDataWords;
     uint16_t txMaxWords;
-    uint16_t rxDataWordOffset; /*!< Offset of data words in rx frames */
-    uint16_t rxDataWordLength; /*!< Number data words in rx frames */
-    uint32_t rxBufferReadOffset = 0; /*!< Offset of the part of buffer to be processed  */
     unsigned int maxOutputPacketsNum;
     std::vector <uint16_t> txStatus; /*!< Status of the words written */
     uint16_t txModifiedStartingWord;
@@ -237,6 +241,7 @@ protected:
     std::thread rxThread;
     std::thread txThread;
 
+    mutable std::mutex rxMutex;
     std::condition_variable rxMsgBufferNotEmpty;
     std::condition_variable rxMsgBufferNotFull;
 
