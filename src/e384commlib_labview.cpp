@@ -1,9 +1,8 @@
-#include "e384commlib.h"
+#include "e384commlib_labview.h"
 
 #include <algorithm>
 
 #include "messagedispatcher.h"
-#include "okFrontPanelDLL.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -14,8 +13,6 @@ using namespace std;
 static MessageDispatcher * messageDispatcher = nullptr;
 
 /*! Private functions prototypes */
-static string getDeviceSerial(int index);
-static bool getDeviceCount(int &numDevs);
 
 static void input2String(E384clString_t i, string &s);
 static void input2Measurement(E384clMeasurement_t i, Measurement_t &m);
@@ -51,23 +48,9 @@ ErrorCodes_t deinit() {
 ErrorCodes_t detectDevices(
         E384clStringVector_t E384CL_OUTPUT_SYMBOL deviceIdsOut) {
     vector <string> deviceIds;
-    /*! Gets number of devices */
-    int numDevs;
-    bool devCountOk = getDeviceCount(numDevs);
-    if (!devCountOk) {
-        return ErrorListDeviceFailed;
 
-    } else if (numDevs == 0) {
-        deviceIds.clear();
-        return ErrorNoDeviceFound;
-    }
+    MessageDispatcher::detectDevices(deviceIds);
 
-    deviceIds.clear();
-
-    /*! Lists all serial numbers */
-    for (int i = 0; i < numDevs; i++) {
-        deviceIds.push_back(getDeviceSerial(i));
-    }
     vectorString2Output(deviceIds, deviceIdsOut);
 
     return Success;
@@ -81,34 +64,7 @@ ErrorCodes_t connectDevice(
         string deviceId;
         input2String(deviceIdIn, deviceId);
 
-        DeviceTypes_t deviceType;
-        ret = MessageDispatcher::getDeviceType(deviceId, deviceType);
-        if (ret != Success) {
-            return ErrorDeviceTypeNotRecognized;
-        }
-
-        switch (deviceType) {
-        case Device384Nanopores:
-            messageDispatcher = new MessageDispatcher_ePatchEL03D(deviceId);
-            break;
-
-        case Device384PatchClamp:
-            messageDispatcher = new MessageDispatcher_ePatchEL03D_V01(deviceId);
-            break;
-
-        default:
-            return ErrorDeviceTypeNotRecognized;
-        }
-
-        if (messageDispatcher != nullptr) {
-            ret = messageDispatcher->connect();
-
-            if (ret != Success) {
-                messageDispatcher->disconnect();
-                delete messageDispatcher;
-                messageDispatcher = nullptr;
-            }
-        }
+        ret = MessageDispatcher::connectDevice(deviceId, messageDispatcher);
 
     } else {
         ret = ErrorDeviceAlreadyConnected;
@@ -119,7 +75,7 @@ ErrorCodes_t connectDevice(
 ErrorCodes_t disconnectDevice() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->disconnect();
+        ret = messageDispatcher->disconnectDevice();
         if (ret == Success) {
             delete messageDispatcher;
             messageDispatcher = nullptr;
@@ -2527,27 +2483,6 @@ ErrorCodes_t getBridgeBalanceResistance(
 #endif
 
 /*! Private functions */
-string getDeviceSerial(int index) {
-    string serial;
-    int numDevs;
-    getDeviceCount(numDevs);
-    if (index < numDevs) {
-        okCFrontPanel okDev;
-        okDev.GetDeviceCount();
-        serial = okDev.GetDeviceListSerial(index);
-        return serial;
-
-    } else {
-        return "";
-    }
-}
-
-bool getDeviceCount(int &numDevs) {
-    okCFrontPanel okDev;
-    numDevs = okDev.GetDeviceCount();
-    return true;
-}
-
 void input2String(E384clString_t i, string &s) {
 #ifndef E384CL_LABVIEW_COMPATIBILITY
     s = i;

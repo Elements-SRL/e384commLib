@@ -54,9 +54,14 @@ public:
      *  Connection methods  *
     \************************/
 
+    static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
+    static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
+    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher);
+    ErrorCodes_t disconnectDevice();
+    /*! \todo FCON ricordarsi di implementare un metodo per silenziare i messaggi indesiderati */
+
     virtual ErrorCodes_t connect();
     virtual ErrorCodes_t disconnect();
-    static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
 
     /****************\
      *  Tx methods  *
@@ -98,6 +103,8 @@ protected:
      *  Methods  *
     \*************/
 
+    static std::string getDeviceSerial(int index);
+    static bool getDeviceCount(int &numDevs);
     virtual void readDataFromDevice() = 0;
     virtual void sendCommandsToDevice() = 0;
 

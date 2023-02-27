@@ -1,8 +1,8 @@
-/*! \file e384commlib.h
+/*! \file e384commlib_labview.h
  * \brief Declares class CommLib.
  */
-#ifndef E384COMMLIB_H
-#define E384COMMLIB_H
+#ifndef E384COMMLIB_LABVIEW_H
+#define E384COMMLIB_LABVIEW_H
 
 #ifndef E384CL_LABVIEW_COMPATIBILITY
 #include <vector>
@@ -1190,7 +1190,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getNextMessage(
         E384CL_ARGOUT RxOutput_t &rxOutput,
-        E384CL_ARGOUT data);
+        E384CL_ARGOUT int16_t * data);
 
 /*! \brief Get the number of channels for the device.
  *
@@ -1978,4 +1978,4 @@ ErrorCodes_t getBridgeBalanceResistance(
 #endif
 
 
-#endif // E384COMMLIB_H
+#endif // E384COMMLIB_LABVIEW_H

@@ -32,7 +32,6 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
-    src/e384commlib.cpp \
     src/commandcoder.cpp \
     src/messagedispatcher.cpp \
     src/messagedispatcher_opalkelly.cpp \
@@ -42,17 +41,21 @@ HEADERS += \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
-    src/e384commlib.h \
     src/commandcoder.h \
     src/messagedispatcher.h \
     src/messagedispatcher_opalkelly.h \
     src/devices/messagedispatcher_384nanopores.h \
     src/utils.h
 
+contains(DEFINES, E384CL_LABVIEW_COMPATIBILITY) {
+SOURCES += src/e384commlib_labview.cpp
+HEADERS += src/e384commlib_labview.h
+include(LabVIEW/includelabview.pri)
+}
+
 INCLUDEPATH += ./src \
     ./src/devices
 DEPENDPATH += ./src \
     ./src/devices
 
-include(LabVIEW/includelabview.pri)
 include(frontPanel/includefrontpanel.pri)
