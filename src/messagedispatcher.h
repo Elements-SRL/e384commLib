@@ -40,6 +40,10 @@
 #define TX_MSG_BUFFER_SIZE 0x100 /*!< Number of messages. Always use a power of 2 for efficient circular buffer management through index masking */
 #define TX_MSG_BUFFER_MASK (TX_MSG_BUFFER_SIZE-1)
 
+#ifndef E384CL_LABVIEW_COMPATIBILITY
+using namespace e384CommLib;
+#endif
+
 class MessageDispatcher {
 public:
 
