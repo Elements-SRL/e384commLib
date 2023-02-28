@@ -35,9 +35,10 @@
 #define RX_DEFAULT_FEW_PACKETS_SLEEP_US 2000
 #define RX_FEW_PACKETS_COEFF 0.01 /*!< = 10.0/1000.0: 10.0 because I want to get data once every 10ms, 1000 to convert sampling rate from Hz to kHz */
 #define RX_MAX_BYTES_TO_WAIT_FOR 16384
-
-#define E384CL_OUTPUT_BUFFER_SIZE 0x100000 /*!< Always use a power of 2 for efficient circular buffer management through index masking */
-#define E384CL_OUTPUT_BUFFER_MASK (E384CL_OUTPUT_BUFFER_SIZE-1)
+#define RX_MSG_BUFFER_SIZE 0x10000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~65k
+#define RX_MSG_BUFFER_MASK (RX_MSG_BUFFER_SIZE-1)
+#define RX_DATA_BUFFER_SIZE 0x100000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~1M
+#define RX_DATA_BUFFER_MASK (RX_DATA_BUFFER_SIZE-1)
 
 #define TX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
 #define TX_MSG_BUFFER_SIZE 0x100 /*!< Number of messages. Always use a power of 2 for efficient circular buffer management through index masking */
@@ -47,6 +48,12 @@
 #ifndef E384CL_LABVIEW_COMPATIBILITY
 using namespace e384CommLib;
 #endif
+
+typedef struct MsgResume {
+    uint16_t typeId;
+    uint16_t dataLength;
+    uint32_t startDataPtr;
+} MsgResume_t;
 
 class MessageDispatcher {
 public:
@@ -68,7 +75,7 @@ public:
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher);
     ErrorCodes_t disconnectDevice();
-    /*! \todo FCON ricordarsi di implementare un metodo per silenziare i messaggi indesiderati */
+    ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag);
 
     virtual ErrorCodes_t connect();
     virtual ErrorCodes_t disconnect();
@@ -98,11 +105,11 @@ public:
     ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
     ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
 
-
-
     /****************\
      *  Rx methods  *
     \****************/
+
+    ErrorCodes_t getNextMessage(RxOutput_t &rxOutput);
 
     ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
     ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
@@ -114,7 +121,14 @@ public:
 
 protected:
 
-    enum rxMessageTypes{rxMessageDataLoad, rxMessageDataHeader, rxMessageDataTail, rxMessageStatus, rxMessageVoltageOffset, rxMessageNum};
+    typedef enum RxMessageTypes {
+        RxMessageDataLoad,
+        RxMessageDataHeader,
+        RxMessageDataTail,
+        RxMessageStatus,
+        RxMessageVoltageOffset,
+        RxMessageNum
+    } RxMessageTypes_t;
 
     /*************\
      *  Methods  *
@@ -125,7 +139,7 @@ protected:
     virtual void readDataFromDevice() = 0;
     virtual void sendCommandsToDevice() = 0;
 
-    void storeDataLoadFrame();
+    void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);
     void storeDataHeaderFrame();
     void storeDataTailFrame();
     void storeStatusFrame();
@@ -150,6 +164,7 @@ protected:
     std::vector<uint16_t> rxWordOffsets;
     std::vector<uint16_t> rxWordLengths;
 
+    std::unordered_map <uint16_t, bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
 
     BoolCoder * asicResetCoder = nullptr;
     BoolCoder * fpgaResetCoder = nullptr;
@@ -242,6 +257,7 @@ protected:
     bool connected = false;
     bool threadsStarted = false;
     bool stopConnectionFlag = false;
+    bool parsingFlag = false;
 
     uint32_t minPacketsNumber = RX_DEFAULT_MIN_PACKETS_NUMBER;
     uint32_t fewPacketsSleepUs = RX_DEFAULT_FEW_PACKETS_SLEEP_US;
@@ -259,13 +275,16 @@ protected:
     uint32_t rxRawBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
     uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
     uint32_t rxRawBufferMask;
+    MsgResume_t * rxMsgBuffer; /*!< Buffer of pre-digested messages that contains message's high level info */
+    uint32_t rxMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be written */
+    uint32_t rxMsgBufferReadLength = 0; /*!< Lenght of the part of the buffer to be processed */
+    uint32_t rxMsgBufferWriteOffset = 0;
+    uint32_t rxDataBufferWriteOffset = 0;
 
-    /*! Output data buffer management */
-    uint16_t ** outputDataBuffer = nullptr; /*!< Buffer used to share received and converted data with the user */
-    unsigned int outputBufferReadOffset = 0; /*!< outputDataBuffer offset position in which data are collected by the user */
-    unsigned int outputBufferWriteOffset = 0; /*!< outputDataBuffer offset position in which data are converted from readDataBuffer */
-    unsigned int outputBufferAvailablePackets = 0; /*!< Number of packets available for the user to read */
-    bool outputBufferOverflowFlag = false; /*!< Set to true by an overflow of outputDataBuffer, reset by a status read by the user */
+    uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
+
+    uint16_t * rxDataBuffer; /*!< Buffer of pre-digested messages that contains message's data */
+    uint16_t rxDataMessageMaxLen = 1; /*!< Max payload length */
 
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */

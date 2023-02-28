@@ -85,6 +85,80 @@
 namespace e384CommLib {
 #endif
 
+/**********************\
+ *  Message type IDs  *
+\**********************/
+
+/*! \enum MsgDirection_t
+ * \brief Enumerates the directions of the communication channel.
+ */
+typedef enum MsgDirection {
+    MsgDirectionPcToDevice =            0x0000, /*!< Indicates messages going from library caller to the device. */
+    MsgDirectionDeviceToPc =            0x8000  /*!< Indicates messages going from library caller to the device. */
+} MsgDirection_t;
+
+/*! \enum MsgGroup_t
+ * \brief Enumerates groups of messages.
+ */
+typedef enum MsgGroup {
+    MsgGroupCommunication =             0x0000, /*!< Messages regarding communication. */
+    MsgGroupAcquisitionConfiguration =  0x0400, /*!< Messages regarding acquisition configuration. */
+    MsgGroupHwConfiguration =           0x0800, /*!< Messages regarding hardware configuration. */
+    MsgGroupVoltageTrials =             0x0C00, /*!< Messages regarding voltage protocols. */
+    MsgGroupCurrentTrials =             0x1000, /*!< Messages regarding current protocols. */
+    MsgGroupAcquiredData =              0x1400, /*!< Messages regarding acquired data. */
+    MsgGroupFeatures =                  0x1800, /*!< Messages regarding device's features. */
+    MsgGroupCalibrationUtilities =      0x7C00  /*!< Messages used for calibrating the device. */
+} MsgGroup_t;
+
+/*! \enum MsgTypeId_t
+ * \brief Enumerates the messages IDs.
+ */
+typedef enum MsgTypeId {
+    /*! Communication messages */
+    MsgTypeIdAck =                      MsgGroupCommunication+0x0001, /*!< Acknoledge. \note These messages are implicitly handled by the library. */
+    MsgTypeIdNack =                     MsgGroupCommunication+0x0002, /*!< Not acknoledge. \note These messages are implicitly handled by the library. */
+    MsgTypeIdPing =                     MsgGroupCommunication+0x0003, /*!< Ping. \note These messages are implicitly handled by the library. */
+    MsgTypeIdAbort =                    MsgGroupCommunication+0x0004, /*!< Message used to force the device to stop doing anything and sending data. \note Sometimes these messages are implicitly used by the library. */
+
+    /*! Acquisition configuration messages */
+    MsgTypeIdSamplingRate =             MsgGroupAcquisitionConfiguration+0x0001, /*!< Message used to set the sampling rate. */
+    MsgTypeIdFilterRatio =              MsgGroupAcquisitionConfiguration+0x0002, /*!< Message used to set the ratio between the sampling rate and the bandwidth. */
+    MsgTypeIdUpsampling =               MsgGroupAcquisitionConfiguration+0x0003, /*!< Message used to set an hardware upsampling ratio. \note This option increases the sampling rate but not the bandwidth. */
+
+    /*! Hardware configuration messages */
+    MsgTypeIdSwitchCtrl =               MsgGroupHwConfiguration+0x0001, /*!< Message used to control the device internal circuitry. */
+    MsgTypeIdRegistersCtrl =            MsgGroupHwConfiguration+0x0002, /*!< Message used to control the device internal registers. */
+    MsgTypeIdFpgaReset =                MsgGroupHwConfiguration+0x0003, /*!< Message used to reset the FPGA */
+
+    /*! Voltage trials messages */
+    MsgTypeIdVoltageProtocolStruct =    MsgGroupVoltageTrials+0x0001, /*!< Message used to describe the struct of a voltage protocol. \note The composition of voltage protocol messages is implicitly handled by the library. */
+    MsgTypeIdVoltageStepTimeStep =      MsgGroupVoltageTrials+0x0002, /*!< Message used to apply a protocol item with step voltage and step time. */
+    MsgTypeIdVoltageRamp =              MsgGroupVoltageTrials+0x0003, /*!< Message used to apply a protocol item with a voltage ramp. */
+    MsgTypeIdVoltageSin =               MsgGroupVoltageTrials+0x0004, /*!< Message used to apply a protocol item with a voltage sinusoidal wave. */
+    MsgTypeIdStartProtocol =            MsgGroupVoltageTrials+0x0005, /*!< Message used to start a protocol. */
+
+    /*! Current trials messages */
+    MsgTypeIdCurrentProtocolStruct =    MsgGroupCurrentTrials+0x0001, /*!< Message used to describe the struct of a current protocol. \note The composition of voltage protocol messages is implicitly handled by the library. */
+    MsgTypeIdCurrentStepTimeStep =      MsgGroupCurrentTrials+0x0002, /*!< Message used to apply a protocol item with step current and step time. */
+    MsgTypeIdCurrentRamp =              MsgGroupCurrentTrials+0x0003, /*!< Message used to apply a protocol item with a current ramp. */
+    MsgTypeIdCurrentSin =               MsgGroupCurrentTrials+0x0004, /*!< Message used to apply a protocol item with a current sinusoidal wave. */
+
+    /*! Acquired data messages */
+    MsgTypeIdAcquisitionHeader =        MsgGroupAcquiredData+0x0001, /*!< Message used to the data messages that will follow. */
+    MsgTypeIdAcquisitionData =          MsgGroupAcquiredData+0x0002, /*!< Message containing current and voltage data. */
+    MsgTypeIdAcquisitionTail =          MsgGroupAcquiredData+0x0003, /*!< Message that notifies the end of data stream. */
+    MsgTypeIdAcquisitionSaturation =    MsgGroupAcquiredData+0x0004, /*!< Message that notifies the saturation of the front-end. */
+
+    /*! Features messages */
+    MsgTypeIdDigitalOffsetComp =        MsgGroupFeatures+0x0001, /*!< Message used to apply the digital offset compensation. */
+    MsgTypeIdDigitalOffsetCompInquiry = MsgGroupFeatures+0x0002, /*!< Message used to request the liquid junction potential following the digital offset compensation. */
+    MsgTypeIdZap =                      MsgGroupFeatures+0x0003, /*!< Message used to generate a cell breaking zap. */
+    MsgTypeIdDigitalTriggerOutput =     MsgGroupFeatures+0x0004, /*!< Message used to configure the digital trigger output. */
+    MsgTypeIdLockIn =                   MsgGroupFeatures+0x0005, /*!< Message used to enter lock in mode for impendance estimation. */
+    MsgTypeIdInvalid =                  MsgGroupFeatures+0x03FF, /*!< Invalid message used only for initiliazation purposes. */
+} MsgTypeId_t;
+
 /********************\
  *  Other typedefs  *
 \********************/
@@ -128,7 +202,7 @@ typedef enum DeviceTypes {
  * \brief Structure used to return to the caller data and information received from the device.
  */
 typedef struct RxOutput {
-    uint16_t msgTypeId = 0; /*!< Type of message received. */
+    uint16_t msgTypeId = MsgDirectionDeviceToPc+MsgTypeIdInvalid; /*!< Type of message received. */
     uint16_t channelIdx = 0; /*!< For msgTypeId that work channel-wise this field holds the channel index the message refers too, e.g. the compensated channel after digital compensation */
     uint16_t protocolId = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionHeader this field holds the protocol identifier number */
     uint16_t protocolItemIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionHeader this field holds the item index of the following data in the current protocol */

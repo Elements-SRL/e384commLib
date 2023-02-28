@@ -144,7 +144,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     rxRawBufferReadOffset = 0;
     uint32_t rxSyncWordSize = sizeof(rxSyncWord);
     uint32_t rxOffsetLengthSize = 2*RX_WORD_SIZE;
-    uint32_t rxRawBufferReadIdx = 0; /*!< Index being processed wrt rxRawBufferReadOffset */
     uint32_t rxFrameOffset; /*!< Offset of the current frame */
     uint16_t rxWordOffset; /*!< Offset of the first word in the received frame */
     uint16_t rxWordsLength; /*!< Number of words in the received frame */
@@ -294,19 +293,19 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 #endif
 
                         rxMutexLock.lock(); /*!< Protects data modified in storeXxxFrame */
-                        if (rxWordOffset == rxWordOffsets[rxMessageDataLoad]) {
-                            this->storeDataLoadFrame();
+                        if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
+                            this->storeDataFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
 
-                        } else if (rxWordOffset == rxWordOffsets[rxMessageDataHeader]) {
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageDataHeader]) {
                             this->storeDataHeaderFrame();
 
-                        } else if (rxWordOffset == rxWordOffsets[rxMessageDataTail]) {
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageDataTail]) {
                             this->storeDataTailFrame();
 
-                        } else if (rxWordOffset == rxWordOffsets[rxMessageStatus]) {
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageStatus]) {
                             this->storeStatusFrame();
 
-                        } else if (rxWordOffset == rxWordOffsets[rxMessageVoltageOffset]) {
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageOffset]) {
                             this->storeVoltageOffsetFrame();
                         }
                         rxMutexLock.unlock();
@@ -320,7 +319,7 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
                         rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
-                        rxRawBufferReadLength -= rxDataBytes+rxSyncWordSize;
+                        rxRawBufferReadLength -= rxSyncWordSize;
 
                         rxParsePhase = RxParseLookForLength;
 
