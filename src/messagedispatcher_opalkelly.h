@@ -6,6 +6,8 @@
 #define OKY_RX_BUFFER_MASK (OKY_RX_BUFFER_SIZE-1)
 #define OKY_RX_TRANSFER_SIZE 0x100000 /*! 1MB. Must match value in FPGA FW */
 #define OKY_RX_BLOCK_SIZE 0x4000 /*! 16kB. Must match value in FPGA FW */
+#define OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR 0x53
+#define OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT 0
 
 #include "okFrontPanelDLL.h"
 

@@ -1430,7 +1430,6 @@ ErrorCodes_t getDeviceInfo(
         E384CL_ARGOUT uint32_t &firmwareVersion) {
     ErrorCodes_t ret = Success;
     /*! Initializes eeprom */
-    /*! \todo FCON questa info dovrà essere appresa dal device detector e condivisa qui dal metodo connect */
     FtdiEepromId_t ftdiEepromId = FtdiEepromId56;
     if (deviceId == "ePatch Demo") {
         ftdiEepromId = FtdiEepromIdDemo;

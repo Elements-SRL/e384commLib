@@ -6,8 +6,6 @@ MessageDispatcher_OpalKelly::MessageDispatcher_OpalKelly(string deviceId) :
     MessageDispatcher(deviceId) {
 
     rxRawBufferMask = OKY_RX_BUFFER_MASK;
-
-    /*! \todo FCON ricordarsi di mettere il mutex per evitare che la librerira dell'opal kelly crashi */
 }
 
 MessageDispatcher_OpalKelly::~MessageDispatcher_OpalKelly() {
@@ -73,6 +71,9 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
     unique_lock <mutex> txMutexLock (txMutex);
     txMutexLock.unlock();
 
+    unique_lock <mutex> deviceMutexLock (deviceMutex);
+    deviceMutexLock.unlock();
+
     while (!stopConnectionFlag) {
 
         /***********************\
@@ -107,10 +108,12 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
 
         notSentTxData = true;
         while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
+            deviceMutexLock.lock();
             if (dev->WriteRegisters(regs) != okCFrontPanel::NoError) {
-                dev->ActivateTriggerIn(0x53, 0); /*! \todo FCON buttare sta roba in una define o simili e magari controllare il codice di errore */
+                dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
                 continue;
             }
+            deviceMutexLock.unlock();
 
 #ifdef DEBUG_PRINT
             /*! Aggiungere printata di debug se serve */
@@ -141,7 +144,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     rxRawBufferReadOffset = 0;
     uint32_t rxSyncWordSize = sizeof(rxSyncWord);
     uint32_t rxOffsetLengthSize = 2*RX_WORD_SIZE;
-    uint32_t rxRawBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
     uint32_t rxRawBufferReadIdx = 0; /*!< Index being processed wrt rxRawBufferReadOffset */
     uint32_t rxFrameOffset; /*!< Offset of the current frame */
     uint16_t rxWordOffset; /*!< Offset of the first word in the received frame */
@@ -151,14 +153,11 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
     bool notEnoughRxData;
 
-    /*! Rx sync word variables */
-    bool rxSyncOk;
-
     unique_lock <mutex> rxMutexLock(rxMutex);
     rxMutexLock.unlock();
 
     unique_lock <mutex> deviceMutexLock(deviceMutex);
-    rxMutexLock.unlock();
+    deviceMutexLock.unlock();
 
 #ifdef DEBUG_RAW_BIT_RATE_PRINT
     std::chrono::steady_clock::time_point startPrintfTime;
@@ -173,9 +172,9 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
     while (!stopConnectionFlag) {
         /*! Read the data */
-        rxMutexLock.lock();
+        deviceMutexLock.lock();
         bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxTransferBuffer);
-        rxMutexLock.unlock();
+        deviceMutexLock.unlock();
 
         /*! Copy the data from the transfer buffer to the circular buffer */
         bytesToEnd = OKY_RX_BUFFER_SIZE-rxRawBufferWriteOffset;
@@ -225,26 +224,16 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                     notEnoughRxData = true;
 
                 } else {
-                    rxSyncOk = true;
+                    rxFrameOffset = rxRawBufferReadOffset;
                     /*! Check byte by byte if the buffer contains a sync word (frame header) */
-                    for (rxRawBufferReadIdx = 0; rxRawBufferReadIdx < rxSyncWordSize; rxRawBufferReadIdx++) {
-                        if (rxRawBuffer[(rxRawBufferReadOffset+rxRawBufferReadIdx)&OKY_RX_BUFFER_MASK] != ((uint8_t *)&rxSyncWord)[rxSyncWordSize-rxRawBufferReadIdx-1]) {
-                            rxSyncOk = false;
-                            break;
-                        }
-                    }
-
-                    if (rxSyncOk) {
+                    if (popUint16FromRxRawBuffer() == rxSyncWord) {
                         /*! If all the bytes match the sync word move rxSyncWordSize bytes ahead and look for the message length */
-                        rxFrameOffset = rxRawBufferReadOffset;
                         rxParsePhase = RxParseLookForLength;
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize)&OKY_RX_BUFFER_MASK;
-                        rxRawBufferReadLength -= rxSyncWordSize;
 
                     } else {
-                        /*! If not all the bytes match the sync word move one byte ahead and recheck */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset+1)&OKY_RX_BUFFER_MASK;
-                        rxRawBufferReadLength--;
+                        /*! If not all the bytes match the sync word restore one of the removed bytes and recheck */
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset-1) & OKY_RX_BUFFER_MASK;
+                        rxRawBufferReadLength++;
                     }
                 }
                 break;
@@ -256,23 +245,16 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
                 } else {
                     /*! Offset of the words received */
-                    rxWordOffset = (rxRawBuffer[(rxRawBufferReadOffset+rxRawBufferReadIdx)&OKY_RX_BUFFER_MASK] << 8) & 0xFF00;
-                    rxWordOffset += (rxRawBuffer[(rxRawBufferReadOffset+rxRawBufferReadIdx+1)&OKY_RX_BUFFER_MASK]) & 0x00FF;
-                    rxRawBufferReadIdx = RX_WORD_SIZE;
+                    rxWordOffset = popUint16FromRxRawBuffer();
 
                     /*! Number of the words received */
-                    rxWordsLength = (rxRawBuffer[(rxRawBufferReadOffset+rxRawBufferReadIdx)&OKY_RX_BUFFER_MASK] << 8) & 0xFF00;
-                    rxWordsLength += (rxRawBuffer[(rxRawBufferReadOffset+rxRawBufferReadIdx+1)&OKY_RX_BUFFER_MASK]) & 0x00FF;
-                    rxRawBufferReadIdx += RX_WORD_SIZE;
-
-                    rxRawBufferReadOffset = (rxRawBufferReadOffset+rxRawBufferReadIdx)&OKY_RX_BUFFER_MASK;
-                    rxRawBufferReadLength -= rxRawBufferReadIdx;
+                    rxWordsLength = popUint16FromRxRawBuffer();
 
                     rxDataBytes = rxWordsLength*RX_WORD_SIZE;
 
                     if (rxDataBytes > maxInputFrameSize) {
-                        /*! To many bytes to be read, restarting looking for a sync word from the previous one */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize)&OKY_RX_BUFFER_MASK;
+                        /*! Too many bytes to be read, restarting looking for a sync word from the previous one */
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBufferReadLength += rxOffsetLengthSize;
 #ifdef DEBUGPRINT
@@ -296,12 +278,9 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                     notEnoughRxData = true;
 
                 } else {
-                    rxCandidateHeader = (rxRawBuffer[(rxRawBufferReadOffset+rxDataBytes)&OKY_RX_BUFFER_MASK] << 8) & 0xFF00;
-                    rxCandidateHeader += (rxRawBuffer[(rxRawBufferReadOffset+rxDataBytes+1)&OKY_RX_BUFFER_MASK]) & 0x00FF;
+                    rxCandidateHeader = readUint16FromRxRawBuffer(rxDataBytes);
 
-                    rxSyncOk = (rxCandidateHeader == rxSyncWord);
-
-                    if (rxSyncOk) {
+                    if (rxCandidateHeader == rxSyncWord) {
 #ifdef DEBUGPRINT
                         currentPrintfTime = std::chrono::steady_clock::now();
                         fprintf(rxFid,
@@ -339,15 +318,15 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 #endif
 
                         rxFrameOffset = rxRawBufferReadOffset;
-                        /*!< rxRawBufferReadOffset is decreased by rxDataBytes in storeXxxFrame */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize)&OKY_RX_BUFFER_MASK;
+                        /*! remove the bytes that were not popped to read the next header */
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
                         rxRawBufferReadLength -= rxDataBytes+rxSyncWordSize;
 
                         rxParsePhase = RxParseLookForLength;
 
                     } else {
-                        /*! Sync word not found, restarting looking from the previous sync word */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize)&OKY_RX_BUFFER_MASK;
+                        /*! Sync word not found, restart looking from the previous sync word */
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBufferReadLength += rxOffsetLengthSize;
 #ifdef DEBUGPRINT

@@ -133,6 +133,7 @@ protected:
 
     void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage);
     uint16_t popUint16FromRxRawBuffer();
+    uint16_t readUint16FromRxRawBuffer(uint32_t n);
 
     /****************\
      *  Parameters  *
@@ -255,6 +256,7 @@ protected:
     /*! Read data buffer management */
     uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */
     uint32_t rxRawBufferReadOffset = 0; /*!< Device Rx buffer offset position in which data are collected by the outputDataBuffer */
+    uint32_t rxRawBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
     uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
     uint32_t rxRawBufferMask;
 

@@ -639,36 +639,18 @@ bool MessageDispatcher::getDeviceCount(int &numDevs) {
 }
 
 void MessageDispatcher::storeDataLoadFrame() {
-    uint16_t value;
-
     for (int packetIdx = 0; packetIdx < packetsPerFrame; packetIdx++) {
         for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
-            value = 0;
-
-            for (unsigned int byteIdx = 0; byteIdx < RX_WORD_SIZE; byteIdx++) {
-                value <<= 8;
-                value += *(rxRawBuffer+rxRawBufferReadOffset);
-                rxRawBufferReadOffset = (rxRawBufferReadOffset+1)&rxRawBufferMask;
-            }
-
-            outputDataBuffer[outputBufferWriteOffset][idx] = value;
+            outputDataBuffer[outputBufferWriteOffset][idx] = popUint16FromRxRawBuffer();
         }
 
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            value = 0;
-
-            for (unsigned int byteIdx = 0; byteIdx < RX_WORD_SIZE; byteIdx++) {
-                value <<= 8;
-                value += *(rxRawBuffer+rxRawBufferReadOffset);
-                rxRawBufferReadOffset = (rxRawBufferReadOffset+1)&rxRawBufferMask;
-            }
-
-            outputDataBuffer[outputBufferWriteOffset][voltageChannelsNum+idx] = value;
+            outputDataBuffer[outputBufferWriteOffset][voltageChannelsNum+idx] = popUint16FromRxRawBuffer();
         }
 #ifdef DEBUG_PRINT
 //        fwrite((uint8_t*)outputDataBuffer[outputBufferWriteOffset], 2, totalChannelsNum, rxFid1);
 #endif
-        outputBufferWriteOffset = (outputBufferWriteOffset+1)&E4RCL_OUTPUT_BUFFER_MASK;
+        outputBufferWriteOffset = (outputBufferWriteOffset+1)&E384CL_OUTPUT_BUFFER_MASK;
     }
     outputBufferAvailablePackets += packetsPerFrame;
 
@@ -722,5 +704,23 @@ void MessageDispatcher::stackOutgoingMessage(vector <uint16_t> &txDataMessage) {
 }
 
 uint16_t MessageDispatcher::popUint16FromRxRawBuffer() {
+    uint16_t value = 0;
 
+    for (unsigned int byteIdx = 0; byteIdx < RX_WORD_SIZE; byteIdx++) {
+        value <<= 8;
+        value += rxRawBuffer[(rxRawBufferReadOffset+byteIdx) & rxRawBufferMask];
+    }
+    rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_WORD_SIZE) & rxRawBufferMask;
+    rxRawBufferReadLength -= RX_WORD_SIZE;
+    return value;
+}
+
+uint16_t MessageDispatcher::readUint16FromRxRawBuffer(uint32_t n) {
+    uint16_t value = 0;
+
+    for (unsigned int byteIdx = 0; byteIdx < RX_WORD_SIZE; byteIdx++) {
+        value <<= 8;
+        value += rxRawBuffer[(rxRawBufferReadOffset+byteIdx+n) & rxRawBufferMask];
+    }
+    return value;
 }
