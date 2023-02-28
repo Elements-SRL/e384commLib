@@ -77,6 +77,7 @@ public:
      *  Tx methods  *
     \****************/
 
+    ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
     ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);

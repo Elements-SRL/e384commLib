@@ -1109,14 +1109,14 @@ ErrorCodes_t currSin(
         E384CL_ARGIN uint16_t repsNum,
         E384CL_ARGIN uint16_t applySteps);
 
-/*! \brief Reset the device's chip.
+/*! \brief Reset the device's ASIC.
  *
- * \param reset [in] False sets the chip in normal operation state, true sets in reset state.
+ * \param reset [in] False sets the ASIC in normal operation state, true sets in reset state.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t resetChip(
+ErrorCodes_t resetAsic(
         E384CL_ARGIN bool reset);
 
 /*! \brief Reset the device's digital offset compensation.

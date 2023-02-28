@@ -338,6 +338,14 @@ ErrorCodes_t MessageDispatcher::disconnect() {
  *  Tx methods  *
 \****************/
 
+ErrorCodes_t MessageDispatcher::resetAsic(bool resetFlag, bool applyFlagIn) {
+    asicResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) {
     if (vcCurrentRangeCoder == nullptr) {
         return ErrorFeatureNotImplemented;

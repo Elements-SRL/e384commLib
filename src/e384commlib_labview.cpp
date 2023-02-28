@@ -1248,10 +1248,10 @@ ErrorCodes_t currSin(
     return ret;
 }
 
-ErrorCodes_t resetChip(bool reset) {
+ErrorCodes_t resetAsic(bool reset) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->resetChip(reset);
+        ret = messageDispatcher->resetAsic(reset);
 
     } else {
         ret = ErrorDeviceNotConnected;
