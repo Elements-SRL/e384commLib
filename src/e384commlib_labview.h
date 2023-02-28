@@ -160,18 +160,6 @@ ErrorCodes_t setChannelsSources(
         E384CL_ARGIN int16_t voltageSourcesIdx,
         E384CL_ARGIN int16_t currentSourcesIdx);
 
-/*! \brief Set the holding voltage tuner. This value is added to the whole voltage protocol currently applied and to the following.
- *
- * \param channelIdx [in] Channel to apply holding voltage to.
- * \param voltage [in] Holding voltage that is added to the whole voltage protocol.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setVoltageHoldTuner(
-        E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN CharMeasurement_t voltage);
-
 /*! \brief Set the holding current tuner. This value is added to the whole current protocol currently applied and to the following.
  *
  * \param channelIdx [in] Channel to apply holding current to.
@@ -379,8 +367,27 @@ ErrorCodes_t setCurrentStimulusLpf(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t enableStimulus(
-        E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN bool on);
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+
+/*! \brief Set a channel voltage offset on a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param voltagesIn [in] Vector of voltage offsets.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setVoltageHoldTuner(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle voltagesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off a specific LED.
  *

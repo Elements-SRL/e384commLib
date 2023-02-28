@@ -346,6 +346,29 @@ ErrorCodes_t MessageDispatcher::resetAsic(bool resetFlag, bool applyFlagIn) {
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages, bool applyFlag){
+    if (vHoldTunerCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else if (!areAllTheVectorElementsInRange(voltages, vHoldRange.getMin(), vHoldRange.getMax())) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            voltages[i].convertValue(vHoldRange.prefix);
+            vHoldTunerCoders[channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) {
     if (vcCurrentRangeCoder == nullptr) {
         return ErrorFeatureNotImplemented;
@@ -356,6 +379,8 @@ ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool
     } else {
         vcCurrentRangeCoder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         selectedVcCurrentRangeIdx = currentRangeIdx;
+        currentRange = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
+        currentResolution = currentRange.step;
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -373,6 +398,8 @@ ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool
     } else {
         vcVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         selectedVcVoltageRangeIdx = voltageRangeIdx;
+        voltageRange = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
+        voltageResolution = voltageRange.step;
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -390,6 +417,8 @@ ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t currentRangeIdx, bool
     } else {
         ccCurrentRangeCoder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         selectedCcCurrentRangeIdx = currentRangeIdx;
+        currentRange = ccCurrentRangesArray[selectedCcCurrentRangeIdx];
+        currentResolution = currentRange.step;
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -407,6 +436,8 @@ ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool
     } else {
         ccVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         selectedCcVoltageRangeIdx = voltageRangeIdx;
+        voltageRange = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
+        voltageResolution = voltageRange.step;
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -422,8 +453,8 @@ ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(vector<uint16_t> chann
         return ErrorValueOutOfRange;
 
     } else {
-        for(auto i : channelIndexes){
-            digitalOffsetCompensationCoders[i]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            digitalOffsetCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
 
         }
 
@@ -462,6 +493,26 @@ ErrorCodes_t  MessageDispatcher::setCurrentStimulusLpf(uint16_t filterIdx, bool 
         ccCurrentFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         selectedCcCurrentFilterIdx = filterIdx;
         if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::enableStimulus(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag) {
+    if (enableStimulusCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           enableStimulusCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
+        }
+
+        if (applyFlag) {
             this->stackOutgoingMessage(txStatus);
         }
         return Success;

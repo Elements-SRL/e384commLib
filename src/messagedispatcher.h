@@ -78,6 +78,8 @@ public:
     \****************/
 
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true);
+    ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
+
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
     ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
@@ -86,6 +88,8 @@ public:
     ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
     ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
 
+    ErrorCodes_t enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+
     ErrorCodes_t digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
     ErrorCodes_t setAdcFilter();
@@ -93,6 +97,8 @@ public:
 
     ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
     ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
+
+
 
     /****************\
      *  Rx methods  *
@@ -200,6 +206,9 @@ protected:
     uint16_t defaultCcVoltageFilterIdx;
     BoolCoder * ccVoltageFilterCoder = nullptr;
 
+    std::vector <BoolCoder *> enableStimulusCoders;
+
+
     uint32_t samplingRatesNum;
     std::vector <Measurement_t> samplingRatesArray;
     std::vector <Measurement_t> realSamplingRatesArray;
@@ -218,6 +227,7 @@ protected:
     RangedMeasurement_t currentOffsetRange;
 
     std::vector <BoolCoder *> digitalOffsetCompensationCoders;
+    std::vector <DoubleCoder *> vHoldTunerCoders;
 
     DoubleCoder * stimRestCoder = nullptr;
 
@@ -277,6 +287,8 @@ protected:
 
     RangedMeasurement_t voltageRange;
     RangedMeasurement_t currentRange;
+    RangedMeasurement_t vHoldRange;
+    RangedMeasurement_t cHoldRange;
 
     Measurement_t samplingRate = {200.0, UnitPfxKilo, "Hz"};
     Measurement_t integrationStep = {5.0, UnitPfxMicro, "s"};

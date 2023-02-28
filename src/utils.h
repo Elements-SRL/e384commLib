@@ -34,6 +34,20 @@ template<typename I_t> bool areAllTheVectorElementsGreaterThan(std::vector<I_t> 
 
 }
 
+template<typename I_t> bool areAllTheVectorElementsInRange(std::vector<I_t> myVector, I_t minValue, I_t maxValue){
+    if (areAllTheVectorElementsLessThan<I_t>(myVector, maxValue)) {
+        if (areAllTheVectorElementsGreaterThan<I_t>(myVector, minValue)) {
+            return true;
+
+        } else {
+            return false;
+        }
+
+    } else {
+        return false;
+    }
+}
+
 
 
 

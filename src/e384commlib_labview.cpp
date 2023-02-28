@@ -16,6 +16,7 @@ static MessageDispatcher * messageDispatcher = nullptr;
 
 static void input2String(LStrHandle i, string &s);
 static void input2Measurement(CharMeasurement_t i, Measurement_t &m);
+static void input2VectorMeasurement(LMeasHandle i, vector <Measurement_t> &m);
 
 static void string2Output(string s, LStrHandle o);
 static void vectorString2Output(vector <string> v, LStrHandle o);
@@ -180,13 +181,17 @@ ErrorCodes_t setChannelsSources(
 }
 
 ErrorCodes_t setVoltageHoldTuner(
-        uint16_t channelIdx,
-        CharMeasurement_t voltageIn) {
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle voltagesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        Measurement_t voltage;
-        input2Measurement(voltageIn, voltage);
-        ret = messageDispatcher->setVoltageHoldTuner(channelIdx, voltage);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<Measurement_t> voltages;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2VectorMeasurement(voltagesIn, voltages);
+        ret = messageDispatcher->setVoltageHoldTuner(channelIndexes, voltages, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -418,18 +423,26 @@ ErrorCodes_t setCurrentStimulusLpf(
     return ret;
 }
 
+/*! \todo MPAC mettere gli stessi argomenti di digitaloffsetcomepnsation */
 ErrorCodes_t enableStimulus(
-        uint16_t channelIdx,
-        bool on) {
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->enableStimulus(channelIdx, on);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->enableStimulus(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
     }
     return ret;
 }
+
 
 ErrorCodes_t turnLedOn(
         uint16_t ledIndex,
@@ -2478,57 +2491,40 @@ ErrorCodes_t getBridgeBalanceResistance(
 
 // END NEW MICHELANGELO'S GETS
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
-} // namespace e384CommLib
-#endif
-
 /*! Private functions */
 void input2String(LStrHandle i, string &s) {
-#ifndef E384CL_LABVIEW_COMPATIBILITY
-    s = i;
-#else
     s = string((char *)LStrBuf(* i), LStrLen(* i));
-#endif
 }
 
 void input2Measurement(CharMeasurement_t i, Measurement_t &m) {
-#ifndef E384CL_LABVIEW_COMPATIBILITY
-    m = i;
-#else
     m.value = i.value;
     m.prefix = i.prefix;
     input2String(i.unit, m.unit);
-#endif
+}
+
+void input2VectorMeasurement(LMeasHandle i, vector <Measurement_t> &m){
+    for(int j = 0; j<LVecLen(*i); j++){
+        input2Measurement(*LVecItem(*i,j), m[j]);
+    }
 }
 
 void string2Output(string s, LStrHandle o) {
-#ifndef E384CL_LABVIEW_COMPATIBILITY
-    o = s;
-#else
     MgErr err = NumericArrayResize(uB, 1, (UHandle *)&o, s.length());
     if (!err) {
          MoveBlock(s.c_str(), LStrBuf(* o), s.length());
          LStrLen(* o) = s.length();
     }
-#endif
 }
 
 void vectorString2Output(vector <string> v, LStrHandle o) {
-#ifndef E384CL_LABVIEW_COMPATIBILITY
-    o = v;
-#else
     string a;
     for (auto s : v) {
         a += s + ",";
     }
     string2Output(a, o);
-#endif
 }
 
 void vectorMeasurement2Output(vector <Measurement_t> v, LMeasHandle * o) {
-#ifndef E384CL_LABVIEW_COMPATIBILITY
-    o = v;
-#else
     int offset = 0;
     MgErr err = DSSetHSzClr(* o, Offset(LMeas, item)+sizeof(CharMeasurement_t)*v.size());
     if (!err) {
@@ -2548,13 +2544,9 @@ void vectorMeasurement2Output(vector <Measurement_t> v, LMeasHandle * o) {
         }
         LVecLen(** o) = v.size();
     }
-#endif
 }
 
 void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, LRangeHandle * o) {
-#ifndef E384CL_LABVIEW_COMPATIBILITY
-    o = v;
-#else
     int offset = 0;
     MgErr err = DSSetHSzClr(* o, Offset(LRange, item)+sizeof(CharRangedMeasurement_t)*v.size());
     if (!err) {
@@ -2576,26 +2568,17 @@ void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, LRangeHandle
         }
         LVecLen(** o) = v.size();
     }
-#endif
 }
 
 template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t * o){
-#ifndef E384CL_LABVIEW_COMPATIBILITY
-    o = v;
-#else
     for(unsigned int i = 0; i<v.size(); i++){
         o[i] = v[i];
     }
-#endif
 }
 
 template<typename I_t, typename O_t> void input2NumericVector(I_t * v, O_t &o, int inputLength){
-#ifndef E384CL_LABVIEW_COMPATIBILITY
-    o = v;
-#else
     o.resize(inputLength);
     for(unsigned int i = 0; i<o.size(); i++){
         o[i] = v[i];
     }
-#endif
 }

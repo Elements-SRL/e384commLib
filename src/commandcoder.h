@@ -81,14 +81,14 @@ public:
 
 class DoubleCoder : public CommandCoder {
 public:
-    typedef struct {
-        uint16_t initialWord;
-        uint16_t initialBit;
-        uint16_t bitsNum;
-        double resolution;
-        double minValue;
-        double maxValue;
-        double offset;
+    typedef struct CoderConfig {
+        uint16_t initialWord = 0;
+        uint16_t initialBit = 0;
+        uint16_t bitsNum = 0;
+        double resolution = 1.0;
+        double minValue = 0.0;
+        double maxValue = 0.0;
+        double offset = 0.0;
     } CoderConfig_t;
 
     DoubleCoder(CoderConfig_t config);
