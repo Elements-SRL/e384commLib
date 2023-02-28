@@ -110,26 +110,7 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
             }
 
 #ifdef DEBUG_PRINT
-            fprintf(txFid, "\n%d <= %d == %d\n", txMaxWords*FTD_TX_WORD_SIZE, bytesToWrite, ftdiWrittenBytes);
-            fflush(txFid);
-
-            int o = txRawBuffer[2]*256+txRawBuffer[3];
-            int i = 0;
-            fprintf(txFid, "HDR:%02x%02x ", txRawBuffer[i], txRawBuffer[i+1]);
-            i += FTD_TX_WORD_SIZE;
-            fprintf(txFid, "OFF:%02x%02x ", txRawBuffer[i], txRawBuffer[i+1]);
-            i += FTD_TX_WORD_SIZE;
-            fprintf(txFid, "LEN:%02x%02x\n", txRawBuffer[i], txRawBuffer[i+1]);
-            i += FTD_TX_WORD_SIZE;
-
-            for (; i < ftdiWrittenBytes-FTD_TX_WORD_SIZE; i += FTD_TX_WORD_SIZE) {
-                fprintf(txFid, "%03d:%02x%02x ", (i-FTD_TX_SYNC_WORD_SIZE-FTD_TX_OF_LN_SIZE)/2+o, txRawBuffer[i], txRawBuffer[i+1]);
-                if ((i-FTD_TX_SYNC_WORD_SIZE-FTD_TX_OF_LN_SIZE) % 32 == 32-FTD_TX_WORD_SIZE) {
-                    fprintf(txFid, "\n");
-                }
-            }
-            fprintf(txFid, "\nCRC:%02x%02x\n", txRawBuffer[i], txRawBuffer[i+1]);
-            i += FTD_TX_WORD_SIZE;
+            /*! Aggiungere printata di debug se serve */
             fflush(txFid);
 #endif
 
