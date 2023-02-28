@@ -94,7 +94,9 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
         /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
         for (txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
             regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
-            regs[txDataBufferReadIdx/2].data = (((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx]) << 16) + (uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1];
+            regs[txDataBufferReadIdx/2].data =
+                    (((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx]) << 16) +
+                    (uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1]; /*! Little endian */
         }
 
         txMsgBufferReadOffset = (txMsgBufferReadOffset+1)&TX_MSG_BUFFER_MASK;
