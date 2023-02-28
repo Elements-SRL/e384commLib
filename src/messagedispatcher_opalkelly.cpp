@@ -6,6 +6,8 @@ MessageDispatcher_OpalKelly::MessageDispatcher_OpalKelly(string deviceId) :
     MessageDispatcher(deviceId) {
 
     rxRawBufferMask = OKY_RX_BUFFER_MASK;
+
+    /*! \todo FCON ricordarsi di mettere il mutex per evitare che la librerira dell'opal kelly crashi */
 }
 
 MessageDispatcher_OpalKelly::~MessageDispatcher_OpalKelly() {
@@ -56,7 +58,90 @@ ErrorCodes_t MessageDispatcher_OpalKelly::disconnect() {
 }
 
 void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
+    int writeTries = 0;
+    okTRegisterEntries regs;
+    regs.reserve(txMaxRegs);
 
+    /*! Variables used to access the tx msg buffer */
+    uint32_t txMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be processed */
+
+    /*! Variables used to access the tx data buffer */
+    uint32_t txDataBufferReadIdx;
+
+    bool notSentTxData;
+
+    unique_lock <mutex> txMutexLock (txMutex);
+    txMutexLock.unlock();
+
+    while (!stopConnectionFlag) {
+
+        /***********************\
+         *  Data copying part  *
+        \***********************/
+
+        txMutexLock.lock();
+        while (txMsgBufferReadLength <= 0) {
+            txMsgBufferNotEmpty.wait_for(txMutexLock, chrono::milliseconds(100));
+            if (stopConnectionFlag) {
+                break;
+            }
+        }
+        txMutexLock.unlock();
+        if (stopConnectionFlag) {
+            continue;
+        }
+
+        /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
+        for (txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
+            regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
+            regs[txDataBufferReadIdx/2].data = (((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx]) << 16) + (uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1];
+        }
+
+        txMsgBufferReadOffset = (txMsgBufferReadOffset+1)&TX_MSG_BUFFER_MASK;
+
+        /******************\
+         *  Sending part  *
+        \******************/
+
+        notSentTxData = true;
+        while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
+            if (dev->WriteRegisters(regs) != okCFrontPanel::NoError) {
+                continue;
+            }
+
+#ifdef DEBUG_PRINT
+            fprintf(txFid, "\n%d <= %d == %d\n", txMaxWords*FTD_TX_WORD_SIZE, bytesToWrite, ftdiWrittenBytes);
+            fflush(txFid);
+
+            int o = txRawBuffer[2]*256+txRawBuffer[3];
+            int i = 0;
+            fprintf(txFid, "HDR:%02x%02x ", txRawBuffer[i], txRawBuffer[i+1]);
+            i += FTD_TX_WORD_SIZE;
+            fprintf(txFid, "OFF:%02x%02x ", txRawBuffer[i], txRawBuffer[i+1]);
+            i += FTD_TX_WORD_SIZE;
+            fprintf(txFid, "LEN:%02x%02x\n", txRawBuffer[i], txRawBuffer[i+1]);
+            i += FTD_TX_WORD_SIZE;
+
+            for (; i < ftdiWrittenBytes-FTD_TX_WORD_SIZE; i += FTD_TX_WORD_SIZE) {
+                fprintf(txFid, "%03d:%02x%02x ", (i-FTD_TX_SYNC_WORD_SIZE-FTD_TX_OF_LN_SIZE)/2+o, txRawBuffer[i], txRawBuffer[i+1]);
+                if ((i-FTD_TX_SYNC_WORD_SIZE-FTD_TX_OF_LN_SIZE) % 32 == 32-FTD_TX_WORD_SIZE) {
+                    fprintf(txFid, "\n");
+                }
+            }
+            fprintf(txFid, "\nCRC:%02x%02x\n", txRawBuffer[i], txRawBuffer[i+1]);
+            i += FTD_TX_WORD_SIZE;
+            fflush(txFid);
+#endif
+
+            notSentTxData = false;
+            writeTries = 0;
+        }
+
+        txMutexLock.lock();
+        txMsgBufferReadLength--;
+        txMsgBufferNotFull.notify_all();
+        txMutexLock.unlock();
+    }
 }
 
 void MessageDispatcher_OpalKelly::readDataFromDevice() {
@@ -299,6 +384,7 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
 ErrorCodes_t MessageDispatcher_OpalKelly::initializeBuffers() {
     unique_lock <mutex> deviceMutexLock(deviceMutex);
+
 
     rxTransferBuffer = new (std::nothrow) uint8_t[OKY_RX_TRANSFER_SIZE];
     rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_BUFFER_SIZE];

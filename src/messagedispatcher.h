@@ -36,9 +36,13 @@
 #define RX_FEW_PACKETS_COEFF 0.01 /*!< = 10.0/1000.0: 10.0 because I want to get data once every 10ms, 1000 to convert sampling rate from Hz to kHz */
 #define RX_MAX_BYTES_TO_WAIT_FOR 16384
 
+#define E384CL_OUTPUT_BUFFER_SIZE 0x100000 /*!< Always use a power of 2 for efficient circular buffer management through index masking */
+#define E384CL_OUTPUT_BUFFER_MASK (E384CL_OUTPUT_BUFFER_SIZE-1)
+
 #define TX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
 #define TX_MSG_BUFFER_SIZE 0x100 /*!< Number of messages. Always use a power of 2 for efficient circular buffer management through index masking */
 #define TX_MSG_BUFFER_MASK (TX_MSG_BUFFER_SIZE-1)
+#define TX_MAX_WRITE_TRIES 10
 
 #ifndef E384CL_LABVIEW_COMPATIBILITY
 using namespace e384CommLib;
@@ -58,6 +62,8 @@ public:
      *  Connection methods  *
     \************************/
 
+    ErrorCodes_t init();
+    ErrorCodes_t deinit();
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher);
@@ -126,9 +132,6 @@ protected:
     \****************/
 
     uint16_t rxSyncWord;
-    uint16_t txSyncWord;
-
-    uint16_t txCrcInitialValue = 0xFFFF;
 
     int packetsPerFrame = 16;
 
@@ -244,6 +247,13 @@ protected:
     uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
     uint32_t rxRawBufferMask;
 
+    /*! Output data buffer management */
+    uint16_t ** outputDataBuffer = nullptr; /*!< Buffer used to share received and converted data with the user */
+    unsigned int outputBufferReadOffset = 0; /*!< outputDataBuffer offset position in which data are collected by the user */
+    unsigned int outputBufferWriteOffset = 0; /*!< outputDataBuffer offset position in which data are converted from readDataBuffer */
+    unsigned int outputBufferAvailablePackets = 0; /*!< Number of packets available for the user to read */
+    bool outputBufferOverflowFlag = false; /*!< Set to true by an overflow of outputDataBuffer, reset by a status read by the user */
+
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */
     std::vector <uint16_t> txMsgOffsetWord; /*!< Buffer of offset word in txMsgBuffer */
@@ -252,6 +262,7 @@ protected:
     uint32_t txMsgBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
     uint16_t txDataWords;
     uint16_t txMaxWords;
+    uint16_t txMaxRegs;
     unsigned int maxOutputPacketsNum;
     std::vector <uint16_t> txStatus; /*!< Status of the words written */
     uint16_t txModifiedStartingWord;

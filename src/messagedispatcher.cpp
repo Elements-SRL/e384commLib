@@ -41,6 +41,63 @@ MessageDispatcher::~MessageDispatcher() {
  *  Connection methods  *
 \************************/
 
+ErrorCodes_t MessageDispatcher::init() {
+    outputDataBuffer = new (std::nothrow) uint16_t * [E384CL_OUTPUT_BUFFER_SIZE];
+    if (outputDataBuffer == nullptr) {
+        return ErrorMemoryInitialization;
+    }
+
+    outputDataBuffer[0] = new (std::nothrow) uint16_t[E384CL_OUTPUT_BUFFER_SIZE*totalChannelsNum];
+    if (outputDataBuffer == nullptr) {
+        return ErrorMemoryInitialization;
+    }
+    for (int packetIdx = 1; packetIdx < E384CL_OUTPUT_BUFFER_SIZE; packetIdx++) {
+        outputDataBuffer[packetIdx] = outputDataBuffer[0]+((int)totalChannelsNum)*packetIdx;
+    }
+
+    txMsgBuffer = new (std::nothrow) vector <uint16_t>[TX_MSG_BUFFER_SIZE];
+    if (txMsgBuffer == nullptr) {
+        return ErrorMemoryInitialization;
+    }
+
+    txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
+    txMsgLength.resize(TX_MSG_BUFFER_SIZE);
+
+#ifdef DEBUG_PRINT
+//    rxFid1 = fopen("outputBuffer.txt", "wb+");
+//    rxFid2 = fopen("rxBuffer.txt", "wb+");
+    txFid = fopen("tx.txt", "wb+");
+#endif
+
+    this->computeMinimumPacketNumber();
+
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::deinit() {
+    if (outputDataBuffer != nullptr) {
+        if (outputDataBuffer[0] != nullptr) {
+            delete [] outputDataBuffer[0];
+            outputDataBuffer[0] = nullptr;
+        }
+        delete [] outputDataBuffer;
+        outputDataBuffer = nullptr;
+    }
+
+    if (txMsgBuffer != nullptr) {
+        delete [] txMsgBuffer;
+        txMsgBuffer = nullptr;
+    }
+
+#ifdef DEBUG_PRINT
+//    fclose(rxFid1);
+//    fclose(rxFid2);
+    fclose(txFid);
+#endif
+
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::detectDevices(
         vector <string> &deviceIds) {
     /*! Gets number of devices */
@@ -122,6 +179,8 @@ ErrorCodes_t MessageDispatcher::connect() {
 
     ErrorCodes_t ret;
     connected = true;
+
+    this->init();
 
     /*! Calculate the LSB noise vector */
     this->initializeLsbNoise();
@@ -226,7 +285,6 @@ ErrorCodes_t MessageDispatcher::connect() {
         return ErrorConnectionChipResetFailed;
     }
 
-    this->setSecondaryDeviceSwitch(false); /*! \todo FCON questo va propriamente settato per gestire device main e secondary */
     for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
         this->setVcCurrentOffsetDelta(idx, {0.0, UnitPfxNone, nullptr});
     }
@@ -246,6 +304,8 @@ ErrorCodes_t MessageDispatcher::disconnect() {
             rxThread.join();
             txThread.join();
         }
+
+        this->deinit();
 
         connected = false;
 
@@ -583,6 +643,10 @@ void MessageDispatcher::stackOutgoingMessage(vector <uint16_t> &txDataMessage) {
         while (txMsgBufferReadLength >= TX_MSG_BUFFER_SIZE) {
             txMsgBufferNotFull.wait(txMutexLock);
         }
+
+        /*! The next 2 lines ensure that words are written in blocks of 32 bits in case any device libraries require it */
+        txModifiedStartingWord = (txModifiedStartingWord/2)*2; /*! Round to the biggest smaller even number */
+        txModifiedEndingWord = (txModifiedEndingWord/2)*2+1; /*! Round to the smallest bigger odd number */
 
         txMsgBuffer[txMsgBufferWriteOffset] = {txDataMessage.begin()+txModifiedStartingWord, txDataMessage.begin()+txModifiedEndingWord};
         txMsgOffsetWord[txMsgBufferWriteOffset] = txModifiedStartingWord;

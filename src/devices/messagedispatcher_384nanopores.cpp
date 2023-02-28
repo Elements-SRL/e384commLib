@@ -6,7 +6,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     deviceName = "384NanoPores";
 
     rxSyncWord = 0x5aa5;
-    txSyncWord = 0x5aa5;
 
     packetsPerFrame = 1;
 
@@ -39,7 +38,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     txDataWords = 874+0; // ANCORA NON DEFINITO, AGGIORNARE
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
-    txMaxWords = sizeof(txSyncWord)/TX_WORD_SIZE + 2 + txDataWords + sizeof(txCrcInitialValue)/TX_WORD_SIZE; /*! Additional words are header, offset, length and CRC */
+    txMaxWords = txDataWords;
+    txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
     /*! Current ranges */
     /*! VC */
