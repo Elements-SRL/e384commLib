@@ -106,6 +106,7 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
         notSentTxData = true;
         while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
             if (dev->WriteRegisters(regs) != okCFrontPanel::NoError) {
+                dev->ActivateTriggerIn(0x53, 0); /*! \todo FCON buttare sta roba in una define o simili e magari controllare il codice di errore */
                 continue;
             }
 
