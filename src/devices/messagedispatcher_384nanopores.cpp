@@ -13,6 +13,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     currentChannelsNum = 384;
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
+    totalBoardsNum = 24;
+
     rxWordOffsets.resize(RxMessageNum);
     rxWordLengths.resize(RxMessageNum);
     rxWordOffsets[RxMessageDataLoad] = 0;
@@ -147,7 +149,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
-
     selectedVoltageOffset.resize(currentChannelsNum);
     voltageOffsetRange = vcVoltageRangesArray[VCVoltageRange500mV];
     for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
@@ -155,6 +156,35 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         selectedVoltageOffset[channelIdx].prefix = voltageOffsetRange.prefix;
         selectedVoltageOffset[channelIdx].unit = voltageOffsetRange.unit;
     }
+
+    /*! VC current gain */
+    vcCurrentGainRange.min = 0;
+    vcCurrentGainRange.max = 64; /*! \todo FCON recheck*/
+    vcCurrentGainRange.step = 0.001; /*! \todo FCON recheck*/
+    vcCurrentGainRange.prefix = UnitPfxNone; /*! \todo FCON recheck*/
+    vcCurrentGainRange.unit = "";/*! \todo FCON recheck*/
+
+    /*! VC current offset */
+    vcCurrentOffsetRange.min = vcCurrentRangesArray[selectedVcCurrentRangeIdx].min;
+    vcCurrentOffsetRange.max = vcCurrentRangesArray[selectedVcCurrentRangeIdx].max; /*! \todo FCON recheck*/
+    vcCurrentOffsetRange.step = vcCurrentRangesArray[selectedVcCurrentRangeIdx].step; /*! \todo FCON recheck*/
+    vcCurrentOffsetRange.prefix = vcCurrentRangesArray[selectedVcCurrentRangeIdx].prefix; /*! \todo FCON recheck*/
+    vcCurrentOffsetRange.unit = vcCurrentRangesArray[selectedVcCurrentRangeIdx].unit;/*! \todo FCON recheck*/
+
+    /*! Gate voltage range*/
+    gateVoltageRange.min = -32768;
+    gateVoltageRange.max = 32768; /*! \todo FCON recheck*/
+    gateVoltageRange.step = 1; /*! \todo FCON recheck*/
+    gateVoltageRange.prefix = UnitPfxMilli; /*! \todo FCON recheck*/
+    gateVoltageRange.unit = "V";/*! \todo FCON recheck*/
+
+    /*! Source voltage range*/
+    sourceVoltageRange.min = -2048;
+    sourceVoltageRange.max = 2048; /*! \todo FCON recheck*/
+    sourceVoltageRange.step = 0.625; /*! \todo FCON recheck*/
+    sourceVoltageRange.prefix = UnitPfxMilli; /*! \todo FCON recheck*/
+    sourceVoltageRange.unit = "V";/*! \todo FCON recheck*/
+
 
     /**********\
      * Coders *
@@ -262,6 +292,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         }
     }
 
+    /*! V holding tuner */
     doubleConfig.initialWord = 411;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
@@ -273,6 +304,62 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         vHoldTunerCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
         doubleConfig.initialWord++;
     }
+    /*! VC current gain tuner */
+    /*! \todo FCON recheck minValue e maxValue*/
+    doubleConfig.initialWord = 843;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = vcCurrentGainRange.step;
+    doubleConfig.minValue = vcCurrentGainRange.min;
+    doubleConfig.maxValue = vcCurrentGainRange.max;
+    vcCurrentGainTunerCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        vcCurrentGainTunerCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        doubleConfig.initialWord++;
+    }
+
+    /*! VC current offset tuner */
+    /*! \todo FCON recheck minValue e maxValue*/
+    doubleConfig.initialWord = 1227;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = vcCurrentOffsetRange.step;
+    doubleConfig.minValue = vcCurrentOffsetRange.min;
+    doubleConfig.maxValue = vcCurrentOffsetRange.max;
+    vcCurrentOffsetTunerCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        vcCurrentOffsetTunerCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        doubleConfig.initialWord++;
+    }
+
+    /*! gate voltage tuner */
+    /*! \todo FCON recheck minValue e maxValue*/
+    doubleConfig.initialWord = 795;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = gateVoltageRange.step;
+    doubleConfig.minValue = gateVoltageRange.min;
+    doubleConfig.maxValue = gateVoltageRange.max;
+    gateVoltageCoders.resize(totalBoardsNum);
+    for (uint32_t idx = 0; idx < totalBoardsNum; idx++) {
+        gateVoltageCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        doubleConfig.initialWord++;
+    }
+
+    /*! source voltage tuner */
+    /*! \todo FCON recheck minValue e maxValue*/
+    doubleConfig.initialWord = 819;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = sourceVoltageRange.step;
+    doubleConfig.minValue = sourceVoltageRange.min;
+    doubleConfig.maxValue = sourceVoltageRange.max;
+    sourceVoltageCoders.resize(totalBoardsNum);
+    for (uint32_t idx = 0; idx < totalBoardsNum; idx++) {
+        sourceVoltageCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        doubleConfig.initialWord++;
+    }
+
 
 
 

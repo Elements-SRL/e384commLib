@@ -393,6 +393,99 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelInde
     }
 }
 
+ErrorCodes_t MessageDispatcher::setVcCurrentGainTuner(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+    if (vcCurrentGainTunerCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else if (!areAllTheVectorElementsInRange(gains, vcCurrentGainRange.getMin(), vcCurrentGainRange.getMax())) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            /*! \todo FCON recheck, gain is a number, it should not be converted with prefix. However, the prefix is None in this case*/
+            //gains[i].convertValue(vcCurrentGainRange.prefix);
+            vcCurrentGainTunerCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setVcCurrentOffsetTuner(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
+    if (vcCurrentOffsetTunerCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else if (!areAllTheVectorElementsInRange(offsets, vcCurrentOffsetRange.getMin(), vcCurrentOffsetRange.getMax())) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            offsets[i].convertValue(vcCurrentOffsetRange.prefix);
+            vcCurrentOffsetTunerCoders[channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setGateVoltagesTuner(vector<uint16_t> boardIndexes, vector<Measurement_t> gateVoltages, bool applyFlag){
+    if (gateVoltageCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(boardIndexes, totalBoardsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else if (!areAllTheVectorElementsInRange(gateVoltages, gateVoltageRange.getMin(), gateVoltageRange.getMax())) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < boardIndexes.size(); i++){
+            gateVoltages[i].convertValue(gateVoltageRange.prefix);
+            gateVoltageCoders[boardIndexes[i]]->encode(gateVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setSourceVoltagesTuner(vector<uint16_t> boardIndexes, vector<Measurement_t> sourceVoltages, bool applyFlag){
+    if (sourceVoltageCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(boardIndexes, totalBoardsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else if (!areAllTheVectorElementsInRange(sourceVoltages, sourceVoltageRange.getMin(), sourceVoltageRange.getMax())) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < boardIndexes.size(); i++){
+            sourceVoltages[i].convertValue(sourceVoltageRange.prefix);
+            sourceVoltageCoders[boardIndexes[i]]->encode(sourceVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) {
     if (vcCurrentRangeCoder == nullptr) {
         return ErrorFeatureNotImplemented;

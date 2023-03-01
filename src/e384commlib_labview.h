@@ -389,6 +389,70 @@ ErrorCodes_t setVoltageHoldTuner(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+/*! \brief Set a VC current gain on a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param gainsIn [in] Vector of current gains.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setVcCurrentGain(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Set a VC current offset on a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param offsetsIn [in] Vector of current offsets.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setVcCurrentOffset(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Set the gate voltage on a specific board.
+ *
+ * \param boardIndexesIn [in] Vector of Indexes for the boards to control.
+ * \param gateVoltagesIn [in] Vector of gate voltages.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setGateVoltage(
+        E384CL_ARGIN uint16_t * boardIndexesIn,
+        E384CL_ARGIN LMeasHandle gateVoltagesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Set the source voltage on a specific board.
+ *
+ * \param boardIndexesIn [in] Vector of Indexes for the boards to control.
+ * \param sourceVoltagesIn [in] Vector of gate voltages.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setSourceVoltage(
+        E384CL_ARGIN uint16_t * boardIndexesIn,
+        E384CL_ARGIN LMeasHandle sourceVoltagesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
 /*! \brief Turn on/off a specific LED.
  *
  * \param ledIndex [in] Index of the LED to turn on/off.
