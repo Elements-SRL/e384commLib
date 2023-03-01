@@ -79,6 +79,10 @@ public:
 
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
+    ErrorCodes_t setVcCurrentGainTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+    ErrorCodes_t setVcCurrentOffsetTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+    ErrorCodes_t setGateVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
+    ErrorCodes_t setSourceVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
 
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
@@ -145,6 +149,8 @@ protected:
     uint16_t voltageChannelsNum = 1;
     uint16_t currentChannelsNum = 1;
     uint16_t totalChannelsNum = voltageChannelsNum+currentChannelsNum;
+
+    uint16_t totalBoardsNum = 1;
 
     std::vector<uint16_t> rxWordOffsets;
     std::vector<uint16_t> rxWordLengths;
@@ -226,8 +232,22 @@ protected:
     bool currentOffsetControlImplemented = false;
     RangedMeasurement_t currentOffsetRange;
 
+
+
     std::vector <BoolCoder *> digitalOffsetCompensationCoders;
     std::vector <DoubleCoder *> vHoldTunerCoders;
+
+    RangedMeasurement_t vcCurrentGainRange;
+    std::vector <DoubleCoder *> vcCurrentGainTunerCoders;
+
+    RangedMeasurement_t vcCurrentOffsetRange;
+    std::vector <DoubleCoder *> vcCurrentOffsetTunerCoders;
+
+    RangedMeasurement_t gateVoltageRange;
+    std::vector <DoubleCoder *> gateVoltageCoders;
+
+    RangedMeasurement_t sourceVoltageRange;
+    std::vector <DoubleCoder *> sourceVoltageCoders;
 
     DoubleCoder * stimRestCoder = nullptr;
 

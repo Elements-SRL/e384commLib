@@ -199,6 +199,83 @@ ErrorCodes_t setVoltageHoldTuner(
     return ret;
 }
 
+ErrorCodes_t setVcCurrentGain(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<Measurement_t> gains;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2VectorMeasurement(gainsIn, gains);
+        ret = messageDispatcher->setVcCurrentGainTuner(channelIndexes, gains, applyFlagIn);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
+ErrorCodes_t setVcCurrentOffset(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<Measurement_t> offsets;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2VectorMeasurement(offsetsIn, offsets);
+        ret = messageDispatcher->setVcCurrentOffsetTuner(channelIndexes, offsets, applyFlagIn);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
+
+ErrorCodes_t setGateVoltage(
+        E384CL_ARGIN uint16_t * boardIndexesIn,
+        E384CL_ARGIN LMeasHandle gateVoltagesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> boardIndexes;
+        std::vector<Measurement_t> gateVoltages;
+        input2NumericVector<uint16_t>(boardIndexesIn, boardIndexes, vectorLengthIn);
+        input2VectorMeasurement(gateVoltagesIn, gateVoltages);
+        ret = messageDispatcher->setGateVoltagesTuner(boardIndexes, gateVoltages, applyFlagIn);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
+ErrorCodes_t setSourceVoltage(
+        E384CL_ARGIN uint16_t * boardIndexesIn,
+        E384CL_ARGIN LMeasHandle sourceVoltagesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> boardIndexes;
+        std::vector<Measurement_t> sourceVoltages;
+        input2NumericVector<uint16_t>(boardIndexesIn, boardIndexes, vectorLengthIn);
+        input2VectorMeasurement(sourceVoltagesIn, sourceVoltages);
+        ret = messageDispatcher->setSourceVoltagesTuner(boardIndexes, sourceVoltages, applyFlagIn);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
 ErrorCodes_t setCurrentHoldTuner(
         uint16_t channelIdx,
         CharMeasurement_t currentIn) {
