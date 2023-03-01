@@ -100,11 +100,15 @@ public:
     ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
 
     ErrorCodes_t enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+    ErrorCodes_t turnChannelsOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
     ErrorCodes_t digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
     ErrorCodes_t setAdcFilter();
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn);
+
+    ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
+    ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
 
     ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
     ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
@@ -229,6 +233,7 @@ protected:
     BoolCoder * ccVoltageFilterCoder = nullptr;
 
     std::vector <BoolCoder *> enableStimulusCoders;
+    std::vector <BoolCoder *> turnChannelsOnCoders;
 
 
     uint32_t samplingRatesNum;
@@ -266,6 +271,9 @@ protected:
     std::vector <DoubleCoder *> sourceVoltageCoders;
 
     DoubleCoder * stimRestCoder = nullptr;
+
+    BoolArrayCoder * bitDebugCoder = nullptr;
+    BoolArrayCoder * wordDebugCoder = nullptr;
 
     /***************\
      *  Variables  *
