@@ -369,8 +369,8 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelInde
     }
 }
 
-ErrorCodes_t MessageDispatcher::setVcCurrentGainTuner(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
-    if (vcCurrentGainTunerCoders.size() == 0) {
+ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+    if (calibVcCurrentGainCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
@@ -381,9 +381,8 @@ ErrorCodes_t MessageDispatcher::setVcCurrentGainTuner(vector<uint16_t> channelIn
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            /*! \todo FCON recheck, gain is a number, it should not be converted with prefix. However, the prefix is None in this case*/
-            //gains[i].convertValue(vcCurrentGainRange.prefix);
-            vcCurrentGainTunerCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            gains[i].convertValue(vcCurrentGainRange.prefix);
+            calibVcCurrentGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -393,8 +392,8 @@ ErrorCodes_t MessageDispatcher::setVcCurrentGainTuner(vector<uint16_t> channelIn
     }
 }
 
-ErrorCodes_t MessageDispatcher::setVcCurrentOffsetTuner(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
-    if (vcCurrentOffsetTunerCoders.size() == 0) {
+ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
+    if (calibVcCurrentOffsetCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
@@ -406,7 +405,7 @@ ErrorCodes_t MessageDispatcher::setVcCurrentOffsetTuner(vector<uint16_t> channel
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             offsets[i].convertValue(vcCurrentOffsetRange.prefix);
-            vcCurrentOffsetTunerCoders[channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            calibVcCurrentOffsetCoders[channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {

@@ -79,8 +79,8 @@ public:
 
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
-    ErrorCodes_t setVcCurrentGainTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
-    ErrorCodes_t setVcCurrentOffsetTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+    ErrorCodes_t setCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+    ErrorCodes_t setCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
     ErrorCodes_t setGateVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
     ErrorCodes_t setSourceVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
 
@@ -238,10 +238,10 @@ protected:
     std::vector <DoubleCoder *> vHoldTunerCoders;
 
     RangedMeasurement_t vcCurrentGainRange;
-    std::vector <DoubleCoder *> vcCurrentGainTunerCoders;
+    std::vector <DoubleCoder *> calibVcCurrentGainCoders;
 
     RangedMeasurement_t vcCurrentOffsetRange;
-    std::vector <DoubleCoder *> vcCurrentOffsetTunerCoders;
+    std::vector <DoubleCoder *> calibVcCurrentOffsetCoders;
 
     RangedMeasurement_t gateVoltageRange;
     std::vector <DoubleCoder *> gateVoltageCoders;
