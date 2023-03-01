@@ -400,12 +400,12 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(vector<uint16_t> channelIn
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(gains, vcCurrentGainRange.getMin(), vcCurrentGainRange.getMax())) {
+    } else if (!areAllTheVectorElementsInRange(gains, calibVcCurrentGainRange.getMin(), calibVcCurrentGainRange.getMax())) {
         return ErrorValueOutOfRange;
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            gains[i].convertValue(vcCurrentGainRange.prefix);
+            gains[i].convertValue(calibVcCurrentGainRange.prefix);
             calibVcCurrentGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
@@ -423,13 +423,13 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(vector<uint16_t> channel
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(offsets, vcCurrentOffsetRange.getMin(), vcCurrentOffsetRange.getMax())) {
+    } else if (!areAllTheVectorElementsInRange(offsets, calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].getMin(), calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].getMax())) {
         return ErrorValueOutOfRange;
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            offsets[i].convertValue(vcCurrentOffsetRange.prefix);
-            calibVcCurrentOffsetCoders[channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            offsets[i].convertValue(calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
+            calibVcCurrentOffsetCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {

@@ -253,11 +253,11 @@ protected:
     std::vector <BoolCoder *> digitalOffsetCompensationCoders;
     std::vector <DoubleCoder *> vHoldTunerCoders;
 
-    RangedMeasurement_t vcCurrentGainRange;
+    RangedMeasurement_t calibVcCurrentGainRange;
     std::vector <DoubleCoder *> calibVcCurrentGainCoders;
 
-    RangedMeasurement_t vcCurrentOffsetRange;
-    std::vector <DoubleCoder *> calibVcCurrentOffsetCoders;
+    std::vector <RangedMeasurement_t> calibVcCurrentOffsetRanges;
+    std::vector <std::vector <DoubleCoder *>> calibVcCurrentOffsetCoders;
 
     RangedMeasurement_t gateVoltageRange;
     std::vector <DoubleCoder *> gateVoltageCoders;

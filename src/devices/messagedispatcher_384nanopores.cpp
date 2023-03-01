@@ -158,14 +158,14 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     }
 
     /*! VC current gain */
-    vcCurrentGainRange.step = 1.0/1024.0;
-    vcCurrentGainRange.min = SHORT_MIN * vcCurrentGainRange.step;
-    vcCurrentGainRange.max = SHORT_MAX * vcCurrentGainRange.step;
-    vcCurrentGainRange.prefix = UnitPfxNone;
-    vcCurrentGainRange.unit = "";
+    calibVcCurrentGainRange.step = 1.0/1024.0;
+    calibVcCurrentGainRange.min = SHORT_MIN * calibVcCurrentGainRange.step;
+    calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
+    calibVcCurrentGainRange.prefix = UnitPfxNone;
+    calibVcCurrentGainRange.unit = "";
 
     /*! VC current offset */
-    vcCurrentOffsetRange = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
+    calibVcCurrentOffsetRanges = vcCurrentRangesArray;
 
     /*! Gate voltage range*/
     gateVoltageRange.step = 1;
@@ -305,9 +305,9 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     doubleConfig.initialWord = 843;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = vcCurrentGainRange.step;
-    doubleConfig.minValue = vcCurrentGainRange.min;
-    doubleConfig.maxValue = vcCurrentGainRange.max;
+    doubleConfig.resolution = calibVcCurrentGainRange.step;
+    doubleConfig.minValue = calibVcCurrentGainRange.min;
+    doubleConfig.maxValue = calibVcCurrentGainRange.max;
     calibVcCurrentGainCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
@@ -315,21 +315,22 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     }
 
     /*! VC current offset tuner */
-    /*! \todo FCON recheck minValue e maxValue*/
-    doubleConfig.initialWord = 1227;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = vcCurrentOffsetRange.step;
-    doubleConfig.minValue = vcCurrentOffsetRange.min;
-    doubleConfig.maxValue = vcCurrentOffsetRange.max;
-    calibVcCurrentOffsetCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibVcCurrentOffsetCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        doubleConfig.initialWord++;
+    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 1227;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
+        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
+        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
+        calibVcCurrentOffsetCoders.resize(currentChannelsNum);
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+            doubleConfig.initialWord++;
+        }
     }
 
     /*! gate voltage tuner */
-    /*! \todo FCON recheck minValue e maxValue*/
     doubleConfig.initialWord = 795;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
