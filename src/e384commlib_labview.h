@@ -399,7 +399,7 @@ ErrorCodes_t setVoltageHoldTuner(
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setVcCurrentGain(
+ErrorCodes_t setCalibVcCurrentGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN LMeasHandle gainsIn,
         E384CL_ARGIN bool applyFlagIn,
@@ -415,7 +415,7 @@ ErrorCodes_t setVcCurrentGain(
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setVcCurrentOffset(
+ErrorCodes_t setCalibVcCurrentOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN LMeasHandle offsetsIn,
         E384CL_ARGIN bool applyFlagIn,
