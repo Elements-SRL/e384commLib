@@ -370,6 +370,14 @@ ErrorCodes_t MessageDispatcher::resetAsic(bool resetFlag, bool applyFlagIn) {
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::resetFpga(bool resetFlag, bool applyFlagIn) {
+    fpgaResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages, bool applyFlag){
     if (vHoldTunerCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
@@ -430,6 +438,52 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(vector<uint16_t> channel
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             offsets[i].convertValue(calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
             calibVcCurrentOffsetCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+    if (calibCcVoltageGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else if (!areAllTheVectorElementsInRange(gains, calibCcVoltageGainRange.getMin(), calibCcVoltageGainRange.getMax())) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            gains[i].convertValue(calibCcVoltageGainRange.prefix);
+            calibCcVoltageGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
+    if (calibCcVoltageOffsetCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else if (!areAllTheVectorElementsInRange(offsets, calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].getMin(), calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].getMax())) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            offsets[i].convertValue(calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].prefix);
+            calibCcVoltageOffsetCoders[selectedCcVoltageRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -947,36 +1001,131 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput) {
     return ret;
 }
 
+ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures){
+    if (vHoldTunerCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else{
+        voltageHoldTunerFeatures = vHoldRange;
+        return Success;
+    }
+
+}
+
+ErrorCodes_t MessageDispatcher::getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures){
+    if (calibVcCurrentGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else{
+        calibVcCurrentGainFeatures = calibVcCurrentGainRange;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCalibVcCurrentOffsetFeatures(vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures){
+    if (calibVcCurrentOffsetCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else{
+        calibVcCurrentOffsetFeatures = calibVcCurrentOffsetRanges;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures){
+    if (calibCcVoltageGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else{
+        calibCcVoltageGainFeatures = calibCcVoltageGainRange;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCalibCcVoltageOffsetFeatures(vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures){
+    if (calibCcVoltageOffsetCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else{
+        calibCcVoltageOffsetFeatures = calibCcVoltageOffsetRanges;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures){
+    if (gateVoltageCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else{
+        gateVoltagesTunerFeatures = gateVoltageRange;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures){
+    if (sourceVoltageCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else{
+        sourceVoltagesTunerFeatures = sourceVoltageRange;
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
-    currentRanges = vcCurrentRangesArray;
-    return Success;
+    if(vcCurrentRangesArray.size()==0){
+        return ErrorFeatureNotImplemented;
+    } else {
+        currentRanges = vcCurrentRangesArray;
+        return Success;
+    }
 }
 
 ErrorCodes_t MessageDispatcher::getVCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
-     voltageRanges = vcVoltageRangesArray;
-     return Success;
+    if(vcVoltageRangesArray.size()==0){
+        return ErrorFeatureNotImplemented;
+    } else {
+        voltageRanges = vcVoltageRangesArray;
+        return Success;
+    }
 }
 
 ErrorCodes_t MessageDispatcher::getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
-    currentRanges = ccCurrentRangesArray;
-    return Success;
+    if(ccCurrentRangesArray.size()==0){
+        return ErrorFeatureNotImplemented;
+    } else {
+        currentRanges = ccCurrentRangesArray;
+        return Success;
+    }
 }
 
 ErrorCodes_t MessageDispatcher::getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
-     voltageRanges = ccVoltageRangesArray;
-     return Success;
+    if(ccVoltageRangesArray.size()==0){
+        return ErrorFeatureNotImplemented;
+    } else {
+        voltageRanges = ccVoltageRangesArray;
+        return Success;
+    }
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageStimulusLpfs(std::vector <std::string> &filterOptions){
+    if(vcVoltageFiltersArray.size()==0){
+        return ErrorFeatureNotImplemented;
+    } else {
         for(uint16_t i = 0; i < vcVoltageFiltersArray.size(); i++){
             filterOptions[i] = vcVoltageFiltersArray[i].niceLabel();
         }
+    }
 }
 
 ErrorCodes_t MessageDispatcher::getCurrentStimulusLpfs(std::vector <std::string> &filterOptions){
+    if(ccCurrentFiltersArray.size()==0){
+        return ErrorFeatureNotImplemented;
+    } else {
         for(uint16_t i = 0; i < ccCurrentFiltersArray.size(); i++){
             filterOptions[i] = ccCurrentFiltersArray[i].niceLabel();
         }
+    }
 }
 
 /*********************\

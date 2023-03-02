@@ -159,7 +159,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 
     /*! VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
-    calibVcCurrentGainRange.min = SHORT_MIN * calibVcCurrentGainRange.step;
+    calibVcCurrentGainRange.min = 0;//SHORT_MIN * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
@@ -169,8 +169,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 
     /*! Gate voltage range*/
     gateVoltageRange.step = 1;
-    gateVoltageRange.min = SHORT_MIN * gateVoltageRange.step;
-    gateVoltageRange.max = SHORT_MAX * gateVoltageRange.step;
+    gateVoltageRange.min = -24000;//SHORT_MIN * gateVoltageRange.step;
+    gateVoltageRange.max = 24000;//SHORT_MAX * gateVoltageRange.step;
     gateVoltageRange.prefix = UnitPfxMilli;
     gateVoltageRange.unit = "V";
 

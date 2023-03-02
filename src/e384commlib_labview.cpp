@@ -237,6 +237,44 @@ ErrorCodes_t setCalibVcCurrentOffset(
     return ret;
 }
 
+ErrorCodes_t setCalibCcVoltageGain(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<Measurement_t> gains;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2VectorMeasurement(gainsIn, gains);
+        ret = messageDispatcher->setCalibCcVoltageGain(channelIndexes, gains, applyFlagIn);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
+ErrorCodes_t setCalibCcVoltageOffset(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<Measurement_t> offsets;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2VectorMeasurement(offsetsIn, offsets);
+        ret = messageDispatcher->setCalibCcVoltageOffset(channelIndexes, offsets, applyFlagIn);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
 
 ErrorCodes_t setGateVoltage(
         E384CL_ARGIN uint16_t * boardIndexesIn,
@@ -1367,6 +1405,17 @@ ErrorCodes_t resetAsic(bool reset) {
     return ret;
 }
 
+ErrorCodes_t resetFpga(bool reset) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->resetFpga(reset);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
 ErrorCodes_t resetDigitalOffsetCompensation(bool reset) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
@@ -1618,6 +1667,72 @@ ErrorCodes_t hasCurrentHoldTuner() {
     }
     return ret;
 }
+
+
+//------------------------------------------------------------------------
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+ErrorCodes_t getVoltageHoldTunerFeatures(
+        LRange voltageHoldTunerFeaturesOut){
+
+}
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+ErrorCodes_t getCalibVcCurrentGainFeatures(
+        LRange calibVcCurrentGainFeaturesOut){
+
+}
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+ErrorCodes_t getCalibVcCurrentOffsetFeatures(
+        LRangeHandle * calibVcCurrentOffsetFeaturesOut){
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t>  calibVcCurrentOffsetFeatures;
+        ret = messageDispatcher->getCalibVcCurrentOffsetFeatures(calibVcCurrentOffsetFeatures);
+        vectorRangedMeasurement2Output( calibVcCurrentOffsetFeatures, calibVcCurrentOffsetFeaturesOut);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+
+}
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+ErrorCodes_t getCalibCcVoltageGainFeatures(
+        LRange calibCcVoltageGainFeaturesOut){
+
+}
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+ErrorCodes_t getCalibCcVoltageOffsetFeatures(
+        LRangeHandle * calibCcVoltageOffsetFeaturesOut){
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t>  calibCcVoltageOffsetFeatures;
+        ret = messageDispatcher->getCalibCcVoltageOffsetFeatures(calibCcVoltageOffsetFeatures);
+        vectorRangedMeasurement2Output( calibCcVoltageOffsetFeatures, calibCcVoltageOffsetFeaturesOut);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+
+}
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+ErrorCodes_t getGateVoltagesFeatures(
+        LRange gateVoltagesFeaturesOut){
+
+}
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+ErrorCodes_t getSourceVoltagesFeatures(
+        LRange sourceVoltagesFeaturesOut){
+
+}
+
+//------------------------------------------------------------------------
 
 ErrorCodes_t getVCCurrentRanges(
         LRangeHandle * currentRangesOut) {

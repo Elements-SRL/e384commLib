@@ -439,6 +439,38 @@ ErrorCodes_t setCalibVcCurrentOffset(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+/*! \brief Set a CC voltage gain on a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param gainsIn [in] Vector of voltage gains.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCalibCcVoltageGain(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Set a CC voltage offset on a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param offsetsIn [in] Vector of voltage offsets.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCalibCcVoltageOffset(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
 /*! \brief Set the gate voltage on a specific board.
  *
  * \param boardIndexesIn [in] Vector of Indexes for the boards to control.
@@ -1208,6 +1240,16 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t resetAsic(
         E384CL_ARGIN bool reset);
 
+/*! \brief Reset the device's FPGA.
+ *
+ * \param reset [in] False sets the FPGA in normal operation state, true sets in reset state.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t resetFpga(
+        E384CL_ARGIN bool reset);
+
 /*! \brief Reset the device's digital offset compensation.
  *
  * \param reset [in] False sets the digital offset compensation in normal operation state, true sets in reset state.
@@ -1323,6 +1365,87 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t hasCurrentHoldTuner(
         E384CL_ARGVOID);
+
+
+//------------------------------------------------------------------------
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+/*! \brief Get the voltage hold tuner features, e.g. ranges, step, ...
+ *
+ * \param voltageHoldTunerFeatures [out] Structure containing the VoltageHoldTuner features.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getVoltageHoldTunerFeatures(
+        E384CL_ARGOUT LRange voltageHoldTunerFeaturesOut);
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+/*! \brief Get the VC calibration current gain features, e.g. ranges, step, ...
+ *
+ * \param calibVcCurrentGainFeatures [out] Structure containing the VC calibration current gain  features.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCalibVcCurrentGainFeatures(
+        E384CL_ARGOUT LRange calibVcCurrentGainFeaturesOut);
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+/*! \brief Get the VC calibration current offset features, e.g. ranges, step, ...
+ *
+ * \param calibVcCurrentOffsetFeatures [out] Vector of structures containing the VC calibration current offset features, one element for each option.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCalibVcCurrentOffsetFeatures(
+        E384CL_ARGOUT LRangeHandle * calibVcCurrentOffsetFeaturesOut);
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+/*! \brief Get the VC calibration current gain features, e.g. ranges, step, ...
+ *
+ * \param calibVcCurrentGainFeatures [out] Structure containing the VC calibration current gain  features.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCalibCcVoltageGainFeatures(
+        E384CL_ARGOUT LRange calibVcCurrentGainFeaturesOut);
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+/*! \brief Get the VC calibration current offset features, e.g. ranges, step, ...
+ *
+ * \param calibVcCurrentOffsetFeatures [out] Vector of structures containing the VC calibration current offset features, one element for each option.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCalibCcVoltageOffsetFeatures(
+        E384CL_ARGOUT LRangeHandle * calibVcCurrentOffsetFeaturesOut);
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+/*! \brief Get the gate voltage features, e.g. ranges, step, ...
+ *
+ * \param gateVoltagesFeatures [out] Structure containing the gate voltage features.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getGateVoltagesFeatures(
+        E384CL_ARGOUT LRange gateVoltagesFeaturesOut);
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+/*! \brief Get the source voltage features, e.g. ranges, step, ...
+ *
+ * \param sourceVoltagesFeatures [out] Structure containing the source voltage features.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getSourceVoltagesFeatures(
+        E384CL_ARGOUT LRange sourceVoltagesFeaturesOut);
+
+//------------------------------------------------------------------------
 
 /*! \brief Get the current ranges available in voltage clamp for the device.
  *

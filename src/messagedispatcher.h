@@ -85,9 +85,12 @@ public:
     \****************/
 
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true);
+    ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
     ErrorCodes_t setCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
     ErrorCodes_t setCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+    ErrorCodes_t setCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+    ErrorCodes_t setCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
     ErrorCodes_t setGateVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
     ErrorCodes_t setSourceVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
 
@@ -118,6 +121,14 @@ public:
     \****************/
 
     ErrorCodes_t getNextMessage(RxOutput_t &rxOutput);
+
+    ErrorCodes_t getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures);
+    ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);
+    ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
+    ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
+    ErrorCodes_t getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures);
+    ErrorCodes_t getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures);
+    ErrorCodes_t getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures);
 
     ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
     ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
@@ -263,6 +274,12 @@ protected:
 
     std::vector <RangedMeasurement_t> calibVcCurrentOffsetRanges;
     std::vector <std::vector <DoubleCoder *>> calibVcCurrentOffsetCoders;
+
+    RangedMeasurement_t calibCcVoltageGainRange;
+    std::vector <DoubleCoder *> calibCcVoltageGainCoders;
+
+    std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
+    std::vector <std::vector <DoubleCoder *>> calibCcVoltageOffsetCoders;
 
     RangedMeasurement_t gateVoltageRange;
     std::vector <DoubleCoder *> gateVoltageCoders;
