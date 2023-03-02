@@ -330,6 +330,12 @@ ErrorCodes_t MessageDispatcher::connect() {
         return ErrorConnectionChipResetFailed;
     }
 
+    /*! Initialize device */
+    this->initializeDevice();
+    this->stackOutgoingMessage(txStatus);
+
+    this_thread::sleep_for(chrono::milliseconds(10));
+
     return ret;
 }
 
@@ -1227,7 +1233,15 @@ bool MessageDispatcher::getDeviceCount(int &numDevs) {
 }
 
 void MessageDispatcher::initializeDevice() {
-    /*! \todo FCON da riempire */
+    this->setSamplingRate(defaultSamplingRateIdx, false);
+
+    vector <uint16_t> channelIndexes(currentChannelsNum);
+    vector <bool> allTrue(currentChannelsNum, true);
+
+    for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
+        this->enableStimulus(channelIndexes, allTrue, false);
+    }
+
 }
 
 bool MessageDispatcher::checkProtocolValidity(string &message) {
