@@ -399,14 +399,6 @@ MessageDispatcher_384NanoPores_V01::~MessageDispatcher_384NanoPores_V01() {
 
 }
 
-void MessageDispatcher_384NanoPores_V01::initializeDevice() {
-    /*! \todo FCON da riempire e magari spostare nel MessageDispatcher */
-}
-
-bool MessageDispatcher_384NanoPores_V01::checkProtocolValidity(string &message) {
-    /*! \todo FCON da riempire e magari spostare nel MessageDispatcher */
-}
-
 //void MessageDispatcher_384NanoPores_V01::updateDeviceStatus(vector <bool> &fsmRunFlag, bool &poreForming, bool &communicationError) {
 //    for (int idx = 0; idx < fsmStateChannelsNum; idx++) {
 //        fsmRunFlag[idx] = (infoStruct.status & (0x0001 << idx)) == 0 ? false : true;

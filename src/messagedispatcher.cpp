@@ -1227,6 +1227,14 @@ bool MessageDispatcher::getDeviceCount(int &numDevs) {
     return true;
 }
 
+void MessageDispatcher::initializeDevice() {
+    /*! \todo FCON da riempire */
+}
+
+bool MessageDispatcher::checkProtocolValidity(string &message) {
+    /*! \todo FCON da riempire */
+}
+
 void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType) {
     uint32_t rxDataWords = rxWordLengths[rxMessageType];
 

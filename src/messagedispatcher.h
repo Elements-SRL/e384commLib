@@ -163,6 +163,9 @@ protected:
     virtual void readDataFromDevice() = 0;
     virtual void sendCommandsToDevice() = 0;
 
+    void initializeDevice();
+    bool checkProtocolValidity(std::string &message);
+
     void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);
     void storeDataHeaderFrame();
     void storeDataTailFrame();
