@@ -360,13 +360,31 @@ ErrorCodes_t setCurrentStimulusLpf(
 
 /*! \brief Enable or disable the stimulus on a specific channel.
  *
- * \param channelIdx [in] Index of the channel to control.
- * \param on [in] True to turn the stimulus on, false to turn it off.
+ * \param channelIndexesIn [in] Vector of indexes of the channel to control.
+ * \param onValuesIn [in] Vector of on values: True to turn the stimulus on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t enableStimulus(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Turns on and off a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of indexes of the channel to control.
+ * \param onValuesIn [in] Vector of on values: True to turn the channel on (close the SWITCH), false to turn it off (open the SWITCH).
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t turnChannelsOn(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,

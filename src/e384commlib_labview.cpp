@@ -500,7 +500,6 @@ ErrorCodes_t setCurrentStimulusLpf(
     return ret;
 }
 
-/*! \todo MPAC mettere gli stessi argomenti di digitaloffsetcomepnsation */
 ErrorCodes_t enableStimulus(
         uint16_t * channelIndexesIn,
         bool * onValuesIn,
@@ -513,6 +512,25 @@ ErrorCodes_t enableStimulus(
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
         ret = messageDispatcher->enableStimulus(channelIndexes, onValues, applyFlagIn);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
+ErrorCodes_t turnChannelsOn(
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> onValues;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+        ret = messageDispatcher->turnChannelsOn(channelIndexes, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;

@@ -653,6 +653,26 @@ ErrorCodes_t MessageDispatcher::enableStimulus(vector<uint16_t> channelIndexes, 
     }
 }
 
+ErrorCodes_t MessageDispatcher::turnChannelsOn(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag) {
+    if (turnChannelsOnCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           turnChannelsOnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::setAdcFilter(){
     // Still to be properly implemented
     if(amIinVoltageClamp){
@@ -684,6 +704,30 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
         }
         return Success;
     }
+}
+
+ErrorCodes_t MessageDispatcher::setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) {
+    BoolCoder::CoderConfig_t boolConfig;
+    boolConfig.initialWord = wordOffset;
+    boolConfig.initialBit = bitOffset;
+    boolConfig.bitsNum = 1;
+    bitDebugCoder = new BoolArrayCoder(boolConfig);
+    bitDebugCoder->encode(status ? 1 : 0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    this->stackOutgoingMessage(txStatus);
+    delete bitDebugCoder;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t wordOffset, uint16_t wordValue) {
+    BoolCoder::CoderConfig_t boolConfig;
+    boolConfig.initialWord = wordOffset;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 15;
+    wordDebugCoder = new BoolArrayCoder(boolConfig);
+    wordDebugCoder->encode(wordValue, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    this->stackOutgoingMessage(txStatus);
+    delete wordDebugCoder;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool onValueIn, bool applyFlagIn){

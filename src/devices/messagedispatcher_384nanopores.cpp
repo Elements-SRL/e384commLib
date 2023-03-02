@@ -232,13 +232,13 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     docOverrideCoder = new BoolArrayCoder(boolConfig);
 
     /*! Current range VC */
-    boolConfig.initialWord = 1;
+    boolConfig.initialWord = 1+9; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
     vcCurrentRangeCoder = new BoolArrayCoder(boolConfig);
 
     /*! Voltage range VC */
-    boolConfig.initialWord = 1;
+    boolConfig.initialWord = 1+9; //updated
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
     vcVoltageRangeCoder = new BoolArrayCoder(boolConfig);
@@ -250,7 +250,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     // undefined
 
     /*! Current filter VC */
-    boolConfig.initialWord = 2;
+    boolConfig.initialWord = 2+9; //updated
     boolConfig.initialBit = 0;//4;
     boolConfig.bitsNum = 4;
     vcCurrentFilterCoder = new BoolArrayCoder(boolConfig);
@@ -265,7 +265,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     // undefined
 
     /*! Digital offset compensation */
-    boolConfig.initialWord = 3;
+    boolConfig.initialWord = 3+9; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     digitalOffsetCompensationCoders.resize(currentChannelsNum);
@@ -280,7 +280,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 
 
     /*! Enable stimulus */
-    boolConfig.initialWord = 27;
+    boolConfig.initialWord = 27+9; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     enableStimulusCoders.resize(currentChannelsNum);
@@ -293,8 +293,22 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         }
     }
 
+    /*! Turn channels on */
+    boolConfig.initialWord = 51+9; //updated
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    turnChannelsOnCoders.resize(currentChannelsNum); /*! \todo FCON recheck if currentChannelsNum is OK*/
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        turnChannelsOnCoders[idx] = new BoolArrayCoder(boolConfig);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
     /*! V holding tuner */
-    doubleConfig.initialWord = 411;
+    doubleConfig.initialWord = 411+9; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = vHoldRange.step;
@@ -307,7 +321,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     }
     /*! VC current gain tuner */
     /*! \todo FCON recheck minValue e maxValue*/
-    doubleConfig.initialWord = 843;
+    doubleConfig.initialWord = 843+9; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcCurrentGainRange.step;
@@ -322,7 +336,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     /*! VC current offset tuner */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 1227;
+        doubleConfig.initialWord = 1227+9; //updated
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -336,7 +350,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     }
 
     /*! gate voltage tuner */
-    doubleConfig.initialWord = 795;
+    doubleConfig.initialWord = 795+9; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = gateVoltageRange.step;
@@ -350,7 +364,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 
     /*! source voltage tuner */
     /*! \todo FCON recheck minValue e maxValue*/
-    doubleConfig.initialWord = 819;
+    doubleConfig.initialWord = 819+9; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = sourceVoltageRange.step;
@@ -370,7 +384,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 
 
     /*! VRest */
-    doubleConfig.initialWord = 174;
+    doubleConfig.initialWord = 174+9; //updated
     doubleConfig.initialBit = 3;
     doubleConfig.bitsNum = 13;
     doubleConfig.minValue = -512.0;
