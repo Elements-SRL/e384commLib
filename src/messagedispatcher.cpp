@@ -10,6 +10,7 @@
 
 #include "okFrontPanelDLL.h"
 
+#include "messagedispatcher_384nanopores.h"
 #include "utils.h"
 
 using namespace std;
@@ -77,6 +78,12 @@ ErrorCodes_t MessageDispatcher::init() {
 
     this->computeMinimumPacketNumber();
 
+    /*! Allocate memory for raw data filters */
+    this->initializeRawDataFilterVariables();
+
+    /*! Allocate memory for compensations */
+    this->initializeCompensations();
+
     return Success;
 }
 
@@ -94,6 +101,22 @@ ErrorCodes_t MessageDispatcher::deinit() {
     if (txMsgBuffer != nullptr) {
         delete [] txMsgBuffer;
         txMsgBuffer = nullptr;
+    }
+
+    if (iirX != nullptr) {
+        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
+            delete [] iirX[channelIdx];
+        }
+        delete [] iirX;
+        iirX = nullptr;
+    }
+
+    if (iirY != nullptr) {
+        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
+            delete [] iirY[channelIdx];
+        }
+        delete [] iirY;
+        iirY = nullptr;
     }
 
 #ifdef DEBUG_PRINT
@@ -151,7 +174,7 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
 
     switch (deviceType) {
     case Device384Nanopores:
-        messageDispatcher = new MessageDispatcher_ePatchEL03D(deviceId);
+        messageDispatcher = new MessageDispatcher_384NanoPores_V01(deviceId);
         break;
 
     case Device384PatchClamp:
@@ -205,12 +228,6 @@ ErrorCodes_t MessageDispatcher::connect() {
     connected = true;
 
     this->init();
-
-    /*! Calculate the LSB noise vector */
-    this->initializeLsbNoise();
-
-    /*! Allocate memory for compensations */
-    this->initializeCompensations();
 
     stopConnectionFlag = false;
 
@@ -302,16 +319,17 @@ ErrorCodes_t MessageDispatcher::connect() {
 
     this->resetFpga();
 
-    this->resetChip(true);
+    this->resetAsic(true);
     this_thread::sleep_for(chrono::milliseconds(100));
-    ret = this->resetChip(false);
+    ret = this->resetAsic(false);
     if (ret != Success) {
         return ErrorConnectionChipResetFailed;
     }
 
-    for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
-        this->setVcCurrentOffsetDelta(idx, {0.0, UnitPfxNone, nullptr});
-    }
+    /*! \todo FCON cos'era sta roba? */
+//    for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
+//        this->setVcCurrentOffsetDelta(idx, {0.0, UnitPfxNone, nullptr});
+//    }
 
     return ret;
 }
@@ -696,7 +714,7 @@ ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool onValueIn, bool applyFl
  *  Rx methods  *
 \****************/
 
-ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput) {
+ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     ErrorCodes_t ret = Success;
     double xFlt;
 
@@ -715,183 +733,206 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput) {
     }
 
     uint32_t msgReadCount = 0;
-    bool headerSet = false;
-    bool tailSet = false;
 
     rxOutput.dataLen = 0; /*! Initialize data length in case more messages are merged */
+    lastParsedMsgType = MsgTypeIdInvalid;
+
+    uint32_t dataOffset;
+    uint16_t samplesNum;
+    uint16_t sampleIdx;
+    uint16_t timeSamplesNum;
+    uint16_t rawFloat;
+    uint16_t dataWritten;
     bool exitLoop = false;
+    bool messageReadFlag = false;
 
     while (msgReadCount < maxMsgRead) {
-        if (rxOutput.msgTypeId == rxMsgBuffer[rxMsgBufferReadOffset].typeId) {
-            switch (rxOutput.msgTypeId) {
-            case (MsgDirectionDeviceToEdr+MsgTypeIdAcquisitionHeader):
-                exitLoop = false;
-                break;
+        dataOffset = rxMsgBuffer[rxMsgBufferReadOffset].startDataPtr;
+        sampleIdx = 0;
+        switch (rxOutput.msgTypeId) {
+        case (MsgDirectionDeviceToPc+MsgTypeIdFpgaReset):
+            if (lastParsedMsgType == MsgTypeIdInvalid) {
+                rxOutput.msgTypeId = rxMsgBuffer[rxMsgBufferReadOffset].typeId;
+                lastParsedMsgType = MsgTypeIdFpgaReset;
 
-            case (MsgDirectionDeviceToEdr+MsgTypeIdAcquisitionData):
-                if ((msgReadCount+1)*rxDataMessageMaxLen > E4GCL_OUT_STRUCT_DATA_LEN) {
-                    /*! Exit if the merge may exceed the data field length */
-                    exitLoop = true;
-
-                } else {
-                    exitLoop = false;
-                }
-                break;
-
-            case (MsgDirectionDeviceToEdr+MsgTypeIdAcquisitionTail):
-                exitLoop = false;
-                break;
-
-            case (MsgDirectionDeviceToEdr+MsgTypeIdFpgaReset):
-            case (MsgDirectionDeviceToEdr+MsgTypeIdDigitalOffsetComp):
-            case (MsgDirectionDeviceToEdr+MsgTypeIdAcquisitionSaturation):
-            default:
-                /*! Messages of these types can't be merged. */
-                if (msgReadCount == 0) {
-                    /*! If no messages have been read yet process it... */
-                    exitLoop = false;
-
-                } else {
-                    /*! otherwise exit and force the beginning of another packet */
-                    exitLoop = true;
-                }
-                break;
-            }
-
-        } else {
-            /*! If new message type is different from previous one stay and read only if no other messages have been read yet */
-            if (msgReadCount > 0) {
-                /*! Otherwise exit or messages of different types will be merged */
+                /*! This message cannot be merged, leave anyway */
                 exitLoop = true;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
             }
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp):
+            if (lastParsedMsgType == MsgTypeIdInvalid) {
+                /*! \todo FCON da implementare */
+                //            rxOutput.dataLen = 1;
+                //            rxOutput.channelIdx = * (rxDataBuffer+dataOffset);
+                //            rawFloat = * (rxDataBuffer+((dataOffset+1) & RX_DATA_BUFFER_MASK));
+                //            voltageOffsetCorrected = (((double)rawFloat)-liquidJunctionOffsetBinary)*liquidJunctionResolution;
+                //            this->selectVoltageOffsetResolution();
+                //            rxOutput.data[0] = (int16_t)(rawFloat-liquidJunctionOffsetBinary);
+                //            lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToPc;
+
+                //            this->setDigitalOffsetCompensationOverrideValue(rxOutput.channelIdx, {voltageOffsetCorrected, liquidJunctionControl.prefix, nullptr});
+
+                lastParsedMsgType = MsgTypeIdDigitalOffsetComp;
+
+                /*! This message cannot be merged, leave anyway */
+                exitLoop = true;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
+            if (lastParsedMsgType == MsgTypeIdInvalid) {
+                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
+                rxOutput.dataLen = 0;
+                rxOutput.protocolId = * (rxDataBuffer+dataOffset);
+                rxOutput.protocolItemIdx = * (rxDataBuffer+((dataOffset+1) & RX_DATA_BUFFER_MASK));
+                rxOutput.protocolRepsIdx = * (rxDataBuffer+((dataOffset+2) & RX_DATA_BUFFER_MASK));
+                rxOutput.protocolSweepIdx = * (rxDataBuffer+((dataOffset+3) & RX_DATA_BUFFER_MASK));
+
+                lastParsedMsgType = MsgTypeIdAcquisitionHeader;
+
+                /*! This message cannot be merged, but stay in the loop in case there are more to read */
+                exitLoop = false;
+                messageReadFlag = true;
+
+            } else if (lastParsedMsgType == MsgTypeIdAcquisitionHeader) {
+                /*! If there are more of this kind in a sequence ignore subsequent ones */
+                exitLoop = false;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData):
+            samplesNum = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
+            dataWritten = rxOutput.dataLen;
+            if (lastParsedMsgType == MsgTypeIdInvalid ||
+                    (lastParsedMsgType == MsgTypeIdAcquisitionData && dataWritten+samplesNum < E384CL_OUT_STRUCT_DATA_LEN)) {
+                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid)
+                    OR if we are merging successive acquisition data messages that do not overflow the available memory */
+                rxOutput.dataLen += samplesNum;
+                timeSamplesNum = samplesNum/totalChannelsNum;
+                /*! \todo FCON è da lasciare implementato questo? */
+                //            if (msgReadCount == 0) {
+                //                /*! Update firstSampleOffset only if it is not merging messages */
+                //                rxOutput.firstSampleOffset = * ((uint32_t *)(rxDataBuffer+dataOffset));
+                //            }
+                //            dataOffset = (dataOffset+2) & RX_DATA_BUFFER_MASK;
+
+                for (uint16_t idx = 0; idx < timeSamplesNum; idx++) {
+                    for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                        rawFloat = rxDataBuffer[dataOffset];
+                        xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                        data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                    }
+
+                    for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                        rawFloat = rxDataBuffer[dataOffset];
+                        xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirVNum, iirVDen);
+                        data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                    }
+
+                    if (iirOff < 1) {
+                        iirOff = IIR_ORD;
+
+                    } else {
+                        iirOff--;
+                    }
+                }
+
+                lastParsedMsgType = MsgTypeIdAcquisitionData;
+
+                /*! This message can be merged, stay in the loop in case there are more to read */
+                exitLoop = false;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail):
+            if (lastParsedMsgType == MsgTypeIdInvalid) {
+                /*! Evaluate only if it's the first repetition */
+                rxOutput.dataLen = 0;
+                rxOutput.protocolId = rxDataBuffer[dataOffset];
+
+                lastParsedMsgType = MsgTypeIdAcquisitionTail;
+
+                /*! This message cannot be merged, but stay in the loop in case there are more to read */
+                exitLoop = false;
+                messageReadFlag = true;
+
+            } else if (lastParsedMsgType == MsgTypeIdAcquisitionTail) {
+                /*! If there are more of this kind in a sequence ignore subsequent ones */
+                exitLoop = false;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
+            if (lastParsedMsgType == MsgTypeIdInvalid) {
+                //            rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
+                //            for (uint16_t dataIdx = 0; dataIdx < rxOutput.dataLen; dataIdx++) {
+                //                rxOutput.uintData[dataIdx] = * (rxDataBuffer+dataOffset);
+                //                dataOffset = (dataOffset+1)&FTD_RX_DATA_BUFFER_MASK;
+                //            }
+
+                lastParsedMsgType = MsgTypeIdAcquisitionSaturation;
+
+                /*! This message cannot be merged, leave anyway */
+                exitLoop = true;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+
+            break;
+
+        default:
+            lastParsedMsgType = MsgTypeIdInvalid;
+
+            /*! Leave and look for following messages */
+            exitLoop = true;
+            messageReadFlag = true;
+            break;
+        }
+
+        if (messageReadFlag) {
+            msgReadCount++;
+            rxMsgBufferReadOffset = (rxMsgBufferReadOffset+1) & RX_MSG_BUFFER_MASK;
         }
 
         if (exitLoop) {
             break;
-
-        } else {
-            rxOutput.msgTypeId = rxMsgBuffer[rxMsgBufferReadOffset].typeId;
-            uint32_t dataOffset = rxMsgBuffer[rxMsgBufferReadOffset].startDataPtr;
-            uint16_t samplesNum;
-            uint16_t sampleIdx = 0;
-            uint16_t timeSamplesNum;
-            uint16_t rawFloat;
-            uint16_t dataWritten;
-
-            switch (rxOutput.msgTypeId) {
-            case (MsgDirectionDeviceToPc+MsgTypeIdFpgaReset):
-                lastParsedMsgType = MsgTypeIdFpgaReset;
-                break;
-
-            case (MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp):
-                rxOutput.dataLen = 1;
-                rxOutput.channelIdx = * (rxDataBuffer+dataOffset);
-                rawFloat = * (rxDataBuffer+((dataOffset+1)&FTD_RX_DATA_BUFFER_MASK));
-                voltageOffsetCorrected = (((double)rawFloat)-liquidJunctionOffsetBinary)*liquidJunctionResolution;
-                this->selectVoltageOffsetResolution();
-                rxOutput.data[0] = (int16_t)(rawFloat-liquidJunctionOffsetBinary);
-                lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToEdr;
-
-                this->setDigitalOffsetCompensationOverrideValue(rxOutput.channelIdx, {voltageOffsetCorrected, liquidJunctionControl.prefix, nullptr});
-                break;
-
-            case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
-                if (lastParsedMsgType != MsgTypeIdAcquisitionHeader) {
-                    /*! Evaluate only if it's the first repetition */
-                    rxOutput.dataLen = 0;
-                    rxOutput.protocolId = * (rxDataBuffer+dataOffset);
-                    rxOutput.protocolItemIdx = * (rxDataBuffer+((dataOffset+1)&FTD_RX_DATA_BUFFER_MASK));
-                    rxOutput.protocolRepsIdx = * (rxDataBuffer+((dataOffset+2)&FTD_RX_DATA_BUFFER_MASK));
-                    rxOutput.protocolSweepIdx = * (rxDataBuffer+((dataOffset+3)&FTD_RX_DATA_BUFFER_MASK));
-                    lastParsedMsgType = MsgTypeIdAcquisitionHeader;
-                    headerSet = true;
-
-                } else {
-                    if (!headerSet) {
-                        /*! This message is a repetition and should not be passed to SW only if the first header message was not processed (headerSet) during this call */
-                        ret = ErrorRepeatedHeader;
-                    }
-                }
-                break;
-
-            case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData):
-                if (rxMsgBuffer[rxMsgBufferReadOffset].dataLength < FTD_RX_MIN_DATA_PACKET_VALID_LEN) {
-                    ret = ErrorIllFormedMessage;
-
-                } else {
-                    samplesNum = rxMsgBuffer[rxMsgBufferReadOffset].dataLength-2; /*!< The first 2 samples are used for firstSampleOffset */
-                    dataWritten = rxOutput.dataLen;
-                    rxOutput.dataLen += samplesNum;
-                    timeSamplesNum = samplesNum/totalChannelsNum;
-                    if (msgReadCount == 0) {
-                        /*! Update firstSampleOffset only if it is not merging messages */
-                        rxOutput.firstSampleOffset = * ((uint32_t *)(rxDataBuffer+dataOffset));
-                    }
-                    dataOffset = (dataOffset+2)&FTD_RX_DATA_BUFFER_MASK;
-
-                    for (uint16_t idx = 0; idx < timeSamplesNum; idx++) {
-                        /*! \todo FCON questo doppio ciclo va modificato per raccogliere i dati di impedenza in modalità lock-in */
-                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyVoltageFilter(voltageChannelIdx, ((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx]);
-                            xFlt = iirY[voltageChannelIdx][iirOff];
-                            rxOutput.data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-                            dataOffset = (dataOffset+1)&FTD_RX_DATA_BUFFER_MASK;
-                            lsbNoiseIdx = (lsbNoiseIdx+1)&LSB_NOISE_ARRAY_MASK;
-                        }
-
-                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                            rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyCurrentFilter(currentChannelIdx+voltageChannelsNum, ((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx]);
-                            xFlt = iirY[currentChannelIdx+voltageChannelsNum][iirOff];
-                            rxOutput.data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-                            dataOffset = (dataOffset+1)&FTD_RX_DATA_BUFFER_MASK;
-                            lsbNoiseIdx = (lsbNoiseIdx+1)&LSB_NOISE_ARRAY_MASK;
-                        }
-
-                        if (iirOff < 1) {
-                            iirOff = IIR_ORD;
-
-                        } else {
-                            iirOff--;
-                        }
-                    }
-                }
-                lastParsedMsgType = MsgTypeIdAcquisitionData;
-                break;
-
-            case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail):
-                if (lastParsedMsgType != MsgTypeIdAcquisitionTail) {
-                    /*! Evaluate only if it's the first repetition */
-                    rxOutput.dataLen = 0;
-                    rxOutput.protocolId = * (rxDataBuffer+dataOffset);
-                    lastParsedMsgType = MsgTypeIdAcquisitionTail;
-                    tailSet = true;
-
-                } else {
-                    if (!tailSet) {
-                        /*! This message is a repetition and should not be passed to SW only if the first tail message was not processed (tailSet) during this call */
-                        ret = ErrorRepeatedTail;
-                    }
-                }
-                break;
-
-            case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
-                rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
-                for (uint16_t dataIdx = 0; dataIdx < rxOutput.dataLen; dataIdx++) {
-                    rxOutput.uintData[dataIdx] = * (rxDataBuffer+dataOffset);
-                    dataOffset = (dataOffset+1)&FTD_RX_DATA_BUFFER_MASK;
-                }
-                lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToEdr;
-                break;
-
-            default:
-                lastParsedMsgType = MsgTypeIdInvalid;
-                break;
-            }
-
-            msgReadCount++;
-            rxMsgBufferReadOffset = (rxMsgBufferReadOffset+1)&FTD_RX_MSG_BUFFER_MASK;
         }
     }
 
@@ -1050,4 +1091,142 @@ uint16_t MessageDispatcher::readUint16FromRxRawBuffer(uint32_t n) {
         value += rxRawBuffer[(rxRawBufferReadOffset+byteIdx+n) & rxRawBufferMask];
     }
     return value;
+}
+
+void MessageDispatcher::initializeRawDataFilterVariables() {
+    iirX = new double * [totalChannelsNum];
+    iirY = new double * [totalChannelsNum];
+    for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
+        iirX[channelIdx] = new double[IIR_ORD+1];
+        iirY[channelIdx] = new double[IIR_ORD+1];
+        for (int tapIdx = 0; tapIdx < IIR_ORD+1; tapIdx++) {
+            iirX[channelIdx][tapIdx] = 0.0;
+            iirY[channelIdx][tapIdx] = 0.0;
+        }
+    }
+}
+
+void MessageDispatcher::computeRawDataFilterCoefficients() {
+    if (rawDataFilterActiveFlag && (rawDataFilterCutoffFrequency < samplingRate*0.5)) {
+        rawDataFilterCutoffFrequency.convertValue(1.0/integrationStep.multiplier());
+        if (rawDataFilterVoltageFlag) {
+            double k1 = tan(M_PI*rawDataFilterCutoffFrequency.value*integrationStep.value); /*!< pre-warp coefficient */
+            double k12 = k1*k1;
+            double k2 = -2+2*k12; /*!< frequently used expression */
+            double d = 1.0/(1.0+k1*IIR_2_SIN_PI_4+k12); /*!< denominator */
+
+            /*! Denominators */
+            iirVDen[0] = 1.0;
+            iirVDen[1] = k2*d;
+            iirVDen[2] = (-1.0-k2+k12*k12+k12*IIR_2_COS_PI_4_2)*d*d;
+
+            /*! Gains and numerators */
+            double iirG;
+            if (rawDataFilterLowPassFlag) {
+                iirG = (1.0+iirVDen[1]+iirVDen[2])*0.25;
+
+                iirVNum[1] = 2.0*iirG;
+
+            } else {
+                iirG = (1.0-iirVDen[1]+iirVDen[2])*0.25;
+
+                iirVNum[1] = -2.0*iirG;
+            }
+
+            iirVNum[0] = iirG;
+            iirVNum[2] = iirG;
+
+        } else {
+            /*! Voltage is not filtered */
+            iirVNum[0] = 1.0;
+            iirVNum[1] = 0.0;
+            iirVNum[2] = 0.0;
+            iirVDen[0] = 1.0;
+            iirVDen[1] = 0.0;
+            iirVDen[2] = 0.0;
+        }
+
+        if (rawDataFilterCurrentFlag) {
+            double k1 = tan(M_PI*rawDataFilterCutoffFrequency.value*integrationStep.value); /*!< pre-warp coefficient */
+            double k12 = k1*k1;
+            double k2 = -2+2*k12; /*!< frequently used expression */
+            double d = 1.0/(1.0+k1*IIR_2_SIN_PI_4+k12); /*!< denominator */
+
+            /*! Denominators */
+            iirIDen[0] = 1.0;
+            iirIDen[1] = k2*d;
+            iirIDen[2] = (-1.0-k2+k12*k12+k12*IIR_2_COS_PI_4_2)*d*d;
+
+            /*! Gains and numerators */
+            double iirG;
+            if (rawDataFilterLowPassFlag) {
+                iirG = (1.0+iirIDen[1]+iirIDen[2])*0.25;
+
+                iirINum[1] = 2.0*iirG;
+
+            } else {
+                iirG = (1.0-iirIDen[1]+iirIDen[2])*0.25;
+
+                iirINum[1] = -2.0*iirG;
+            }
+
+            iirINum[0] = iirG;
+            iirINum[2] = iirG;
+
+        } else {
+            /*! Current is not filtered */
+            iirINum[0] = 1.0;
+            iirINum[1] = 0.0;
+            iirINum[2] = 0.0;
+            iirIDen[0] = 1.0;
+            iirIDen[1] = 0.0;
+            iirIDen[2] = 0.0;
+        }
+
+    } else {
+        /*! Delta impulse response with no autoregressive part */
+        iirVNum[0] = 1.0;
+        iirVNum[1] = 0.0;
+        iirVNum[2] = 0.0;
+        iirVDen[0] = 1.0;
+        iirVDen[1] = 0.0;
+        iirVDen[2] = 0.0;
+
+        iirINum[0] = 1.0;
+        iirINum[1] = 0.0;
+        iirINum[2] = 0.0;
+        iirIDen[0] = 1.0;
+        iirIDen[1] = 0.0;
+        iirIDen[2] = 0.0;
+    }
+
+    /*! reset FIFOs */
+    for (uint16_t channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
+        for (int tapIdx = 0; tapIdx < IIR_ORD+1; tapIdx++) {
+            iirX[channelIdx][tapIdx] = 0.0;
+            iirY[channelIdx][tapIdx] = 0.0;
+        }
+    }
+}
+
+double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen) {
+    /*! 2nd order Butterworth filter */
+    int tapIdx;
+
+    int coeffIdx = 0;
+    iirX[channelIdx][iirOff] = x;
+    double y = x*iirNum[coeffIdx++];
+
+    for (tapIdx = iirOff+1; tapIdx <= IIR_ORD; tapIdx++) {
+        y += iirX[channelIdx][tapIdx]*iirNum[coeffIdx]-iirY[channelIdx][tapIdx]*iirDen[coeffIdx];
+        coeffIdx++;
+    }
+
+    for (tapIdx = 0; tapIdx < iirOff; tapIdx++) {
+        y += iirX[channelIdx][tapIdx]*iirNum[coeffIdx]-iirY[channelIdx][tapIdx]*iirDen[coeffIdx];
+        coeffIdx++;
+    }
+
+    iirY[channelIdx][iirOff] = y;
+    return y;
 }

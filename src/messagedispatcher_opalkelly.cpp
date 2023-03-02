@@ -152,6 +152,8 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
     bool notEnoughRxData;
 
+    parsingFlag = true;
+
     unique_lock <mutex> rxMutexLock(rxMutex);
     rxMutexLock.unlock();
 
@@ -294,7 +296,7 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
                         rxMutexLock.lock(); /*!< Protects data modified in storeXxxFrame */
                         if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
-                            this->storeDataFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageDataHeader]) {
                             this->storeDataHeaderFrame();
@@ -341,6 +343,14 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                 break;
             }
         }
+    }
+
+    if (rxMsgBufferReadLength <= 0) {
+        rxMutex.lock();
+        parsingFlag = false;
+        rxMsgBufferReadLength++;
+        rxMsgBufferNotEmpty.notify_all();
+        rxMutex.unlock();
     }
 }
 

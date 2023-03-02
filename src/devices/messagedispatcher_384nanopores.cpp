@@ -34,14 +34,19 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 
     maxOutputPacketsNum = E384CL_DATA_ARRAY_SIZE/totalChannelsNum;
 
-    rxMaxWords = 0; // ANCORA NON DEFINITO, AGGIORNARE
+    rxMaxWords = 0; /*! \todo FCON ANCORA NON DEFINITO, AGGIORNARE */
     maxInputFrameSize = rxMaxWords*RX_WORD_SIZE;
 
-    txDataWords = 874+0; // ANCORA NON DEFINITO, AGGIORNARE
+    txDataWords = 874+0; /*! \todo FCON ANCORA NON DEFINITO, AGGIORNARE */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
+
+    /*! Payload */
+    rxDataMessageMaxLen = totalChannelsNum+2; /*! \todo FCON CONTROLLARE */
+
+    txDataMessageMaxLen = 0; /*! \todo FCON ANCORA NON DEFINITO, AGGIORNARE */
 
     /*! Current ranges */
     /*! VC */

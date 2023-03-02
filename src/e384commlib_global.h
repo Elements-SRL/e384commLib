@@ -194,9 +194,9 @@ typedef enum DeviceTypes {
 } DeviceTypes_t;
 
 /*! \def E384CL_OUT_STRUCT_DATA_LEN
- * \brief Max size of double precision numbers returned by struct e384CommLib::RxOutput_t.
+ * \brief Max size of double precision numbers returned by method e384CommLib::getNextMessage.
  */
-#define E384CL_OUT_STRUCT_DATA_LEN 0x1000
+#define E384CL_OUT_STRUCT_DATA_LEN 0x100000
 
 /*! \struct RxOutput_t
  * \brief Structure used to return to the caller data and information received from the device.

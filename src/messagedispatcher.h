@@ -18,7 +18,6 @@
 #include "e384commlib_global_addendum.h"
 #endif
 
-#define SHORT_OFFSET_BINARY (static_cast <double> (0x8000))
 #define SHORT_MAX (static_cast <double> (0x7FFF))
 #define SHORT_MIN (-SHORT_MAX-1.0)
 #define USHORT_MAX (static_cast <double> (0xFFFF))
@@ -29,6 +28,11 @@
 #define UINT28_MAX (static_cast <double> (0xFFFFFFF))
 #define INT28_MAX (static_cast <double> (0x7FFFFFF))
 #define INT28_MIN (-INT28_MAX-1.0)
+
+#define IIR_ORD 2
+#define IIR_2_SIN_PI_4 (2.0*sin(M_PI/4.0))
+#define IIR_2_COS_PI_4 (2.0*cos(M_PI/4.0))
+#define IIR_2_COS_PI_4_2 (IIR_2_COS_PI_4*IIR_2_COS_PI_4)
 
 #define RX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
 #define RX_DEFAULT_MIN_PACKETS_NUMBER 10
@@ -113,7 +117,7 @@ public:
      *  Rx methods  *
     \****************/
 
-    ErrorCodes_t getNextMessage(RxOutput_t &rxOutput);
+    ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data);
 
     ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
     ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
@@ -152,6 +156,10 @@ protected:
     void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage);
     uint16_t popUint16FromRxRawBuffer();
     uint16_t readUint16FromRxRawBuffer(uint32_t n);
+
+    void initializeRawDataFilterVariables();
+    void computeRawDataFilterCoefficients();
+    double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
 
     /****************\
      *  Parameters  *
@@ -304,7 +312,7 @@ protected:
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
 
     uint16_t * rxDataBuffer; /*!< Buffer of pre-digested messages that contains message's data */
-    uint16_t rxDataMessageMaxLen = 1; /*!< Max payload length */
+    uint32_t rxDataMessageMaxLen = 1; /*!< Max payload length */
 
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */
@@ -319,6 +327,8 @@ protected:
     std::vector <uint16_t> txStatus; /*!< Status of the words written */
     uint16_t txModifiedStartingWord;
     uint16_t txModifiedEndingWord;
+
+    uint32_t txDataMessageMaxLen = 1; /*!< Max payload length */
 
     double currentResolution = 1.0;
     double voltageResolution = 1.0;
@@ -336,6 +346,26 @@ protected:
 
     std::vector <Measurement_t> selectedVoltageOffset;
     std::vector <Measurement_t> selectedCurrentOffset;
+
+    /***********************\
+     *  Filters variables  *
+    \***********************/
+
+    Measurement_t rawDataFilterCutoffFrequency = {30.0, UnitPfxKilo, "Hz"};
+    bool rawDataFilterLowPassFlag = true;
+    bool rawDataFilterActiveFlag = false;
+    bool rawDataFilterVoltageFlag = false;
+    bool rawDataFilterCurrentFlag = false;
+
+    double iirVNum[IIR_ORD+1];
+    double iirVDen[IIR_ORD+1];
+    double iirINum[IIR_ORD+1];
+    double iirIDen[IIR_ORD+1];
+
+    double ** iirX;
+    double ** iirY;
+
+    uint16_t iirOff = 0;
 
     /********************************************\
      *  Multi-thread synchronization variables  *
