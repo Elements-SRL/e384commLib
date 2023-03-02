@@ -91,6 +91,7 @@ public:
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
+    ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
     ErrorCodes_t setCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
     ErrorCodes_t setCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
     ErrorCodes_t setCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
@@ -276,6 +277,7 @@ protected:
 
     std::vector <BoolCoder *> digitalOffsetCompensationCoders;
     std::vector <DoubleCoder *> vHoldTunerCoders;
+    std::vector <DoubleCoder *> cHoldTunerCoders;
 
     RangedMeasurement_t calibVcCurrentGainRange;
     std::vector <DoubleCoder *> calibVcCurrentGainCoders;
@@ -319,7 +321,7 @@ protected:
     uint16_t rxMaxWords;
     uint32_t maxInputFrameSize;
 
-    bool amIinVoltageClamp = false;
+    bool amIinVoltageClamp = true;
     uint16_t selectedSamplingRateIdx;
 
     /*! Read data buffer management */

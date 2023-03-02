@@ -65,6 +65,8 @@ typedef enum ErrorCodes {
     ErrorRepeatedTail =                 ErrorGroupDeviceCommands +      0x00000008, /*!< Error returned when reading copies of the same protocol tail. */
     ErrorIllFormedMessage =             ErrorGroupDeviceCommands +      0x00000009, /*!< Error returned when reading an ill formed message
                                                                                          e.g. a data acq. packet without first sample index. */
+    ErrorWrongClampModality =           ErrorGroupDeviceCommands +      0x0000000A, /*!< Error returned a command is used in the wrong clamp modality
+                                                                                         e.g. set holding voltage in current clamp. */
 
     ErrorFeatureNotImplemented =        ErrorGroupDeviceFeatures +      0x00000000, /*!< Error returned when trying to use a feature that is not implemented for the current device. */
     ErrorUpgradesNotAvailable =         ErrorGroupDeviceFeatures +      0x00000001, /*!< Error returned when there are no upgrades available for the current device. */

@@ -317,11 +317,14 @@ ErrorCodes_t MessageDispatcher::connect() {
 
     threadsStarted = true;
 
-    this->resetFpga();
+    this->resetFpga(true, true);
+    this->resetFpga(false, false);
 
-    this->resetAsic(true);
+    this_thread::sleep_for(chrono::milliseconds(1000));
+
+    this->resetAsic(true, true);
     this_thread::sleep_for(chrono::milliseconds(100));
-    ret = this->resetAsic(false);
+    ret = this->resetAsic(false, true);
     if (ret != Success) {
         return ErrorConnectionChipResetFailed;
     }
@@ -406,10 +409,39 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelInde
     } else if (!areAllTheVectorElementsInRange(voltages, vHoldRange.getMin(), vHoldRange.getMax())) {
         return ErrorValueOutOfRange;
 
+    } else if (!amIinVoltageClamp) {
+        return ErrorWrongClampModality;
+
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             voltages[i].convertValue(vHoldRange.prefix);
             vHoldTunerCoders[channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(vector<uint16_t> channelIndexes, vector<Measurement_t> currents, bool applyFlag){
+    if (cHoldTunerCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else if (!areAllTheVectorElementsInRange(currents, cHoldRange.getMin(), cHoldRange.getMax())) {
+        return ErrorValueOutOfRange;
+
+    } else if (amIinVoltageClamp) {
+        return ErrorWrongClampModality;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            currents[i].convertValue(cHoldRange.prefix);
+            cHoldTunerCoders[channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -1114,7 +1146,7 @@ ErrorCodes_t MessageDispatcher::getSourceVoltagesTunerFeatures(RangedMeasurement
 }
 
 ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
-    if(vcCurrentRangesArray.size()==0){
+    if (vcCurrentRangesArray.size()==0){
         return ErrorFeatureNotImplemented;
     } else {
         currentRanges = vcCurrentRangesArray;
