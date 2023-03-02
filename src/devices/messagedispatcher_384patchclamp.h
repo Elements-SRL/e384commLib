@@ -1,14 +1,16 @@
-#ifndef MESSAGEDISPATCHER_384NANOPORES_H
-#define MESSAGEDISPATCHER_384NANOPORES_H
+#ifndef MESSAGEDISPATCHER_384PATCHCLAMP_H
+#define MESSAGEDISPATCHER_384PATCHCLAMP_H
+
+/*! \todo FCON tutto da rifare, è una copia del nanopore */
 
 #include "messagedispatcher_opalkelly.h"
 
 using namespace std;
 
-class MessageDispatcher_384NanoPores_V01 : public MessageDispatcher_OpalKelly {
+class MessageDispatcher_384PatchClamp_V01 : public MessageDispatcher_OpalKelly {
 public:
-    MessageDispatcher_384NanoPores_V01(string di);
-    virtual ~MessageDispatcher_384NanoPores_V01();
+    MessageDispatcher_384PatchClamp_V01(string di);
+    virtual ~MessageDispatcher_384PatchClamp_V01();
 
 protected:
     enum VCCurrentRanges {
@@ -59,4 +61,4 @@ protected:
     };
 };
 
-#endif // MESSAGEDISPATCHER_384NANOPORES_H
+#endif // MESSAGEDISPATCHER_384PATCHCLAMP_H

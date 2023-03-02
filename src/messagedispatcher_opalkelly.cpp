@@ -253,7 +253,7 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
                     rxDataBytes = rxWordsLength*RX_WORD_SIZE;
 
-                    if (rxDataBytes > maxInputFrameSize) {
+                    if (rxDataBytes > maxInputDataLoadSize) {
                         /*! Too many bytes to be read, restarting looking for a sync word from the previous one */
                         rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
                         /*! Offset and length are discarded, so add the corresponding bytes back */

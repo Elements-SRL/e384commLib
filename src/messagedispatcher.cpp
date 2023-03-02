@@ -11,13 +11,14 @@
 #include "okFrontPanelDLL.h"
 
 #include "messagedispatcher_384nanopores.h"
+#include "messagedispatcher_384patchclamp.h"
 #include "utils.h"
 
 using namespace std;
 
 static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
     {"opp", Device384Nanopores},
-    {"pup", Device384PatchClamp}}; /*! \todo FCON queste info dovrebbero risiedere nel DB */
+    {"pup", Device384PatchClamp}}; /*! \todo FCON queste info dovrebbero risiedere nel DB, e ci vanno comunque i numeri seriali corretti delle opal kelly */
 
 /********************************************************************************************\
  *                                                                                          *
@@ -76,13 +77,13 @@ ErrorCodes_t MessageDispatcher::init() {
     txFid = fopen("tx.txt", "wb+");
 #endif
 
-    this->computeMinimumPacketNumber();
+//    this->computeMinimumPacketNumber(); /*! \todo FCON */
 
     /*! Allocate memory for raw data filters */
     this->initializeRawDataFilterVariables();
 
     /*! Allocate memory for compensations */
-    this->initializeCompensations();
+//    this->initializeCompensations(); /*! \todo FCON */
 
     return Success;
 }
@@ -178,7 +179,7 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
         break;
 
     case Device384PatchClamp:
-        messageDispatcher = new MessageDispatcher_ePatchEL03D_V01(deviceId);
+        messageDispatcher = new MessageDispatcher_384PatchClamp_V01(deviceId);
         break;
 
     default:
@@ -328,11 +329,6 @@ ErrorCodes_t MessageDispatcher::connect() {
     if (ret != Success) {
         return ErrorConnectionChipResetFailed;
     }
-
-    /*! \todo FCON cos'era sta roba? */
-//    for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
-//        this->setVcCurrentOffsetDelta(idx, {0.0, UnitPfxNone, nullptr});
-//    }
 
     return ret;
 }
@@ -772,6 +768,7 @@ ErrorCodes_t MessageDispatcher::setAdcFilter(){
             selectedCcVoltageFilterIdx = sr2LpfCcMap[selectedSamplingRateIdx];
         }
     }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn) {
@@ -826,6 +823,7 @@ ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool onValueIn, bool applyFl
     /*
      * Still missing the actual method implementation
      */
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool onValueIn, bool applyFlagIn){
@@ -838,6 +836,7 @@ ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool onValueIn, bool applyFl
     /*
      * Still missing the actual method implementation
      */
+    return Success;
 }
 
 /****************\
@@ -1233,6 +1232,7 @@ void MessageDispatcher::initializeDevice() {
 
 bool MessageDispatcher::checkProtocolValidity(string &message) {
     /*! \todo FCON da riempire */
+    return false;
 }
 
 void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType) {

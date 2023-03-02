@@ -1260,15 +1260,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t resetDigitalOffsetCompensation(
         E384CL_ARGIN bool reset);
 
-/*! \brief Reset the device's FPGA.
- *
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t resetFpga(
-        E384CL_ARGVOID);
-
 /*! \brief Get calibration eeprom size in bytes.
  *
  * \param size [out] Size of the calibration eeprom in bytes.

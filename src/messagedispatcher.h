@@ -39,9 +39,9 @@
 #define RX_DEFAULT_FEW_PACKETS_SLEEP_US 2000
 #define RX_FEW_PACKETS_COEFF 0.01 /*!< = 10.0/1000.0: 10.0 because I want to get data once every 10ms, 1000 to convert sampling rate from Hz to kHz */
 #define RX_MAX_BYTES_TO_WAIT_FOR 16384
-#define RX_MSG_BUFFER_SIZE 0x10000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~65k
+#define RX_MSG_BUFFER_SIZE 0x10000 // ~65k
 #define RX_MSG_BUFFER_MASK (RX_MSG_BUFFER_SIZE-1)
-#define RX_DATA_BUFFER_SIZE 0x100000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~1M
+#define RX_DATA_BUFFER_SIZE 0x100000 // ~1M
 #define RX_DATA_BUFFER_MASK (RX_DATA_BUFFER_SIZE-1)
 
 #define TX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
@@ -322,7 +322,7 @@ protected:
 
     /*! Read data buffer management */
     uint16_t rxMaxWords;
-    uint32_t maxInputFrameSize;
+    uint32_t maxInputDataLoadSize;
 
     bool amIinVoltageClamp = true;
     uint16_t selectedSamplingRateIdx;

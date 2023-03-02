@@ -701,7 +701,7 @@ typedef struct RangedMeasurement {
         int decimals = 0;
         double temp = step;
         while ((fabs(temp-round(temp)) > 0.05 || temp < 1.0) &&
-               decimals < 3) { /*!< \todo Rather than asking 3 decimals better asking for 3 digits */
+               decimals < 3) {
             decimals++;
             temp *= 10.0;
         }

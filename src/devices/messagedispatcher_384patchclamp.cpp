@@ -1,9 +1,11 @@
-#include "messagedispatcher_384nanopores.h"
+#include "messagedispatcher_384patchclamp.h"
 
-MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di) :
+/*! \todo FCON tutto da rifare, è una copia del nanopore */
+
+MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string di) :
     MessageDispatcher_OpalKelly(di) {
 
-    deviceName = "384NanoPores";
+    deviceName = "384PatchClamp";
 
     rxSyncWord = 0x5aa5;
 
@@ -395,11 +397,11 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-MessageDispatcher_384NanoPores_V01::~MessageDispatcher_384NanoPores_V01() {
+MessageDispatcher_384PatchClamp_V01::~MessageDispatcher_384PatchClamp_V01() {
 
 }
 
-//void MessageDispatcher_384NanoPores_V01::updateDeviceStatus(vector <bool> &fsmRunFlag, bool &poreForming, bool &communicationError) {
+//void MessageDispatcher_384PatchClamp_V01::updateDeviceStatus(vector <bool> &fsmRunFlag, bool &poreForming, bool &communicationError) {
 //    for (int idx = 0; idx < fsmStateChannelsNum; idx++) {
 //        fsmRunFlag[idx] = (infoStruct.status & (0x0001 << idx)) == 0 ? false : true;
 //    }
@@ -407,7 +409,7 @@ MessageDispatcher_384NanoPores_V01::~MessageDispatcher_384NanoPores_V01() {
 //    communicationError = (infoStruct.status & (0x0001 << 9)) == 0 ? false : true;
 //}
 
-//void MessageDispatcher_384NanoPores_V01::updateVoltageOffsetCompensations(vector <Measurement_t> &offsets) {
+//void MessageDispatcher_384PatchClamp_V01::updateVoltageOffsetCompensations(vector <Measurement_t> &offsets) {
 //    for (int idx = 0; idx < currentChannelsNum; idx++) {
 //        offsets[idx] = voltageOffsetCompensationGain*(double)infoStruct.vComp[idx];
 //    }
