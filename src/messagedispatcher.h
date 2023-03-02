@@ -320,7 +320,6 @@ protected:
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
 
     uint16_t * rxDataBuffer; /*!< Buffer of pre-digested messages that contains message's data */
-    uint32_t rxDataMessageMaxLen = 1; /*!< Max payload length */
 
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */
@@ -335,8 +334,6 @@ protected:
     std::vector <uint16_t> txStatus; /*!< Status of the words written */
     uint16_t txModifiedStartingWord;
     uint16_t txModifiedEndingWord;
-
-    uint32_t txDataMessageMaxLen = 1; /*!< Max payload length */
 
     double currentResolution = 1.0;
     double voltageResolution = 1.0;

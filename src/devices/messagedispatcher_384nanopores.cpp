@@ -43,11 +43,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
-    /*! Payload */
-    rxDataMessageMaxLen = totalChannelsNum+2; /*! \todo FCON CONTROLLARE */
-
-    txDataMessageMaxLen = 0; /*! \todo FCON ANCORA NON DEFINITO, AGGIORNARE */
-
     /*! Current ranges */
     /*! VC */
     vcCurrentRangesNum = VCCurrentRangesNum;
@@ -297,7 +292,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     boolConfig.initialWord = 51+9; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
-    turnChannelsOnCoders.resize(currentChannelsNum); /*! \todo FCON recheck if currentChannelsNum is OK*/
+    turnChannelsOnCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         turnChannelsOnCoders[idx] = new BoolArrayCoder(boolConfig);
         boolConfig.initialBit++;
@@ -320,7 +315,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         doubleConfig.initialWord++;
     }
     /*! VC current gain tuner */
-    /*! \todo FCON recheck minValue e maxValue*/
     doubleConfig.initialWord = 843+9; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
@@ -363,7 +357,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     }
 
     /*! source voltage tuner */
-    /*! \todo FCON recheck minValue e maxValue*/
     doubleConfig.initialWord = 819+9; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
@@ -396,8 +389,10 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     /*! Default status */
     txStatus.resize(txDataWords);
 
-    int txIdx = 0;
-    txStatus[txIdx++] = 0x0000; // CFG0 da completare
+    for (int txIdx = 0; txIdx < txDataWords; txIdx++) {
+        txStatus[txIdx] = 0x0000;
+    }
+    // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
 MessageDispatcher_384NanoPores_V01::~MessageDispatcher_384NanoPores_V01() {
