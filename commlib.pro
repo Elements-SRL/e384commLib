@@ -2,7 +2,8 @@ QT       -= core gui
 
 CONFIG(debug, debug|release) {
     TARGET = e384commlibd
-    DEFINES += DEBUGPRINT
+    DEFINES += DEBUG
+    DEFINES += DEBUG_PRINT
 }
 
 CONFIG(release, debug|release) {
@@ -16,11 +17,11 @@ CONFIG += c++14
 DEFINES += E384COMMLIB_STATIC
 
 contains(DEFINES, E384COMMLIB_STATIC) {
-CONFIG += staticlib
+    CONFIG += staticlib
 } else {
-# or create .dll
-DEFINES += E384COMMLIB_LIBRARY
-DEFINES += E384CL_LABVIEW_COMPATIBILITY
+    # or create .dll
+    DEFINES += E384COMMLIB_LIBRARY
+    DEFINES += E384CL_LABVIEW_COMPATIBILITY
 }
 
 include(version.pri)
@@ -49,15 +50,21 @@ HEADERS += \
     src/devices/messagedispatcher_384patchclamp.h \
     src/utils.h
 
+contains(DEFINES, DEBUG) {
+    SOURCES += src/devices/messagedispatcher_384fake.cpp
+    HEADERS += src/devices/messagedispatcher_384fake.h
+}
 contains(DEFINES, E384CL_LABVIEW_COMPATIBILITY) {
-SOURCES += src/e384commlib_labview.cpp
-HEADERS += src/e384commlib_labview.h
-include(LabVIEW/includelabview.pri)
+    SOURCES += src/e384commlib_labview.cpp
+    HEADERS += src/e384commlib_labview.h
+    include(LabVIEW/includelabview.pri)
 }
 
-INCLUDEPATH += ./src \
+INCLUDEPATH += \
+    ./src \
     ./src/devices
-DEPENDPATH += ./src \
+DEPENDPATH += \
+    ./src \
     ./src/devices
 
 include(frontPanel/includefrontpanel.pri)

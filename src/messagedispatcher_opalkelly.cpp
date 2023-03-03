@@ -93,6 +93,7 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
         }
 
         /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
+        regs.resize(txMsgLength[txMsgBufferReadOffset]);
         for (txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
             regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
             regs[txDataBufferReadIdx/2].data =
@@ -100,7 +101,7 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
                     (uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1]; /*! Little endian */
         }
 
-        txMsgBufferReadOffset = (txMsgBufferReadOffset+1)&TX_MSG_BUFFER_MASK;
+        txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 
         /******************\
          *  Sending part  *
@@ -117,7 +118,6 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
 
 #ifdef DEBUG_PRINT
             /*! Aggiungere printata di debug se serve */
-            fflush(txFid);
 #endif
 
             notSentTxData = false;
@@ -159,13 +159,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
     unique_lock <mutex> deviceMutexLock(deviceMutex);
     deviceMutexLock.unlock();
-
-#ifdef DEBUG_RAW_BIT_RATE_PRINT
-    std::chrono::steady_clock::time_point startPrintfTime;
-    std::chrono::steady_clock::time_point currentPrintfTime;
-    startPrintfTime = std::chrono::steady_clock::now();
-    long long int acc = 0;
-#endif
 
     /******************\
      *  Reading part  *
@@ -258,12 +251,8 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                         rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBufferReadLength += rxOffsetLengthSize;
-#ifdef DEBUGPRINT
-                        fprintf(rxFid,
-                                "crc1 wrong\n"
-                                "hb: \t0x%04x\n\n",
-                                rxHeartbeat);
-                        fflush(rxFid);
+#ifdef DEBUG_PRINT
+                        /*! aggiungere printata di debug se serve */
 #endif
                         rxParsePhase = RxParseLookForHeader;
 
@@ -282,18 +271,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                     rxCandidateHeader = readUint16FromRxRawBuffer(rxDataBytes);
 
                     if (rxCandidateHeader == rxSyncWord) {
-#ifdef DEBUGPRINT
-                        currentPrintfTime = std::chrono::steady_clock::now();
-                        fprintf(rxFid,
-                                "%d us\n"
-                                "recd message\n"
-                                "offset:\t0x%04x\n"
-                                "length:\t0x%04x\n",
-                                (int)(std::chrono::duration_cast <std::chrono::microseconds> (currentPrintfTime-startPrintfTime).count()),
-                                rxWordOffset,
-                                rxWordsLength);
-#endif
-
                         rxMutexLock.lock(); /*!< Protects data modified in storeXxxFrame */
                         if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
@@ -312,12 +289,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                         }
                         rxMutexLock.unlock();
 
-#ifdef DEBUGPRINT
-                        fprintf(rxFid, "crc1:\t0x%04x\n\n",
-                                rxReadCrc1);
-                        fflush(rxFid);
-#endif
-
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
                         rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
@@ -330,13 +301,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                         rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBufferReadLength += rxOffsetLengthSize;
-#ifdef DEBUGPRINT
-                        fprintf(rxFid,
-                                "crc1 wrong\n"
-                                "hb: \t0x%04x\n\n",
-                                rxHeartbeat);
-                        fflush(rxFid);
-#endif
                         rxParsePhase = RxParseLookForHeader;
                     }
                 }
