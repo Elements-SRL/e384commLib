@@ -405,6 +405,10 @@ protected:
     mutable std::mutex txMutex;
     std::condition_variable txMsgBufferNotEmpty;
     std::condition_variable txMsgBufferNotFull;
+
+#ifdef DEBUG_PRINT
+    FILE * fid;
+#endif
 };
 
 #endif // MESSAGEDISPATCHER_H

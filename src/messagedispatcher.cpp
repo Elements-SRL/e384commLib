@@ -12,13 +12,20 @@
 
 #include "messagedispatcher_384nanopores.h"
 #include "messagedispatcher_384patchclamp.h"
+#ifdef DEBUG
+#include "messagedispatcher_384fake.h"
+#endif
 #include "utils.h"
 
 using namespace std;
 
 static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
     {"opp", Device384Nanopores},
-    {"pup", Device384PatchClamp}}; /*! \todo FCON queste info dovrebbero risiedere nel DB, e ci vanno comunque i numeri seriali corretti delle opal kelly */
+    {"pup", Device384PatchClamp}
+    #ifdef DEBUG
+    ,{"FAKE", Device384Fake}
+    #endif
+}; /*! \todo FCON queste info dovrebbero risiedere nel DB, e ci vanno comunque i numeri seriali corretti delle opal kelly */
 
 /********************************************************************************************\
  *                                                                                          *
@@ -71,12 +78,6 @@ ErrorCodes_t MessageDispatcher::init() {
     txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
     txMsgLength.resize(TX_MSG_BUFFER_SIZE);
 
-#ifdef DEBUG_PRINT
-//    rxFid1 = fopen("outputBuffer.txt", "wb+");
-//    rxFid2 = fopen("rxBuffer.txt", "wb+");
-    txFid = fopen("tx.txt", "wb+");
-#endif
-
     this->computeMinimumPacketNumber();
 
     /*! Allocate memory for raw data filters */
@@ -121,9 +122,7 @@ ErrorCodes_t MessageDispatcher::deinit() {
     }
 
 #ifdef DEBUG_PRINT
-//    fclose(rxFid1);
-//    fclose(rxFid2);
-    fclose(txFid);
+    fclose(fid);
 #endif
 
     return Success;
@@ -148,6 +147,10 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     for (int i = 0; i < numDevs; i++) {
         deviceIds.push_back(getDeviceSerial(i));
     }
+
+#ifdef DEBUG
+    deviceIds.push_back("FAKE");
+#endif
 
     return Success;
 }
@@ -181,6 +184,12 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
     case Device384PatchClamp:
         messageDispatcher = new MessageDispatcher_384PatchClamp_V01(deviceId);
         break;
+
+#ifdef DEBUG
+    case Device384Fake:
+        messageDispatcher = new MessageDispatcher_384Fake(deviceId);
+        break;
+#endif
 
     default:
         return ErrorDeviceTypeNotRecognized;
@@ -232,84 +241,29 @@ ErrorCodes_t MessageDispatcher::connect() {
 
     stopConnectionFlag = false;
 
-#ifdef DEBUGPRINT
-    if (rxFid == nullptr) {
+#ifdef DEBUG_PRINT
 #ifdef _WIN32
-        string path = string(getenv("HOMEDRIVE"))+string(getenv("HOMEPATH"));
+    string path = string(getenv("HOMEDRIVE"))+string(getenv("HOMEPATH"));
 #else
-        string path = string(getenv("HOME"));
+    string path = string(getenv("HOME"));
 #endif
-        stringstream ss;
+    stringstream ss;
 
-        for (size_t i = 0; i < path.length(); ++i) {
-            if (path[i] == '\\') {
-                ss << "\\\\";
+    for (size_t i = 0; i < path.length(); ++i) {
+        if (path[i] == '\\') {
+            ss << "\\\\";
 
-            } else {
-                ss << path[i];
-            }
+        } else {
+            ss << path[i];
         }
-#ifdef _WIN32
-        ss << "\\\\rx.txt";
-#else
-        ss << "/rx.txt";
-#endif
-
-        rxFid = fopen(ss.str().c_str(), "wb");
     }
-
-    if (txFid == nullptr) {
 #ifdef _WIN32
-        string path = string(getenv("HOMEDRIVE"))+string(getenv("HOMEPATH"));
+    ss << "\\\\e384CommLib_tx.txt";
 #else
-        string path = string(getenv("HOME"));
-#endif
-        stringstream ss;
-
-        for (size_t i = 0; i < path.length(); ++i) {
-            if (path[i] == '\\') {
-                ss << "\\\\";
-
-            } else {
-                ss << path[i];
-            }
-        }
-#ifdef _WIN32
-        ss << "\\\\tx.txt";
-#else
-        ss << "/tx.txt";
+    ss << "/e384CommLib_tx.txt";
 #endif
 
-        txFid = fopen(ss.str().c_str(), "wb");
-    }
-
-    startPrintfTime = std::chrono::steady_clock::now();
-#endif
-#ifdef RAW_DEBUGPRINT
-    if (rawRxFid == nullptr) {
-#ifdef _WIN32
-        string path = string(getenv("HOMEDRIVE"))+string(getenv("HOMEPATH"));
-#else
-        string path = string(getenv("HOME"));
-#endif
-        stringstream ss;
-
-        for (int i = 0; i < path.length(); ++i) {
-            if (path[i] == '\\') {
-                ss << "\\\\";
-
-            } else {
-                ss << path[i];
-            }
-        }
-#ifdef _WIN32
-        ss << "\\\\rawRx.txt";
-#else
-        ss << "/rawRx.txt";
-#endif
-
-        rawRxFid = fopen(ss.str().c_str(), "wb");
-    }
+    fid = fopen(ss.str().c_str(), "wb");
 #endif
 
     rxThread = thread(&MessageDispatcher::readDataFromDevice, this);
@@ -355,24 +309,6 @@ ErrorCodes_t MessageDispatcher::disconnect() {
         this->deinit();
 
         connected = false;
-
-#ifdef DEBUGPRINT
-        if (rxFid != nullptr) {
-            fclose(rxFid);
-            rxFid = nullptr;
-        }
-
-        if (txFid != nullptr) {
-            fclose(txFid);
-            txFid = nullptr;
-        }
-#endif
-#ifdef RAW_DEBUGPRINT
-        if (rawRxFid != nullptr) {
-            fclose(rawRxFid);
-            rawRxFid = nullptr;
-        }
-#endif
 
         return Success;
 
