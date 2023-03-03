@@ -20,7 +20,7 @@
 using namespace std;
 
 static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
-    {"opp", Device384Nanopores},
+    {"221000107S", Device384Nanopores},
     {"pup", Device384PatchClamp}
     #ifdef DEBUG
     ,{"FAKE", Device384Fake}
@@ -136,9 +136,11 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     if (!devCountOk) {
         return ErrorListDeviceFailed;
 
+#ifndef DEBUG
     } else if (numDevs == 0) {
         deviceIds.clear();
         return ErrorNoDeviceFound;
+#endif
     }
 
     deviceIds.clear();
@@ -149,6 +151,7 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     }
 
 #ifdef DEBUG
+    numDevs++;
     deviceIds.push_back("FAKE");
 #endif
 
