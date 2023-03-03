@@ -467,6 +467,7 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(vector<uint16_t> channelIn
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             gains[i].convertValue(calibVcCurrentGainRange.prefix);
+            selectedCalibVcCurrentGainVector[channelIndexes[i]] = gains[i];
             calibVcCurrentGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
@@ -490,6 +491,7 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(vector<uint16_t> channel
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             offsets[i].convertValue(calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
+            selectedCalibVcCurrentOffsetVector[channelIndexes[i]] = offsets[i];
             calibVcCurrentOffsetCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
@@ -513,6 +515,7 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(vector<uint16_t> channelIn
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             gains[i].convertValue(calibCcVoltageGainRange.prefix);
+            selectedCalibCcVoltageGainVector[channelIndexes[i]] = gains[i];
             calibCcVoltageGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
@@ -536,6 +539,7 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(vector<uint16_t> channel
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             offsets[i].convertValue(calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].prefix);
+            selectedCalibCcVoltageOffsetVector[channelIndexes[i]] = offsets[i];
             calibCcVoltageOffsetCoders[selectedCcVoltageRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
@@ -559,6 +563,7 @@ ErrorCodes_t MessageDispatcher::setGateVoltagesTuner(vector<uint16_t> boardIndex
     } else {
         for(uint32_t i = 0; i < boardIndexes.size(); i++){
             gateVoltages[i].convertValue(gateVoltageRange.prefix);
+            selectedGateVoltageVector[boardIndexes[i]] = gateVoltages[i];
             gateVoltageCoders[boardIndexes[i]]->encode(gateVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
@@ -582,6 +587,7 @@ ErrorCodes_t MessageDispatcher::setSourceVoltagesTuner(vector<uint16_t> boardInd
     } else {
         for(uint32_t i = 0; i < boardIndexes.size(); i++){
             sourceVoltages[i].convertValue(sourceVoltageRange.prefix);
+            selectedSourceVoltageVector[boardIndexes[i]] = sourceVoltages[i];
             sourceVoltageCoders[boardIndexes[i]]->encode(sourceVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
@@ -1152,6 +1158,12 @@ ErrorCodes_t MessageDispatcher::getSourceVoltagesTunerFeatures(RangedMeasurement
     }
 }
 
+ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(uint16_t voltageChannelNumberFeatures, uint16_t CurrentChannelNumberFeatures){
+    voltageChannelNumberFeatures = voltageChannelsNum;
+    CurrentChannelNumberFeatures = currentChannelsNum;
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
     if (vcCurrentRangesArray.size()==0){
         return ErrorFeatureNotImplemented;
@@ -1249,39 +1261,21 @@ void MessageDispatcher::initializeDevice() {
         boardIndexes[idx] = idx;
     }
 
-    Measurement_t defaultCalibVcCurrentGain;
-    defaultCalibVcCurrentGain.value = 1.0;
-    defaultCalibVcCurrentGain.prefix = UnitPfxNone;
-    defaultCalibVcCurrentGain.unit = "";
-    vector<Measurement_t> defaultCalibVcCurrentGainVector(currentChannelsNum, defaultCalibVcCurrentGain);
-
-    Measurement_t defaultCalibVcCurrentOffset;
-    defaultCalibVcCurrentOffset.value = 0.0;
-    defaultCalibVcCurrentOffset.prefix = UnitPfxMilli;
-    defaultCalibVcCurrentOffset.unit = "V";
-    vector<Measurement_t> defaultCalibVcCurrentOffsetVector(currentChannelsNum, defaultCalibVcCurrentOffset);
-
-    Measurement_t defaultGateSourceVoltage;
-    defaultGateSourceVoltage.value = 0.0;
-    defaultGateSourceVoltage.prefix = UnitPfxMilli;
-    defaultGateSourceVoltage.unit = "V";
-    vector<Measurement_t> defaultGateSourceVoltageVector(totalBoardsNum, defaultGateSourceVoltage);
-
     /*! Initialization in voltage clamp*/
     this->enableStimulus(channelIndexes, allTrue, false);
     this->turnChannelsOn(channelIndexes, allTrue, false);
     this->turnVoltageReaderOn(true, false);
     this->setVoltageHoldTuner(channelIndexes, selectedVoltageHoldVector, false);
-    this->setCalibVcCurrentGain(channelIndexes, defaultCalibVcCurrentGainVector, false);
-    this->setCalibVcCurrentOffset(channelIndexes, defaultCalibVcCurrentOffsetVector, false);
+    this->setCalibVcCurrentGain(channelIndexes, selectedCalibVcCurrentGainVector, false);
+    this->setCalibVcCurrentOffset(channelIndexes, selectedCalibVcCurrentOffsetVector, false);
     this->setSamplingRate(defaultSamplingRateIdx, false);
     this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
     this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
     this->setCCCurrentRange(defaultCcCurrentRangeIdx, false);
     this->setCCVoltageRange(defaultCcVoltageRangeIdx, false);
     this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
-    this->setGateVoltagesTuner(boardIndexes, defaultGateSourceVoltageVector, false);
-    this->setSourceVoltagesTuner(boardIndexes, defaultGateSourceVoltageVector, false);
+    this->setGateVoltagesTuner(boardIndexes, selectedGateVoltageVector, false);
+    this->setSourceVoltagesTuner(boardIndexes, selectedSourceVoltageVector, false);
     this->digitalOffsetCompensation(channelIndexes, allFalse, false);
 
 

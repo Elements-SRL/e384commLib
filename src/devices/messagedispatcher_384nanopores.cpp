@@ -142,9 +142,13 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
+    selectedCalibVcCurrentGainVector.resize(currentChannelsNum);
+    Measurement_t defaultCalibVcCurrentGain = {1.0, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit};
 
     /*! VC current offset */
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
+    selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
+    Measurement_t defaultCalibVcCurrentOffset = {1.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
 
     /*! Gate voltage range*/
     gateVoltageRange.step = 1;
@@ -152,6 +156,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     gateVoltageRange.max = 24000;//SHORT_MAX * gateVoltageRange.step;
     gateVoltageRange.prefix = UnitPfxMilli;
     gateVoltageRange.unit = "V";
+    selectedGateVoltageVector.resize(totalBoardsNum);
+    Measurement_t defaultGateVoltage = {0.0, gateVoltageRange.prefix, gateVoltageRange.unit};
 
     /*! Source voltage range*/
     sourceVoltageRange.step = 0.625;
@@ -159,6 +165,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     sourceVoltageRange.max = SHORT_MAX * sourceVoltageRange.step;
     sourceVoltageRange.prefix = UnitPfxMilli;
     sourceVoltageRange.unit = "V";
+    selectedSourceVoltageVector.resize(totalBoardsNum);
+    Measurement_t defaultSourceVoltage = {0.0, sourceVoltageRange.prefix, sourceVoltageRange.unit};
 
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
@@ -175,6 +183,10 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
     fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
+    fill(selectedCalibVcCurrentGainVector.begin(), selectedCalibVcCurrentGainVector.end(), defaultCalibVcCurrentGain);
+    fill(selectedCalibVcCurrentOffsetVector.begin(), selectedCalibVcCurrentOffsetVector.end(), defaultCalibVcCurrentOffset);
+    fill(selectedGateVoltageVector.begin(), selectedGateVoltageVector.end(), defaultGateVoltage);
+    fill(selectedSourceVoltageVector.begin(), selectedSourceVoltageVector.end(), defaultSourceVoltage);
 
     /**********\
      * Coders *

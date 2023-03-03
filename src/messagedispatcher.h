@@ -134,6 +134,7 @@ public:
     ErrorCodes_t getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures);
     ErrorCodes_t getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures);
     ErrorCodes_t getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures);
+    ErrorCodes_t getChannelNumberFeatures(uint16_t voltageChannelNumberFeatures, uint16_t CurrentChannelNumberFeatures);
 
     ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
     ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
@@ -276,21 +277,27 @@ protected:
     std::vector <DoubleCoder *> cHoldTunerCoders;
 
     RangedMeasurement_t calibVcCurrentGainRange;
+    std::vector<Measurement_t> selectedCalibVcCurrentGainVector;
     std::vector <DoubleCoder *> calibVcCurrentGainCoders;
 
     std::vector <RangedMeasurement_t> calibVcCurrentOffsetRanges;
+    std::vector<Measurement_t> selectedCalibVcCurrentOffsetVector;
     std::vector <std::vector <DoubleCoder *>> calibVcCurrentOffsetCoders;
 
     RangedMeasurement_t calibCcVoltageGainRange;
+    std::vector<Measurement_t> selectedCalibCcVoltageGainVector;
     std::vector <DoubleCoder *> calibCcVoltageGainCoders;
 
     std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
+    std::vector<Measurement_t> selectedCalibCcVoltageOffsetVector;
     std::vector <std::vector <DoubleCoder *>> calibCcVoltageOffsetCoders;
 
     RangedMeasurement_t gateVoltageRange;
+    std::vector<Measurement_t> selectedGateVoltageVector;
     std::vector <DoubleCoder *> gateVoltageCoders;
 
     RangedMeasurement_t sourceVoltageRange;
+    std::vector<Measurement_t> selectedSourceVoltageVector;
     std::vector <DoubleCoder *> sourceVoltageCoders;
 
     DoubleCoder * stimRestCoder = nullptr;
