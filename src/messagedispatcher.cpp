@@ -1233,14 +1233,61 @@ bool MessageDispatcher::getDeviceCount(int &numDevs) {
 }
 
 void MessageDispatcher::initializeDevice() {
-    this->setSamplingRate(defaultSamplingRateIdx, false);
+    /*! \todo MPAC fai partire tutto in Voltage Clamp*/
+    /*! \todo FCON RECHECK EVERYTHING!!!!!!!!*/
 
-    vector <uint16_t> channelIndexes(currentChannelsNum);
+    /*! Some default values*/
     vector <bool> allTrue(currentChannelsNum, true);
 
+    vector <uint16_t> channelIndexes(currentChannelsNum);
     for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
-        this->enableStimulus(channelIndexes, allTrue, false);
+        channelIndexes[idx] = idx;
     }
+
+    vector <uint16_t> boardIndexes(totalBoardsNum);
+    for (uint16_t idx = 0; idx < totalBoardsNum; idx++) {
+        boardIndexes[idx] = idx;
+    }
+
+    Measurement_t defaultVoltageHold;
+    defaultVoltageHold.value = 0.0;
+    defaultVoltageHold.prefix = UnitPfxMilli;
+    defaultVoltageHold.unit = "V";
+    vector<Measurement_t> defaultVoltageHoldVector(currentChannelsNum, defaultVoltageHold);
+
+    Measurement_t defaultCalibVcCurrentGain;
+    defaultCalibVcCurrentGain.value = 1.0;
+    defaultCalibVcCurrentGain.prefix = UnitPfxNone;
+    defaultCalibVcCurrentGain.unit = "";
+    vector<Measurement_t> defaultCalibVcCurrentGainVector(currentChannelsNum, defaultCalibVcCurrentGain);
+
+    Measurement_t defaultCalibVcCurrentOffset;
+    defaultCalibVcCurrentOffset.value = 0.0;
+    defaultCalibVcCurrentOffset.prefix = UnitPfxMilli;
+    defaultCalibVcCurrentOffset.unit = "V";
+    vector<Measurement_t> defaultCalibVcCurrentOffsetVector(currentChannelsNum, defaultCalibVcCurrentOffset);
+
+    Measurement_t defaultGateSourceVoltage;
+    defaultGateSourceVoltage.value = 0.0;
+    defaultGateSourceVoltage.prefix = UnitPfxMilli;
+    defaultGateSourceVoltage.unit = "V";
+    vector<Measurement_t> defaultGateSourceVoltageVector(totalBoardsNum, defaultGateSourceVoltage);
+
+    /*! Initialization in voltage clamp*/
+    this->enableStimulus(channelIndexes, allTrue, false);
+    this->turnChannelsOn(channelIndexes, allTrue, false);
+    this->turnVoltageReaderOn(true, false);
+    this->setVoltageHoldTuner(channelIndexes, defaultVoltageHoldVector, false);
+    this->setCalibVcCurrentGain(channelIndexes, defaultCalibVcCurrentGainVector, false);
+    this->setCalibVcCurrentOffset(channelIndexes, defaultCalibVcCurrentOffsetVector, false);
+    this->setSamplingRate(defaultSamplingRateIdx, false);
+    this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
+    this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
+    this->setVoltageStimulusLpf(sr2LpfVcMap.at(defaultSamplingRateIdx), false);
+    this->setGateVoltagesTuner(boardIndexes, defaultGateSourceVoltageVector, false);
+    this->setSourceVoltagesTuner(boardIndexes, defaultGateSourceVoltageVector, false);
+    this->digitalOffsetCompensation(channelIndexes, allTrue, false);
+
 
 }
 

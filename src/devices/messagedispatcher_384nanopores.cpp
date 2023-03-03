@@ -369,13 +369,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         doubleConfig.initialWord++;
     }
 
-
-
-
-
-
-
-
     /*! VRest */
     doubleConfig.initialWord = 174+9; //updated
     doubleConfig.initialBit = 3;
