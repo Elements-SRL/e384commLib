@@ -77,7 +77,7 @@ ErrorCodes_t MessageDispatcher::init() {
     txFid = fopen("tx.txt", "wb+");
 #endif
 
-//    this->computeMinimumPacketNumber(); /*! \todo FCON */
+    this->computeMinimumPacketNumber();
 
     /*! Allocate memory for raw data filters */
     this->initializeRawDataFilterVariables();
@@ -787,7 +787,8 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
     } else {
         samplingRateCoder->encode(samplingRateIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         selectedSamplingRateIdx = samplingRateIdx;
-        setAdcFilter();
+        this->setAdcFilter();
+        this->computeMinimumPacketNumber();
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -1385,6 +1386,13 @@ uint16_t MessageDispatcher::readUint16FromRxRawBuffer(uint32_t n) {
         value += rxRawBuffer[(rxRawBufferReadOffset+byteIdx+n) & rxRawBufferMask];
     }
     return value;
+}
+
+void MessageDispatcher::computeMinimumPacketNumber() {
+    double samplingRateInHz = samplingRate.getNoPrefixValue();
+    minPacketsNumber = (unsigned long)ceil(RX_FEW_PACKETS_COEFF*samplingRateInHz);
+    minPacketsNumber = (unsigned long)min(minPacketsNumber, (unsigned long)ceil(((double)RX_MAX_BYTES_TO_WAIT_FOR)/(double)maxInputDataLoadSize));
+    fewPacketsSleepUs = (unsigned int)ceil(((double)(minPacketsNumber*(unsigned long)packetsPerFrame))/samplingRateInHz*1.0e6);
 }
 
 void MessageDispatcher::initializeRawDataFilterVariables() {

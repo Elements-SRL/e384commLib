@@ -176,6 +176,7 @@ protected:
     uint16_t popUint16FromRxRawBuffer();
     uint16_t readUint16FromRxRawBuffer(uint32_t n);
 
+    void computeMinimumPacketNumber();
     void initializeRawDataFilterVariables();
     void computeRawDataFilterCoefficients();
     double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
@@ -186,7 +187,7 @@ protected:
 
     uint16_t rxSyncWord;
 
-    int packetsPerFrame = 16;
+    int packetsPerFrame = 1;
 
     uint16_t voltageChannelsNum = 1;
     uint16_t currentChannelsNum = 1;
