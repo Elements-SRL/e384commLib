@@ -87,7 +87,7 @@ void MessageDispatcher_384Fake::sendCommandsToDevice() {
     }
 }
 
-void MessageDispatcher_OpalKelly::readDataFromDevice() {
+void MessageDispatcher_384Fake::readDataFromDevice() {
     stopConnectionFlag = false;
 
     rxRawBufferReadOffset = 0;

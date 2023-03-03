@@ -1094,7 +1094,7 @@ ErrorCodes_t MessageDispatcher::getSourceVoltagesTunerFeatures(RangedMeasurement
     }
 }
 
-ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(uint16_t voltageChannelNumberFeatures, uint16_t CurrentChannelNumberFeatures){
+ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &CurrentChannelNumberFeatures){
     voltageChannelNumberFeatures = voltageChannelsNum;
     CurrentChannelNumberFeatures = currentChannelsNum;
     return Success;

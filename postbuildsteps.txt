@@ -1,0 +1,19 @@
+Debug:
+
+C:\Windows\system32\cmd.exe
+/c copy %{buildDir}\debug\e384commlibd.lib C:\e384CommLib\lib\e384commlibd.lib
+%{buildDir}
+
+C:\Windows\system32\cmd.exe
+/c copy %{sourceDir}\src\*.h C:\e384CommLib\include\
+%{buildDir}
+
+Release:
+
+C:\Windows\system32\cmd.exe
+/c copy %{buildDir}\release\e384commlib.lib C:\e384CommLib\lib\e384commlib.lib
+%{buildDir}
+
+C:\Windows\system32\cmd.exe
+/c copy %{sourceDir}\src\*.h C:\e384CommLib\include\
+%{buildDir}
