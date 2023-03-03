@@ -121,7 +121,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     integrationStepArray[SamplingRate100Hz].unit = "s";
 
     // mapping ADC Voltage Clamp
-    sr2LpfVcMap = {
+    sr2LpfVcCurrentMap = {
       {SamplingRate100Hz, VCCurrentFilter20kHz}
     };
 
@@ -133,29 +133,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     vHoldRange.step = 0.125;
     vHoldRange.prefix = UnitPfxMilli;
     vHoldRange.unit = "V";
-
-    /*! This will never change so it makes sense to initialize it here */
-    /*! Default values */
-    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
-    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
-    voltageResolution =voltageRange.step;
-    samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
-    integrationStep = integrationStepArray[defaultSamplingRateIdx];
-
-    // Selected default Idx
-    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
-
-    selectedVoltageOffset.resize(currentChannelsNum);
-    voltageOffsetRange = vcVoltageRangesArray[VCVoltageRange500mV];
-    for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        selectedVoltageOffset[channelIdx].value = 0.0;
-        selectedVoltageOffset[channelIdx].prefix = voltageOffsetRange.prefix;
-        selectedVoltageOffset[channelIdx].unit = voltageOffsetRange.unit;
-    }
+    selectedVoltageHoldVector.resize(currentChannelsNum);
+    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange.prefix, vHoldRange.unit};
 
     /*! VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
@@ -181,6 +160,21 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     sourceVoltageRange.prefix = UnitPfxMilli;
     sourceVoltageRange.unit = "V";
 
+    /*! Default values */
+    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
+    currentResolution = currentRange.step;
+    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
+    voltageResolution =voltageRange.step;
+    samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
+    integrationStep = integrationStepArray[defaultSamplingRateIdx];
+
+    // Selected default Idx
+    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
+    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
+    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
+    selectedSamplingRateIdx = defaultSamplingRateIdx;
+
+    fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
 
     /**********\
      * Coders *
@@ -314,6 +308,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         vHoldTunerCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
         doubleConfig.initialWord++;
     }
+
     /*! VC current gain tuner */
     doubleConfig.initialWord = 843+9; //updated
     doubleConfig.initialBit = 0;

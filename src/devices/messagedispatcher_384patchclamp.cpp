@@ -123,7 +123,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     integrationStepArray[SamplingRate100Hz].unit = "s";
 
     // mapping ADC Voltage Clamp
-    sr2LpfVcMap = {
+    sr2LpfVcCurrentMap = {
       {SamplingRate100Hz, VCCurrentFilter20kHz}
     };
 
@@ -150,14 +150,6 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
-
-    selectedVoltageOffset.resize(currentChannelsNum);
-    voltageOffsetRange = vcVoltageRangesArray[VCVoltageRange500mV];
-    for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        selectedVoltageOffset[channelIdx].value = 0.0;
-        selectedVoltageOffset[channelIdx].prefix = voltageOffsetRange.prefix;
-        selectedVoltageOffset[channelIdx].unit = voltageOffsetRange.unit;
-    }
 
     /*! VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;

@@ -334,7 +334,7 @@ ErrorCodes_t MessageDispatcher::connect() {
     this->initializeDevice();
     this->stackOutgoingMessage(txStatus);
 
-    this_thread::sleep_for(chrono::milliseconds(10));
+    this_thread::sleep_for(chrono::milliseconds(100));
 
     return ret;
 }
@@ -417,6 +417,7 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelInde
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             voltages[i].convertValue(vHoldRange.prefix);
+            selectedVoltageHoldVector[channelIndexes[i]] = voltages[i];
             vHoldTunerCoders[channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
@@ -765,13 +766,13 @@ ErrorCodes_t MessageDispatcher::setAdcFilter(){
     // Still to be properly implemented
     if(amIinVoltageClamp){
         if (vcCurrentFilterCoder != nullptr) {
-            vcCurrentFilterCoder->encode(sr2LpfVcMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            selectedVcCurrentFilterIdx = sr2LpfVcMap[selectedSamplingRateIdx];
+            vcCurrentFilterCoder->encode(sr2LpfVcCurrentMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedVcCurrentFilterIdx = sr2LpfVcCurrentMap[selectedSamplingRateIdx];
         }
     }else{
         if (ccVoltageFilterCoder != nullptr) {
-            ccVoltageFilterCoder->encode(sr2LpfCcMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            selectedCcVoltageFilterIdx = sr2LpfCcMap[selectedSamplingRateIdx];
+            ccVoltageFilterCoder->encode(sr2LpfCcVoltageMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedCcVoltageFilterIdx = sr2LpfCcVoltageMap[selectedSamplingRateIdx];
         }
     }
     return Success;
@@ -1234,11 +1235,9 @@ bool MessageDispatcher::getDeviceCount(int &numDevs) {
 }
 
 void MessageDispatcher::initializeDevice() {
-    /*! \todo MPAC fai partire tutto in Voltage Clamp*/
-    /*! \todo FCON RECHECK EVERYTHING!!!!!!!!*/
-
     /*! Some default values*/
     vector <bool> allTrue(currentChannelsNum, true);
+    vector <bool> allFalse(currentChannelsNum, false);
 
     vector <uint16_t> channelIndexes(currentChannelsNum);
     for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
@@ -1249,12 +1248,6 @@ void MessageDispatcher::initializeDevice() {
     for (uint16_t idx = 0; idx < totalBoardsNum; idx++) {
         boardIndexes[idx] = idx;
     }
-
-    Measurement_t defaultVoltageHold;
-    defaultVoltageHold.value = 0.0;
-    defaultVoltageHold.prefix = UnitPfxMilli;
-    defaultVoltageHold.unit = "V";
-    vector<Measurement_t> defaultVoltageHoldVector(currentChannelsNum, defaultVoltageHold);
 
     Measurement_t defaultCalibVcCurrentGain;
     defaultCalibVcCurrentGain.value = 1.0;
@@ -1278,16 +1271,18 @@ void MessageDispatcher::initializeDevice() {
     this->enableStimulus(channelIndexes, allTrue, false);
     this->turnChannelsOn(channelIndexes, allTrue, false);
     this->turnVoltageReaderOn(true, false);
-    this->setVoltageHoldTuner(channelIndexes, defaultVoltageHoldVector, false);
+    this->setVoltageHoldTuner(channelIndexes, selectedVoltageHoldVector, false);
     this->setCalibVcCurrentGain(channelIndexes, defaultCalibVcCurrentGainVector, false);
     this->setCalibVcCurrentOffset(channelIndexes, defaultCalibVcCurrentOffsetVector, false);
     this->setSamplingRate(defaultSamplingRateIdx, false);
     this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
     this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
-    this->setVoltageStimulusLpf(sr2LpfVcMap.at(defaultSamplingRateIdx), false);
+    this->setCCCurrentRange(defaultCcCurrentRangeIdx, false);
+    this->setCCVoltageRange(defaultCcVoltageRangeIdx, false);
+    this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
     this->setGateVoltagesTuner(boardIndexes, defaultGateSourceVoltageVector, false);
     this->setSourceVoltagesTuner(boardIndexes, defaultGateSourceVoltageVector, false);
-    this->digitalOffsetCompensation(channelIndexes, allTrue, false);
+    this->digitalOffsetCompensation(channelIndexes, allFalse, false);
 
 
 }

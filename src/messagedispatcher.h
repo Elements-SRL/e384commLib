@@ -266,20 +266,12 @@ protected:
     std::vector <Measurement_t> integrationStepArray;
     unsigned int defaultSamplingRateIdx = 0;
     BoolCoder * samplingRateCoder = nullptr;
-    std::unordered_map<uint16_t, uint16_t> sr2LpfVcMap;
-    std::unordered_map<uint16_t, uint16_t> sr2LpfCcMap;
-
-
-
-    bool voltageOffsetControlImplemented = false;
-    RangedMeasurement_t voltageOffsetRange;
-
-    bool currentOffsetControlImplemented = false;
-    RangedMeasurement_t currentOffsetRange;
-
-
+    std::unordered_map<uint16_t, uint16_t> sr2LpfVcCurrentMap;
+    std::unordered_map<uint16_t, uint16_t> sr2LpfCcVoltageMap;
 
     std::vector <BoolCoder *> digitalOffsetCompensationCoders;
+
+    std::vector<Measurement_t> selectedVoltageHoldVector;
     std::vector <DoubleCoder *> vHoldTunerCoders;
     std::vector <DoubleCoder *> cHoldTunerCoders;
 
@@ -371,9 +363,6 @@ protected:
 
     Measurement_t samplingRate = {200.0, UnitPfxKilo, "Hz"};
     Measurement_t integrationStep = {5.0, UnitPfxMicro, "s"};
-
-    std::vector <Measurement_t> selectedVoltageOffset;
-    std::vector <Measurement_t> selectedCurrentOffset;
 
     /***********************\
      *  Filters variables  *
