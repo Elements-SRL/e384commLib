@@ -143,12 +143,12 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
     selectedCalibVcCurrentGainVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcCurrentGain = {1.0, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit};
+    Measurement_t defaultCalibVcCurrentGain = {1.57014, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
 
     /*! VC current offset */
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcCurrentOffset = {1.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
+    Measurement_t defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
 
     /*! Gate voltage range*/
     gateVoltageRange.step = 1;

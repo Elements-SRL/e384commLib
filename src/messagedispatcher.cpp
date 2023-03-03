@@ -1216,8 +1216,6 @@ void MessageDispatcher::initializeDevice() {
     this->setGateVoltagesTuner(boardIndexes, selectedGateVoltageVector, false);
     this->setSourceVoltagesTuner(boardIndexes, selectedSourceVoltageVector, false);
     this->digitalOffsetCompensation(channelIndexes, allFalse, false);
-
-
 }
 
 bool MessageDispatcher::checkProtocolValidity(string &message) {
