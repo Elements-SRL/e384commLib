@@ -70,6 +70,7 @@ ErrorCodes_t MessageDispatcher::init() {
         return ErrorMemoryInitialization;
     }
 
+    /*! \todo FCON occhio che i singoli vettori non sono inizializzati */
     txMsgBuffer = new (std::nothrow) vector <uint16_t>[TX_MSG_BUFFER_SIZE];
     if (txMsgBuffer == nullptr) {
         return ErrorMemoryInitialization;

@@ -343,7 +343,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
         doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
         doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
-        calibVcCurrentOffsetCoders.resize(currentChannelsNum);
+        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
             calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
             doubleConfig.initialWord++;
