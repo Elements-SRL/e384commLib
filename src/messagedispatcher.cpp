@@ -70,13 +70,9 @@ ErrorCodes_t MessageDispatcher::init() {
         return ErrorMemoryInitialization;
     }
 
-    /*! \todo FCON occhio che i singoli vettori non sono inizializzati */
     txMsgBuffer = new (std::nothrow) vector <uint16_t>[TX_MSG_BUFFER_SIZE];
     if (txMsgBuffer == nullptr) {
         return ErrorMemoryInitialization;
-    }
-    for (uint32_t idx = 0; idx < TX_MSG_BUFFER_SIZE; idx++) {
-        txMsgBuffer[idx].resize(txDataWords);
     }
 
     txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
@@ -1107,6 +1103,11 @@ ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(uint16_t &voltageChanne
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::getBoardsNumberFeatures(uint16_t &boardsNumberFeatures) {
+    boardsNumberFeatures = totalBoardsNum;
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
     if (vcCurrentRangesArray.size()==0){
         return ErrorFeatureNotImplemented;
@@ -1280,7 +1281,7 @@ void MessageDispatcher::stackOutgoingMessage(vector <uint16_t> &txDataMessage) {
 
         /*! The next 2 lines ensure that words are written in blocks of 32 bits in case any device libraries require it */
         txModifiedStartingWord = (txModifiedStartingWord/2)*2; /*! Round to the biggest smaller even number */
-        txModifiedEndingWord = (txModifiedEndingWord/2)*2+1; /*! Round to the smallest bigger odd number */
+        txModifiedEndingWord = (txModifiedEndingWord/2)*2+2; /*! +1 Round to the smallest bigger odd number; another +1 because slicing does not include the last item */
 
         txMsgBuffer[txMsgBufferWriteOffset] = {txDataMessage.begin()+txModifiedStartingWord, txDataMessage.begin()+txModifiedEndingWord};
         txMsgOffsetWord[txMsgBufferWriteOffset] = txModifiedStartingWord;
