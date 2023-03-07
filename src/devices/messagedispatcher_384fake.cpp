@@ -51,7 +51,7 @@ void MessageDispatcher_384Fake::sendCommandsToDevice() {
             continue;
         }
 
-        /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
+        /*! Moving from 16 bits words to 32 bits registers += 2, /2, etc, are due to this conversion) */
         regs.resize(txMsgLength[txMsgBufferReadOffset]);
         for (txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
             regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;

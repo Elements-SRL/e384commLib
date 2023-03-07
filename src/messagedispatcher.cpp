@@ -75,6 +75,9 @@ ErrorCodes_t MessageDispatcher::init() {
     if (txMsgBuffer == nullptr) {
         return ErrorMemoryInitialization;
     }
+    for (uint32_t idx = 0; idx < TX_MSG_BUFFER_SIZE; idx++) {
+        txMsgBuffer[idx].resize(txDataWords);
+    }
 
     txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
     txMsgLength.resize(TX_MSG_BUFFER_SIZE);
