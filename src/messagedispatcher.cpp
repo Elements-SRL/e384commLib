@@ -278,20 +278,11 @@ ErrorCodes_t MessageDispatcher::connect() {
     this->resetFpga(true, true);
     this->resetFpga(false, false);
 
-    this_thread::sleep_for(chrono::milliseconds(1000));
-
-    this->resetAsic(true, true);
-    this_thread::sleep_for(chrono::milliseconds(100));
-    ret = this->resetAsic(false, true);
-    if (ret != Success) {
-        return ErrorConnectionChipResetFailed;
-    }
-
+#ifndef DEBUG
     /*! Initialize device */
+    this_thread::sleep_for(chrono::milliseconds(1000));
     this->initializeDevice();
-    this->stackOutgoingMessage(txStatus);
-
-    this_thread::sleep_for(chrono::milliseconds(100));
+#endif
 
     return ret;
 }
@@ -323,6 +314,49 @@ ErrorCodes_t MessageDispatcher::disconnect() {
 /****************\
  *  Tx methods  *
 \****************/
+
+ErrorCodes_t MessageDispatcher::initializeDevice() {
+    this->resetAsic(true, true);
+    this_thread::sleep_for(chrono::milliseconds(100));
+    this->resetAsic(false, true);
+
+    /*! Some default values*/
+    vector <bool> allTrue(currentChannelsNum, true);
+    vector <bool> allFalse(currentChannelsNum, false);
+
+    vector <uint16_t> channelIndexes(currentChannelsNum);
+    for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
+        channelIndexes[idx] = idx;
+    }
+
+    vector <uint16_t> boardIndexes(totalBoardsNum);
+    for (uint16_t idx = 0; idx < totalBoardsNum; idx++) {
+        boardIndexes[idx] = idx;
+    }
+
+    /*! Initialization in voltage clamp*/
+    this->enableStimulus(channelIndexes, allTrue, false);
+    this->turnChannelsOn(channelIndexes, allTrue, false);
+    this->turnVoltageReaderOn(true, false);
+    this->setVoltageHoldTuner(channelIndexes, selectedVoltageHoldVector, false);
+    this->setCalibVcCurrentGain(channelIndexes, selectedCalibVcCurrentGainVector, false);
+    this->setCalibVcCurrentOffset(channelIndexes, selectedCalibVcCurrentOffsetVector, false);
+    this->setSamplingRate(defaultSamplingRateIdx, false);
+    this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
+    this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
+    this->setCCCurrentRange(defaultCcCurrentRangeIdx, false);
+    this->setCCVoltageRange(defaultCcVoltageRangeIdx, false);
+    this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
+    this->setGateVoltagesTuner(boardIndexes, selectedGateVoltageVector, false);
+    this->setSourceVoltagesTuner(boardIndexes, selectedSourceVoltageVector, false);
+    this->digitalOffsetCompensation(channelIndexes, allFalse, false);
+
+    this->stackOutgoingMessage(txStatus);
+
+    this_thread::sleep_for(chrono::milliseconds(100));
+
+    return Success;
+}
 
 ErrorCodes_t MessageDispatcher::resetAsic(bool resetFlag, bool applyFlagIn) {
     asicResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1218,39 +1252,6 @@ bool MessageDispatcher::getDeviceCount(int &numDevs) {
     okCFrontPanel okDev;
     numDevs = okDev.GetDeviceCount();
     return true;
-}
-
-void MessageDispatcher::initializeDevice() {
-    /*! Some default values*/
-    vector <bool> allTrue(currentChannelsNum, true);
-    vector <bool> allFalse(currentChannelsNum, false);
-
-    vector <uint16_t> channelIndexes(currentChannelsNum);
-    for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
-        channelIndexes[idx] = idx;
-    }
-
-    vector <uint16_t> boardIndexes(totalBoardsNum);
-    for (uint16_t idx = 0; idx < totalBoardsNum; idx++) {
-        boardIndexes[idx] = idx;
-    }
-
-    /*! Initialization in voltage clamp*/
-    this->enableStimulus(channelIndexes, allTrue, false);
-    this->turnChannelsOn(channelIndexes, allTrue, false);
-    this->turnVoltageReaderOn(true, false);
-    this->setVoltageHoldTuner(channelIndexes, selectedVoltageHoldVector, false);
-    this->setCalibVcCurrentGain(channelIndexes, selectedCalibVcCurrentGainVector, false);
-    this->setCalibVcCurrentOffset(channelIndexes, selectedCalibVcCurrentOffsetVector, false);
-    this->setSamplingRate(defaultSamplingRateIdx, false);
-    this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
-    this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
-    this->setCCCurrentRange(defaultCcCurrentRangeIdx, false);
-    this->setCCVoltageRange(defaultCcVoltageRangeIdx, false);
-    this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
-    this->setGateVoltagesTuner(boardIndexes, selectedGateVoltageVector, false);
-    this->setSourceVoltagesTuner(boardIndexes, selectedSourceVoltageVector, false);
-    this->digitalOffsetCompensation(channelIndexes, allFalse, false);
 }
 
 bool MessageDispatcher::checkProtocolValidity(string &message) {

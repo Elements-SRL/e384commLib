@@ -88,6 +88,8 @@ public:
      *  Tx methods  *
     \****************/
 
+    ErrorCodes_t initializeDevice();
+
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
@@ -169,7 +171,6 @@ protected:
     virtual void readDataFromDevice() = 0;
     virtual void sendCommandsToDevice() = 0;
 
-    void initializeDevice();
     bool checkProtocolValidity(std::string &message);
 
     void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);
