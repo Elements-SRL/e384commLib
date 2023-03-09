@@ -161,7 +161,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     Measurement_t defaultGateVoltage = {0.0, gateVoltageRange.prefix, gateVoltageRange.unit};
 
     /*! Source voltage range*/
-    sourceVoltageRange.step = 0.625;
+    sourceVoltageRange.step = 0.0625;
     sourceVoltageRange.min = SHORT_MIN * sourceVoltageRange.step;
     sourceVoltageRange.max = SHORT_MAX * sourceVoltageRange.step;
     sourceVoltageRange.prefix = UnitPfxMilli;
