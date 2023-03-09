@@ -103,7 +103,20 @@ void MessageDispatcher_384Fake::readDataFromDevice() {
 
     while (!stopConnectionFlag) {
         /*! No data to receive, just sleep */
-        this_thread::sleep_for(chrono::milliseconds(1000));
+        this_thread::sleep_for(chrono::milliseconds(10));
+
+        unsigned char d = (rxRawBufferWriteOffset & 0xF000) >> 12;
+
+        for (uint32_t idx = 0; idx < totalChannelsNum; idx++) {
+            rxRawBuffer[rxRawBufferWriteOffset] = d;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = d;
+            rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+        }
+        rxRawBufferReadLength += totalChannelsNum*RX_WORD_SIZE;
+
+        rxMutexLock.lock(); /*!< Protects data modified in storeXxxFrame */
+        this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
+        rxMutexLock.unlock();
     }
 
     if (rxMsgBufferReadLength <= 0) {
