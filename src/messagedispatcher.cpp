@@ -237,7 +237,6 @@ ErrorCodes_t MessageDispatcher::connect() {
         return ErrorDeviceAlreadyConnected;
     }
 
-    ErrorCodes_t ret;
     connected = true;
 
     this->init();
@@ -284,7 +283,7 @@ ErrorCodes_t MessageDispatcher::connect() {
     this->initializeDevice();
 #endif
 
-    return ret;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::disconnect() {
