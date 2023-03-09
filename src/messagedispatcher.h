@@ -125,7 +125,11 @@ public:
      *  Rx methods  *
     \****************/
 
+    ErrorCodes_t allocateRxDataBuffer(int16_t * &data);
+    ErrorCodes_t deallocateRxDataBuffer(int16_t * &data);
     ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data);
+    ErrorCodes_t convertVoltageValue(int16_t intValue, double &fltValue);
+    ErrorCodes_t convertCurrentValue(int16_t intValue, double &fltValue);
 
     ErrorCodes_t getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures);
     ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);

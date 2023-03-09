@@ -796,6 +796,24 @@ ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool onValueIn, bool applyFl
  *  Rx methods  *
 \****************/
 
+ErrorCodes_t MessageDispatcher::allocateRxDataBuffer(int16_t * &data) {
+    ErrorCodes_t ret = Success;
+
+    data = new (std::nothrow) int16_t[E384CL_OUT_STRUCT_DATA_LEN];
+    if (data == nullptr) {
+        ret = ErrorMemoryInitialization;
+    }
+    return ret;
+}
+
+ErrorCodes_t MessageDispatcher::deallocateRxDataBuffer(int16_t * &data) {
+    if (data != nullptr) {
+        delete [] data;
+        data = nullptr;
+    }
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     ErrorCodes_t ret = Success;
     double xFlt;
@@ -1024,6 +1042,18 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
     rxMutexLock.unlock();
 
     return ret;
+}
+
+ErrorCodes_t MessageDispatcher::convertVoltageValue(int16_t intValue, double &fltValue) {
+    fltValue = voltageResolution*(double)intValue;
+
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::convertCurrentValue(int16_t intValue, double &fltValue) {
+    fltValue = currentResolution*(double)intValue;
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures){
