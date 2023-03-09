@@ -52,7 +52,7 @@ MessageDispatcher::MessageDispatcher(string deviceId) :
 }
 
 MessageDispatcher::~MessageDispatcher() {
-
+    this->disconnectDevice();
 }
 
 /************************\

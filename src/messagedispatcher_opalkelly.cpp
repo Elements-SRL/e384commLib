@@ -44,6 +44,8 @@ ErrorCodes_t MessageDispatcher_OpalKelly::disconnect() {
         return ErrorDeviceNotConnected;
     }
 
+    MessageDispatcher::disconnect();
+
     this->deinitializeBuffers();
 
     if (dev != nullptr) {
@@ -51,8 +53,7 @@ ErrorCodes_t MessageDispatcher_OpalKelly::disconnect() {
         delete dev;
         dev = nullptr;
     }
-
-    return MessageDispatcher::disconnect();
+    return Success;
 }
 
 void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
@@ -153,9 +154,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     bool notEnoughRxData;
 
     parsingFlag = true;
-
-    unique_lock <mutex> rxMutexLock(rxMutex);
-    rxMutexLock.unlock();
 
     unique_lock <mutex> deviceMutexLock(deviceMutex);
     deviceMutexLock.unlock();
@@ -271,7 +269,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                     rxCandidateHeader = readUint16FromRxRawBuffer(rxDataBytes);
 
                     if (rxCandidateHeader == rxSyncWord) {
-                        rxMutexLock.lock(); /*!< Protects data modified in storeXxxFrame */
                         if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
 
@@ -287,7 +284,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                         } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageOffset]) {
                             this->storeVoltageOffsetFrame();
                         }
-                        rxMutexLock.unlock();
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
@@ -310,17 +306,15 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     }
 
     if (rxMsgBufferReadLength <= 0) {
-        rxMutex.lock();
+        unique_lock <mutex> rxMutexLock(rxMutex);
         parsingFlag = false;
         rxMsgBufferReadLength++;
         rxMsgBufferNotEmpty.notify_all();
-        rxMutex.unlock();
     }
 }
 
 ErrorCodes_t MessageDispatcher_OpalKelly::initializeBuffers() {
     unique_lock <mutex> deviceMutexLock(deviceMutex);
-
 
     rxTransferBuffer = new (std::nothrow) uint8_t[OKY_RX_TRANSFER_SIZE];
     rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_BUFFER_SIZE];

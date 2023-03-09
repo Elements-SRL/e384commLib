@@ -10,11 +10,13 @@ MessageDispatcher_384Fake::~MessageDispatcher_384Fake() {
 }
 
 ErrorCodes_t MessageDispatcher_384Fake::connect() {
+    this->initializeBuffers();
     return MessageDispatcher::connect();
 }
 
 ErrorCodes_t MessageDispatcher_384Fake::disconnect() {
-    return MessageDispatcher::disconnect();
+    MessageDispatcher::disconnect();
+    return this->deinitializeBuffers();
 }
 
 void MessageDispatcher_384Fake::sendCommandsToDevice() {
@@ -94,9 +96,6 @@ void MessageDispatcher_384Fake::readDataFromDevice() {
 
     parsingFlag = true;
 
-    unique_lock <mutex> rxMutexLock(rxMutex);
-    rxMutexLock.unlock();
-
     /******************\
      *  Reading part  *
     \******************/
@@ -114,16 +113,13 @@ void MessageDispatcher_384Fake::readDataFromDevice() {
         }
         rxRawBufferReadLength += totalChannelsNum*RX_WORD_SIZE;
 
-        rxMutexLock.lock(); /*!< Protects data modified in storeXxxFrame */
         this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
-        rxMutexLock.unlock();
     }
 
     if (rxMsgBufferReadLength <= 0) {
-        rxMutex.lock();
+        unique_lock <mutex> rxMutexLock(rxMutex);
         parsingFlag = false;
         rxMsgBufferReadLength++;
         rxMsgBufferNotEmpty.notify_all();
-        rxMutex.unlock();
     }
 }
