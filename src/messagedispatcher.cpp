@@ -882,10 +882,10 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
     while (msgReadCount < maxMsgRead) {
         dataOffset = rxMsgBuffer[rxMsgBufferReadOffset].startDataPtr;
         sampleIdx = 0;
+        rxOutput.msgTypeId = rxMsgBuffer[rxMsgBufferReadOffset].typeId;
         switch (rxOutput.msgTypeId) {
         case (MsgDirectionDeviceToPc+MsgTypeIdFpgaReset):
             if (lastParsedMsgType == MsgTypeIdInvalid) {
-                rxOutput.msgTypeId = rxMsgBuffer[rxMsgBufferReadOffset].typeId;
                 lastParsedMsgType = MsgTypeIdFpgaReset;
 
                 /*! This message cannot be merged, leave anyway */
@@ -1203,6 +1203,15 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRanges(std::vector <RangedMeasuremen
         return ErrorFeatureNotImplemented;
     } else {
         voltageRanges = ccVoltageRangesArray;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates) {
+    if(samplingRatesArray.size()==0){
+        return ErrorFeatureNotImplemented;
+    } else {
+        samplingRates = samplingRatesArray;
         return Success;
     }
 }

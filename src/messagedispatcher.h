@@ -148,6 +148,8 @@ public:
     ErrorCodes_t getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
     ErrorCodes_t getCCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
 
+    ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates);
+
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <std::string> &filterOptions);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <std::string> &filterOptions);
 
