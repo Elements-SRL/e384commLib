@@ -94,6 +94,7 @@ void MessageDispatcher_384Fake::readDataFromDevice() {
     stopConnectionFlag = false;
 
     rxRawBufferReadOffset = 0;
+    uint16_t syntheticData = 0;
 
     parsingFlag = true;
 
@@ -105,11 +106,13 @@ void MessageDispatcher_384Fake::readDataFromDevice() {
         /*! No data to receive, just sleep */
         this_thread::sleep_for(chrono::milliseconds(10));
 
-        unsigned char d = (rxRawBufferWriteOffset & 0xF000) >> 12;
+        unsigned char d1 = (syntheticData & 0xFF00) >> 8;
+        unsigned char d2 = syntheticData & 0x00FF;
+        syntheticData += 50;
 
         for (uint32_t idx = 0; idx < totalChannelsNum; idx++) {
-            rxRawBuffer[rxRawBufferWriteOffset] = d;
-            rxRawBuffer[rxRawBufferWriteOffset+1] = d;
+            rxRawBuffer[rxRawBufferWriteOffset] = d1;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = d2;
             rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
         }
         rxRawBufferReadLength += totalChannelsNum*RX_WORD_SIZE;

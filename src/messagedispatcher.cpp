@@ -768,6 +768,7 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
         selectedSamplingRateIdx = samplingRateIdx;
         this->setAdcFilter();
         this->computeMinimumPacketNumber();
+        this->computeRawDataFilterCoefficients();
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -874,7 +875,7 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
     uint16_t samplesNum;
     uint16_t sampleIdx;
     uint16_t timeSamplesNum;
-    uint16_t rawFloat;
+    int16_t rawFloat;
     uint16_t dataWritten;
     bool exitLoop = false;
     bool messageReadFlag = false;
@@ -969,15 +970,15 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
 
                 for (uint16_t idx = 0; idx < timeSamplesNum; idx++) {
                     for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                        rawFloat = rxDataBuffer[dataOffset];
+                        rawFloat = (int16_t)rxDataBuffer[dataOffset];
                         xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                         data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                         dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                     }
 
                     for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                        rawFloat = rxDataBuffer[dataOffset];
-                        xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirVNum, iirVDen);
+                        rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                        xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
                         data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                         dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                     }
