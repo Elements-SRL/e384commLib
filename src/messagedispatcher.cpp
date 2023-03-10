@@ -1320,7 +1320,7 @@ void MessageDispatcher::stackOutgoingMessage(vector <uint16_t> &txDataMessage) {
 
         /*! The next 2 lines ensure that words are written in blocks of 32 bits in case any device libraries require it */
         txModifiedStartingWord = (txModifiedStartingWord/2)*2; /*! Round to the biggest smaller even number */
-        txModifiedEndingWord = (txModifiedEndingWord/2)*2+2; /*! +1 Round to the smallest bigger odd number; another +1 because slicing does not include the last item */
+        txModifiedEndingWord = ((txModifiedEndingWord+1)/2)*2; /*! +1 : if odd, makes the number even and /2 followed by *2 doesn't change a thing. If even, makes the number odd and /2 truncates to the smaller integer and *2 drives you to the correct ending word. */
 
         txMsgBuffer[txMsgBufferWriteOffset] = {txDataMessage.begin()+txModifiedStartingWord, txDataMessage.begin()+txModifiedEndingWord};
         txMsgOffsetWord[txMsgBufferWriteOffset] = txModifiedStartingWord;

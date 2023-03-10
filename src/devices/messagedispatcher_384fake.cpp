@@ -54,7 +54,7 @@ void MessageDispatcher_384Fake::sendCommandsToDevice() {
         }
 
         /*! Moving from 16 bits words to 32 bits registers += 2, /2, etc, are due to this conversion) */
-        regs.resize(txMsgLength[txMsgBufferReadOffset]);
+        regs.resize(txMsgLength[txMsgBufferReadOffset]/2);
         for (txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
             regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
             regs[txDataBufferReadIdx/2].data =
@@ -71,7 +71,7 @@ void MessageDispatcher_384Fake::sendCommandsToDevice() {
         notSentTxData = true;
         while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) {
             for (uint16_t regIdx = 0; regIdx < regs.size(); regIdx++) {
-                fprintf(fid, "0x%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
+                fprintf(fid, "%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
                 if (regIdx % 16 == 15) {
                     fprintf(fid, "\n");
                 }
