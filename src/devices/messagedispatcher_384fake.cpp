@@ -71,11 +71,12 @@ void MessageDispatcher_384Fake::sendCommandsToDevice() {
         notSentTxData = true;
         while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) {
             for (uint16_t regIdx = 0; regIdx < regs.size(); regIdx++) {
-                fprintf(fid, "0x%08X:0x%08X ", regs[regIdx].address, regs[regIdx].data);
+                fprintf(fid, "0x%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
                 if (regIdx % 16 == 15) {
                     fprintf(fid, "\n");
                 }
             }
+            fprintf(fid, "\n");
             fflush(fid);
 
             notSentTxData = false;

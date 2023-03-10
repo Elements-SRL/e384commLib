@@ -182,17 +182,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
          *  Parsing part  *
         \******************/
 
-#ifdef DEBUG_RAW_BIT_RATE_PRINT
-        currentPrintfTime = std::chrono::steady_clock::now();
-        acc += ftdiQueuedBytes;
-        if ((double)(std::chrono::duration_cast <std::chrono::microseconds> (currentPrintfTime-startPrintfTime).count()) > 1.0e6) {
-            printf("%f byte/s\n", 1.0e6*((double)acc)/(double)(std::chrono::duration_cast <std::chrono::microseconds> (currentPrintfTime-startPrintfTime).count()));
-            fflush(stdout);
-            startPrintfTime = currentPrintfTime;
-            acc = 0;
-        }
-#endif
-
         /*! Update buffer writing point */
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead)&OKY_RX_BUFFER_MASK;
 
