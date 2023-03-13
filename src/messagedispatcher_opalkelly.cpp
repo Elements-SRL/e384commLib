@@ -98,8 +98,8 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
         for (txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
             regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
             regs[txDataBufferReadIdx/2].data =
-                    (((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx]) << 16) +
-                    (uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1]; /*! Little endian */
+                    ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
+                    ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
         }
 
         txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
@@ -113,6 +113,7 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
             deviceMutexLock.lock();
             if (dev->WriteRegisters(regs) != okCFrontPanel::NoError) {
                 dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+                deviceMutexLock.unlock();
                 continue;
             }
             deviceMutexLock.unlock();
@@ -168,8 +169,13 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
         bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxTransferBuffer);
         deviceMutexLock.unlock();
 
+        if (bytesRead > INT32_MAX) {
+            return;
+        }
+
         /*! Copy the data from the transfer buffer to the circular buffer */
         bytesToEnd = OKY_RX_BUFFER_SIZE-rxRawBufferWriteOffset;
+
         if (bytesRead > bytesToEnd) {
             memcpy(rxRawBuffer+rxRawBufferWriteOffset, rxTransferBuffer, bytesToEnd);
             memcpy(rxRawBuffer, rxTransferBuffer+bytesToEnd, bytesRead-bytesToEnd);
