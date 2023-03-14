@@ -11,6 +11,11 @@ public:
     virtual ~MessageDispatcher_384NanoPores_V01();
 
 protected:
+    enum ClampingModalities {
+        CurrentClamp,
+        ClampingModalitiesNum
+    };
+
     enum VCCurrentRanges {
         VCCurrentRange4uA,
         VCCurrentRange200nA,

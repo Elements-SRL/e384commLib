@@ -1705,6 +1705,19 @@ ErrorCodes_t getCalibCcVoltageGainFeatures(
 }
 
 /*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+ErrorCodes_t getGateVoltagesFeatures(
+        LRange gateVoltagesFeaturesOut){
+
+}
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+ErrorCodes_t getSourceVoltagesFeatures(
+        LRange sourceVoltagesFeaturesOut){
+
+}
+
+
+/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
 ErrorCodes_t getCalibCcVoltageOffsetFeatures(
         LRangeHandle * calibCcVoltageOffsetFeaturesOut){
     ErrorCodes_t ret;
@@ -1720,18 +1733,19 @@ ErrorCodes_t getCalibCcVoltageOffsetFeatures(
 
 }
 
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-ErrorCodes_t getGateVoltagesFeatures(
-        LRange gateVoltagesFeaturesOut){
+ErrorCodes_t getClampingModalitiesFeatures(
+        uint16_t * clampingModalitiesOut) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector <uint16_t> clampingModalities;
+        ret = messageDispatcher->getClampingModalitiesFeatures(clampingModalities);
+        numericVector2Output<std::vector <uint16_t>, uint16_t>(clampingModalities, clampingModalitiesOut);
 
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
 }
-
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-ErrorCodes_t getSourceVoltagesFeatures(
-        LRange sourceVoltagesFeaturesOut){
-
-}
-
 //------------------------------------------------------------------------
 
 ErrorCodes_t getVCCurrentRanges(
@@ -2043,20 +2057,6 @@ ErrorCodes_t hasSlaveModality() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->hasSlaveModality();
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t getClampingModalities(
-        uint16_t * clampingModalitiesOut) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        std::vector <uint16_t> clampingModalities;
-        ret = messageDispatcher->getClampingModalities(clampingModalities);
-        numericVector2Output<std::vector <uint16_t>, uint16_t>(clampingModalities, clampingModalitiesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;

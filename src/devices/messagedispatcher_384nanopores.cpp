@@ -44,6 +44,13 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
+    /*! Clamping modalities */
+    /*! \todo FCON rechecks*/
+    clampingModalitiesNum = ClampingModalitiesNum;
+    clampingModalitiesArray.resize(clampingModalitiesNum);
+    clampingModalitiesArray[CurrentClamp] = CurrentClamp;
+    defaultClampingModalityIdx = CurrentClamp;
+
     /*! Current ranges */
     /*! VC */
     vcCurrentRangesNum = VCCurrentRangesNum;

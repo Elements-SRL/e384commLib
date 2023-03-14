@@ -1173,6 +1173,15 @@ ErrorCodes_t MessageDispatcher::getBoardsNumberFeatures(uint16_t &boardsNumberFe
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::getClampingModalitiesFeatures(std::vector <uint16_t> &clampingModalitiesFeatures) {
+    if (clampingModalitiesArray.size()==0){
+        return ErrorFeatureNotImplemented;
+    } else {
+        clampingModalitiesFeatures = clampingModalitiesArray;
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
     if (vcCurrentRangesArray.size()==0){
         return ErrorFeatureNotImplemented;

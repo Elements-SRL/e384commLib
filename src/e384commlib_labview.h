@@ -1436,6 +1436,16 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getSourceVoltagesFeatures(
         E384CL_ARGOUT LRange sourceVoltagesFeaturesOut);
 
+/*! \brief Get the clamping modalities available for the device.
+ *
+ * \param clampingModalities [out] Array containing all the available clamping modalities.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getClampingModalitiesFeatures(
+        E384CL_ARGOUT std::vector <uint16_t> &clampingModalities);
+
 //------------------------------------------------------------------------
 
 /*! \brief Get the current ranges available in voltage clamp for the device.
@@ -1687,15 +1697,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t hasSlaveModality(
         E384CL_ARGVOID);
 
-/*! \brief Get the clamping modalities available for the device.
- *
- * \param clampingModalities [out] Array containing all the available clamping modalities.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getClampingModalities(
-        E384CL_ARGOUT std::vector <uint16_t> &clampingModalities);
 
 /*! \brief Tell if the device implements pipette compensation.
  *

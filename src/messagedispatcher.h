@@ -142,6 +142,7 @@ public:
     ErrorCodes_t getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures);
     ErrorCodes_t getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &currentChannelNumberFeatures);
     ErrorCodes_t getBoardsNumberFeatures(uint16_t &boardsNumberFeatures);
+    ErrorCodes_t getClampingModalitiesFeatures(std::vector<uint16_t> &clampingModalitiesFeatures);
 
     ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
     ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
@@ -152,6 +153,8 @@ public:
 
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <std::string> &filterOptions);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <std::string> &filterOptions);
+
+
 
 protected:
 
@@ -213,7 +216,12 @@ protected:
     BoolCoder * fpgaResetCoder = nullptr;
     BoolCoder * docResetCoder = nullptr; //DOC = digital offset compensation
 
+    uint32_t clampingModalitiesNum;
+    uint32_t selectedClampingMdalityIdx = 0;
+    std::vector <uint16_t> clampingModalitiesArray;
+    uint16_t defaultClampingModalityIdx;
     BoolCoder * clampingModeCoder = nullptr;
+
     BoolCoder * docOverrideCoder = nullptr;
 
 
