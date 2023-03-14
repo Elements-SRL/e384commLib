@@ -48,8 +48,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     /*! \todo FCON rechecks*/
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
-    clampingModalitiesArray[CurrentClamp] = E384CL_CURRENT_CLAMP_MODE;
-    defaultClampingModalityIdx = CurrentClamp;
+    clampingModalitiesArray[VoltageClamp] = E384CL_VOLTAGE_CLAMP_MODE;
+    defaultClampingModalityIdx = VoltageClamp;
 
     /*! Current ranges */
     /*! VC */

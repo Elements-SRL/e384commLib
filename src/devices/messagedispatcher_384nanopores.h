@@ -12,7 +12,7 @@ public:
 
 protected:
     enum ClampingModalities {
-        CurrentClamp,
+        VoltageClamp,
         ClampingModalitiesNum
     };
 
