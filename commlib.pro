@@ -8,6 +8,8 @@ CONFIG(debug, debug|release) {
 
 CONFIG(release, debug|release) {
     TARGET = e384commlib
+    DEFINES += DEBUG
+    DEFINES += DEBUG_PRINT
 }
 
 TEMPLATE = lib
