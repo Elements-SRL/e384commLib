@@ -151,8 +151,8 @@ public:
 
     ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates);
 
-    ErrorCodes_t getVoltageStimulusLpfs(std::vector <std::string> &filterOptions);
-    ErrorCodes_t getCurrentStimulusLpfs(std::vector <std::string> &filterOptions);
+    ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
+    ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
 
 
 

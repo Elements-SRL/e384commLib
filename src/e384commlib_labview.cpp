@@ -2003,8 +2003,12 @@ ErrorCodes_t getVoltageStimulusLpfs(
         LStrHandle filterOptionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <Measurement_t> vcVoltageFilters;
+        ret = messageDispatcher->getVoltageStimulusLpfs(vcVoltageFilters);
         std::vector <std::string> filterOptions;
-        ret = messageDispatcher->getVoltageStimulusLpfs(filterOptions);
+        for(uint16_t i = 0; i < vcVoltageFilters.size(); i++){
+            filterOptions[i] = vcVoltageFilters[i].niceLabel();
+        }
         vectorString2Output(filterOptions, filterOptionsOut);
 
     } else {
@@ -2017,8 +2021,12 @@ ErrorCodes_t getCurrentStimulusLpfs(
         LStrHandle filterOptionsOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        std::vector <Measurement_t> ccCurrentFilters;
+        ret = messageDispatcher->getCurrentStimulusLpfs(ccCurrentFilters);
         std::vector <std::string> filterOptions;
-        ret = messageDispatcher->getCurrentStimulusLpfs(filterOptions);
+        for(uint16_t i = 0; i < ccCurrentFilters.size(); i++){
+            filterOptions[i] = ccCurrentFilters[i].niceLabel();
+        }
         vectorString2Output(filterOptions, filterOptionsOut);
 
     } else {

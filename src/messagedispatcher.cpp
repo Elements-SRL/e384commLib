@@ -1227,23 +1227,19 @@ ErrorCodes_t MessageDispatcher::getSamplingRatesFeatures(std::vector <Measuremen
     }
 }
 
-ErrorCodes_t MessageDispatcher::getVoltageStimulusLpfs(std::vector <std::string> &filterOptions){
+ErrorCodes_t MessageDispatcher::getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters){
     if(vcVoltageFiltersArray.size()==0){
         return ErrorFeatureNotImplemented;
     } else {
-        for(uint16_t i = 0; i < vcVoltageFiltersArray.size(); i++){
-            filterOptions[i] = vcVoltageFiltersArray[i].niceLabel();
-        }
+        vcVoltageFilters = vcVoltageFiltersArray;
     }
 }
 
-ErrorCodes_t MessageDispatcher::getCurrentStimulusLpfs(std::vector <std::string> &filterOptions){
+ErrorCodes_t MessageDispatcher::getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters){
     if(ccCurrentFiltersArray.size()==0){
         return ErrorFeatureNotImplemented;
     } else {
-        for(uint16_t i = 0; i < ccCurrentFiltersArray.size(); i++){
-            filterOptions[i] = ccCurrentFiltersArray[i].niceLabel();
-        }
+        ccCurrentFilters = ccCurrentFiltersArray;
     }
 }
 
