@@ -1099,7 +1099,6 @@ ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(RangedMeasurement_t 
         voltageHoldTunerFeatures = vHoldRange;
         return Success;
     }
-
 }
 
 ErrorCodes_t MessageDispatcher::getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures){

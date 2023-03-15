@@ -106,15 +106,18 @@ void MessageDispatcher_384Fake::readDataFromDevice() {
         /*! No data to receive, just sleep */
         this_thread::sleep_for(chrono::milliseconds(10));
 
-        unsigned char d1 = (syntheticData & 0xFF00) >> 8;
-        unsigned char d2 = syntheticData & 0x00FF;
-        syntheticData += 50;
-
-        for (uint32_t idx = 0; idx < totalChannelsNum; idx++) {
-            rxRawBuffer[rxRawBufferWriteOffset] = d1;
-            rxRawBuffer[rxRawBufferWriteOffset+1] = d2;
+        for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
+            rxRawBuffer[rxRawBufferWriteOffset] = ((syntheticData+idx*20) & 0x0F00) >> 8;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
             rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
         }
+
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            rxRawBuffer[rxRawBufferWriteOffset] = ((syntheticData+idx*20) & 0xFF00) >> 8;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+            rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+        }
+        syntheticData += 50;
         rxRawBufferReadLength += totalChannelsNum*RX_WORD_SIZE;
 
         this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
