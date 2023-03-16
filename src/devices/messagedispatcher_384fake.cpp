@@ -107,7 +107,7 @@ void MessageDispatcher_384Fake::readDataFromDevice() {
         this_thread::sleep_for(chrono::milliseconds(10));
 
         for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
-            rxRawBuffer[rxRawBufferWriteOffset] = ((syntheticData+idx*20) & 0x0F00) >> 8;
+            rxRawBuffer[rxRawBufferWriteOffset] = (((syntheticData+idx*20) & 0x1F00) >> 8) - 0x10;
             rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
             rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
         }
