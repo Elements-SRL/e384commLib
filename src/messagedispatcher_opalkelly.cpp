@@ -268,16 +268,16 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageDataHeader]) {
-                            this->storeDataHeaderFrame();
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader, RxMessageDataLoad);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageDataTail]) {
-                            this->storeDataTailFrame();
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail, RxMessageDataLoad);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageStatus]) {
-                            this->storeStatusFrame();
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus, RxMessageDataLoad);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageOffset]) {
-                            this->storeVoltageOffsetFrame();
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp, RxMessageDataLoad);
                         }
 
                         rxFrameOffset = rxRawBufferReadOffset;

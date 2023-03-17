@@ -108,6 +108,7 @@ typedef enum MsgGroup {
     MsgGroupCurrentTrials =             0x1000, /*!< Messages regarding current protocols. */
     MsgGroupAcquiredData =              0x1400, /*!< Messages regarding acquired data. */
     MsgGroupFeatures =                  0x1800, /*!< Messages regarding device's features. */
+    MsgGroupDeviceStatus =              0x2000, /*!< Messages regarding device's status. */
     MsgGroupCalibrationUtilities =      0x7C00  /*!< Messages used for calibrating the device. */
 } MsgGroup_t;
 
@@ -157,6 +158,10 @@ typedef enum MsgTypeId {
     MsgTypeIdDigitalTriggerOutput =     MsgGroupFeatures+0x0004, /*!< Message used to configure the digital trigger output. */
     MsgTypeIdLockIn =                   MsgGroupFeatures+0x0005, /*!< Message used to enter lock in mode for impendance estimation. */
     MsgTypeIdInvalid =                  MsgGroupFeatures+0x03FF, /*!< Invalid message used only for initiliazation purposes. */
+
+    /*! Device status message*/
+    MsgTypeIdDeviceStatus =             MsgGroupDeviceStatus+0x0001, /*!< Message containing the device status. */
+
 } MsgTypeId_t;
 
 /********************\
