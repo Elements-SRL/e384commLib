@@ -212,6 +212,8 @@ protected:
 
     std::unordered_map <uint16_t, bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
 
+    std::vector <CommandCoder*> coders;
+
     BoolCoder * asicResetCoder = nullptr;
     BoolCoder * fpgaResetCoder = nullptr;
     BoolCoder * docResetCoder = nullptr; //DOC = digital offset compensation

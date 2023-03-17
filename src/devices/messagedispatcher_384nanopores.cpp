@@ -209,48 +209,56 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     asicResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(asicResetCoder);
 
     /*! FPGA reset */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 1;
     boolConfig.bitsNum = 1;
     fpgaResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(fpgaResetCoder);
 
     /*! DOC reset */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 2;
     boolConfig.bitsNum = 1;
     docResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(docResetCoder);
 
     /*! Sampling rate */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 3;
     boolConfig.bitsNum = 4;
     samplingRateCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(samplingRateCoder);
 
     /*! Clamping mode */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 7;
     boolConfig.bitsNum = 8;
     clampingModeCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(clampingModeCoder);
 
     /*! DOC override */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 9;
     boolConfig.bitsNum = 1;
     docOverrideCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(docOverrideCoder);
 
     /*! Current range VC */
     boolConfig.initialWord = 1+9; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
     vcCurrentRangeCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(vcCurrentRangeCoder);
 
     /*! Voltage range VC */
     boolConfig.initialWord = 1+9; //updated
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
     vcVoltageRangeCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(vcVoltageRangeCoder);
 
     /*! Current range CC */
     // undefined
@@ -263,6 +271,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     boolConfig.initialBit = 0;//4;
     boolConfig.bitsNum = 4;
     vcCurrentFilterCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(vcCurrentFilterCoder);
 
     /*! Voltage filter VC */
     // undefined
@@ -280,6 +289,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     digitalOffsetCompensationCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         digitalOffsetCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(digitalOffsetCompensationCoders[idx]);
         boolConfig.initialBit++;
         if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
             boolConfig.initialBit = 0;
@@ -295,6 +305,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     enableStimulusCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         enableStimulusCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(enableStimulusCoders[idx]);
         boolConfig.initialBit++;
         if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
             boolConfig.initialBit = 0;
@@ -309,6 +320,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     turnChannelsOnCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         turnChannelsOnCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(turnChannelsOnCoders[idx]);
         boolConfig.initialBit++;
         if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
             boolConfig.initialBit = 0;
@@ -326,6 +338,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     vHoldTunerCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         vHoldTunerCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(vHoldTunerCoders[idx]);
         doubleConfig.initialWord++;
     }
 
@@ -339,6 +352,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     calibVcCurrentGainCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(calibVcCurrentGainCoders[idx]);
         doubleConfig.initialWord++;
     }
 
@@ -354,6 +368,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
             calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
             doubleConfig.initialWord++;
         }
     }
@@ -368,6 +383,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     gateVoltageCoders.resize(totalBoardsNum);
     for (uint32_t idx = 0; idx < totalBoardsNum; idx++) {
         gateVoltageCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(gateVoltageCoders[idx]);
         doubleConfig.initialWord++;
     }
 
@@ -381,6 +397,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     sourceVoltageCoders.resize(totalBoardsNum);
     for (uint32_t idx = 0; idx < totalBoardsNum; idx++) {
         sourceVoltageCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(sourceVoltageCoders[idx]);
         doubleConfig.initialWord++;
     }
 
@@ -393,6 +410,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     doubleConfig.resolution = 1.0;
     doubleConfig.offset = 0.0;
     stimRestCoder = new DoubleTwosCompCoder(doubleConfig);
+    coders.push_back(stimRestCoder);
 
     /*! Default status */
     txStatus.resize(txDataWords);
@@ -401,7 +419,9 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 }
 
 MessageDispatcher_384NanoPores_V01::~MessageDispatcher_384NanoPores_V01() {
-
+    for (auto coder : coders) {
+        delete coder;
+    }
 }
 
 //void MessageDispatcher_384NanoPores_V01::updateDeviceStatus(vector <bool> &fsmRunFlag, bool &poreForming, bool &communicationError) {
