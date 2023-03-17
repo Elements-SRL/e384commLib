@@ -1301,22 +1301,6 @@ void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rx
     }
 }
 
-void MessageDispatcher::storeDataHeaderFrame() {
-
-}
-
-void MessageDispatcher::storeDataTailFrame() {
-
-}
-
-void MessageDispatcher::storeStatusFrame() {
-
-}
-
-void MessageDispatcher::storeVoltageOffsetFrame() {
-
-}
-
 void MessageDispatcher::stackOutgoingMessage(vector <uint16_t> &txDataMessage) {
     if (txModifiedEndingWord > txModifiedStartingWord) {
         unique_lock <mutex> txMutexLock (txMutex);

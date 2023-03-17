@@ -157,7 +157,7 @@ public:
 
 
 protected:
-
+    // Check Device->PC table in protocol
     typedef enum RxMessageTypes {
         RxMessageDataLoad,
         RxMessageDataHeader,
@@ -179,10 +179,6 @@ protected:
     bool checkProtocolValidity(std::string &message);
 
     void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);
-    void storeDataHeaderFrame();
-    void storeDataTailFrame();
-    void storeStatusFrame();
-    void storeVoltageOffsetFrame();
 
     void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage);
     uint16_t popUint16FromRxRawBuffer();
