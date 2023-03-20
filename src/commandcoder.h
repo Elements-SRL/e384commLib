@@ -142,7 +142,6 @@ private:
 
 public:
     MultiCoder (MultiCoderConfig_t multiConfig);
-    virtual ~MultiCoder();
 
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord);
 };

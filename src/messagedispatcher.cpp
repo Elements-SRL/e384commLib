@@ -22,6 +22,8 @@ using namespace std;
 static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
     {"221000107S", Device384Nanopores},
     {"221000108T", Device384Nanopores},
+    {"221000106B", Device384Nanopores},
+    {"221000106C", Device384Nanopores},
     {"pup", Device384PatchClamp}
     #ifdef DEBUG
     ,{"FAKE", Device384Fake}
