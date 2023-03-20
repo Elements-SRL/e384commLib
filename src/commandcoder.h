@@ -88,13 +88,12 @@ public:
         double resolution = 1.0;
         double minValue = 0.0;
         double maxValue = 0.0;
-        double offset = 0.0;
     } CoderConfig_t;
 
     DoubleCoder(CoderConfig_t config);
     virtual ~DoubleCoder();
 
-    virtual void encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) = 0;
+    virtual double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) = 0;
 
 protected:
     double clip(double value);
@@ -104,7 +103,6 @@ protected:
     double resolution;
     double minValue;
     double maxValue;
-    double offset;
 };
 
 class DoubleTwosCompCoder : public DoubleCoder {
@@ -112,7 +110,7 @@ public:
     DoubleTwosCompCoder(CoderConfig_t config);
     virtual ~DoubleTwosCompCoder();
 
-    void encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
+    double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
 };
 
 class DoubleOffsetBinaryCoder : public DoubleCoder {
@@ -120,7 +118,7 @@ public:
     DoubleOffsetBinaryCoder(CoderConfig_t config);
     virtual ~DoubleOffsetBinaryCoder();
 
-    void encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
+    double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
 };
 
 class DoubleSignAbsCoder : public DoubleCoder {
@@ -128,7 +126,7 @@ public:
     DoubleSignAbsCoder(CoderConfig_t config);
     virtual ~DoubleSignAbsCoder();
 
-    void encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
+    double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
 };
 
 #endif // COMMANDCODER_H

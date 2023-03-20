@@ -333,8 +333,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = vHoldRange.step;
-    doubleConfig.minValue = SHORT_MIN*doubleConfig.resolution;
-    doubleConfig.maxValue = SHORT_MAX*doubleConfig.resolution;
+    doubleConfig.minValue = vHoldRange.min;
+    doubleConfig.maxValue = vHoldRange.max;
     vHoldTunerCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         vHoldTunerCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
@@ -400,17 +400,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         coders.push_back(sourceVoltageCoders[idx]);
         doubleConfig.initialWord++;
     }
-
-    /*! VRest */
-    doubleConfig.initialWord = 174+9; //updated
-    doubleConfig.initialBit = 3;
-    doubleConfig.bitsNum = 13;
-    doubleConfig.minValue = -512.0;
-    doubleConfig.maxValue = 511.0;
-    doubleConfig.resolution = 1.0;
-    doubleConfig.offset = 0.0;
-    stimRestCoder = new DoubleTwosCompCoder(doubleConfig);
-    coders.push_back(stimRestCoder);
 
     /*! Default status */
     txStatus.resize(txDataWords);
