@@ -113,24 +113,24 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate100Hz].value = 100.0;
-    samplingRatesArray[SamplingRate100Hz].prefix = UnitPfxNone;
-    samplingRatesArray[SamplingRate100Hz].unit = "Hz";
-    defaultSamplingRateIdx = SamplingRate100Hz;
+    samplingRatesArray[SamplingRate5kHz].value = 5.0;
+    samplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate5kHz].unit = "Hz";
+    defaultSamplingRateIdx = SamplingRate5kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate100Hz].value = 100.0;
-    realSamplingRatesArray[SamplingRate100Hz].prefix = UnitPfxNone;
-    realSamplingRatesArray[SamplingRate100Hz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate5kHz].value = 5.0;
+    realSamplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate5kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate100Hz].value = 0.01;
-    integrationStepArray[SamplingRate100Hz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate100Hz].unit = "s";
+    integrationStepArray[SamplingRate5kHz].value = 2;
+    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMilli;
+    integrationStepArray[SamplingRate5kHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-      {SamplingRate100Hz, VCCurrentFilter20kHz}
+      {SamplingRate5kHz, VCCurrentFilter20kHz}
     };
 
     // mapping ADC Current Clamp

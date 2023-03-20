@@ -187,3 +187,30 @@ double DoubleSignAbsCoder::encode(double value, vector <uint16_t> &encodingWords
         return resolution*(double)uintValue;
     }
 }
+
+//---------------MULTICODER-----------------------------//
+MultiCoder::MultiCoder(MultiCoderConfig_t multiConfig) :
+    CommandCoder(0, 0, 0),
+    multiConfig(multiConfig) {
+
+}
+
+double MultiCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord){
+    bool done = false;
+    double ret;
+    int i;
+    for(i = 0; i<multiConfig.thresholdVector.size(); i++){
+        if (value<multiConfig.thresholdVector[i] && !done){
+            multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
+            ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);
+            done = true;
+        }
+    }
+    if (!done){
+        multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
+        ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);
+        done = true;
+    }
+    return ret;
+
+}

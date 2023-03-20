@@ -54,7 +54,7 @@ protected:
     };
 
     enum SamplingRates {
-        SamplingRate100Hz,
+        SamplingRate5kHz,
         SamplingRatesNum
     };
 

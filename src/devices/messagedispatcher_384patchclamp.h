@@ -13,45 +13,79 @@ public:
     virtual ~MessageDispatcher_384PatchClamp_V01();
 
 protected:
+    enum ClampingModalities {
+        VoltageClamp,
+        CurrentClamp,
+        ClampingModalitiesNum
+    };
+
     enum VCCurrentRanges {
-        VCCurrentRange4uA,
-        VCCurrentRange200nA,
+        VCCurrentRange10nA,
+        VCCurrentRange40nALbw,
+        VCCurrentRange40nAHbw,
+        VCCurrentRange400nA,
         VCCurrentRangesNum
     };
 
     enum VCVoltageRanges {
-        VCVoltageRange500mV,
+        VCVoltageRange512mV,
         VCVoltageRangesNum
     };
 
     enum CCCurrentRanges {
-        CCCurrentRangesNum = 0
+        CCCurrentRange8nA,
+        CCCurrentRangesNum
     };
 
     enum CCVoltageRanges {
-        CCVoltageRangesNum = 0
+        CCVoltageRange1000mV,
+        CCVoltageRangesNum
     };
 
     enum VCCurrentFilters {
+        VCCurrentFilter3kHz,
+        VCCurrentFilter3_6kHz,
+        VCCurrentFilter10kHz,
+        VCCurrentFilter12kHz,
+        VCCurrentFilter25kHz,
+        VCCurrentFilter30kHz,
         VCCurrentFilter100kHz,
-        VCCurrentFilter20kHz,
+        VCCurrentFilter120kHz,
         VCCurrentFiltersNum
     };
 
     enum VCVoltageFilters {
-        VCVoltageFiltersNum = 0
+        VCVoltageFilter1kHz,
+        VCVoltageFilter10kHz,
+        VCVoltageFilter35kHz,
+        VCVoltageFiltersNum
     };
 
     enum CCCurrentFilters {
-        CCCurrentFiltersNum = 0
+        CCCurrentFilter1kHz,
+        CCCurrentFilter10kHz,
+        CCCurrentFilter35kHz,
+        CCCurrentFiltersNum
     };
 
     enum CCVoltageFilters {
-        CCVoltageFiltersNum = 0
+        CCVoltageFilter3kHz,
+        CCVoltageFilter3_6kHz,
+        CCVoltageFilter10kHz,
+        CCVoltageFilter12kHz,
+        CCVoltageFilter25kHz,
+        CCVoltageFilter30kHz,
+        CCVoltageFilter100kHz,
+        CCVoltageFilter120kHz,
+        CCVoltageFiltersNum
     };
 
     enum SamplingRates {
-        SamplingRate100Hz,
+        SamplingRate6_25kHz,
+        SamplingRate12_5kHz,
+        SamplingRate25kHz,
+        SamplingRate50kHz,
+        SamplingRate100kHz,
         SamplingRatesNum
     };
 

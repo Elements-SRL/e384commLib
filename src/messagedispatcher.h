@@ -22,6 +22,8 @@
 #define SHORT_MIN (-SHORT_MAX-1.0)
 #define USHORT_MAX (static_cast <double> (0xFFFF))
 #define UINT10_MAX (static_cast <double> (0x3FF))
+#define UINT13_MAX (static_cast <double> (0x1FFF))
+#define INT13_MAX (static_cast <double> (0x0FFF))
 #define INT14_MAX (static_cast <double> (0x1FFF))
 #define UINT14_MAX (static_cast <double> (0x3FFF))
 #define INT18_MAX (static_cast <double> (0x1FFFF))
@@ -287,6 +289,7 @@ protected:
     std::vector <BoolCoder *> digitalOffsetCompensationCoders;
 
     std::vector<Measurement_t> selectedVoltageHoldVector;
+    std::vector<Measurement_t> selectedCurrentHoldVector;
     std::vector <DoubleCoder *> vHoldTunerCoders;
     std::vector <DoubleCoder *> cHoldTunerCoders;
 

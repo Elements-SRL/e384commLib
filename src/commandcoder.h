@@ -129,4 +129,22 @@ public:
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
 };
 
+//---------------MULTICODER-----------------------------//
+class MultiCoder : CommandCoder{
+    typedef struct MultiCoderConfig {
+        BoolArrayCoder* boolCoder;
+        std::vector<DoubleCoder*> doubleCoderVector;
+        std::vector<double> thresholdVector;
+    } MultiCoderConfig_t;
+
+private:
+    MultiCoderConfig_t multiConfig;
+
+public:
+    MultiCoder (MultiCoderConfig_t multiConfig);
+    virtual ~MultiCoder();
+
+    double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord);
+};
+
 #endif // COMMANDCODER_H
