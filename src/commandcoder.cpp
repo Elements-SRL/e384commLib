@@ -200,6 +200,7 @@ double MultiCoder::encode(double value, std::vector <uint16_t> &encodingWords, u
     double ret;
     int i;
     for(i = 0; i<multiConfig.thresholdVector.size(); i++){
+        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
         if (value<multiConfig.thresholdVector[i] && !done){
             multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
             ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);

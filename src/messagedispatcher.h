@@ -322,6 +322,20 @@ protected:
     BoolArrayCoder * bitDebugCoder = nullptr;
     BoolArrayCoder * wordDebugCoder = nullptr;
 
+    /*!Compensations coders*/
+    std::vector<BoolCoder*> pipetteCapEnCompensationCoders;
+    std::vector<MultiCoder*> pipetteCapValCompensationMultiCoders;
+    std::vector<BoolCoder*> membraneCapEnCompensationCoders;
+    std::vector<MultiCoder*> membraneCapValCompensationMultiCoders;
+    std::vector<MultiCoder*> membraneCapTauValCompensationMultiCoders; // includes Tau Values and Tau Ranges
+    std::vector<BoolCoder*>  rsCorrEnCompensationCoders;
+    std::vector<DoubleCoder*>  rsCorrValCompensationCoders;
+    std::vector<BoolArrayCoder*>  rsCorrBwCompensationCoders;
+    std::vector<BoolCoder*>  rsPredEnCompensationCoders;
+    std::vector<DoubleCoder*> rsPredGainCompensationCoders;
+    std::vector<DoubleCoder*> rsPredTauCompensationCoders;
+
+
     /***************\
      *  Variables  *
     \***************/

@@ -1,8 +1,6 @@
 #ifndef MESSAGEDISPATCHER_384PATCHCLAMP_H
 #define MESSAGEDISPATCHER_384PATCHCLAMP_H
 
-/*! \todo FCON tutto da rifare, è una copia del nanopore */
-
 #include "messagedispatcher_opalkelly.h"
 
 using namespace std;
@@ -13,6 +11,10 @@ public:
     virtual ~MessageDispatcher_384PatchClamp_V01();
 
 protected:
+    const double nominalClock = 102.4; //MHz
+    const double actualClock = 81.92; //MHz
+    const double clockRatio = actualClock / nominalClock;
+
     enum ClampingModalities {
         VoltageClamp,
         CurrentClamp,

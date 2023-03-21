@@ -130,20 +130,20 @@ public:
 };
 
 //---------------MULTICODER-----------------------------//
-class MultiCoder : CommandCoder{
+class MultiCoder : public CommandCoder{
+public:
     typedef struct MultiCoderConfig {
         BoolArrayCoder* boolCoder;
         std::vector<DoubleCoder*> doubleCoderVector;
         std::vector<double> thresholdVector;
     } MultiCoderConfig_t;
 
-private:
-    MultiCoderConfig_t multiConfig;
-
-public:
     MultiCoder (MultiCoderConfig_t multiConfig);
 
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord);
+
+private:
+    MultiCoderConfig_t multiConfig;
 };
 
 #endif // COMMANDCODER_H

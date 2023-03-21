@@ -299,6 +299,85 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
     Measurement_t defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
 
+    /*! Pipette capacitance */
+    const double pipetteVarResistance = 100.0e-3;
+    const double pipetteFixedResistance = 80.0e-3;
+    const int pipetteCapacitanceRanges = 4;
+    const double pipetteCapacitanceValuesNum = 64.0;
+
+    vector <double> pipetteInjCapacitance = {2.5, 5.0, 10.0, 20.0};
+
+    vector <double> pipetteCapacitanceMin_pF;
+    vector <double> pipetteCapacitanceMax_pF;
+    vector <double> pipetteCapacitanceStep_pF;
+
+    for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
+        pipetteCapacitanceStep_pF[idx] = pipetteVarResistance/pipetteCapacitanceValuesNum/pipetteFixedResistance*pipetteInjCapacitance[idx];
+        pipetteCapacitanceMin_pF[idx] = pipetteVarResistance/pipetteFixedResistance*pipetteInjCapacitance[idx]+pipetteCapacitanceStep_pF[idx];
+        pipetteCapacitanceMax_pF[idx] = pipetteCapacitanceMin_pF[idx]+(pipetteCapacitanceValuesNum-1.0)*pipetteCapacitanceStep_pF[idx];
+    }
+
+    /*! Membrane capacitance*/
+    const double membraneCapValueResistanceRatio = 2.0;
+    const int membraneCapValueRanges = 4;
+    const double membraneCapValueValuesNum = 64.0; // 6 bits
+
+    vector <double> membraneCapValueInjCapacitance = {5.0, 15.0, 45.0, 135.0};
+
+    vector <double> membraneCapValueMin_pF;
+    vector <double> membraneCapValueMax_pF;
+    vector <double> membraneCapValueStep_pF;
+
+    for (int idx = 0; idx < membraneCapValueRanges; idx++) {
+        membraneCapValueStep_pF[idx] = membraneCapValueResistanceRatio/membraneCapValueValuesNum * membraneCapValueInjCapacitance[idx];
+        membraneCapValueMin_pF[idx] = (1.0 + membraneCapValueResistanceRatio/membraneCapValueValuesNum) * membraneCapValueInjCapacitance[idx];
+        membraneCapValueMax_pF[idx] = membraneCapValueMin_pF[idx] + (membraneCapValueValuesNum - 1.0) * membraneCapValueStep_pF[idx];
+    }
+
+    /*! Membrane capacitance TAU*/
+    const int membraneCapTauValueRanges = 2;
+    const double membraneCapTauValueVarResistance_MOhm = 51.2 / this->clockRatio; /*! affected by switch cap clock!!!!!*/
+    const double membraneCapTauValueValuesNum = 256.0; // 8 bits
+
+    vector <double> membraneCapTauValueCapacitance = {2.5, 25.0};
+
+    vector<double> membraneCapTauValueMin_us;
+    vector<double> membraneCapTauValueMax_us;
+    vector<double> membraneCapTauValueStep_us;
+
+    for (int idx = 0; idx < membraneCapTauValueRanges; idx++) {
+        membraneCapTauValueStep_us[idx] = membraneCapTauValueVarResistance_MOhm * membraneCapTauValueCapacitance[idx] / membraneCapTauValueValuesNum;
+        membraneCapTauValueMin_us[idx] = membraneCapTauValueStep_us[idx];
+        membraneCapTauValueMax_us[idx] = membraneCapTauValueMin_us[idx] + (membraneCapTauValueValuesNum - 1.0) * membraneCapTauValueStep_us[idx];
+    }
+
+    /*! Rs correction*/
+    RangedMeasurement_t rsCorrValueRange;
+    rsCorrValueRange.step = 0.4; // MOhm
+    rsCorrValueRange.min = 0.4; // MOhm
+    rsCorrValueRange.max = 25.6; // MOhm
+    rsCorrValueRange.prefix = UnitPfxMega;
+    rsCorrValueRange.unit = "Ohm";
+
+
+    /*! Rs prediction GAIN*/
+    RangedMeasurement_t rsPredGainRange;
+    const double rsPredGainValuesNum = 64.0;
+    rsPredGainRange.step = 1/16.0; // MOhm
+    rsPredGainRange.min = 1 + rsPredGainRange.step; // MOhm
+    rsPredGainRange.max = rsPredGainRange.min + rsPredGainRange.step * (rsPredGainValuesNum -1) ; // MOhm
+    rsPredGainRange.prefix = UnitPfxMega;
+    rsPredGainRange.unit = "Ohm";
+
+    /*! Rs prediction TAU*/
+    RangedMeasurement_t rsPredTauRange;
+    const double rsPredTauValuesNum = 256.0;
+    rsPredTauRange.step = 2.0 / this->clockRatio; /*! affected by switch cap clock!!!!!*/
+    rsPredTauRange.min = rsPredTauRange.step;
+    rsPredTauRange.max = rsPredTauRange.min + rsPredTauRange.step * (rsPredTauValuesNum -1) ;
+    rsPredTauRange.prefix = UnitPfxMicro;
+    rsPredTauRange.unit = "s";
+
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
     currentResolution = currentRange.step;
@@ -325,6 +404,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     /*! Input controls */
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
+    MultiCoder::MultiCoderConfig_t multiCoderConfig;
 
     /*! Asic reset */
     boolConfig.initialWord = 0;
@@ -514,6 +594,282 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
             calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
+
+    /*! Cfast / pipette capacitance compensation ENABLE */
+    boolConfig.initialWord = 1611+9; //updated
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    pipetteCapEnCompensationCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        pipetteCapEnCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(pipetteCapEnCompensationCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    /*! Cfast / pipette capacitance compensation VALUE*/
+    pipetteCapValCompensationMultiCoders.resize(currentChannelsNum);
+
+    boolConfig.initialWord = 1635+9;
+    boolConfig.initialBit = 6;
+    boolConfig.bitsNum = 2;
+
+    doubleConfig.initialWord = 1635+9;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 6;
+
+    multiCoderConfig.doubleCoderVector.resize(pipetteCapacitanceRanges);
+    multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
+
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
+        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        coders.push_back(multiCoderConfig.boolCoder);
+        for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
+            doubleConfig.minValue = pipetteCapacitanceMin_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.maxValue = pipetteCapacitanceMax_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.resolution = pipetteCapacitanceStep_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
+
+            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+
+            if (rangeIdx < pipetteCapacitanceRanges-1) {
+                /*! \todo RECHECK: computed as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceMax_pF[rangeIdx]+pipetteCapacitanceMin_pF[rangeIdx+1]);
+            }
+        }
+        pipetteCapValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        coders.push_back(pipetteCapValCompensationMultiCoders[idx]);
+
+        /*! Initial bits for the 2 bits for range : 6 and 6+8 = 14 */
+        boolConfig.initialBit += 8;
+        if(boolConfig.initialBit > 14){
+            boolConfig.initialBit = 6;
+            boolConfig.initialWord++;
+        }
+
+        /*! Initial bits for the 6 bits for Cfast value : 0 and 0+8 = 8 */
+        doubleConfig.initialBit += 8;
+        if (doubleConfig.initialBit > 8){
+            doubleConfig.initialBit  = 0;
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! Cslow / membrane capacitance compensation ENABLE */
+    boolConfig.initialWord = 1827+9; //updated
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    membraneCapEnCompensationCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        membraneCapEnCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(membraneCapEnCompensationCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    /*! Cslow / membrane capacitance compensation */
+    membraneCapValCompensationMultiCoders.resize(currentChannelsNum);
+
+    boolConfig.initialWord = 1851+9;
+    boolConfig.initialBit = 6;
+    boolConfig.bitsNum = 2;
+
+    doubleConfig.initialWord = 1851+9;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 6;
+
+    multiCoderConfig.doubleCoderVector.resize(membraneCapValueRanges);
+    multiCoderConfig.thresholdVector.resize(membraneCapValueRanges-1);
+
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
+        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        coders.push_back(multiCoderConfig.boolCoder);
+        for (uint32_t rangeIdx = 0; rangeIdx < membraneCapValueRanges; rangeIdx++) {
+            doubleConfig.minValue = membraneCapValueMin_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.maxValue = membraneCapValueMax_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.resolution = membraneCapValueStep_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
+
+            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+
+            if (rangeIdx < membraneCapValueRanges-1) {
+                /*! \todo RECHECK: computed as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(membraneCapValueMax_pF[rangeIdx]+membraneCapValueMin_pF[rangeIdx+1]);
+            }
+        }
+        membraneCapValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        coders.push_back(membraneCapValCompensationMultiCoders[idx]);
+
+        /*! Initial bits for the 2 bits for range : 6 and 6+8 = 14 */
+        boolConfig.initialBit += 8;
+        if(boolConfig.initialBit > 14){
+            boolConfig.initialBit = 6;
+            boolConfig.initialWord++;
+        }
+
+        /*! Initial bits for the 6 bits for Cslow value : 0 and 0+8 = 8 */
+        doubleConfig.initialBit += 8;
+        if (doubleConfig.initialBit > 8){
+            doubleConfig.initialBit  = 0;
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! Cslow / membrane capacitance compensation TAU and TAU RANGES */
+    membraneCapTauValCompensationMultiCoders.resize(currentChannelsNum);
+
+    doubleConfig.initialWord = 2043+9;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 8;
+
+    boolConfig.initialWord = 2235+9;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+
+    multiCoderConfig.doubleCoderVector.resize(membraneCapTauValueRanges);
+    multiCoderConfig.thresholdVector.resize(membraneCapTauValueRanges-1);
+
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        /*! to encode the range, individual bits starting from word 2244*/
+        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        coders.push_back(multiCoderConfig.boolCoder);
+        for (uint32_t rangeIdx = 0; rangeIdx < membraneCapTauValueRanges; rangeIdx++) {
+            doubleConfig.minValue =  membraneCapTauValueMin_us[rangeIdx];
+            doubleConfig.maxValue = membraneCapTauValueMax_us[rangeIdx];
+            doubleConfig.resolution = membraneCapTauValueStep_us[rangeIdx];
+
+            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+
+            if (rangeIdx < membraneCapTauValueRanges-1) {
+                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapTauValueMax_us[rangeIdx] + membraneCapTauValueStep_us[rangeIdx];
+            }
+        }
+        membraneCapTauValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        coders.push_back(membraneCapTauValCompensationMultiCoders[idx]);
+
+
+        doubleConfig.initialBit += 8;
+        if (doubleConfig.initialBit > 8){
+            doubleConfig.initialBit  = 0;
+            doubleConfig.initialWord++;
+        }
+
+        boolConfig.initialBit++;
+        if(boolConfig.initialBit == CMC_BITS_PER_WORD){
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    /*! Rs correction compensation ENABLE*/
+    boolConfig.initialWord = 2259+9; //updated
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    rsCorrEnCompensationCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        rsCorrEnCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(rsCorrEnCompensationCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    /*! Rs correction compensation VALUE*/
+    doubleConfig.initialWord = 2283+9; //updated
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 6;
+    doubleConfig.resolution = rsCorrValueRange.step;
+    doubleConfig.minValue = rsCorrValueRange.min;
+    doubleConfig.maxValue = rsCorrValueRange.max;
+    rsCorrValCompensationCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        rsCorrValCompensationCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(rsCorrValCompensationCoders[idx]);
+        doubleConfig.initialBit += 8;
+        if (doubleConfig.initialBit > 8){
+            doubleConfig.initialBit  = 0;
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! Rs correction compensation BANDWIDTH*/
+    /*! \todo QUESTO VIENE IMPATTATO DALLA SWITCHED CAP FREQUENCY SOILO  A LIVELLO DI RAPPRESENTAZINE DI STRINGHE PER LA BANDA NELLA GUI. ATTIVAMENTE QUI NN FACCIAMO NULLA!!!!!*/
+    boolConfig.initialWord = 2475+9; //updated
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 3;
+    rsCorrBwCompensationCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        rsCorrBwCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(rsCorrBwCompensationCoders[idx]);
+        boolConfig.initialBit += 4;
+        if (boolConfig.initialBit >12) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    /*! Rs PREDICTION compensation ENABLE*/
+    boolConfig.initialWord = 2571+9; //updated
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    rsPredEnCompensationCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        rsPredEnCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(rsPredEnCompensationCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    /*! Rs prediction compensation GAIN*/
+    doubleConfig.initialWord = 2595+9; //updated
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 6;
+    doubleConfig.resolution = rsPredGainRange.step;
+    doubleConfig.minValue = rsPredGainRange.min;
+    doubleConfig.maxValue = rsPredGainRange.max;
+    rsPredGainCompensationCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        rsPredGainCompensationCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(rsPredGainCompensationCoders[idx]);
+        doubleConfig.initialBit += 8;
+        if (doubleConfig.initialBit > 8){
+            doubleConfig.initialBit  = 0;
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! Rs prediction compensation TAU*/
+    doubleConfig.initialWord = 2787+9; //updated
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 8;
+    doubleConfig.resolution = rsPredTauRange.step;
+    doubleConfig.minValue = rsPredTauRange.min;
+    doubleConfig.maxValue = rsPredTauRange.max;
+    rsPredTauCompensationCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        rsPredTauCompensationCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(rsPredTauCompensationCoders[idx]);
+        doubleConfig.initialBit += 8;
+        if (doubleConfig.initialBit > 8){
+            doubleConfig.initialBit  = 0;
             doubleConfig.initialWord++;
         }
     }
