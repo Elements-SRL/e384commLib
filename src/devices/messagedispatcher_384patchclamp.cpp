@@ -299,7 +299,12 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
     Measurement_t defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
 
-    /*! Pipette capacitance */
+
+    /*! Compensations */
+    /*! compValueMatrix contains one vector of compensation values for each of the channels (e.g. 384 channels) */
+    compValueMatrix.resize(currentChannelsNum, std::vector<double>(CompensationAsicParamsNum));
+
+    /*! ASIC DOMAIN Pipette capacitance */
     const double pipetteVarResistance = 100.0e-3;
     const double pipetteFixedResistance = 80.0e-3;
     const int pipetteCapacitanceRanges = 4;
@@ -334,7 +339,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
         membraneCapValueMax_pF[idx] = membraneCapValueMin_pF[idx] + (membraneCapValueValuesNum - 1.0) * membraneCapValueStep_pF[idx];
     }
 
-    /*! Membrane capacitance TAU*/
+    /*! ASIC DOMAIN Membrane capacitance TAU*/
     const int membraneCapTauValueRanges = 2;
     const double membraneCapTauValueVarResistance_MOhm = 51.2 / this->clockRatio; /*! affected by switch cap clock!!!!!*/
     const double membraneCapTauValueValuesNum = 256.0; // 8 bits
@@ -351,7 +356,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
         membraneCapTauValueMax_us[idx] = membraneCapTauValueMin_us[idx] + (membraneCapTauValueValuesNum - 1.0) * membraneCapTauValueStep_us[idx];
     }
 
-    /*! Rs correction*/
+    /*! ASIC DOMAIN Rs correction*/
     RangedMeasurement_t rsCorrValueRange;
     rsCorrValueRange.step = 0.4; // MOhm
     rsCorrValueRange.min = 0.4; // MOhm
@@ -360,7 +365,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     rsCorrValueRange.unit = "Ohm";
 
 
-    /*! Rs prediction GAIN*/
+    /*! ASIC DOMAIN Rs prediction GAIN*/
     RangedMeasurement_t rsPredGainRange;
     const double rsPredGainValuesNum = 64.0;
     rsPredGainRange.step = 1/16.0; // MOhm
@@ -369,7 +374,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     rsPredGainRange.prefix = UnitPfxMega;
     rsPredGainRange.unit = "Ohm";
 
-    /*! Rs prediction TAU*/
+    /*! ASIC DOMAIN Rs prediction TAU*/
     RangedMeasurement_t rsPredTauRange;
     const double rsPredTauValuesNum = 256.0;
     rsPredTauRange.step = 2.0 / this->clockRatio; /*! affected by switch cap clock!!!!!*/
@@ -386,6 +391,16 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
+    // Default USER DOMAIN compensation parameters
+    double defaultPipetteInjCapacitance = pipetteInjCapacitance[0];
+    double defaultMembraneCapValueInjCapacitance = membraneCapValueInjCapacitance[0];
+    double default_U_CpVc = defaultPipetteInjCapacitance;
+    double default_U_Cm = defaultMembraneCapValueInjCapacitance;
+    double default_U_Rs = 0.0;
+    double default_U_RsCp = 0.0;
+    double default_U_RsPg = rsPredGainRange.min;
+    double default_U_CpCc = defaultPipetteInjCapacitance;
+
     // Selected default Idx
     selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
@@ -396,6 +411,16 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     fill(selectedCurrentHoldVector.begin(), selectedCurrentHoldVector.end(), defaultCurrentHoldTuner);
     fill(selectedCalibVcCurrentGainVector.begin(), selectedCalibVcCurrentGainVector.end(), defaultCalibVcCurrentGain);
     fill(selectedCalibVcCurrentOffsetVector.begin(), selectedCalibVcCurrentOffsetVector.end(), defaultCalibVcCurrentOffset);
+
+    // Initialization of the USER compensation domain with standard parameters
+    for(int i = 0; i < currentChannelsNum; i++){
+        compValueMatrix[i][1] = default_U_CpVc;
+        compValueMatrix[i][2] = default_U_Cm;
+        compValueMatrix[i][3] = default_U_Rs;
+        compValueMatrix[i][4] = default_U_RsCp;
+        compValueMatrix[i][5] = default_U_RsPg;
+        compValueMatrix[i][6] = default_U_CpCc;
+    }
 
     /**********\
      * Coders *

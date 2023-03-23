@@ -95,6 +95,7 @@ protected:
         LedBlue,
         LedsNum
     };
+
 };
 
 #endif // MESSAGEDISPATCHER_384PATCHCLAMP_H

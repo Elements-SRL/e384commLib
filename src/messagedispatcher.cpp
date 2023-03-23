@@ -52,6 +52,7 @@ MessageDispatcher::MessageDispatcher(string deviceId) :
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation] = false;
+
 }
 
 MessageDispatcher::~MessageDispatcher() {
@@ -1493,4 +1494,141 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
 
     iirY[channelIdx][iirOff] = y;
     return y;
+}
+
+vector<double> MessageDispatcher::user2AsicDomainTransform(int chIdx, vector<double> userDomainParams){
+    vector<double> asicDomainParameter;
+    asicDomainParameter.resize(CompensationAsicParamsNum);
+    double cp; // pipette capacitance
+    double cm; // membrane capacitance
+    double taum; // membrane capacitance tau
+    double rsCr; // Rseries Correction
+    double rsPg; //Rseries prediction gain
+    double rsPtau; // Resies prediction tau
+
+    double asicCmCinj;
+
+    // membrane capacitance domain conversion
+    cm = userDomainParams[U_Cm];
+
+    // pipette capacitance VC to pipette capacitance domain conversion
+    /*! \todo aggiungere check se il multicoder esiste sulla size del vettore di puntatori  a multiCoder*/
+    bool done = false;
+    int i;
+    MultiCoder::MultiCoderConfig_t aaa;
+    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
+    for(i = 0; i<aaa.thresholdVector.size(); i++){
+        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+        if (cm < aaa.thresholdVector[i] && !done){
+            asicCmCinj = membraneCapValueInjCapacitance[i];
+            done = true;
+        }
+    }
+    if (!done){
+        asicCmCinj = membraneCapValueInjCapacitance[i];
+        done = true;
+    }
+
+    if(amIinVoltageClamp){
+        cp = userDomainParams[U_CpVc] + asicCmCinj;
+    } else {
+        // A_Cp
+        cp = userDomainParams[U_CpCc];
+    }
+
+    // Series resistance to Membrane tau domain conversion
+    taum = userDomainParams[U_Cm] * userDomainParams[U_Rs];
+
+    // Series correction percentage to Series correction resistance domain conversion
+    rsCr = userDomainParams[U_Rs] * userDomainParams[U_RsCp];
+
+    // Series prediction gain domain conversion
+    rsPg = userDomainParams[U_RsPg];
+
+    // pipette capacitance CC to Series prediction tau domain conversion
+    /*! \todo FCON recheck: a "* 2" or "/ 2" or maybe a "+ 1" might be missing */
+    rsPtau = taum / userDomainParams[U_RsPg];
+
+    asicDomainParameter[A_Cp] = cp;
+    asicDomainParameter[A_Cm] = cm;
+    asicDomainParameter[A_Taum] = taum;
+    asicDomainParameter[A_RsCr] = rsCr;
+    asicDomainParameter[A_RsPg] = rsPg;
+    asicDomainParameter[A_RsPtau] = rsPtau;
+
+    return asicDomainParameter;
+
+
+}
+
+std::vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc){
+    vector<double> userDomainParameter;
+    userDomainParameter.resize(CompensationUserParamsNum);
+
+    double cpVc;
+    double cm;
+    double rs;
+    double rsCp;
+    double rsPg;
+    double cpCC;
+
+    double asicCmCinj;
+
+    bool done = false;
+    int i;
+    MultiCoder::MultiCoderConfig_t aaa;
+    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
+    for(i = 0; i<aaa.thresholdVector.size(); i++){
+        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+        if (asicDomainParams[A_Cm] < aaa.thresholdVector[i] && !done){
+            asicCmCinj = membraneCapValueInjCapacitance[i];
+            done = true;
+        }
+    }
+    if (!done){
+        asicCmCinj = membraneCapValueInjCapacitance[i];
+        done = true;
+    }
+
+    //  pipette capacitance to pipette capacitance VC domain conversion
+    if(amIinVoltageClamp){
+        cpVc = asicDomainParams[A_Cp] - asicCmCinj;
+    } else {
+        cpVc = oldUCpVc; /*! \todo recheck */
+    }
+
+    // membrane capacitance domain conversion
+    cm = asicDomainParams[A_Cm];
+
+    // membrane tau to Series resistance domain conversion
+    rs = asicDomainParams[A_Taum] / asicDomainParams[A_Cm];
+
+    // Series correction resistance to Series correction percentage domain conversion
+    /*! \todo FCON recheck: should use U_Rs's value after it's been updated according to clipping */
+    rsCp = asicDomainParams[A_RsCr] / rs;
+
+    // Series prediction gain domain conversion
+    /*! \todo FCON RECHECK: a "* 2" or "/ 2" or maybe a "+ 1" might be missing */
+    rsPg = asicDomainParams[A_Taum] / asicDomainParams[A_RsPtau];
+
+    // Series prediction tau to Pipette capacitance CC domain conversion
+    if(amIinVoltageClamp){
+        cpCC = oldUCpCc; /*! \todo recheck */
+    } else {
+        cpCC = asicDomainParams[A_Cp];
+    }
+
+    userDomainParameter[U_CpVc] = cpVc;
+    userDomainParameter[U_Cm] = cm;
+    userDomainParameter[U_Rs] = rs;
+    userDomainParameter[U_RsCp] = rsCp;
+    userDomainParameter[U_RsPg] = rsPg;
+    userDomainParameter[U_CpCc] = cpCC;
+    return userDomainParameter;
+
+
+
+
+
+
 }

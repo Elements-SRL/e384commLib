@@ -215,3 +215,7 @@ double MultiCoder::encode(double value, std::vector <uint16_t> &encodingWords, u
     return ret;
 
 }
+
+void MultiCoder::getMultiConfig(MultiCoderConfig_t &myMultiConfig){
+    myMultiConfig = this->multiConfig;
+}

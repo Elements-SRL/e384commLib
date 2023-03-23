@@ -141,6 +141,7 @@ public:
     MultiCoder (MultiCoderConfig_t multiConfig);
 
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord);
+    void getMultiConfig(MultiCoderConfig_t &myMultiConfig);
 
 private:
     MultiCoderConfig_t multiConfig;

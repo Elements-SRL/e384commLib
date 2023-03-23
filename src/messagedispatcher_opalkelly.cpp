@@ -6,6 +6,7 @@ MessageDispatcher_OpalKelly::MessageDispatcher_OpalKelly(string deviceId) :
     MessageDispatcher(deviceId) {
 
     rxRawBufferMask = OKY_RX_BUFFER_MASK;
+
 }
 
 MessageDispatcher_OpalKelly::~MessageDispatcher_OpalKelly() {
