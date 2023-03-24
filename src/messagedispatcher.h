@@ -238,6 +238,10 @@ protected:
     std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams);
     std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);
 
+    //ErrorCodes_t getCompFeatures(uint16_t paramToUpdate);
+    ErrorCodes_t enableCompensation(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<bool> onValues, bool applyFlagIn);
+    ErrorCodes_t setCompValues(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
+
     /****************\
      *  Parameters  *
     \****************/
