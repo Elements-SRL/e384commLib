@@ -25,10 +25,13 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
         return ErrorDeviceConnectionFailed;
     }
 
-    error = dev->ConfigureFPGA(fwName);
+    if(!dev->IsFrontPanelEnabled()){
+        error = dev->ConfigureFPGA(fwName);
 
-    if (error != okCFrontPanel::NoError) {
-        return ErrorDeviceFwLoadingFailed;
+
+        if (error != okCFrontPanel::NoError) {
+            return ErrorDeviceFwLoadingFailed;
+        }
     }
 
     ErrorCodes_t err = this->initializeBuffers();
@@ -110,9 +113,10 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
         \******************/
 
         notSentTxData = true;
+        writeTries = 0;
         while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
             deviceMutexLock.lock();
-            if (dev->WriteRegisters(regs) != okCFrontPanel::NoError) {
+            if (dev->WriteRegisters(regs) == okCFrontPanel::NoError) {
                 dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
                 deviceMutexLock.unlock();
                 continue;
@@ -269,16 +273,16 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageDataHeader]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader, RxMessageDataLoad);
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader, RxMessageDataHeader);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageDataTail]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail, RxMessageDataLoad);
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail, RxMessageDataTail);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageStatus]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus, RxMessageDataLoad);
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus, RxMessageStatus);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageOffset]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp, RxMessageDataLoad);
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp, RxMessageVoltageOffset);
                         }
 
                         rxFrameOffset = rxRawBufferReadOffset;
