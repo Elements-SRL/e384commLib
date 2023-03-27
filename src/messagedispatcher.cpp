@@ -1627,6 +1627,62 @@ std::vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::
     return userDomainParameter;
 }
 
+/*! \todo FCON recheck: this function should return RangedMeasurements in the  USER DOMAIN, but we defined our RangedMeasurements in the ASIC DOMAIN. hOW SHALKL WE IMPLEMENT THIS?*/
+/*!  How shall we implement this?*/
+//ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures){
+//    switch(paramToExtractFeatures){
+//    case U_CpVc:
+//        if(pipetteCapEnCompensationCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        }
+
+//    break;
+
+//    case U_Cm:
+//        if(membraneCapEnCompensationCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        }
+
+//    break;
+
+//    case U_Rs:
+//        if(membraneCapTauValCompensationMultiCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        }
+
+//    break;
+
+//    case U_RsCp:
+//        if(rsCorrValCompensationCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        } else {
+//            compensationFeatures = rsCorrValueRange;
+//            return Success;
+//        }
+
+//    break;
+
+//    case U_RsPg:
+//        if(rsPredEnCompensationCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        } else {
+//            compensationFeatures = rsPredGainRange;
+//            return Success;
+//        }
+
+//    break;
+
+//    case U_CpCc:
+//        if(rsPredEnCompensationCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        }
+
+//    break;
+//    }
+
+//}
+
+
 ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<bool> onValues, bool applyFlagIn){
     for(int i = 0; i<chIdx.size(); i++){
         switch(paramToUpdate){
@@ -1778,3 +1834,4 @@ ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t> chIdx, uint1
     }
 
 }
+

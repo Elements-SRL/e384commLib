@@ -312,14 +312,25 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
     vector <double> pipetteInjCapacitance = {2.5, 5.0, 10.0, 20.0};
 
-    vector <double> pipetteCapacitanceMin_pF;
-    vector <double> pipetteCapacitanceMax_pF;
-    vector <double> pipetteCapacitanceStep_pF;
+//    vector <double> pipetteCapacitanceMin_pF;
+//    vector <double> pipetteCapacitanceMax_pF;
+//    vector <double> pipetteCapacitanceStep_pF;
+
+//    for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
+//        pipetteCapacitanceStep_pF[idx] = pipetteVarResistance/pipetteCapacitanceValuesNum/pipetteFixedResistance*pipetteInjCapacitance[idx];
+//        pipetteCapacitanceMin_pF[idx] = pipetteVarResistance/pipetteFixedResistance*pipetteInjCapacitance[idx]+pipetteCapacitanceStep_pF[idx];
+//        pipetteCapacitanceMax_pF[idx] = pipetteCapacitanceMin_pF[idx]+(pipetteCapacitanceValuesNum-1.0)*pipetteCapacitanceStep_pF[idx];
+//    }
+
+    /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
+//    vector<RangedMeasurement> pipetteCapacitanceRange_pF;
 
     for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
-        pipetteCapacitanceStep_pF[idx] = pipetteVarResistance/pipetteCapacitanceValuesNum/pipetteFixedResistance*pipetteInjCapacitance[idx];
-        pipetteCapacitanceMin_pF[idx] = pipetteVarResistance/pipetteFixedResistance*pipetteInjCapacitance[idx]+pipetteCapacitanceStep_pF[idx];
-        pipetteCapacitanceMax_pF[idx] = pipetteCapacitanceMin_pF[idx]+(pipetteCapacitanceValuesNum-1.0)*pipetteCapacitanceStep_pF[idx];
+        pipetteCapacitanceRange_pF[idx].step = pipetteVarResistance/pipetteCapacitanceValuesNum/pipetteFixedResistance*pipetteInjCapacitance[idx];
+        pipetteCapacitanceRange_pF[idx].min = pipetteVarResistance/pipetteFixedResistance*pipetteInjCapacitance[idx]+pipetteCapacitanceRange_pF[idx].step;
+        pipetteCapacitanceRange_pF[idx].max = pipetteCapacitanceRange_pF[idx].min+(pipetteCapacitanceValuesNum-1.0)*pipetteCapacitanceRange_pF[idx].step;
+        pipetteCapacitanceRange_pF[idx].prefix = UnitPfxPico;
+        pipetteCapacitanceRange_pF[idx].unit = "F";
     }
 
     /*! Membrane capacitance*/
@@ -329,15 +340,27 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
     vector <double> membraneCapValueInjCapacitance = {5.0, 15.0, 45.0, 135.0};
 
-    vector <double> membraneCapValueMin_pF;
-    vector <double> membraneCapValueMax_pF;
-    vector <double> membraneCapValueStep_pF;
+//    vector <double> membraneCapValueMin_pF;
+//    vector <double> membraneCapValueMax_pF;
+//    vector <double> membraneCapValueStep_pF;
+
+//    for (int idx = 0; idx < membraneCapValueRanges; idx++) {
+//        membraneCapValueStep_pF[idx] = membraneCapValueResistanceRatio/membraneCapValueValuesNum * membraneCapValueInjCapacitance[idx];
+//        membraneCapValueMin_pF[idx] = (1.0 + membraneCapValueResistanceRatio/membraneCapValueValuesNum) * membraneCapValueInjCapacitance[idx];
+//        membraneCapValueMax_pF[idx] = membraneCapValueMin_pF[idx] + (membraneCapValueValuesNum - 1.0) * membraneCapValueStep_pF[idx];
+//    }
+
+    /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
+//    vector<RangedMeasurement> membraneCapValueRange_pF;
 
     for (int idx = 0; idx < membraneCapValueRanges; idx++) {
-        membraneCapValueStep_pF[idx] = membraneCapValueResistanceRatio/membraneCapValueValuesNum * membraneCapValueInjCapacitance[idx];
-        membraneCapValueMin_pF[idx] = (1.0 + membraneCapValueResistanceRatio/membraneCapValueValuesNum) * membraneCapValueInjCapacitance[idx];
-        membraneCapValueMax_pF[idx] = membraneCapValueMin_pF[idx] + (membraneCapValueValuesNum - 1.0) * membraneCapValueStep_pF[idx];
+        membraneCapValueRange_pF[idx].step = membraneCapValueResistanceRatio/membraneCapValueValuesNum * membraneCapValueInjCapacitance[idx];
+        membraneCapValueRange_pF[idx].min = (1.0 + membraneCapValueResistanceRatio/membraneCapValueValuesNum) * membraneCapValueInjCapacitance[idx];
+        membraneCapValueRange_pF[idx].max = membraneCapValueRange_pF[idx].min + (membraneCapValueValuesNum - 1.0) * membraneCapValueRange_pF[idx].step;
+        membraneCapValueRange_pF[idx].prefix = UnitPfxPico;
+        membraneCapValueRange_pF[idx].unit = "F";
     }
+
 
     /*! ASIC DOMAIN Membrane capacitance TAU*/
     const int membraneCapTauValueRanges = 2;
@@ -346,18 +369,30 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
     vector <double> membraneCapTauValueCapacitance = {2.5, 25.0};
 
-    vector<double> membraneCapTauValueMin_us;
-    vector<double> membraneCapTauValueMax_us;
-    vector<double> membraneCapTauValueStep_us;
+//    vector<double> membraneCapTauValueMin_us;
+//    vector<double> membraneCapTauValueMax_us;
+//    vector<double> membraneCapTauValueStep_us;
+
+//    for (int idx = 0; idx < membraneCapTauValueRanges; idx++) {
+//        membraneCapTauValueStep_us[idx] = membraneCapTauValueVarResistance_MOhm * membraneCapTauValueCapacitance[idx] / membraneCapTauValueValuesNum;
+//        membraneCapTauValueMin_us[idx] = membraneCapTauValueStep_us[idx];
+//        membraneCapTauValueMax_us[idx] = membraneCapTauValueMin_us[idx] + (membraneCapTauValueValuesNum - 1.0) * membraneCapTauValueStep_us[idx];
+//    }
+
+    /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
+//    vector<RangedMeasurement> membraneCapTauValueRange_us;
 
     for (int idx = 0; idx < membraneCapTauValueRanges; idx++) {
-        membraneCapTauValueStep_us[idx] = membraneCapTauValueVarResistance_MOhm * membraneCapTauValueCapacitance[idx] / membraneCapTauValueValuesNum;
-        membraneCapTauValueMin_us[idx] = membraneCapTauValueStep_us[idx];
-        membraneCapTauValueMax_us[idx] = membraneCapTauValueMin_us[idx] + (membraneCapTauValueValuesNum - 1.0) * membraneCapTauValueStep_us[idx];
+        membraneCapTauValueRange_us[idx].step = membraneCapTauValueVarResistance_MOhm * membraneCapTauValueCapacitance[idx] / membraneCapTauValueValuesNum;
+        membraneCapTauValueRange_us[idx].min = membraneCapTauValueRange_us[idx].step;
+        membraneCapTauValueRange_us[idx].max = membraneCapTauValueRange_us[idx].min + (membraneCapTauValueValuesNum - 1.0) * membraneCapTauValueRange_us[idx].step;
+        membraneCapTauValueRange_us[idx].prefix = UnitPfxMicro;
+        membraneCapTauValueRange_us[idx].unit = "s";
     }
 
+
     /*! ASIC DOMAIN Rs correction*/
-    RangedMeasurement_t rsCorrValueRange;
+//    RangedMeasurement_t rsCorrValueRange;
     rsCorrValueRange.step = 0.4; // MOhm
     rsCorrValueRange.min = 0.4; // MOhm
     rsCorrValueRange.max = 25.6; // MOhm
@@ -366,7 +401,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
 
     /*! ASIC DOMAIN Rs prediction GAIN*/
-    RangedMeasurement_t rsPredGainRange;
+//    RangedMeasurement_t rsPredGainRange;
     const double rsPredGainValuesNum = 64.0;
     rsPredGainRange.step = 1/16.0; // MOhm
     rsPredGainRange.min = 1 + rsPredGainRange.step; // MOhm
@@ -375,7 +410,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     rsPredGainRange.unit = "Ohm";
 
     /*! ASIC DOMAIN Rs prediction TAU*/
-    RangedMeasurement_t rsPredTauRange;
+//    RangedMeasurement_t rsPredTauRange;
     const double rsPredTauValuesNum = 256.0;
     rsPredTauRange.step = 2.0 / this->clockRatio; /*! affected by switch cap clock!!!!!*/
     rsPredTauRange.min = rsPredTauRange.step;
@@ -658,16 +693,16 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
         multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
-            doubleConfig.minValue = pipetteCapacitanceMin_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
-            doubleConfig.maxValue = pipetteCapacitanceMax_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
-            doubleConfig.resolution = pipetteCapacitanceStep_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.minValue = pipetteCapacitanceRange_pF[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.maxValue = pipetteCapacitanceRange_pF[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.resolution = pipetteCapacitanceRange_pF[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
 
             multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < pipetteCapacitanceRanges-1) {
                 /*! \todo RECHECK: computed as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceMax_pF[rangeIdx]+pipetteCapacitanceMin_pF[rangeIdx+1]);
+                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceRange_pF[rangeIdx].max + pipetteCapacitanceRange_pF[rangeIdx+1].min);
             }
         }
         pipetteCapValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
@@ -722,16 +757,16 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
         multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapValueRanges; rangeIdx++) {
-            doubleConfig.minValue = membraneCapValueMin_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
-            doubleConfig.maxValue = membraneCapValueMax_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
-            doubleConfig.resolution = membraneCapValueStep_pF[rangeIdx]; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.minValue = membraneCapValueRange_pF[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.maxValue = membraneCapValueRange_pF[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.resolution = membraneCapValueRange_pF[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
 
             multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < membraneCapValueRanges-1) {
                 /*! \todo RECHECK: computed as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(membraneCapValueMax_pF[rangeIdx]+membraneCapValueMin_pF[rangeIdx+1]);
+                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(membraneCapValueRange_pF[rangeIdx].max + membraneCapValueRange_pF[rangeIdx+1].min);
             }
         }
         membraneCapValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
@@ -771,15 +806,16 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
         multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapTauValueRanges; rangeIdx++) {
-            doubleConfig.minValue =  membraneCapTauValueMin_us[rangeIdx];
-            doubleConfig.maxValue = membraneCapTauValueMax_us[rangeIdx];
-            doubleConfig.resolution = membraneCapTauValueStep_us[rangeIdx];
+            doubleConfig.minValue =  membraneCapTauValueRange_us[rangeIdx].min;
+            doubleConfig.maxValue = membraneCapTauValueRange_us[rangeIdx].max;
+            doubleConfig.resolution = membraneCapTauValueRange_us[rangeIdx].step;
 
             multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < membraneCapTauValueRanges-1) {
-                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapTauValueMax_us[rangeIdx] + membraneCapTauValueStep_us[rangeIdx];
+//                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapTauValueMax_us[rangeIdx] + membraneCapTauValueStep_us[rangeIdx];
+                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapTauValueRange_us[rangeIdx].max + membraneCapTauValueRange_us[rangeIdx].step;
             }
         }
         membraneCapTauValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
