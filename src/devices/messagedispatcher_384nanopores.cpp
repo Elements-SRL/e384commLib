@@ -124,7 +124,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     realSamplingRatesArray[SamplingRate7_5kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate7_5kHz].value = 1/7.5;
+    integrationStepArray[SamplingRate7_5kHz].value = 1.0/7.5;
     integrationStepArray[SamplingRate7_5kHz].prefix = UnitPfxMilli;
     integrationStepArray[SamplingRate7_5kHz].unit = "s";
 
