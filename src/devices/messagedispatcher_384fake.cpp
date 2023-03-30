@@ -3,6 +3,24 @@
 MessageDispatcher_384Fake::MessageDispatcher_384Fake(string id) :
     MessageDispatcher_384NanoPores_V01(id) {
 
+    /*! Sampling rates */
+    samplingRatesNum = SamplingRatesNum;
+    samplingRatesArray.resize(samplingRatesNum);
+    samplingRatesArray[SamplingRate100Hz].value =100.0;
+    samplingRatesArray[SamplingRate100Hz].prefix = UnitPfxNone;
+    samplingRatesArray[SamplingRate100Hz].unit = "Hz";
+    defaultSamplingRateIdx = SamplingRate100Hz;
+
+    realSamplingRatesArray.resize(samplingRatesNum);
+    realSamplingRatesArray[SamplingRate100Hz].value = 100.0;
+    realSamplingRatesArray[SamplingRate100Hz].prefix = UnitPfxNone;
+    realSamplingRatesArray[SamplingRate100Hz].unit = "Hz";
+
+    integrationStepArray.resize(samplingRatesNum);
+    integrationStepArray[SamplingRate100Hz].value = 0.01;
+    integrationStepArray[SamplingRate100Hz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate100Hz].unit = "s";
+
 }
 
 MessageDispatcher_384Fake::~MessageDispatcher_384Fake() {

@@ -13,6 +13,11 @@ public:
 
 protected:
 
+    enum SamplingRates {
+        SamplingRate100Hz,
+        SamplingRatesNum
+    };
+
     /*************\
      *  Methods  *
     \*************/
