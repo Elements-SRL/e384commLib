@@ -122,8 +122,7 @@ DoubleCoder::DoubleCoder(CoderConfig_t config) :
     config(config),
     resolution(config.resolution),
     minValue(config.minValue),
-    maxValue(config.maxValue),
-    offset(config.offset) {
+    maxValue(config.maxValue) {
 
 }
 
@@ -132,7 +131,7 @@ DoubleCoder::~DoubleCoder() {
 }
 
 double DoubleCoder::clip(double value) {
-    return (value > maxValue ? maxValue : (value < minValue ? minValue : value))-offset;
+    return (value > maxValue ? maxValue : (value < minValue ? minValue : value));
 }
 
 DoubleTwosCompCoder::DoubleTwosCompCoder(CoderConfig_t config) :
@@ -144,10 +143,11 @@ DoubleTwosCompCoder::~DoubleTwosCompCoder() {
 
 }
 
-void DoubleTwosCompCoder::encode(double value, vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
+double DoubleTwosCompCoder::encode(double value, vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
     value = this->clip(value);
     int32_t intValue = (int32_t)round(value/resolution);
     this->encodeUint((uint32_t)intValue, encodingWords, startingWord, endingWord);
+    return resolution*(double)intValue;
 }
 
 DoubleOffsetBinaryCoder::DoubleOffsetBinaryCoder(CoderConfig_t config) :
@@ -159,10 +159,11 @@ DoubleOffsetBinaryCoder::~DoubleOffsetBinaryCoder() {
 
 }
 
-void DoubleOffsetBinaryCoder::encode(double value, vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
+double DoubleOffsetBinaryCoder::encode(double value, vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
     value = this->clip(value);
     uint32_t uintValue = (uint32_t)round((value-minValue)/resolution);
     this->encodeUint(uintValue, encodingWords, startingWord, endingWord);
+    return minValue+resolution*(double)uintValue;
 }
 
 DoubleSignAbsCoder::DoubleSignAbsCoder(CoderConfig_t config) :
@@ -174,9 +175,43 @@ DoubleSignAbsCoder::~DoubleSignAbsCoder() {
 
 }
 
-void DoubleSignAbsCoder::encode(double value, vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
+double DoubleSignAbsCoder::encode(double value, vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
     value = this->clip(value);
     uint32_t uintValue = (uint32_t)round(fabs(value)/resolution);
-    uintValue += (value < 0.0 ? 1 << (bitsNum-1) : 0);
-    this->encodeUint(uintValue, encodingWords, startingWord, endingWord);
+    uint32_t signValue = (value < 0.0 ? 1 << (bitsNum-1) : 0);
+    this->encodeUint(uintValue+signValue, encodingWords, startingWord, endingWord);
+    if (value < 0.0) {
+        return -resolution*(double)uintValue;
+
+    } else {
+        return resolution*(double)uintValue;
+    }
+}
+
+//---------------MULTICODER-----------------------------//
+MultiCoder::MultiCoder(MultiCoderConfig_t multiConfig) :
+    CommandCoder(0, 0, 0),
+    multiConfig(multiConfig) {
+
+}
+
+double MultiCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord){
+    bool done = false;
+    double ret;
+    int i;
+    for(i = 0; i<multiConfig.thresholdVector.size(); i++){
+        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+        if (value<multiConfig.thresholdVector[i] && !done){
+            multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
+            ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);
+            done = true;
+        }
+    }
+    if (!done){
+        multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
+        ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);
+        done = true;
+    }
+    return ret;
+
 }
