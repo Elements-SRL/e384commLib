@@ -796,7 +796,7 @@ ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t wordOffset, uint16_t wordV
     BoolCoder::CoderConfig_t boolConfig;
     boolConfig.initialWord = wordOffset;
     boolConfig.initialBit = 0;
-    boolConfig.bitsNum = 15;
+    boolConfig.bitsNum = 16;
     wordDebugCoder = new BoolArrayCoder(boolConfig);
     wordDebugCoder->encode(wordValue, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
