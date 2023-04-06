@@ -39,7 +39,8 @@ SOURCES += \
     src/messagedispatcher.cpp \
     src/messagedispatcher_opalkelly.cpp \
     src/devices/messagedispatcher_384nanopores.cpp \
-    src/devices/messagedispatcher_384patchclamp.cpp
+    src/devices/messagedispatcher_384patchclamp.cpp \
+    src/devices/messagedispatcher_4x10mhz.cpp
 
 HEADERS += \
     src/e384commlib_global.h \
@@ -50,6 +51,7 @@ HEADERS += \
     src/messagedispatcher_opalkelly.h \
     src/devices/messagedispatcher_384nanopores.h \
     src/devices/messagedispatcher_384patchclamp.h \
+    src/devices/messagedispatcher_4x10mhz.h \
     src/utils.h
 
 contains(DEFINES, DEBUG) {

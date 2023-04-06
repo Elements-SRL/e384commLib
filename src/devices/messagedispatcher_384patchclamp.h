@@ -30,7 +30,7 @@ protected:
     };
 
     enum VCVoltageRanges {
-        VCVoltageRange512mV,
+        VCVoltageRange500mV,
         VCVoltageRangesNum
     };
 
@@ -95,6 +95,8 @@ protected:
         LedBlue,
         LedsNum
     };
+
+    virtual void initializeHW() override;
 };
 
 #endif // MESSAGEDISPATCHER_384PATCHCLAMP_H

@@ -84,12 +84,12 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     /*! VC */
     vcVoltageRangesNum = VCVoltageRangesNum;
     vcVoltageRangesArray.resize(vcVoltageRangesNum);
-    vcVoltageRangesArray[VCVoltageRange512mV].max = 512.0;
-    vcVoltageRangesArray[VCVoltageRange512mV].min = -512.0;
-    vcVoltageRangesArray[VCVoltageRange512mV].step = 0.125;
-    vcVoltageRangesArray[VCVoltageRange512mV].prefix = UnitPfxMilli;
-    vcVoltageRangesArray[VCVoltageRange512mV].unit = "V";
-    defaultVcVoltageRangeIdx = VCVoltageRange512mV;
+    vcVoltageRangesArray[VCVoltageRange500mV].max = 512.0;
+    vcVoltageRangesArray[VCVoltageRange500mV].min = -512.0;
+    vcVoltageRangesArray[VCVoltageRange500mV].step = 0.125;
+    vcVoltageRangesArray[VCVoltageRange500mV].prefix = UnitPfxMilli;
+    vcVoltageRangesArray[VCVoltageRange500mV].unit = "V";
+    defaultVcVoltageRangeIdx = VCVoltageRange500mV;
 
     /*! Current ranges */
     /*! CC */
@@ -269,21 +269,23 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     // mapping ADC Current Clamp
     // undefined
 
-    vHoldRange.min = -500.0;
-    vHoldRange.max = 500.0;
-    vHoldRange.step = 0.125;
-    vHoldRange.prefix = UnitPfxMilli;
-    vHoldRange.unit = "V";
+    vHoldRange.resize(VCVoltageRangesNum);
+    vHoldRange[VCVoltageRange500mV].min = -500.0;
+    vHoldRange[VCVoltageRange500mV].max = 500.0;
+    vHoldRange[VCVoltageRange500mV].step = 0.125;
+    vHoldRange[VCVoltageRange500mV].prefix = UnitPfxMilli;
+    vHoldRange[VCVoltageRange500mV].unit = "V";
     selectedVoltageHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange.prefix, vHoldRange.unit};
+    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
 
-    cHoldRange.min = -8.0;
-    cHoldRange.max = 8.0 - 16.0/8192.0;
-    cHoldRange.step = 16.0/8192.0;
-    cHoldRange.prefix = UnitPfxNano;
-    cHoldRange.unit = "A";
+    cHoldRange.resize(CCCurrentRangesNum);
+    cHoldRange[CCCurrentRange8nA].min = -8.0;
+    cHoldRange[CCCurrentRange8nA].max = 8.0 - 16.0/8192.0;
+    cHoldRange[CCCurrentRange8nA].step = 16.0/8192.0;
+    cHoldRange[CCCurrentRange8nA].prefix = UnitPfxNano;
+    cHoldRange[CCCurrentRange8nA].unit = "A";
     selectedCurrentHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultCurrentHoldTuner = {0.0, cHoldRange.prefix, cHoldRange.unit};
+    Measurement_t defaultCurrentHoldTuner = {0.0, cHoldRange[CCCurrentRange8nA].prefix, cHoldRange[CCCurrentRange8nA].unit};
 
     /*! VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
@@ -551,20 +553,37 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! V holding tuner */
-    doubleConfig.initialWord = 411+9; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = vHoldRange.step;
-    doubleConfig.minValue = vHoldRange.min;
-    doubleConfig.maxValue = vHoldRange.max;
-    vHoldTunerCoders.resize(currentChannelsNum);
-    cHoldTunerCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        vHoldTunerCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        cHoldTunerCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(vHoldTunerCoders[idx]);
-        coders.push_back(cHoldTunerCoders[idx]);
-        doubleConfig.initialWord++;
+    vHoldTunerCoders.resize(VCVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 411+9; //updated
+        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.minValue = vHoldRange[rangeIdx].min;
+        doubleConfig.maxValue = vHoldRange[rangeIdx].max;
+        vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! C holding tuner */
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    cHoldTunerCoders.resize(CCCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < CCCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 411+9; //updated
+        doubleConfig.resolution = cHoldRange[rangeIdx].step;
+        doubleConfig.minValue = cHoldRange[rangeIdx].min;
+        doubleConfig.maxValue = cHoldRange[rangeIdx].max;
+        cHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            cHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(cHoldTunerCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord++;
+        }
     }
 
     /*! VC current gain tuner */
@@ -882,6 +901,12 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
 MessageDispatcher_384PatchClamp_V01::~MessageDispatcher_384PatchClamp_V01() {
 
+}
+
+void MessageDispatcher_384PatchClamp_V01::initializeHW() {
+    this->resetAsic(true, true);
+    this_thread::sleep_for(chrono::milliseconds(100));
+    this->resetAsic(false, true);
 }
 
 //void MessageDispatcher_384PatchClamp_V01::updateDeviceStatus(vector <bool> &fsmRunFlag, bool &poreForming, bool &communicationError) {

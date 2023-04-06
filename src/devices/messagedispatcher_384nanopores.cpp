@@ -136,13 +136,14 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     // mapping ADC Current Clamp
     // undefined
 
-    vHoldRange.min = -500.0;
-    vHoldRange.max = 500.0;
-    vHoldRange.step = 0.125;
-    vHoldRange.prefix = UnitPfxMilli;
-    vHoldRange.unit = "V";
+    vHoldRange.resize(VCVoltageRangesNum);
+    vHoldRange[VCVoltageRange500mV].min = -500.0;
+    vHoldRange[VCVoltageRange500mV].max = 500.0;
+    vHoldRange[VCVoltageRange500mV].step = 0.125;
+    vHoldRange[VCVoltageRange500mV].prefix = UnitPfxMilli;
+    vHoldRange[VCVoltageRange500mV].unit = "V";
     selectedVoltageHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange.prefix, vHoldRange.unit};
+    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
 
     /*! VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
@@ -297,7 +298,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         }
     }
 
-
     /*! Enable stimulus */
     boolConfig.initialWord = 27+9; //updated
     boolConfig.initialBit = 0;
@@ -329,17 +329,20 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     }
 
     /*! V holding tuner */
-    doubleConfig.initialWord = 411+9; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = vHoldRange.step;
-    doubleConfig.minValue = vHoldRange.min;
-    doubleConfig.maxValue = vHoldRange.max;
-    vHoldTunerCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        vHoldTunerCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(vHoldTunerCoders[idx]);
-        doubleConfig.initialWord++;
+    vHoldTunerCoders.resize(VCVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 411+9; //updated
+        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.minValue = vHoldRange[rangeIdx].min;
+        doubleConfig.maxValue = vHoldRange[rangeIdx].max;
+        vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord++;
+        }
     }
 
     /*! VC current gain tuner */
@@ -408,9 +411,13 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 }
 
 MessageDispatcher_384NanoPores_V01::~MessageDispatcher_384NanoPores_V01() {
-    for (auto coder : coders) {
-        delete coder;
-    }
+
+}
+
+void MessageDispatcher_384NanoPores_V01::initializeHW() {
+    this->resetAsic(true, true);
+    this_thread::sleep_for(chrono::milliseconds(100));
+    this->resetAsic(false, true);
 }
 
 //void MessageDispatcher_384NanoPores_V01::updateDeviceStatus(vector <bool> &fsmRunFlag, bool &poreForming, bool &communicationError) {

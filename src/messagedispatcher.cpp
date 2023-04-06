@@ -12,6 +12,7 @@
 
 #include "messagedispatcher_384nanopores.h"
 #include "messagedispatcher_384patchclamp.h"
+#include "messagedispatcher_4x10mhz.h"
 #ifdef DEBUG
 #include "messagedispatcher_384fake.h"
 #endif
@@ -24,7 +25,8 @@ static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
     {"221000108T", Device384Nanopores},
     {"221000106B", Device384Nanopores},
     {"221000106C", Device384Nanopores},
-    {"pup", Device384PatchClamp}
+    {"pup", Device384PatchClamp},
+    {"22370012CB", Device4x10MHz}
     #ifdef DEBUG
     ,{"FAKE", Device384Fake}
     #endif
@@ -57,6 +59,10 @@ MessageDispatcher::MessageDispatcher(string deviceId) :
 
 MessageDispatcher::~MessageDispatcher() {
     this->disconnectDevice();
+
+    for (auto coder : coders) {
+        delete coder;
+    }
 }
 
 /************************\
@@ -192,6 +198,10 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
         messageDispatcher = new MessageDispatcher_384PatchClamp_V01(deviceId);
         break;
 
+    case Device4x10MHz:
+        messageDispatcher = new MessageDispatcher_4x10MHz_V01(deviceId);
+        break;
+
 #ifdef DEBUG
     case Device384Fake:
         messageDispatcher = new MessageDispatcher_384Fake(deviceId);
@@ -319,9 +329,7 @@ ErrorCodes_t MessageDispatcher::disconnect() {
 \****************/
 
 ErrorCodes_t MessageDispatcher::initializeDevice() {
-    this->resetAsic(true, true);
-    this_thread::sleep_for(chrono::milliseconds(100));
-    this->resetAsic(false, true);
+    this->initializeHW();
 
     /*! Some default values*/
     vector <bool> allTrue(currentChannelsNum, true);
@@ -362,19 +370,29 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
 }
 
 ErrorCodes_t MessageDispatcher::resetAsic(bool resetFlag, bool applyFlagIn) {
-    asicResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    if (applyFlagIn) {
-        this->stackOutgoingMessage(txStatus);
+    if (asicResetCoder != nullptr) {
+        asicResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+
+    } else {
+        return ErrorFeatureNotImplemented;
     }
-    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::resetFpga(bool resetFlag, bool applyFlagIn) {
-    fpgaResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    if (applyFlagIn) {
-        this->stackOutgoingMessage(txStatus);
+    if (fpgaResetCoder != nullptr) {
+        fpgaResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+
+    } else {
+        return ErrorFeatureNotImplemented;
     }
-    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages, bool applyFlag){
@@ -384,7 +402,7 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelInde
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(voltages, vHoldRange.getMin(), vHoldRange.getMax())) {
+    } else if (!areAllTheVectorElementsInRange(voltages, vHoldRange[selectedVcVoltageRangeIdx].getMin(), vHoldRange[selectedVcVoltageRangeIdx].getMax())) {
         return ErrorValueOutOfRange;
 
     } else if (!amIinVoltageClamp) {
@@ -392,9 +410,9 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelInde
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            voltages[i].convertValue(vHoldRange.prefix);
+            voltages[i].convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
             selectedVoltageHoldVector[channelIndexes[i]] = voltages[i];
-            vHoldTunerCoders[channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            vHoldTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -411,7 +429,7 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(vector<uint16_t> channelInde
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(currents, cHoldRange.getMin(), cHoldRange.getMax())) {
+    } else if (!areAllTheVectorElementsInRange(currents, cHoldRange[selectedCcCurrentRangeIdx].getMin(), cHoldRange[selectedCcCurrentRangeIdx].getMax())) {
         return ErrorValueOutOfRange;
 
     } else if (amIinVoltageClamp) {
@@ -419,8 +437,8 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(vector<uint16_t> channelInde
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            currents[i].convertValue(cHoldRange.prefix);
-            cHoldTunerCoders[channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            currents[i].convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
+            cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -1094,7 +1112,7 @@ ErrorCodes_t MessageDispatcher::convertCurrentValue(int16_t intValue, double &fl
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures){
+ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures){
     if (vHoldTunerCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 

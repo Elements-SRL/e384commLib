@@ -62,6 +62,8 @@ protected:
         LedBlue,
         LedsNum
     };
+
+    virtual void initializeHW() override;
 };
 
 #endif // MESSAGEDISPATCHER_384NANOPORES_H

@@ -135,7 +135,7 @@ public:
     ErrorCodes_t convertVoltageValue(int16_t intValue, double &fltValue);
     ErrorCodes_t convertCurrentValue(int16_t intValue, double &fltValue);
 
-    ErrorCodes_t getVoltageHoldTunerFeatures(RangedMeasurement_t &voltageHoldTunerFeatures);
+    ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
     ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);
     ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
     ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
@@ -156,8 +156,6 @@ public:
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
 
-
-
 protected:
     // Check Device->PC table in protocol
     typedef enum RxMessageTypes {
@@ -177,6 +175,7 @@ protected:
     static bool getDeviceCount(int &numDevs);
     virtual void readDataFromDevice() = 0;
     virtual void sendCommandsToDevice() = 0;
+    virtual void initializeHW() = 0;
 
     bool checkProtocolValidity(std::string &message);
 
@@ -290,8 +289,8 @@ protected:
 
     std::vector<Measurement_t> selectedVoltageHoldVector;
     std::vector<Measurement_t> selectedCurrentHoldVector;
-    std::vector <DoubleCoder *> vHoldTunerCoders;
-    std::vector <DoubleCoder *> cHoldTunerCoders;
+    std::vector <std::vector <DoubleCoder *>> vHoldTunerCoders;
+    std::vector <std::vector <DoubleCoder *>> cHoldTunerCoders;
 
     RangedMeasurement_t calibVcCurrentGainRange;
     std::vector<Measurement_t> selectedCalibVcCurrentGainVector;
@@ -396,8 +395,8 @@ protected:
 
     RangedMeasurement_t voltageRange;
     RangedMeasurement_t currentRange;
-    RangedMeasurement_t vHoldRange;
-    RangedMeasurement_t cHoldRange;
+    std::vector <RangedMeasurement_t> vHoldRange;
+    std::vector <RangedMeasurement_t> cHoldRange;
 
     Measurement_t samplingRate = {200.0, UnitPfxKilo, "Hz"};
     Measurement_t integrationStep = {5.0, UnitPfxMicro, "s"};

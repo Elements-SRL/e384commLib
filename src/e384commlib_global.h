@@ -194,6 +194,7 @@ typedef enum MsgTypeId {
 typedef enum DeviceTypes {
     Device384Nanopores,         /*!< 384 channels device for nanopores experiments */
     Device384PatchClamp,        /*!< Nanion's Syncropatch */
+    Device4x10MHz,              /*!< 4 cahnnels 10MHz nanopore reader */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
 #endif
