@@ -15,10 +15,11 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
 
     totalBoardsNum = 1;
 
-    rxWordOffsets.resize(RxMessageNum);
-    rxWordLengths.resize(RxMessageNum);
-    rxWordOffsets[RxMessageDataLoad] = 4;
-    rxWordLengths[RxMessageDataLoad] = currentChannelsNum*packetsPerFrame;
+    rxWordOffsets[RxMessageVoltageDataLoad] = 0;
+    rxWordLengths[RxMessageVoltageDataLoad] = voltageChannelsNum;
+
+    rxWordOffsets[RxMessageCurrentDataLoad] = rxWordOffsets[RxMessageVoltageDataLoad] + rxWordLengths[RxMessageVoltageDataLoad];
+    rxWordLengths[RxMessageCurrentDataLoad] = currentChannelsNum*packetsPerFrame;
 
     rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
     rxWordLengths[RxMessageDataHeader] = 4;

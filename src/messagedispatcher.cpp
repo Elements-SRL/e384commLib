@@ -54,7 +54,15 @@ MessageDispatcher::MessageDispatcher(string deviceId) :
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation] = false;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdInvalid] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus] = true;
+
+    /*! Initialize rx word offsets and lengths with default values */
+    rxWordOffsets.resize(RxMessageNum);
+    rxWordLengths.resize(RxMessageNum);
+
+    fill(rxWordOffsets.begin(), rxWordOffsets.end(), 0xFFFF);
+    fill(rxWordLengths.begin(), rxWordLengths.end(), 0x0000);
 }
 
 MessageDispatcher::~MessageDispatcher() {
@@ -95,6 +103,10 @@ ErrorCodes_t MessageDispatcher::init() {
 
     /*! Allocate memory for compensations */
 //    this->initializeCompensations(); /*! \todo FCON */
+
+    /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
+    voltageDataValues.resize(voltageChannelsNum);
+    std::fill(voltageDataValues.begin(), voltageDataValues.end(), 0);
 
     return Success;
 }
@@ -1297,19 +1309,46 @@ bool MessageDispatcher::checkProtocolValidity(string &message) {
 void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType) {
     uint32_t rxDataWords = rxWordLengths[rxMessageType];
 
+    rxMsgBuffer[rxMsgBufferWriteOffset].typeId = rxMsgTypeId;
+    rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataWords;
+    rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
     if (rxEnabledTypesMap[rxMsgTypeId]) {
         /*! Update the message buffer only if the message is not filtered out */
-        rxMsgBuffer[rxMsgBufferWriteOffset].typeId = rxMsgTypeId;
-        rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataWords;
-        rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
         rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
     }
 
-    for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
-        rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
+    if (rxMessageType == RxMessageCurrentDataLoad) {
+        /*! Data frame with only current */
+        uint32_t packetsNum = rxDataWords/currentChannelsNum;
+        uint32_t rxDataBufferWriteIdx = 0;
+
+        for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
+            /*! For each packet retrieve the last recevied voltage values */
+            for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
+                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx++) & RX_DATA_BUFFER_MASK] = voltageDataValues[idx];
+            }
+
+            /*! The store the new current values */
+            for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx++) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
+            }
+        }
+
+        /* The size of the data returned by the message dispatcher is different from the size of the fram returned by the FPGA */
+        rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataBufferWriteIdx;
+
+    } else if (rxMessageType == RxMessageVoltageDataLoad) {
+        for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
+            voltageDataValues[idx] = this->popUint16FromRxRawBuffer();
+        }
+
+    } else {
+        for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
+            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
+        }
     }
 
-    if (rxDataBufferWriteOffset <= rxDataWords) {
+    if (rxDataBufferWriteOffset <= rxMsgBuffer[rxMsgBufferWriteOffset].dataLength) {
         rxDataBuffer[RX_DATA_BUFFER_SIZE] = rxDataBuffer[0]; /*!< The last item is a copy of the first one, it is used to safely read 2 consecutive 16bit words at a time to form a 32bit word,
                                                               *   even if the first 16bit word is in position FTD_RX_DATA_BUFFER_SIZE-1 and the following one would go out of range otherwise */
     }

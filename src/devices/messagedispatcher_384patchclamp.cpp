@@ -17,8 +17,6 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
     totalBoardsNum = 24;
 
-    rxWordOffsets.resize(RxMessageNum);
-    rxWordLengths.resize(RxMessageNum);
     rxWordOffsets[RxMessageDataLoad] = 0;
     rxWordLengths[RxMessageDataLoad] = (voltageChannelsNum+currentChannelsNum)*packetsPerFrame;
 

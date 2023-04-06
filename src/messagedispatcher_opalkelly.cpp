@@ -270,6 +270,12 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                         if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
 
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageCurrentDataLoad]) {
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageCurrentDataLoad);
+
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageDataLoad]) {
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdInvalid, RxMessageVoltageDataLoad);
+
                         } else if (rxWordOffset == rxWordOffsets[RxMessageDataHeader]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader, RxMessageDataHeader);
 

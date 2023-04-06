@@ -15,8 +15,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 
     totalBoardsNum = 24;
 
-    rxWordOffsets.resize(RxMessageNum);
-    rxWordLengths.resize(RxMessageNum);
     rxWordOffsets[RxMessageDataLoad] = 0;
     rxWordLengths[RxMessageDataLoad] = (voltageChannelsNum+currentChannelsNum)*packetsPerFrame;
 

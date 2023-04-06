@@ -160,6 +160,8 @@ protected:
     // Check Device->PC table in protocol
     typedef enum RxMessageTypes {
         RxMessageDataLoad,
+        RxMessageCurrentDataLoad,
+        RxMessageVoltageDataLoad,
         RxMessageDataHeader,
         RxMessageDataTail,
         RxMessageStatus,
@@ -368,6 +370,7 @@ protected:
     uint32_t rxMsgBufferReadLength = 0; /*!< Lenght of the part of the buffer to be processed */
     uint32_t rxMsgBufferWriteOffset = 0;
     uint32_t rxDataBufferWriteOffset = 0;
+    std::vector <uint16_t> voltageDataValues;
 
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
 
