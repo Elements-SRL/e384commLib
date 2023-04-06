@@ -62,6 +62,12 @@ protected:
         LedBlue,
         LedsNum
     };
+
+    enum CalibResistances{
+        CalibRes120kOhm,
+        CalibRes2_49MOhm,
+        CalibResNum
+    };
 };
 
 #endif // MESSAGEDISPATCHER_384NANOPORES_H

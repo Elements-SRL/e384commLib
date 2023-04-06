@@ -1234,6 +1234,7 @@ ErrorCodes_t MessageDispatcher::getVoltageStimulusLpfs(std::vector <Measurement_
         return ErrorFeatureNotImplemented;
     } else {
         vcVoltageFilters = vcVoltageFiltersArray;
+        return Success;
     }
 }
 
@@ -1242,7 +1243,27 @@ ErrorCodes_t MessageDispatcher::getCurrentStimulusLpfs(std::vector <Measurement_
         return ErrorFeatureNotImplemented;
     } else {
         ccCurrentFilters = ccCurrentFiltersArray;
+        return Success;
     }
+}
+
+ErrorCodes_t MessageDispatcher::getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps){
+    if(vcCalibVoltStepsArray.size()==0){
+        return ErrorFeatureNotImplemented;
+    } else {
+        vcCalibVoltSteps = vcCalibVoltStepsArray;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getVcCalibResFeatures(std::vector <Measurement_t> &vcCalibRes){
+    if(vcCalibResArray.size()==0){
+        return ErrorFeatureNotImplemented;
+    } else {
+        vcCalibRes = vcCalibResArray;
+        return Success;
+    }
+
 }
 
 /*********************\

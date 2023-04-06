@@ -156,6 +156,9 @@ public:
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
 
+    ErrorCodes_t getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps);
+    ErrorCodes_t getVcCalibResFeatures(std::vector <Measurement_t> &vCCalibRes);
+
 
 
 protected:
@@ -285,6 +288,7 @@ protected:
     BoolCoder * samplingRateCoder = nullptr;
     std::unordered_map<uint16_t, uint16_t> sr2LpfVcCurrentMap;
     std::unordered_map<uint16_t, uint16_t> sr2LpfCcVoltageMap;
+    std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
 
     std::vector <BoolCoder *> digitalOffsetCompensationCoders;
 
@@ -316,6 +320,9 @@ protected:
     RangedMeasurement_t sourceVoltageRange;
     std::vector<Measurement_t> selectedSourceVoltageVector;
     std::vector <DoubleCoder *> sourceVoltageCoders;
+
+    std::vector<Measurement_t> vcCalibResArray;
+    std::vector<Measurement_t> vcCalibVoltStepsArray;
 
     DoubleCoder * stimRestCoder = nullptr;
 

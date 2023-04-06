@@ -133,6 +133,25 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
       {SamplingRate7_5kHz, VCCurrentFilter20kHz}
     };
 
+    /*! VC calibration voltage steps*/
+    vcCalibVoltStepsArray.resize(5);
+    vcCalibVoltStepsArray[0] = {-400.0, UnitPfxMilli, "V"};
+    vcCalibVoltStepsArray[1] = {-200.0, UnitPfxMilli, "V"};
+    vcCalibVoltStepsArray[2] = {0.0, UnitPfxMilli, "V"};
+    vcCalibVoltStepsArray[3] = {200.0, UnitPfxMilli, "V"};
+    vcCalibVoltStepsArray[4] = {400.0, UnitPfxMilli, "V"};
+
+    /*! VC calibration resistances*/
+    vcCalibResArray.resize(CalibResNum);
+    vcCalibResArray[CalibRes120kOhm] = {120.0, UnitPfxKilo, "Ohm"}; // 4uA
+    vcCalibResArray[CalibRes2_49MOhm] = {2.49, UnitPfxMega, "Ohm"}; // 200nA
+
+    // mapping VC current renge - calibration resistances
+    vcCurrRange2CalibResMap = {
+      {VCCurrentRange4uA, CalibRes120kOhm},
+      {VCCurrentRange200nA, CalibRes2_49MOhm}
+    };
+
     // mapping ADC Current Clamp
     // undefined
 
