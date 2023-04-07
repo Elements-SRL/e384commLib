@@ -159,6 +159,10 @@ public:
     ErrorCodes_t getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps);
     ErrorCodes_t getVcCalibResFeatures(std::vector <Measurement_t> &vCCalibRes);
 
+    ErrorCodes_t getCalibDefaultVcAdcGain(Measurement_t &defaultVcAdcGain);
+    ErrorCodes_t getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset);
+    ErrorCodes_t getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset);
+
 
 
 protected:
@@ -300,10 +304,14 @@ protected:
     RangedMeasurement_t calibVcCurrentGainRange;
     std::vector<Measurement_t> selectedCalibVcCurrentGainVector;
     std::vector <DoubleCoder *> calibVcCurrentGainCoders;
+    Measurement_t defaultCalibVcCurrentGain;
 
     std::vector <RangedMeasurement_t> calibVcCurrentOffsetRanges;
     std::vector<Measurement_t> selectedCalibVcCurrentOffsetVector;
     std::vector <std::vector <DoubleCoder *>> calibVcCurrentOffsetCoders;
+    Measurement_t defaultCalibVcCurrentOffset;
+
+    Measurement_t defaultCalibVcDacOffset;
 
     RangedMeasurement_t calibCcVoltageGainRange;
     std::vector<Measurement_t> selectedCalibCcVoltageGainVector;

@@ -1266,6 +1266,21 @@ ErrorCodes_t MessageDispatcher::getVcCalibResFeatures(std::vector <Measurement_t
 
 }
 
+ErrorCodes_t MessageDispatcher::getCalibDefaultVcAdcGain(Measurement_t &defaultVcAdcGain){
+    defaultVcAdcGain = defaultCalibVcCurrentGain;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset){
+    defaultVcAdcOffset =defaultCalibVcCurrentOffset;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset){
+    defaultVcDacOffset = defaultCalibVcDacOffset;
+    return Success;
+}
+
 /*********************\
  *  Private methods  *
 \*********************/
