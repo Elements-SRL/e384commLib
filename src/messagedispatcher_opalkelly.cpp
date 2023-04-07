@@ -117,12 +117,21 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
             if (dev->WriteRegisters(regs) == okCFrontPanel::NoError) {
                 dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
                 deviceMutexLock.unlock();
+
+            } else {
+                deviceMutexLock.unlock();
                 continue;
             }
-            deviceMutexLock.unlock();
 
 #ifdef DEBUG_PRINT
-            /*! Aggiungere printata di debug se serve */
+            for (uint16_t regIdx = 0; regIdx < regs.size(); regIdx++) {
+                fprintf(fid, "%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
+                if (regIdx % 16 == 15) {
+                    fprintf(fid, "\n");
+                }
+            }
+            fprintf(fid, "\n");
+            fflush(fid);
 #endif
 
             notSentTxData = false;
@@ -173,7 +182,8 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
         deviceMutexLock.unlock();
 
         if (bytesRead > INT32_MAX) {
-            return;
+            this_thread::sleep_for(chrono::milliseconds(100));
+            continue;
         }
 
         /*! Copy the data from the transfer buffer to the circular buffer */

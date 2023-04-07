@@ -5,6 +5,8 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
 
     deviceName = "4x10MHz";
 
+    fwName = "4x10MHz_V01_top.bit";
+
     rxSyncWord = 0x5aa5;
 
     packetsPerFrame = 256;
@@ -38,7 +40,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     rxMaxWords = currentChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
 
-    txDataWords = 45; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 270; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = (txDataWords/2+1)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
@@ -92,7 +94,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
 
     /*! Voltage filters */
     /*! VC */
-    vcVoltageFiltersNum = VCCurrentFiltersNum;
+    vcVoltageFiltersNum = VCVoltageFiltersNum;
     vcVoltageFiltersArray.resize(vcVoltageFiltersNum);
     vcVoltageFiltersArray[VCVoltageFilter20kHz].value = 20.0;
     vcVoltageFiltersArray[VCVoltageFilter20kHz].prefix = UnitPfxKilo;
@@ -122,16 +124,16 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     samplingRatesArray[SamplingRate6_67MHz].value = 80.0/6.0/2.0;
     samplingRatesArray[SamplingRate6_67MHz].prefix = UnitPfxMega;
     samplingRatesArray[SamplingRate6_67MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate3_33MHz].value = 80.0/6.0/3.0;
+    samplingRatesArray[SamplingRate3_33MHz].value = 80.0/6.0/4.0;
     samplingRatesArray[SamplingRate3_33MHz].prefix = UnitPfxMega;
     samplingRatesArray[SamplingRate3_33MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate1_67MHz].value = 80.0/6.0/4.0;
+    samplingRatesArray[SamplingRate1_67MHz].value = 80.0/6.0/8.0;
     samplingRatesArray[SamplingRate1_67MHz].prefix = UnitPfxMega;
     samplingRatesArray[SamplingRate1_67MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate833kHz].value = 80.0/6.0/5.0;
+    samplingRatesArray[SamplingRate833kHz].value = 80.0/6.0/16.0;
     samplingRatesArray[SamplingRate833kHz].prefix = UnitPfxMega;
     samplingRatesArray[SamplingRate833kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate417kHz].value = 80.0/6.0/6.0;
+    samplingRatesArray[SamplingRate417kHz].value = 80.0/6.0/32.0;
     samplingRatesArray[SamplingRate417kHz].prefix = UnitPfxMega;
     samplingRatesArray[SamplingRate417kHz].unit = "Hz";
     defaultSamplingRateIdx = SamplingRate13_3MHz;
@@ -250,26 +252,26 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     dcmResetCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(dcmResetCoder);
 
-    /*! Write ADC SPI */
-    boolConfig.initialWord = 1;
-    boolConfig.initialBit = 0;
-    boolConfig.bitsNum = 1;
-    dcmResetCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(dcmResetCoder);
-
-    /*! Write DAC SPI */
-    boolConfig.initialWord = 1;
-    boolConfig.initialBit = 1;
-    boolConfig.bitsNum = 1;
-    dcmResetCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(dcmResetCoder);
-
     /*! FPGA reset */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 1;
     boolConfig.bitsNum = 1;
     fpgaResetCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(fpgaResetCoder);
+
+    /*! Write ADC SPI */
+    boolConfig.initialWord = 1;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    writeAdcSpiCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(writeAdcSpiCoder);
+
+    /*! Write DAC SPI */
+    boolConfig.initialWord = 1;
+    boolConfig.initialBit = 1;
+    boolConfig.bitsNum = 1;
+    writeDacSpiCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(writeDacSpiCoder);
 
     /*! DOC reset */
     boolConfig.initialWord = 0;
@@ -404,6 +406,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
+    txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
@@ -412,12 +415,30 @@ MessageDispatcher_4x10MHz_V01::~MessageDispatcher_4x10MHz_V01() {
 }
 
 void MessageDispatcher_4x10MHz_V01::initializeHW() {
+    /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
     this_thread::sleep_for(chrono::milliseconds(100));
 
     dcmResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    this->stackOutgoingMessage(txStatus);
+
+    /*! After a short while the 10MHz clock starts */
+    this_thread::sleep_for(chrono::milliseconds(100));
+
+    /*! Reset FPGA to initialize state machines */
+    fpgaResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    this->stackOutgoingMessage(txStatus);
+
+    this_thread::sleep_for(chrono::milliseconds(100));
+
+    fpgaResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    this->stackOutgoingMessage(txStatus);
+
+    /*! Wait for the initialization */
+    this_thread::sleep_for(chrono::milliseconds(100));
+
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -425,7 +446,6 @@ void MessageDispatcher_4x10MHz_V01::initializeHW() {
     this_thread::sleep_for(chrono::milliseconds(100));
 
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    writeDacSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 }
 

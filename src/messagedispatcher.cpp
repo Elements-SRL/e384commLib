@@ -300,9 +300,6 @@ ErrorCodes_t MessageDispatcher::connect() {
 
     threadsStarted = true;
 
-    this->resetFpga(true, true);
-    this->resetFpga(false, false);
-
 #ifndef DEBUG
     /*! Initialize device */
     this_thread::sleep_for(chrono::milliseconds(1000));
