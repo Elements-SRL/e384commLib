@@ -25,7 +25,7 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
         return ErrorDeviceConnectionFailed;
     }
 
-    if(!dev->IsFrontPanelEnabled()){
+    if(!dev->IsFrontPanelEnabled()){ // doesn't load FW is one is already loaded
         error = dev->ConfigureFPGA(fwName);
 
 
