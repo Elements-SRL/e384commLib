@@ -969,9 +969,9 @@ void MessageDispatcher_384PatchClamp_V01::initializeHW() {
     this->resetFpga(true, true);
     this->resetFpga(false, false);
 
-    this->resetAsic(true, true);
-    this_thread::sleep_for(chrono::milliseconds(100));
-    this->resetAsic(false, true);
+//    this->resetAsic(true, true);
+//    this_thread::sleep_for(chrono::milliseconds(100));
+//    this->resetAsic(false, true);
 }
 
 //void MessageDispatcher_384PatchClamp_V01::updateDeviceStatus(vector <bool> &fsmRunFlag, bool &poreForming, bool &communicationError) {
