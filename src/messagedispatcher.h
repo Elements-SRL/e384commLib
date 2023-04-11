@@ -499,6 +499,7 @@ protected:
 
 #ifdef DEBUG_PRINT
     FILE * fid;
+    FILE * rawDataFid;
 #endif
 };
 

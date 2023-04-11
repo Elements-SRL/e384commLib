@@ -38,7 +38,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     maxOutputPacketsNum = E384CL_DATA_ARRAY_SIZE/totalChannelsNum;
 
     rxMaxWords = currentChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
-    maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
+    maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
     txDataWords = 270; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = (txDataWords/2+1)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */

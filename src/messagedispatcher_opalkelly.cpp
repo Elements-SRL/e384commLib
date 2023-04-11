@@ -176,6 +176,9 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     /******************\
      *  Reading part  *
     \******************/
+    this_thread::sleep_for(chrono::seconds(20));
+    FILE* rawDataFid;
+    rawDataFid = fopen("provaDump.txt", "wb");
 
     while (!stopConnectionFlag) {
         /*! Read the data */
@@ -194,9 +197,17 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
         if (bytesRead > bytesToEnd) {
             memcpy(rxRawBuffer+rxRawBufferWriteOffset, rxTransferBuffer, bytesToEnd);
             memcpy(rxRawBuffer, rxTransferBuffer+bytesToEnd, bytesRead-bytesToEnd);
+            fprintf(rawDataFid, "\n");
+            fprintf(rawDataFid, "\n");
+            fprintf(rawDataFid, "\n");
 
         } else {
             memcpy(rxRawBuffer+rxRawBufferWriteOffset, rxTransferBuffer, bytesRead);
+            for(int iii = 0; iii < bytesRead; iii++){
+                fprintf(rawDataFid, "%x", rxRawBuffer[rxRawBufferWriteOffset+iii]);
+            }
+            fprintf(rawDataFid, "\n");
+
         }
 
         /******************\
@@ -320,6 +331,7 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
             }
         }
     }
+    fclose(rawDataFid);
 
     if (rxMsgBufferReadLength <= 0) {
         unique_lock <mutex> rxMutexLock(rxMutex);
