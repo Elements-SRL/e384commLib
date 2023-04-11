@@ -169,6 +169,49 @@ protected:
         RxMessageNum
     } RxMessageTypes_t;
 
+    enum CompensationTypes {
+        CompCfast,
+        CompCslow,
+        CompRs,
+        CompRsCorr,
+        CompRsPred,
+        CompensationTypesNum
+    };
+
+    enum CompensationUserParams {
+        U_CpVc,     //VCPipetteCapacitance
+        U_Cm,       //embraneCapacitance
+        U_Rs,       //SeriesResistance
+        U_RsCp,     //SeriesCorrectionPerc
+        U_RsPg,     //SeriesPredictionGain
+        U_CpCc,     //CCPipetteCapacitance
+        CompensationUserParamsNum
+    };
+
+    /*! \todo not sure if the following will be used, maybe to be merged*/
+    enum CompensationAsicParams {
+        A_Cp,       //PipetteCapacitance
+        A_Cm,       //MembraneCapacitance
+        A_Taum,     //MembraneTau
+        A_RsCr,     //SeriesCorrectionResistance
+        A_RsPg,     //SeriesPredictionGain
+        A_RsPtau,   //SeriesPredictionTau
+        CompensationAsicParamsNum
+    };
+
+//    enum CompensationAsicAdditionalParams {
+//        A_CmCinj, // MembraneInjectionCapacitance
+//        CompensationAsicAdditionalParamsNum
+//    };
+
+    std::vector <double> membraneCapValueInjCapacitance;
+
+    /************\
+     *  Fields  *
+    \************/
+
+    std::vector<std::vector<double>> compValueMatrix;
+
     /*************\
      *  Methods  *
     \*************/
@@ -191,6 +234,14 @@ protected:
     void initializeRawDataFilterVariables();
     void computeRawDataFilterCoefficients();
     double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
+
+    /*! \todo FCON rechecks Compensation methods */
+    std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams);
+    std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);
+
+    //ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures);
+    ErrorCodes_t enableCompensation(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<bool> onValues, bool applyFlagIn);
+    ErrorCodes_t setCompValues(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
 
     /****************\
      *  Parameters  *
@@ -335,6 +386,13 @@ protected:
     std::vector<BoolCoder*>  rsPredEnCompensationCoders;
     std::vector<DoubleCoder*> rsPredGainCompensationCoders;
     std::vector<DoubleCoder*> rsPredTauCompensationCoders;
+
+    std::vector<RangedMeasurement> pipetteCapacitanceRange_pF;
+    std::vector<RangedMeasurement> membraneCapValueRange_pF;
+    std::vector<RangedMeasurement> membraneCapTauValueRange_us;
+    RangedMeasurement_t rsCorrValueRange;
+    RangedMeasurement_t rsPredGainRange;
+    RangedMeasurement_t rsPredTauRange;
 
 
     /***************\

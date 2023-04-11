@@ -6,6 +6,7 @@ MessageDispatcher_OpalKelly::MessageDispatcher_OpalKelly(string deviceId) :
     MessageDispatcher(deviceId) {
 
     rxRawBufferMask = OKY_RX_BUFFER_MASK;
+
 }
 
 MessageDispatcher_OpalKelly::~MessageDispatcher_OpalKelly() {
@@ -26,6 +27,7 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
 
     if(!dev->IsFrontPanelEnabled()){
         error = dev->ConfigureFPGA(fwName);
+
 
         if (error != okCFrontPanel::NoError) {
             return ErrorDeviceFwLoadingFailed;

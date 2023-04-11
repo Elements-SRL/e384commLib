@@ -1549,3 +1549,343 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
     iirY[channelIdx][iirOff] = y;
     return y;
 }
+
+vector<double> MessageDispatcher::user2AsicDomainTransform(int chIdx, vector<double> userDomainParams){
+    vector<double> asicDomainParameter;
+    asicDomainParameter.resize(CompensationAsicParamsNum);
+    double cp; // pipette capacitance
+    double cm; // membrane capacitance
+    double taum; // membrane capacitance tau
+    double rsCr; // Rseries Correction
+    double rsPg; //Rseries prediction gain
+    double rsPtau; // Resies prediction tau
+
+    double asicCmCinj;
+
+    // membrane capacitance domain conversion
+    cm = userDomainParams[U_Cm];
+
+    // pipette capacitance VC to pipette capacitance domain conversion
+    /*! \todo aggiungere check se il multicoder esiste sulla size del vettore di puntatori  a multiCoder*/
+    bool done = false;
+    int i;
+    MultiCoder::MultiCoderConfig_t aaa;
+    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
+    for(i = 0; i<aaa.thresholdVector.size(); i++){
+        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+        if (cm < aaa.thresholdVector[i] && !done){
+            asicCmCinj = membraneCapValueInjCapacitance[i];
+            done = true;
+        }
+    }
+    if (!done){
+        asicCmCinj = membraneCapValueInjCapacitance[i];
+        done = true;
+    }
+
+    if(amIinVoltageClamp){
+        cp = userDomainParams[U_CpVc] + asicCmCinj;
+    } else {
+        // A_Cp
+        cp = userDomainParams[U_CpCc];
+    }
+
+    // Series resistance to Membrane tau domain conversion
+    taum = userDomainParams[U_Cm] * userDomainParams[U_Rs];
+
+    // Series correction percentage to Series correction resistance domain conversion
+    rsCr = userDomainParams[U_Rs] * userDomainParams[U_RsCp];
+
+    // Series prediction gain domain conversion
+    rsPg = userDomainParams[U_RsPg];
+
+    // pipette capacitance CC to Series prediction tau domain conversion
+    /*! \todo FCON recheck: a "* 2" or "/ 2" or maybe a "+ 1" might be missing */
+    rsPtau = taum / userDomainParams[U_RsPg];
+
+    asicDomainParameter[A_Cp] = cp;
+    asicDomainParameter[A_Cm] = cm;
+    asicDomainParameter[A_Taum] = taum;
+    asicDomainParameter[A_RsCr] = rsCr;
+    asicDomainParameter[A_RsPg] = rsPg;
+    asicDomainParameter[A_RsPtau] = rsPtau;
+
+    return asicDomainParameter;
+
+
+}
+
+std::vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc){
+    vector<double> userDomainParameter;
+    userDomainParameter.resize(CompensationUserParamsNum);
+
+    double cpVc;
+    double cm;
+    double rs;
+    double rsCp;
+    double rsPg;
+    double cpCC;
+
+    double asicCmCinj;
+
+    bool done = false;
+    int i;
+    MultiCoder::MultiCoderConfig_t aaa;
+    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
+    for(i = 0; i<aaa.thresholdVector.size(); i++){
+        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+        if (asicDomainParams[A_Cm] < aaa.thresholdVector[i] && !done){
+            asicCmCinj = membraneCapValueInjCapacitance[i];
+            done = true;
+        }
+    }
+    if (!done){
+        asicCmCinj = membraneCapValueInjCapacitance[i];
+        done = true;
+    }
+
+    //  pipette capacitance to pipette capacitance VC domain conversion
+    if(amIinVoltageClamp){
+        cpVc = asicDomainParams[A_Cp] - asicCmCinj;
+    } else {
+        cpVc = oldUCpVc; /*! \todo recheck */
+    }
+
+    // membrane capacitance domain conversion
+    cm = asicDomainParams[A_Cm];
+
+    // membrane tau to Series resistance domain conversion
+    rs = asicDomainParams[A_Taum] / asicDomainParams[A_Cm];
+
+    // Series correction resistance to Series correction percentage domain conversion
+    /*! \todo FCON recheck: should use U_Rs's value after it's been updated according to clipping */
+    rsCp = asicDomainParams[A_RsCr] / rs;
+
+    // Series prediction gain domain conversion
+    /*! \todo FCON RECHECK: a "* 2" or "/ 2" or maybe a "+ 1" might be missing */
+    rsPg = asicDomainParams[A_Taum] / asicDomainParams[A_RsPtau];
+
+    // Series prediction tau to Pipette capacitance CC domain conversion
+    if(amIinVoltageClamp){
+        cpCC = oldUCpCc; /*! \todo recheck */
+    } else {
+        cpCC = asicDomainParams[A_Cp];
+    }
+
+    userDomainParameter[U_CpVc] = cpVc;
+    userDomainParameter[U_Cm] = cm;
+    userDomainParameter[U_Rs] = rs;
+    userDomainParameter[U_RsCp] = rsCp;
+    userDomainParameter[U_RsPg] = rsPg;
+    userDomainParameter[U_CpCc] = cpCC;
+    return userDomainParameter;
+}
+
+/*! \todo FCON recheck: this function should return RangedMeasurements in the  USER DOMAIN, but we defined our RangedMeasurements in the ASIC DOMAIN. hOW SHALKL WE IMPLEMENT THIS?*/
+/*!  How shall we implement this?*/
+//ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures){
+//    switch(paramToExtractFeatures){
+//    case U_CpVc:
+//        if(pipetteCapEnCompensationCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        }
+
+//    break;
+
+//    case U_Cm:
+//        if(membraneCapEnCompensationCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        }
+
+//    break;
+
+//    case U_Rs:
+//        if(membraneCapTauValCompensationMultiCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        }
+
+//    break;
+
+//    case U_RsCp:
+//        if(rsCorrValCompensationCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        } else {
+//            compensationFeatures = rsCorrValueRange;
+//            return Success;
+//        }
+
+//    break;
+
+//    case U_RsPg:
+//        if(rsPredEnCompensationCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        } else {
+//            compensationFeatures = rsPredGainRange;
+//            return Success;
+//        }
+
+//    break;
+
+//    case U_CpCc:
+//        if(rsPredEnCompensationCoders.size() == 0){
+//            return ErrorFeatureNotImplemented;
+//        }
+
+//    break;
+//    }
+
+//}
+
+
+ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<bool> onValues, bool applyFlagIn){
+    for(int i = 0; i<chIdx.size(); i++){
+        switch(paramToUpdate){
+        case U_CpVc:
+            if(pipetteCapEnCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            pipetteCapEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        break;
+
+        case U_Cm:
+            if(membraneCapEnCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            membraneCapEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        break;
+
+        case U_Rs:
+            if(membraneCapTauValCompensationMultiCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            membraneCapTauValCompensationMultiCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        break;
+
+        case U_RsCp:
+            if(rsCorrValCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            rsCorrValCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        break;
+
+        case U_RsPg:
+            if(rsPredEnCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            rsPredEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        break;
+
+        case U_CpCc:
+            if(rsPredEnCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            rsPredEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        break;
+        }
+
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+
+    }
+
+
+
+}
+
+ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
+    // make local copy of the user domain param vectors
+    vector<vector<double>> localCompValueSubMatrix;
+    for(int i = 0; i< chIdx.size(); i++){
+        localCompValueSubMatrix[i] = this->compValueMatrix[chIdx[i]];
+    }
+
+    // for each user param vector
+    for (int j = 0; j < localCompValueSubMatrix.size(); j++){
+        // update value in user domain
+        localCompValueSubMatrix[j][paramToUpdate] = newParamValues[j];
+
+        // convert user domain to asic domain
+        vector<double> asicParams = user2AsicDomainTransform(chIdx[j], localCompValueSubMatrix[j]);
+        double temp;
+
+        // select asicParam to encode based on enum
+        /*! \todo FCON recheck: IN CASE THERE'S INTERACTION AMONG ASICPARAMS, THEY COULD BE DESCRIBED IN THE SWITCH-CASE */
+        switch(paramToUpdate)
+        {
+        case U_CpVc:
+            if(pipetteCapValCompensationMultiCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = pipetteCapValCompensationMultiCoders[chIdx[j]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_Cp] = temp;
+        break;
+        case U_Cm:
+            if(membraneCapValCompensationMultiCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = membraneCapValCompensationMultiCoders[chIdx[j]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_Cm] = temp;
+        break;
+        case U_Rs:
+            if(membraneCapTauValCompensationMultiCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = membraneCapTauValCompensationMultiCoders[chIdx[j]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_Taum] = temp;
+        break;
+        case U_RsCp:
+            if(rsCorrValCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = rsCorrValCompensationCoders[chIdx[j]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_RsCr] = temp;
+        break;
+        case U_RsPg:
+            if(rsPredGainCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = rsPredGainCompensationCoders[chIdx[j]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_RsPg] = temp;
+        break;
+        case U_CpCc:
+            if(rsPredTauCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = rsPredTauCompensationCoders[chIdx[j]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_RsPtau] = temp;
+        break;
+        }
+
+        // convert to user domain
+        double oldUCpVc = localCompValueSubMatrix[j][U_CpVc];
+        double oldUCpCc = localCompValueSubMatrix[j][U_CpCc];
+        localCompValueSubMatrix[j] = asic2UserDomainTransform(chIdx[j], asicParams, oldUCpVc, oldUCpCc);
+
+        //copy back to compValuematrix
+        this->compValueMatrix[chIdx[j]] = localCompValueSubMatrix[j];
+
+        // stack outgoing message
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+
+    //end for
+    }
+
+}
+

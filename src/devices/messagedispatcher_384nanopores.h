@@ -11,6 +11,7 @@ public:
     virtual ~MessageDispatcher_384NanoPores_V01();
 
 protected:
+
     enum ClampingModalities {
         VoltageClamp,
         ClampingModalitiesNum
