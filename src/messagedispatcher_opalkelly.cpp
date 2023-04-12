@@ -125,15 +125,15 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
                 continue;
             }
 
-#ifdef DEBUG_PRINT
+#ifdef DEBUG_TX_DATA_PRINT
             for (uint16_t regIdx = 0; regIdx < regs.size(); regIdx++) {
-                fprintf(fid, "%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
+                fprintf(txFid, "%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
                 if (regIdx % 16 == 15) {
-                    fprintf(fid, "\n");
+                    fprintf(txFid, "\n");
                 }
             }
-            fprintf(fid, "\n");
-            fflush(fid);
+            fprintf(txFid, "\n");
+            fflush(txFid);
 #endif
 
             notSentTxData = false;
@@ -259,7 +259,7 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                         rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBufferReadLength += rxOffsetLengthSize;
-#ifdef DEBUG_PRINT
+#ifdef DEBUG_RX_DATA_PRINT
                         /*! aggiungere printata di debug se serve */
 #endif
                         rxParsePhase = RxParseLookForHeader;

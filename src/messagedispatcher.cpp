@@ -1,7 +1,6 @@
 #include "messagedispatcher.h"
 
 #include <iostream>
-#include <sstream>
 #include <ctime>
 #include <thread>
 #include <math.h>
@@ -14,6 +13,7 @@
 #include "messagedispatcher_384patchclamp.h"
 #include "messagedispatcher_4x10mhz.h"
 #ifdef DEBUG
+/*! Fake device that generates synthetic data */
 #include "messagedispatcher_384fake.h"
 #endif
 #include "utils.h"
@@ -143,8 +143,16 @@ ErrorCodes_t MessageDispatcher::deinit() {
         iirY = nullptr;
     }
 
-#ifdef DEBUG_PRINT
-    fclose(fid);
+#ifdef DEBUG_TX_DATA_PRINT
+    fclose(txFid);
+#endif
+
+#ifdef DEBUG_RX_RAW_DATA_PRINT
+    fclose(rxRawFid);
+#endif
+
+#ifdef DEBUG_RX_DATA_PRINT
+    fclose(rxFid);
 #endif
 
     return Success;
@@ -269,29 +277,16 @@ ErrorCodes_t MessageDispatcher::connect() {
 
     stopConnectionFlag = false;
 
-#ifdef DEBUG_PRINT
-#ifdef _WIN32
-    string path = string(getenv("HOMEDRIVE"))+string(getenv("HOMEPATH"));
-#else
-    string path = string(getenv("HOME"));
-#endif
-    stringstream ss;
-
-    for (size_t i = 0; i < path.length(); ++i) {
-        if (path[i] == '\\') {
-            ss << "\\\\";
-
-        } else {
-            ss << path[i];
-        }
-    }
-#ifdef _WIN32
-    ss << "\\\\e384CommLib_tx.txt";
-#else
-    ss << "/e384CommLib_tx.txt";
+#ifdef DEBUG_TX_DATA_PRINT
+    createDebugFile(txFid, "e384CommLib_tx");
 #endif
 
-    fid = fopen(ss.str().c_str(), "wb");
+#ifdef DEBUG_RX_RAW_DATA_PRINT
+    createDebugFile(rxRawFid, "e384CommLib_rxRaw");
+#endif
+
+#ifdef DEBUG_RX_DATA_PRINT
+    createDebugFile(rxFid, "e384CommLib_rx");
 #endif
 
     rxThread = thread(&MessageDispatcher::readDataFromDevice, this);
@@ -308,6 +303,7 @@ ErrorCodes_t MessageDispatcher::connect() {
 
     return Success;
 }
+
 
 ErrorCodes_t MessageDispatcher::disconnect() {
     if (!connected) {

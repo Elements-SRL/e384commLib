@@ -221,6 +221,7 @@ protected:
     virtual void readDataFromDevice() = 0;
     virtual void sendCommandsToDevice() = 0;
     virtual void initializeHW() = 0;
+    void createDebugFile(FILE * &fid, std::string fileName);
 
     bool checkProtocolValidity(std::string &message);
 
@@ -497,8 +498,16 @@ protected:
     std::condition_variable txMsgBufferNotEmpty;
     std::condition_variable txMsgBufferNotFull;
 
-#ifdef DEBUG_PRINT
-    FILE * fid;
+#ifdef DEBUG_TX_DATA_PRINT
+    FILE * txFid = nullptr;
+#endif
+
+#ifdef DEBUG_RX_RAW_DATA_PRINT
+    FILE * rxRawFid = nullptr;
+#endif
+
+#ifdef DEBUG_RX_DATA_PRINT
+    FILE * rxFid = nullptr;
 #endif
 };
 

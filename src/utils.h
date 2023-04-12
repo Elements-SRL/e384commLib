@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <string>
+#include <sstream>
 #include <vector>
 #include <algorithm>
 
@@ -48,7 +50,29 @@ template<typename I_t> bool areAllTheVectorElementsInRange(std::vector<I_t> myVe
     }
 }
 
+void createDebugFile(FILE * &fid, std::string fileName) {
+#ifdef _WIN32
+    std::string path = std::string(getenv("HOMEDRIVE"))+std::string(getenv("HOMEPATH"));
+#else
+    string path = string(getenv("HOME"));
+#endif
+    std::stringstream ss;
 
+    for (size_t i = 0; i < path.length(); ++i) {
+        if (path[i] == '\\') {
+            ss << "\\\\";
 
+        } else {
+            ss << path[i];
+        }
+    }
+#ifdef _WIN32
+    ss << "\\\\" << fileName << ".txt";
+#else
+    ss << "/e384CommLib_tx.txt";
+#endif
+
+    fid = fopen(ss.str().c_str(), "wb");
+}
 
 #endif // UTILS_H
