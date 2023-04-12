@@ -278,15 +278,21 @@ ErrorCodes_t MessageDispatcher::connect() {
     stopConnectionFlag = false;
 
 #ifdef DEBUG_TX_DATA_PRINT
-    createDebugFile(txFid, "e384CommLib_tx");
+    if (txFid == nullptr) {
+        createDebugFile(txFid, "e384CommLib_tx");
+    }
 #endif
 
 #ifdef DEBUG_RX_RAW_DATA_PRINT
-    createDebugFile(rxRawFid, "e384CommLib_rxRaw");
+    if (rxRawFid == nullptr) {
+        createDebugFile(rxRawFid, "e384CommLib_rxRaw");
+    }
 #endif
 
 #ifdef DEBUG_RX_DATA_PRINT
-    createDebugFile(rxFid, "e384CommLib_rx");
+    if (rxFid == nullptr) {
+        createDebugFile(rxFid, "e384CommLib_rx");
+    }
 #endif
 
     rxThread = thread(&MessageDispatcher::readDataFromDevice, this);

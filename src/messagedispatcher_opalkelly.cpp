@@ -1,4 +1,5 @@
 #include "messagedispatcher_opalkelly.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -18,9 +19,22 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
         return ErrorDeviceAlreadyConnected;
     }
 
+#ifdef DEBUG_TX_DATA_PRINT
+    createDebugFile(txFid, "e384CommLib_tx");
+#endif
+
+#ifdef DEBUG_RX_RAW_DATA_PRINT
+    createDebugFile(rxRawFid, "e384CommLib_rxRaw");
+#endif
+
+#ifdef DEBUG_RX_DATA_PRINT
+    createDebugFile(rxFid, "e384CommLib_rx");
+#endif
+
     dev = new okCFrontPanel;
 
     okCFrontPanel::ErrorCode error = dev->OpenBySerial(deviceId);
+
     if (error != okCFrontPanel::NoError) {
         return ErrorDeviceConnectionFailed;
     }
@@ -28,10 +42,12 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
     if(!dev->IsFrontPanelEnabled()){ // doesn't load FW is one is already loaded
         error = dev->ConfigureFPGA(fwName);
 
-
         if (error != okCFrontPanel::NoError) {
             return ErrorDeviceFwLoadingFailed;
         }
+
+    } else {
+
     }
 
     ErrorCodes_t err = this->initializeBuffers();
@@ -188,7 +204,17 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
         if (bytesRead > INT32_MAX) {
             this_thread::sleep_for(chrono::milliseconds(100));
+#ifdef DEBUG_RX_RAW_DATA_PRINT
+            fprintf(rxRawFid, "Error %x\n", bytesRead);
+            fflush(rxRawFid);
+#endif
             continue;
+        } else {
+
+#ifdef DEBUG_RX_RAW_DATA_PRINT
+            fprintf(rxRawFid, "Bytes read %d\n", bytesRead);
+            fflush(rxRawFid);
+#endif
         }
 
         /*! Copy the data from the transfer buffer to the circular buffer */
@@ -204,8 +230,12 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
         } else {
             memcpy(rxRawBuffer+rxRawBufferWriteOffset, rxTransferBuffer, bytesRead);
 #ifdef DEBUG_RX_RAW_DATA_PRINT
-            for(int iii = 0; iii < bytesRead; iii++){
-                fprintf(rxRawFid, "%x", rxRawBuffer[rxRawBufferWriteOffset+iii]);
+            uint8_t byte;
+            for(int iii = 0; iii < bytesRead*0+16384; iii++){
+                byte = rxTransferBuffer[iii] & 0x0F;
+                fprintf(rxRawFid, "%02x ", byte);
+                byte = (rxTransferBuffer[iii] >> 8) & 0x0F;
+                fprintf(rxRawFid, "%02x ", byte);
             }
             fprintf(rxRawFid, "\n");
 #endif

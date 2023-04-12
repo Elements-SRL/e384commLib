@@ -50,7 +50,7 @@ template<typename I_t> bool areAllTheVectorElementsInRange(std::vector<I_t> myVe
     }
 }
 
-void createDebugFile(FILE * &fid, std::string fileName) {
+static void createDebugFile(FILE * &fid, std::string fileName) {
 #ifdef _WIN32
     std::string path = std::string(getenv("HOMEDRIVE"))+std::string(getenv("HOMEPATH"));
 #else
