@@ -176,6 +176,8 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     /******************\
      *  Reading part  *
     \******************/
+
+    /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
     this_thread::sleep_for(chrono::seconds(20));
 
     while (!stopConnectionFlag) {
