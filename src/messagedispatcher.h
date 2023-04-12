@@ -156,6 +156,13 @@ public:
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
 
+    ErrorCodes_t getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps);
+    ErrorCodes_t getVcCalibResFeatures(std::vector <Measurement_t> &vCCalibRes);
+
+    ErrorCodes_t getCalibDefaultVcAdcGain(Measurement_t &defaultVcAdcGain);
+    ErrorCodes_t getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset);
+    ErrorCodes_t getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset);
+
 protected:
     // Check Device->PC table in protocol
     typedef enum RxMessageTypes {
@@ -337,6 +344,7 @@ protected:
     BoolCoder * samplingRateCoder = nullptr;
     std::unordered_map<uint16_t, uint16_t> sr2LpfVcCurrentMap;
     std::unordered_map<uint16_t, uint16_t> sr2LpfCcVoltageMap;
+    std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
 
     std::vector <BoolCoder *> digitalOffsetCompensationCoders;
 
@@ -348,10 +356,14 @@ protected:
     RangedMeasurement_t calibVcCurrentGainRange;
     std::vector<Measurement_t> selectedCalibVcCurrentGainVector;
     std::vector <DoubleCoder *> calibVcCurrentGainCoders;
+    Measurement_t defaultCalibVcCurrentGain;
 
     std::vector <RangedMeasurement_t> calibVcCurrentOffsetRanges;
     std::vector<Measurement_t> selectedCalibVcCurrentOffsetVector;
     std::vector <std::vector <DoubleCoder *>> calibVcCurrentOffsetCoders;
+    Measurement_t defaultCalibVcCurrentOffset;
+
+    Measurement_t defaultCalibVcDacOffset;
 
     RangedMeasurement_t calibCcVoltageGainRange;
     std::vector<Measurement_t> selectedCalibCcVoltageGainVector;
@@ -368,6 +380,9 @@ protected:
     RangedMeasurement_t sourceVoltageRange;
     std::vector<Measurement_t> selectedSourceVoltageVector;
     std::vector <DoubleCoder *> sourceVoltageCoders;
+
+    std::vector<Measurement_t> vcCalibResArray;
+    std::vector<Measurement_t> vcCalibVoltStepsArray;
 
     DoubleCoder * stimRestCoder = nullptr;
 
@@ -428,7 +443,7 @@ protected:
     uint32_t rxMsgBufferReadLength = 0; /*!< Lenght of the part of the buffer to be processed */
     uint32_t rxMsgBufferWriteOffset = 0;
     uint32_t rxDataBufferWriteOffset = 0;
-    std::vector <uint16_t> voltageDataValues;
+    std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */
 
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
 

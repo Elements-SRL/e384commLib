@@ -133,6 +133,25 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
       {SamplingRate7_5kHz, VCCurrentFilter20kHz}
     };
 
+    /*! VC calibration voltage steps*/
+    vcCalibVoltStepsArray.resize(5);
+    vcCalibVoltStepsArray[0] = {-400.0, UnitPfxMilli, "V"};
+    vcCalibVoltStepsArray[1] = {-200.0, UnitPfxMilli, "V"};
+    vcCalibVoltStepsArray[2] = {0.0, UnitPfxMilli, "V"};
+    vcCalibVoltStepsArray[3] = {200.0, UnitPfxMilli, "V"};
+    vcCalibVoltStepsArray[4] = {400.0, UnitPfxMilli, "V"};
+
+    /*! VC calibration resistances*/
+    vcCalibResArray.resize(CalibResNum);
+    vcCalibResArray[CalibRes120kOhm] = {120.0, UnitPfxKilo, "Ohm"}; // 4uA
+    vcCalibResArray[CalibRes2_49MOhm] = {2.49, UnitPfxMega, "Ohm"}; // 200nA
+
+    // mapping VC current renge - calibration resistances
+    vcCurrRange2CalibResMap = {
+      {VCCurrentRange4uA, CalibRes120kOhm},
+      {VCCurrentRange200nA, CalibRes2_49MOhm}
+    };
+
     // mapping ADC Current Clamp
     // undefined
 
@@ -145,19 +164,22 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     selectedVoltageHoldVector.resize(currentChannelsNum);
     Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
 
-    /*! VC current gain */
+    /*! VC current calib gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
     calibVcCurrentGainRange.min = 0;//SHORT_MIN * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
     selectedCalibVcCurrentGainVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcCurrentGain = {1.57014, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
+    defaultCalibVcCurrentGain = {1.57014, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
 
-    /*! VC current offset */
+    /*! VC current calib offset */
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
+    defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
+
+    /*! VC calib DAC offset */
+    defaultCalibVcDacOffset = {0.0, vcVoltageRangesArray[defaultVcVoltageRangeIdx].prefix, vcVoltageRangesArray[defaultVcVoltageRangeIdx].unit};
 
     /*! Gate voltage range*/
     gateVoltageRange.step = 1;

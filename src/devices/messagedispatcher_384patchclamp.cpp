@@ -287,19 +287,22 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     selectedCurrentHoldVector.resize(currentChannelsNum);
     Measurement_t defaultCurrentHoldTuner = {0.0, cHoldRange[CCCurrentRange8nA].prefix, cHoldRange[CCCurrentRange8nA].unit};
 
-    /*! VC current gain */
+    /*! VC current calib gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
     calibVcCurrentGainRange.min = 0;//SHORT_MIN * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
     selectedCalibVcCurrentGainVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcCurrentGain = {1, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit};
+    defaultCalibVcCurrentGain = {1, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit};
 
-    /*! VC current offset */
+    /*! VC current calib offset */
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
+    defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
+
+    /*! VC calib DAC offset */
+    defaultCalibVcDacOffset = {0.0, vcVoltageRangesArray[defaultVcVoltageRangeIdx].prefix, vcVoltageRangesArray[defaultVcVoltageRangeIdx].unit};
 
 
     /*! Compensations */

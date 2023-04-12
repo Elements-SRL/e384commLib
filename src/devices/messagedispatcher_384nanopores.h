@@ -64,7 +64,14 @@ protected:
         LedsNum
     };
 
+    enum CalibResistances{
+        CalibRes120kOhm,
+        CalibRes2_49MOhm,
+        CalibResNum
+    };
+    
     virtual void initializeHW() override;
+    
 };
 
 #endif // MESSAGEDISPATCHER_384NANOPORES_H
