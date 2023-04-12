@@ -1184,11 +1184,12 @@ ErrorCodes_t MessageDispatcher::getClampingModalitiesFeatures(std::vector <uint1
     }
 }
 
-ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
+ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultVcCurrRangeIdx) {
     if (vcCurrentRangesArray.size()==0){
         return ErrorFeatureNotImplemented;
     } else {
         currentRanges = vcCurrentRangesArray;
+        defaultVcCurrRangeIdx = defaultVcCurrentRangeIdx;
         return Success;
     }
 }
