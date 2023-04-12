@@ -221,7 +221,6 @@ protected:
     virtual void readDataFromDevice() = 0;
     virtual void sendCommandsToDevice() = 0;
     virtual void initializeHW() = 0;
-    void createDebugFile(FILE * &fid, std::string fileName);
 
     bool checkProtocolValidity(std::string &message);
 
