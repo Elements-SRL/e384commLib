@@ -520,6 +520,10 @@ protected:
     FILE * rxRawFid = nullptr;
 #endif
 
+#ifdef DEBUG_RX_PROCESSING_PRINT
+    FILE * rxProcFid = nullptr;
+#endif
+
 #ifdef DEBUG_RX_DATA_PRINT
     FILE * rxFid = nullptr;
 #endif

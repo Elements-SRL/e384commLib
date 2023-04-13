@@ -27,6 +27,10 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
     createDebugFile(rxRawFid, "e384CommLib_rxRaw");
 #endif
 
+#ifdef DEBUG_RX_PROCESSING_PRINT
+    createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
+#endif
+
 #ifdef DEBUG_RX_DATA_PRINT
     createDebugFile(rxFid, "e384CommLib_rx");
 #endif
@@ -196,6 +200,11 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
     this_thread::sleep_for(chrono::seconds(20));
 
+#ifdef DEBUG_RX_PROCESSING_PRINT
+            fprintf(rxProcFid, "Entering while loop\n");
+            fflush(rxProcFid);
+#endif
+
     while (!stopConnectionFlag) {
         /*! Read the data */
         deviceMutexLock.lock();
@@ -204,12 +213,22 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
         if (bytesRead > INT32_MAX) {
             this_thread::sleep_for(chrono::milliseconds(100));
+#ifdef DEBUG_RX_PROCESSING_PRINT
+            fprintf(rxProcFid, "Error %x\n", bytesRead);
+            fflush(rxProcFid);
+#endif
+
 #ifdef DEBUG_RX_RAW_DATA_PRINT
             fprintf(rxRawFid, "Error %x\n", bytesRead);
             fflush(rxRawFid);
 #endif
             continue;
         } else {
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+            fprintf(rxProcFid, "Bytes read %d\n", bytesRead);
+            fflush(rxProcFid);
+#endif
 
 #ifdef DEBUG_RX_RAW_DATA_PRINT
             fprintf(rxRawFid, "Bytes read %d\n", bytesRead);
@@ -230,16 +249,11 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
         } else {
             memcpy(rxRawBuffer+rxRawBufferWriteOffset, rxTransferBuffer, bytesRead);
 #ifdef DEBUG_RX_RAW_DATA_PRINT
-            uint8_t byte;
             for(int iii = 0; iii < bytesRead*0+16384; iii++){
-                byte = rxTransferBuffer[iii] & 0x0F;
-                fprintf(rxRawFid, "%02x ", byte);
-                byte = (rxTransferBuffer[iii] >> 8) & 0x0F;
-                fprintf(rxRawFid, "%02x ", byte);
+                fprintf(rxRawFid, "%02x ", rxTransferBuffer[iii]);
             }
             fprintf(rxRawFid, "\n");
 #endif
-
         }
 
         /******************\
@@ -264,6 +278,12 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
         while (!notEnoughRxData) {
             switch (rxParsePhase) {
             case RxParseLookForHeader:
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+            fprintf(rxProcFid, "Look for header: %x\n", rxRawBufferReadOffset);
+            fflush(rxProcFid);
+#endif
+
                 /*! Look for header */
                 if (rxRawBufferReadLength < rxSyncWordSize) {
                     notEnoughRxData = true;
@@ -284,6 +304,12 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                 break;
 
             case RxParseLookForLength:
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+            fprintf(rxProcFid, "Look for length: %x\n", rxRawBufferReadOffset);
+            fflush(rxProcFid);
+#endif
+
                 /*! Look for length */
                 if (rxRawBufferReadLength < rxOffsetLengthSize) {
                     notEnoughRxData = true;
@@ -314,6 +340,12 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                 break;
 
             case RxParseCheckNextHeader:
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+            fprintf(rxProcFid, "Check next header: %x\n", rxRawBufferReadOffset);
+            fflush(rxProcFid);
+#endif
+
                 /*! Check that after the frame end there is a valid header */
                 if (rxRawBufferReadLength < rxDataBytes+rxSyncWordSize) {
                     notEnoughRxData = true;

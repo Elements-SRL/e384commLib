@@ -151,6 +151,10 @@ ErrorCodes_t MessageDispatcher::deinit() {
     fclose(rxRawFid);
 #endif
 
+#ifdef DEBUG_RX_PROCESSING_PRINT
+    fclose(rxProcFid);
+#endif
+
 #ifdef DEBUG_RX_DATA_PRINT
     fclose(rxFid);
 #endif
@@ -286,6 +290,12 @@ ErrorCodes_t MessageDispatcher::connect() {
 #ifdef DEBUG_RX_RAW_DATA_PRINT
     if (rxRawFid == nullptr) {
         createDebugFile(rxRawFid, "e384CommLib_rxRaw");
+    }
+#endif
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+    if (rxProcFid == nullptr) {
+        createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
     }
 #endif
 
@@ -1344,18 +1354,25 @@ bool MessageDispatcher::checkProtocolValidity(string &message) {
 void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType) {
     uint32_t rxDataWords = rxWordLengths[rxMessageType];
 
+#ifdef DEBUG_RX_PROCESSING_PRINT
+            fprintf(rxProcFid, "Store data frame: %x\n", rxMessageType);
+            fflush(rxProcFid);
+#endif
+
     rxMsgBuffer[rxMsgBufferWriteOffset].typeId = rxMsgTypeId;
     rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataWords;
     rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
-    if (rxEnabledTypesMap[rxMsgTypeId]) {
-        /*! Update the message buffer only if the message is not filtered out */
-        rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
-    }
 
     if (rxMessageType == RxMessageCurrentDataLoad) {
         /*! Data frame with only current */
         uint32_t packetsNum = rxDataWords/currentChannelsNum;
         uint32_t rxDataBufferWriteIdx = 0;
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+            fprintf(rxProcFid, "rxDataWords: %d\n", rxDataWords);
+            fprintf(rxProcFid, "packetsNum: %d\n", packetsNum);
+            fflush(rxProcFid);
+#endif
 
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! For each packet retrieve the last recevied voltage values */
@@ -1383,9 +1400,16 @@ void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rx
         }
     }
 
+    rxDataBufferWriteOffset = (rxDataBufferWriteOffset+rxMsgBuffer[rxMsgBufferWriteOffset].dataLength) & RX_DATA_BUFFER_MASK;
+
     if (rxDataBufferWriteOffset <= rxMsgBuffer[rxMsgBufferWriteOffset].dataLength) {
         rxDataBuffer[RX_DATA_BUFFER_SIZE] = rxDataBuffer[0]; /*!< The last item is a copy of the first one, it is used to safely read 2 consecutive 16bit words at a time to form a 32bit word,
                                                               *   even if the first 16bit word is in position FTD_RX_DATA_BUFFER_SIZE-1 and the following one would go out of range otherwise */
+    }
+
+    if (rxEnabledTypesMap[rxMsgTypeId]) {
+        /*! Update the message buffer only if the message is not filtered out */
+        rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
     }
 
     if (rxEnabledTypesMap[rxMsgTypeId]) {
