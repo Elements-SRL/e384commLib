@@ -915,11 +915,11 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
     lastParsedMsgType = MsgTypeIdInvalid;
 
     uint32_t dataOffset;
-    uint16_t samplesNum;
-    uint16_t sampleIdx;
-    uint16_t timeSamplesNum;
+    uint32_t samplesNum;
+    uint32_t sampleIdx;
+    uint32_t timeSamplesNum;
     int16_t rawFloat;
-    uint16_t dataWritten;
+    uint32_t dataWritten;
     bool exitLoop = false;
     bool messageReadFlag = false;
 
@@ -1011,7 +1011,7 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                 //            }
                 //            dataOffset = (dataOffset+2) & RX_DATA_BUFFER_MASK;
 
-                for (uint16_t idx = 0; idx < timeSamplesNum; idx++) {
+                for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                     for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
                         rawFloat = (int16_t)rxDataBuffer[dataOffset];
                         xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);

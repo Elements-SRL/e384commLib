@@ -218,7 +218,7 @@ typedef struct RxOutput {
     uint16_t protocolRepsIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionHeader this field holds the iteration of an interal loop of the following data in the current protocol */
     uint16_t protocolSweepIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionHeader this field holds the sweep index of the following data in the current protocol */
     uint32_t firstSampleOffset = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionData this field holds the data offset wrt the protocol first sample */
-    uint16_t dataLen = 0; /*!< Number of data samples available in field data */
+    uint32_t dataLen = 0; /*!< Number of data samples available in field data */
 } RxOutput_t;
 
 /*! \enum UnitPfx_t
