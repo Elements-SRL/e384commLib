@@ -212,6 +212,10 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
         deviceMutexLock.unlock();
 
         if (bytesRead > INT32_MAX) {
+            if (bytesRead == ok_Timeout) {
+                /*! The device cannot recover from timeout condition \todo FCON si riesce a mandare una notifica ad alto livello che il thread è morto */
+                stopConnectionFlag = true;
+            }
             this_thread::sleep_for(chrono::milliseconds(100));
 #ifdef DEBUG_RX_PROCESSING_PRINT
             fprintf(rxProcFid, "Error %x\n", bytesRead);
@@ -223,6 +227,7 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
             fflush(rxRawFid);
 #endif
             continue;
+
         } else {
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
