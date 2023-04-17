@@ -198,7 +198,7 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     \******************/
 
     /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
-    this_thread::sleep_for(chrono::seconds(20));
+    this_thread::sleep_for(chrono::seconds(10));
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
             fprintf(rxProcFid, "Entering while loop\n");
