@@ -5,6 +5,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 
     deviceName = "384NanoPores";
 
+    fwName = "384NanoPores_V01_top.bit";
+
     rxSyncWord = 0x5aa5;
 
     packetsPerFrame = 1;

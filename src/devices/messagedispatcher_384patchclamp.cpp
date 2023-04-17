@@ -7,6 +7,8 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
     deviceName = "384PatchClamp";
 
+    fwName = "384PatchClamp_V01_top.bit";
+
     rxSyncWord = 0x5aa5;
 
     packetsPerFrame = 1;
