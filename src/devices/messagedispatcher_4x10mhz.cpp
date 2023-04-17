@@ -599,7 +599,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     samplingRatesArray[SamplingRate833kHz].value = 80.0/6.0/16.0;
     samplingRatesArray[SamplingRate833kHz].prefix = UnitPfxMega;
     samplingRatesArray[SamplingRate833kHz].unit = "Hz";
-    defaultSamplingRateIdx = SamplingRate13_3MHz;
+    defaultSamplingRateIdx = SamplingRate26_7MHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
     realSamplingRatesArray[SamplingRate26_7MHz].value = 80.0/6.0/0.5;
