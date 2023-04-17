@@ -146,7 +146,7 @@ public:
     ErrorCodes_t getBoardsNumberFeatures(uint16_t &boardsNumberFeatures);
     ErrorCodes_t getClampingModalitiesFeatures(std::vector<uint16_t> &clampingModalitiesFeatures);
 
-    ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
+    ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultVcCurrRangeIdx);
     ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
     ErrorCodes_t getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
     ErrorCodes_t getCCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
