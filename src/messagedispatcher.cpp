@@ -481,8 +481,8 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(vector<uint16_t> channelIn
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(gains, calibVcCurrentGainRange.getMin(), calibVcCurrentGainRange.getMax())) {
-        return ErrorValueOutOfRange;
+//    } else if (!areAllTheVectorElementsInRange(gains, calibVcCurrentGainRange.getMin(), calibVcCurrentGainRange.getMax())) {
+//        return ErrorValueOutOfRange;
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
@@ -505,8 +505,8 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(vector<uint16_t> channel
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(offsets, calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].getMin(), calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].getMax())) {
-        return ErrorValueOutOfRange;
+//    } else if (!areAllTheVectorElementsInRange(offsets, calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].getMin(), calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].getMax())) {
+//        return ErrorValueOutOfRange;
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
@@ -529,8 +529,8 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(vector<uint16_t> channelIn
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(gains, calibCcVoltageGainRange.getMin(), calibCcVoltageGainRange.getMax())) {
-        return ErrorValueOutOfRange;
+//    } else if (!areAllTheVectorElementsInRange(gains, calibCcVoltageGainRange.getMin(), calibCcVoltageGainRange.getMax())) {
+//        return ErrorValueOutOfRange;
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
@@ -553,8 +553,8 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(vector<uint16_t> channel
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(offsets, calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].getMin(), calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].getMax())) {
-        return ErrorValueOutOfRange;
+//    } else if (!areAllTheVectorElementsInRange(offsets, calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].getMin(), calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].getMax())) {
+//        return ErrorValueOutOfRange;
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
