@@ -7,6 +7,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
 
     fwName = "384NanoPores_V01_top.bit";
 
+    waitingTimeBeforeReadingData = 10; //s
+
     rxSyncWord = 0x5aa5;
 
     packetsPerFrame = 1;
