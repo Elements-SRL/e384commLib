@@ -26,8 +26,10 @@ static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
     {"221000106B", Device384Nanopores},
     {"221000106C", Device384Nanopores},
     {"pup", Device384PatchClamp},
-    {"22370012CB", Device10MHz}
+    {"22370012CB", Device10MHz},
+    {"22370012CI", Device10MHz}
 //    {"22370012CB", Device4x10MHz}
+//    {"22370012CI", Device4x10MHz}
     #ifdef DEBUG
     ,{"FAKE", Device384Fake}
     #endif
@@ -318,7 +320,7 @@ ErrorCodes_t MessageDispatcher::connect() {
 
 #ifndef DEBUG
     /*! Initialize device */
-    this_thread::sleep_for(chrono::milliseconds(1000));
+    this_thread::sleep_for(chrono::milliseconds(10));
     this->initializeDevice();
 #endif
 
