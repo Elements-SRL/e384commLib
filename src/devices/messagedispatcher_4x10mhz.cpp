@@ -7,6 +7,8 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
 
     fwName = "4x10MHz_V01_top.bit";
 
+    waitingTimeBeforeReadingData = 2; //s
+
     rxSyncWord = 0x5aa5;
 
     packetsPerFrame = 256;

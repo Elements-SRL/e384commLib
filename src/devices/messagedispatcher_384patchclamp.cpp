@@ -9,6 +9,8 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
     fwName = "384PatchClamp_V01_top.bit";
 
+    waitingTimeBeforeReadingData = 10; //s
+
     rxSyncWord = 0x5aa5;
 
     packetsPerFrame = 1;
