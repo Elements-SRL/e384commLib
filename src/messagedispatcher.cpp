@@ -1454,24 +1454,14 @@ void MessageDispatcher::stackOutgoingMessage(vector <uint16_t> &txDataMessage) {
 }
 
 uint16_t MessageDispatcher::popUint16FromRxRawBuffer() {
-    uint16_t value = 0;
-
-    for (unsigned int byteIdx = 0; byteIdx < RX_WORD_SIZE; byteIdx++) {
-        value <<= 8;
-        value += rxRawBuffer[(rxRawBufferReadOffset+byteIdx) & rxRawBufferMask];
-    }
+    uint16_t value = (rxRawBuffer[rxRawBufferReadOffset] << 8) + rxRawBuffer[rxRawBufferReadOffset+1];
     rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_WORD_SIZE) & rxRawBufferMask;
     rxRawBufferReadLength -= RX_WORD_SIZE;
     return value;
 }
 
 uint16_t MessageDispatcher::readUint16FromRxRawBuffer(uint32_t n) {
-    uint16_t value = 0;
-
-    for (unsigned int byteIdx = 0; byteIdx < RX_WORD_SIZE; byteIdx++) {
-        value <<= 8;
-        value += rxRawBuffer[(rxRawBufferReadOffset+byteIdx+n) & rxRawBufferMask];
-    }
+    uint16_t value = (rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask] << 8) + rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask];
     return value;
 }
 

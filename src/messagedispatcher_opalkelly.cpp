@@ -172,7 +172,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead; /*!< Bytes read during last transfer from Opal Kelly */
-    uint32_t bytesToEnd; /*!< Bytes to the end of the buffer */
     uint32_t availablePackets; /*!< Approximate number of packets available in RX queue */
 
     RxParsePhase_t rxParsePhase = RxParseLookForHeader;
