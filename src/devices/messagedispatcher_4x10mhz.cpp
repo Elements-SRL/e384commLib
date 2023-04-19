@@ -120,6 +120,9 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
+    samplingRatesArray[SamplingRate26_7MHz].value = 80.0/6.0/0.5;
+    samplingRatesArray[SamplingRate26_7MHz].prefix = UnitPfxMega;
+    samplingRatesArray[SamplingRate26_7MHz].unit = "Hz";
     samplingRatesArray[SamplingRate13_3MHz].value = 80.0/6.0/1.0;
     samplingRatesArray[SamplingRate13_3MHz].prefix = UnitPfxMega;
     samplingRatesArray[SamplingRate13_3MHz].unit = "Hz";
@@ -135,12 +138,12 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     samplingRatesArray[SamplingRate833kHz].value = 80.0/6.0/16.0;
     samplingRatesArray[SamplingRate833kHz].prefix = UnitPfxMega;
     samplingRatesArray[SamplingRate833kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate417kHz].value = 80.0/6.0/32.0;
-    samplingRatesArray[SamplingRate417kHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate417kHz].unit = "Hz";
-    defaultSamplingRateIdx = SamplingRate13_3MHz;
+    defaultSamplingRateIdx = SamplingRate26_7MHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
+    realSamplingRatesArray[SamplingRate26_7MHz].value = 80.0/6.0/0.5;
+    realSamplingRatesArray[SamplingRate26_7MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate26_7MHz].unit = "Hz";
     realSamplingRatesArray[SamplingRate13_3MHz].value = 80.0/6.0/1.0;
     realSamplingRatesArray[SamplingRate13_3MHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate13_3MHz].unit = "Hz";
@@ -156,11 +159,11 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     realSamplingRatesArray[SamplingRate833kHz].value = 80.0/6.0/16.0;
     realSamplingRatesArray[SamplingRate833kHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate833kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate417kHz].value = 80.0/6.0/32.0;
-    realSamplingRatesArray[SamplingRate417kHz].prefix = UnitPfxMega;
-    realSamplingRatesArray[SamplingRate417kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
+    integrationStepArray[SamplingRate26_7MHz].value = 0.5*6.0/80.0;
+    integrationStepArray[SamplingRate26_7MHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate26_7MHz].unit = "s";
     integrationStepArray[SamplingRate13_3MHz].value = 1.0*6.0/80.0;
     integrationStepArray[SamplingRate13_3MHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate13_3MHz].unit = "s";
@@ -176,18 +179,15 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     integrationStepArray[SamplingRate833kHz].value = 16.0*6.0/80.0;
     integrationStepArray[SamplingRate833kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate833kHz].unit = "s";
-    integrationStepArray[SamplingRate417kHz].value = 32.0*6.0/80.0;
-    integrationStepArray[SamplingRate417kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate417kHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
+        {SamplingRate26_7MHz, -1},
         {SamplingRate13_3MHz, -1},
         {SamplingRate6_67MHz, -1},
         {SamplingRate3_33MHz, -1},
         {SamplingRate1_67MHz, -1},
-        {SamplingRate833kHz, -1},
-        {SamplingRate417kHz, -1},
+        {SamplingRate833kHz, -1}
     };
 
     // mapping ADC Current Clamp
@@ -471,6 +471,8 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     deviceName = "10MHz";
 
     fwName = "10MHz_V01_top.bit";
+
+    waitingTimeBeforeReadingData = 2; //s
 
     rxSyncWord = 0x5aa5;
 

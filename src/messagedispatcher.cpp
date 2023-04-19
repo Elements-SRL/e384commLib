@@ -26,10 +26,10 @@ static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
     {"221000106B", Device384Nanopores},
     {"221000106C", Device384Nanopores},
     {"pup", Device384PatchClamp},
-    {"22370012CB", Device10MHz},
-    {"22370012CI", Device10MHz}
-//    {"22370012CB", Device4x10MHz}
-//    {"22370012CI", Device4x10MHz}
+//    {"22370012CB", Device10MHz},
+//    {"22370012CI", Device10MHz}
+    {"22370012CB", Device4x10MHz},
+    {"22370012CI", Device4x10MHz}
     #ifdef DEBUG
     ,{"FAKE", Device384Fake}
     #endif

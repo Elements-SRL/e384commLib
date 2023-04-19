@@ -55,12 +55,12 @@ protected:
     };
 
     enum SamplingRates {
+        SamplingRate26_7MHz,
         SamplingRate13_3MHz,
         SamplingRate6_67MHz,
         SamplingRate3_33MHz,
         SamplingRate1_67MHz,
         SamplingRate833kHz,
-        SamplingRate417kHz,
         SamplingRatesNum
     };
 
