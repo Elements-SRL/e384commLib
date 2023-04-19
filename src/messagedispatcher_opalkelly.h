@@ -50,10 +50,7 @@ protected:
      *  Variables  *
     \***************/
 
-    uint8_t * rxTransferBuffer = nullptr; /*!< Raw data from the device obtained during last transfer */
     int waitingTimeBeforeReadingData = 1;
-
-//    uint8_t * txRawBuffer; /*!< Raw outgoing data to the device */
 
     /********************************************\
      *  Multi-thread synchronization variables  *

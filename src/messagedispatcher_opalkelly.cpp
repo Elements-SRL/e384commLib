@@ -201,14 +201,14 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     this_thread::sleep_for(chrono::seconds(waitingTimeBeforeReadingData));
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
-            fprintf(rxProcFid, "Entering while loop\n");
-            fflush(rxProcFid);
+    fprintf(rxProcFid, "Entering while loop\n");
+    fflush(rxProcFid);
 #endif
 
     while (!stopConnectionFlag) {
         /*! Read the data */
         deviceMutexLock.lock();
-        bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxTransferBuffer);
+        bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxRawBuffer+rxRawBufferWriteOffset);
         deviceMutexLock.unlock();
 
         if (bytesRead > INT32_MAX) {
@@ -241,32 +241,12 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 #endif
         }
 
-        /*! Copy the data from the transfer buffer to the circular buffer */
-        bytesToEnd = OKY_RX_BUFFER_SIZE-rxRawBufferWriteOffset;
-
-        if (bytesRead > bytesToEnd) {
-            memcpy(rxRawBuffer+rxRawBufferWriteOffset, rxTransferBuffer, bytesToEnd);
-            memcpy(rxRawBuffer, rxTransferBuffer+bytesToEnd, bytesRead-bytesToEnd);
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-            fprintf(rxRawFid, "\n\n\n");
-#endif
-
-        } else {
-            memcpy(rxRawBuffer+rxRawBufferWriteOffset, rxTransferBuffer, bytesRead);
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-            for(int iii = 0; iii < bytesRead*0+16384; iii++){
-                fprintf(rxRawFid, "%02x ", rxTransferBuffer[iii]);
-            }
-            fprintf(rxRawFid, "\n");
-#endif
-        }
-
         /******************\
          *  Parsing part  *
         \******************/
 
         /*! Update buffer writing point */
-        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead)&OKY_RX_BUFFER_MASK;
+        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & OKY_RX_BUFFER_MASK;
 
         /*! Compute the approximate number of available packets */
         rxRawBufferReadLength += bytesRead;
@@ -412,7 +392,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 ErrorCodes_t MessageDispatcher_OpalKelly::initializeBuffers() {
     unique_lock <mutex> deviceMutexLock(deviceMutex);
 
-    rxTransferBuffer = new (std::nothrow) uint8_t[OKY_RX_TRANSFER_SIZE];
     rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_BUFFER_SIZE];
     if (rxRawBuffer != nullptr) {
         return Success;
@@ -424,11 +403,6 @@ ErrorCodes_t MessageDispatcher_OpalKelly::initializeBuffers() {
 
 ErrorCodes_t MessageDispatcher_OpalKelly::deinitializeBuffers() {
     unique_lock <mutex> deviceMutexLock(deviceMutex);
-
-    if (rxTransferBuffer != nullptr) {
-        delete [] rxTransferBuffer;
-        rxTransferBuffer = nullptr;
-    }
 
     if (rxRawBuffer != nullptr) {
         delete [] rxRawBuffer;
