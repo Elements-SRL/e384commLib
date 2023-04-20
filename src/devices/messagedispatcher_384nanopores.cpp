@@ -454,7 +454,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = gateVoltageRange.step;
-    doubleConfig.minValue = -1.024*31.0;
+    doubleConfig.minValue = -1024.0*31.0;
     doubleConfig.maxValue = gateVoltageRange.min+gateVoltageRange.step*USHORT_MAX;
     gateVoltageCoders.resize(totalBoardsNum);
     for (uint32_t idx = 0; idx < totalBoardsNum; idx++) {
@@ -468,7 +468,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = sourceVoltageRange.step;
-    doubleConfig.minValue = -2.048;
+    doubleConfig.minValue = -2048.0;
     doubleConfig.maxValue = sourceVoltageRange.min+sourceVoltageRange.step*USHORT_MAX;
     sourceVoltageCoders.resize(totalBoardsNum);
     for (uint32_t idx = 0; idx < totalBoardsNum; idx++) {
