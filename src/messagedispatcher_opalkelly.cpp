@@ -265,6 +265,7 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
     uint16_t rxWordsLength; /*!< Number of words in the received frame */
     uint32_t rxDataBytes; /*!< Number of bytes in the received frame */
     uint16_t rxCandidateHeader;
+    uint32_t availablePackets; /*!< Approximate number of packets available in RX queue */
 
     bool notEnoughRxData;
 
@@ -280,6 +281,14 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
         maxRxRawBytesRead = rxRawBufferReadLength;
         rxRawBytesAvailable = maxRxRawBytesRead;
         rxRawMutexLock.unlock();
+
+        availablePackets = maxRxRawBytesRead/(uint32_t)(totalChannelsNum*RX_WORD_SIZE);
+
+        /*! If there are not enough packets wait for a minimum packets number to decrease overhead */
+        if (availablePackets < minPacketsNumber) {
+            this_thread::sleep_for(chrono::microseconds(fewPacketsSleepUs));
+            continue;
+        }
 
         /*! Compute the approximate number of available packets */
         notEnoughRxData = false;

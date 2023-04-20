@@ -37,6 +37,8 @@
 #define IIR_2_COS_PI_4_2 (IIR_2_COS_PI_4*IIR_2_COS_PI_4)
 
 #define RX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
+#define RX_DEFAULT_MIN_PACKETS_NUMBER 10
+#define RX_DEFAULT_FEW_PACKETS_SLEEP_US 2000
 #define RX_FEW_PACKETS_COEFF 0.01 /*!< = 10.0/1000.0: 10.0 because I want to get data once every 10ms, 1000 to convert sampling rate from Hz to kHz */
 #define RX_MAX_BYTES_TO_WAIT_FOR 16384
 #define RX_MSG_BUFFER_SIZE 0x10000 // ~65k
@@ -236,6 +238,7 @@ protected:
     uint16_t popUint16FromRxRawBuffer();
     uint16_t readUint16FromRxRawBuffer(uint32_t n);
 
+    void computeMinimumPacketNumber();
     void initializeRawDataFilterVariables();
     void computeRawDataFilterCoefficients();
     double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
@@ -419,6 +422,9 @@ protected:
     bool threadsStarted = false;
     bool stopConnectionFlag = false;
     bool parsingFlag = false;
+
+    uint32_t minPacketsNumber = RX_DEFAULT_MIN_PACKETS_NUMBER;
+    uint32_t fewPacketsSleepUs = RX_DEFAULT_FEW_PACKETS_SLEEP_US;
 
     /*! Read data buffer management */
     uint16_t rxMaxWords;
