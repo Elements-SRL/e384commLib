@@ -3,8 +3,6 @@
 
 #include "messagedispatcher_opalkelly.h"
 
-#define E384NPR_ADDITIONAL_SR_FLAG
-
 using namespace std;
 
 class MessageDispatcher_384NanoPores_V01 : public MessageDispatcher_OpalKelly {

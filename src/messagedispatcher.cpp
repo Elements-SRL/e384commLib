@@ -1019,6 +1019,17 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                 //            dataOffset = (dataOffset+2) & RX_DATA_BUFFER_MASK;
 
                 for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
+#ifdef DISABLE_IIR
+                    for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                        data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
+                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                    }
+
+                    for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                        data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
+                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                    }
+#else
                     for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
                         rawFloat = (int16_t)rxDataBuffer[dataOffset];
                         xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
@@ -1039,6 +1050,7 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                     } else {
                         iirOff--;
                     }
+#endif
                 }
 
                 lastParsedMsgType = MsgTypeIdAcquisitionData;
