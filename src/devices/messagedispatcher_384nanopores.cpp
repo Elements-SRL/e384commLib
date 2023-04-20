@@ -454,11 +454,11 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = gateVoltageRange.step;
-    doubleConfig.minValue = gateVoltageRange.min;
-    doubleConfig.maxValue = gateVoltageRange.max;
+    doubleConfig.minValue = -1.024*31.0;
+    doubleConfig.maxValue = gateVoltageRange.min+gateVoltageRange.step*USHORT_MAX;
     gateVoltageCoders.resize(totalBoardsNum);
     for (uint32_t idx = 0; idx < totalBoardsNum; idx++) {
-        gateVoltageCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        gateVoltageCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(gateVoltageCoders[idx]);
         doubleConfig.initialWord++;
     }
@@ -468,11 +468,11 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = sourceVoltageRange.step;
-    doubleConfig.minValue = sourceVoltageRange.min;
-    doubleConfig.maxValue = sourceVoltageRange.max;
+    doubleConfig.minValue = -2.048;
+    doubleConfig.maxValue = sourceVoltageRange.min+sourceVoltageRange.step*USHORT_MAX;
     sourceVoltageCoders.resize(totalBoardsNum);
     for (uint32_t idx = 0; idx < totalBoardsNum; idx++) {
-        sourceVoltageCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        sourceVoltageCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(sourceVoltageCoders[idx]);
         doubleConfig.initialWord++;
     }
