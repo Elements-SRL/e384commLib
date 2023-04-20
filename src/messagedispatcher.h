@@ -37,8 +37,6 @@
 #define IIR_2_COS_PI_4_2 (IIR_2_COS_PI_4*IIR_2_COS_PI_4)
 
 #define RX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
-#define RX_DEFAULT_MIN_PACKETS_NUMBER 10
-#define RX_DEFAULT_FEW_PACKETS_SLEEP_US 2000
 #define RX_FEW_PACKETS_COEFF 0.01 /*!< = 10.0/1000.0: 10.0 because I want to get data once every 10ms, 1000 to convert sampling rate from Hz to kHz */
 #define RX_MAX_BYTES_TO_WAIT_FOR 16384
 #define RX_MSG_BUFFER_SIZE 0x10000 // ~65k
@@ -226,6 +224,7 @@ protected:
     static std::string getDeviceSerial(int index);
     static bool getDeviceCount(int &numDevs);
     virtual void readDataFromDevice() = 0;
+    virtual void parseDataFromDevice() = 0;
     virtual void sendCommandsToDevice() = 0;
     virtual void initializeHW() = 0;
 
@@ -237,7 +236,6 @@ protected:
     uint16_t popUint16FromRxRawBuffer();
     uint16_t readUint16FromRxRawBuffer(uint32_t n);
 
-    void computeMinimumPacketNumber();
     void initializeRawDataFilterVariables();
     void computeRawDataFilterCoefficients();
     double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
@@ -422,9 +420,6 @@ protected:
     bool stopConnectionFlag = false;
     bool parsingFlag = false;
 
-    uint32_t minPacketsNumber = RX_DEFAULT_MIN_PACKETS_NUMBER;
-    uint32_t fewPacketsSleepUs = RX_DEFAULT_FEW_PACKETS_SLEEP_US;
-
     /*! Read data buffer management */
     uint16_t rxMaxWords;
     uint32_t maxInputDataLoadSize;
@@ -436,6 +431,8 @@ protected:
     uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */
     uint32_t rxRawBufferReadOffset = 0; /*!< Device Rx buffer offset position in which data are collected by the outputDataBuffer */
     uint32_t rxRawBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
+    uint32_t maxRxRawBytesRead = 0;
+    uint32_t rxRawBytesAvailable = 0;
     uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
     uint32_t rxRawBufferMask;
     MsgResume_t * rxMsgBuffer; /*!< Buffer of pre-digested messages that contains message's high level info */
@@ -501,10 +498,15 @@ protected:
      *  Multi-thread synchronization variables  *
     \********************************************/
 
-    std::thread rxThread;
+    std::thread rxProducerThread;
+    std::thread rxConsumerThread;
     std::thread txThread;
 
-    mutable std::mutex rxMutex;
+    mutable std::mutex rxRawMutex;
+    std::condition_variable rxRawBufferNotEmpty;
+    std::condition_variable rxRawBufferNotFull;
+
+    mutable std::mutex rxMsgMutex;
     std::condition_variable rxMsgBufferNotEmpty;
     std::condition_variable rxMsgBufferNotFull;
 

@@ -144,7 +144,7 @@ void MessageDispatcher_384Fake::readDataFromDevice() {
     }
 
     if (rxMsgBufferReadLength <= 0) {
-        unique_lock <mutex> rxMutexLock(rxMutex);
+        unique_lock <mutex> rxMutexLock(rxMsgMutex);
         parsingFlag = false;
         rxMsgBufferReadLength++;
         rxMsgBufferNotEmpty.notify_all();

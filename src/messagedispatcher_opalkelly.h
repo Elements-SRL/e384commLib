@@ -34,6 +34,7 @@ protected:
 
     virtual void sendCommandsToDevice() override;
     virtual void readDataFromDevice() override;
+    virtual void parseDataFromDevice() override;
 
     ErrorCodes_t initializeBuffers();
     ErrorCodes_t deinitializeBuffers();

@@ -99,8 +99,6 @@ ErrorCodes_t MessageDispatcher::init() {
     txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
     txMsgLength.resize(TX_MSG_BUFFER_SIZE);
 
-    this->computeMinimumPacketNumber();
-
     /*! Allocate memory for raw data filters */
     this->initializeRawDataFilterVariables();
 
@@ -312,7 +310,8 @@ ErrorCodes_t MessageDispatcher::connect() {
     }
 #endif
 
-    rxThread = thread(&MessageDispatcher::readDataFromDevice, this);
+    rxProducerThread = thread(&MessageDispatcher::readDataFromDevice, this);
+    rxConsumerThread = thread(&MessageDispatcher::parseDataFromDevice, this);
 
     txThread = thread(&MessageDispatcher::sendCommandsToDevice, this);
 
@@ -337,7 +336,8 @@ ErrorCodes_t MessageDispatcher::disconnect() {
         stopConnectionFlag = true;
 
         if (threadsStarted) {
-            rxThread.join();
+            rxProducerThread.join();
+            rxConsumerThread.join();
             txThread.join();
         }
 
@@ -817,7 +817,6 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
         samplingRateCoder->encode(samplingRateIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         selectedSamplingRateIdx = samplingRateIdx;
         this->setAdcFilter();
-        this->computeMinimumPacketNumber();
         this->computeRawDataFilterCoefficients();
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
@@ -902,7 +901,7 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
     ErrorCodes_t ret = Success;
     double xFlt;
 
-    unique_lock <mutex> rxMutexLock (rxMutex);
+    unique_lock <mutex> rxMutexLock (rxMsgMutex);
     if (rxMsgBufferReadLength <= 0) {
         rxMsgBufferNotEmpty.wait_for(rxMutexLock, chrono::milliseconds(10));
         if (rxMsgBufferReadLength <= 0) {
@@ -1434,7 +1433,7 @@ void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rx
 
     if (rxEnabledTypesMap[rxMsgTypeId]) {
         /*! change the message buffer length only if the message is not filtered out */
-        unique_lock <mutex> rxMutexLock(rxMutex);
+        unique_lock <mutex> rxMutexLock(rxMsgMutex);
         rxMsgBufferReadLength++;
         rxMsgBufferNotEmpty.notify_all();
     }
@@ -1468,20 +1467,13 @@ void MessageDispatcher::stackOutgoingMessage(vector <uint16_t> &txDataMessage) {
 uint16_t MessageDispatcher::popUint16FromRxRawBuffer() {
     uint16_t value = (rxRawBuffer[rxRawBufferReadOffset] << 8) + rxRawBuffer[rxRawBufferReadOffset+1];
     rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_WORD_SIZE) & rxRawBufferMask;
-    rxRawBufferReadLength -= RX_WORD_SIZE;
+    rxRawBytesAvailable -= RX_WORD_SIZE;
     return value;
 }
 
 uint16_t MessageDispatcher::readUint16FromRxRawBuffer(uint32_t n) {
     uint16_t value = (rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask] << 8) + rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask];
     return value;
-}
-
-void MessageDispatcher::computeMinimumPacketNumber() {
-    double samplingRateInHz = samplingRate.getNoPrefixValue();
-    minPacketsNumber = (unsigned long)ceil(RX_FEW_PACKETS_COEFF*samplingRateInHz);
-    minPacketsNumber = (unsigned long)min(minPacketsNumber, (unsigned long)ceil(((double)RX_MAX_BYTES_TO_WAIT_FOR)/(double)maxInputDataLoadSize));
-    fewPacketsSleepUs = (unsigned int)ceil(((double)(minPacketsNumber*(unsigned long)packetsPerFrame))/samplingRateInHz*1.0e6);
 }
 
 void MessageDispatcher::initializeRawDataFilterVariables() {

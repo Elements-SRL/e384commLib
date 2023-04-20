@@ -172,21 +172,6 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead; /*!< Bytes read during last transfer from Opal Kelly */
-    uint32_t availablePackets; /*!< Approximate number of packets available in RX queue */
-
-    RxParsePhase_t rxParsePhase = RxParseLookForHeader;
-
-    rxRawBufferReadOffset = 0;
-    uint32_t rxSyncWordSize = sizeof(rxSyncWord);
-    uint32_t rxOffsetLengthSize = 2*RX_WORD_SIZE;
-    uint32_t rxFrameOffset; /*!< Offset of the current frame */
-    uint16_t rxWordOffset; /*!< Offset of the first word in the received frame */
-    uint16_t rxWordsLength; /*!< Number of words in the received frame */
-    uint32_t rxDataBytes; /*!< Number of bytes in the received frame */
-    uint16_t rxCandidateHeader;
-
-    bool notEnoughRxData;
-
     parsingFlag = true;
 
     unique_lock <mutex> deviceMutexLock(deviceMutex);
@@ -204,7 +189,18 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     fflush(rxProcFid);
 #endif
 
+    int okWrites = 0;
+    std::chrono::steady_clock::time_point startPrintfTime;
+    std::chrono::steady_clock::time_point currentPrintfTime;
+    startPrintfTime = std::chrono::steady_clock::now();
+
     while (!stopConnectionFlag) {
+        unique_lock <mutex> rxRawMutexLock (rxRawMutex);
+        while (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE > OKY_RX_BUFFER_SIZE) {
+            rxRawBufferNotFull.wait_for(rxRawMutexLock, chrono::milliseconds(10));
+        }
+        rxRawMutexLock.unlock();
+
         /*! Read the data */
         deviceMutexLock.lock();
         bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxRawBuffer+rxRawBufferWriteOffset);
@@ -240,23 +236,52 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
 #endif
         }
 
-        /******************\
-         *  Parsing part  *
-        \******************/
-
         /*! Update buffer writing point */
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & OKY_RX_BUFFER_MASK;
 
-        /*! Compute the approximate number of available packets */
-        rxRawBufferReadLength += bytesRead;
-        availablePackets = rxRawBufferReadLength/(uint32_t)(totalChannelsNum*RX_WORD_SIZE);
-
-        /*! If there are not enough packets wait for a minimum packets number to decrease overhead */
-        if (availablePackets < minPacketsNumber) {
-            this_thread::sleep_for(chrono::microseconds(fewPacketsSleepUs));
-            continue;
+        okWrites++;
+        if (okWrites > 100) {
+            okWrites = 0;
+            currentPrintfTime = std::chrono::steady_clock::now();
+            printf("%lld\n", (std::chrono::duration_cast <std::chrono::milliseconds> (currentPrintfTime-startPrintfTime).count()));
+            fflush(stdout);
+            startPrintfTime = currentPrintfTime;
         }
 
+        rxRawMutexLock.lock();
+        rxRawBufferReadLength += bytesRead;
+        rxRawBufferNotEmpty.notify_all();
+    }
+}
+
+void MessageDispatcher_OpalKelly::parseDataFromDevice() {
+    RxParsePhase_t rxParsePhase = RxParseLookForHeader;
+
+    rxRawBufferReadOffset = 0;
+    uint32_t rxSyncWordSize = sizeof(rxSyncWord);
+    uint32_t rxOffsetLengthSize = 2*RX_WORD_SIZE;
+    uint32_t rxFrameOffset; /*!< Offset of the current frame */
+    uint16_t rxWordOffset; /*!< Offset of the first word in the received frame */
+    uint16_t rxWordsLength; /*!< Number of words in the received frame */
+    uint32_t rxDataBytes; /*!< Number of bytes in the received frame */
+    uint16_t rxCandidateHeader;
+
+    bool notEnoughRxData;
+
+    /******************\
+     *  Parsing part  *
+    \******************/
+
+    while (!stopConnectionFlag) {
+        unique_lock <mutex> rxRawMutexLock (rxRawMutex);
+        while (rxRawBufferReadLength <= 0) {
+            rxRawBufferNotEmpty.wait_for(rxRawMutexLock, chrono::milliseconds(10));
+        }
+        maxRxRawBytesRead = rxRawBufferReadLength;
+        rxRawBytesAvailable = maxRxRawBytesRead;
+        rxRawMutexLock.unlock();
+
+        /*! Compute the approximate number of available packets */
         notEnoughRxData = false;
 
         while (!notEnoughRxData) {
@@ -264,12 +289,12 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
             case RxParseLookForHeader:
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
-            fprintf(rxProcFid, "Look for header: %x\n", rxRawBufferReadOffset);
-            fflush(rxProcFid);
+                fprintf(rxProcFid, "Look for header: %x\n", rxRawBufferReadOffset);
+                fflush(rxProcFid);
 #endif
 
                 /*! Look for header */
-                if (rxRawBufferReadLength < rxSyncWordSize) {
+                if (rxRawBytesAvailable < rxSyncWordSize) {
                     notEnoughRxData = true;
 
                 } else {
@@ -282,7 +307,7 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                     } else {
                         /*! If not all the bytes match the sync word restore one of the removed bytes and recheck */
                         rxRawBufferReadOffset = (rxRawBufferReadOffset-1) & OKY_RX_BUFFER_MASK;
-                        rxRawBufferReadLength++;
+                        rxRawBytesAvailable++;
                     }
                 }
                 break;
@@ -290,12 +315,12 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
             case RxParseLookForLength:
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
-            fprintf(rxProcFid, "Look for length: %x\n", rxRawBufferReadOffset);
-            fflush(rxProcFid);
+                fprintf(rxProcFid, "Look for length: %x\n", rxRawBufferReadOffset);
+                fflush(rxProcFid);
 #endif
 
                 /*! Look for length */
-                if (rxRawBufferReadLength < rxOffsetLengthSize) {
+                if (rxRawBytesAvailable < rxOffsetLengthSize) {
                     notEnoughRxData = true;
 
                 } else {
@@ -311,7 +336,7 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                         /*! Too many bytes to be read, restarting looking for a sync word from the previous one */
                         rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
-                        rxRawBufferReadLength += rxOffsetLengthSize;
+                        rxRawBytesAvailable += rxOffsetLengthSize;
 #ifdef DEBUG_RX_DATA_PRINT
                         /*! aggiungere printata di debug se serve */
 #endif
@@ -326,12 +351,12 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
             case RxParseCheckNextHeader:
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
-            fprintf(rxProcFid, "Check next header: %x\n", rxRawBufferReadOffset);
-            fflush(rxProcFid);
+                fprintf(rxProcFid, "Check next header: %x\n", rxRawBufferReadOffset);
+                fflush(rxProcFid);
 #endif
 
                 /*! Check that after the frame end there is a valid header */
-                if (rxRawBufferReadLength < rxDataBytes+rxSyncWordSize) {
+                if (rxRawBytesAvailable < rxDataBytes+rxSyncWordSize) {
                     notEnoughRxData = true;
 
                 } else {
@@ -363,7 +388,7 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
                         rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
-                        rxRawBufferReadLength -= rxSyncWordSize;
+                        rxRawBytesAvailable -= rxSyncWordSize;
 
                         rxParsePhase = RxParseLookForLength;
 
@@ -371,17 +396,21 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
                         /*! Sync word not found, restart looking from the previous sync word */
                         rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
-                        rxRawBufferReadLength += rxOffsetLengthSize;
+                        rxRawBytesAvailable += rxOffsetLengthSize;
                         rxParsePhase = RxParseLookForHeader;
                     }
                 }
                 break;
             }
         }
+
+        rxRawMutexLock.lock();
+        rxRawBufferReadLength -= maxRxRawBytesRead-rxRawBytesAvailable;
+        rxRawBufferNotFull.notify_all();
     }
 
     if (rxMsgBufferReadLength <= 0) {
-        unique_lock <mutex> rxMutexLock(rxMutex);
+        unique_lock <mutex> rxMutexLock(rxMsgMutex);
         parsingFlag = false;
         rxMsgBufferReadLength++;
         rxMsgBufferNotEmpty.notify_all();
