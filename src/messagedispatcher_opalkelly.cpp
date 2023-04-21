@@ -420,8 +420,6 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
 }
 
 ErrorCodes_t MessageDispatcher_OpalKelly::initializeBuffers() {
-    unique_lock <mutex> deviceMutexLock(deviceMutex);
-
     rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_BUFFER_SIZE];
     if (rxRawBuffer != nullptr) {
         return Success;
@@ -432,8 +430,6 @@ ErrorCodes_t MessageDispatcher_OpalKelly::initializeBuffers() {
 }
 
 ErrorCodes_t MessageDispatcher_OpalKelly::deinitializeBuffers() {
-    unique_lock <mutex> deviceMutexLock(deviceMutex);
-
     if (rxRawBuffer != nullptr) {
         delete [] rxRawBuffer;
         rxRawBuffer = nullptr;
