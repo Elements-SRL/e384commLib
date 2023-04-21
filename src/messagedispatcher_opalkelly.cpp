@@ -107,7 +107,7 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
 
         txMutexLock.lock();
         while (txMsgBufferReadLength <= 0) {
-            txMsgBufferNotEmpty.wait_for(txMutexLock, chrono::milliseconds(100));
+            txMsgBufferNotEmpty.wait_for(txMutexLock, chrono::milliseconds(10));
             if (stopConnectionFlag) {
                 break;
             }
@@ -157,7 +157,6 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
 #endif
 
             notSentTxData = false;
-            writeTries = 0;
         }
 
         txMutexLock.lock();
@@ -194,8 +193,11 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     std::chrono::steady_clock::time_point currentPrintfTime;
     startPrintfTime = std::chrono::steady_clock::now();
 
+    unique_lock <mutex> rxRawMutexLock (rxRawMutex);
+    rxRawMutexLock.unlock();
+
     while (!stopConnectionFlag) {
-        unique_lock <mutex> rxRawMutexLock (rxRawMutex);
+        rxRawMutexLock.lock();
         while (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE > OKY_RX_BUFFER_SIZE) {
             rxRawBufferNotFull.wait_for(rxRawMutexLock, chrono::milliseconds(10));
         }
@@ -239,18 +241,19 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
         /*! Update buffer writing point */
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & OKY_RX_BUFFER_MASK;
 
-        okWrites++;
-        if (okWrites > 100) {
-            okWrites = 0;
-            currentPrintfTime = std::chrono::steady_clock::now();
-            printf("%lld\n", (std::chrono::duration_cast <std::chrono::milliseconds> (currentPrintfTime-startPrintfTime).count()));
-            fflush(stdout);
-            startPrintfTime = currentPrintfTime;
-        }
+//        okWrites++;
+//        if (okWrites > 100) {
+//            okWrites = 0;
+//            currentPrintfTime = std::chrono::steady_clock::now();
+//            printf("%lld\n", (std::chrono::duration_cast <std::chrono::milliseconds> (currentPrintfTime-startPrintfTime).count()));
+//            fflush(stdout);
+//            startPrintfTime = currentPrintfTime;
+//        }
 
         rxRawMutexLock.lock();
         rxRawBufferReadLength += bytesRead;
         rxRawBufferNotEmpty.notify_all();
+        rxRawMutexLock.unlock();
     }
 }
 
@@ -265,7 +268,6 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
     uint16_t rxWordsLength; /*!< Number of words in the received frame */
     uint32_t rxDataBytes; /*!< Number of bytes in the received frame */
     uint16_t rxCandidateHeader;
-    uint32_t availablePackets; /*!< Approximate number of packets available in RX queue */
 
     bool notEnoughRxData;
 
@@ -273,22 +275,17 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
      *  Parsing part  *
     \******************/
 
+    unique_lock <mutex> rxRawMutexLock (rxRawMutex);
+    rxRawMutexLock.unlock();
+
     while (!stopConnectionFlag) {
-        unique_lock <mutex> rxRawMutexLock (rxRawMutex);
-        while (rxRawBufferReadLength <= 0) {
+        rxRawMutexLock.lock();
+        while (rxRawBufferReadLength <= OKY_RX_TRANSFER_SIZE) {
             rxRawBufferNotEmpty.wait_for(rxRawMutexLock, chrono::milliseconds(10));
         }
         maxRxRawBytesRead = rxRawBufferReadLength;
         rxRawBytesAvailable = maxRxRawBytesRead;
         rxRawMutexLock.unlock();
-
-        availablePackets = maxRxRawBytesRead/(uint32_t)(totalChannelsNum*RX_WORD_SIZE);
-
-        /*! If there are not enough packets wait for a minimum packets number to decrease overhead */
-        if (availablePackets < minPacketsNumber) {
-            this_thread::sleep_for(chrono::microseconds(fewPacketsSleepUs));
-            continue;
-        }
 
         /*! Compute the approximate number of available packets */
         notEnoughRxData = false;
@@ -416,6 +413,7 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
         rxRawMutexLock.lock();
         rxRawBufferReadLength -= maxRxRawBytesRead-rxRawBytesAvailable;
         rxRawBufferNotFull.notify_all();
+        rxRawMutexLock.unlock();
     }
 
     if (rxMsgBufferReadLength <= 0) {

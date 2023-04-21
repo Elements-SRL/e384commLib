@@ -99,8 +99,6 @@ ErrorCodes_t MessageDispatcher::init() {
     txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
     txMsgLength.resize(TX_MSG_BUFFER_SIZE);
 
-    this->computeMinimumPacketNumber();
-
     /*! Allocate memory for raw data filters */
     this->initializeRawDataFilterVariables();
 
@@ -819,7 +817,6 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
         samplingRateCoder->encode(samplingRateIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         selectedSamplingRateIdx = samplingRateIdx;
         this->setAdcFilter();
-        this->computeMinimumPacketNumber();
         this->computeRawDataFilterCoefficients();
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
@@ -1446,7 +1443,7 @@ void MessageDispatcher::stackOutgoingMessage(vector <uint16_t> &txDataMessage) {
     if (txModifiedEndingWord > txModifiedStartingWord) {
         unique_lock <mutex> txMutexLock (txMutex);
         while (txMsgBufferReadLength >= TX_MSG_BUFFER_SIZE) {
-            txMsgBufferNotFull.wait(txMutexLock);
+            txMsgBufferNotFull.wait_for(txMutexLock, chrono::milliseconds(100));
         }
 
         /*! The next 2 lines ensure that words are written in blocks of 32 bits in case any device libraries require it */
@@ -1477,13 +1474,6 @@ uint16_t MessageDispatcher::popUint16FromRxRawBuffer() {
 uint16_t MessageDispatcher::readUint16FromRxRawBuffer(uint32_t n) {
     uint16_t value = (rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask] << 8) + rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask];
     return value;
-}
-
-void MessageDispatcher::computeMinimumPacketNumber() {
-    double samplingRateInHz = samplingRate.getNoPrefixValue();
-    minPacketsNumber = (unsigned long)ceil(RX_FEW_PACKETS_COEFF*samplingRateInHz);
-    minPacketsNumber = (unsigned long)min(minPacketsNumber, (unsigned long)ceil(((double)RX_MAX_BYTES_TO_WAIT_FOR)/(double)maxInputDataLoadSize));
-    fewPacketsSleepUs = (unsigned int)ceil(((double)(minPacketsNumber*(unsigned long)packetsPerFrame))/samplingRateInHz*1.0e6);
 }
 
 void MessageDispatcher::initializeRawDataFilterVariables() {
