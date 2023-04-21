@@ -77,9 +77,11 @@ protected:
         CalibRes2_49MOhm,
         CalibResNum
     };
+
+    BoolArrayCoder * minus24VCoder = nullptr;
+    BoolArrayCoder * plus24VCoder = nullptr;
     
     virtual void initializeHW() override;
-    
 };
 
 #endif // MESSAGEDISPATCHER_384NANOPORES_H

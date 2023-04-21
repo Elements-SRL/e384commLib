@@ -477,6 +477,18 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
         doubleConfig.initialWord++;
     }
 
+    boolConfig.initialWord = 2;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 2;
+    plus24VCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(plus24VCoder);
+
+    boolConfig.initialWord = 2;
+    boolConfig.initialBit = 2;
+    boolConfig.bitsNum = 2;
+    minus24VCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(minus24VCoder);
+
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
@@ -495,6 +507,16 @@ void MessageDispatcher_384NanoPores_V01::initializeHW() {
 //    this->resetAsic(true, true);
 //    this_thread::sleep_for(chrono::milliseconds(100));
 //    this->resetAsic(false, true);
+
+    this_thread::sleep_for(chrono::milliseconds(1000));
+
+    minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stackOutgoingMessage(txStatus);
+
+    this_thread::sleep_for(chrono::milliseconds(1000));
+
+    plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stackOutgoingMessage(txStatus);
 }
 
 //void MessageDispatcher_384NanoPores_V01::updateDeviceStatus(vector <bool> &fsmRunFlag, bool &poreForming, bool &communicationError) {
