@@ -310,10 +310,8 @@ ErrorCodes_t MessageDispatcher::connect() {
     }
 #endif
 
-    rxProducerThread = thread(&MessageDispatcher::readDataFromDevice, this);
+    deviceCommunicationThread = thread(&MessageDispatcher::handleCommunicationWithDevice, this);
     rxConsumerThread = thread(&MessageDispatcher::parseDataFromDevice, this);
-
-    txThread = thread(&MessageDispatcher::sendCommandsToDevice, this);
 
     threadsStarted = true;
 
@@ -336,9 +334,8 @@ ErrorCodes_t MessageDispatcher::disconnect() {
         stopConnectionFlag = true;
 
         if (threadsStarted) {
-            rxProducerThread.join();
+            deviceCommunicationThread.join();
             rxConsumerThread.join();
-            txThread.join();
         }
 
         this->deinit();

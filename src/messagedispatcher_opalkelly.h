@@ -32,8 +32,9 @@ protected:
      *  Methods  *
     \*************/
 
+    virtual void handleCommunicationWithDevice() override;
     virtual void sendCommandsToDevice() override;
-    virtual void readDataFromDevice() override;
+    virtual uint32_t readDataFromDevice() override;
     virtual void parseDataFromDevice() override;
 
     ErrorCodes_t initializeBuffers();
@@ -53,11 +54,10 @@ protected:
 
     int waitingTimeBeforeReadingData = 1;
 
-    /********************************************\
-     *  Multi-thread synchronization variables  *
-    \********************************************/
+    okTRegisterEntries regs;
 
-    std::mutex deviceMutex;
+    /*! Variables used to access the tx msg buffer */
+    uint32_t txMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be processed */
 };
 
 #endif // MESSAGEDISPATCHER_OPALKELLY_H

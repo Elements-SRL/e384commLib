@@ -225,7 +225,8 @@ protected:
 
     static std::string getDeviceSerial(int index);
     static bool getDeviceCount(int &numDevs);
-    virtual void readDataFromDevice() = 0;
+    virtual void handleCommunicationWithDevice() = 0;
+    virtual uint32_t readDataFromDevice() = 0;
     virtual void parseDataFromDevice() = 0;
     virtual void sendCommandsToDevice() = 0;
     virtual void initializeHW() = 0;
@@ -500,9 +501,8 @@ protected:
      *  Multi-thread synchronization variables  *
     \********************************************/
 
-    std::thread rxProducerThread;
+    std::thread deviceCommunicationThread;
     std::thread rxConsumerThread;
-    std::thread txThread;
 
     mutable std::mutex rxRawMutex;
     std::condition_variable rxRawBufferNotEmpty;

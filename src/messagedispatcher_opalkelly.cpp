@@ -2,6 +2,7 @@
 #include "utils.h"
 
 using namespace std;
+using namespace chrono;
 
 MessageDispatcher_OpalKelly::MessageDispatcher_OpalKelly(string deviceId) :
     MessageDispatcher(deviceId) {
@@ -80,24 +81,18 @@ ErrorCodes_t MessageDispatcher_OpalKelly::disconnect() {
     return Success;
 }
 
-void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
-    int writeTries = 0;
-    okTRegisterEntries regs;
+void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
     regs.reserve(txMaxRegs);
-
-    /*! Variables used to access the tx msg buffer */
-    uint32_t txMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be processed */
-
-    /*! Variables used to access the tx data buffer */
-    uint32_t txDataBufferReadIdx;
-
-    bool notSentTxData;
 
     unique_lock <mutex> txMutexLock (txMutex);
     txMutexLock.unlock();
 
-    unique_lock <mutex> deviceMutexLock (deviceMutex);
-    deviceMutexLock.unlock();
+    unique_lock <mutex> rxRawMutexLock (rxRawMutex);
+    rxRawMutexLock.unlock();
+
+    steady_clock::time_point startWhileTime = steady_clock::now();
+
+    bool waitingTimeForReadingPassed = false;
 
     while (!stopConnectionFlag) {
 
@@ -106,82 +101,100 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
         \***********************/
 
         txMutexLock.lock();
-        while (txMsgBufferReadLength <= 0) {
-            txMsgBufferNotEmpty.wait_for(txMutexLock, chrono::milliseconds(10));
-            if (stopConnectionFlag) {
-                break;
-            }
-        }
-        txMutexLock.unlock();
-        if (stopConnectionFlag) {
-            continue;
-        }
+        if (txMsgBufferReadLength > 0) {
+            txMutexLock.unlock();
 
-        /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
-        regs.resize(txMsgLength[txMsgBufferReadOffset]/2);
-        for (txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
-            regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
-            regs[txDataBufferReadIdx/2].data =
-                    ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
-                    ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
+            this->sendCommandsToDevice();
+
+            txMutexLock.lock();
+            txMsgBufferReadLength--;
+            txMsgBufferNotFull.notify_all();
+            txMutexLock.unlock();
+
+        } else {
+            txMutexLock.unlock();
         }
 
-        txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
+        /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
+        if (waitingTimeForReadingPassed) {
+            rxRawMutexLock.lock();
+            if (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE <= OKY_RX_BUFFER_SIZE) {
+                rxRawMutexLock.unlock();
 
-        /******************\
-         *  Sending part  *
-        \******************/
+                uint32_t bytesRead = this->readDataFromDevice();
 
-        notSentTxData = true;
-        writeTries = 0;
-        while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
-            deviceMutexLock.lock();
-            if (dev->WriteRegisters(regs) == okCFrontPanel::NoError) {
-                dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-                deviceMutexLock.unlock();
+                if (bytesRead > INT32_MAX) {
+                    rxRawMutexLock.lock();
+                    rxRawBufferReadLength += bytesRead;
+                    rxRawBufferNotEmpty.notify_all();
+                    rxRawMutexLock.unlock();
+                }
 
             } else {
-                deviceMutexLock.unlock();
-                continue;
+                rxRawMutexLock.unlock();
             }
 
-#ifdef DEBUG_TX_DATA_PRINT
-            for (uint16_t regIdx = 0; regIdx < regs.size(); regIdx++) {
-                fprintf(txFid, "%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
-                if (regIdx % 16 == 15) {
-                    fprintf(txFid, "\n");
-                }
+        } else {
+            if (duration_cast <seconds> (steady_clock::now()-startWhileTime).count() > waitingTimeBeforeReadingData) {
+                waitingTimeForReadingPassed = true;
             }
-            fprintf(txFid, "\n");
-            fflush(txFid);
-#endif
-
-            notSentTxData = false;
         }
-
-        txMutexLock.lock();
-        txMsgBufferReadLength--;
-        txMsgBufferNotFull.notify_all();
-        txMutexLock.unlock();
     }
 }
 
-void MessageDispatcher_OpalKelly::readDataFromDevice() {
-    stopConnectionFlag = false;
+void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
+    int writeTries = 0;
 
+    bool notSentTxData;
+
+    /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
+    regs.resize(txMsgLength[txMsgBufferReadOffset]/2);
+    for (uint32_t txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
+        regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
+        regs[txDataBufferReadIdx/2].data =
+                ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
+                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
+    }
+
+    txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
+
+    /******************\
+     *  Sending part  *
+    \******************/
+
+    notSentTxData = true;
+    writeTries = 0;
+    while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
+        if (dev->WriteRegisters(regs) == okCFrontPanel::NoError) {
+            dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+
+        } else {
+            continue;
+        }
+
+#ifdef DEBUG_TX_DATA_PRINT
+        for (uint16_t regIdx = 0; regIdx < regs.size(); regIdx++) {
+            fprintf(txFid, "%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
+            if (regIdx % 16 == 15) {
+                fprintf(txFid, "\n");
+            }
+        }
+        fprintf(txFid, "\n");
+        fflush(txFid);
+#endif
+
+        notSentTxData = false;
+    }
+}
+
+uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead; /*!< Bytes read during last transfer from Opal Kelly */
     parsingFlag = true;
 
-    unique_lock <mutex> deviceMutexLock(deviceMutex);
-    deviceMutexLock.unlock();
-
     /******************\
      *  Reading part  *
     \******************/
-
-    /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
-    this_thread::sleep_for(chrono::seconds(waitingTimeBeforeReadingData));
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
     fprintf(rxProcFid, "Entering while loop\n");
@@ -193,68 +206,50 @@ void MessageDispatcher_OpalKelly::readDataFromDevice() {
     std::chrono::steady_clock::time_point currentPrintfTime;
     startPrintfTime = std::chrono::steady_clock::now();
 
-    unique_lock <mutex> rxRawMutexLock (rxRawMutex);
-    rxRawMutexLock.unlock();
+    /*! Read the data */
+    bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxRawBuffer+rxRawBufferWriteOffset);
 
-    while (!stopConnectionFlag) {
-        rxRawMutexLock.lock();
-        while (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE > OKY_RX_BUFFER_SIZE) {
-            rxRawBufferNotFull.wait_for(rxRawMutexLock, chrono::milliseconds(10));
+    if (bytesRead > INT32_MAX) {
+        if (bytesRead == ok_Timeout) {
+            /*! The device cannot recover from timeout condition \todo FCON si riesce a mandare una notifica ad alto livello che il thread è morto */
+            stopConnectionFlag = true;
         }
-        rxRawMutexLock.unlock();
-
-        /*! Read the data */
-        deviceMutexLock.lock();
-        bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxRawBuffer+rxRawBufferWriteOffset);
-        deviceMutexLock.unlock();
-
-        if (bytesRead > INT32_MAX) {
-            if (bytesRead == ok_Timeout) {
-                /*! The device cannot recover from timeout condition \todo FCON si riesce a mandare una notifica ad alto livello che il thread è morto */
-                stopConnectionFlag = true;
-            }
-            this_thread::sleep_for(chrono::milliseconds(100));
+        this_thread::sleep_for(chrono::milliseconds(100));
 #ifdef DEBUG_RX_PROCESSING_PRINT
-            fprintf(rxProcFid, "Error %x\n", bytesRead);
-            fflush(rxProcFid);
+        fprintf(rxProcFid, "Error %x\n", bytesRead);
+        fflush(rxProcFid);
 #endif
 
 #ifdef DEBUG_RX_RAW_DATA_PRINT
-            fprintf(rxRawFid, "Error %x\n", bytesRead);
-            fflush(rxRawFid);
+        fprintf(rxRawFid, "Error %x\n", bytesRead);
+        fflush(rxRawFid);
 #endif
-            continue;
 
-        } else {
+    } else {
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
-            fprintf(rxProcFid, "Bytes read %d\n", bytesRead);
-            fflush(rxProcFid);
+        fprintf(rxProcFid, "Bytes read %d\n", bytesRead);
+        fflush(rxProcFid);
 #endif
 
 #ifdef DEBUG_RX_RAW_DATA_PRINT
-            fprintf(rxRawFid, "Bytes read %d\n", bytesRead);
-            fflush(rxRawFid);
+        fprintf(rxRawFid, "Bytes read %d\n", bytesRead);
+        fflush(rxRawFid);
 #endif
-        }
-
-        /*! Update buffer writing point */
-        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & OKY_RX_BUFFER_MASK;
-
-//        okWrites++;
-//        if (okWrites > 100) {
-//            okWrites = 0;
-//            currentPrintfTime = std::chrono::steady_clock::now();
-//            printf("%lld\n", (std::chrono::duration_cast <std::chrono::milliseconds> (currentPrintfTime-startPrintfTime).count()));
-//            fflush(stdout);
-//            startPrintfTime = currentPrintfTime;
-//        }
-
-        rxRawMutexLock.lock();
-        rxRawBufferReadLength += bytesRead;
-        rxRawBufferNotEmpty.notify_all();
-        rxRawMutexLock.unlock();
     }
+
+    /*! Update buffer writing point */
+    rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & OKY_RX_BUFFER_MASK;
+
+    //        okWrites++;
+    //        if (okWrites > 100) {
+    //            okWrites = 0;
+    //            currentPrintfTime = std::chrono::steady_clock::now();
+    //            printf("%lld\n", (std::chrono::duration_cast <std::chrono::milliseconds> (currentPrintfTime-startPrintfTime).count()));
+    //            fflush(stdout);
+    //            startPrintfTime = currentPrintfTime;
+    //        }
+    return bytesRead;
 }
 
 void MessageDispatcher_OpalKelly::parseDataFromDevice() {
