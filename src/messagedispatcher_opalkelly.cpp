@@ -94,6 +94,11 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
 
     bool waitingTimeForReadingPassed = false;
 
+//    int okWrites = 0;
+//    std::chrono::steady_clock::time_point startPrintfTime;
+//    std::chrono::steady_clock::time_point currentPrintfTime;
+//    startPrintfTime = std::chrono::steady_clock::now();
+
     while (!stopConnectionFlag) {
 
         /***********************\
@@ -123,11 +128,19 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
 
                 uint32_t bytesRead = this->readDataFromDevice();
 
-                if (bytesRead > INT32_MAX) {
+                if (bytesRead <= INT32_MAX) {
                     rxRawMutexLock.lock();
                     rxRawBufferReadLength += bytesRead;
                     rxRawBufferNotEmpty.notify_all();
                     rxRawMutexLock.unlock();
+//                    okWrites++;
+//                    if (okWrites > 100) {
+//                        okWrites = 0;
+//                        currentPrintfTime = steady_clock::now();
+//                        printf("%lld\n", (duration_cast <milliseconds> (currentPrintfTime-startPrintfTime).count()));
+//                        fflush(stdout);
+//                        startPrintfTime = currentPrintfTime;
+//                    }
                 }
 
             } else {
@@ -135,7 +148,8 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
             }
 
         } else {
-            if (duration_cast <seconds> (steady_clock::now()-startWhileTime).count() > waitingTimeBeforeReadingData) {
+            long long t = duration_cast <microseconds> (steady_clock::now()-startWhileTime).count();
+            if (t > waitingTimeBeforeReadingData*1e6) {
                 waitingTimeForReadingPassed = true;
             }
         }
@@ -201,11 +215,6 @@ uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
     fflush(rxProcFid);
 #endif
 
-    int okWrites = 0;
-    std::chrono::steady_clock::time_point startPrintfTime;
-    std::chrono::steady_clock::time_point currentPrintfTime;
-    startPrintfTime = std::chrono::steady_clock::now();
-
     /*! Read the data */
     bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxRawBuffer+rxRawBufferWriteOffset);
 
@@ -240,15 +249,6 @@ uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
 
     /*! Update buffer writing point */
     rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & OKY_RX_BUFFER_MASK;
-
-    //        okWrites++;
-    //        if (okWrites > 100) {
-    //            okWrites = 0;
-    //            currentPrintfTime = std::chrono::steady_clock::now();
-    //            printf("%lld\n", (std::chrono::duration_cast <std::chrono::milliseconds> (currentPrintfTime-startPrintfTime).count()));
-    //            fflush(stdout);
-    //            startPrintfTime = currentPrintfTime;
-    //        }
     return bytesRead;
 }
 
