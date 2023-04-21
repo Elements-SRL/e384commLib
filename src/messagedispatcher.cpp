@@ -1151,6 +1151,22 @@ ErrorCodes_t MessageDispatcher::convertCurrentValue(int16_t intValue, double &fl
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::convertVoltageValues(int16_t * intValues, double * fltValues, int valuesNum) {
+    for (int idx = 0; idx < valuesNum; idx++) {
+        fltValues[idx] = voltageResolution*(double)intValues[idx];
+    }
+
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::convertCurrentValues(int16_t * intValues, double * fltValues, int valuesNum) {
+    for (int idx = 0; idx < valuesNum; idx++) {
+        fltValues[idx] = currentResolution*(double)intValues[idx];
+    }
+
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures){
     if (vHoldTunerCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
