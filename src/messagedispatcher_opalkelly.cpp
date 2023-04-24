@@ -201,10 +201,10 @@ uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
     fflush(rxProcFid);
 #endif
 
-    int okWrites = 0;
-    std::chrono::steady_clock::time_point startPrintfTime;
-    std::chrono::steady_clock::time_point currentPrintfTime;
-    startPrintfTime = std::chrono::steady_clock::now();
+//    int okWrites = 0;
+//    std::chrono::steady_clock::time_point startPrintfTime;
+//    std::chrono::steady_clock::time_point currentPrintfTime;
+//    startPrintfTime = std::chrono::steady_clock::now();
 
     /*! Read the data */
     bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxRawBuffer+rxRawBufferWriteOffset);
