@@ -311,27 +311,25 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     /*! compValueMatrix contains one vector of compensation values for each of the channels (e.g. 384 channels) */
     compValueMatrix.resize(currentChannelsNum, std::vector<double>(CompensationAsicParamsNum));
 
-    /*! ASIC DOMAIN Pipette capacitance */
+    /*! Compensation type enables, one element per channel*/
+    compCfastEnable.resize(currentChannelsNum);
+    compCslowEnable.resize(currentChannelsNum);
+    compRsCorrEnable.resize(currentChannelsNum);
+    compRsPredEnable.resize(currentChannelsNum);
+    fill(compCfastEnable.begin(), compCfastEnable.end(), false);
+    fill(compCslowEnable.begin(), compCslowEnable.end(), false);
+    fill(compRsCorrEnable.begin(), compRsCorrEnable.end(), false);
+    fill(compRsPredEnable.begin(), compRsPredEnable.end(), false);
+
+    /*! FEATURES ASIC DOMAIN Pipette capacitance */
     const double pipetteVarResistance = 100.0e-3;
     const double pipetteFixedResistance = 80.0e-3;
     const int pipetteCapacitanceRanges = 4;
     const double pipetteCapacitanceValuesNum = 64.0;
 
     vector <double> pipetteInjCapacitance = {2.5, 5.0, 10.0, 20.0};
-
-//    vector <double> pipetteCapacitanceMin_pF;
-//    vector <double> pipetteCapacitanceMax_pF;
-//    vector <double> pipetteCapacitanceStep_pF;
-
-//    for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
-//        pipetteCapacitanceStep_pF[idx] = pipetteVarResistance/pipetteCapacitanceValuesNum/pipetteFixedResistance*pipetteInjCapacitance[idx];
-//        pipetteCapacitanceMin_pF[idx] = pipetteVarResistance/pipetteFixedResistance*pipetteInjCapacitance[idx]+pipetteCapacitanceStep_pF[idx];
-//        pipetteCapacitanceMax_pF[idx] = pipetteCapacitanceMin_pF[idx]+(pipetteCapacitanceValuesNum-1.0)*pipetteCapacitanceStep_pF[idx];
-//    }
-
     /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
-//    vector<RangedMeasurement> pipetteCapacitanceRange_pF;
-
+    pipetteCapacitanceRange_pF.resize(pipetteCapacitanceRanges);
     for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
         pipetteCapacitanceRange_pF[idx].step = pipetteVarResistance/pipetteCapacitanceValuesNum/pipetteFixedResistance*pipetteInjCapacitance[idx];
         pipetteCapacitanceRange_pF[idx].min = pipetteVarResistance/pipetteFixedResistance*pipetteInjCapacitance[idx]+pipetteCapacitanceRange_pF[idx].step;
@@ -340,26 +338,14 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
         pipetteCapacitanceRange_pF[idx].unit = "F";
     }
 
-    /*! Membrane capacitance*/
+    /*! FEATURES ASIC DOMAIN Membrane capacitance*/
     const double membraneCapValueResistanceRatio = 2.0;
     const int membraneCapValueRanges = 4;
     const double membraneCapValueValuesNum = 64.0; // 6 bits
 
     vector <double> membraneCapValueInjCapacitance = {5.0, 15.0, 45.0, 135.0};
-
-//    vector <double> membraneCapValueMin_pF;
-//    vector <double> membraneCapValueMax_pF;
-//    vector <double> membraneCapValueStep_pF;
-
-//    for (int idx = 0; idx < membraneCapValueRanges; idx++) {
-//        membraneCapValueStep_pF[idx] = membraneCapValueResistanceRatio/membraneCapValueValuesNum * membraneCapValueInjCapacitance[idx];
-//        membraneCapValueMin_pF[idx] = (1.0 + membraneCapValueResistanceRatio/membraneCapValueValuesNum) * membraneCapValueInjCapacitance[idx];
-//        membraneCapValueMax_pF[idx] = membraneCapValueMin_pF[idx] + (membraneCapValueValuesNum - 1.0) * membraneCapValueStep_pF[idx];
-//    }
-
     /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
-//    vector<RangedMeasurement> membraneCapValueRange_pF;
-
+    membraneCapValueRange_pF.resize(membraneCapValueRanges);
     for (int idx = 0; idx < membraneCapValueRanges; idx++) {
         membraneCapValueRange_pF[idx].step = membraneCapValueResistanceRatio/membraneCapValueValuesNum * membraneCapValueInjCapacitance[idx];
         membraneCapValueRange_pF[idx].min = (1.0 + membraneCapValueResistanceRatio/membraneCapValueValuesNum) * membraneCapValueInjCapacitance[idx];
@@ -368,27 +354,14 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
         membraneCapValueRange_pF[idx].unit = "F";
     }
 
-
-    /*! ASIC DOMAIN Membrane capacitance TAU*/
+    /*! FEATURES ASIC DOMAIN Membrane capacitance TAU*/
     const int membraneCapTauValueRanges = 2;
     const double membraneCapTauValueVarResistance_MOhm = 51.2 / this->clockRatio; /*! affected by switch cap clock!!!!!*/
     const double membraneCapTauValueValuesNum = 256.0; // 8 bits
 
     vector <double> membraneCapTauValueCapacitance = {2.5, 25.0};
-
-//    vector<double> membraneCapTauValueMin_us;
-//    vector<double> membraneCapTauValueMax_us;
-//    vector<double> membraneCapTauValueStep_us;
-
-//    for (int idx = 0; idx < membraneCapTauValueRanges; idx++) {
-//        membraneCapTauValueStep_us[idx] = membraneCapTauValueVarResistance_MOhm * membraneCapTauValueCapacitance[idx] / membraneCapTauValueValuesNum;
-//        membraneCapTauValueMin_us[idx] = membraneCapTauValueStep_us[idx];
-//        membraneCapTauValueMax_us[idx] = membraneCapTauValueMin_us[idx] + (membraneCapTauValueValuesNum - 1.0) * membraneCapTauValueStep_us[idx];
-//    }
-
     /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
-//    vector<RangedMeasurement> membraneCapTauValueRange_us;
-
+    membraneCapTauValueRange_us.resize(membraneCapTauValueRanges);
     for (int idx = 0; idx < membraneCapTauValueRanges; idx++) {
         membraneCapTauValueRange_us[idx].step = membraneCapTauValueVarResistance_MOhm * membraneCapTauValueCapacitance[idx] / membraneCapTauValueValuesNum;
         membraneCapTauValueRange_us[idx].min = membraneCapTauValueRange_us[idx].step;
@@ -397,18 +370,14 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
         membraneCapTauValueRange_us[idx].unit = "s";
     }
 
-
-    /*! ASIC DOMAIN Rs correction*/
-//    RangedMeasurement_t rsCorrValueRange;
+    /*! FEATURES ASIC DOMAIN Rs correction*/
     rsCorrValueRange.step = 0.4; // MOhm
     rsCorrValueRange.min = 0.4; // MOhm
     rsCorrValueRange.max = 25.6; // MOhm
     rsCorrValueRange.prefix = UnitPfxMega;
     rsCorrValueRange.unit = "Ohm";
 
-
-    /*! ASIC DOMAIN Rs prediction GAIN*/
-//    RangedMeasurement_t rsPredGainRange;
+    /*! FEATURES ASIC DOMAIN Rs prediction GAIN*/
     const double rsPredGainValuesNum = 64.0;
     rsPredGainRange.step = 1/16.0; // MOhm
     rsPredGainRange.min = 1 + rsPredGainRange.step; // MOhm
@@ -416,14 +385,37 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     rsPredGainRange.prefix = UnitPfxMega;
     rsPredGainRange.unit = "Ohm";
 
-    /*! ASIC DOMAIN Rs prediction TAU*/
-//    RangedMeasurement_t rsPredTauRange;
+    /*! FEATURES ASIC DOMAIN Rs prediction TAU*/
     const double rsPredTauValuesNum = 256.0;
     rsPredTauRange.step = 2.0 / this->clockRatio; /*! affected by switch cap clock!!!!!*/
     rsPredTauRange.min = rsPredTauRange.step;
     rsPredTauRange.max = rsPredTauRange.min + rsPredTauRange.step * (rsPredTauValuesNum -1) ;
     rsPredTauRange.prefix = UnitPfxMicro;
     rsPredTauRange.unit = "s";
+
+    /*! FEATURES/COMPENSABLES USER DOMAIN CpVc*/
+    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
+    uCpVcCompensable.resize(currentChannelsNum);
+
+    /*! FEATURES/COMPENSABLES USER DOMAIN Cm*/
+    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
+    uCmCompensable.resize(currentChannelsNum);
+
+    /*! FEATURES/COMPENSABLES USER DOMAIN Rs*/
+    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
+    uRsCompensable.resize(currentChannelsNum);
+
+    /*! FEATURES/COMPENSABLES USER DOMAIN RsCp*/
+    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
+    uRsCpCompensable.resize(currentChannelsNum);
+
+    /*! FEATURES/COMPENSABLES USER DOMAIN RsPg*/
+    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
+    uRsPgCompensable.resize(currentChannelsNum);
+
+    /*! FEATURES/COMPENSABLES USER DOMAIN CpCc*/
+    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
+    uCpCcCompensable.resize(currentChannelsNum);
 
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];

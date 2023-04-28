@@ -249,6 +249,7 @@ protected:
     /*! \todo FCON rechecks Compensation methods */
     std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams);
     std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);
+    void asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams);
 
     //ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures);
     ErrorCodes_t enableCompensation(std::vector<uint16_t> chIdx, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
@@ -407,12 +408,21 @@ protected:
     std::vector<DoubleCoder*> rsPredGainCompensationCoders;
     std::vector<DoubleCoder*> rsPredTauCompensationCoders;
 
+    /*! Features in ASIC domain, depend on asic*/
     std::vector<RangedMeasurement> pipetteCapacitanceRange_pF;
     std::vector<RangedMeasurement> membraneCapValueRange_pF;
     std::vector<RangedMeasurement> membraneCapTauValueRange_us;
     RangedMeasurement_t rsCorrValueRange;
     RangedMeasurement_t rsPredGainRange;
     RangedMeasurement_t rsPredTauRange;
+
+    /*! Features in USER domain, depend on the asic parameters*/
+    std::vector<RangedMeasurement> uCpVcCompensable;
+    std::vector<RangedMeasurement> uCmCompensable;
+    std::vector<RangedMeasurement> uRsCompensable;
+    std::vector<RangedMeasurement> uRsCpCompensable;
+    std::vector<RangedMeasurement> uRsPgCompensable;
+    std::vector<RangedMeasurement> uCpCcCompensable;
 
 
     /***************\

@@ -66,15 +66,6 @@ MessageDispatcher::MessageDispatcher(string deviceId) :
 
     fill(rxWordOffsets.begin(), rxWordOffsets.end(), 0xFFFF);
     fill(rxWordLengths.begin(), rxWordLengths.end(), 0x0000);
-
-    compCfastEnable.resize(currentChannelsNum);
-    compCslowEnable.resize(currentChannelsNum);
-    compRsCorrEnable.resize(currentChannelsNum);
-    compRsPredEnable.resize(currentChannelsNum);
-    fill(compCfastEnable.begin(), compCfastEnable.end(), false);
-    fill(compCslowEnable.begin(), compCslowEnable.end(), false);
-    fill(compRsCorrEnable.begin(), compRsCorrEnable.end(), false);
-    fill(compRsPredEnable.begin(), compRsPredEnable.end(), false);
 }
 
 MessageDispatcher::~MessageDispatcher() {
@@ -1650,19 +1641,6 @@ vector<double> MessageDispatcher::user2AsicDomainTransform(int chIdx, vector<dou
     MultiCoder::MultiCoderConfig_t aaa;
     membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
     asicCmCinj = computeAsicCmCinj(userDomainParams[U_Cm], compCslowEnable[chIdx], aaa);
-//    bool done = false;
-//    int i;
-//    for(i = 0; i<aaa.thresholdVector.size(); i++){
-//        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-//        if (cm < aaa.thresholdVector[i] && !done){
-//            asicCmCinj = membraneCapValueInjCapacitance[i];
-//            done = true;
-//        }
-//    }
-//    if (!done){
-//        asicCmCinj = membraneCapValueInjCapacitance[i];
-//        done = true;
-//    }
 
     if(amIinVoltageClamp){
         cp = userDomainParams[U_CpVc] + asicCmCinj;
@@ -1712,19 +1690,6 @@ std::vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::
     MultiCoder::MultiCoderConfig_t aaa;
     membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
     asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compCslowEnable[chIdx], aaa);
-//    bool done = false;
-//    int i;
-//    for(i = 0; i<aaa.thresholdVector.size(); i++){
-//        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-//        if (asicDomainParams[A_Cm] < aaa.thresholdVector[i] && !done){
-//            asicCmCinj = membraneCapValueInjCapacitance[i];
-//            done = true;
-//        }
-//    }
-//    if (!done){
-//        asicCmCinj = membraneCapValueInjCapacitance[i];
-//        done = true;
-//    }
 
     //  pipette capacitance to pipette capacitance VC domain conversion
     if(amIinVoltageClamp){
@@ -1761,6 +1726,165 @@ std::vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::
     userDomainParameter[U_RsPg] = rsPg;
     userDomainParameter[U_CpCc] = cpCC;
     return userDomainParameter;
+}
+
+void MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams){
+    /*! \todo still to understand how to obtain them. COuld they be imputs of the function?*/
+    int A_CpRangeIdx;
+    int A_CmRangeIdx;
+    int A_TaumRangeIdx;
+    vector<double> potentialMaxs;
+    vector<double> potentialMins;
+
+    double myInfinity = numeric_limits<double>::infinity();
+
+    double asicCmCinj;
+    MultiCoder::MultiCoderConfig_t aaa;
+    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
+    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compCslowEnable[chIdx], aaa);
+
+    /*! Compensable for U_CpVc*/
+    uCpVcCompensable[chIdx].max = pipetteCapacitanceRange_pF[A_CpRangeIdx].max - asicCmCinj;
+
+    potentialMins.push_back(pipetteCapacitanceRange_pF[A_CpRangeIdx].max - asicCmCinj);
+    potentialMins.push_back(0.0);
+    uCpVcCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    potentialMins.clear();
+
+    uCpVcCompensable[chIdx].step = pipetteCapacitanceRange_pF[A_CpRangeIdx].step;
+
+    /*! Compensable for U_Cm*/
+    // max
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+
+    potentialMaxs.push_back(membraneCapValueRange_pF[A_CmRangeIdx].max);
+
+    potentialMaxs.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].max/userDomainParams[U_Rs]);
+
+    if(compCfastEnable[chIdx]){
+        /*! \todo FCON FAI TUTTO IL MACELLO DISCUSSO CON FILIPPO*/
+        //potentialMaxs.push_back(qualcosa);
+    } else {
+        potentialMaxs.push_back(myInfinity);
+    }
+
+    if(compRsPredEnable[chIdx]){
+        potentialMaxs.push_back(rsPredTauRange.max*userDomainParams[U_RsPg]/userDomainParams[U_Rs]);
+    } else {
+        potentialMaxs.push_back(myInfinity);
+    }
+
+    uCmCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    potentialMaxs.clear();
+
+    //min
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+
+    potentialMins.push_back(membraneCapValueRange_pF[A_CmRangeIdx].min);
+
+    potentialMins.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].min/userDomainParams[U_Rs]);
+
+    if(compRsPredEnable[chIdx]){
+        potentialMins.push_back(rsPredTauRange.min*userDomainParams[U_RsPg]/userDomainParams[U_Rs]);
+    } else {
+        potentialMins.push_back(0.0);
+    }
+
+    uCmCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    potentialMins.clear();
+
+    //step
+    uCmCompensable[chIdx].step = membraneCapValueRange_pF[A_CmRangeIdx].step;
+
+    /*! Compensable for U_Rs*/
+    //max
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    if(compCslowEnable[chIdx]){
+        potentialMaxs.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].max/userDomainParams[U_Cm]);
+    } else {
+        potentialMaxs.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].max/uCmCompensable[chIdx].min);
+    }
+
+    if(compRsCorrEnable[chIdx]){
+        potentialMaxs.push_back(rsCorrValueRange.max / userDomainParams[U_RsCp]);
+    } else {
+        potentialMaxs.push_back(myInfinity);
+    }
+
+    if(compRsPredEnable[chIdx]){
+        potentialMaxs.push_back(rsPredTauRange.max * userDomainParams[U_RsPg] / userDomainParams[U_Cm]);
+    } else {
+        potentialMaxs.push_back(myInfinity);
+    }
+
+    uRsCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    potentialMaxs.clear();
+
+    //min
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    if(compCslowEnable[chIdx]){
+        potentialMins.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].min / userDomainParams[U_Cm]);
+    } else {
+        potentialMins.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].min / uCmCompensable[chIdx].max);
+    }
+
+    if(compRsCorrEnable[chIdx]){
+        potentialMins.push_back(rsCorrValueRange.min / userDomainParams[U_RsCp]);
+    } else {
+        potentialMins.push_back(0);
+    }
+
+    if(compRsPredEnable[chIdx]){
+        potentialMins.push_back(rsPredTauRange.min * userDomainParams[U_RsPg] / userDomainParams[U_Cm]);
+    } else {
+        potentialMins.push_back(0);
+    }
+
+    uRsCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    potentialMins.clear();
+
+    //step
+    uRsCompensable[chIdx].step = 0.1e6; //Ohm
+
+    /*! Compensable for U_RsCp*/
+    // max
+    /*! \todo Pay attention to possible divisions by 0*/
+    potentialMaxs.push_back(rsCorrValueRange.max / userDomainParams[U_Rs]);
+    potentialMaxs.push_back(100.0); //%
+    uRsCpCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    potentialMaxs.clear();
+
+    //min
+    /*! \todo Pay attention to possible divisions by 0*/
+    potentialMins.push_back(0.0); //%
+    potentialMins.push_back(rsCorrValueRange.min / userDomainParams[U_Rs]);
+    uRsCpCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    potentialMins.clear();
+
+    uRsCpCompensable[chIdx].step = 1.0; //%
+
+    /*! Compensable for U_RsPg*/
+    //max
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    potentialMaxs.push_back(rsPredGainRange.max);
+    potentialMaxs.push_back(userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.min);
+    uRsPgCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    potentialMaxs.clear();
+
+    //min
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    potentialMins.push_back(rsPredGainRange.min);
+    potentialMins.push_back(userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.max);
+    uRsPgCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    potentialMins.clear();
+
+    uRsPgCompensable[chIdx].step = rsPredGainRange.step;
+
+    /*! Compensable for U_CpCc*/
+    uCpCcCompensable[chIdx].max = pipetteCapacitanceRange_pF[A_CpRangeIdx].max;
+    uCpCcCompensable[chIdx].min = pipetteCapacitanceRange_pF[A_CpRangeIdx].min;
+    uCpCcCompensable[chIdx].step = pipetteCapacitanceRange_pF[A_CpRangeIdx].step;
+
 }
 
 /*! \todo FCON recheck: this function should return RangedMeasurements in the  USER DOMAIN, but we defined our RangedMeasurements in the ASIC DOMAIN. hOW SHALKL WE IMPLEMENT THIS?*/
@@ -1943,6 +2067,9 @@ ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t> chIdx, uint1
         double oldUCpVc = localCompValueSubMatrix[j][U_CpVc];
         double oldUCpCc = localCompValueSubMatrix[j][U_CpCc];
         localCompValueSubMatrix[j] = asic2UserDomainTransform(chIdx[j], asicParams, oldUCpVc, oldUCpCc);
+
+        /*! \todo call here function to compute the compensable value ranges in the user domain*/
+        asic2UserDomainCompensable(chIdx[j], asicParams, localCompValueSubMatrix[j]);
 
         //copy back to compValuematrix
         this->compValueMatrix[chIdx[j]] = localCompValueSubMatrix[j];
