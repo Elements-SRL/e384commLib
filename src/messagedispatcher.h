@@ -177,9 +177,8 @@ protected:
     } RxMessageTypes_t;
 
     enum CompensationTypes {
-        CompCfast,
-        CompCslow,
-        CompRs,
+        CompCfast, // pipette
+        CompCslow, // membrane
         CompRsCorr,
         CompRsPred,
         CompensationTypesNum
@@ -218,6 +217,11 @@ protected:
     \************/
 
     std::vector<std::vector<double>> compValueMatrix;
+    std::vector<bool> compCfastEnable;
+    std::vector<bool> compCslowEnable;
+    std::vector<bool> compRsCorrEnable;
+    std::vector<bool> compRsPredEnable;
+
 
     /*************\
      *  Methods  *
@@ -247,8 +251,9 @@ protected:
     std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);
 
     //ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures);
-    ErrorCodes_t enableCompensation(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<bool> onValues, bool applyFlagIn);
+    ErrorCodes_t enableCompensation(std::vector<uint16_t> chIdx, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
     ErrorCodes_t setCompValues(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
+    double computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow);
 
     /****************\
      *  Parameters  *

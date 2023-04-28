@@ -66,6 +66,15 @@ MessageDispatcher::MessageDispatcher(string deviceId) :
 
     fill(rxWordOffsets.begin(), rxWordOffsets.end(), 0xFFFF);
     fill(rxWordLengths.begin(), rxWordLengths.end(), 0x0000);
+
+    compCfastEnable.resize(currentChannelsNum);
+    compCslowEnable.resize(currentChannelsNum);
+    compRsCorrEnable.resize(currentChannelsNum);
+    compRsPredEnable.resize(currentChannelsNum);
+    fill(compCfastEnable.begin(), compCfastEnable.end(), false);
+    fill(compCslowEnable.begin(), compCslowEnable.end(), false);
+    fill(compRsCorrEnable.begin(), compRsCorrEnable.end(), false);
+    fill(compRsPredEnable.begin(), compRsPredEnable.end(), false);
 }
 
 MessageDispatcher::~MessageDispatcher() {
@@ -1637,21 +1646,23 @@ vector<double> MessageDispatcher::user2AsicDomainTransform(int chIdx, vector<dou
 
     // pipette capacitance VC to pipette capacitance domain conversion
     /*! \todo aggiungere check se il multicoder esiste sulla size del vettore di puntatori  a multiCoder*/
-    bool done = false;
-    int i;
+
     MultiCoder::MultiCoderConfig_t aaa;
     membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
-    for(i = 0; i<aaa.thresholdVector.size(); i++){
-        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-        if (cm < aaa.thresholdVector[i] && !done){
-            asicCmCinj = membraneCapValueInjCapacitance[i];
-            done = true;
-        }
-    }
-    if (!done){
-        asicCmCinj = membraneCapValueInjCapacitance[i];
-        done = true;
-    }
+    asicCmCinj = computeAsicCmCinj(userDomainParams[U_Cm], compCslowEnable[chIdx], aaa);
+//    bool done = false;
+//    int i;
+//    for(i = 0; i<aaa.thresholdVector.size(); i++){
+//        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+//        if (cm < aaa.thresholdVector[i] && !done){
+//            asicCmCinj = membraneCapValueInjCapacitance[i];
+//            done = true;
+//        }
+//    }
+//    if (!done){
+//        asicCmCinj = membraneCapValueInjCapacitance[i];
+//        done = true;
+//    }
 
     if(amIinVoltageClamp){
         cp = userDomainParams[U_CpVc] + asicCmCinj;
@@ -1698,21 +1709,22 @@ std::vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::
 
     double asicCmCinj;
 
-    bool done = false;
-    int i;
     MultiCoder::MultiCoderConfig_t aaa;
     membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
-    for(i = 0; i<aaa.thresholdVector.size(); i++){
-        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-        if (asicDomainParams[A_Cm] < aaa.thresholdVector[i] && !done){
-            asicCmCinj = membraneCapValueInjCapacitance[i];
-            done = true;
-        }
-    }
-    if (!done){
-        asicCmCinj = membraneCapValueInjCapacitance[i];
-        done = true;
-    }
+    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compCslowEnable[chIdx], aaa);
+//    bool done = false;
+//    int i;
+//    for(i = 0; i<aaa.thresholdVector.size(); i++){
+//        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+//        if (asicDomainParams[A_Cm] < aaa.thresholdVector[i] && !done){
+//            asicCmCinj = membraneCapValueInjCapacitance[i];
+//            done = true;
+//        }
+//    }
+//    if (!done){
+//        asicCmCinj = membraneCapValueInjCapacitance[i];
+//        done = true;
+//    }
 
     //  pipette capacitance to pipette capacitance VC domain conversion
     if(amIinVoltageClamp){
@@ -1807,66 +1819,53 @@ std::vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::
 //}
 
 
-ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<bool> onValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t> chIdx, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
     for(int i = 0; i<chIdx.size(); i++){
-        switch(paramToUpdate){
-        case U_CpVc:
+        switch(compTypeToEnable){
+        case CompCfast:
             if(pipetteCapEnCompensationCoders.size() == 0){
                 return ErrorFeatureNotImplemented;
             }
+            compCfastEnable[chIdx[i]] = true;
             pipetteCapEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
         break;
 
-        case U_Cm:
-            if(membraneCapEnCompensationCoders.size() == 0){
+        case CompCslow:
+            if(membraneCapEnCompensationCoders.size() == 0 ){
                 return ErrorFeatureNotImplemented;
             }
+            compCslowEnable[chIdx[i]] = true;
             membraneCapEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
         break;
 
-        case U_Rs:
-            if(membraneCapTauValCompensationMultiCoders.size() == 0){
+        case CompRsCorr:
+            if(rsCorrEnCompensationCoders.size() == 0){
                 return ErrorFeatureNotImplemented;
             }
-            membraneCapTauValCompensationMultiCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            compRsCorrEnable[chIdx[i]] = true;
+            rsCorrEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
         break;
 
-        case U_RsCp:
-            if(rsCorrValCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            rsCorrValCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        break;
-
-        case U_RsPg:
+        case CompRsPred:
             if(rsPredEnCompensationCoders.size() == 0){
                 return ErrorFeatureNotImplemented;
             }
+            compRsPredEnable[chIdx[i]] = true;
             rsPredEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
         break;
 
-        case U_CpCc:
-            if(rsPredEnCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            rsPredEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        break;
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
         }
-
-    if (applyFlagIn) {
-        this->stackOutgoingMessage(txStatus);
+        return Success;
+        }
     }
-    return Success;
-
-    }
-
-
-
 }
 
 ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
     // make local copy of the user domain param vectors
     vector<vector<double>> localCompValueSubMatrix;
+    localCompValueSubMatrix.resize(chIdx.size());
     for(int i = 0; i< chIdx.size(); i++){
         localCompValueSubMatrix[i] = this->compValueMatrix[chIdx[i]];
     }
@@ -1957,5 +1956,27 @@ ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t> chIdx, uint1
     //end for
     }
 
+}
+
+double MessageDispatcher::computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow){
+    bool done = false;
+    int i;
+    double asicCmCinj;
+    if(!amIinVoltageClamp || (amIinVoltageClamp && !chanCslowEnable)){
+        asicCmCinj = 0;
+    } else {
+        for(i = 0; i<multiconfigCslow.thresholdVector.size(); i++){
+            /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+            if (cm < multiconfigCslow.thresholdVector[i] && !done){
+                asicCmCinj = membraneCapValueInjCapacitance[i];
+                done = true;
+            }
+        }
+        if (!done){
+            asicCmCinj = membraneCapValueInjCapacitance[i];
+            done = true;
+        }
+    }
+    return asicCmCinj;
 }
 
