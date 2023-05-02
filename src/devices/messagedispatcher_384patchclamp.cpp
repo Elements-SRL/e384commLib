@@ -343,7 +343,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     const int membraneCapValueRanges = 4;
     const double membraneCapValueValuesNum = 64.0; // 6 bits
 
-    vector <double> membraneCapValueInjCapacitance = {5.0, 15.0, 45.0, 135.0};
+    membraneCapValueInjCapacitance = {5.0, 15.0, 45.0, 135.0};
     /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
     membraneCapValueRange_pF.resize(membraneCapValueRanges);
     for (int idx = 0; idx < membraneCapValueRanges; idx++) {

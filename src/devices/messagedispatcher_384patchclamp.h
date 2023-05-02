@@ -14,6 +14,7 @@ protected:
     const double nominalClock = 102.4; //MHz
     const double actualClock = 81.92; //MHz
     const double clockRatio = actualClock / nominalClock;
+    vector <double> membraneCapValueInjCapacitance;
 
     enum ClampingModalities {
         VoltageClamp,

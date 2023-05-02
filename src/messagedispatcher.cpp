@@ -1730,9 +1730,6 @@ std::vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::
 
 void MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams){
     /*! \todo still to understand how to obtain them. COuld they be imputs of the function?*/
-    int A_CpRangeIdx;
-    int A_CmRangeIdx;
-    int A_TaumRangeIdx;
     vector<double> potentialMaxs;
     vector<double> potentialMins;
 
@@ -1744,26 +1741,33 @@ void MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double
     asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compCslowEnable[chIdx], aaa);
 
     /*! Compensable for U_CpVc*/
-    uCpVcCompensable[chIdx].max = pipetteCapacitanceRange_pF[A_CpRangeIdx].max - asicCmCinj;
+    uCpVcCompensable[chIdx].max = pipetteCapacitanceRange_pF.back().max - asicCmCinj;
 
-    potentialMins.push_back(pipetteCapacitanceRange_pF[A_CpRangeIdx].max - asicCmCinj);
+    potentialMins.push_back(pipetteCapacitanceRange_pF.back().max - asicCmCinj);
     potentialMins.push_back(0.0);
     uCpVcCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
 
-    uCpVcCompensable[chIdx].step = pipetteCapacitanceRange_pF[A_CpRangeIdx].step;
+    uCpVcCompensable[chIdx].step = pipetteCapacitanceRange_pF.front().step;
 
     /*! Compensable for U_Cm*/
     // max
     /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
 
-    potentialMaxs.push_back(membraneCapValueRange_pF[A_CmRangeIdx].max);
+    potentialMaxs.push_back(membraneCapValueRange_pF.back().max);
 
-    potentialMaxs.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].max/userDomainParams[U_Rs]);
+    potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/userDomainParams[U_Rs]);
 
     if(compCfastEnable[chIdx]){
-        /*! \todo FCON FAI TUTTO IL MACELLO DISCUSSO CON FILIPPO*/
-        //potentialMaxs.push_back(qualcosa);
+        double zzz1;
+        double zzz2;
+        for (int i = 0; i < membraneCapValueInjCapacitance.size(); i++){
+            zzz1 = membraneCapValueInjCapacitance[i] + userDomainParams[U_CpVc];
+            if(zzz1 <= pipetteCapacitanceRange_pF.back().max){
+                zzz2 = zzz1;
+            }
+        }
+        potentialMaxs.push_back(zzz2);
     } else {
         potentialMaxs.push_back(myInfinity);
     }
@@ -1780,9 +1784,9 @@ void MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double
     //min
     /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
 
-    potentialMins.push_back(membraneCapValueRange_pF[A_CmRangeIdx].min);
+    potentialMins.push_back(membraneCapValueRange_pF.front().min);
 
-    potentialMins.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].min/userDomainParams[U_Rs]);
+    potentialMins.push_back(membraneCapTauValueRange_us.front().min/userDomainParams[U_Rs]);
 
     if(compRsPredEnable[chIdx]){
         potentialMins.push_back(rsPredTauRange.min*userDomainParams[U_RsPg]/userDomainParams[U_Rs]);
@@ -1794,15 +1798,15 @@ void MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double
     potentialMins.clear();
 
     //step
-    uCmCompensable[chIdx].step = membraneCapValueRange_pF[A_CmRangeIdx].step;
+    uCmCompensable[chIdx].step = membraneCapValueRange_pF.front().step;
 
     /*! Compensable for U_Rs*/
     //max
     /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
     if(compCslowEnable[chIdx]){
-        potentialMaxs.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].max/userDomainParams[U_Cm]);
+        potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/userDomainParams[U_Cm]);
     } else {
-        potentialMaxs.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].max/uCmCompensable[chIdx].min);
+        potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/uCmCompensable[chIdx].min);
     }
 
     if(compRsCorrEnable[chIdx]){
@@ -1823,9 +1827,9 @@ void MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double
     //min
     /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
     if(compCslowEnable[chIdx]){
-        potentialMins.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].min / userDomainParams[U_Cm]);
+        potentialMins.push_back(membraneCapTauValueRange_us.front().min / userDomainParams[U_Cm]);
     } else {
-        potentialMins.push_back(membraneCapTauValueRange_us[A_TaumRangeIdx].min / uCmCompensable[chIdx].max);
+        potentialMins.push_back(membraneCapTauValueRange_us.front().min / uCmCompensable[chIdx].max);
     }
 
     if(compRsCorrEnable[chIdx]){
@@ -1881,9 +1885,9 @@ void MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double
     uRsPgCompensable[chIdx].step = rsPredGainRange.step;
 
     /*! Compensable for U_CpCc*/
-    uCpCcCompensable[chIdx].max = pipetteCapacitanceRange_pF[A_CpRangeIdx].max;
-    uCpCcCompensable[chIdx].min = pipetteCapacitanceRange_pF[A_CpRangeIdx].min;
-    uCpCcCompensable[chIdx].step = pipetteCapacitanceRange_pF[A_CpRangeIdx].step;
+    uCpCcCompensable[chIdx].max = pipetteCapacitanceRange_pF.back().max;
+    uCpCcCompensable[chIdx].min = pipetteCapacitanceRange_pF.front().min;
+    uCpCcCompensable[chIdx].step = pipetteCapacitanceRange_pF.front().step;
 
 }
 
@@ -1895,23 +1899,17 @@ void MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double
 //        if(pipetteCapEnCompensationCoders.size() == 0){
 //            return ErrorFeatureNotImplemented;
 //        }
-
 //    break;
-
 //    case U_Cm:
 //        if(membraneCapEnCompensationCoders.size() == 0){
 //            return ErrorFeatureNotImplemented;
 //        }
-
 //    break;
-
 //    case U_Rs:
 //        if(membraneCapTauValCompensationMultiCoders.size() == 0){
 //            return ErrorFeatureNotImplemented;
 //        }
-
 //    break;
-
 //    case U_RsCp:
 //        if(rsCorrValCompensationCoders.size() == 0){
 //            return ErrorFeatureNotImplemented;
@@ -1919,9 +1917,7 @@ void MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double
 //            compensationFeatures = rsCorrValueRange;
 //            return Success;
 //        }
-
 //    break;
-
 //    case U_RsPg:
 //        if(rsPredEnCompensationCoders.size() == 0){
 //            return ErrorFeatureNotImplemented;
@@ -1929,19 +1925,14 @@ void MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double
 //            compensationFeatures = rsPredGainRange;
 //            return Success;
 //        }
-
 //    break;
-
 //    case U_CpCc:
 //        if(rsPredEnCompensationCoders.size() == 0){
 //            return ErrorFeatureNotImplemented;
 //        }
-
 //    break;
 //    }
-
 //}
-
 
 ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t> chIdx, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
     for(int i = 0; i<chIdx.size(); i++){
