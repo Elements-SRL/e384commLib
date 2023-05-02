@@ -71,6 +71,24 @@ public:
     MessageDispatcher(std::string deviceId);
     virtual ~MessageDispatcher();
 
+    enum CompensationTypes {
+        CompCfast, // pipette
+        CompCslow, // membrane
+        CompRsCorr,
+        CompRsPred,
+        CompensationTypesNum
+    };
+
+    enum CompensationUserParams {
+        U_CpVc,     //VCPipetteCapacitance
+        U_Cm,       //embraneCapacitance
+        U_Rs,       //SeriesResistance
+        U_RsCp,     //SeriesCorrectionPerc
+        U_RsPg,     //SeriesPredictionGain
+        U_CpCc,     //CCPipetteCapacitance
+        CompensationUserParamsNum
+    };
+
     /************************\
      *  Connection methods  *
     \************************/
@@ -125,6 +143,10 @@ public:
     ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
     ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
 
+    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
+    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
+    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn);
+
     /****************\
      *  Rx methods  *
     \****************/
@@ -163,6 +185,9 @@ public:
     ErrorCodes_t getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset);
     ErrorCodes_t getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset);
 
+    virtual ErrorCodes_t getCompFeatures(uint16_t chIdx, uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures);
+    virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray);
+
 protected:
     // Check Device->PC table in protocol
     typedef enum RxMessageTypes {
@@ -176,41 +201,10 @@ protected:
         RxMessageNum
     } RxMessageTypes_t;
 
-    enum CompensationTypes {
-        CompCfast, // pipette
-        CompCslow, // membrane
-        CompRsCorr,
-        CompRsPred,
-        CompensationTypesNum
-    };
 
-    enum CompensationUserParams {
-        U_CpVc,     //VCPipetteCapacitance
-        U_Cm,       //embraneCapacitance
-        U_Rs,       //SeriesResistance
-        U_RsCp,     //SeriesCorrectionPerc
-        U_RsPg,     //SeriesPredictionGain
-        U_CpCc,     //CCPipetteCapacitance
-        CompensationUserParamsNum
-    };
-
-    /*! \todo not sure if the following will be used, maybe to be merged*/
-    enum CompensationAsicParams {
-        A_Cp,       //PipetteCapacitance
-        A_Cm,       //MembraneCapacitance
-        A_Taum,     //MembraneTau
-        A_RsCr,     //SeriesCorrectionResistance
-        A_RsPg,     //SeriesPredictionGain
-        A_RsPtau,   //SeriesPredictionTau
-        CompensationAsicParamsNum
-    };
-
-//    enum CompensationAsicAdditionalParams {
-//        A_CmCinj, // MembraneInjectionCapacitance
-//        CompensationAsicAdditionalParamsNum
-//    };
 
     std::vector <double> membraneCapValueInjCapacitance;
+    std::vector<std::vector<std::string>> compensationOptionStrings;
 
     /************\
      *  Fields  *
@@ -247,14 +241,10 @@ protected:
     double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
 
     /*! \todo FCON rechecks Compensation methods */
-    std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams);
-    std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);
-    void asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams);
-
-    //ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures);
-    ErrorCodes_t enableCompensation(std::vector<uint16_t> chIdx, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
-    ErrorCodes_t setCompValues(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
-    double computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow);
+    virtual std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams);
+    virtual std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);
+    virtual ErrorCodes_t asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams);
+    virtual double computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow);
 
     /****************\
      *  Parameters  *
@@ -395,7 +385,7 @@ protected:
     BoolArrayCoder * bitDebugCoder = nullptr;
     BoolArrayCoder * wordDebugCoder = nullptr;
 
-    /*!Compensations coders*/
+    /*! Compensations coders (all in asic domain)*/
     std::vector<BoolCoder*> pipetteCapEnCompensationCoders;
     std::vector<MultiCoder*> pipetteCapValCompensationMultiCoders;
     std::vector<BoolCoder*> membraneCapEnCompensationCoders;
@@ -407,6 +397,11 @@ protected:
     std::vector<BoolCoder*>  rsPredEnCompensationCoders;
     std::vector<DoubleCoder*> rsPredGainCompensationCoders;
     std::vector<DoubleCoder*> rsPredTauCompensationCoders;
+
+    /*! Compensation options*/
+    std::vector<uint16_t> selectedRsCorrBws;
+    std::vector<Measurement_t> rsCorrBwArray;
+    uint16_t defaultRsCorrBwIdx;
 
     /*! Features in ASIC domain, depend on asic*/
     std::vector<RangedMeasurement> pipetteCapacitanceRange_pF;

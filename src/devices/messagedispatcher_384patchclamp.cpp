@@ -1,4 +1,5 @@
 #include "messagedispatcher_384patchclamp.h"
+#include "utils.h"
 
 /*! \todo FCON tutto da rifare, è una copia del nanopore */
 
@@ -417,6 +418,47 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
     uCpCcCompensable.resize(currentChannelsNum);
 
+    /*! COMPENSATION OPTIONS STRINGS*/
+    compensationOptionStrings.resize(CompensationTypesNum);
+    compensationOptionStrings[CompRsCorr].resize(CompensationRsCorrBwNum);
+
+    rsCorrBwArray.resize(CompensationRsCorrBwNum);
+    rsCorrBwArray[CompensationRsCorrBw39_789kHz].value = 39.789 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw39_789kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw39_789kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw19_894kHz].value = 19.894 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw19_894kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw19_894kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw9_947kHz].value = 9.947 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw9_947kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw9_947kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw4_974kHz].value = 4.974 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw4_974kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw4_974kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw2_487kHz].value = 2.487 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw2_487kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw2_487kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw1_243kHz].value = 1.243 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw1_243kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw1_243kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw0_622kHz].value = 0.622 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw0_622kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw0_622kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw0_311kHz].value = 0.311 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw0_311kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw0_311kHz].unit = "Hz";
+    defaultRsCorrBwIdx = CompensationRsCorrBw39_789kHz;
+
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw39_789kHz] = rsCorrBwArray[CompensationRsCorrBw39_789kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw19_894kHz] = rsCorrBwArray[CompensationRsCorrBw19_894kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_947kHz] = rsCorrBwArray[CompensationRsCorrBw9_947kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw4_974kHz] = rsCorrBwArray[CompensationRsCorrBw4_974kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw2_487kHz] = rsCorrBwArray[CompensationRsCorrBw2_487kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw1_243kHz] = rsCorrBwArray[CompensationRsCorrBw1_243kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw0_622kHz] = rsCorrBwArray[CompensationRsCorrBw0_622kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw0_311kHz] = rsCorrBwArray[CompensationRsCorrBw0_311kHz].niceLabel();
+
+
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
     currentResolution = currentRange.step;
@@ -454,6 +496,11 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
         compValueMatrix[i][4] = default_U_RsCp;
         compValueMatrix[i][5] = default_U_RsPg;
         compValueMatrix[i][6] = default_U_CpCc;
+    }
+
+    // Initialization of the RsCorr bandwidth option with default option
+    for(int i = 0; i < currentChannelsNum; i++){
+        selectedRsCorrBws[i] = defaultRsCorrBwIdx;
     }
 
     /**********\
@@ -984,3 +1031,534 @@ void MessageDispatcher_384PatchClamp_V01::initializeHW() {
 //        offsets[idx] = voltageOffsetCompensationGain*(double)infoStruct.vComp[idx];
 //    }
 //}
+
+/*! \todo FCON recheck*/
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompFeatures(uint16_t chIdx, uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures){
+    switch(paramToExtractFeatures){
+    case U_CpVc:
+        if(pipetteCapEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            compensationFeatures = uCpVcCompensable[chIdx];
+            return Success;
+        }
+    break;
+
+    case U_Cm:
+        if(membraneCapEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            compensationFeatures = uCmCompensable[chIdx];
+            return Success;
+        }
+    break;
+
+    case U_Rs:
+        if(membraneCapTauValCompensationMultiCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            compensationFeatures = uRsCompensable[chIdx];
+            return Success;
+        }
+    break;
+
+    case U_RsCp:
+        if(rsCorrValCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            compensationFeatures = uRsCpCompensable[chIdx];
+            return Success;
+        }
+    break;
+    case U_RsPg:
+        if(rsPredEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            compensationFeatures = uRsPgCompensable[chIdx];
+            return Success;
+        }
+    break;
+    case U_CpCc:
+        if(rsPredEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            compensationFeatures = uCpCcCompensable[chIdx];
+            return Success;
+        }
+    break;
+    }
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray){
+    switch(type)
+    {
+    case CompRsCorr:
+        if(rsCorrBwArray.size()==0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            for(uint32_t i = 0; i < CompensationRsCorrBwNum; i++){
+                compOptionsArray[i] = compensationOptionStrings[CompRsCorr][i];
+            }
+            return Success;
+        }
+
+    break;
+    }
+
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
+    for(int i = 0; i<channelIndexes.size(); i++){
+        switch(compTypeToEnable){
+        case CompCfast:
+            if(pipetteCapEnCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            compCfastEnable[channelIndexes[i]] = true;
+            pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        break;
+
+        case CompCslow:
+            if(membraneCapEnCompensationCoders.size() == 0 ){
+                return ErrorFeatureNotImplemented;
+            }
+            compCslowEnable[channelIndexes[i]] = true;
+            membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        break;
+
+        case CompRsCorr:
+            if(rsCorrEnCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            compRsCorrEnable[channelIndexes[i]] = true;
+            rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        break;
+
+        case CompRsPred:
+            if(rsPredEnCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            compRsPredEnable[channelIndexes[i]] = true;
+            rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        break;
+
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+        }
+    }
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
+    // make local copy of the user domain param vectors
+    vector<vector<double>> localCompValueSubMatrix;
+    localCompValueSubMatrix.resize(channelIndexes.size());
+    for(int i = 0; i< channelIndexes.size(); i++){
+        localCompValueSubMatrix[i] = this->compValueMatrix[channelIndexes[i]];
+    }
+
+    // for each user param vector
+    for (int j = 0; j < localCompValueSubMatrix.size(); j++){
+        // update value in user domain
+        localCompValueSubMatrix[j][paramToUpdate] = newParamValues[j];
+
+        // convert user domain to asic domain
+        vector<double> asicParams = user2AsicDomainTransform(channelIndexes[j], localCompValueSubMatrix[j]);
+        double temp;
+
+        // select asicParam to encode based on enum
+        /*! \todo FCON recheck: IN CASE THERE'S INTERACTION AMONG ASICPARAMS, THEY COULD BE DESCRIBED IN THE SWITCH-CASE */
+        switch(paramToUpdate)
+        {
+        case U_CpVc:
+            if(pipetteCapValCompensationMultiCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = pipetteCapValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_Cp] = temp;
+        break;
+        case U_Cm:
+            if(membraneCapValCompensationMultiCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = membraneCapValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_Cm] = temp;
+        break;
+        case U_Rs:
+            if(membraneCapTauValCompensationMultiCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_Taum] = temp;
+        break;
+        case U_RsCp:
+            if(rsCorrValCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = rsCorrValCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_RsCr] = temp;
+        break;
+        case U_RsPg:
+            if(rsPredGainCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = rsPredGainCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_RsPg] = temp;
+        break;
+        case U_CpCc:
+            if(rsPredTauCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            //encode
+            temp = rsPredTauCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_RsPtau] = temp;
+        break;
+        }
+
+        // convert to user domain
+        double oldUCpVc = localCompValueSubMatrix[j][U_CpVc];
+        double oldUCpCc = localCompValueSubMatrix[j][U_CpCc];
+        localCompValueSubMatrix[j] = asic2UserDomainTransform(channelIndexes[j], asicParams, oldUCpVc, oldUCpCc);
+
+        /*! \todo call here function to compute the compensable value ranges in the user domain*/
+        asic2UserDomainCompensable(channelIndexes[j], asicParams, localCompValueSubMatrix[j]);
+
+        //copy back to compValuematrix
+        this->compValueMatrix[channelIndexes[j]] = localCompValueSubMatrix[j];
+
+        // stack outgoing message
+        if (applyFlagIn) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+
+    //end for
+    }
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn){
+    switch(type)
+    {
+    case CompRsCorr:
+        if (rsCorrBwCompensationCoders.size() == 0) {
+            return ErrorFeatureNotImplemented;
+        } else {
+            for(uint32_t i = 0; i < channelIndexes.size(); i++){
+                selectedRsCorrBws[i] = options[i];
+                rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            }
+
+            if (applyFlagIn) {
+                this->stackOutgoingMessage(txStatus);
+            }
+            return Success;
+        }
+    break;
+    }
+}
+
+vector<double> MessageDispatcher_384PatchClamp_V01::user2AsicDomainTransform(int chIdx, vector<double> userDomainParams){
+    vector<double> asicDomainParameter;
+    asicDomainParameter.resize(CompensationAsicParamsNum);
+    double cp; // pipette capacitance
+    double cm; // membrane capacitance
+    double taum; // membrane capacitance tau
+    double rsCr; // Rseries Correction
+    double rsPg; //Rseries prediction gain
+    double rsPtau; // Resies prediction tau
+
+    double asicCmCinj;
+
+    // membrane capacitance domain conversion
+    cm = userDomainParams[U_Cm];
+
+    // pipette capacitance VC to pipette capacitance domain conversion
+    /*! \todo aggiungere check se il multicoder esiste sulla size del vettore di puntatori  a multiCoder*/
+
+    MultiCoder::MultiCoderConfig_t aaa;
+    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
+    asicCmCinj = computeAsicCmCinj(userDomainParams[U_Cm], compCslowEnable[chIdx], aaa);
+
+    if(amIinVoltageClamp){
+        cp = userDomainParams[U_CpVc] + asicCmCinj;
+    } else {
+        // A_Cp
+        cp = userDomainParams[U_CpCc];
+    }
+
+    // Series resistance to Membrane tau domain conversion
+    taum = userDomainParams[U_Cm] * userDomainParams[U_Rs];
+
+    // Series correction percentage to Series correction resistance domain conversion
+    rsCr = userDomainParams[U_Rs] * userDomainParams[U_RsCp];
+
+    // Series prediction gain domain conversion
+    rsPg = userDomainParams[U_RsPg];
+
+    // pipette capacitance CC to Series prediction tau domain conversion
+    /*! \todo FCON recheck: a "* 2" or "/ 2" or maybe a "+ 1" might be missing */
+    rsPtau = taum / userDomainParams[U_RsPg];
+
+    asicDomainParameter[A_Cp] = cp;
+    asicDomainParameter[A_Cm] = cm;
+    asicDomainParameter[A_Taum] = taum;
+    asicDomainParameter[A_RsCr] = rsCr;
+    asicDomainParameter[A_RsPg] = rsPg;
+    asicDomainParameter[A_RsPtau] = rsPtau;
+
+    return asicDomainParameter;
+}
+
+std::vector<double> MessageDispatcher_384PatchClamp_V01::asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc){
+    vector<double> userDomainParameter;
+    userDomainParameter.resize(CompensationUserParamsNum);
+
+    double cpVc;
+    double cm;
+    double rs;
+    double rsCp;
+    double rsPg;
+    double cpCC;
+
+    double asicCmCinj;
+
+    MultiCoder::MultiCoderConfig_t aaa;
+    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
+    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compCslowEnable[chIdx], aaa);
+
+    //  pipette capacitance to pipette capacitance VC domain conversion
+    if(amIinVoltageClamp){
+        cpVc = asicDomainParams[A_Cp] - asicCmCinj;
+    } else {
+        cpVc = oldUCpVc; /*! \todo recheck */
+    }
+
+    // membrane capacitance domain conversion
+    cm = asicDomainParams[A_Cm];
+
+    // membrane tau to Series resistance domain conversion
+    rs = asicDomainParams[A_Taum] / asicDomainParams[A_Cm];
+
+    // Series correction resistance to Series correction percentage domain conversion
+    /*! \todo FCON recheck: should use U_Rs's value after it's been updated according to clipping */
+    rsCp = asicDomainParams[A_RsCr] / rs;
+
+    // Series prediction gain domain conversion
+    /*! \todo FCON RECHECK: a "* 2" or "/ 2" or maybe a "+ 1" might be missing */
+    rsPg = asicDomainParams[A_Taum] / asicDomainParams[A_RsPtau];
+
+    // Series prediction tau to Pipette capacitance CC domain conversion
+    if(amIinVoltageClamp){
+        cpCC = oldUCpCc; /*! \todo recheck */
+    } else {
+        cpCC = asicDomainParams[A_Cp];
+    }
+
+    userDomainParameter[U_CpVc] = cpVc;
+    userDomainParameter[U_Cm] = cm;
+    userDomainParameter[U_Rs] = rs;
+    userDomainParameter[U_RsCp] = rsCp;
+    userDomainParameter[U_RsPg] = rsPg;
+    userDomainParameter[U_CpCc] = cpCC;
+    return userDomainParameter;
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams){
+    /*! \todo still to understand how to obtain them. COuld they be imputs of the function?*/
+    vector<double> potentialMaxs;
+    vector<double> potentialMins;
+
+    double myInfinity = numeric_limits<double>::infinity();
+
+    double asicCmCinj;
+    MultiCoder::MultiCoderConfig_t aaa;
+    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
+    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compCslowEnable[chIdx], aaa);
+
+    /*! Compensable for U_CpVc*/
+    uCpVcCompensable[chIdx].max = pipetteCapacitanceRange_pF.back().max - asicCmCinj;
+
+    potentialMins.push_back(pipetteCapacitanceRange_pF.back().max - asicCmCinj);
+    potentialMins.push_back(0.0);
+    uCpVcCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    potentialMins.clear();
+
+    uCpVcCompensable[chIdx].step = pipetteCapacitanceRange_pF.front().step;
+
+    /*! Compensable for U_Cm*/
+    // max
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+
+    potentialMaxs.push_back(membraneCapValueRange_pF.back().max);
+
+    potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/userDomainParams[U_Rs]);
+
+    if(compCfastEnable[chIdx]){
+        double zzz1;
+        double zzz2;
+        for (int i = 0; i < membraneCapValueInjCapacitance.size(); i++){
+            zzz1 = membraneCapValueInjCapacitance[i] + userDomainParams[U_CpVc];
+            if(zzz1 <= pipetteCapacitanceRange_pF.back().max){
+                zzz2 = zzz1;
+            }
+        }
+        potentialMaxs.push_back(zzz2);
+    } else {
+        potentialMaxs.push_back(myInfinity);
+    }
+
+    if(compRsPredEnable[chIdx]){
+        potentialMaxs.push_back(rsPredTauRange.max*userDomainParams[U_RsPg]/userDomainParams[U_Rs]);
+    } else {
+        potentialMaxs.push_back(myInfinity);
+    }
+
+    uCmCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    potentialMaxs.clear();
+
+    //min
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+
+    potentialMins.push_back(membraneCapValueRange_pF.front().min);
+
+    potentialMins.push_back(membraneCapTauValueRange_us.front().min/userDomainParams[U_Rs]);
+
+    if(compRsPredEnable[chIdx]){
+        potentialMins.push_back(rsPredTauRange.min*userDomainParams[U_RsPg]/userDomainParams[U_Rs]);
+    } else {
+        potentialMins.push_back(0.0);
+    }
+
+    uCmCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    potentialMins.clear();
+
+    //step
+    uCmCompensable[chIdx].step = membraneCapValueRange_pF.front().step;
+
+    /*! Compensable for U_Rs*/
+    //max
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    if(compCslowEnable[chIdx]){
+        potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/userDomainParams[U_Cm]);
+    } else {
+        potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/uCmCompensable[chIdx].min);
+    }
+
+    if(compRsCorrEnable[chIdx]){
+        potentialMaxs.push_back(rsCorrValueRange.max / userDomainParams[U_RsCp]);
+    } else {
+        potentialMaxs.push_back(myInfinity);
+    }
+
+    if(compRsPredEnable[chIdx]){
+        potentialMaxs.push_back(rsPredTauRange.max * userDomainParams[U_RsPg] / userDomainParams[U_Cm]);
+    } else {
+        potentialMaxs.push_back(myInfinity);
+    }
+
+    uRsCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    potentialMaxs.clear();
+
+    //min
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    if(compCslowEnable[chIdx]){
+        potentialMins.push_back(membraneCapTauValueRange_us.front().min / userDomainParams[U_Cm]);
+    } else {
+        potentialMins.push_back(membraneCapTauValueRange_us.front().min / uCmCompensable[chIdx].max);
+    }
+
+    if(compRsCorrEnable[chIdx]){
+        potentialMins.push_back(rsCorrValueRange.min / userDomainParams[U_RsCp]);
+    } else {
+        potentialMins.push_back(0);
+    }
+
+    if(compRsPredEnable[chIdx]){
+        potentialMins.push_back(rsPredTauRange.min * userDomainParams[U_RsPg] / userDomainParams[U_Cm]);
+    } else {
+        potentialMins.push_back(0);
+    }
+
+    uRsCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    potentialMins.clear();
+
+    //step
+    uRsCompensable[chIdx].step = 0.1e6; //Ohm
+
+    /*! Compensable for U_RsCp*/
+    // max
+    /*! \todo Pay attention to possible divisions by 0*/
+    potentialMaxs.push_back(rsCorrValueRange.max / userDomainParams[U_Rs]);
+    potentialMaxs.push_back(100.0); //%
+    uRsCpCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    potentialMaxs.clear();
+
+    //min
+    /*! \todo Pay attention to possible divisions by 0*/
+    potentialMins.push_back(0.0); //%
+    potentialMins.push_back(rsCorrValueRange.min / userDomainParams[U_Rs]);
+    uRsCpCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    potentialMins.clear();
+
+    uRsCpCompensable[chIdx].step = 1.0; //%
+
+    /*! Compensable for U_RsPg*/
+    //max
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    potentialMaxs.push_back(rsPredGainRange.max);
+    potentialMaxs.push_back(userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.min);
+    uRsPgCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    potentialMaxs.clear();
+
+    //min
+    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    potentialMins.push_back(rsPredGainRange.min);
+    potentialMins.push_back(userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.max);
+    uRsPgCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    potentialMins.clear();
+
+    uRsPgCompensable[chIdx].step = rsPredGainRange.step;
+
+    /*! Compensable for U_CpCc*/
+    uCpCcCompensable[chIdx].max = pipetteCapacitanceRange_pF.back().max;
+    uCpCcCompensable[chIdx].min = pipetteCapacitanceRange_pF.front().min;
+    uCpCcCompensable[chIdx].step = pipetteCapacitanceRange_pF.front().step;
+
+    return Success;
+}
+
+double MessageDispatcher_384PatchClamp_V01::computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow){
+    bool done = false;
+    int i;
+    double asicCmCinj;
+    if(!amIinVoltageClamp || (amIinVoltageClamp && !chanCslowEnable)){
+        asicCmCinj = 0;
+    } else {
+        for(i = 0; i<multiconfigCslow.thresholdVector.size(); i++){
+            /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+            if (cm < multiconfigCslow.thresholdVector[i] && !done){
+                asicCmCinj = membraneCapValueInjCapacitance[i];
+                done = true;
+            }
+        }
+        if (!done){
+            asicCmCinj = membraneCapValueInjCapacitance[i];
+            done = true;
+        }
+    }
+    return asicCmCinj;
+}
+
+
