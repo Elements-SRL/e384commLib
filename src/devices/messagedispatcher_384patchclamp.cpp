@@ -311,6 +311,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     /*! Compensations */
     /*! compValueMatrix contains one vector of compensation values for each of the channels (e.g. 384 channels) */
     compValueMatrix.resize(currentChannelsNum, std::vector<double>(CompensationAsicParamsNum));
+    selectedRsCorrBws.resize(currentChannelsNum);
 
     /*! Compensation type enables, one element per channel*/
     compCfastEnable.resize(currentChannelsNum);
@@ -490,12 +491,12 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
     // Initialization of the USER compensation domain with standard parameters
     for(int i = 0; i < currentChannelsNum; i++){
-        compValueMatrix[i][1] = default_U_CpVc;
-        compValueMatrix[i][2] = default_U_Cm;
-        compValueMatrix[i][3] = default_U_Rs;
-        compValueMatrix[i][4] = default_U_RsCp;
-        compValueMatrix[i][5] = default_U_RsPg;
-        compValueMatrix[i][6] = default_U_CpCc;
+        compValueMatrix[i][0] = default_U_CpVc;
+        compValueMatrix[i][1] = default_U_Cm;
+        compValueMatrix[i][2] = default_U_Rs;
+        compValueMatrix[i][3] = default_U_RsCp;
+        compValueMatrix[i][4] = default_U_RsPg;
+        compValueMatrix[i][5] = default_U_CpCc;
     }
 
     // Initialization of the RsCorr bandwidth option with default option
@@ -1096,6 +1097,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompOptionsFeatures(Compens
         if(rsCorrBwArray.size()==0){
             return ErrorFeatureNotImplemented;
         } else {
+            compOptionsArray.resize(CompensationRsCorrBwNum);
             for(uint32_t i = 0; i < CompensationRsCorrBwNum; i++){
                 compOptionsArray[i] = compensationOptionStrings[CompRsCorr][i];
             }
@@ -1141,12 +1143,12 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
             compRsPredEnable[channelIndexes[i]] = true;
             rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
         break;
+    }
 
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
-        }
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
     }
 }
 

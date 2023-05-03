@@ -15,6 +15,7 @@
 #ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "messagedispatcher_384fake.h"
+#include "messagedispatcher_384fakepatchclamp.h"
 #endif
 #include "utils.h"
 
@@ -32,6 +33,7 @@ static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
     {"22370012CI", Device4x10MHz}
     #ifdef DEBUG
     ,{"FAKE", Device384Fake}
+    ,{"FAKE_PATCH_CLAMP", Device384FakePatchClamp}
     #endif
 }; /*! \todo FCON queste info dovrebbero risiedere nel DB, e ci vanno comunque i numeri seriali corretti delle opal kelly */
 
@@ -190,6 +192,8 @@ ErrorCodes_t MessageDispatcher::detectDevices(
 #ifdef DEBUG
     numDevs++;
     deviceIds.push_back("FAKE");
+    numDevs++;
+    deviceIds.push_back("FAKE_PATCH_CLAMP");
 #endif
 
     return Success;
@@ -236,6 +240,9 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
 #ifdef DEBUG
     case Device384Fake:
         messageDispatcher = new MessageDispatcher_384Fake(deviceId);
+        break;
+    case Device384FakePatchClamp:
+        messageDispatcher = new MessageDispatcher_384FakePatchClamp(deviceId);
         break;
 #endif
 
