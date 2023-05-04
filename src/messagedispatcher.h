@@ -185,8 +185,9 @@ public:
     ErrorCodes_t getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset);
     ErrorCodes_t getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset);
 
-    virtual ErrorCodes_t getCompFeatures(uint16_t chIdx, uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures);
+    virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray);
+    virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix);
 
 protected:
     // Check Device->PC table in protocol
@@ -418,6 +419,9 @@ protected:
     std::vector<RangedMeasurement> uRsCpCompensable;
     std::vector<RangedMeasurement> uRsPgCompensable;
     std::vector<RangedMeasurement> uCpCcCompensable;
+
+    /*! Default paramter values in USER domain*/
+    std::vector<double> defaultUserDomainParams;
 
 
     /***************\

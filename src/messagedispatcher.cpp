@@ -1639,11 +1639,15 @@ ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t> channelInde
     return ErrorFeatureNotImplemented;
 }
 /*! \todo FCON recheck*/
-ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t chIdx, uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures){
+ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t paramToExtractFeatures, vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
     return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix){
     return ErrorFeatureNotImplemented;
 }
 
@@ -1662,4 +1666,3 @@ ErrorCodes_t MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vecto
 double MessageDispatcher::computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow){
     return -DBL_MAX;
 }
-

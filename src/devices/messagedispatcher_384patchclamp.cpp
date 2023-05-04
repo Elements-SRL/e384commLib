@@ -42,7 +42,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 1611+9; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 2988; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = (txDataWords/2+1)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
@@ -471,12 +471,13 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     // Default USER DOMAIN compensation parameters
     double defaultPipetteInjCapacitance = pipetteInjCapacitance[0];
     double defaultMembraneCapValueInjCapacitance = membraneCapValueInjCapacitance[0];
-    double default_U_CpVc = defaultPipetteInjCapacitance;
-    double default_U_Cm = defaultMembraneCapValueInjCapacitance;
-    double default_U_Rs = 0.0;
-    double default_U_RsCp = 0.0;
-    double default_U_RsPg = rsPredGainRange.min;
-    double default_U_CpCc = defaultPipetteInjCapacitance;
+    defaultUserDomainParams.resize(CompensationUserParamsNum);
+    defaultUserDomainParams[U_CpVc] = pipetteCapacitanceRange_pF[0].min;
+    defaultUserDomainParams[U_Cm] = membraneCapValueRange_pF[0].min;
+    defaultUserDomainParams[U_Rs] = 0.0;
+    defaultUserDomainParams[U_RsCp] = 0.0;
+    defaultUserDomainParams[U_RsPg] = rsPredGainRange.min;
+    defaultUserDomainParams[U_CpCc] = pipetteCapacitanceRange_pF[0].min;;
 
     // Selected default Idx
     selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
@@ -491,12 +492,12 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
     // Initialization of the USER compensation domain with standard parameters
     for(int i = 0; i < currentChannelsNum; i++){
-        compValueMatrix[i][0] = default_U_CpVc;
-        compValueMatrix[i][1] = default_U_Cm;
-        compValueMatrix[i][2] = default_U_Rs;
-        compValueMatrix[i][3] = default_U_RsCp;
-        compValueMatrix[i][4] = default_U_RsPg;
-        compValueMatrix[i][5] = default_U_CpCc;
+        compValueMatrix[i][U_CpVc] =  defaultUserDomainParams[U_CpVc];
+        compValueMatrix[i][U_Cm] =  defaultUserDomainParams[U_Cm];
+        compValueMatrix[i][U_Rs] =  defaultUserDomainParams[U_Rs];
+        compValueMatrix[i][U_RsCp] =  defaultUserDomainParams[U_RsCp];
+        compValueMatrix[i][U_RsPg] =  defaultUserDomainParams[U_RsPg];
+        compValueMatrix[i][U_CpCc] =  defaultUserDomainParams[U_CpCc];
     }
 
     // Initialization of the RsCorr bandwidth option with default option
@@ -1034,14 +1035,16 @@ void MessageDispatcher_384PatchClamp_V01::initializeHW() {
 //}
 
 /*! \todo FCON recheck*/
-ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompFeatures(uint16_t chIdx, uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures){
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompFeatures(uint16_t paramToExtractFeatures, vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
     switch(paramToExtractFeatures){
     case U_CpVc:
         if(pipetteCapEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
         } else {
-            compensationFeatures = uCpVcCompensable[chIdx];
-            return Success;
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uCpVcCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_CpVc];
+            }
         }
     break;
 
@@ -1049,8 +1052,10 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompFeatures(uint16_t chIdx
         if(membraneCapEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
         } else {
-            compensationFeatures = uCmCompensable[chIdx];
-            return Success;
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uCmCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_Cm];
+            }
         }
     break;
 
@@ -1058,8 +1063,10 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompFeatures(uint16_t chIdx
         if(membraneCapTauValCompensationMultiCoders.size() == 0){
             return ErrorFeatureNotImplemented;
         } else {
-            compensationFeatures = uRsCompensable[chIdx];
-            return Success;
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uRsCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_Rs];
+            }
         }
     break;
 
@@ -1067,27 +1074,34 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompFeatures(uint16_t chIdx
         if(rsCorrValCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
         } else {
-            compensationFeatures = uRsCpCompensable[chIdx];
-            return Success;
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uRsCpCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_RsCp];
+            }
         }
     break;
     case U_RsPg:
         if(rsPredEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
         } else {
-            compensationFeatures = uRsPgCompensable[chIdx];
-            return Success;
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uRsPgCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_RsPg];
+            }
         }
     break;
     case U_CpCc:
         if(rsPredEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
         } else {
-            compensationFeatures = uCpCcCompensable[chIdx];
-            return Success;
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uCpCcCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_CpCc];
+            }
         }
     break;
     }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray){
@@ -1106,50 +1120,59 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompOptionsFeatures(Compens
 
     break;
     }
+}
 
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix){
+    compValueMatrix = this->compValueMatrix;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
-    for(int i = 0; i<channelIndexes.size(); i++){
         switch(compTypeToEnable){
         case CompCfast:
             if(pipetteCapEnCompensationCoders.size() == 0){
                 return ErrorFeatureNotImplemented;
             }
-            compCfastEnable[channelIndexes[i]] = true;
-            pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            for(int i = 0; i<channelIndexes.size(); i++){
+                compCfastEnable[channelIndexes[i]] = onValues[i];
+                pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            }
         break;
 
         case CompCslow:
             if(membraneCapEnCompensationCoders.size() == 0 ){
                 return ErrorFeatureNotImplemented;
             }
-            compCslowEnable[channelIndexes[i]] = true;
-            membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            for(int i = 0; i<channelIndexes.size(); i++){
+                compCslowEnable[channelIndexes[i]] = onValues[i];
+                membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            }
         break;
 
         case CompRsCorr:
             if(rsCorrEnCompensationCoders.size() == 0){
                 return ErrorFeatureNotImplemented;
             }
-            compRsCorrEnable[channelIndexes[i]] = true;
-            rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            for(int i = 0; i<channelIndexes.size(); i++){
+                compRsCorrEnable[channelIndexes[i]] = onValues[i];
+                rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            }
         break;
 
         case CompRsPred:
             if(rsPredEnCompensationCoders.size() == 0){
                 return ErrorFeatureNotImplemented;
             }
-            compRsPredEnable[channelIndexes[i]] = true;
-            rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            for(int i = 0; i<channelIndexes.size(); i++){
+                compRsPredEnable[channelIndexes[i]] = onValues[i];
+                rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            }
         break;
-    }
-
+        }
     if (applyFlagIn) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
-    }
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
@@ -1240,14 +1263,13 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
         //copy back to compValuematrix
         this->compValueMatrix[channelIndexes[j]] = localCompValueSubMatrix[j];
 
-        // stack outgoing message
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
-
     //end for
     }
+    // stack outgoing message
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn){
