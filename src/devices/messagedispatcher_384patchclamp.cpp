@@ -474,10 +474,10 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     defaultUserDomainParams.resize(CompensationUserParamsNum);
     defaultUserDomainParams[U_CpVc] = pipetteCapacitanceRange_pF[0].min;
     defaultUserDomainParams[U_Cm] = membraneCapValueRange_pF[0].min;
-    defaultUserDomainParams[U_Rs] = 0.0;
-    defaultUserDomainParams[U_RsCp] = 0.0;
+    defaultUserDomainParams[U_Rs] = membraneCapTauValueRange_us[0].min/membraneCapValueRange_pF[0].min;
+    defaultUserDomainParams[U_RsCp] = 1.0;
     defaultUserDomainParams[U_RsPg] = rsPredGainRange.min;
-    defaultUserDomainParams[U_CpCc] = pipetteCapacitanceRange_pF[0].min;;
+    defaultUserDomainParams[U_CpCc] = pipetteCapacitanceRange_pF[0].min;
 
     // Selected default Idx
     selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
@@ -557,63 +557,63 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     coders.push_back(docOverrideCoder);
 
     /*! Current range VC */
-    boolConfig.initialWord = 1+9; //updated
+    boolConfig.initialWord = 10; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
     vcCurrentRangeCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(vcCurrentRangeCoder);
 
     /*! Voltage range VC */
-    boolConfig.initialWord = 1+9; //updated
+    boolConfig.initialWord = 10; //updated
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
     vcVoltageRangeCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(vcVoltageRangeCoder);
 
     /*! Current range CC */
-    boolConfig.initialWord = 1+9; //updated
+    boolConfig.initialWord = 10; //updated
     boolConfig.initialBit = 8;
     boolConfig.bitsNum = 4;
     ccCurrentRangeCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(ccCurrentRangeCoder);
 
     /*! Voltage range CC */
-    boolConfig.initialWord = 1+9; //updated
+    boolConfig.initialWord = 10; //updated
     boolConfig.initialBit = 12;
     boolConfig.bitsNum = 4;
     ccVoltageRangeCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(ccVoltageRangeCoder);
 
     /*! Current filter VC */
-    boolConfig.initialWord = 2+9; //updated
+    boolConfig.initialWord = 11; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
     vcCurrentFilterCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(vcCurrentFilterCoder);
 
     /*! Voltage filter VC */
-    boolConfig.initialWord = 2+9; //updated
+    boolConfig.initialWord = 11; //updated
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
     vcVoltageFilterCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(vcVoltageFilterCoder);
 
     /*! Current filter CC */
-    boolConfig.initialWord = 2+9; //updated
+    boolConfig.initialWord = 11; //updated
     boolConfig.initialBit = 8;
     boolConfig.bitsNum = 4;
     ccCurrentFilterCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(ccCurrentFilterCoder);
 
     /*! Voltage filter CC */
-    boolConfig.initialWord = 2+9; //updated
+    boolConfig.initialWord = 11; //updated
     boolConfig.initialBit = 12;
     boolConfig.bitsNum = 4;
     ccVoltageFilterCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(ccVoltageFilterCoder);
 
     /*! Digital offset compensation */
-    boolConfig.initialWord = 3+9; //updated
+    boolConfig.initialWord = 12; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     digitalOffsetCompensationCoders.resize(currentChannelsNum);
@@ -629,7 +629,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
 
     /*! Enable stimulus */
-    boolConfig.initialWord = 27+9; //updated
+    boolConfig.initialWord = 36; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     enableStimulusCoders.resize(currentChannelsNum);
@@ -644,7 +644,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! Turn channels on */
-    boolConfig.initialWord = 51+9; //updated
+    boolConfig.initialWord = 60; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     turnChannelsOnCoders.resize(currentChannelsNum);
@@ -663,7 +663,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     doubleConfig.bitsNum = 16;
     vHoldTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 411+9; //updated
+        doubleConfig.initialWord = 420; //updated
         doubleConfig.resolution = vHoldRange[rangeIdx].step;
         doubleConfig.minValue = vHoldRange[rangeIdx].min;
         doubleConfig.maxValue = vHoldRange[rangeIdx].max;
@@ -680,7 +680,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     doubleConfig.bitsNum = 16;
     cHoldTunerCoders.resize(CCCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < CCCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 411+9; //updated
+        doubleConfig.initialWord = 420; //updated
         doubleConfig.resolution = cHoldRange[rangeIdx].step;
         doubleConfig.minValue = cHoldRange[rangeIdx].min;
         doubleConfig.maxValue = cHoldRange[rangeIdx].max;
@@ -693,7 +693,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! VC current gain tuner */
-    doubleConfig.initialWord = 843+9; //updated
+    doubleConfig.initialWord = 852; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcCurrentGainRange.step;
@@ -709,7 +709,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     /*! VC current offset tuner */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 1227+9; //updated
+        doubleConfig.initialWord = 1236; //updated
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -725,7 +725,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
 
     /*! Cfast / pipette capacitance compensation ENABLE */
-    boolConfig.initialWord = 1611+9; //updated
+    boolConfig.initialWord = 1620; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     pipetteCapEnCompensationCoders.resize(currentChannelsNum);
@@ -742,11 +742,11 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     /*! Cfast / pipette capacitance compensation VALUE*/
     pipetteCapValCompensationMultiCoders.resize(currentChannelsNum);
 
-    boolConfig.initialWord = 1635+9;
+    boolConfig.initialWord = 1644;
     boolConfig.initialBit = 6;
     boolConfig.bitsNum = 2;
 
-    doubleConfig.initialWord = 1635+9;
+    doubleConfig.initialWord = 1644;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
 
@@ -789,7 +789,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! Cslow / membrane capacitance compensation ENABLE */
-    boolConfig.initialWord = 1827+9; //updated
+    boolConfig.initialWord = 1836; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     membraneCapEnCompensationCoders.resize(currentChannelsNum);
@@ -806,11 +806,11 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     /*! Cslow / membrane capacitance compensation */
     membraneCapValCompensationMultiCoders.resize(currentChannelsNum);
 
-    boolConfig.initialWord = 1851+9;
+    boolConfig.initialWord = 1860;
     boolConfig.initialBit = 6;
     boolConfig.bitsNum = 2;
 
-    doubleConfig.initialWord = 1851+9;
+    doubleConfig.initialWord = 1860;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
 
@@ -855,11 +855,11 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     /*! Cslow / membrane capacitance compensation TAU and TAU RANGES */
     membraneCapTauValCompensationMultiCoders.resize(currentChannelsNum);
 
-    doubleConfig.initialWord = 2043+9;
+    doubleConfig.initialWord = 2052;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
-    boolConfig.initialWord = 2235+9;
+    boolConfig.initialWord = 2244;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
 
@@ -901,7 +901,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! Rs correction compensation ENABLE*/
-    boolConfig.initialWord = 2259+9; //updated
+    boolConfig.initialWord = 2268; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     rsCorrEnCompensationCoders.resize(currentChannelsNum);
@@ -916,7 +916,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! Rs correction compensation VALUE*/
-    doubleConfig.initialWord = 2283+9; //updated
+    doubleConfig.initialWord = 2292; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
     doubleConfig.resolution = rsCorrValueRange.step;
@@ -935,7 +935,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
     /*! Rs correction compensation BANDWIDTH*/
     /*! \todo QUESTO VIENE IMPATTATO DALLA SWITCHED CAP FREQUENCY SOILO  A LIVELLO DI RAPPRESENTAZINE DI STRINGHE PER LA BANDA NELLA GUI. ATTIVAMENTE QUI NN FACCIAMO NULLA!!!!!*/
-    boolConfig.initialWord = 2475+9; //updated
+    boolConfig.initialWord = 2484; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 3;
     rsCorrBwCompensationCoders.resize(currentChannelsNum);
@@ -950,7 +950,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! Rs PREDICTION compensation ENABLE*/
-    boolConfig.initialWord = 2571+9; //updated
+    boolConfig.initialWord = 2580; //updated
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     rsPredEnCompensationCoders.resize(currentChannelsNum);
@@ -965,7 +965,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! Rs prediction compensation GAIN*/
-    doubleConfig.initialWord = 2595+9; //updated
+    doubleConfig.initialWord = 2604; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
     doubleConfig.resolution = rsPredGainRange.step;
@@ -983,7 +983,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! Rs prediction compensation TAU*/
-    doubleConfig.initialWord = 2787+9; //updated
+    doubleConfig.initialWord = 2796; //updated
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
     doubleConfig.resolution = rsPredTauRange.step;
@@ -998,6 +998,13 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
             doubleConfig.initialBit  = 0;
             doubleConfig.initialWord++;
         }
+    }
+
+    // Initialization Compensable in USER domain
+    vector<double> defaultAsicDomainParams;
+    for(int i = 0; i<currentChannelsNum; i++){
+        defaultAsicDomainParams = user2AsicDomainTransform(i, defaultUserDomainParams);
+        asic2UserDomainCompensable(i, defaultAsicDomainParams, defaultUserDomainParams);
     }
 
     /*! Default status */
@@ -1414,7 +1421,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     /*! Compensable for U_CpVc*/
     uCpVcCompensable[chIdx].max = pipetteCapacitanceRange_pF.back().max - asicCmCinj;
 
-    potentialMins.push_back(pipetteCapacitanceRange_pF.back().max - asicCmCinj);
+    potentialMins.push_back(pipetteCapacitanceRange_pF.back().min - asicCmCinj);
     potentialMins.push_back(0.0);
     uCpVcCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
