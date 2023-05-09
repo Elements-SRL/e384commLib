@@ -1339,8 +1339,8 @@ vector<double> MessageDispatcher_384PatchClamp_V01::user2AsicDomainTransform(int
     rsPg = userDomainParams[U_RsPg];
 
     // pipette capacitance CC to Series prediction tau domain conversion
-    /*! \todo FCON recheck: a "* 2" or "/ 2" or maybe a "+ 1" might be missing */
-    rsPtau = taum / userDomainParams[U_RsPg];
+    /*! \todo MPAC recheck: added +1 after discussion with MBEN and FCON */
+    rsPtau = taum / (userDomainParams[U_RsPg] + 1);
 
     asicDomainParameter[A_Cp] = cp;
     asicDomainParameter[A_Cm] = cm;
@@ -1387,8 +1387,8 @@ std::vector<double> MessageDispatcher_384PatchClamp_V01::asic2UserDomainTransfor
     rsCp = asicDomainParams[A_RsCr] / rs;
 
     // Series prediction gain domain conversion
-    /*! \todo FCON RECHECK: a "* 2" or "/ 2" or maybe a "+ 1" might be missing */
-    rsPg = asicDomainParams[A_Taum] / asicDomainParams[A_RsPtau];
+    /*! \todo MPAC RECHECK: added -1 after discussion with MBEN and FCON */
+    rsPg = -1 + asicDomainParams[A_Taum] / asicDomainParams[A_RsPtau];
 
     // Series prediction tau to Pipette capacitance CC domain conversion
     if(amIinVoltageClamp){
@@ -1430,8 +1430,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
 
     /*! Compensable for U_Cm*/
     // max
-    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
-
+    /*! MPAC: added +1 after discussion with MBEN and FCON*/
     potentialMaxs.push_back(membraneCapValueRange_pF.back().max);
 
     potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/userDomainParams[U_Rs]);
@@ -1451,7 +1450,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     }
 
     if(compRsPredEnable[chIdx]){
-        potentialMaxs.push_back(rsPredTauRange.max*userDomainParams[U_RsPg]/userDomainParams[U_Rs]);
+        potentialMaxs.push_back(rsPredTauRange.max*(userDomainParams[U_RsPg]+1)/userDomainParams[U_Rs]);
     } else {
         potentialMaxs.push_back(myInfinity);
     }
@@ -1460,14 +1459,13 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     potentialMaxs.clear();
 
     //min
-    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
-
+    /*! MPAC: added +1 after discussion with MBEN and FCON*/
     potentialMins.push_back(membraneCapValueRange_pF.front().min);
 
     potentialMins.push_back(membraneCapTauValueRange_us.front().min/userDomainParams[U_Rs]);
 
     if(compRsPredEnable[chIdx]){
-        potentialMins.push_back(rsPredTauRange.min*userDomainParams[U_RsPg]/userDomainParams[U_Rs]);
+        potentialMins.push_back(rsPredTauRange.min*(userDomainParams[U_RsPg]+1)/userDomainParams[U_Rs]);
     } else {
         potentialMins.push_back(0.0);
     }
@@ -1480,7 +1478,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
 
     /*! Compensable for U_Rs*/
     //max
-    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    /*! MPAC: added +1 after discussion with MBEN and FCON*/
     if(compCslowEnable[chIdx]){
         potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/userDomainParams[U_Cm]);
     } else {
@@ -1494,7 +1492,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     }
 
     if(compRsPredEnable[chIdx]){
-        potentialMaxs.push_back(rsPredTauRange.max * userDomainParams[U_RsPg] / userDomainParams[U_Cm]);
+        potentialMaxs.push_back(rsPredTauRange.max * (userDomainParams[U_RsPg]+1) / userDomainParams[U_Cm]);
     } else {
         potentialMaxs.push_back(myInfinity);
     }
@@ -1503,7 +1501,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     potentialMaxs.clear();
 
     //min
-    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    /*! MPAC: added +1 after discussion with MBEN and FCON*/
     if(compCslowEnable[chIdx]){
         potentialMins.push_back(membraneCapTauValueRange_us.front().min / userDomainParams[U_Cm]);
     } else {
@@ -1517,7 +1515,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     }
 
     if(compRsPredEnable[chIdx]){
-        potentialMins.push_back(rsPredTauRange.min * userDomainParams[U_RsPg] / userDomainParams[U_Cm]);
+        potentialMins.push_back(rsPredTauRange.min * (userDomainParams[U_RsPg]+1) / userDomainParams[U_Cm]);
     } else {
         potentialMins.push_back(0);
     }
@@ -1547,16 +1545,16 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
 
     /*! Compensable for U_RsPg*/
     //max
-    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    /*! MPAC: added -1 after discussion with MBEN and FCON*/
     potentialMaxs.push_back(rsPredGainRange.max);
-    potentialMaxs.push_back(userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.min);
+    potentialMaxs.push_back(-1 + userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.min);
     uRsPgCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
     potentialMaxs.clear();
 
     //min
-    /*! \todo Pay attention to possible divisions by 0; a "* 2" or "/ 2" or maybe a "+ 1" might be missing*/
+    /*! MPAC: added -1 after discussion with MBEN and FCON*/
     potentialMins.push_back(rsPredGainRange.min);
-    potentialMins.push_back(userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.max);
+    potentialMins.push_back(-1 + userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.max);
     uRsPgCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
 
