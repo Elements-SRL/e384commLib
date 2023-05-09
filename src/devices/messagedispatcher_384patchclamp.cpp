@@ -400,23 +400,18 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     uCpVcCompensable.resize(currentChannelsNum);
 
     /*! FEATURES/COMPENSABLES USER DOMAIN Cm*/
-    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
-    uCmCompensable.resize(currentChannelsNum);
+        uCmCompensable.resize(currentChannelsNum);
 
-    /*! FEATURES/COMPENSABLES USER DOMAIN Rs*/
-    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
+    /*! FEATURES/COMPENSABLES USER DOMAIN Rs*/  
     uRsCompensable.resize(currentChannelsNum);
 
     /*! FEATURES/COMPENSABLES USER DOMAIN RsCp*/
-    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
     uRsCpCompensable.resize(currentChannelsNum);
 
     /*! FEATURES/COMPENSABLES USER DOMAIN RsPg*/
-    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
     uRsPgCompensable.resize(currentChannelsNum);
 
     /*! FEATURES/COMPENSABLES USER DOMAIN CpCc*/
-    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
     uCpCcCompensable.resize(currentChannelsNum);
 
     /*! COMPENSATION OPTIONS STRINGS*/
@@ -1179,6 +1174,29 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
     if (applyFlagIn) {
         this->stackOutgoingMessage(txStatus);
     }
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableVcCompensations(bool enable){
+    areVcCompsEnabled = enable;
+
+    for(int i = 0; i < currentChannelsNum; i++){
+        pipetteCapEnCompensationCoders[i]->encode(areVcCompsEnabled, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        membraneCapEnCompensationCoders[i]->encode(areVcCompsEnabled, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        rsCorrEnCompensationCoders[i]->encode(areVcCompsEnabled, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        rsPredEnCompensationCoders[i]->encode(areVcCompsEnabled, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCcCompensations(bool enable){
+    areCcCompsEnabled = enable;
+
+    for(int i = 0; i < currentChannelsNum; i++){
+        pipetteCapEnCompensationCoders[i]->encode(areCcCompsEnabled, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
     return Success;
 }
 

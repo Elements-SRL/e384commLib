@@ -144,6 +144,8 @@ public:
     ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
 
     virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
+    virtual ErrorCodes_t enableVcCompensations(bool enable);
+    virtual ErrorCodes_t enableCcCompensations(bool enable);
     virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
     virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn);
 
@@ -216,6 +218,8 @@ protected:
     std::vector<bool> compCslowEnable;
     std::vector<bool> compRsCorrEnable;
     std::vector<bool> compRsPredEnable;
+    bool areVcCompsEnabled;
+    bool areCcCompsEnabled;
 
 
     /*************\

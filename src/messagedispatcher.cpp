@@ -1631,6 +1631,14 @@ ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t> channel
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::enableVcCompensations(bool enable){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::enableCcCompensations(bool enable){
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
     return ErrorFeatureNotImplemented;
 }
