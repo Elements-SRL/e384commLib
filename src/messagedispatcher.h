@@ -76,6 +76,7 @@ public:
         CompCslow, // membrane
         CompRsCorr,
         CompRsPred,
+        CompCcCfast,
         CompensationTypesNum
     };
 
@@ -218,8 +219,9 @@ protected:
     std::vector<bool> compCslowEnable;
     std::vector<bool> compRsCorrEnable;
     std::vector<bool> compRsPredEnable;
-    bool areVcCompsEnabled;
-    bool areCcCompsEnabled;
+    std::vector<bool> compCcCfastEnable;
+    bool areVcCompsEnabled = false;
+    bool areCcCompsEnabled = false;
 
 
     /*************\
@@ -402,6 +404,8 @@ protected:
     std::vector<BoolCoder*>  rsPredEnCompensationCoders;
     std::vector<DoubleCoder*> rsPredGainCompensationCoders;
     std::vector<DoubleCoder*> rsPredTauCompensationCoders;
+    std::vector<BoolCoder*> pipetteCapCcEnCompensationCoders;
+    std::vector<MultiCoder*> pipetteCapCcValCompensationMultiCoders;
 
     /*! Compensation options*/
     std::vector<uint16_t> selectedRsCorrBws;

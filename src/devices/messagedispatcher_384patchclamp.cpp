@@ -318,10 +318,12 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     compCslowEnable.resize(currentChannelsNum);
     compRsCorrEnable.resize(currentChannelsNum);
     compRsPredEnable.resize(currentChannelsNum);
+    compCcCfastEnable.resize(currentChannelsNum);
     fill(compCfastEnable.begin(), compCfastEnable.end(), false);
     fill(compCslowEnable.begin(), compCslowEnable.end(), false);
     fill(compRsCorrEnable.begin(), compRsCorrEnable.end(), false);
     fill(compRsPredEnable.begin(), compRsPredEnable.end(), false);
+    fill(compCcCfastEnable.begin(), compCcCfastEnable.end(), false);
 
     /*! FEATURES ASIC DOMAIN Pipette capacitance */
     const double pipetteVarResistance = 100.0e-3;
@@ -995,6 +997,70 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
         }
     }
 
+    /*! CURRENT CLAMP Cfast / pipette capacitance compensation ENABLE */
+    boolConfig.initialWord = 1620; //updated
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    pipetteCapCcEnCompensationCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        pipetteCapCcEnCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(pipetteCapCcEnCompensationCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    /*! CURRENT CLAMP Cfast / pipette capacitance compensation VALUE*/
+    pipetteCapCcValCompensationMultiCoders.resize(currentChannelsNum);
+
+    boolConfig.initialWord = 1644;
+    boolConfig.initialBit = 6;
+    boolConfig.bitsNum = 2;
+
+    doubleConfig.initialWord = 1644;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 6;
+
+    multiCoderConfig.doubleCoderVector.resize(pipetteCapacitanceRanges);
+    multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
+
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
+        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        coders.push_back(multiCoderConfig.boolCoder);
+        for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
+            doubleConfig.minValue = pipetteCapacitanceRange_pF[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.maxValue = pipetteCapacitanceRange_pF[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.resolution = pipetteCapacitanceRange_pF[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
+
+            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+
+            if (rangeIdx < pipetteCapacitanceRanges-1) {
+                /*! \todo RECHECK: computed as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
+                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceRange_pF[rangeIdx].max + pipetteCapacitanceRange_pF[rangeIdx+1].min);
+            }
+        }
+        pipetteCapCcValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        coders.push_back(pipetteCapCcValCompensationMultiCoders[idx]);
+
+        /*! Initial bits for the 2 bits for range : 6 and 6+8 = 14 */
+        boolConfig.initialBit += 8;
+        if(boolConfig.initialBit > 14){
+            boolConfig.initialBit = 6;
+            boolConfig.initialWord++;
+        }
+
+        /*! Initial bits for the 6 bits for Cfast value : 0 and 0+8 = 8 */
+        doubleConfig.initialBit += 8;
+        if (doubleConfig.initialBit > 8){
+            doubleConfig.initialBit  = 0;
+            doubleConfig.initialWord++;
+        }
+    }
+
     // Initialization Compensable in USER domain
     vector<double> defaultAsicDomainParams;
     for(int i = 0; i<currentChannelsNum; i++){
@@ -1137,7 +1203,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
             }
             for(int i = 0; i<channelIndexes.size(); i++){
                 compCfastEnable[channelIndexes[i]] = onValues[i];
-                pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+                pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(areVcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             }
         break;
 
@@ -1147,7 +1213,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
             }
             for(int i = 0; i<channelIndexes.size(); i++){
                 compCslowEnable[channelIndexes[i]] = onValues[i];
-                membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+                membraneCapEnCompensationCoders[channelIndexes[i]]->encode(areVcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             }
         break;
 
@@ -1157,7 +1223,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
             }
             for(int i = 0; i<channelIndexes.size(); i++){
                 compRsCorrEnable[channelIndexes[i]] = onValues[i];
-                rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+                rsCorrEnCompensationCoders[channelIndexes[i]]->encode(areVcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             }
         break;
 
@@ -1167,7 +1233,17 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
             }
             for(int i = 0; i<channelIndexes.size(); i++){
                 compRsPredEnable[channelIndexes[i]] = onValues[i];
-                rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+                rsPredEnCompensationCoders[channelIndexes[i]]->encode(areVcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            }
+        break;
+
+        case CompCcCfast:
+            if(pipetteCapCcEnCompensationCoders.size() == 0){
+                return ErrorFeatureNotImplemented;
+            }
+            for(int i = 0; i<channelIndexes.size(); i++){
+                compCcCfastEnable[channelIndexes[i]] = onValues[i];/*! \todo MPAC, forse mettere anche questi in and a areVcCompsEnabled*/
+                pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(areVcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             }
         break;
         }
@@ -1181,10 +1257,10 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableVcCompensations(bool ena
     areVcCompsEnabled = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
-        pipetteCapEnCompensationCoders[i]->encode(areVcCompsEnabled, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        membraneCapEnCompensationCoders[i]->encode(areVcCompsEnabled, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsCorrEnCompensationCoders[i]->encode(areVcCompsEnabled, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsPredEnCompensationCoders[i]->encode(areVcCompsEnabled, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapEnCompensationCoders[i]->encode(areVcCompsEnabled && compCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        membraneCapEnCompensationCoders[i]->encode(areVcCompsEnabled && compCslowEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        rsCorrEnCompensationCoders[i]->encode(areVcCompsEnabled && compRsCorrEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        rsPredEnCompensationCoders[i]->encode(areVcCompsEnabled && compRsPredEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
     return Success;
@@ -1194,7 +1270,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCcCompensations(bool ena
     areCcCompsEnabled = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
-        pipetteCapEnCompensationCoders[i]->encode(areCcCompsEnabled, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapCcEnCompensationCoders[i]->encode(areVcCompsEnabled && compCcCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
     return Success;
