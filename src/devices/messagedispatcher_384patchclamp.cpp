@@ -272,6 +272,52 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     // mapping ADC Current Clamp
     // undefined
 
+    /*! VC calibration voltage steps*/
+    calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA].resize(5);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw].resize(5);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw].resize(5);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA].resize(5);
+
+    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA][0] = {-25.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA][1] = {-12.5, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA][2] = {0.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA][3] = {12.5, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA][4] = {25.0, UnitPfxMilli, "V"};
+
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw][0] = {-100.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw][1] = {-50.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw][2] = {0.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw][3] = {50.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw][4] = {100.0, UnitPfxMilli, "V"};
+
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw][0] = {-100.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw][1] = {-50.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw][2] = {0.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw][3] = {50.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw][4] = {100.0, UnitPfxMilli, "V"};
+
+    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA][0] = {-400.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA][1] = {-200.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA][2] = {0.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA][3] = {200.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA][4] = {400.0, UnitPfxMilli, "V"};
+
+    /*! VC calibration resistances*/
+    calibrationData.vcCalibResArray.resize(VCCurrentRangesNum);
+    calibrationData.vcCalibResArray[VCCurrentRange10nA] = {5.1, UnitPfxMega, "Ohm"}; // 10nA
+    calibrationData.vcCalibResArray[VCCurrentRange40nALbw] = {5.1, UnitPfxMega, "Ohm"}; // 40nA
+    calibrationData.vcCalibResArray[VCCurrentRange40nAHbw] = {5.1, UnitPfxMega, "Ohm"}; // 40nA
+    calibrationData.vcCalibResArray[VCCurrentRange400nA] = {5.1, UnitPfxMega, "Ohm"}; // 400nA
+
+    // mapping VC current range - calibration resistances
+    calibrationData.vcCurrRange2CalibResMap = {
+      {VCCurrentRange10nA, CalibRes5_1MOhm},
+      {VCCurrentRange40nALbw, CalibRes5_1MOhm},
+      {VCCurrentRange40nAHbw, CalibRes5_1MOhm},
+      {VCCurrentRange400nA, CalibRes5_1MOhm}
+    };
+
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange500mV].min = -500.0;
     vHoldRange[VCVoltageRange500mV].max = 500.0;

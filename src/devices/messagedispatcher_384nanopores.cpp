@@ -183,27 +183,34 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     #endif
     };
 
+    // mapping ADC Current Clamp
+    // undefined
+
     /*! VC calibration voltage steps*/
-    vcCalibVoltStepsArray.resize(5);
-    vcCalibVoltStepsArray[0] = {-400.0, UnitPfxMilli, "V"};
-    vcCalibVoltStepsArray[1] = {-200.0, UnitPfxMilli, "V"};
-    vcCalibVoltStepsArray[2] = {0.0, UnitPfxMilli, "V"};
-    vcCalibVoltStepsArray[3] = {200.0, UnitPfxMilli, "V"};
-    vcCalibVoltStepsArray[4] = {400.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA].resize(5);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA].resize(5);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][0] = {-400.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][1] = {-200.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][2] = {0.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][3] = {200.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][4] = {400.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][0] = {-400.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][1] = {-200.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][2] = {0.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][3] = {200.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][4] = {400.0, UnitPfxMilli, "V"};
 
     /*! VC calibration resistances*/
-    vcCalibResArray.resize(CalibResNum);
-    vcCalibResArray[CalibRes120kOhm] = {120.0, UnitPfxKilo, "Ohm"}; // 4uA
-    vcCalibResArray[CalibRes2_49MOhm] = {2.49, UnitPfxMega, "Ohm"}; // 200nA
+    calibrationData.vcCalibResArray.resize(CalibResNum);
+    calibrationData.vcCalibResArray[CalibRes120kOhm] = {120.0, UnitPfxKilo, "Ohm"}; // 4uA
+    calibrationData.vcCalibResArray[CalibRes2_49MOhm] = {2.49, UnitPfxMega, "Ohm"}; // 200nA
 
-    // mapping VC current renge - calibration resistances
-    vcCurrRange2CalibResMap = {
+    // mapping VC current range - calibration resistances
+    calibrationData.vcCurrRange2CalibResMap = {
       {VCCurrentRange4uA, CalibRes120kOhm},
       {VCCurrentRange200nA, CalibRes2_49MOhm}
     };
-
-    // mapping ADC Current Clamp
-    // undefined
 
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange500mV].min = -500.0;

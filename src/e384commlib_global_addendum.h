@@ -5,6 +5,7 @@
 #include <string>
 #include <math.h>
 #include <limits>
+#include <unordered_map>
 
 #include "e384commlib_global.h"
 
@@ -832,6 +833,12 @@ typedef struct CompensationControl {
         }
     }
 } CompensationControl_t;
+
+typedef struct{
+    std::vector<std::vector<Measurement_t>> vcCalibStepsArrays;
+    std::vector<Measurement_t> vcCalibResArray;
+    std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
+} CalibrationData_t;
 
 #ifdef E384COMMLIB_STATIC
 } // namespace e384CommLib

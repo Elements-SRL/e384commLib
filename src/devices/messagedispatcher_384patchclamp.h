@@ -106,6 +106,11 @@ protected:
         LedsNum
     };
 
+    enum CalibResistances{
+        CalibRes5_1MOhm,
+        CalibResNum
+    };
+
     enum CompensationAsicParams {
         A_Cp,       //PipetteCapacitance
         A_Cm,       //MembraneCapacitance

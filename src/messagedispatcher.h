@@ -181,8 +181,9 @@ public:
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
 
-    ErrorCodes_t getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps);
-    ErrorCodes_t getVcCalibResFeatures(std::vector <Measurement_t> &vCCalibRes);
+//    ErrorCodes_t getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps);
+//    ErrorCodes_t getVcCalibResFeatures(std::vector <Measurement_t> &vCCalibRes);
+    ErrorCodes_t getCalibData(CalibrationData_t &calibData);
 
     ErrorCodes_t getCalibDefaultVcAdcGain(Measurement_t &defaultVcAdcGain);
     ErrorCodes_t getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset);
@@ -384,8 +385,10 @@ protected:
     std::vector<Measurement_t> selectedSourceVoltageVector;
     std::vector <DoubleCoder *> sourceVoltageCoders;
 
-    std::vector<Measurement_t> vcCalibResArray;
-    std::vector<Measurement_t> vcCalibVoltStepsArray;
+//    std::vector<std::vector<Measurement_t>> vcCalibResArrays;
+//    std::vector<std::vector<Measurement_t>> vcCalibVoltStepsArrays;
+
+    CalibrationData_t calibrationData;
 
     DoubleCoder * stimRestCoder = nullptr;
 
