@@ -357,6 +357,29 @@ protected:
     std::vector <std::vector <DoubleCoder *>> vHoldTunerCoders;
     std::vector <std::vector <DoubleCoder *>> cHoldTunerCoders;
 
+    // Calibration DAC coders and ranges
+    RangedMeasurement_t calibCcCurrentGainRange;
+    std::vector<Measurement_t> selectedCalibCcCurrentGainVector;
+    std::vector <DoubleCoder *> calibCcCurrentGainCoders;
+    Measurement_t defaultCalibCcCurrentGain;
+
+    std::vector <RangedMeasurement_t> calibCcCurrentOffsetRanges;
+    std::vector<Measurement_t> selectedCalibCcCurrentOffsetVector;
+    std::vector <std::vector <DoubleCoder *>> calibCcCurrentOffsetCoders;
+    Measurement_t defaultCalibCcCurrentOffset;
+
+
+
+    RangedMeasurement_t calibVcVoltageGainRange;
+    std::vector<Measurement_t> selectedCalibVcVoltageGainVector;
+    std::vector <DoubleCoder *> calibVcVoltageGainCoders;
+
+    std::vector <RangedMeasurement_t> calibVcVoltageOffsetRanges;
+    std::vector<Measurement_t> selectedCalibVcVoltageOffsetVector;
+    std::vector <std::vector <DoubleCoder *>> calibVcVoltageOffsetCoders;
+    Measurement_t defaultCalibVcVoltageOffset;
+
+    // Calibration ADC coders and ranges
     RangedMeasurement_t calibVcCurrentGainRange;
     std::vector<Measurement_t> selectedCalibVcCurrentGainVector;
     std::vector <DoubleCoder *> calibVcCurrentGainCoders;
@@ -366,8 +389,6 @@ protected:
     std::vector<Measurement_t> selectedCalibVcCurrentOffsetVector;
     std::vector <std::vector <DoubleCoder *>> calibVcCurrentOffsetCoders;
     Measurement_t defaultCalibVcCurrentOffset;
-
-    Measurement_t defaultCalibVcDacOffset;
 
     RangedMeasurement_t calibCcVoltageGainRange;
     std::vector<Measurement_t> selectedCalibCcVoltageGainVector;
@@ -384,6 +405,19 @@ protected:
     RangedMeasurement_t sourceVoltageRange;
     std::vector<Measurement_t> selectedSourceVoltageVector;
     std::vector <DoubleCoder *> sourceVoltageCoders;
+
+    /*! \todo new coders and ranges, to be moved in proper places within this file*/
+    BoolArrayCoder* voltageChanSourceCoder;
+    BoolArrayCoder* currentChanSourceCoder;
+
+    std::vector <BoolCoder *> calSwCoders;
+    std::vector <BoolCoder *> vcSwCoders;
+    std::vector <BoolCoder *> ccSwCoders;
+    std::vector <BoolCoder *> vcCcSelCoders;
+    std::vector <BoolCoder *> ccStimEnCoders;
+
+    RangedMeasurement_t vcLeakCalibRange;
+    std::vector <DoubleCoder *> vcLeakCalibCoder;
 
 //    std::vector<std::vector<Measurement_t>> vcCalibResArrays;
 //    std::vector<std::vector<Measurement_t>> vcCalibVoltStepsArrays;

@@ -1339,8 +1339,8 @@ ErrorCodes_t MessageDispatcher::getCalibDefaultVcAdcOffset(Measurement_t &defaul
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset){
-    defaultVcDacOffset = defaultCalibVcDacOffset;
+ErrorCodes_t MessageDispatcher::getCalibDefaultVcDacOffset(Measurement_t &defaultVcVoltageOffset){
+    defaultVcVoltageOffset = defaultCalibVcVoltageOffset;
     return Success;
 }
 
