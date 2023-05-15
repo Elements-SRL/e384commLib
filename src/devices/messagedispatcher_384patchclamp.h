@@ -107,7 +107,7 @@ protected:
     };
 
     enum CalibResistances{
-        CalibRes5_1MOhm,
+        CalibRes5_0MOhm,
         CalibResNum
     };
 

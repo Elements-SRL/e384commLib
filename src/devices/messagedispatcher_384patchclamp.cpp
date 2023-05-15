@@ -305,17 +305,17 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
     /*! VC calibration resistances*/
     calibrationData.vcCalibResArray.resize(VCCurrentRangesNum);
-    calibrationData.vcCalibResArray[VCCurrentRange10nA] = {5.1, UnitPfxMega, "Ohm"}; // 10nA
-    calibrationData.vcCalibResArray[VCCurrentRange40nALbw] = {5.1, UnitPfxMega, "Ohm"}; // 40nA
-    calibrationData.vcCalibResArray[VCCurrentRange40nAHbw] = {5.1, UnitPfxMega, "Ohm"}; // 40nA
-    calibrationData.vcCalibResArray[VCCurrentRange400nA] = {5.1, UnitPfxMega, "Ohm"}; // 400nA
+    calibrationData.vcCalibResArray[VCCurrentRange10nA] = {5.0, UnitPfxMega, "Ohm"}; // 10nA
+    calibrationData.vcCalibResArray[VCCurrentRange40nALbw] = {5.0, UnitPfxMega, "Ohm"}; // 40nA
+    calibrationData.vcCalibResArray[VCCurrentRange40nAHbw] = {5.0, UnitPfxMega, "Ohm"}; // 40nA
+    calibrationData.vcCalibResArray[VCCurrentRange400nA] = {5.0, UnitPfxMega, "Ohm"}; // 400nA
 
     // mapping VC current range - calibration resistances
     calibrationData.vcCurrRange2CalibResMap = {
-      {VCCurrentRange10nA, CalibRes5_1MOhm},
-      {VCCurrentRange40nALbw, CalibRes5_1MOhm},
-      {VCCurrentRange40nAHbw, CalibRes5_1MOhm},
-      {VCCurrentRange400nA, CalibRes5_1MOhm}
+      {VCCurrentRange10nA, CalibRes5_0MOhm},
+      {VCCurrentRange40nALbw, CalibRes5_0MOhm},
+      {VCCurrentRange40nAHbw, CalibRes5_0MOhm},
+      {VCCurrentRange400nA, CalibRes5_0MOhm}
     };
 
     calibrationData.areCalibResistOnBoard = true;
