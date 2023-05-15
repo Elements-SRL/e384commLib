@@ -797,6 +797,26 @@ ErrorCodes_t MessageDispatcher::turnChannelsOn(vector<uint16_t> channelIndexes, 
     }
 }
 
+ErrorCodes_t MessageDispatcher::turnCalSwOn(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag) {
+    if (calSwCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           calSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::setAdcFilter(){
     // Still to be properly implemented
     if(amIinVoltageClamp){
