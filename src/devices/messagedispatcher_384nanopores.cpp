@@ -212,6 +212,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
       {VCCurrentRange200nA, CalibRes2_49MOhm}
     };
 
+    calibrationData.areCalibResistOnBoard = false;
+
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange500mV].min = -500.0;
     vHoldRange[VCVoltageRange500mV].max = 500.0;
@@ -228,7 +230,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
     selectedCalibVcCurrentGainVector.resize(currentChannelsNum);
-    /*defaultCalibVcCurrentGain = {1.57014, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit};*/ /*! \todo FCON qui c'è il valor medio per i 200nA */
     defaultCalibVcCurrentGain = {1.0, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit};
 
     /*! VC current calib offset */
@@ -236,8 +237,10 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
     defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
 
-    /*! VC calib DAC offset */
-    defaultCalibVcVoltageOffset = {0.0, vcVoltageRangesArray[defaultVcVoltageRangeIdx].prefix, vcVoltageRangesArray[defaultVcVoltageRangeIdx].unit};
+    /*! VC Voltage calib offset (DAC)*/
+    calibVcVoltageOffsetRanges = vcVoltageRangesArray;
+    selectedCalibVcVoltageOffsetVector.resize(currentChannelsNum);
+    defaultCalibVcVoltageOffset = {0.0, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].prefix, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].unit};
 
     /*! Gate voltage range*/
     gateVoltageRange.step = 1;

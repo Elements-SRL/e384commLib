@@ -368,11 +368,10 @@ protected:
     std::vector <std::vector <DoubleCoder *>> calibCcCurrentOffsetCoders;
     Measurement_t defaultCalibCcCurrentOffset;
 
-
-
     RangedMeasurement_t calibVcVoltageGainRange;
     std::vector<Measurement_t> selectedCalibVcVoltageGainVector;
     std::vector <DoubleCoder *> calibVcVoltageGainCoders;
+    Measurement_t defaultCalibVcVoltageGain;
 
     std::vector <RangedMeasurement_t> calibVcVoltageOffsetRanges;
     std::vector<Measurement_t> selectedCalibVcVoltageOffsetVector;
@@ -393,10 +392,12 @@ protected:
     RangedMeasurement_t calibCcVoltageGainRange;
     std::vector<Measurement_t> selectedCalibCcVoltageGainVector;
     std::vector <DoubleCoder *> calibCcVoltageGainCoders;
+    Measurement_t defaultCalibCcVoltageGain;
 
     std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
     std::vector<Measurement_t> selectedCalibCcVoltageOffsetVector;
     std::vector <std::vector <DoubleCoder *>> calibCcVoltageOffsetCoders;
+    Measurement_t defaultCalibCcVoltageOffset;
 
     RangedMeasurement_t gateVoltageRange;
     std::vector<Measurement_t> selectedGateVoltageVector;
@@ -416,8 +417,8 @@ protected:
     std::vector <BoolCoder *> vcCcSelCoders;
     std::vector <BoolCoder *> ccStimEnCoders;
 
-    RangedMeasurement_t vcLeakCalibRange;
-    std::vector <DoubleCoder *> vcLeakCalibCoder;
+    std::vector <RangedMeasurement_t> vcLeakCalibRange;
+    std::vector <std::vector <DoubleCoder *>> vcLeakCalibCoders;
 
 //    std::vector<std::vector<Measurement_t>> vcCalibResArrays;
 //    std::vector<std::vector<Measurement_t>> vcCalibVoltStepsArrays;

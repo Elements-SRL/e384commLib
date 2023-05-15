@@ -99,7 +99,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     ccCurrentRangesNum = CCCurrentRangesNum;
     ccCurrentRangesArray.resize(ccCurrentRangesNum);
     ccCurrentRangesArray[CCCurrentRange8nA].max = 8000.0;
-    ccCurrentRangesArray[CCCurrentRange8nA].min = 8000.0;
+    ccCurrentRangesArray[CCCurrentRange8nA].min = -8000.0;
     ccCurrentRangesArray[CCCurrentRange8nA].step = ccCurrentRangesArray[CCCurrentRange8nA].max/(INT13_MAX+1.0);
     ccCurrentRangesArray[CCCurrentRange8nA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange8nA].unit = "A";
@@ -318,6 +318,8 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
       {VCCurrentRange400nA, CalibRes5_1MOhm}
     };
 
+    calibrationData.areCalibResistOnBoard = true;
+
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange500mV].min = -500.0;
     vHoldRange[VCVoltageRange500mV].max = 500.0;
@@ -337,16 +339,46 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     Measurement_t defaultCurrentHoldTuner = {0.0, cHoldRange[CCCurrentRange8nA].prefix, cHoldRange[CCCurrentRange8nA].unit};
 
     /*! VC leak calibration (shunt resistance)*/
-    vcLeakCalibRange.step = 1.0/4096.0;
-    vcLeakCalibRange.min = -8.0;
-    vcLeakCalibRange.max = vcLeakCalibRange.min + vcLeakCalibRange.step * 65535;
-    vcLeakCalibRange. prefix = UnitPfxNone;
-    vcLeakCalibRange.unit = ""; // sarebbe in siemes, ma e' delirante, quindi lasciamo senza niente.
+    vcLeakCalibRange.resize(VCCurrentRangesNum);
+    vcLeakCalibRange[VCCurrentRange10nA].step = (vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step)/4096.0;
+    vcLeakCalibRange[VCCurrentRange10nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step);
+    vcLeakCalibRange[VCCurrentRange10nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange10nA].step;
+    vcLeakCalibRange[VCCurrentRange10nA]. prefix = UnitPfxNone;
+    vcLeakCalibRange[VCCurrentRange10nA].unit = "S";
+    vcLeakCalibRange[VCCurrentRange40nALbw].step = (vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step)/4096.0;
+    vcLeakCalibRange[VCCurrentRange40nALbw].min = -8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step);
+    vcLeakCalibRange[VCCurrentRange40nALbw].max = 8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange40nALbw].step;
+    vcLeakCalibRange[VCCurrentRange40nALbw]. prefix = UnitPfxNone;
+    vcLeakCalibRange[VCCurrentRange40nALbw].unit = "S";
+    vcLeakCalibRange[VCCurrentRange40nAHbw].step = (vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step)/4096.0;
+    vcLeakCalibRange[VCCurrentRange40nAHbw].min = -8.0*(vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step);
+    vcLeakCalibRange[VCCurrentRange40nAHbw].max = 8.0*(vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange40nAHbw].step;
+    vcLeakCalibRange[VCCurrentRange40nAHbw]. prefix = UnitPfxNone;
+    vcLeakCalibRange[VCCurrentRange40nAHbw].unit = "S";
+    vcLeakCalibRange[VCCurrentRange400nA].step = (vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step)/4096.0;
+    vcLeakCalibRange[VCCurrentRange400nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step);
+    vcLeakCalibRange[VCCurrentRange400nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange400nA].step;
+    vcLeakCalibRange[VCCurrentRange400nA]. prefix = UnitPfxNone;
+    vcLeakCalibRange[VCCurrentRange400nA].unit = "S";
 
-    /*! \todo MPAC Ranges still to be done:
-     *  ADC: CC Voltage gain and offset
-     *  DAC: VC VOltage gain and offset; CC Current gain and offset
-    */
+    /*! VC voltage calib gain (DAC) */
+    calibVcVoltageGainRange.step = 1.0/1024.0;
+    calibVcVoltageGainRange.min = 0;
+    calibVcVoltageGainRange.max = SHORT_MAX * calibVcVoltageGainRange.step;
+    calibVcVoltageGainRange.prefix = UnitPfxNone;
+    calibVcVoltageGainRange.unit = "";
+    selectedCalibVcVoltageGainVector.resize(currentChannelsNum);
+    defaultCalibVcVoltageGain = {1, calibVcVoltageGainRange.prefix, calibVcVoltageGainRange.unit};
+
+    /*! CC Current calib gain (DAC) */
+    calibCcCurrentGainRange.step = 1.0/1024.0;
+    calibCcCurrentGainRange.min = 0;
+    calibCcCurrentGainRange.max = SHORT_MAX * calibCcCurrentGainRange.step;
+    calibCcCurrentGainRange.prefix = UnitPfxNone;
+    calibCcCurrentGainRange.unit = "";
+    selectedCalibCcCurrentGainVector.resize(currentChannelsNum);
+    defaultCalibCcCurrentGain = {1, calibCcCurrentGainRange.prefix, calibCcCurrentGainRange.unit};
+
     /*! VC current calib gain (ADC) */
     calibVcCurrentGainRange.step = 1.0/1024.0;
     calibVcCurrentGainRange.min = 0;//SHORT_MIN * calibVcCurrentGainRange.step;
@@ -356,13 +388,34 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     selectedCalibVcCurrentGainVector.resize(currentChannelsNum);
     defaultCalibVcCurrentGain = {1, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit};
 
+    /*! CC voltage calib gain (ADC) */
+    calibCcVoltageGainRange.step = 1.0/1024.0;
+    calibCcVoltageGainRange.min = 0;
+    calibCcVoltageGainRange.max = SHORT_MAX * calibCcVoltageGainRange.step;
+    calibCcVoltageGainRange.prefix = UnitPfxNone;
+    calibCcVoltageGainRange.unit = "";
+    selectedCalibCcVoltageGainVector.resize(currentChannelsNum);
+    defaultCalibCcVoltageGain = {1, calibCcVoltageGainRange.prefix, calibCcVoltageGainRange.unit};
+
+    /*! VC Voltage calib offset (DAC)*/
+    calibVcVoltageOffsetRanges = vcVoltageRangesArray;
+    selectedCalibVcVoltageOffsetVector.resize(currentChannelsNum);
+    defaultCalibVcVoltageOffset = {0.0, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].prefix, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].unit};
+
+    /*! CC current calib offset (DAC)*/
+    calibCcCurrentOffsetRanges = ccCurrentRangesArray;
+    selectedCalibCcCurrentOffsetVector.resize(currentChannelsNum);
+    defaultCalibCcCurrentOffset = {0.0, calibCcCurrentOffsetRanges[defaultCcCurrentRangeIdx].prefix, calibCcCurrentOffsetRanges[defaultCcCurrentRangeIdx].unit};
+
     /*! VC current calib offset (ADC)*/
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
     defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
 
-    /*! VC voltage calib DAC offset */
-    defaultCalibVcVoltageOffset = {0.0, vcVoltageRangesArray[defaultVcVoltageRangeIdx].prefix, vcVoltageRangesArray[defaultVcVoltageRangeIdx].unit};
+    /*! CC voltage calib offset (ADC)*/
+    calibCcVoltageOffsetRanges = ccVoltageRangesArray;
+    selectedCalibCcVoltageOffsetVector.resize(currentChannelsNum);
+    defaultCalibCcVoltageOffset = {0.0, calibCcVoltageOffsetRanges[defaultCcVoltageRangeIdx].prefix, calibCcVoltageOffsetRanges[defaultCcVoltageRangeIdx].unit};
 
 
     /*! Compensations */
@@ -836,17 +889,20 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! VC leak calibration */
-    doubleConfig.initialWord = 832;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = vcLeakCalibRange.step;
-    doubleConfig.minValue = vcLeakCalibRange.min;
-    doubleConfig.maxValue = vcLeakCalibRange.max;
-    vcLeakCalibCoder.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        vcLeakCalibCoder[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(vcLeakCalibCoder[idx]);
-        doubleConfig.initialWord++;
+    vcLeakCalibCoders.resize(VCCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 832;
+        doubleConfig.resolution = vcLeakCalibRange[rangeIdx].step;
+        doubleConfig.minValue = vcLeakCalibRange[rangeIdx].min;
+        doubleConfig.maxValue = vcLeakCalibRange[rangeIdx].max;
+        vcLeakCalibCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            vcLeakCalibCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(vcLeakCalibCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord++;
+        }
     }
 
     /*! DAC gain e offset*/
@@ -913,6 +969,8 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! ADC gain e offset*/
+    /*! \note MPAC sebbene nel calibratore si cicli sui range per calcolare i gainADC, questi non dipendono dai range essendo numeri puri. Il ciclo sui
+    range serve solo per selezionare gli step di corrente range-specifici*/
     /*! VC current gain tuner */
     doubleConfig.initialWord = 1984;
     doubleConfig.initialBit = 0;
