@@ -162,15 +162,19 @@ ErrorCodes_t setChannelsSources(
 
 /*! \brief Set the holding current tuner. This value is added to the whole current protocol currently applied and to the following.
  *
- * \param channelIdx [in] Channel to apply holding current to.
- * \param current [in] Holding current that is added to the whole current protocol.
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param currentsIn [in] Vector of voltage offsets.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentHoldTuner(
-        E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN CharMeasurement_t current);
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle currentsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turns on/off a uniform noise additive noise with the same range as the LSB on received data.
  *
@@ -203,42 +207,50 @@ ErrorCodes_t setVCCurrentRange(
 /*! \brief Set the current range for current clamp.
  *
  * \param currentRangeIdx [in] Index of the current range to be set.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCCCurrentRange(
-        E384CL_ARGIN uint16_t currentRangeIdx);
+        E384CL_ARGIN uint16_t currentRangeIdx,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Set the voltage range for voltage clamp.
  *
  * \param voltageRangeIdx [in] Index of the voltage range to be set.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setVCVoltageRange(
-        E384CL_ARGIN uint16_t voltageRangeIdx);
+        E384CL_ARGIN uint16_t voltageRangeIdx,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Set the voltage range for current clamp.
  *
  * \param voltageRangeIdx [in] Index of the voltage range to be set.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCCVoltageRange(
-        E384CL_ARGIN uint16_t voltageRangeIdx);
+        E384CL_ARGIN uint16_t voltageRangeIdx,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Set the sampling rate.
  *
  * \param samplingRateIdx [in] Index of the sampling rate to be set.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setSamplingRate(
-        E384CL_ARGIN uint16_t samplingRateIdx);
+        E384CL_ARGIN uint16_t samplingRateIdx,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Set a digital filter.
  *
@@ -346,7 +358,9 @@ ErrorCodes_t zap(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setVoltageStimulusLpf(
-        E384CL_ARGIN uint16_t filterIdx);
+        E384CL_ARGIN uint16_t filterIdx,
+        E384CL_ARGIN bool applyFlagIn);
+    
 
 /*! \brief Sets the low pass filter on the current stimulus.
  *
@@ -356,7 +370,8 @@ ErrorCodes_t setVoltageStimulusLpf(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentStimulusLpf(
-        E384CL_ARGIN uint16_t filterIdx);
+        E384CL_ARGIN uint16_t filterIdx,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Enable or disable the stimulus on a specific channel.
  *
@@ -377,7 +392,7 @@ ErrorCodes_t enableStimulus(
 /*! \brief Turns on and off a specific channel.
  *
  * \param channelIndexesIn [in] Vector of indexes of the channel to control.
- * \param onValuesIn [in] Vector of on values: True to turn the channel on (close the SWITCH), false to turn it off (open the SWITCH).
+ * \param onValuesIn [in] Vector of on values: True to turn the channel on (close the IN SWITCH), false to turn it off (open the SWITCH).
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
@@ -385,6 +400,22 @@ ErrorCodes_t enableStimulus(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnChannelsOn(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+    
+/*! \brief Open and closes the calibration switch for a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of indexes of the channel to control.
+ * \param onValuesIn [in] Vector of on values: True to close the channel CALIBRATION SWITCH, false to open it.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t turnCalSwOn(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
@@ -1238,7 +1269,8 @@ ErrorCodes_t currSin(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t resetAsic(
-        E384CL_ARGIN bool reset);
+        E384CL_ARGIN bool reset,
+        E384CL_ARGIN bool applyFlagIn = true);
 
 /*! \brief Reset the device's FPGA.
  *
@@ -1248,7 +1280,8 @@ ErrorCodes_t resetAsic(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t resetFpga(
-        E384CL_ARGIN bool reset);
+        E384CL_ARGIN bool reset,
+        E384CL_ARGIN bool applyFlagIn = true);
 
 /*! \brief Reset the device's digital offset compensation.
  *
@@ -1325,6 +1358,16 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getChannelsNumber(
         E384CL_ARGOUT uint32_t &currentChannelsNum,
         E384CL_ARGOUT uint32_t &voltageChannelsNum);
+    
+/*! \brief Get the number of boards for the device.
+ *
+ * \param boardsNum [out] Number of current channels.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getBoardsNumber(
+        E384CL_ARGOUT uint32_t &boardsNum);
 
 /*! \brief Get the available data sources for all channels type.
  * \note Unavailable sources have index -1.
@@ -1451,12 +1494,15 @@ ErrorCodes_t getClampingModalitiesFeatures(
 /*! \brief Get the current ranges available in voltage clamp for the device.
  *
  * \param currentRanges [out] Array containing all the available current ranges in voltage clamp.
+ * \param defaultVcCurrRangeIdx [out] Integer referring to the default current range.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVCCurrentRanges(
-        E384CL_ARGOUT LRangeHandle * currentRanges);
+        E384CL_ARGOUT LRangeHandle * currentRanges,
+        E384CL_ARGOUT uint16_t &defaultVcCurrRangeIdx);
+    
 
 /*! \brief Get the current ranges available in current clamp for the device.
  *
