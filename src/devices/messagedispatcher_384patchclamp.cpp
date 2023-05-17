@@ -103,6 +103,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     ccCurrentRangesArray[CCCurrentRange8nA].step = ccCurrentRangesArray[CCCurrentRange8nA].max/(INT13_MAX+1.0);
     ccCurrentRangesArray[CCCurrentRange8nA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange8nA].unit = "A";
+    defaultCcCurrentRangeIdx = CCCurrentRange8nA;
 
     /*! Voltage ranges */
     /*! CC */
@@ -113,6 +114,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     ccVoltageRangesArray[CCVoltageRange1000mV].step = ccVoltageRangesArray[CCVoltageRange1000mV].max/(SHORT_MAX+1.0);
     ccVoltageRangesArray[CCVoltageRange1000mV].prefix = UnitPfxMilli;
     ccVoltageRangesArray[CCVoltageRange1000mV].unit = "V";
+    defaultCcVoltageRangeIdx = CCVoltageRange1000mV;
 
     /*! Current filters */
     /*! VC */
@@ -921,8 +923,8 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! VC Voltage offset tuner */
-    calibVcVoltageOffsetCoders.resize(vcCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+    calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 1600;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
@@ -952,8 +954,8 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! CC Voltage offset tuner */
-    calibCcCurrentOffsetCoders.resize(vcCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+    calibCcCurrentOffsetCoders.resize(ccCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 1600;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
@@ -1017,8 +1019,8 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     /*! CC Voltage offset tuner */
-    calibCcVoltageOffsetCoders.resize(vcCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+    calibCcVoltageOffsetCoders.resize(ccVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < ccVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 2368;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;

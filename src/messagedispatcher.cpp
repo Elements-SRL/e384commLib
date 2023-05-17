@@ -800,21 +800,82 @@ ErrorCodes_t MessageDispatcher::turnChannelsOn(vector<uint16_t> channelIndexes, 
 ErrorCodes_t MessageDispatcher::turnCalSwOn(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag) {
     if (calSwCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
-
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
            calSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-
         }
-
         if (applyFlag) {
             this->stackOutgoingMessage(txStatus);
         }
         return Success;
     }
+}
+
+ErrorCodes_t MessageDispatcher::turnVcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+    if (vcSwCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           vcSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::turnCcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+    if (ccSwCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           ccSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+    if (vcCcSelCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           vcCcSelCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+    if (ccStimEnCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           ccStimEnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+
 }
 
 ErrorCodes_t MessageDispatcher::setAdcFilter(){
@@ -879,9 +940,9 @@ ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t wordOffset, uint16_t wordV
 
 ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool onValueIn, bool applyFlagIn){
     if(onValueIn == true){
-        amIinVoltageClamp = true;
-    }else{
         amIinVoltageClamp = false;
+    }else{
+        amIinVoltageClamp = true;
     }
     setAdcFilter();
     /*
@@ -892,9 +953,9 @@ ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool onValueIn, bool applyFl
 
 ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool onValueIn, bool applyFlagIn){
     if(onValueIn == true){
-        amIinVoltageClamp = false;
-    }else{
         amIinVoltageClamp = true;
+    }else{
+        amIinVoltageClamp = false;
     }
     setAdcFilter();
     /*
