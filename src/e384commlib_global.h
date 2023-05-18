@@ -168,25 +168,15 @@ typedef enum MsgTypeId {
  *  Other typedefs  *
 \********************/
 
-/*! \def E384CL_VOLTAGE_CLAMP_MODE
- * \brief Index that identifies voltage clamp modality.
+/*! \enum ClampingModality_t
+ * \brief Enum that identifies different clamp modality.
  */
-#define E384CL_VOLTAGE_CLAMP_MODE 0
-
-/*! \def E384CL_ZERO_CURRENT_CLAMP_MODE
- * \brief Index that identifies zero current clamp modality.
- */
-#define E384CL_ZERO_CURRENT_CLAMP_MODE 1
-
-/*! \def E384CL_CURRENT_CLAMP_MODE
- * \brief Index that identifies current clamp modality.
- */
-#define E384CL_CURRENT_CLAMP_MODE 2
-
-/*! \def E384CL_DYNAMIC_CLAMP_MODE
- * \brief Index that identifies dynamic clamp modality.
- */
-#define E384CL_DYNAMIC_CLAMP_MODE 3
+typedef enum{
+    VOLTAGE_CLAMP = 0,
+    ZERO_CURRENT_CLAMP = 1,
+    CURRENT_CLAMP = 2,
+    DYNAMIC_CLAMP = 3,
+} ClampingModality_t;
 
 /*! \enum DeviceTypes_t
  * \brief Enumerates the device types that can be handled by e384CommLib.

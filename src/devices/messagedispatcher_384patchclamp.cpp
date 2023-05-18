@@ -52,8 +52,8 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     /*! \todo FCON rechecks*/
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
-    clampingModalitiesArray[VoltageClamp] = E384CL_VOLTAGE_CLAMP_MODE;
-    clampingModalitiesArray[CurrentClamp] = E384CL_CURRENT_CLAMP_MODE;
+    clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
+    clampingModalitiesArray[CurrentClamp] = ClampingModality_t::CURRENT_CLAMP;
     defaultClampingModalityIdx = VoltageClamp;
 
     /*! Current ranges */
