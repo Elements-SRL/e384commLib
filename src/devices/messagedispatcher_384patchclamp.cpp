@@ -322,6 +322,31 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
 
     calibrationData.areCalibResistOnBoard = true;
 
+    calibrationData.ccCalibVoltStepsArrays.resize(CCVoltageRangesNum);
+    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV].resize(5);
+    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV][0] = {-400.0, UnitPfxMilli, "V"};
+    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV][1] = {-200.0, UnitPfxMilli, "V"};
+    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV][2] = {0.0, UnitPfxMilli, "V"};
+    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV][3] = {200.0, UnitPfxMilli, "V"};
+    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV][4] = {400.0, UnitPfxMilli, "V"};
+
+    calibrationData.ccCalibCurrStepsArrays.resize(CCCurrentRangesNum);
+    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA].resize(5);
+    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][0] = {-8.0, UnitPfxNano, "A"};
+    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][1] = {-4.0, UnitPfxNano, "A"};
+    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][2] = {0.0, UnitPfxNano, "A"};
+    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][3] = {4.0, UnitPfxNano, "A"};
+    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][4] = {8.0, UnitPfxNano, "A"};
+
+    /*! CC calibration resistances on each board*/
+    calibrationData.ccCalibResArray.resize(CCCurrentRangesNum);
+    calibrationData.ccCalibResArray[CCCurrentRange8nA] = {5.0, UnitPfxMega, "Ohm"};
+
+    /*! CC calibration resistances on MOdel cell*/
+    calibrationData.ccCalibResForCcAdcOffsetArray.resize(CCVoltageRangesNum);
+    calibrationData.ccCalibResForCcAdcOffsetArray[CCVoltageRange1000mV] = {120.0, UnitPfxKilo, "Ohm"};
+
+
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange500mV].min = -500.0;
     vHoldRange[VCVoltageRange500mV].max = 500.0;
@@ -855,6 +880,20 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
             boolConfig.initialWord++;
         }
     }
+
+    /*! Voltage Source */
+    boolConfig.initialWord = 3;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 4;
+    sourceForVoltageChannelCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(sourceForVoltageChannelCoder);
+
+    /*! Current Source */
+    boolConfig.initialWord = 3;
+    boolConfig.initialBit = 4;
+    boolConfig.bitsNum = 4;
+    sourceForCurrentChannelCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(sourceForCurrentChannelCoder);
 
     /*! V holding tuner */
     doubleConfig.initialBit = 0;

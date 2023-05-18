@@ -878,6 +878,32 @@ ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t> channelIn
 
 }
 
+ErrorCodes_t MessageDispatcher::setSourceForVoltageChannel(uint16_t source, bool applyFlag){
+    if (sourceForVoltageChannelCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+    } else {
+        sourceForVoltageChannelCoder->encode(source, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedSourceForVoltageChannelIdx = source;
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+    }
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::setSourceForCurrentChannel(uint16_t source, bool applyFlag){
+    if (sourceForCurrentChannelCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+    } else {
+        sourceForCurrentChannelCoder->encode(source, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedSourceForCurrentChannelIdx = source;
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+    }
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::setAdcFilter(){
     // Still to be properly implemented
     if(amIinVoltageClamp){

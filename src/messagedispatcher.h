@@ -138,6 +138,9 @@ public:
     ErrorCodes_t turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
     ErrorCodes_t enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
+    ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag);
+    ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag);
+
     ErrorCodes_t digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
     ErrorCodes_t setAdcFilter();
@@ -421,6 +424,10 @@ protected:
     std::vector <BoolCoder *> ccSwCoders;
     std::vector <BoolCoder *> vcCcSelCoders;
     std::vector <BoolCoder *> ccStimEnCoders;
+    BoolArrayCoder* sourceForVoltageChannelCoder;
+    uint16_t selectedSourceForVoltageChannelIdx;
+    BoolArrayCoder* sourceForCurrentChannelCoder;
+    uint16_t selectedSourceForCurrentChannelIdx;
 
     std::vector <RangedMeasurement_t> vcLeakCalibRange;
     std::vector <std::vector <DoubleCoder *>> vcLeakCalibCoders;

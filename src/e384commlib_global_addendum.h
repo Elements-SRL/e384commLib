@@ -839,6 +839,11 @@ typedef struct{
     std::vector<Measurement_t> vcCalibResArray;
     std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
     bool areCalibResistOnBoard;
+
+    std::vector<std::vector<Measurement_t>> ccCalibVoltStepsArrays;
+    std::vector<std::vector<Measurement_t>> ccCalibCurrStepsArrays;
+    std::vector<Measurement_t> ccCalibResArray;
+    std::vector<Measurement_t> ccCalibResForCcAdcOffsetArray;
 } CalibrationData_t;
 
 #ifdef E384COMMLIB_STATIC
