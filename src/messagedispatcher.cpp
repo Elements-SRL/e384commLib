@@ -98,7 +98,7 @@ ErrorCodes_t MessageDispatcher::init() {
 
     txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
     txMsgLength.resize(TX_MSG_BUFFER_SIZE);
-    txTrigger.resize(TX_MSG_BUFFER_SIZE);
+    txMsgTrigger.resize(TX_MSG_BUFFER_SIZE);
 
     /*! Allocate memory for raw data filters */
     this->initializeRawDataFilterVariables();
@@ -1103,6 +1103,7 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t
 
 ErrorCodes_t MessageDispatcher::startProtocol() {
     this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
+    return Success;
 }
 
 /****************\
