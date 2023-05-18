@@ -77,7 +77,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
-    clampingModalitiesArray[VoltageClamp] = E384CL_VOLTAGE_CLAMP_MODE;
+    clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
     defaultClampingModalityIdx = VoltageClamp;
 
     /*! Current ranges */
@@ -542,7 +542,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
-    clampingModalitiesArray[VoltageClamp] = E384CL_VOLTAGE_CLAMP_MODE;
+    clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
     defaultClampingModalityIdx = VoltageClamp;
 
     /*! Current ranges */
