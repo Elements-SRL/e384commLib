@@ -27,9 +27,15 @@
 #define INT14_MAX (static_cast <double> (0x1FFF))
 #define UINT14_MAX (static_cast <double> (0x3FFF))
 #define INT18_MAX (static_cast <double> (0x1FFFF))
+#define INT24_MAX (static_cast <double> (0x7FFFFF))
+#define INT24_MIN (-INT24_MAX-1.0)
+#define UINT24_MAX (static_cast <double> (0xFFFFF))
 #define UINT28_MAX (static_cast <double> (0xFFFFFFF))
 #define INT28_MAX (static_cast <double> (0x7FFFFFF))
 #define INT28_MIN (-INT28_MAX-1.0)
+#define LUINT32_MAX (static_cast <double> (0xFFFFFFFF))
+#define LINT32_MAX (static_cast <double> (0x7FFFFFFF))
+#define LINT32_MIN (-LINT32_MAX-1.0)
 
 #define IIR_ORD 2
 #define IIR_2_SIN_PI_4 (2.0*sin(M_PI/4.0))
@@ -122,6 +128,18 @@ public:
 
     ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
     ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
+
+    ErrorCodes_t setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest);
+    ErrorCodes_t setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step);
+    ErrorCodes_t setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step);
+    ErrorCodes_t setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step);
+
+    ErrorCodes_t setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest);
+    ErrorCodes_t setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step);
+    ErrorCodes_t setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step);
+    ErrorCodes_t setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step);
+
+    ErrorCodes_t startProtocol();
 
     /****************\
      *  Rx methods  *
@@ -235,7 +253,7 @@ protected:
 
     void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);
 
-    void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage);
+    void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, TxTriggerType_t triggerType = TxTriggerParameteresUpdated);
     uint16_t popUint16FromRxRawBuffer();
     uint16_t readUint16FromRxRawBuffer(uint32_t n);
 
@@ -265,6 +283,24 @@ protected:
 
     uint16_t totalBoardsNum = 1;
 
+    /*! Protocol's parameters */
+    unsigned int protocolMaxItemsNum = 20;
+    unsigned int protocolItemsWordsNum = 12;
+    double protocolFpgaClockFrequencyHz = 10.0e6;
+
+    bool voltageProtocolStepImplemented = false;
+    bool voltageProtocolRampImplemented = false;
+    bool voltageProtocolSinImplemented = false;
+
+    bool currentProtocolStepImplemented = false;
+    bool currentProtocolRampImplemented = false;
+    bool currentProtocolSinImplemented = false;
+
+    RangedMeasurement_t protocolTimeRange;
+    RangedMeasurement_t positiveProtocolTimeRange;
+    RangedMeasurement_t protocolFrequencyRange;
+    RangedMeasurement_t positiveProtocolFrequencyRange;
+
     std::vector<uint16_t> rxWordOffsets;
     std::vector<uint16_t> rxWordLengths;
 
@@ -283,7 +319,6 @@ protected:
     BoolCoder * clampingModeCoder = nullptr;
 
     BoolCoder * docOverrideCoder = nullptr;
-
 
     uint32_t vcCurrentRangesNum;
     uint32_t selectedVcCurrentRangeIdx = 0;
@@ -390,6 +425,35 @@ protected:
     BoolArrayCoder * bitDebugCoder = nullptr;
     BoolArrayCoder * wordDebugCoder = nullptr;
 
+    /*! Protocol coders */
+    BoolArrayCoder * protocolIdCoder = nullptr;
+    BoolArrayCoder * protocolItemsNumberCoder = nullptr;
+    BoolArrayCoder * protocolSweepsNumberCoder = nullptr;
+    std::vector <DoubleCoder *> voltageProtocolRestCoders;
+    std::vector <DoubleCoder *> currentProtocolRestCoders;
+
+    std::vector <std::vector <DoubleCoder *>> voltageProtocolStim0Coders;
+    std::vector <std::vector <DoubleCoder *>> voltageProtocolStim0StepCoders;
+    std::vector <std::vector <DoubleCoder *>> voltageProtocolStim1Coders;
+    std::vector <std::vector <DoubleCoder *>> voltageProtocolStim1StepCoders;
+
+    std::vector <std::vector <DoubleCoder *>> currentProtocolStim0Coders;
+    std::vector <std::vector <DoubleCoder *>> currentProtocolStim0StepCoders;
+    std::vector <std::vector <DoubleCoder *>> currentProtocolStim1Coders;
+    std::vector <std::vector <DoubleCoder *>> currentProtocolStim1StepCoders;
+
+    std::vector <DoubleCoder *> protocolTime0Coders;
+    std::vector <DoubleCoder *> protocolTime0StepCoders;
+    std::vector <DoubleCoder *> protocolFrequency0Coders;
+    std::vector <DoubleCoder *> protocolFrequency0StepCoders;
+
+    std::vector <BoolArrayCoder *> protocolItemIdxCoders;
+    std::vector <BoolArrayCoder *> protocolNextItemIdxCoders;
+    std::vector <BoolArrayCoder *> protocolLoopRepetitionsCoders;
+
+    std::vector <BoolArrayCoder *> protocolApplyStepsCoders;
+    std::vector <BoolArrayCoder *> protocolItemTypeCoders;
+
     /*!Compensations coders*/
     std::vector<BoolCoder*> pipetteCapEnCompensationCoders;
     std::vector<MultiCoder*> pipetteCapValCompensationMultiCoders;
@@ -453,6 +517,7 @@ protected:
     std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */
     std::vector <uint16_t> txMsgOffsetWord; /*!< Buffer of offset word in txMsgBuffer */
     std::vector <uint16_t> txMsgLength; /*!< Buffer of txMsgBuffer length */
+    std::vector <TxTriggerType_t> txMsgTrigger; /*!< Buffer of trigger types */
     uint32_t txMsgBufferWriteOffset = 0; /*!< Offset of the part of buffer to be written */
     uint32_t txMsgBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
     uint16_t txDataWords;
@@ -476,6 +541,9 @@ protected:
 
     Measurement_t samplingRate = {200.0, UnitPfxKilo, "Hz"};
     Measurement_t integrationStep = {5.0, UnitPfxMicro, "s"};
+
+    /*! Protocols variables */
+    uint16_t selectedProtocolItemsNum = 0;
 
     /***********************\
      *  Filters variables  *

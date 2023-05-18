@@ -49,6 +49,31 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
+    /*! Protocols parameters */
+    protocolFpgaClockFrequencyHz = 10.08e6;
+
+    protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
+    protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
+    protocolTimeRange.max = LINT32_MAX*protocolTimeRange.step;
+    protocolTimeRange.prefix = UnitPfxMilli;
+    protocolTimeRange.unit = "s";
+
+    positiveProtocolTimeRange = protocolTimeRange;
+    positiveProtocolTimeRange.min = 0.0;
+
+    protocolFrequencyRange.step = protocolFpgaClockFrequencyHz/(256.0*(UINT24_MAX+1.0)); /*! 10.08MHz / 256 / 2^24 */
+    protocolFrequencyRange.min = INT24_MIN*protocolFrequencyRange.step;
+    protocolFrequencyRange.max = INT24_MAX*protocolFrequencyRange.step;
+    protocolFrequencyRange.prefix = UnitPfxNone;
+    protocolFrequencyRange.unit = "Hz";
+
+    positiveProtocolFrequencyRange = protocolFrequencyRange;
+    positiveProtocolFrequencyRange.min = 0.0;
+
+    voltageProtocolStepImplemented = true;
+    voltageProtocolRampImplemented = true;
+    voltageProtocolSinImplemented = true;
+
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
@@ -293,7 +318,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     // undefined
 
     /*! Voltage range VC */
-    boolConfig.initialWord = 4+9; //updated
+    boolConfig.initialWord = 13;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
     vcVoltageRangeCoder = new BoolRandomArrayCoder(boolConfig);
@@ -311,7 +336,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     // undefined
 
     /*! Voltage filter VC */
-    boolConfig.initialWord = 2+9; //updated
+    boolConfig.initialWord = 11;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 8;
     vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
@@ -327,7 +352,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     // undefined
 
     /*! Digital offset compensation */
-    boolConfig.initialWord = 3+9; //updated
+    boolConfig.initialWord = 12;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     digitalOffsetCompensationCoders.resize(currentChannelsNum);
@@ -343,7 +368,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
 
 
     /*! Enable stimulus */
-    boolConfig.initialWord = 4+9; //updated
+    boolConfig.initialWord = 13;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     enableStimulusCoders.resize(currentChannelsNum);
@@ -363,7 +388,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     vHoldTunerCoders.resize(VCVoltageRangesNum);
 
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 249+9; //updated
+        doubleConfig.initialWord = 258;
         doubleConfig.resolution = vHoldRange[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
@@ -376,7 +401,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     }
 
     /*! VC current gain tuner */
-    doubleConfig.initialWord = 253+9; //updated
+    doubleConfig.initialWord = 262;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcCurrentGainRange.step;
@@ -392,7 +417,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     /*! VC current offset tuner */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 257+9; //updated
+        doubleConfig.initialWord = 266;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -758,7 +783,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     // undefined
 
     /*! Voltage range VC */
-    boolConfig.initialWord = 4+9; //updated
+    boolConfig.initialWord = 13;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
     vcVoltageRangeCoder = new BoolRandomArrayCoder(boolConfig);
@@ -776,7 +801,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     // undefined
 
     /*! Voltage filter VC */
-    boolConfig.initialWord = 2+9; //updated
+    boolConfig.initialWord = 11;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 8;
     vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
@@ -792,7 +817,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     // undefined
 
     /*! Digital offset compensation */
-    boolConfig.initialWord = 3+9; //updated
+    boolConfig.initialWord = 12;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     digitalOffsetCompensationCoders.resize(currentChannelsNum);
@@ -808,7 +833,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
 
 
     /*! Enable stimulus */
-    boolConfig.initialWord = 4+9; //updated
+    boolConfig.initialWord = 13;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     enableStimulusCoders.resize(currentChannelsNum);
@@ -822,13 +847,174 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
         }
     }
 
+    /*! Protocol structure */
+    boolConfig.initialWord = 14;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolIdCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolIdCoder);
+
+    boolConfig.initialWord = 15;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolItemsNumberCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolItemsNumberCoder);
+
+    boolConfig.initialWord = 16;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolSweepsNumberCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolSweepsNumberCoder);
+
+    doubleConfig.initialWord = 17;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    voltageProtocolRestCoders.resize(VCVoltageRangesNum);
+
+    for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
+        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+        voltageProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(voltageProtocolRestCoders[rangeIdx]);
+    }
+
+    /*! Protocol items */
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    voltageProtocolStim0Coders.resize(VCVoltageRangesNum);
+    voltageProtocolStim0StepCoders.resize(VCVoltageRangesNum);
+    voltageProtocolStim1Coders.resize(VCVoltageRangesNum);
+    voltageProtocolStim1StepCoders.resize(VCVoltageRangesNum);
+
+    for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
+        voltageProtocolStim0Coders[rangeIdx].resize(protocolMaxItemsNum);
+        voltageProtocolStim0StepCoders[rangeIdx].resize(protocolMaxItemsNum);
+        voltageProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
+        voltageProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
+
+        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+
+        for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+            doubleConfig.initialWord = 18+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim0Coders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = 19+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim0StepCoders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = 20+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim1Coders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = 21+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim1StepCoders[rangeIdx][itemIdx]);
+        }
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = positiveProtocolTimeRange.step;
+    doubleConfig.minValue = positiveProtocolTimeRange.min;
+    doubleConfig.maxValue = positiveProtocolTimeRange.max;
+    protocolTime0Coders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = 22+protocolItemsWordsNum*itemIdx;
+        protocolTime0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(protocolTime0Coders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = protocolTimeRange.step;
+    doubleConfig.minValue = protocolTimeRange.min;
+    doubleConfig.maxValue = protocolTimeRange.max;
+    protocolTime0StepCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = 24+protocolItemsWordsNum*itemIdx;
+        protocolTime0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(protocolTime0StepCoders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = positiveProtocolFrequencyRange.step;
+    doubleConfig.minValue = positiveProtocolFrequencyRange.min;
+    doubleConfig.maxValue = positiveProtocolFrequencyRange.max;
+    protocolFrequency0Coders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = 22+protocolItemsWordsNum*itemIdx;
+        protocolFrequency0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(protocolFrequency0Coders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = protocolFrequencyRange.step;
+    doubleConfig.minValue = protocolFrequencyRange.min;
+    doubleConfig.maxValue = protocolFrequencyRange.max;
+    protocolFrequency0StepCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = 24+protocolItemsWordsNum*itemIdx;
+        protocolFrequency0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(protocolFrequency0StepCoders[itemIdx]);
+    }
+
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolItemIdxCoders.resize(protocolMaxItemsNum);
+    protocolNextItemIdxCoders.resize(protocolMaxItemsNum);
+    protocolLoopRepetitionsCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        boolConfig.initialWord = 26+protocolItemsWordsNum*itemIdx;
+        protocolItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolItemIdxCoders[itemIdx]);
+
+        boolConfig.initialWord = 27+protocolItemsWordsNum*itemIdx;
+        protocolNextItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolNextItemIdxCoders[itemIdx]);
+
+        boolConfig.initialWord = 28+protocolItemsWordsNum*itemIdx;
+        protocolLoopRepetitionsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolLoopRepetitionsCoders[itemIdx]);
+    }
+
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    protocolApplyStepsCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        boolConfig.initialWord = 29+protocolItemsWordsNum*itemIdx;
+        protocolApplyStepsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolApplyStepsCoders[itemIdx]);
+    }
+
+    boolConfig.initialBit = 2;
+    boolConfig.bitsNum = 4;
+    protocolItemTypeCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        boolConfig.initialWord = 29+protocolItemsWordsNum*itemIdx;
+        protocolItemTypeCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolItemTypeCoders[itemIdx]);
+    }
+
     /*! V holding tuner */
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     vHoldTunerCoders.resize(VCVoltageRangesNum);
 
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 249+9; //updated
+        doubleConfig.initialWord = 258;
         doubleConfig.resolution = vHoldRange[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
@@ -841,7 +1027,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     }
 
     /*! VC current gain tuner */
-    doubleConfig.initialWord = 253+9; //updated
+    doubleConfig.initialWord = 261;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcCurrentGainRange.step;
@@ -857,7 +1043,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     /*! VC current offset tuner */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 257+9; //updated
+        doubleConfig.initialWord = 266;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -870,6 +1056,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
             doubleConfig.initialWord++;
         }
     }
+
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);

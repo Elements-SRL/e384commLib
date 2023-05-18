@@ -222,6 +222,24 @@ typedef struct RxOutput {
     uint32_t dataLen = 0; /*!< Number of data samples available in field data */
 } RxOutput_t;
 
+/*! \enum ProtocolItemTypes_t
+ * \brief Enumerates the items that can be used to build stimulus waveforms.
+ */
+typedef enum ProtocolItemTypes {
+    ProtocolItemStep,
+    ProtocolItemRamp,
+    ProtocolItemSin,
+    ProtocolItemTypesNum
+} ProtocolItemTypes_t;
+
+/*! \enum ProtocolItemTypes_t
+ * \brief Enumerates the notifications that can be sent to the FPGA.
+ */
+typedef enum TxTriggerType_t {
+    TxTriggerParameteresUpdated,
+    TxTriggerStartProtocol
+} TxTriggerType_t;
+
 /*! \enum UnitPfx_t
  * \brief Enumerates the unit prefixes used.
  */
