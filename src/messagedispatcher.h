@@ -165,14 +165,23 @@ public:
     ErrorCodes_t getClampingModalitiesFeatures(std::vector<uint16_t> &clampingModalitiesFeatures);
 
     ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultVcCurrRangeIdx);
-    ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
+    ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges);
     ErrorCodes_t getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
-    ErrorCodes_t getCCVoltageRanges(std::vector <RangedMeasurement_t> &currentRanges);
+    ErrorCodes_t getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges);
 
     ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates);
 
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
+
+    ErrorCodes_t getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
+    ErrorCodes_t getCurrentProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
+    ErrorCodes_t getTimeProtocolRangeFeature(RangedMeasurement_t &range);
+    ErrorCodes_t getFrequencyProtocolRangeFeature(RangedMeasurement_t &range);
+
+    ErrorCodes_t hasProtocolStepFeature();
+    ErrorCodes_t hasProtocolRampFeature();
+    ErrorCodes_t hasProtocolSinFeature();
 
     ErrorCodes_t getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps);
     ErrorCodes_t getVcCalibResFeatures(std::vector <Measurement_t> &vCCalibRes);

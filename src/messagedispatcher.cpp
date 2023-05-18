@@ -1552,6 +1552,63 @@ ErrorCodes_t MessageDispatcher::getCurrentStimulusLpfs(std::vector <Measurement_
     }
 }
 
+ErrorCodes_t MessageDispatcher::getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range) {
+    if (vHoldRange.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        range = vHoldRange[rangeIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCurrentProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range) {
+    if (cHoldRange.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        range = cHoldRange[rangeIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getTimeProtocolRangeFeature(RangedMeasurement_t &range) {
+    range = protocolTimeRange;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getFrequencyProtocolRangeFeature(RangedMeasurement_t &range) {
+    range = protocolFrequencyRange;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::hasProtocolStepFeature() {
+    if (voltageProtocolStepImplemented || currentProtocolStepImplemented) {
+        return Success;
+
+    } else {
+        return ErrorFeatureNotImplemented;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::hasProtocolRampFeature() {
+    if (voltageProtocolRampImplemented || currentProtocolRampImplemented) {
+        return Success;
+
+    } else {
+        return ErrorFeatureNotImplemented;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::hasProtocolSinFeature() {
+    if (voltageProtocolSinImplemented || currentProtocolSinImplemented) {
+        return Success;
+
+    } else {
+        return ErrorFeatureNotImplemented;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps){
     if(vcCalibVoltStepsArray.size()==0){
         return ErrorFeatureNotImplemented;
