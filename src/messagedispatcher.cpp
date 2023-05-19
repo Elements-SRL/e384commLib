@@ -1582,6 +1582,16 @@ ErrorCodes_t MessageDispatcher::getFrequencyProtocolRangeFeature(RangedMeasureme
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::getMaxProtocolItemsFeature(uint32_t &num) {
+    if (protocolMaxItemsNum < 1) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        num = protocolMaxItemsNum;
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::hasProtocolStepFeature() {
     if (voltageProtocolStepImplemented || currentProtocolStepImplemented) {
         return Success;

@@ -74,6 +74,8 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     voltageProtocolRampImplemented = true;
     voltageProtocolSinImplemented = true;
 
+    protocolWordOffset = 14;
+
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
@@ -848,25 +850,25 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     }
 
     /*! Protocol structure */
-    boolConfig.initialWord = 14;
+    boolConfig.initialWord = protocolWordOffset;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 16;
     protocolIdCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(protocolIdCoder);
 
-    boolConfig.initialWord = 15;
+    boolConfig.initialWord = protocolWordOffset+1;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 16;
     protocolItemsNumberCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(protocolItemsNumberCoder);
 
-    boolConfig.initialWord = 16;
+    boolConfig.initialWord = protocolWordOffset+2;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 16;
     protocolSweepsNumberCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(protocolSweepsNumberCoder);
 
-    doubleConfig.initialWord = 17;
+    doubleConfig.initialWord = protocolWordOffset+3;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     voltageProtocolRestCoders.resize(VCVoltageRangesNum);
@@ -898,19 +900,19 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
 
         for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-            doubleConfig.initialWord = 18+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+4+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim0Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = 19+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+5+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim0StepCoders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = 20+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim1Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = 21+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+7+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim1StepCoders[rangeIdx][itemIdx]);
         }
@@ -924,7 +926,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     protocolTime0Coders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = 22+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
         protocolTime0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(protocolTime0Coders[itemIdx]);
     }
@@ -937,7 +939,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     protocolTime0StepCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = 24+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
         protocolTime0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(protocolTime0StepCoders[itemIdx]);
     }
@@ -950,7 +952,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     protocolFrequency0Coders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = 22+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
         protocolFrequency0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(protocolFrequency0Coders[itemIdx]);
     }
@@ -963,7 +965,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     protocolFrequency0StepCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = 24+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
         protocolFrequency0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(protocolFrequency0StepCoders[itemIdx]);
     }
@@ -975,15 +977,15 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     protocolLoopRepetitionsCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = 26+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
         protocolItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolItemIdxCoders[itemIdx]);
 
-        boolConfig.initialWord = 27+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+13+protocolItemsWordsNum*itemIdx;
         protocolNextItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolNextItemIdxCoders[itemIdx]);
 
-        boolConfig.initialWord = 28+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
         protocolLoopRepetitionsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolLoopRepetitionsCoders[itemIdx]);
     }
@@ -993,7 +995,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     protocolApplyStepsCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = 29+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
         protocolApplyStepsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolApplyStepsCoders[itemIdx]);
     }
@@ -1003,7 +1005,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     protocolItemTypeCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = 29+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
         protocolItemTypeCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolItemTypeCoders[itemIdx]);
     }

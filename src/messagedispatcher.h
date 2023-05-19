@@ -179,6 +179,7 @@ public:
     ErrorCodes_t getTimeProtocolRangeFeature(RangedMeasurement_t &range);
     ErrorCodes_t getFrequencyProtocolRangeFeature(RangedMeasurement_t &range);
 
+    ErrorCodes_t getMaxProtocolItemsFeature(uint32_t &num);
     ErrorCodes_t hasProtocolStepFeature();
     ErrorCodes_t hasProtocolRampFeature();
     ErrorCodes_t hasProtocolSinFeature();
@@ -294,6 +295,7 @@ protected:
 
     /*! Protocol's parameters */
     unsigned int protocolMaxItemsNum = 20;
+    unsigned int protocolWordOffset;
     unsigned int protocolItemsWordsNum = 12;
     double protocolFpgaClockFrequencyHz = 10.0e6;
 
