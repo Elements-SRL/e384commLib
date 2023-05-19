@@ -579,6 +579,83 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(vector<uint16_t> channel
     }
 }
 
+
+//---------------------------------
+ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
+    if (calibVcVoltageOffsetCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+//    } else if (!areAllTheVectorElementsInRange(offsets, calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].getMin(), calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].getMax())) {
+//        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            offsets[i].convertValue(calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
+            selectedCalibVcVoltageOffsetVector[channelIndexes[i]] = offsets[i];
+            calibVcVoltageOffsetCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+    if (calibCcCurrentGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+//    } else if (!areAllTheVectorElementsInRange(gains, calibCcCurrentGainRange.getMin(), calibCcCurrentGainRange.getMax())) {
+//        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            gains[i].convertValue(calibCcCurrentGainRange.prefix);
+            selectedCalibCcCurrentGainVector[channelIndexes[i]] = gains[i];
+            calibCcCurrentGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
+    if (calibCcCurrentOffsetCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+//    } else if (!areAllTheVectorElementsInRange(offsets, calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].getMin(), calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].getMax())) {
+//        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            offsets[i].convertValue(calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
+            selectedCalibCcCurrentOffsetVector[channelIndexes[i]] = offsets[i];
+            calibCcCurrentOffsetCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+
+//---------------------------------
+
 ErrorCodes_t MessageDispatcher::setGateVoltagesTuner(vector<uint16_t> boardIndexes, vector<Measurement_t> gateVoltages, bool applyFlag){
     if (gateVoltageCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
@@ -1446,8 +1523,28 @@ ErrorCodes_t MessageDispatcher::getCalibDefaultVcAdcOffset(Measurement_t &defaul
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibDefaultVcDacOffset(Measurement_t &defaultVcVoltageOffset){
-    defaultVcVoltageOffset = defaultCalibVcVoltageOffset;
+ErrorCodes_t MessageDispatcher::getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset){
+    defaultVcDacOffset = defaultCalibVcVoltageOffset;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibDefaultCcAdcGain(Measurement_t &defaultCcAdcGain){
+    defaultCcAdcGain = defaultCalibCcVoltageGain;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibDefaultCcAdcOffset(Measurement_t &defaultCcAdcOffset){
+    defaultCcAdcOffset = defaultCalibCcVoltageOffset;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibDefaultCcDacGain(Measurement_t &defaultCcDacGain){
+    defaultCcDacGain = defaultCalibCcCurrentGain;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibDefaultCcDacOffset(Measurement_t &defaultCcDacOffset){
+    defaultCcDacOffset = defaultCalibCcCurrentOffset;
     return Success;
 }
 

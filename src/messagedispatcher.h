@@ -122,6 +122,10 @@ public:
     ErrorCodes_t setGateVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
     ErrorCodes_t setSourceVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag);
 
+    ErrorCodes_t setCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+    ErrorCodes_t setCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+    ErrorCodes_t setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
     ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
@@ -196,6 +200,10 @@ public:
     ErrorCodes_t getCalibDefaultVcAdcGain(Measurement_t &defaultVcAdcGain);
     ErrorCodes_t getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset);
     ErrorCodes_t getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset);
+    ErrorCodes_t getCalibDefaultCcAdcGain(Measurement_t &defaultCcAdcGain);
+    ErrorCodes_t getCalibDefaultCcAdcOffset(Measurement_t &defaultCcAdcOffset);
+    ErrorCodes_t getCalibDefaultCcDacGain(Measurement_t &defaultCcDacGain);
+    ErrorCodes_t getCalibDefaultCcDacOffset(Measurement_t &defaultCcDacOffset);
 
     virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray);
