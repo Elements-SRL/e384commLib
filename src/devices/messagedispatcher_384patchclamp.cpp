@@ -42,7 +42,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 2988; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 4120; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = (txDataWords/2+1)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
@@ -1426,6 +1426,18 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[2] = 0x0070; // fans on by default
+
+    txStatus[36] = 0xFFFF; // stimulus on by default
+    txStatus[60] = 0x0000; //inswitch off by default
+    txStatus[84] = 0xFFFF;  //Cal switch on by default
+    txStatus[108] = 0xFFFF; // VC Switch on by default
+    txStatus[156] = 0xFFFF; // VC CC sek on by default
+    for(int idx = 1216; idx<1232; idx++){
+        txStatus[idx] = 0x0400;
+    }
+    for(int idx = 1984; idx<2000; idx++){
+        txStatus[idx] = 0x0400;
+    }
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
