@@ -122,6 +122,7 @@ public:
     ErrorCodes_t setGateVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
     ErrorCodes_t setSourceVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag);
 
+    ErrorCodes_t setCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
     ErrorCodes_t setCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
     ErrorCodes_t setCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
     ErrorCodes_t setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
@@ -153,8 +154,10 @@ public:
     ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
     ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
 
-    ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
-    ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
+    virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
+    virtual ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
+    virtual ErrorCodes_t turnVoltageStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+    virtual ErrorCodes_t turnCurrentStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
     ErrorCodes_t receiveCalibParams(CalibrationParams_t calibParams);
 

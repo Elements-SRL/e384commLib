@@ -581,6 +581,30 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(vector<uint16_t> channel
 
 
 //---------------------------------
+ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+    if (calibVcVoltageGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+//    } else if (!areAllTheVectorElementsInRange(gains, calibCcCurrentGainRange.getMin(), calibCcCurrentGainRange.getMax())) {
+//        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            gains[i].convertValue(calibVcVoltageGainRange.prefix);
+            selectedCalibVcVoltageGainVector[channelIndexes[i]] = gains[i];
+            calibVcVoltageGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
     if (calibVcVoltageOffsetCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
@@ -1042,29 +1066,19 @@ ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t wordOffset, uint16_t wordV
 }
 
 ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool onValueIn, bool applyFlagIn){
-    if(onValueIn == true){
-        amIinVoltageClamp = false;
-    }else{
-        amIinVoltageClamp = true;
-    }
-    setAdcFilter();
-    /*
-     * Still missing the actual method implementation
-     */
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool onValueIn, bool applyFlagIn){
-    if(onValueIn == true){
-        amIinVoltageClamp = true;
-    }else{
-        amIinVoltageClamp = false;
-    }
-    setAdcFilter();
-    /*
-     * Still missing the actual method implementation
-     */
-    return Success;
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::turnVoltageStimulusOn(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::turnCurrentStimulusOn(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag){
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::receiveCalibParams(CalibrationParams_t calibParams){

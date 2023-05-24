@@ -1790,6 +1790,73 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompOptions(std::vector<uin
     }
 }
 
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnVoltageReaderOn(bool onValueIn, bool applyFlagIn){
+    vector<bool> allTheTrueIneed;
+    vector<bool> allTheFalseIneed;
+    vector<uint16_t> channelIdxs;
+
+    for(int i = 0; i< currentChannelsNum; i++){
+        allTheTrueIneed.push_back(true);
+        allTheFalseIneed.push_back(false);
+        channelIdxs.push_back(i);
+    }
+
+    if(onValueIn == true){
+        amIinVoltageClamp = false;
+        turnCcSwOn(channelIdxs, allTheTrueIneed, applyFlagIn);
+        turnVcCcSelOn(channelIdxs, allTheFalseIneed,applyFlagIn);
+        setCalibCcVoltageGain(channelIdxs, selectedCalibCcVoltageGainVector, applyFlagIn);
+        setCalibCcVoltageOffset(channelIdxs, selectedCalibCcVoltageOffsetVector, applyFlagIn);
+        setAdcFilter();
+    }else{
+        amIinVoltageClamp = true;
+        turnCcSwOn(channelIdxs, allTheFalseIneed, applyFlagIn);
+    }
+
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentReaderOn(bool onValueIn, bool applyFlagIn){
+    vector<bool> allTheTrueIneed;
+    vector<bool> allTheFalseIneed;
+    vector<uint16_t> channelIdxs;
+
+    for(int i = 0; i< currentChannelsNum; i++){
+        allTheTrueIneed.push_back(true);
+        allTheFalseIneed.push_back(false);
+        channelIdxs.push_back(i);
+    }
+
+    if(onValueIn == true){
+        amIinVoltageClamp = true;
+        turnVcSwOn(channelIdxs, allTheTrueIneed, applyFlagIn);
+        turnVcCcSelOn(channelIdxs, allTheTrueIneed, applyFlagIn);
+        setCalibVcCurrentGain(channelIdxs, selectedCalibVcCurrentGainVector, applyFlagIn);
+        setCalibVcCurrentOffset(channelIdxs, selectedCalibVcCurrentOffsetVector, applyFlagIn);
+        setAdcFilter();
+    }else{
+        amIinVoltageClamp = false;
+        turnVcSwOn(channelIdxs, allTheFalseIneed, applyFlagIn);
+    }
+
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnVoltageStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+    setCalibVcVoltageGain(channelIndexes, selectedCalibVcVoltageGainVector, applyFlag);
+    setCalibVcVoltageOffset(channelIndexes, selectedCalibVcVoltageOffsetVector, applyFlag);
+    return Success;
+
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+     enableCcStimulus(channelIndexes, onValues, applyFlag);
+     setCalibCcCurrentGain(channelIndexes, selectedCalibCcCurrentGainVector, applyFlag);
+     setCalibCcCurrentOffset(channelIndexes, selectedCalibCcCurrentOffsetVector, applyFlag);
+
+     return Success;
+}
+
 vector<double> MessageDispatcher_384PatchClamp_V01::user2AsicDomainTransform(int chIdx, vector<double> userDomainParams){
     vector<double> asicDomainParameter;
     asicDomainParameter.resize(CompensationAsicParamsNum);

@@ -19,6 +19,11 @@ public:
     virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn) override;
     virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn) override;
 
+    virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn) override;
+    virtual ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn) override;
+    virtual ErrorCodes_t turnVoltageStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
+    virtual ErrorCodes_t turnCurrentStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
+
 protected:
     const double nominalClock = 102.4; //MHz
     const double actualClock = 81.92; //MHz
