@@ -846,6 +846,17 @@ typedef struct{
     std::vector<Measurement_t> ccCalibResForCcAdcOffsetArray;
 } CalibrationData_t;
 
+typedef struct{
+    std::vector<std::vector<Measurement_t>> allGainAdcMeas;
+    std::vector<std::vector<Measurement_t>> allOffsetAdcMeas;
+    std::vector<std::vector<Measurement_t>> allGainDacMeas;
+    std::vector<std::vector<Measurement_t>> allOffsetDacMeas;
+    std::vector<std::vector<Measurement_t>> ccAllGainAdcMeas;
+    std::vector<std::vector<Measurement_t>> ccAllOffsetAdcMeas;
+    std::vector<std::vector<Measurement_t>> ccAllGainDacMeas;
+    std::vector<std::vector<Measurement_t>> ccAllOffsetDacMeas;
+} CalibrationParams_t;
+
 #ifdef E384COMMLIB_STATIC
 } // namespace e384CommLib
 #endif

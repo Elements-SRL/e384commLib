@@ -156,6 +156,8 @@ public:
     ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
     ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
 
+    ErrorCodes_t receiveCalibParams(CalibrationParams_t calibParams);
+
     virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
     virtual ErrorCodes_t enableVcCompensations(bool enable);
     virtual ErrorCodes_t enableCcCompensations(bool enable);
@@ -239,6 +241,15 @@ protected:
     std::vector<bool> compCcCfastEnable;
     bool areVcCompsEnabled = false;
     bool areCcCompsEnabled = false;
+
+    std::vector<std::vector<Measurement_t>> allGainAdcMeas;
+    std::vector<std::vector<Measurement_t>> allOffsetAdcMeas;
+    std::vector<std::vector<Measurement_t>> allGainDacMeas;
+    std::vector<std::vector<Measurement_t>> allOffsetDacMeas;
+    std::vector<std::vector<Measurement_t>> ccAllGainAdcMeas;
+    std::vector<std::vector<Measurement_t>> ccAllOffsetAdcMeas;
+    std::vector<std::vector<Measurement_t>> ccAllGainDacMeas;
+    std::vector<std::vector<Measurement_t>> ccAllOffsetDacMeas;
 
 
     /*************\

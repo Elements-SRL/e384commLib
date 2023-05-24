@@ -274,6 +274,36 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     // mapping ADC Current Clamp
     // undefined
 
+    /*! Calibraition param vectors*/
+    allGainAdcMeas.resize(VCCurrentRangesNum);
+    allGainAdcMeas[VCCurrentRange10nA].resize(currentChannelsNum);
+    allGainAdcMeas[VCCurrentRange40nALbw].resize(currentChannelsNum);
+    allGainAdcMeas[VCCurrentRange40nAHbw].resize(currentChannelsNum);
+    allGainAdcMeas[VCCurrentRange400nA].resize(currentChannelsNum);
+
+    allOffsetAdcMeas.resize(VCCurrentRangesNum);
+    allOffsetAdcMeas[VCCurrentRange10nA].resize(currentChannelsNum);
+    allOffsetAdcMeas[VCCurrentRange40nALbw].resize(currentChannelsNum);
+    allOffsetAdcMeas[VCCurrentRange40nAHbw].resize(currentChannelsNum);
+    allOffsetAdcMeas[VCCurrentRange400nA].resize(currentChannelsNum);
+
+    //gainDacMeas;
+
+    allOffsetDacMeas.resize(VCVoltageRangesNum);
+    allOffsetDacMeas[VCVoltageRange500mV].resize(currentChannelsNum);
+
+    ccAllGainAdcMeas.resize(CCVoltageRangesNum);
+    ccAllGainAdcMeas[CCVoltageRange1000mV].resize(currentChannelsNum);
+
+    ccAllOffsetAdcMeas.resize(CCVoltageRangesNum);
+    ccAllOffsetAdcMeas[CCVoltageRange1000mV].resize(currentChannelsNum);
+
+    ccAllGainDacMeas.resize(CCCurrentRangesNum);
+    ccAllGainDacMeas[CCCurrentRange8nA].resize(currentChannelsNum);
+
+    ccAllOffsetDacMeas.resize(CCCurrentRangesNum);
+    ccAllOffsetDacMeas[CCCurrentRange8nA].resize(currentChannelsNum);
+
     /*! VC calibration voltage steps*/
     calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
     calibrationData.vcCalibStepsArrays[VCCurrentRange10nA].resize(5);
