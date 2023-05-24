@@ -156,8 +156,8 @@ public:
 
     virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
     virtual ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
-    virtual ErrorCodes_t turnVoltageStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
-    virtual ErrorCodes_t turnCurrentStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+    virtual ErrorCodes_t turnVoltageStimulusOn(bool onValue, bool applyFlag);
+    virtual ErrorCodes_t turnCurrentStimulusOn(bool onValue, bool applyFlag);
 
     ErrorCodes_t receiveCalibParams(CalibrationParams_t calibParams);
 

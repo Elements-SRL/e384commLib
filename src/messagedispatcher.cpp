@@ -1073,11 +1073,11 @@ ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool onValueIn, bool applyFl
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnVoltageStimulusOn(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag){
+ErrorCodes_t MessageDispatcher::turnVoltageStimulusOn(bool onValue, bool applyFlag){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnCurrentStimulusOn(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag){
+ErrorCodes_t MessageDispatcher::turnCurrentStimulusOn(bool onValue, bool applyFlag){
     return ErrorFeatureNotImplemented;
 }
 

@@ -23,8 +23,8 @@ public:
 
     virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn) override;
     virtual ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn) override;
-    virtual ErrorCodes_t turnVoltageStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
-    virtual ErrorCodes_t turnCurrentStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
+    virtual ErrorCodes_t turnVoltageStimulusOn(bool onValue, bool applyFlag) override;
+    virtual ErrorCodes_t turnCurrentStimulusOn(bool onValue, bool applyFlag) override;
 
 protected:
     const double nominalClock = 102.4; //MHz
