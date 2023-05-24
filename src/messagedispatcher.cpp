@@ -1105,6 +1105,105 @@ ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool onValueIn, bool applyFl
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::receiveCalibParams(CalibrationParams_t calibParams){
+
+//    for(int chanIdxIdx = 0; chanIdxIdx < calibParams.channelIndexes.size(); chanIdxIdx++){
+//        if(calibParams.gainAdcMeas.size()>0 && this->gainAdcMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < vcCurrentRangesArray.size(); rangeIdx++){
+//                this->gainAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.gainAdcMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.offsetAdcMeas.size()>0 && this->offsetAdcMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < vcCurrentRangesArray.size(); rangeIdx++){
+//                this->offsetAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.offsetAdcMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.gainDacMeas.size()>0 && this->gainDacMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < vcVoltageRangesArray.size(); rangeIdx++){
+//                this->gainDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.gainDacMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.offsetDacMeas.size()>0 && this->offsetDacMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < vcVoltageRangesArray.size(); rangeIdx++){
+//                this->offsetDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.offsetDacMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.ccGainAdcMeas.size()>0 && this->ccGainAdcMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < ccVoltageRangesArray.size(); rangeIdx++){
+//                this->ccGainAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.ccGainAdcMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.offsetAdcMeas.size()>0 && this->offsetAdcMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < ccVoltageRangesArray.size(); rangeIdx++){
+//                this->offsetAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.offsetAdcMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.ccGainDacMeas.size()>0 && this->ccGainDacMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < ccCurrentRangesArray.size(); rangeIdx++){
+//                this->ccGainDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.ccGainDacMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.ccOffsetDacMeas.size()>0 && this->ccOffsetDacMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < ccCurrentRangesArray.size(); rangeIdx++){
+//                this->ccOffsetDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.ccOffsetDacMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//    }
+
+    /*! \note 20230524 MPAC: we receive from EMCR ALL the calibration params for ALL the channels, although we could've
+    calibrated only one board. W send toFPGA everything everytime*/
+    if(calibParams.allGainAdcMeas.size()>0 && this->allGainAdcMeas.size()){
+        this->allGainAdcMeas = calibParams.allGainAdcMeas;
+    }
+
+    if(calibParams.allOffsetAdcMeas.size()>0 && this->allOffsetAdcMeas.size()){
+        this->allOffsetAdcMeas = calibParams.allOffsetAdcMeas;
+    }
+
+    if(calibParams.allGainDacMeas.size()>0 && this->allGainDacMeas.size()){
+        this->allGainDacMeas = calibParams.allGainDacMeas;
+    }
+
+    if(calibParams.allOffsetDacMeas.size()>0 && this->allOffsetDacMeas.size()){
+        this->allOffsetDacMeas = calibParams.allOffsetDacMeas;
+    }
+
+    if(calibParams.ccAllGainAdcMeas.size()>0 && this->ccAllGainAdcMeas.size()){
+        this->ccAllGainAdcMeas = calibParams.ccAllGainAdcMeas;
+    }
+
+    if(calibParams.ccAllOffsetAdcMeas.size()>0 && this->ccAllOffsetAdcMeas.size()){
+        this->ccAllOffsetAdcMeas = calibParams.ccAllOffsetAdcMeas;
+    }
+
+    if(calibParams.ccAllGainDacMeas.size()>0 && this->ccAllGainDacMeas.size()){
+        this->ccAllGainDacMeas = calibParams.ccAllGainDacMeas;
+    }
+
+    if(calibParams.ccAllOffsetDacMeas.size()>0 && this->ccAllOffsetDacMeas.size()){
+        this->ccAllOffsetDacMeas = calibParams.ccAllOffsetDacMeas;
+    }
+    return Success;
+
+
+}
+
 /****************\
  *  Rx methods  *
 \****************/
