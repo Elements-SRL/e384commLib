@@ -476,6 +476,7 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(vector<uint16_t> channelInde
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             currents[i].convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
+            selectedCurrentHoldVector[channelIndexes[i]] = currents[i];
             cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
@@ -1450,6 +1451,16 @@ ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedM
 
     } else{
         voltageHoldTunerFeatures = vHoldRange;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures){
+    if (cHoldTunerCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else{
+        currentHoldTunerFeatures = cHoldRange;
         return Success;
     }
 }
