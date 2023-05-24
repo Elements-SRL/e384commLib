@@ -433,36 +433,36 @@ ErrorCodes_t MessageDispatcher::resetFpga(bool resetFlag, bool applyFlagIn) {
 
 ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages, bool applyFlag){
     if (vHoldTunerCoders.size() == 0) {
-        std::cout << "1) " << vHoldTunerCoders.size() << std::endl;
+//        std::cout << "1) " << vHoldTunerCoders.size() << std::endl;
         return ErrorFeatureNotImplemented;
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
-        if (!channelIndexes.empty()) {
-            std::cout << "2) " << channelIndexes[0] << " " << currentChannelsNum << " " << std::endl;
-        } else {
-            std::cout << "2) NO" << std::endl;
-        }
+//        if (!channelIndexes.empty()) {
+//            std::cout << "2) " << channelIndexes[0] << " " << currentChannelsNum << " " << std::endl;
+//        } else {
+//            std::cout << "2) NO" << std::endl;
+//        }
         return ErrorValueOutOfRange;
 
     } else if (!areAllTheVectorElementsInRange(voltages, vHoldRange[selectedVcVoltageRangeIdx].getMin(), vHoldRange[selectedVcVoltageRangeIdx].getMax())) {
-        std::cout << "3) " << voltages[0].value << " " << voltages[0].prefix << " " << voltages[0].unit << " " << vHoldRange[selectedVcVoltageRangeIdx].min
-                                           << " " << vHoldRange[selectedVcVoltageRangeIdx].max << " " << vHoldRange[selectedVcVoltageRangeIdx].prefix
-                                           << " " << vHoldRange[selectedVcVoltageRangeIdx].unit << std::endl;
+//        std::cout << "3) " << voltages[0].value << " " << voltages[0].prefix << " " << voltages[0].unit << " " << vHoldRange[selectedVcVoltageRangeIdx].min
+//                                           << " " << vHoldRange[selectedVcVoltageRangeIdx].max << " " << vHoldRange[selectedVcVoltageRangeIdx].prefix
+//                                           << " " << vHoldRange[selectedVcVoltageRangeIdx].unit << std::endl;
         return ErrorValueOutOfRange;
 
-    } else if (!amIinVoltageClamp) {
+    } else if (amIinVoltageClamp) {
         return ErrorWrongClampModality;
 
     } else {
-        std::cout << txModifiedStartingWord  << " " << txModifiedEndingWord << std::endl;
+//        std::cout << txModifiedStartingWord  << " " << txModifiedEndingWord << std::endl;
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            std::cout << i << " " << voltages[i].value << " " << voltages[i].prefix << " " << voltages[i].unit << std::endl;
+//            std::cout << i << " " << voltages[i].value << " " << voltages[i].prefix << " " << voltages[i].unit << std::endl;
             voltages[i].convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
-            std::cout << i << " " << voltages[i].value << " " << voltages[i].prefix << " " << voltages[i].unit << std::endl;
+//            std::cout << i << " " << voltages[i].value << " " << voltages[i].prefix << " " << voltages[i].unit << std::endl;
             selectedVoltageHoldVector[channelIndexes[i]] = voltages[i];
             vHoldTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
-        std::cout << txModifiedStartingWord  << " " << txModifiedEndingWord << std::endl;
+//        std::cout << txModifiedStartingWord  << " " << txModifiedEndingWord << std::endl;
 
         if (applyFlag) {
             this->stackOutgoingMessage(txStatus);
@@ -481,7 +481,7 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(vector<uint16_t> channelInde
     } else if (!areAllTheVectorElementsInRange(currents, cHoldRange[selectedCcCurrentRangeIdx].getMin(), cHoldRange[selectedCcCurrentRangeIdx].getMax())) {
         return ErrorValueOutOfRange;
 
-    } else if (amIinVoltageClamp) {
+    } else if (!amIinVoltageClamp) {
         return ErrorWrongClampModality;
 
     } else {
@@ -595,6 +595,30 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(vector<uint16_t> channel
 
 
 //---------------------------------
+ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+    if (calibVcVoltageGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+//    } else if (!areAllTheVectorElementsInRange(gains, calibVcVoltageGainRanges[selectedVcVoltageRangeIdx].getMin(), calibVcVoltageGainRanges[selectedVcVoltageRangeIdx].getMax())) {
+//        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            gains[i].convertValue(calibVcVoltageGainRange.prefix);
+            selectedCalibVcVoltageGainVector[channelIndexes[i]] = gains[i];
+            calibVcVoltageGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
     if (calibVcVoltageOffsetCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
@@ -1534,6 +1558,11 @@ ErrorCodes_t MessageDispatcher::getCalibDefaultVcAdcGain(Measurement_t &defaultV
 
 ErrorCodes_t MessageDispatcher::getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset){
     defaultVcAdcOffset =defaultCalibVcCurrentOffset;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibDefaultVcDacGain(Measurement_t &defaultVcDacGain){
+    defaultVcDacGain = defaultCalibVcVoltageGain;
     return Success;
 }
 
