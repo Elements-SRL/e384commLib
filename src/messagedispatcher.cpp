@@ -443,7 +443,7 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelInde
     } else if (!areAllTheVectorElementsInRange(voltages, vHoldRange[selectedVcVoltageRangeIdx].getMin(), vHoldRange[selectedVcVoltageRangeIdx].getMax())) {
         return ErrorValueOutOfRange;
 
-    } else if (amIinVoltageClamp) {
+    } else if (!amIinVoltageClamp) {
         return ErrorWrongClampModality;
 
     } else {
@@ -470,7 +470,7 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(vector<uint16_t> channelInde
     } else if (!areAllTheVectorElementsInRange(currents, cHoldRange[selectedCcCurrentRangeIdx].getMin(), cHoldRange[selectedCcCurrentRangeIdx].getMax())) {
         return ErrorValueOutOfRange;
 
-    } else if (!amIinVoltageClamp) {
+    } else if (amIinVoltageClamp) {
         return ErrorWrongClampModality;
 
     } else {
