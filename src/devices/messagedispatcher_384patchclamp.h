@@ -3,7 +3,7 @@
 
 #include "messagedispatcher_opalkelly.h"
 
-#define E384PATCH_ADDITIONAL_SR_FLAG
+//#define E384PATCH_ADDITIONAL_SR_FLAG
 
 using namespace std;
 
