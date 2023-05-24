@@ -209,66 +209,127 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate6_25kHz].value = 6.25;
-    samplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate12_5kHz].value = 12.5;
-    samplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate25kHz].value = 25.0;
-    samplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate25kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate50kHz].value = 50.0;
-    samplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate50kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate100kHz].value = 100.0;
-    samplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate100kHz].unit = "Hz";
-    defaultSamplingRateIdx = SamplingRate6_25kHz;
-
+#ifdef E384PATCH_ADDITIONAL_SR_FLAG
+    samplingRatesArray[SamplingRate100Hz].value = 100.0;
+    samplingRatesArray[SamplingRate100Hz].prefix = UnitPfxNone;
+    samplingRatesArray[SamplingRate100Hz].unit = "Hz";
+    samplingRatesArray[SamplingRate200Hz].value = 200.0;
+    samplingRatesArray[SamplingRate200Hz].prefix = UnitPfxNone;
+    samplingRatesArray[SamplingRate200Hz].unit = "Hz";
+    samplingRatesArray[SamplingRate400Hz].value = 400.0;
+    samplingRatesArray[SamplingRate400Hz].prefix = UnitPfxNone;
+    samplingRatesArray[SamplingRate400Hz].unit = "Hz";
+    samplingRatesArray[SamplingRate800Hz].value = 800.0;
+    samplingRatesArray[SamplingRate800Hz].prefix = UnitPfxNone;
+    samplingRatesArray[SamplingRate800Hz].unit = "Hz";
+    samplingRatesArray[SamplingRate1_6kHz].value = 1600.0;
+    samplingRatesArray[SamplingRate1_6kHz].prefix = UnitPfxNone;
+    samplingRatesArray[SamplingRate1_6kHz].unit = "Hz";
+#endif
+    samplingRatesArray[SamplingRate5kHz].value = 5.0;
+    samplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate5kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate10kHz].value = 12.5;
+    samplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate10kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate20kHz].value = 25.0;
+    samplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate20kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate40kHz].value = 50.0;
+    samplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate40kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate80kHz].value = 100.0;
+    samplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate80kHz].unit = "Hz";
+#ifdef E384PATCH_ADDITIONAL_SR_FLAG
+    defaultSamplingRateIdx = SamplingRate100Hz;
+#else
+    defaultSamplingRateIdx = SamplingRate5kHz;
+#endif
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate6_25kHz].value = 6.25;
-    realSamplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate12_5kHz].value = 12.5;
-    realSamplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate25kHz].value = 25.0;
-    realSamplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate25kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate50kHz].value = 50.0;
-    realSamplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate50kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate100kHz].value = 100.0;
-    realSamplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate100kHz].unit = "Hz";
+#ifdef E384PATCH_ADDITIONAL_SR_FLAG
+    realSamplingRatesArray[SamplingRate100Hz].value = 100.0;
+    realSamplingRatesArray[SamplingRate100Hz].prefix = UnitPfxNone;
+    realSamplingRatesArray[SamplingRate100Hz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate200Hz].value = 200.0;
+    realSamplingRatesArray[SamplingRate200Hz].prefix = UnitPfxNone;
+    realSamplingRatesArray[SamplingRate200Hz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate400Hz].value = 400.0;
+    realSamplingRatesArray[SamplingRate400Hz].prefix = UnitPfxNone;
+    realSamplingRatesArray[SamplingRate400Hz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate800Hz].value = 800.0;
+    realSamplingRatesArray[SamplingRate800Hz].prefix = UnitPfxNone;
+    realSamplingRatesArray[SamplingRate800Hz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate1_6kHz].value = 1600.0;
+    realSamplingRatesArray[SamplingRate1_6kHz].prefix = UnitPfxNone;
+    realSamplingRatesArray[SamplingRate1_6kHz].unit = "Hz";
+#endif
+    realSamplingRatesArray[SamplingRate5kHz].value = 5.0;
+    realSamplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate5kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate10kHz].value = 10.0;
+    realSamplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate10kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate20kHz].value = 20.0;
+    realSamplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate20kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate40kHz].value = 40.0;
+    realSamplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate40kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate80kHz].value = 80.0;
+    realSamplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate80kHz].unit = "Hz";
 
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate6_25kHz].value = 0.00016;
-    integrationStepArray[SamplingRate6_25kHz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate6_25kHz].unit = "s";
-    integrationStepArray[SamplingRate12_5kHz].value = 0.00008;
-    integrationStepArray[SamplingRate12_5kHz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate12_5kHz].unit = "s";
-    integrationStepArray[SamplingRate25kHz].value = 0.00004;
-    integrationStepArray[SamplingRate25kHz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate25kHz].unit = "s";
-    integrationStepArray[SamplingRate50kHz].value = 0.00002;
-    integrationStepArray[SamplingRate50kHz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate50kHz].unit = "s";
-    integrationStepArray[SamplingRate100kHz].value = 0.00001;
-    integrationStepArray[SamplingRate100kHz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate100kHz].unit = "s";
+#ifdef E384PATCH_ADDITIONAL_SR_FLAG
+    integrationStepArray[SamplingRate100Hz].value = 0.01;
+    integrationStepArray[SamplingRate100Hz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate100Hz].unit = "s";
+    integrationStepArray[SamplingRate200Hz].value = 0.005;
+    integrationStepArray[SamplingRate200Hz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate200Hz].unit = "s";
+    integrationStepArray[SamplingRate400Hz].value = 0.0025;
+    integrationStepArray[SamplingRate400Hz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate400Hz].unit = "s";
+    integrationStepArray[SamplingRate800Hz].value = 0.00125;
+    integrationStepArray[SamplingRate800Hz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate800Hz].unit = "s";
+    integrationStepArray[SamplingRate1_6kHz].value = 0.000625;
+    integrationStepArray[SamplingRate1_6kHz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate1_6kHz].unit = "s";
+#endif
+    integrationStepArray[SamplingRate5kHz].value = 0.0002;
+    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate5kHz].unit = "s";
+    integrationStepArray[SamplingRate10kHz].value = 0.0001;
+    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate10kHz].unit = "s";
+    integrationStepArray[SamplingRate20kHz].value = 0.00005;
+    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate20kHz].unit = "s";
+    integrationStepArray[SamplingRate40kHz].value = 0.000025;
+    integrationStepArray[SamplingRate40kHz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate40kHz].unit = "s";
+    integrationStepArray[SamplingRate80kHz].value = 0.0000125;
+    integrationStepArray[SamplingRate80kHz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate80kHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-      {SamplingRate6_25kHz, VCCurrentFilter3_6kHz},
-      {SamplingRate12_5kHz, VCCurrentFilter10kHz},
-      {SamplingRate25kHz, VCCurrentFilter25kHz},
-      {SamplingRate50kHz, VCCurrentFilter30kHz},
-      {SamplingRate100kHz, VCCurrentFilter100kHz}
+    #ifdef E384PATCH_ADDITIONAL_SR_FLAG
+        {SamplingRate100Hz, VCCurrentFilter3kHz},
+        {SamplingRate200Hz, VCCurrentFilter3kHz},
+        {SamplingRate400Hz, VCCurrentFilter3kHz},
+        {SamplingRate800Hz, VCCurrentFilter3kHz},
+        {SamplingRate1_6kHz, VCCurrentFilter3kHz},
+    #endif
+        {SamplingRate5kHz, VCCurrentFilter3_6kHz},
+        {SamplingRate10kHz, VCCurrentFilter10kHz},
+        {SamplingRate20kHz, VCCurrentFilter25kHz},
+        {SamplingRate40kHz, VCCurrentFilter30kHz},
+        {SamplingRate80kHz, VCCurrentFilter100kHz}
     };
 
     // mapping ADC Current Clamp
@@ -673,7 +734,21 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 3;
     boolConfig.bitsNum = 4;
+#ifdef E384PATCH_ADDITIONAL_SR_FLAG
+    samplingRateCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(8);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(9);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(10);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(11);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(12);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(0);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(1);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(2);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(3);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(4);
+#else
     samplingRateCoder = new BoolArrayCoder(boolConfig);
+#endif
     coders.push_back(samplingRateCoder);
 
     /*! Clamping mode */
@@ -1432,12 +1507,6 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     txStatus[84] = 0xFFFF;  //Cal switch on by default
     txStatus[108] = 0xFFFF; // VC Switch on by default
     txStatus[156] = 0xFFFF; // VC CC sek on by default
-    for(int idx = 1216; idx<1232; idx++){
-        txStatus[idx] = 0x0400;
-    }
-    for(int idx = 1984; idx<2000; idx++){
-        txStatus[idx] = 0x0400;
-    }
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 

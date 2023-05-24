@@ -3,6 +3,8 @@
 
 #include "messagedispatcher_opalkelly.h"
 
+//#define E384PATCH_ADDITIONAL_SR_FLAG
+
 using namespace std;
 
 class MessageDispatcher_384PatchClamp_V01 : public MessageDispatcher_OpalKelly {
@@ -93,11 +95,18 @@ protected:
     };
 
     enum SamplingRates {
-        SamplingRate6_25kHz,
-        SamplingRate12_5kHz,
-        SamplingRate25kHz,
-        SamplingRate50kHz,
-        SamplingRate100kHz,
+#ifdef E384PATCH_ADDITIONAL_SR_FLAG
+        SamplingRate100Hz,
+        SamplingRate200Hz,
+        SamplingRate400Hz,
+        SamplingRate800Hz,
+        SamplingRate1_6kHz,
+#endif
+        SamplingRate5kHz,
+        SamplingRate10kHz,
+        SamplingRate20kHz,
+        SamplingRate40kHz,
+        SamplingRate80kHz,
         SamplingRatesNum
     };
 
