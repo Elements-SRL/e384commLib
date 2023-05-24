@@ -1911,17 +1911,45 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentReaderOn(bool onVal
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnVoltageStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
-    setCalibVcVoltageGain(channelIndexes, selectedCalibVcVoltageGainVector, applyFlag);
-    setCalibVcVoltageOffset(channelIndexes, selectedCalibVcVoltageOffsetVector, applyFlag);
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnVoltageStimulusOn(bool onValue, bool applyFlag){
+    vector<bool> allTheTrueIneed;
+    vector<bool> allTheFalseIneed;
+    vector<uint16_t> channelIdxs;
+
+    for(int i = 0; i< currentChannelsNum; i++){
+        allTheTrueIneed.push_back(true);
+        allTheFalseIneed.push_back(false);
+        channelIdxs.push_back(i);
+    }
+
+    if(onValue == true){
+        setCalibVcVoltageGain(channelIdxs, selectedCalibVcVoltageGainVector, applyFlag);
+        setCalibVcVoltageOffset(channelIdxs, selectedCalibVcVoltageOffsetVector, applyFlag);
+    } else {
+
+    }
     return Success;
 
 }
 
-ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentStimulusOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
-     enableCcStimulus(channelIndexes, onValues, applyFlag);
-     setCalibCcCurrentGain(channelIndexes, selectedCalibCcCurrentGainVector, applyFlag);
-     setCalibCcCurrentOffset(channelIndexes, selectedCalibCcCurrentOffsetVector, applyFlag);
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentStimulusOn(bool onValue, bool applyFlag){
+    vector<bool> allTheTrueIneed;
+    vector<bool> allTheFalseIneed;
+    vector<uint16_t> channelIdxs;
+
+    for(int i = 0; i< currentChannelsNum; i++){
+        allTheTrueIneed.push_back(true);
+        allTheFalseIneed.push_back(false);
+        channelIdxs.push_back(i);
+    }
+
+    if(onValue == true){
+        enableCcStimulus(channelIdxs, allTheTrueIneed, applyFlag);
+        setCalibCcCurrentGain(channelIdxs, selectedCalibCcCurrentGainVector, applyFlag);
+        setCalibCcCurrentOffset(channelIdxs, selectedCalibCcCurrentOffsetVector, applyFlag);
+    } else {
+        enableCcStimulus(channelIdxs, allTheFalseIneed, applyFlag);
+    }
 
      return Success;
 }
