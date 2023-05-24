@@ -1707,8 +1707,8 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
                 return ErrorFeatureNotImplemented;
             }
             for(int i = 0; i<channelIndexes.size(); i++){
-                compCcCfastEnable[channelIndexes[i]] = onValues[i];/*! \todo MPAC, forse mettere anche questi in and a areVcCompsEnabled*/
-                pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(areVcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+                compCcCfastEnable[channelIndexes[i]] = onValues[i];/*! \todo MPAC, forse mettere anche questi in and a areCcCompsEnabled*/
+                pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(areCcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             }
         break;
         }
@@ -1735,7 +1735,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCcCompensations(bool ena
     areCcCompsEnabled = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
-        pipetteCapCcEnCompensationCoders[i]->encode(areVcCompsEnabled && compCcCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapCcEnCompensationCoders[i]->encode(areCcCompsEnabled && compCcCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
     return Success;
