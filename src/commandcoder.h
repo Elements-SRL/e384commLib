@@ -6,8 +6,6 @@
 #include <stdint.h>
 #include <vector>
 
-#include <e384commlib_global.h>
-
 class CommandCoder {
 public:
     CommandCoder(uint16_t initialWord, uint16_t initialBit, uint16_t bitsNum);
@@ -103,6 +101,8 @@ protected:
     double resolution;
     double minValue;
     double maxValue;
+
+    bool invertedScale = false;
 };
 
 class DoubleTwosCompCoder : public DoubleCoder {

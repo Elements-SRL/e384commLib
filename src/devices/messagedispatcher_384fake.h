@@ -23,7 +23,7 @@ protected:
     \*************/
 
     virtual void sendCommandsToDevice() override;
-    virtual void readDataFromDevice() override;
+    virtual uint32_t readDataFromDevice() override;
 };
 
 #endif // MESSAGEDISPATCHER_384FAKE_H

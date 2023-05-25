@@ -110,7 +110,7 @@ void MessageDispatcher_384Fake::sendCommandsToDevice() {
     }
 }
 
-void MessageDispatcher_384Fake::readDataFromDevice() {
+uint32_t MessageDispatcher_384Fake::readDataFromDevice() {
     stopConnectionFlag = false;
 
     rxRawBufferReadOffset = 0;
@@ -149,4 +149,5 @@ void MessageDispatcher_384Fake::readDataFromDevice() {
         rxMsgBufferReadLength++;
         rxMsgBufferNotEmpty.notify_all();
     }
+    return rxRawBufferReadLength;
 }

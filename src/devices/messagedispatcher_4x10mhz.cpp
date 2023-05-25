@@ -293,7 +293,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     // undefined
 
     /*! Voltage range VC */
-    boolConfig.initialWord = 4+9; //updated
+    boolConfig.initialWord = 13;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
     vcVoltageRangeCoder = new BoolRandomArrayCoder(boolConfig);
@@ -311,7 +311,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     // undefined
 
     /*! Voltage filter VC */
-    boolConfig.initialWord = 2+9; //updated
+    boolConfig.initialWord = 11;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 8;
     vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
@@ -327,7 +327,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     // undefined
 
     /*! Digital offset compensation */
-    boolConfig.initialWord = 3+9; //updated
+    boolConfig.initialWord = 12;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     digitalOffsetCompensationCoders.resize(currentChannelsNum);
@@ -343,7 +343,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
 
 
     /*! Enable stimulus */
-    boolConfig.initialWord = 4+9; //updated
+    boolConfig.initialWord = 13;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     enableStimulusCoders.resize(currentChannelsNum);
@@ -363,10 +363,10 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     vHoldTunerCoders.resize(VCVoltageRangesNum);
 
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 249+9; //updated
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
-        doubleConfig.minValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
-        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+        doubleConfig.initialWord = 258;
+        doubleConfig.resolution = -vHoldRange[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
+        doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
+        doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
