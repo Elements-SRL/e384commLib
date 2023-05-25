@@ -15,6 +15,7 @@
 #ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "messagedispatcher_384fake.h"
+#include "messagedispatcher_384fakepatchclamp.h"
 #endif
 #include "utils.h"
 
@@ -23,15 +24,15 @@ using namespace std;
 static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
     {"221000107S", Device384Nanopores},
     {"221000108T", Device384Nanopores},
-    {"221000106B", Device384Nanopores},
-    {"221000106C", Device384Nanopores},
-    {"pup", Device384PatchClamp},
+    {"221000106B", Device384PatchClamp},
+    {"221000106C", Device384PatchClamp},
 //    {"22370012CB", Device10MHz},
 //    {"22370012CI", Device10MHz}
     {"22370012CB", Device4x10MHz},
     {"22370012CI", Device4x10MHz}
     #ifdef DEBUG
     ,{"FAKE", Device384Fake}
+    ,{"FAKE_PATCH_CLAMP", Device384FakePatchClamp}
     #endif
 }; /*! \todo FCON queste info dovrebbero risiedere nel DB, e ci vanno comunque i numeri seriali corretti delle opal kelly */
 
@@ -189,6 +190,8 @@ ErrorCodes_t MessageDispatcher::detectDevices(
 #ifdef DEBUG
     numDevs++;
     deviceIds.push_back("FAKE");
+    numDevs++;
+    deviceIds.push_back("FAKE_PATCH_CLAMP");
 #endif
 
     return Success;
@@ -235,6 +238,9 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
 #ifdef DEBUG
     case Device384Fake:
         messageDispatcher = new MessageDispatcher_384Fake(deviceId);
+        break;
+    case Device384FakePatchClamp:
+        messageDispatcher = new MessageDispatcher_384FakePatchClamp(deviceId);
         break;
 #endif
 
@@ -381,12 +387,15 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
     this->setSamplingRate(defaultSamplingRateIdx, false);
     this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
     this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
-    this->setCCCurrentRange(defaultCcCurrentRangeIdx, false);
-    this->setCCVoltageRange(defaultCcVoltageRangeIdx, false);
+//    this->setCCCurrentRange(defaultCcCurrentRangeIdx, false);
+//    this->setCCVoltageRange(defaultCcVoltageRangeIdx, false);
     this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
     this->setGateVoltagesTuner(boardIndexes, selectedGateVoltageVector, false);
     this->setSourceVoltagesTuner(boardIndexes, selectedSourceVoltageVector, false);
     this->digitalOffsetCompensation(channelIndexes, allFalse, false);
+
+    txModifiedStartingWord = 0;
+    txModifiedEndingWord = txDataWords;
 
     this->stackOutgoingMessage(txStatus);
 
@@ -464,6 +473,7 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(vector<uint16_t> channelInde
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             currents[i].convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
+            selectedCurrentHoldVector[channelIndexes[i]] = currents[i];
             cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
@@ -569,6 +579,104 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(vector<uint16_t> channel
         return Success;
     }
 }
+
+
+//---------------------------------
+ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+    if (calibVcVoltageGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            gains[i].convertValue(calibVcVoltageGainRange.prefix);
+            selectedCalibVcVoltageGainVector[channelIndexes[i]] = gains[i];
+            calibVcVoltageGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
+    if (calibVcVoltageOffsetCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+//    } else if (!areAllTheVectorElementsInRange(offsets, calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].getMin(), calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].getMax())) {
+//        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            offsets[i].convertValue(calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
+            selectedCalibVcVoltageOffsetVector[channelIndexes[i]] = offsets[i];
+            calibVcVoltageOffsetCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+    if (calibCcCurrentGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+//    } else if (!areAllTheVectorElementsInRange(gains, calibCcCurrentGainRange.getMin(), calibCcCurrentGainRange.getMax())) {
+//        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            gains[i].convertValue(calibCcCurrentGainRange.prefix);
+            selectedCalibCcCurrentGainVector[channelIndexes[i]] = gains[i];
+            calibCcCurrentGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
+    if (calibCcCurrentOffsetCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+//    } else if (!areAllTheVectorElementsInRange(offsets, calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].getMin(), calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].getMax())) {
+//        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            offsets[i].convertValue(calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
+            selectedCalibCcCurrentOffsetVector[channelIndexes[i]] = offsets[i];
+            calibCcCurrentOffsetCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+
+//---------------------------------
 
 ErrorCodes_t MessageDispatcher::setGateVoltagesTuner(vector<uint16_t> boardIndexes, vector<Measurement_t> gateVoltages, bool applyFlag){
     if (gateVoltageCoders.size() == 0) {
@@ -788,6 +896,113 @@ ErrorCodes_t MessageDispatcher::turnChannelsOn(vector<uint16_t> channelIndexes, 
     }
 }
 
+ErrorCodes_t MessageDispatcher::turnCalSwOn(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag) {
+    if (calSwCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           calSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::turnVcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+    if (vcSwCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           vcSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::turnCcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+    if (ccSwCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           ccSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+    if (vcCcSelCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           vcCcSelCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+    if (ccStimEnCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+           ccStimEnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success;
+    }
+
+}
+
+ErrorCodes_t MessageDispatcher::setSourceForVoltageChannel(uint16_t source, bool applyFlag){
+    if (sourceForVoltageChannelCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+    } else {
+        sourceForVoltageChannelCoder->encode(source, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedSourceForVoltageChannelIdx = source;
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+    }
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::setSourceForCurrentChannel(uint16_t source, bool applyFlag){
+    if (sourceForCurrentChannelCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+    } else {
+        sourceForCurrentChannelCoder->encode(source, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedSourceForCurrentChannelIdx = source;
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+    }
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::setAdcFilter(){
     // Still to be properly implemented
     if(amIinVoltageClamp){
@@ -848,29 +1063,118 @@ ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t wordOffset, uint16_t wordV
 }
 
 ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool onValueIn, bool applyFlagIn){
-    if(onValueIn == true){
-        amIinVoltageClamp = true;
-    }else{
-        amIinVoltageClamp = false;
-    }
-    setAdcFilter();
-    /*
-     * Still missing the actual method implementation
-     */
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool onValueIn, bool applyFlagIn){
-    if(onValueIn == true){
-        amIinVoltageClamp = false;
-    }else{
-        amIinVoltageClamp = true;
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::turnVoltageStimulusOn(bool onValue, bool applyFlag){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::turnCurrentStimulusOn(bool onValue, bool applyFlag){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::receiveCalibParams(CalibrationParams_t calibParams){
+
+//    for(int chanIdxIdx = 0; chanIdxIdx < calibParams.channelIndexes.size(); chanIdxIdx++){
+//        if(calibParams.gainAdcMeas.size()>0 && this->gainAdcMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < vcCurrentRangesArray.size(); rangeIdx++){
+//                this->gainAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.gainAdcMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.offsetAdcMeas.size()>0 && this->offsetAdcMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < vcCurrentRangesArray.size(); rangeIdx++){
+//                this->offsetAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.offsetAdcMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.gainDacMeas.size()>0 && this->gainDacMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < vcVoltageRangesArray.size(); rangeIdx++){
+//                this->gainDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.gainDacMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.offsetDacMeas.size()>0 && this->offsetDacMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < vcVoltageRangesArray.size(); rangeIdx++){
+//                this->offsetDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.offsetDacMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.ccGainAdcMeas.size()>0 && this->ccGainAdcMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < ccVoltageRangesArray.size(); rangeIdx++){
+//                this->ccGainAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.ccGainAdcMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.offsetAdcMeas.size()>0 && this->offsetAdcMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < ccVoltageRangesArray.size(); rangeIdx++){
+//                this->offsetAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.offsetAdcMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.ccGainDacMeas.size()>0 && this->ccGainDacMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < ccCurrentRangesArray.size(); rangeIdx++){
+//                this->ccGainDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.ccGainDacMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//        if(calibParams.ccOffsetDacMeas.size()>0 && this->ccOffsetDacMeas.size()){
+//            for(int rangeIdx = 0; rangeIdx < ccCurrentRangesArray.size(); rangeIdx++){
+//                this->ccOffsetDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.ccOffsetDacMeas[rangeIdx][chanIdxIdx];
+//            }
+
+//        }
+
+//    }
+
+    /*! \note 20230524 MPAC: we receive from EMCR ALL the calibration params for ALL the channels, although we could've
+    calibrated only one board. W send toFPGA everything everytime*/
+    if(calibParams.allGainAdcMeas.size()>0 && this->allGainAdcMeas.size()){
+        this->allGainAdcMeas = calibParams.allGainAdcMeas;
     }
-    setAdcFilter();
-    /*
-     * Still missing the actual method implementation
-     */
+
+    if(calibParams.allOffsetAdcMeas.size()>0 && this->allOffsetAdcMeas.size()){
+        this->allOffsetAdcMeas = calibParams.allOffsetAdcMeas;
+    }
+
+    if(calibParams.allGainDacMeas.size()>0 && this->allGainDacMeas.size()){
+        this->allGainDacMeas = calibParams.allGainDacMeas;
+    }
+
+    if(calibParams.allOffsetDacMeas.size()>0 && this->allOffsetDacMeas.size()){
+        this->allOffsetDacMeas = calibParams.allOffsetDacMeas;
+    }
+
+    if(calibParams.ccAllGainAdcMeas.size()>0 && this->ccAllGainAdcMeas.size()){
+        this->ccAllGainAdcMeas = calibParams.ccAllGainAdcMeas;
+    }
+
+    if(calibParams.ccAllOffsetAdcMeas.size()>0 && this->ccAllOffsetAdcMeas.size()){
+        this->ccAllOffsetAdcMeas = calibParams.ccAllOffsetAdcMeas;
+    }
+
+    if(calibParams.ccAllGainDacMeas.size()>0 && this->ccAllGainDacMeas.size()){
+        this->ccAllGainDacMeas = calibParams.ccAllGainDacMeas;
+    }
+
+    if(calibParams.ccAllOffsetDacMeas.size()>0 && this->ccAllOffsetDacMeas.size()){
+        this->ccAllOffsetDacMeas = calibParams.ccAllOffsetDacMeas;
+    }
     return Success;
+
+
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest) {
@@ -1408,6 +1712,16 @@ ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedM
     }
 }
 
+ErrorCodes_t MessageDispatcher::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures){
+    if (cHoldTunerCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else{
+        currentHoldTunerFeatures = cHoldRange;
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures){
     if (calibVcCurrentGainCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
@@ -1552,6 +1866,15 @@ ErrorCodes_t MessageDispatcher::getCurrentStimulusLpfs(std::vector <Measurement_
     }
 }
 
+//ErrorCodes_t MessageDispatcher::getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps){
+//    if(vcCalibVoltStepsArray.size()==0){
+//        return ErrorFeatureNotImplemented;
+//    } else {
+//        vcCalibVoltSteps = vcCalibVoltStepsArray;
+//        return Success;
+//    }
+//}
+
 ErrorCodes_t MessageDispatcher::getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range) {
     if (vHoldRange.empty()) {
         return ErrorFeatureNotImplemented;
@@ -1619,23 +1942,24 @@ ErrorCodes_t MessageDispatcher::hasProtocolSinFeature() {
     }
 }
 
-ErrorCodes_t MessageDispatcher::getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps){
-    if(vcCalibVoltStepsArray.size()==0){
+
+//ErrorCodes_t MessageDispatcher::getVcCalibResFeatures(std::vector <Measurement_t> &vcCalibRes){
+//    if(vcCalibResArray.size()==0){
+//        return ErrorFeatureNotImplemented;
+//    } else {
+//        vcCalibRes = vcCalibResArray;
+//        return Success;
+//    }
+
+//}
+
+ErrorCodes_t MessageDispatcher::getCalibData(CalibrationData_t &calibData){
+    if(calibrationData.vcCalibResArray.size()==0){
         return ErrorFeatureNotImplemented;
     } else {
-        vcCalibVoltSteps = vcCalibVoltStepsArray;
+        calibData = calibrationData;
         return Success;
     }
-}
-
-ErrorCodes_t MessageDispatcher::getVcCalibResFeatures(std::vector <Measurement_t> &vcCalibRes){
-    if(vcCalibResArray.size()==0){
-        return ErrorFeatureNotImplemented;
-    } else {
-        vcCalibRes = vcCalibResArray;
-        return Success;
-    }
-
 }
 
 ErrorCodes_t MessageDispatcher::getCalibDefaultVcAdcGain(Measurement_t &defaultVcAdcGain){
@@ -1648,8 +1972,33 @@ ErrorCodes_t MessageDispatcher::getCalibDefaultVcAdcOffset(Measurement_t &defaul
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::getCalibDefaultVcDacGain(Measurement_t &defaultVcDacGain){
+    defaultVcDacGain = defaultCalibVcVoltageGain;
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset){
-    defaultVcDacOffset = defaultCalibVcDacOffset;
+    defaultVcDacOffset = defaultCalibVcVoltageOffset;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibDefaultCcAdcGain(Measurement_t &defaultCcAdcGain){
+    defaultCcAdcGain = defaultCalibCcVoltageGain;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibDefaultCcAdcOffset(Measurement_t &defaultCcAdcOffset){
+    defaultCcAdcOffset = defaultCalibCcVoltageOffset;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibDefaultCcDacGain(Measurement_t &defaultCcDacGain){
+    defaultCcDacGain = defaultCalibCcCurrentGain;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibDefaultCcDacOffset(Measurement_t &defaultCcDacOffset){
+    defaultCcDacOffset = defaultCalibCcCurrentOffset;
     return Success;
 }
 
@@ -1929,342 +2278,50 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
     return y;
 }
 
+ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::enableVcCompensations(bool enable){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::enableCcCompensations(bool enable){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn){
+    return ErrorFeatureNotImplemented;
+}
+/*! \todo FCON recheck*/
+ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t paramToExtractFeatures, vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix){
+    return ErrorFeatureNotImplemented;
+}
+
 vector<double> MessageDispatcher::user2AsicDomainTransform(int chIdx, vector<double> userDomainParams){
-    vector<double> asicDomainParameter;
-    asicDomainParameter.resize(CompensationAsicParamsNum);
-    double cp; // pipette capacitance
-    double cm; // membrane capacitance
-    double taum; // membrane capacitance tau
-    double rsCr; // Rseries Correction
-    double rsPg; //Rseries prediction gain
-    double rsPtau; // Resies prediction tau
-
-    double asicCmCinj;
-
-    // membrane capacitance domain conversion
-    cm = userDomainParams[U_Cm];
-
-    // pipette capacitance VC to pipette capacitance domain conversion
-    /*! \todo aggiungere check se il multicoder esiste sulla size del vettore di puntatori  a multiCoder*/
-    bool done = false;
-    int i;
-    MultiCoder::MultiCoderConfig_t aaa;
-    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
-    for(i = 0; i<aaa.thresholdVector.size(); i++){
-        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-        if (cm < aaa.thresholdVector[i] && !done){
-            asicCmCinj = membraneCapValueInjCapacitance[i];
-            done = true;
-        }
-    }
-    if (!done){
-        asicCmCinj = membraneCapValueInjCapacitance[i];
-        done = true;
-    }
-
-    if(amIinVoltageClamp){
-        cp = userDomainParams[U_CpVc] + asicCmCinj;
-    } else {
-        // A_Cp
-        cp = userDomainParams[U_CpCc];
-    }
-
-    // Series resistance to Membrane tau domain conversion
-    taum = userDomainParams[U_Cm] * userDomainParams[U_Rs];
-
-    // Series correction percentage to Series correction resistance domain conversion
-    rsCr = userDomainParams[U_Rs] * userDomainParams[U_RsCp];
-
-    // Series prediction gain domain conversion
-    rsPg = userDomainParams[U_RsPg];
-
-    // pipette capacitance CC to Series prediction tau domain conversion
-    /*! \todo FCON recheck: a "* 2" or "/ 2" or maybe a "+ 1" might be missing */
-    rsPtau = taum / userDomainParams[U_RsPg];
-
-    asicDomainParameter[A_Cp] = cp;
-    asicDomainParameter[A_Cm] = cm;
-    asicDomainParameter[A_Taum] = taum;
-    asicDomainParameter[A_RsCr] = rsCr;
-    asicDomainParameter[A_RsPg] = rsPg;
-    asicDomainParameter[A_RsPtau] = rsPtau;
-
-    return asicDomainParameter;
-
-
+    return vector<double>();
 }
 
-std::vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc){
-    vector<double> userDomainParameter;
-    userDomainParameter.resize(CompensationUserParamsNum);
-
-    double cpVc;
-    double cm;
-    double rs;
-    double rsCp;
-    double rsPg;
-    double cpCC;
-
-    double asicCmCinj;
-
-    bool done = false;
-    int i;
-    MultiCoder::MultiCoderConfig_t aaa;
-    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
-    for(i = 0; i<aaa.thresholdVector.size(); i++){
-        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-        if (asicDomainParams[A_Cm] < aaa.thresholdVector[i] && !done){
-            asicCmCinj = membraneCapValueInjCapacitance[i];
-            done = true;
-        }
-    }
-    if (!done){
-        asicCmCinj = membraneCapValueInjCapacitance[i];
-        done = true;
-    }
-
-    //  pipette capacitance to pipette capacitance VC domain conversion
-    if(amIinVoltageClamp){
-        cpVc = asicDomainParams[A_Cp] - asicCmCinj;
-    } else {
-        cpVc = oldUCpVc; /*! \todo recheck */
-    }
-
-    // membrane capacitance domain conversion
-    cm = asicDomainParams[A_Cm];
-
-    // membrane tau to Series resistance domain conversion
-    rs = asicDomainParams[A_Taum] / asicDomainParams[A_Cm];
-
-    // Series correction resistance to Series correction percentage domain conversion
-    /*! \todo FCON recheck: should use U_Rs's value after it's been updated according to clipping */
-    rsCp = asicDomainParams[A_RsCr] / rs;
-
-    // Series prediction gain domain conversion
-    /*! \todo FCON RECHECK: a "* 2" or "/ 2" or maybe a "+ 1" might be missing */
-    rsPg = asicDomainParams[A_Taum] / asicDomainParams[A_RsPtau];
-
-    // Series prediction tau to Pipette capacitance CC domain conversion
-    if(amIinVoltageClamp){
-        cpCC = oldUCpCc; /*! \todo recheck */
-    } else {
-        cpCC = asicDomainParams[A_Cp];
-    }
-
-    userDomainParameter[U_CpVc] = cpVc;
-    userDomainParameter[U_Cm] = cm;
-    userDomainParameter[U_Rs] = rs;
-    userDomainParameter[U_RsCp] = rsCp;
-    userDomainParameter[U_RsPg] = rsPg;
-    userDomainParameter[U_CpCc] = cpCC;
-    return userDomainParameter;
+vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc){
+    return vector<double>();
 }
 
-/*! \todo FCON recheck: this function should return RangedMeasurements in the  USER DOMAIN, but we defined our RangedMeasurements in the ASIC DOMAIN. hOW SHALKL WE IMPLEMENT THIS?*/
-/*!  How shall we implement this?*/
-//ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures){
-//    switch(paramToExtractFeatures){
-//    case U_CpVc:
-//        if(pipetteCapEnCompensationCoders.size() == 0){
-//            return ErrorFeatureNotImplemented;
-//        }
-
-//    break;
-
-//    case U_Cm:
-//        if(membraneCapEnCompensationCoders.size() == 0){
-//            return ErrorFeatureNotImplemented;
-//        }
-
-//    break;
-
-//    case U_Rs:
-//        if(membraneCapTauValCompensationMultiCoders.size() == 0){
-//            return ErrorFeatureNotImplemented;
-//        }
-
-//    break;
-
-//    case U_RsCp:
-//        if(rsCorrValCompensationCoders.size() == 0){
-//            return ErrorFeatureNotImplemented;
-//        } else {
-//            compensationFeatures = rsCorrValueRange;
-//            return Success;
-//        }
-
-//    break;
-
-//    case U_RsPg:
-//        if(rsPredEnCompensationCoders.size() == 0){
-//            return ErrorFeatureNotImplemented;
-//        } else {
-//            compensationFeatures = rsPredGainRange;
-//            return Success;
-//        }
-
-//    break;
-
-//    case U_CpCc:
-//        if(rsPredEnCompensationCoders.size() == 0){
-//            return ErrorFeatureNotImplemented;
-//        }
-
-//    break;
-//    }
-
-//}
-
-
-ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<bool> onValues, bool applyFlagIn){
-    for(int i = 0; i<chIdx.size(); i++){
-        switch(paramToUpdate){
-        case U_CpVc:
-            if(pipetteCapEnCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            pipetteCapEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        break;
-
-        case U_Cm:
-            if(membraneCapEnCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            membraneCapEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        break;
-
-        case U_Rs:
-            if(membraneCapTauValCompensationMultiCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            membraneCapTauValCompensationMultiCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        break;
-
-        case U_RsCp:
-            if(rsCorrValCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            rsCorrValCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        break;
-
-        case U_RsPg:
-            if(rsPredEnCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            rsPredEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        break;
-
-        case U_CpCc:
-            if(rsPredEnCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            rsPredEnCompensationCoders[chIdx[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        break;
-        }
-
-    if (applyFlagIn) {
-        this->stackOutgoingMessage(txStatus);
-    }
-    return Success;
-
-    }
-
-
-
+ErrorCodes_t MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams){
+    return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
-    // make local copy of the user domain param vectors
-    vector<vector<double>> localCompValueSubMatrix;
-    for(int i = 0; i< chIdx.size(); i++){
-        localCompValueSubMatrix[i] = this->compValueMatrix[chIdx[i]];
-    }
-
-    // for each user param vector
-    for (int j = 0; j < localCompValueSubMatrix.size(); j++){
-        // update value in user domain
-        localCompValueSubMatrix[j][paramToUpdate] = newParamValues[j];
-
-        // convert user domain to asic domain
-        vector<double> asicParams = user2AsicDomainTransform(chIdx[j], localCompValueSubMatrix[j]);
-        double temp;
-
-        // select asicParam to encode based on enum
-        /*! \todo FCON recheck: IN CASE THERE'S INTERACTION AMONG ASICPARAMS, THEY COULD BE DESCRIBED IN THE SWITCH-CASE */
-        switch(paramToUpdate)
-        {
-        case U_CpVc:
-            if(pipetteCapValCompensationMultiCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            //encode
-            temp = pipetteCapValCompensationMultiCoders[chIdx[j]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
-            // update asic domain vector with coder return value
-            asicParams[A_Cp] = temp;
-        break;
-        case U_Cm:
-            if(membraneCapValCompensationMultiCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            //encode
-            temp = membraneCapValCompensationMultiCoders[chIdx[j]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
-            // update asic domain vector with coder return value
-            asicParams[A_Cm] = temp;
-        break;
-        case U_Rs:
-            if(membraneCapTauValCompensationMultiCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            //encode
-            temp = membraneCapTauValCompensationMultiCoders[chIdx[j]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
-            // update asic domain vector with coder return value
-            asicParams[A_Taum] = temp;
-        break;
-        case U_RsCp:
-            if(rsCorrValCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            //encode
-            temp = rsCorrValCompensationCoders[chIdx[j]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
-            // update asic domain vector with coder return value
-            asicParams[A_RsCr] = temp;
-        break;
-        case U_RsPg:
-            if(rsPredGainCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            //encode
-            temp = rsPredGainCompensationCoders[chIdx[j]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
-            // update asic domain vector with coder return value
-            asicParams[A_RsPg] = temp;
-        break;
-        case U_CpCc:
-            if(rsPredTauCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            //encode
-            temp = rsPredTauCompensationCoders[chIdx[j]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
-            // update asic domain vector with coder return value
-            asicParams[A_RsPtau] = temp;
-        break;
-        }
-
-        // convert to user domain
-        double oldUCpVc = localCompValueSubMatrix[j][U_CpVc];
-        double oldUCpCc = localCompValueSubMatrix[j][U_CpCc];
-        localCompValueSubMatrix[j] = asic2UserDomainTransform(chIdx[j], asicParams, oldUCpVc, oldUCpCc);
-
-        //copy back to compValuematrix
-        this->compValueMatrix[chIdx[j]] = localCompValueSubMatrix[j];
-
-        // stack outgoing message
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
-
-    //end for
-    }
-
+double MessageDispatcher::computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow){
+    return -DBL_MAX;
 }
-

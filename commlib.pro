@@ -12,9 +12,6 @@ CONFIG(debug, debug|release) {
 
 CONFIG(release, debug|release) {
     TARGET = e384commlib
-#    DEFINES += DEBUG
-#    DEFINES += DEBUG_TX_DATA_PRINT
-#    DEFINES += DEBUG_RX_PROCESSING_PRINT
 }
 
 #DEFINES += E384NPR_ADDITIONAL_SR_FLAG
@@ -63,8 +60,10 @@ HEADERS += \
     src/utils.h
 
 contains(DEFINES, DEBUG) {
-    SOURCES += src/devices/messagedispatcher_384fake.cpp
-    HEADERS += src/devices/messagedispatcher_384fake.h
+    SOURCES += src/devices/messagedispatcher_384fake.cpp \
+        src/devices/messagedispatcher_384fakepatchclamp.cpp
+    HEADERS += src/devices/messagedispatcher_384fake.h \
+        src/devices/messagedispatcher_384fakepatchclamp.h
 }
 contains(DEFINES, E384CL_LABVIEW_COMPATIBILITY) {
     SOURCES += src/e384commlib_labview.cpp

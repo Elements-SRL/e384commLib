@@ -188,6 +188,7 @@ typedef enum DeviceTypes {
     Device10MHz,                /*!< channels 10MHz nanopore reader */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
+    Device384FakePatchClamp,    /*!< Fake patch clamp device */
 #endif
     DeviceUnknown,              /*!< Invalid item used only for initiliazation purposes. */
     DevicesNum

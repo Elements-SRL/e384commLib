@@ -210,27 +210,50 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     #endif
     };
 
+    // mapping ADC Current Clamp
+    // undefined
+
+    /*! Calibraition param vectors*/
+    allGainAdcMeas.resize(VCCurrentRangesNum);
+    allGainAdcMeas[VCCurrentRange200nA].resize(currentChannelsNum);
+    allGainAdcMeas[VCCurrentRange4uA].resize(currentChannelsNum);
+
+    allOffsetAdcMeas.resize(VCCurrentRangesNum);
+    allOffsetAdcMeas[VCCurrentRange200nA].resize(currentChannelsNum);
+    allOffsetAdcMeas[VCCurrentRange4uA].resize(currentChannelsNum);
+
+    //gainDacMeas;
+
+    allOffsetDacMeas.resize(VCVoltageRangesNum);
+    allOffsetDacMeas[VCVoltageRange500mV].resize(currentChannelsNum);
+
     /*! VC calibration voltage steps*/
-    vcCalibVoltStepsArray.resize(5);
-    vcCalibVoltStepsArray[0] = {-400.0, UnitPfxMilli, "V"};
-    vcCalibVoltStepsArray[1] = {-200.0, UnitPfxMilli, "V"};
-    vcCalibVoltStepsArray[2] = {0.0, UnitPfxMilli, "V"};
-    vcCalibVoltStepsArray[3] = {200.0, UnitPfxMilli, "V"};
-    vcCalibVoltStepsArray[4] = {400.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA].resize(5);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA].resize(5);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][0] = {-400.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][1] = {-200.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][2] = {0.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][3] = {200.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][4] = {400.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][0] = {-400.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][1] = {-200.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][2] = {0.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][3] = {200.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][4] = {400.0, UnitPfxMilli, "V"};
 
     /*! VC calibration resistances*/
-    vcCalibResArray.resize(CalibResNum);
-    vcCalibResArray[CalibRes120kOhm] = {120.0, UnitPfxKilo, "Ohm"}; // 4uA
-    vcCalibResArray[CalibRes2_49MOhm] = {2.49, UnitPfxMega, "Ohm"}; // 200nA
+    calibrationData.vcCalibResArray.resize(CalibResNum);
+    calibrationData.vcCalibResArray[CalibRes120kOhm] = {120.0, UnitPfxKilo, "Ohm"}; // 4uA
+    calibrationData.vcCalibResArray[CalibRes2_49MOhm] = {2.49, UnitPfxMega, "Ohm"}; // 200nA
 
-    // mapping VC current renge - calibration resistances
-    vcCurrRange2CalibResMap = {
+    // mapping VC current range - calibration resistances
+    calibrationData.vcCurrRange2CalibResMap = {
       {VCCurrentRange4uA, CalibRes120kOhm},
       {VCCurrentRange200nA, CalibRes2_49MOhm}
     };
 
-    // mapping ADC Current Clamp
-    // undefined
+    calibrationData.areCalibResistOnBoard = false;
 
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange500mV].min = -500.0;
@@ -248,7 +271,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
     selectedCalibVcCurrentGainVector.resize(currentChannelsNum);
-    /*defaultCalibVcCurrentGain = {1.57014, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit};*/ /*! \todo FCON qui c'è il valor medio per i 200nA */
     defaultCalibVcCurrentGain = {1.0, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit};
 
     /*! VC current calib offset */
@@ -256,8 +278,10 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
     defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
 
-    /*! VC calib DAC offset */
-    defaultCalibVcDacOffset = {0.0, vcVoltageRangesArray[defaultVcVoltageRangeIdx].prefix, vcVoltageRangesArray[defaultVcVoltageRangeIdx].unit};
+    /*! VC Voltage calib offset (DAC)*/
+    calibVcVoltageOffsetRanges = vcVoltageRangesArray;
+    selectedCalibVcVoltageOffsetVector.resize(currentChannelsNum);
+    defaultCalibVcVoltageOffset = {0.0, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].prefix, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].unit};
 
     /*! Gate voltage range*/
     gateVoltageRange.step = 1;

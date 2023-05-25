@@ -75,6 +75,25 @@ public:
     MessageDispatcher(std::string deviceId);
     virtual ~MessageDispatcher();
 
+    enum CompensationTypes {
+        CompCfast, // pipette
+        CompCslow, // membrane
+        CompRsCorr,
+        CompRsPred,
+        CompCcCfast,
+        CompensationTypesNum
+    };
+
+    enum CompensationUserParams {
+        U_CpVc,     //VCPipetteCapacitance
+        U_Cm,       //embraneCapacitance
+        U_Rs,       //SeriesResistance
+        U_RsCp,     //SeriesCorrectionPerc
+        U_RsPg,     //SeriesPredictionGain
+        U_CpCc,     //CCPipetteCapacitance
+        CompensationUserParamsNum
+    };
+
     /************************\
      *  Connection methods  *
     \************************/
@@ -99,13 +118,18 @@ public:
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
-    ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
+    ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn);
     ErrorCodes_t setCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
     ErrorCodes_t setCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
     ErrorCodes_t setCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
     ErrorCodes_t setCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
     ErrorCodes_t setGateVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
     ErrorCodes_t setSourceVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag);
+
+    ErrorCodes_t setCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+    ErrorCodes_t setCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+    ErrorCodes_t setCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+    ErrorCodes_t setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
 
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
@@ -117,6 +141,14 @@ public:
 
     ErrorCodes_t enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
     ErrorCodes_t turnChannelsOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+    ErrorCodes_t turnCalSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+    ErrorCodes_t turnVcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+    ErrorCodes_t turnCcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+    ErrorCodes_t turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+    ErrorCodes_t enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+
+    ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag);
+    ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag);
 
     ErrorCodes_t digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
@@ -126,8 +158,18 @@ public:
     ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
     ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
 
-    ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
-    ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
+    virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
+    virtual ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
+    virtual ErrorCodes_t turnVoltageStimulusOn(bool onValue, bool applyFlag);
+    virtual ErrorCodes_t turnCurrentStimulusOn(bool onValue, bool applyFlag);
+
+    ErrorCodes_t receiveCalibParams(CalibrationParams_t calibParams);
+
+    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
+    virtual ErrorCodes_t enableVcCompensations(bool enable);
+    virtual ErrorCodes_t enableCcCompensations(bool enable);
+    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
+    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn);
 
     ErrorCodes_t setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest);
     ErrorCodes_t setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step);
@@ -154,6 +196,7 @@ public:
     ErrorCodes_t convertCurrentValues(int16_t * intValue, double * fltValue, int valuesNum);
 
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
+    ErrorCodes_t getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures);
     ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);
     ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
     ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
@@ -184,12 +227,22 @@ public:
     ErrorCodes_t hasProtocolRampFeature();
     ErrorCodes_t hasProtocolSinFeature();
 
-    ErrorCodes_t getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps);
-    ErrorCodes_t getVcCalibResFeatures(std::vector <Measurement_t> &vCCalibRes);
 
+//    ErrorCodes_t getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps);
+//    ErrorCodes_t getVcCalibResFeatures(std::vector <Measurement_t> &vCCalibRes);
+    ErrorCodes_t getCalibData(CalibrationData_t &calibData);
     ErrorCodes_t getCalibDefaultVcAdcGain(Measurement_t &defaultVcAdcGain);
     ErrorCodes_t getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset);
+    ErrorCodes_t getCalibDefaultVcDacGain(Measurement_t &defaultVcDacGain);
     ErrorCodes_t getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset);
+    ErrorCodes_t getCalibDefaultCcAdcGain(Measurement_t &defaultCcAdcGain);
+    ErrorCodes_t getCalibDefaultCcAdcOffset(Measurement_t &defaultCcAdcOffset);
+    ErrorCodes_t getCalibDefaultCcDacGain(Measurement_t &defaultCcDacGain);
+    ErrorCodes_t getCalibDefaultCcDacOffset(Measurement_t &defaultCcDacOffset);
+
+    virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
+    virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray);
+    virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix);
 
 protected:
     // Check Device->PC table in protocol
@@ -204,48 +257,33 @@ protected:
         RxMessageNum
     } RxMessageTypes_t;
 
-    enum CompensationTypes {
-        CompCfast,
-        CompCslow,
-        CompRs,
-        CompRsCorr,
-        CompRsPred,
-        CompensationTypesNum
-    };
 
-    enum CompensationUserParams {
-        U_CpVc,     //VCPipetteCapacitance
-        U_Cm,       //embraneCapacitance
-        U_Rs,       //SeriesResistance
-        U_RsCp,     //SeriesCorrectionPerc
-        U_RsPg,     //SeriesPredictionGain
-        U_CpCc,     //CCPipetteCapacitance
-        CompensationUserParamsNum
-    };
-
-    /*! \todo not sure if the following will be used, maybe to be merged*/
-    enum CompensationAsicParams {
-        A_Cp,       //PipetteCapacitance
-        A_Cm,       //MembraneCapacitance
-        A_Taum,     //MembraneTau
-        A_RsCr,     //SeriesCorrectionResistance
-        A_RsPg,     //SeriesPredictionGain
-        A_RsPtau,   //SeriesPredictionTau
-        CompensationAsicParamsNum
-    };
-
-//    enum CompensationAsicAdditionalParams {
-//        A_CmCinj, // MembraneInjectionCapacitance
-//        CompensationAsicAdditionalParamsNum
-//    };
 
     std::vector <double> membraneCapValueInjCapacitance;
+    std::vector<std::vector<std::string>> compensationOptionStrings;
 
     /************\
      *  Fields  *
     \************/
 
     std::vector<std::vector<double>> compValueMatrix;
+    std::vector<bool> compCfastEnable;
+    std::vector<bool> compCslowEnable;
+    std::vector<bool> compRsCorrEnable;
+    std::vector<bool> compRsPredEnable;
+    std::vector<bool> compCcCfastEnable;
+    bool areVcCompsEnabled = false;
+    bool areCcCompsEnabled = false;
+
+    std::vector<std::vector<Measurement_t>> allGainAdcMeas;
+    std::vector<std::vector<Measurement_t>> allOffsetAdcMeas;
+    std::vector<std::vector<Measurement_t>> allGainDacMeas;
+    std::vector<std::vector<Measurement_t>> allOffsetDacMeas;
+    std::vector<std::vector<Measurement_t>> ccAllGainAdcMeas;
+    std::vector<std::vector<Measurement_t>> ccAllOffsetAdcMeas;
+    std::vector<std::vector<Measurement_t>> ccAllGainDacMeas;
+    std::vector<std::vector<Measurement_t>> ccAllOffsetDacMeas;
+
 
     /*************\
      *  Methods  *
@@ -272,12 +310,10 @@ protected:
     double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
 
     /*! \todo FCON rechecks Compensation methods */
-    std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams);
-    std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);
-
-    //ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, RangedMeasurement_t &compensationFeatures);
-    ErrorCodes_t enableCompensation(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<bool> onValues, bool applyFlagIn);
-    ErrorCodes_t setCompValues(std::vector<uint16_t> chIdx, uint16_t paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
+    virtual std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams);
+    virtual std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);
+    virtual ErrorCodes_t asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams);
+    virtual double computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow);
 
     /****************\
      *  Parameters  *
@@ -400,6 +436,28 @@ protected:
     std::vector <std::vector <DoubleCoder *>> vHoldTunerCoders;
     std::vector <std::vector <DoubleCoder *>> cHoldTunerCoders;
 
+    // Calibration DAC coders and ranges
+    RangedMeasurement_t calibCcCurrentGainRange;
+    std::vector<Measurement_t> selectedCalibCcCurrentGainVector;
+    std::vector <DoubleCoder *> calibCcCurrentGainCoders;
+    Measurement_t defaultCalibCcCurrentGain;
+
+    std::vector <RangedMeasurement_t> calibCcCurrentOffsetRanges;
+    std::vector<Measurement_t> selectedCalibCcCurrentOffsetVector;
+    std::vector <std::vector <DoubleCoder *>> calibCcCurrentOffsetCoders;
+    Measurement_t defaultCalibCcCurrentOffset;
+
+    RangedMeasurement_t calibVcVoltageGainRange;
+    std::vector<Measurement_t> selectedCalibVcVoltageGainVector;
+    std::vector <DoubleCoder *> calibVcVoltageGainCoders;
+    Measurement_t defaultCalibVcVoltageGain;
+
+    std::vector <RangedMeasurement_t> calibVcVoltageOffsetRanges;
+    std::vector<Measurement_t> selectedCalibVcVoltageOffsetVector;
+    std::vector <std::vector <DoubleCoder *>> calibVcVoltageOffsetCoders;
+    Measurement_t defaultCalibVcVoltageOffset;
+
+    // Calibration ADC coders and ranges
     RangedMeasurement_t calibVcCurrentGainRange;
     std::vector<Measurement_t> selectedCalibVcCurrentGainVector;
     std::vector <DoubleCoder *> calibVcCurrentGainCoders;
@@ -410,15 +468,15 @@ protected:
     std::vector <std::vector <DoubleCoder *>> calibVcCurrentOffsetCoders;
     Measurement_t defaultCalibVcCurrentOffset;
 
-    Measurement_t defaultCalibVcDacOffset;
-
     RangedMeasurement_t calibCcVoltageGainRange;
     std::vector<Measurement_t> selectedCalibCcVoltageGainVector;
     std::vector <DoubleCoder *> calibCcVoltageGainCoders;
+    Measurement_t defaultCalibCcVoltageGain;
 
     std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
     std::vector<Measurement_t> selectedCalibCcVoltageOffsetVector;
     std::vector <std::vector <DoubleCoder *>> calibCcVoltageOffsetCoders;
+    Measurement_t defaultCalibCcVoltageOffset;
 
     RangedMeasurement_t gateVoltageRange;
     std::vector<Measurement_t> selectedGateVoltageVector;
@@ -428,8 +486,27 @@ protected:
     std::vector<Measurement_t> selectedSourceVoltageVector;
     std::vector <DoubleCoder *> sourceVoltageCoders;
 
-    std::vector<Measurement_t> vcCalibResArray;
-    std::vector<Measurement_t> vcCalibVoltStepsArray;
+    /*! \todo new coders and ranges, to be moved in proper places within this file*/
+    BoolArrayCoder* voltageChanSourceCoder;
+    BoolArrayCoder* currentChanSourceCoder;
+
+    std::vector <BoolCoder *> calSwCoders;
+    std::vector <BoolCoder *> vcSwCoders;
+    std::vector <BoolCoder *> ccSwCoders;
+    std::vector <BoolCoder *> vcCcSelCoders;
+    std::vector <BoolCoder *> ccStimEnCoders;
+    BoolArrayCoder* sourceForVoltageChannelCoder;
+    uint16_t selectedSourceForVoltageChannelIdx;
+    BoolArrayCoder* sourceForCurrentChannelCoder;
+    uint16_t selectedSourceForCurrentChannelIdx;
+
+    std::vector <RangedMeasurement_t> vcLeakCalibRange;
+    std::vector <std::vector <DoubleCoder *>> vcLeakCalibCoders;
+
+//    std::vector<std::vector<Measurement_t>> vcCalibResArrays;
+//    std::vector<std::vector<Measurement_t>> vcCalibVoltStepsArrays;
+
+    CalibrationData_t calibrationData;
 
     DoubleCoder * stimRestCoder = nullptr;
 
@@ -465,7 +542,7 @@ protected:
     std::vector <BoolArrayCoder *> protocolApplyStepsCoders;
     std::vector <BoolArrayCoder *> protocolItemTypeCoders;
 
-    /*!Compensations coders*/
+    /*! Compensations coders (all in asic domain) */
     std::vector<BoolCoder*> pipetteCapEnCompensationCoders;
     std::vector<MultiCoder*> pipetteCapValCompensationMultiCoders;
     std::vector<BoolCoder*> membraneCapEnCompensationCoders;
@@ -477,13 +554,32 @@ protected:
     std::vector<BoolCoder*>  rsPredEnCompensationCoders;
     std::vector<DoubleCoder*> rsPredGainCompensationCoders;
     std::vector<DoubleCoder*> rsPredTauCompensationCoders;
+    std::vector<BoolCoder*> pipetteCapCcEnCompensationCoders;
+    std::vector<MultiCoder*> pipetteCapCcValCompensationMultiCoders;
 
+    /*! Compensation options*/
+    std::vector<uint16_t> selectedRsCorrBws;
+    std::vector<Measurement_t> rsCorrBwArray;
+    uint16_t defaultRsCorrBwIdx;
+
+    /*! Features in ASIC domain, depend on asic*/
     std::vector<RangedMeasurement> pipetteCapacitanceRange_pF;
     std::vector<RangedMeasurement> membraneCapValueRange_pF;
     std::vector<RangedMeasurement> membraneCapTauValueRange_us;
     RangedMeasurement_t rsCorrValueRange;
     RangedMeasurement_t rsPredGainRange;
     RangedMeasurement_t rsPredTauRange;
+
+    /*! Features in USER domain, depend on the asic parameters*/
+    std::vector<RangedMeasurement> uCpVcCompensable;
+    std::vector<RangedMeasurement> uCmCompensable;
+    std::vector<RangedMeasurement> uRsCompensable;
+    std::vector<RangedMeasurement> uRsCpCompensable;
+    std::vector<RangedMeasurement> uRsPgCompensable;
+    std::vector<RangedMeasurement> uCpCcCompensable;
+
+    /*! Default paramter values in USER domain*/
+    std::vector<double> defaultUserDomainParams;
 
 
     /***************\

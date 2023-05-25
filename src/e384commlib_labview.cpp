@@ -651,7 +651,7 @@ ErrorCodes_t turnPipetteCompensationOn(
         std::vector<bool> onValues;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-        ret = messageDispatcher->turnPipetteCompensationOn(channelIndexes, onValues, applyFlagIn);
+        ret = messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompCfast, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -670,7 +670,7 @@ ErrorCodes_t turnCCPipetteCompensationOn(
         std::vector<bool> onValues;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-        ret = messageDispatcher->turnCCPipetteCompensationOn(channelIndexes, onValues, applyFlagIn);
+        ret = messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompCcCfast, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -689,7 +689,7 @@ ErrorCodes_t turnMembraneCompensationOn(
         std::vector<bool> onValues;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-        ret = messageDispatcher->turnMembraneCompensationOn(channelIndexes, onValues, applyFlagIn);
+        ret = messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompCslow, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -727,7 +727,7 @@ ErrorCodes_t turnAccessResistanceCorrectionOn(
         std::vector<bool> onValues;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-        ret = messageDispatcher->turnResistanceCorrectionOn(channelIndexes, onValues, applyFlagIn);
+        ret = messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompRsCorr, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -746,7 +746,7 @@ ErrorCodes_t turnAccessResistancePredictionOn(
         std::vector<bool> onValues;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-        ret = messageDispatcher->turnResistancePredictionOn(channelIndexes, onValues, applyFlagIn);
+        ret = messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompRsPred, onValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -879,7 +879,7 @@ ErrorCodes_t setAccessResistanceCorrectionOptions(
         std::vector<uint16_t> optionIndexes;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
-        ret = messageDispatcher->setResistanceCorrectionOptions(channelIndexes, optionIndexes, applyFlagIn);
+        ret = messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompRsCorr, optionIndexes, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -956,7 +956,7 @@ ErrorCodes_t setPipetteCapacitance(
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-        ret = messageDispatcher->setPipetteCapacitance(channelIndexes, channelValues, applyFlagIn);
+        ret = messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_CpVc, channelValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -976,7 +976,7 @@ ErrorCodes_t setCCPipetteCapacitance(
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-        ret = messageDispatcher->setCCPipetteCapacitance(channelIndexes, channelValues, applyFlagIn);
+        ret = messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_CpCc, channelValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -996,7 +996,7 @@ ErrorCodes_t setMembraneCapacitance(
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-        ret = messageDispatcher->setMembraneCapacitance(channelIndexes, channelValues, applyFlagIn);
+        ret = messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_Cm, channelValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1016,7 +1016,7 @@ ErrorCodes_t setAccessResistance(
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-        ret = messageDispatcher->setAccessResistance(channelIndexes, channelValues, applyFlagIn);
+        ret = messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_Rs, channelValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1036,7 +1036,7 @@ ErrorCodes_t setAccessResistanceCorrectionPercentage(
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-        ret = messageDispatcher->setResistanceCorrectionPercentage(channelIndexes, channelValues, applyFlagIn);
+        ret = messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_RsCp, channelValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1076,7 +1076,7 @@ ErrorCodes_t setAccessResistancePredictionGain(
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-        ret = messageDispatcher->setResistancePredictionGain(channelIndexes, channelValues, applyFlagIn);
+        ret = messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_RsPg, channelValues, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1625,7 +1625,19 @@ ErrorCodes_t getChannelsNumber(
         uint32_t &voltageChannelsNum) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getChannelsNumber(currentChannelsNum, voltageChannelsNum);
+        ret = messageDispatcher->getChannelNumberFeatures(currentChannelsNum, voltageChannelsNum);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+    
+ErrorCodes_t getBoardsNumber(
+        uint32_t &boardsNum) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->getBoardsNumberFeatures(boardsNum);
 
     } else {
         ret = ErrorDeviceNotConnected;
