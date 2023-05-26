@@ -42,7 +42,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     rxMaxWords = currentChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 352; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 360; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = (txDataWords/2+1)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
@@ -563,41 +563,50 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
         }
     }
 
-    /*! VC current gain tuner */
-    doubleConfig.initialWord = 344;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibVcCurrentGainRange.step;
-    doubleConfig.minValue = calibVcCurrentGainRange.min;
-    doubleConfig.maxValue = calibVcCurrentGainRange.max;
-    calibVcCurrentGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibVcCurrentGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
+//    /*! VC current gain calibration */
+//    doubleConfig.initialWord = 344;
+//    doubleConfig.initialBit = 0;
+//    doubleConfig.bitsNum = 16;
+//    doubleConfig.resolution = calibVcCurrentGainRange.step;
+//    doubleConfig.minValue = calibVcCurrentGainRange.min;
+//    doubleConfig.maxValue = calibVcCurrentGainRange.max;
+//    calibVcCurrentGainCoders.resize(currentChannelsNum);
+//    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+//        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+//        coders.push_back(calibVcCurrentGainCoders[idx]);
+//        doubleConfig.initialWord++;
+//    }
 
-    /*! VC current offset tuner */
-    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 348;
-        doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
-        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
-        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
-        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
-        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
-        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
-            doubleConfig.initialWord++;
-        }
-    }
+//    /*! VC current offset calibration */
+//    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
+//    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+//        doubleConfig.initialWord = 348;
+//        doubleConfig.initialBit = 0;
+//        doubleConfig.bitsNum = 16;
+//        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
+//        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
+//        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
+//        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
+//        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+//            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+//            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
+//            doubleConfig.initialWord++;
+//        }
+//    }
+
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
     txStatus[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus[344] = 0x0400; /*! current gain 1 */
+    txStatus[345] = 0x0400; /*! current gain 1 */
+    txStatus[346] = 0x0400; /*! current gain 1 */
+    txStatus[347] = 0x0400; /*! current gain 1 */
+    txStatus[352] = 0x0400; /*! voltage gain 1 */
+    txStatus[353] = 0x0400; /*! voltage gain 1 */
+    txStatus[354] = 0x0400; /*! voltage gain 1 */
+    txStatus[355] = 0x0400; /*! voltage gain 1 */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
