@@ -4,7 +4,7 @@ CONFIG(debug, debug|release) {
     TARGET = e384commlibd
     DEFINES += DEBUG
     # comment or uncomment depending on the desired verbosity
-#    DEFINES += DEBUG_TX_DATA_PRINT
+    DEFINES += DEBUG_TX_DATA_PRINT
 #    DEFINES += DEBUG_RX_RAW_DATA_PRINT
 #    DEFINES += DEBUG_RX_PROCESSING_PRINT
 #    DEFINES += DEBUG_RX_DATA_PRINT
@@ -12,8 +12,8 @@ CONFIG(debug, debug|release) {
 
 CONFIG(release, debug|release) {
     TARGET = e384commlib
-#    DEFINES += DEBUG
-#    DEFINES += DEBUG_TX_DATA_PRINT
+    DEFINES += DEBUG
+    DEFINES += DEBUG_TX_DATA_PRINT
 #    DEFINES += DEBUG_RX_PROCESSING_PRINT
 }
 
@@ -63,8 +63,10 @@ HEADERS += \
     src/utils.h
 
 contains(DEFINES, DEBUG) {
-    SOURCES += src/devices/messagedispatcher_384fake.cpp
-    HEADERS += src/devices/messagedispatcher_384fake.h
+    SOURCES += src/devices/messagedispatcher_384fake.cpp \
+        src/devices/messagedispatcher_4x10mhzfake.cpp
+    HEADERS += src/devices/messagedispatcher_384fake.h \
+        src/devices/messagedispatcher_4x10mhzfake.h
 }
 contains(DEFINES, E384CL_LABVIEW_COMPATIBILITY) {
     SOURCES += src/e384commlib_labview.cpp

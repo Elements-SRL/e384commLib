@@ -98,7 +98,7 @@ static void createDebugFile(FILE * &fid, std::string fileName) {
 #ifdef _WIN32
     std::string path = std::string(getenv("HOMEDRIVE"))+std::string(getenv("HOMEPATH"));
 #else
-    string path = string(getenv("HOME"));
+    std::string path = std::string(getenv("HOME"));
 #endif
     std::stringstream ss;
 

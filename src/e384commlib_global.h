@@ -168,25 +168,15 @@ typedef enum MsgTypeId {
  *  Other typedefs  *
 \********************/
 
-/*! \def E384CL_VOLTAGE_CLAMP_MODE
- * \brief Index that identifies voltage clamp modality.
+/*! \enum ClampingModality_t
+ * \brief Enum that identifies different clamp modality.
  */
-#define E384CL_VOLTAGE_CLAMP_MODE 0
-
-/*! \def E384CL_ZERO_CURRENT_CLAMP_MODE
- * \brief Index that identifies zero current clamp modality.
- */
-#define E384CL_ZERO_CURRENT_CLAMP_MODE 1
-
-/*! \def E384CL_CURRENT_CLAMP_MODE
- * \brief Index that identifies current clamp modality.
- */
-#define E384CL_CURRENT_CLAMP_MODE 2
-
-/*! \def E384CL_DYNAMIC_CLAMP_MODE
- * \brief Index that identifies dynamic clamp modality.
- */
-#define E384CL_DYNAMIC_CLAMP_MODE 3
+typedef enum{
+    VOLTAGE_CLAMP = 0,
+    ZERO_CURRENT_CLAMP = 1,
+    CURRENT_CLAMP = 2,
+    DYNAMIC_CLAMP = 3,
+} ClampingModality_t;
 
 /*! \enum DeviceTypes_t
  * \brief Enumerates the device types that can be handled by e384CommLib.
@@ -198,6 +188,7 @@ typedef enum DeviceTypes {
     Device10MHz,                /*!< channels 10MHz nanopore reader */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
+    Device4x10MHzFake,          /*!< Fake 4x10MHz device */
 #endif
     DeviceUnknown,              /*!< Invalid item used only for initiliazation purposes. */
     DevicesNum
@@ -221,6 +212,24 @@ typedef struct RxOutput {
     uint32_t firstSampleOffset = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionData this field holds the data offset wrt the protocol first sample */
     uint32_t dataLen = 0; /*!< Number of data samples available in field data */
 } RxOutput_t;
+
+/*! \enum ProtocolItemTypes_t
+ * \brief Enumerates the items that can be used to build stimulus waveforms.
+ */
+typedef enum ProtocolItemTypes {
+    ProtocolItemStep,
+    ProtocolItemRamp,
+    ProtocolItemSin,
+    ProtocolItemTypesNum
+} ProtocolItemTypes_t;
+
+/*! \enum ProtocolItemTypes_t
+ * \brief Enumerates the notifications that can be sent to the FPGA.
+ */
+typedef enum TxTriggerType_t {
+    TxTriggerParameteresUpdated,
+    TxTriggerStartProtocol
+} TxTriggerType_t;
 
 /*! \enum UnitPfx_t
  * \brief Enumerates the unit prefixes used.

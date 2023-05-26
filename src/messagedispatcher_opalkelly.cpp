@@ -123,8 +123,11 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
         /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
         if (waitingTimeForReadingPassed) {
             rxRawMutexLock.lock();
-            if (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE <= OKY_RX_BUFFER_SIZE) {
+            if (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE <= OKY_RX_BUFFER_SIZE && !stopConnectionFlag) {
                 rxRawMutexLock.unlock();
+                if (stopConnectionFlag) {
+                    break;
+                }
 
                 uint32_t bytesRead = this->readDataFromDevice();
 
@@ -169,6 +172,7 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
     }
+    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
 
     txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 
@@ -180,7 +184,15 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
     writeTries = 0;
     while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
         if (dev->WriteRegisters(regs) == okCFrontPanel::NoError) {
-            dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+            switch (type) {
+            case TxTriggerParameteresUpdated:
+                dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+                break;
+
+            case TxTriggerStartProtocol:
+                dev->ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
+                break;
+            }
 
         } else {
             continue;
@@ -279,12 +291,15 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
 
     while (!stopConnectionFlag) {
         rxRawMutexLock.lock();
-        while (rxRawBufferReadLength <= OKY_RX_TRANSFER_SIZE) {
+        while (rxRawBufferReadLength <= OKY_RX_TRANSFER_SIZE && !stopConnectionFlag) {
             rxRawBufferNotEmpty.wait_for(rxRawMutexLock, chrono::milliseconds(10));
         }
         maxRxRawBytesRead = rxRawBufferReadLength;
         rxRawBytesAvailable = maxRxRawBytesRead;
         rxRawMutexLock.unlock();
+        if (stopConnectionFlag) {
+            break;
+        }
 
         /*! Compute the approximate number of available packets */
         notEnoughRxData = false;
