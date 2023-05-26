@@ -77,15 +77,6 @@ ErrorCodes_t disconnectDevice(
  *  Tx methods  *
 \****************/
 
-/*! \brief Pings the connected device.
- *
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t ping(
-        E384CL_ARGVOID);
-
 /*! \brief Turn on/off the voltage stimulus for each channel.
  *
  * \param channelIndexesIn [in] Channel indexes.
@@ -97,10 +88,8 @@ ErrorCodes_t ping(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageStimulusOn(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool * onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
+        bool onValueIn,
+        bool applyFlagIn);
 
 /*! \brief Turn on/off the current stimulus for each channel.
  *
@@ -113,10 +102,8 @@ ErrorCodes_t turnVoltageStimulusOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentStimulusOn(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool * onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
+        bool onValueIn,
+        bool applyFlagIn);
 
 /*! \brief Turn on/off the voltage reader for each channel.
  *  \note The voltage is read by the current clamp ADC.
@@ -173,22 +160,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentHoldTuner(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN LMeasHandle currentsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
-
-/*! \brief Turns on/off a uniform noise additive noise with the same range as the LSB on received data.
- *
- * \param channelIndexesIn [in] Channel indexes.
- * \param  flagValuesIn [in] Array of booleans, one for each channel: True to turn on LSB additive noise, false to turn it off.
- * \param applyFlagIn [in] Flag for instant application of this setting.
- * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t turnOnLsbNoise(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool * flagValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -259,12 +230,12 @@ ErrorCodes_t setSamplingRate(
  * \param activeFlag [in] true: enable the filter; false: disable the filter.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setDigitalFilter(
-        E384CL_ARGIN double cutoffFrequency,
-        E384CL_ARGIN bool lowPassFlag,
-        E384CL_ARGIN bool activeFlag);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t setDigitalFilter(
+//        E384CL_ARGIN double cutoffFrequency,
+//        E384CL_ARGIN bool lowPassFlag,
+//        E384CL_ARGIN bool activeFlag);
 
 /*! \brief Execute digital offset compensation.
  * Digital offset compensation tunes the offset of the applied voltage so that the
@@ -298,20 +269,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t digitalOffsetCompensationOverride(
         E384CL_ARGIN uint16_t channelIdx,
         E384CL_ARGIN CharMeasurement_t value);
-
-/*! \brief Request for voltage offset set by digital offset compensation.
- * After this message is received the device will send a message with voltage offset set
- * during the last digital offset compensation. The compensated voltage returned can be
- * used as an estimate of the liquid junction voltage.
- * \note If the given channel has not been compensated the returned voltage will be 0
- *
- * \param channelIdx [in] Index of the channel for which the voltage request.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t digitalOffsetCompensationInquiry(
-        E384CL_ARGIN uint16_t channelIdx);
 
 /*! \brief Correct the calibration offset of the current acquired in VC.
  *
@@ -534,29 +491,6 @@ ErrorCodes_t setSourceVoltage(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
-/*! \brief Turn on/off a specific LED.
- *
- * \param ledIndex [in] Index of the LED to turn on/off.
- *        See the device documentation for an enumeration of the single LEDs.
- * \param on [in] True to turn the LED on, false to turn it off.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t turnLedOn(
-        E384CL_ARGIN uint16_t ledIndex,
-        E384CL_ARGIN bool on);
-
-/*! \brief Set the device as a slave or a master.
- *
- * \param on [in] True to set the device as a slave, false to set it as a master.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setSlave(
-        E384CL_ARGIN bool on);
-
 /*! \brief Turn on/off the voltage compesantions for each channel.
  *
  * \param channelIndexesIn [in] Channel indexes.
@@ -568,10 +502,7 @@ ErrorCodes_t setSlave(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageCompensationsOn(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool * onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
+         bool onValue);
 
 /*! \brief Turn on/off the current stimulus for each channel.
  *
@@ -584,10 +515,7 @@ ErrorCodes_t turnVoltageCompensationsOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentCompensationsOn(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool * onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
+         bool onValue);
 
 /*! \brief Turn on/off pipette compensation for each channel.
  *
@@ -1037,24 +965,6 @@ ErrorCodes_t setBridgeBalanceResistance(
         E384CL_ARGIN double * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
-
-/*! \brief Sets a digital trigger output to be activated during the next protocol.
- *
- * \param triggerIdx [in] Index of the trigger event.
- * \param terminator [in] true for invalid triggers (used as trigger list terminator), false for valid trigger events.
- * \param polarity [in] true for high polarity, false for low polarity.
- * \param triggerId [in] Physical trigger identifier.
- * \param delay [in] Trigger event delay with respect to the protocol start.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setDigitalTriggerOutput(
-        E384CL_ARGIN uint16_t triggerIdx,
-        E384CL_ARGIN bool terminator,
-        E384CL_ARGIN bool polarity,
-        E384CL_ARGIN uint16_t triggerId,
-        E384CL_ARGIN CharMeasurement_t delay);
 
 /*! \brief Describes the structure of an incoming voltage protocol.
  *

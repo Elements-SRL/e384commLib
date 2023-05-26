@@ -92,29 +92,13 @@ ErrorCodes_t disconnectDevice() {
  *  Tx methods  *
 \****************/
 
-ErrorCodes_t ping() {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->ping();
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
 
 ErrorCodes_t turnVoltageStimulusOn(
-        uint16_t * channelIndexesIn,
-        bool * onValuesIn,
-        bool applyFlagIn,
-        int vectorLengthIn) {
+        bool onValueIn,
+        bool applyFlagIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        std::vector<uint16_t> channelIndexes;
-        std::vector<bool> onValues;
-        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-        ret = messageDispatcher->turnVoltageStimulusOn(channelIndexes, onValues, applyFlagIn);
+        ret = messageDispatcher->turnVoltageStimulusOn(onValueIn, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -123,17 +107,11 @@ ErrorCodes_t turnVoltageStimulusOn(
 }
 
 ErrorCodes_t turnCurrentStimulusOn(
-        uint16_t * channelIndexesIn,
-        bool * onValuesIn,
-        bool applyFlagIn,
-        int vectorLengthIn) {
+        bool onValueIn,
+        bool applyFlagIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        std::vector<uint16_t> channelIndexes;
-        std::vector<bool> onValues;
-        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-        ret = messageDispatcher->turnCurrentStimulusOn(channelIndexes, onValues, applyFlagIn);
+        ret = messageDispatcher->turnCurrentStimulusOn(onValueIn, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -172,7 +150,8 @@ ErrorCodes_t setChannelsSources(
         int16_t currentSourcesIdx) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setChannelsSources(voltageSourcesIdx, currentSourcesIdx);
+        ret = messageDispatcher->setSourceForVoltageChannel(voltageSourcesIdx,false);
+        ret = messageDispatcher->setSourceForCurrentChannel(voltageSourcesIdx,true);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -315,33 +294,13 @@ ErrorCodes_t setSourceVoltage(
 }
 
 ErrorCodes_t setCurrentHoldTuner(
-        uint16_t channelIdx,
-        CharMeasurement_t currentIn) {
+        vector<uint16_t> channelIndexes,
+        vector<CharMeasurement_t> currentsIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         Measurement_t current;
-        input2Measurement(currentIn, current);
-        ret = messageDispatcher->setCurrentHoldTuner(channelIdx, current);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t turnOnLsbNoise(
-        uint16_t * channelIndexesIn,
-        bool * flagValuesIn,
-        bool applyFlagIn,
-        int vectorLengthIn) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        std::vector<uint16_t> channelIndexes;
-        std::vector<bool> flagValues;
-        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2NumericVector<bool>(flagValuesIn, flagValues, vectorLengthIn);
-        ret = messageDispatcher->turnOnLsbNoise(channelIndexes, flagValues, vectorLengthIn);
-
+        input2Measurement(currentsIn, currents);
+        ret = messageDispatcher->setCurrentHoldTuner(channelIndexes, currents, true);
     } else {
         ret = ErrorDeviceNotConnected;
     }
@@ -362,10 +321,11 @@ ErrorCodes_t setVCCurrentRange(
 }
 
 ErrorCodes_t setCCCurrentRange(
-        uint16_t currentRangeIdx) {
+        uint16_t currentRangeIdx,
+        bool applyFlagIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setCCCurrentRange(currentRangeIdx);
+        ret = messageDispatcher->setCCCurrentRange(currentRangeIdx, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -374,10 +334,11 @@ ErrorCodes_t setCCCurrentRange(
 }
 
 ErrorCodes_t setVCVoltageRange(
-        uint16_t voltageRangeIdx) {
+        uint16_t voltageRangeIdx,
+        bool applyFlagIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setVCVoltageRange(voltageRangeIdx);
+        ret = messageDispatcher->setVCVoltageRange(voltageRangeIdx, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -386,10 +347,11 @@ ErrorCodes_t setVCVoltageRange(
 }
 
 ErrorCodes_t setCCVoltageRange(
-        uint16_t voltageRangeIdx) {
+        uint16_t voltageRangeIdx,
+        bool applyFlagIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setCCVoltageRange(voltageRangeIdx);
+        ret = messageDispatcher->setCCVoltageRange(voltageRangeIdx, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -398,10 +360,11 @@ ErrorCodes_t setCCVoltageRange(
 }
 
 ErrorCodes_t setSamplingRate(
-        uint16_t samplingRateIdx) {
+        uint16_t samplingRateIdx,
+        bool applyFlagIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setSamplingRate(samplingRateIdx);
+        ret = messageDispatcher->setSamplingRate(samplingRateIdx, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -409,19 +372,19 @@ ErrorCodes_t setSamplingRate(
     return ret;
 }
 
-ErrorCodes_t setDigitalFilter(
-        E384CL_ARGIN double cutoffFrequency,
-        E384CL_ARGIN bool lowPassFlag,
-        E384CL_ARGIN bool activeFlag) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setDigitalFilter(cutoffFrequency, lowPassFlag, activeFlag);
+//ErrorCodes_t setDigitalFilter(
+//        E384CL_ARGIN double cutoffFrequency,
+//        E384CL_ARGIN bool lowPassFlag,
+//        E384CL_ARGIN bool activeFlag) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->setDigitalFilter(cutoffFrequency, lowPassFlag, activeFlag);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
 ErrorCodes_t digitalOffsetCompensation(
         uint16_t * channelIndexesIn,
@@ -450,18 +413,6 @@ ErrorCodes_t digitalOffsetCompensationOverride(
         Measurement_t value;
         input2Measurement(valueIn, value);
         ret = messageDispatcher->digitalOffsetCompensationOverride(channelIdx, value);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t digitalOffsetCompensationInquiry(
-        uint16_t channelIdx) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->digitalOffsetCompensationInquiry(channelIdx);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -515,10 +466,11 @@ ErrorCodes_t zap(
 }
 
 ErrorCodes_t setVoltageStimulusLpf(
-        uint16_t filterIdx) {
+        uint16_t filterIdx,
+        bool applyFlagIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setVoltageStimulusLpf(filterIdx);
+        ret = messageDispatcher->setVoltageStimulusLpf(filterIdx, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -527,10 +479,11 @@ ErrorCodes_t setVoltageStimulusLpf(
 }
 
 ErrorCodes_t setCurrentStimulusLpf(
-        uint16_t filterIdx) {
+        uint16_t filterIdx,
+        bool applyFlagIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setCurrentStimulusLpf(filterIdx);
+        ret = messageDispatcher->setCurrentStimulusLpf(filterIdx, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -577,43 +530,12 @@ ErrorCodes_t turnChannelsOn(
 }
 
 
-ErrorCodes_t turnLedOn(
-        uint16_t ledIndex,
-        bool on) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->turnLedOn(ledIndex, on);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t setSlave(
-        bool on) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->setSlave(on);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
 ErrorCodes_t turnVoltageCompensationsOn(
-        uint16_t * channelIndexesIn,
-        bool * onValuesIn,
-        bool applyFlagIn,
-        int vectorLengthIn) {
+        bool onValue
+        ) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        std::vector<uint16_t> channelIndexes;
-        std::vector<bool> onValues;
-        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-        ret = messageDispatcher->turnVoltageCompensationsOn(channelIndexes, onValues, applyFlagIn);
+        ret = messageDispatcher->enableVcCompensations(onValue);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -622,17 +544,11 @@ ErrorCodes_t turnVoltageCompensationsOn(
 }
 
 ErrorCodes_t turnCurrentCompensationsOn(
-        uint16_t * channelIndexesIn,
-        bool * onValuesIn,
-        bool applyFlagIn,
-        int vectorLengthIn) {
+        bool onValue) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        std::vector<uint16_t> channelIndexes;
-        std::vector<bool> onValues;
-        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-        ret = messageDispatcher->turnCurrentCompensationsOn(channelIndexes, onValues, applyFlagIn);
+
+        ret = messageDispatcher->enableCcCompensations(onValue);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1183,24 +1099,6 @@ ErrorCodes_t setBridgeBalanceResistance(
     return ret;
 }
 
-ErrorCodes_t setDigitalTriggerOutput(
-        E384CL_ARGIN uint16_t triggerIdx,
-        E384CL_ARGIN bool terminator,
-        E384CL_ARGIN bool polarity,
-        E384CL_ARGIN uint16_t triggerId,
-        E384CL_ARGIN CharMeasurement_t delayIn) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        Measurement_t delay;
-        input2Measurement(delayIn, delay);
-        ret = messageDispatcher->setDigitalTriggerOutput(triggerIdx, terminator, polarity, triggerId, delay);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
 ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
         uint16_t itemsNum,
         uint16_t sweepsNum,
@@ -1427,68 +1325,45 @@ ErrorCodes_t resetDigitalOffsetCompensation(bool reset) {
     return ret;
 }
 
-ErrorCodes_t resetFpga() {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->resetFpga();
+//ErrorCodes_t getCalibrationEepromSize(
+//        uint32_t &size) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getCalibrationEepromSize(size);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getCalibrationConfiguration(
-        CalibrationConfiguration_t * &calibrationConfiguration) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getCalibrationConfiguration(calibrationConfiguration);
+//ErrorCodes_t writeCalibrationEeprom(
+//        vector <uint32_t> value,
+//        vector <uint32_t> address,
+//        vector <uint32_t> size) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->writeCalibrationEeprom(value, address, size);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getCalibrationEepromSize(
-        uint32_t &size) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getCalibrationEepromSize(size);
+//ErrorCodes_t readCalibrationEeprom(
+//        vector <uint32_t> &value,
+//        vector <uint32_t> address,
+//        vector <uint32_t> size) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->readCalibrationEeprom(value, address, size);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t writeCalibrationEeprom(
-        vector <uint32_t> value,
-        vector <uint32_t> address,
-        vector <uint32_t> size) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->writeCalibrationEeprom(value, address, size);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t readCalibrationEeprom(
-        vector <uint32_t> &value,
-        vector <uint32_t> address,
-        vector <uint32_t> size) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->readCalibrationEeprom(value, address, size);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
 ErrorCodes_t getSwitchesStatus(std::vector <uint16_t> &words, std::vector <std::vector <std::string>> &names) {
     ErrorCodes_t ret;

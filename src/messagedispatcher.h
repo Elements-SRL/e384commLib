@@ -161,6 +161,8 @@ public:
 
     ErrorCodes_t receiveCalibParams(CalibrationParams_t calibParams);
 
+    virtual ErrorCodes_t turnResistanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
+    virtual ErrorCodes_t turnLeakConductanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
     virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
     virtual ErrorCodes_t enableVcCompensations(bool enable);
     virtual ErrorCodes_t enableCcCompensations(bool enable);

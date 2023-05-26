@@ -1969,6 +1969,14 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
     return y;
 }
 
+ErrorCodes_t MessageDispatcher::turnResistanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::turnLeakConductanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn){
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
     return ErrorFeatureNotImplemented;
 }
