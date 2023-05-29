@@ -229,16 +229,16 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     samplingRatesArray[SamplingRate5kHz].value = 5.0;
     samplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
     samplingRatesArray[SamplingRate5kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate10kHz].value = 12.5;
+    samplingRatesArray[SamplingRate10kHz].value = 10.0;
     samplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
     samplingRatesArray[SamplingRate10kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate20kHz].value = 25.0;
+    samplingRatesArray[SamplingRate20kHz].value = 20.0;
     samplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
     samplingRatesArray[SamplingRate20kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate40kHz].value = 50.0;
+    samplingRatesArray[SamplingRate40kHz].value = 40.0;
     samplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
     samplingRatesArray[SamplingRate40kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate80kHz].value = 100.0;
+    samplingRatesArray[SamplingRate80kHz].value = 80.0;
     samplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
     samplingRatesArray[SamplingRate80kHz].unit = "Hz";
 #ifdef E384PATCH_ADDITIONAL_SR_FLAG
