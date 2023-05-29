@@ -495,9 +495,9 @@ protected:
     std::vector <BoolCoder *> ccSwCoders;
     std::vector <BoolCoder *> vcCcSelCoders;
     std::vector <BoolCoder *> ccStimEnCoders;
-    BoolArrayCoder* sourceForVoltageChannelCoder;
+    BoolArrayCoder* sourceForVoltageChannelCoder = nullptr;
     uint16_t selectedSourceForVoltageChannelIdx;
-    BoolArrayCoder* sourceForCurrentChannelCoder;
+    BoolArrayCoder* sourceForCurrentChannelCoder = nullptr;
     uint16_t selectedSourceForCurrentChannelIdx;
 
     std::vector <RangedMeasurement_t> vcLeakCalibRange;
