@@ -1779,130 +1779,130 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
  * \param control [in] Specifications of the control for the liquid junction.
  * \return Success if the device implements liquid junction control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getLiquidJunctionControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getLiquidJunctionControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the pipette capacitance.
  *
  * \param control [in] Specifications of the control for the pipette capacitance.
  * \return Success if the device implements pipette capacitance control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getPipetteCapacitanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getPipetteCapacitanceControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the pipette capacitance for current clamp.
  *
  * \param control [in] Specifications of the control for the pipette capacitance for current clamp.
  * \return Success if the device implements pipette capacitance control for current clamp.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getCCPipetteCapacitanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getCCPipetteCapacitanceControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the membrane capacitance.
  *
  * \param control [in] Specifications of the control for the membrane capacitance.
  * \return Success if the device implements membrane capacitance control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getMembraneCapacitanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getMembraneCapacitanceControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the access resistance.
  *
  * \param control [in] Specifications of the control for the access resistance.
  * \return Success if the device implements access resistance control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getAccessResistanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getAccessResistanceControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance correction percentage.
  *
  * \param control [in] Specifications of the control for the resistance correction percentage.
  * \return Success if the device implements resistance correction percentage control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getResistanceCorrectionPercentageControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getResistanceCorrectionPercentageControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance correction lag.
  *
  * \param control [in] Specifications of the control for the resistance correction lag.
  * \return Success if the device implements resistance correction lag control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getResistanceCorrectionLagControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getResistanceCorrectionLagControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction gain.
  *
  * \param control [in] Specifications of the control for the resistance prediction gain.
  * \return Success if the device implements resistance prediction gain control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getResistancePredictionGainControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getResistancePredictionGainControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction percentage.
  *
  * \param control [in] Specifications of the control for the resistance prediction percentage.
  * \return Success if the device implements resistance prediction percentage control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getResistancePredictionPercentageControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getResistancePredictionPercentageControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction bandwidth gain.
  *
  * \param control [in] Specifications of the control for the resistance prediction bandwidth gain.
  * \return Success if the device implements resistance prediction bandwidth gain control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getResistancePredictionBandwidthGainControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getResistancePredictionBandwidthGainControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction tau.
  *
  * \param control [in] Specifications of the control for the resistance prediction tau.
  * \return Success if the device implements resistance prediction tau control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getResistancePredictionTauControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getResistancePredictionTauControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the leak conductance.
  *
  * \param control [in] Specifications of the control for the leak conductance.
  * \return Success if the device implements resistance prediction tau control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getLeakConductanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getLeakConductanceControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the bridge balance resistance.
  *
  * \param control [in] Specifications of the control for the bridge balance resistance.
  * \return Success if the device implements bridge balance resistance control.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getBridgeBalanceResistanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getBridgeBalanceResistanceControl(
+//        E384CL_ARGOUT CharCompensationControl_t &control);
 
 // NEW MICHELANGELO'S GETS
 /*! \brief Gets the value of the pipette capacitance for voltage clamp for each channel.

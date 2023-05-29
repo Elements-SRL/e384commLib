@@ -371,12 +371,16 @@ ErrorCodes_t setSourceVoltage(
 }
 
 ErrorCodes_t setCurrentHoldTuner(
-        vector<uint16_t> channelIndexes,
-        vector<CharMeasurement_t> currentsIn) {
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle currentsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        Measurement_t current;
-        input2Measurement(currentsIn, currents);
+        std::vector<uint16_t> channelIndexes;
+        std::vector<Measurement_t> currents;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2VectorMeasurement(currentsIn, currents);
         ret = messageDispatcher->setCurrentHoldTuner(channelIndexes, currents, true);
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1750,9 +1754,9 @@ ErrorCodes_t getSamplingRates(
         LMeasHandle * samplingRatesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t> samplingRates;
+        vector <Measurement_t> samplingRates;
         ret = messageDispatcher->getSamplingRatesFeatures(samplingRates);
-        vectorRangedMeasurement2Output(samplingRates, samplingRatesOut);
+        vectorMeasurement2Output(samplingRates, samplingRatesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1761,12 +1765,12 @@ ErrorCodes_t getSamplingRates(
 }
 
 ErrorCodes_t getRealSamplingRates(
-        LMeasHandle * samplingRatesOut) {
+        LMeasHandle * realSamplingRatesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t> samplingRates;
-        ret = messageDispatcher->getRealSamplingRates(samplingRates);
-        vectorRangedMeasurement2Output(samplingRates, samplingRatesOut);
+        vector <Measurement_t> realSamplingRates;
+        ret = messageDispatcher->getRealSamplingRatesFeatures(realSamplingRates);
+        vectorMeasurement2Output(realSamplingRates, realSamplingRatesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2054,7 +2058,7 @@ ErrorCodes_t getAccessResistanceCorrectionOptions(
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <std::string> options;
-        ret = messageDispatcher->getResistanceCorrectionOptions(options);
+        ret = messageDispatcher->getCompOptionsFeatures(MessageDispatcher::CompRsCorr, options);
         vectorString2Output(options, optionsOut);
 
     } else {
@@ -2105,161 +2109,161 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
     return ret;
 }
 
-ErrorCodes_t getLiquidJunctionControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getLiquidJunctionControl(control);
+//ErrorCodes_t getLiquidJunctionControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getLiquidJunctionControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getPipetteCapacitanceControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getPipetteCapacitanceControl(control);
+//ErrorCodes_t getPipetteCapacitanceControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getPipetteCapacitanceControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getCCPipetteCapacitanceControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getCCPipetteCapacitanceControl(control);
+//ErrorCodes_t getCCPipetteCapacitanceControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getCCPipetteCapacitanceControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getMembraneCapacitanceControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getMembraneCapacitanceControl(control);
+//ErrorCodes_t getMembraneCapacitanceControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getMembraneCapacitanceControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getAccessResistanceControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getAccessResistanceControl(control);
+//ErrorCodes_t getAccessResistanceControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getAccessResistanceControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getResistanceCorrectionPercentageControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getResistanceCorrectionPercentageControl(control);
+//ErrorCodes_t getResistanceCorrectionPercentageControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getResistanceCorrectionPercentageControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getResistanceCorrectionLagControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getResistanceCorrectionLagControl(control);
+//ErrorCodes_t getResistanceCorrectionLagControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getResistanceCorrectionLagControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getResistancePredictionGainControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getResistancePredictionGainControl(control);
+//ErrorCodes_t getResistancePredictionGainControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getResistancePredictionGainControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getResistancePredictionPercentageControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getResistancePredictionPercentageControl(control);
+//ErrorCodes_t getResistancePredictionPercentageControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getResistancePredictionPercentageControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getResistancePredictionBandwidthGainControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getResistancePredictionBandwidthGainControl(control);
+//ErrorCodes_t getResistancePredictionBandwidthGainControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getResistancePredictionBandwidthGainControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getResistancePredictionTauControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getResistancePredictionTauControl(control);
+//ErrorCodes_t getResistancePredictionTauControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getResistancePredictionTauControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getLeakConductanceControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getLeakConductanceControl(control);
+//ErrorCodes_t getLeakConductanceControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getLeakConductanceControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
-ErrorCodes_t getBridgeBalanceResistanceControl(
-        CharCompensationControl_t &control) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getBridgeBalanceResistanceControl(control);
+//ErrorCodes_t getBridgeBalanceResistanceControl(
+//        CharCompensationControl_t &control) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        ret = messageDispatcher->getBridgeBalanceResistanceControl(control);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
 // NEW MICHELANGELO'S GETS
 
