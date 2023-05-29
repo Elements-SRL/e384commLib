@@ -1,6 +1,6 @@
 #include "messagedispatcher_4x10mhz.h"
 
-MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
+MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     MessageDispatcher_OpalKelly(di) {
 
     deviceName = "4x10MHz";
@@ -42,7 +42,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
     rxMaxWords = currentChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 270; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 360; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = (txDataWords/2+1)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
@@ -384,6 +384,167 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
         }
     }
 
+    /*! Protocol structure */
+    boolConfig.initialWord = protocolWordOffset;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolIdCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolIdCoder);
+
+    boolConfig.initialWord = protocolWordOffset+1;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolItemsNumberCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolItemsNumberCoder);
+
+    boolConfig.initialWord = protocolWordOffset+2;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolSweepsNumberCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolSweepsNumberCoder);
+
+    doubleConfig.initialWord = protocolWordOffset+3;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    voltageProtocolRestCoders.resize(VCVoltageRangesNum);
+
+    for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
+        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.maxValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
+        voltageProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(voltageProtocolRestCoders[rangeIdx]);
+    }
+
+    /*! Protocol items */
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    voltageProtocolStim0Coders.resize(VCVoltageRangesNum);
+    voltageProtocolStim0StepCoders.resize(VCVoltageRangesNum);
+    voltageProtocolStim1Coders.resize(VCVoltageRangesNum);
+    voltageProtocolStim1StepCoders.resize(VCVoltageRangesNum);
+
+    for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
+        voltageProtocolStim0Coders[rangeIdx].resize(protocolMaxItemsNum);
+        voltageProtocolStim0StepCoders[rangeIdx].resize(protocolMaxItemsNum);
+        voltageProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
+        voltageProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
+
+        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.maxValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
+
+        for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+            doubleConfig.initialWord = protocolWordOffset+4+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim0Coders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+5+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim0StepCoders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim1Coders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+7+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim1StepCoders[rangeIdx][itemIdx]);
+        }
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = positiveProtocolTimeRange.step;
+    doubleConfig.minValue = positiveProtocolTimeRange.min;
+    doubleConfig.maxValue = positiveProtocolTimeRange.max;
+    protocolTime0Coders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+        protocolTime0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(protocolTime0Coders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = protocolTimeRange.step;
+    doubleConfig.minValue = protocolTimeRange.min;
+    doubleConfig.maxValue = protocolTimeRange.max;
+    protocolTime0StepCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+        protocolTime0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(protocolTime0StepCoders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = positiveProtocolFrequencyRange.step;
+    doubleConfig.minValue = positiveProtocolFrequencyRange.min;
+    doubleConfig.maxValue = positiveProtocolFrequencyRange.max;
+    protocolFrequency0Coders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+        protocolFrequency0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(protocolFrequency0Coders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = protocolFrequencyRange.step;
+    doubleConfig.minValue = protocolFrequencyRange.min;
+    doubleConfig.maxValue = protocolFrequencyRange.max;
+    protocolFrequency0StepCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+        protocolFrequency0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(protocolFrequency0StepCoders[itemIdx]);
+    }
+
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolItemIdxCoders.resize(protocolMaxItemsNum);
+    protocolNextItemIdxCoders.resize(protocolMaxItemsNum);
+    protocolLoopRepetitionsCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        boolConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
+        protocolItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolItemIdxCoders[itemIdx]);
+
+        boolConfig.initialWord = protocolWordOffset+13+protocolItemsWordsNum*itemIdx;
+        protocolNextItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolNextItemIdxCoders[itemIdx]);
+
+        boolConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
+        protocolLoopRepetitionsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolLoopRepetitionsCoders[itemIdx]);
+    }
+
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    protocolApplyStepsCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
+        protocolApplyStepsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolApplyStepsCoders[itemIdx]);
+    }
+
+    boolConfig.initialBit = 2;
+    boolConfig.bitsNum = 4;
+    protocolItemTypeCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
+        protocolItemTypeCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolItemTypeCoders[itemIdx]);
+    }
+
     /*! V holding tuner */
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
@@ -391,9 +552,9 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
 
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 258;
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
-        doubleConfig.minValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
-        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+        doubleConfig.resolution = -vHoldRange[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
+        doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
+        doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
@@ -402,40 +563,50 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(string di) :
         }
     }
 
-    /*! VC current gain tuner */
-    doubleConfig.initialWord = 262;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibVcCurrentGainRange.step;
-    doubleConfig.minValue = calibVcCurrentGainRange.min;
-    doubleConfig.maxValue = calibVcCurrentGainRange.max;
-    calibVcCurrentGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibVcCurrentGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
+//    /*! VC current gain calibration */
+//    doubleConfig.initialWord = 344;
+//    doubleConfig.initialBit = 0;
+//    doubleConfig.bitsNum = 16;
+//    doubleConfig.resolution = calibVcCurrentGainRange.step;
+//    doubleConfig.minValue = calibVcCurrentGainRange.min;
+//    doubleConfig.maxValue = calibVcCurrentGainRange.max;
+//    calibVcCurrentGainCoders.resize(currentChannelsNum);
+//    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+//        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+//        coders.push_back(calibVcCurrentGainCoders[idx]);
+//        doubleConfig.initialWord++;
+//    }
 
-    /*! VC current offset tuner */
-    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 266;
-        doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
-        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
-        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
-        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
-        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
-        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
-            doubleConfig.initialWord++;
-        }
-    }
+//    /*! VC current offset calibration */
+//    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
+//    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+//        doubleConfig.initialWord = 348;
+//        doubleConfig.initialBit = 0;
+//        doubleConfig.bitsNum = 16;
+//        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
+//        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
+//        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
+//        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
+//        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+//            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+//            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
+//            doubleConfig.initialWord++;
+//        }
+//    }
+
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus[344] = 0x0400; /*! current gain 1 */
+    txStatus[345] = 0x0400; /*! current gain 1 */
+    txStatus[346] = 0x0400; /*! current gain 1 */
+    txStatus[347] = 0x0400; /*! current gain 1 */
+    txStatus[352] = 0x0400; /*! voltage gain 1 */
+    txStatus[353] = 0x0400; /*! voltage gain 1 */
+    txStatus[354] = 0x0400; /*! voltage gain 1 */
+    txStatus[355] = 0x0400; /*! voltage gain 1 */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
@@ -448,31 +619,31 @@ void MessageDispatcher_4x10MHz_V01::initializeHW() {
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    this_thread::sleep_for(chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     dcmResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
     /*! After a short while the 10MHz clock starts */
-    this_thread::sleep_for(chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     /*! Reset FPGA to initialize state machines */
     fpgaResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    this_thread::sleep_for(chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     fpgaResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
     /*! Wait for the initialization */
-    this_thread::sleep_for(chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    this_thread::sleep_for(chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -492,7 +663,7 @@ void MessageDispatcher_4x10MHz_V01::initializeHW() {
 //    }
 //}
 
-MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
+MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(std::string di) :
     MessageDispatcher_OpalKelly(di) {
 
     deviceName = "10MHz";
@@ -534,12 +705,14 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     rxMaxWords = currentChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 270; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 352; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = (txDataWords/2+1)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
+
+    protocolWordOffset = 14;
 
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
@@ -1029,7 +1202,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     }
 
     /*! VC current gain tuner */
-    doubleConfig.initialWord = 261;
+    doubleConfig.initialWord = 344;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcCurrentGainRange.step;
@@ -1045,7 +1218,7 @@ MessageDispatcher_10MHz_V01::MessageDispatcher_10MHz_V01(string di) :
     /*! VC current offset tuner */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 266;
+        doubleConfig.initialWord = 348;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -1075,31 +1248,31 @@ void MessageDispatcher_10MHz_V01::initializeHW() {
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    this_thread::sleep_for(chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     dcmResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
     /*! After a short while the 10MHz clock starts */
-    this_thread::sleep_for(chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     /*! Reset FPGA to initialize state machines */
     fpgaResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    this_thread::sleep_for(chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     fpgaResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
     /*! Wait for the initialization */
-    this_thread::sleep_for(chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    this_thread::sleep_for(chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);

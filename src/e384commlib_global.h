@@ -189,6 +189,7 @@ typedef enum DeviceTypes {
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
     Device384FakePatchClamp,    /*!< Fake patch clamp device */
+    Device4x10MHzFake,          /*!< Fake 4x10MHz device */
 #endif
     DeviceUnknown,              /*!< Invalid item used only for initiliazation purposes. */
     DevicesNum

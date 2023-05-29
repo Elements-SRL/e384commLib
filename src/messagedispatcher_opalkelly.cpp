@@ -1,10 +1,7 @@
 #include "messagedispatcher_opalkelly.h"
 #include "utils.h"
 
-using namespace std;
-using namespace chrono;
-
-MessageDispatcher_OpalKelly::MessageDispatcher_OpalKelly(string deviceId) :
+MessageDispatcher_OpalKelly::MessageDispatcher_OpalKelly(std::string deviceId) :
     MessageDispatcher(deviceId) {
 
     rxRawBufferMask = OKY_RX_BUFFER_MASK;
@@ -84,13 +81,13 @@ ErrorCodes_t MessageDispatcher_OpalKelly::disconnect() {
 void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
     regs.reserve(txMaxRegs);
 
-    unique_lock <mutex> txMutexLock (txMutex);
+    std::unique_lock <std::mutex> txMutexLock (txMutex);
     txMutexLock.unlock();
 
-    unique_lock <mutex> rxRawMutexLock (rxRawMutex);
+    std::unique_lock <std::mutex> rxRawMutexLock (rxRawMutex);
     rxRawMutexLock.unlock();
 
-    steady_clock::time_point startWhileTime = steady_clock::now();
+    std::chrono::steady_clock::time_point startWhileTime = std::chrono::steady_clock::now();
 
     bool waitingTimeForReadingPassed = false;
 
@@ -123,8 +120,11 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
         /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
         if (waitingTimeForReadingPassed) {
             rxRawMutexLock.lock();
-            if (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE <= OKY_RX_BUFFER_SIZE) {
+            if (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE <= OKY_RX_BUFFER_SIZE && !stopConnectionFlag) {
                 rxRawMutexLock.unlock();
+                if (stopConnectionFlag) {
+                    break;
+                }
 
                 uint32_t bytesRead = this->readDataFromDevice();
 
@@ -148,7 +148,7 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
             }
 
         } else {
-            long long t = duration_cast <microseconds> (steady_clock::now()-startWhileTime).count();
+            long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
             if (t > waitingTimeBeforeReadingData*1e6) {
                 waitingTimeForReadingPassed = true;
             }
@@ -236,7 +236,7 @@ uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
             /*! The device cannot recover from timeout condition \todo FCON si riesce a mandare una notifica ad alto livello che il thread è morto */
             stopConnectionFlag = true;
         }
-        this_thread::sleep_for(chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 #ifdef DEBUG_RX_PROCESSING_PRINT
         fprintf(rxProcFid, "Error %x\n", bytesRead);
         fflush(rxProcFid);
@@ -283,17 +283,20 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
      *  Parsing part  *
     \******************/
 
-    unique_lock <mutex> rxRawMutexLock (rxRawMutex);
+    std::unique_lock <std::mutex> rxRawMutexLock (rxRawMutex);
     rxRawMutexLock.unlock();
 
     while (!stopConnectionFlag) {
         rxRawMutexLock.lock();
-        while (rxRawBufferReadLength <= OKY_RX_TRANSFER_SIZE) {
-            rxRawBufferNotEmpty.wait_for(rxRawMutexLock, chrono::milliseconds(10));
+        while (rxRawBufferReadLength <= OKY_RX_TRANSFER_SIZE && !stopConnectionFlag) {
+            rxRawBufferNotEmpty.wait_for(rxRawMutexLock, std::chrono::milliseconds(10));
         }
         maxRxRawBytesRead = rxRawBufferReadLength;
         rxRawBytesAvailable = maxRxRawBytesRead;
         rxRawMutexLock.unlock();
+        if (stopConnectionFlag) {
+            break;
+        }
 
         /*! Compute the approximate number of available packets */
         notEnoughRxData = false;
@@ -425,7 +428,7 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
     }
 
     if (rxMsgBufferReadLength <= 0) {
-        unique_lock <mutex> rxMutexLock(rxMsgMutex);
+        std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
         parsingFlag = false;
         rxMsgBufferReadLength++;
         rxMsgBufferNotEmpty.notify_all();

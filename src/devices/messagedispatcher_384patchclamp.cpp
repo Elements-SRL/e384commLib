@@ -3,7 +3,7 @@
 
 /*! \todo FCON tutto da rifare, è una copia del nanopore */
 
-MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string di) :
+MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::string di) :
     MessageDispatcher_OpalKelly(di) {
 
     deviceName = "384PatchClamp";
@@ -559,7 +559,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     const int pipetteCapacitanceRanges = 4;
     const double pipetteCapacitanceValuesNum = 64.0;
 
-    vector <double> pipetteInjCapacitance = {2.5, 5.0, 10.0, 20.0};
+    std::vector <double> pipetteInjCapacitance = {2.5, 5.0, 10.0, 20.0};
     /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
     pipetteCapacitanceRange_pF.resize(pipetteCapacitanceRanges);
     for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
@@ -591,7 +591,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     const double membraneCapTauValueVarResistance_MOhm = 51.2 / this->clockRatio; /*! affected by switch cap clock!!!!!*/
     const double membraneCapTauValueValuesNum = 256.0; // 8 bits
 
-    vector <double> membraneCapTauValueCapacitance = {2.5, 25.0};
+    std::vector <double> membraneCapTauValueCapacitance = {2.5, 25.0};
     /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
     membraneCapTauValueRange_us.resize(membraneCapTauValueRanges);
     for (int idx = 0; idx < membraneCapTauValueRanges; idx++) {
@@ -1521,7 +1521,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(string 
     }
 
     // Initialization Compensable in USER domain
-    vector<double> defaultAsicDomainParams;
+    std::vector<double> defaultAsicDomainParams;
     for(int i = 0; i<currentChannelsNum; i++){
         defaultAsicDomainParams = user2AsicDomainTransform(i, defaultUserDomainParams);
         asic2UserDomainCompensable(i, defaultAsicDomainParams, defaultUserDomainParams);
@@ -1568,7 +1568,7 @@ void MessageDispatcher_384PatchClamp_V01::initializeHW() {
 //}
 
 /*! \todo FCON recheck*/
-ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompFeatures(uint16_t paramToExtractFeatures, vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
     switch(paramToExtractFeatures){
     case U_CpVc:
         if(pipetteCapEnCompensationCoders.size() == 0){
@@ -1743,7 +1743,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCcCompensations(bool ena
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
     // make local copy of the user domain param vectors
-    vector<vector<double>> localCompValueSubMatrix;
+    std::vector<std::vector<double>> localCompValueSubMatrix;
     localCompValueSubMatrix.resize(channelIndexes.size());
     for(int i = 0; i< channelIndexes.size(); i++){
         localCompValueSubMatrix[i] = this->compValueMatrix[channelIndexes[i]];
@@ -1755,7 +1755,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
         localCompValueSubMatrix[j][paramToUpdate] = newParamValues[j];
 
         // convert user domain to asic domain
-        vector<double> asicParams = user2AsicDomainTransform(channelIndexes[j], localCompValueSubMatrix[j]);
+        std::vector<double> asicParams = user2AsicDomainTransform(channelIndexes[j], localCompValueSubMatrix[j]);
         double temp;
 
         // select asicParam to encode based on enum
@@ -1860,9 +1860,9 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompOptions(std::vector<uin
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnVoltageReaderOn(bool onValueIn, bool applyFlagIn){
-    vector<bool> allTheTrueIneed;
-    vector<bool> allTheFalseIneed;
-    vector<uint16_t> channelIdxs;
+    std::vector<bool> allTheTrueIneed;
+    std::vector<bool> allTheFalseIneed;
+    std::vector<uint16_t> channelIdxs;
 
     for(int i = 0; i< currentChannelsNum; i++){
         allTheTrueIneed.push_back(true);
@@ -1886,9 +1886,9 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnVoltageReaderOn(bool onVal
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentReaderOn(bool onValueIn, bool applyFlagIn){
-    vector<bool> allTheTrueIneed;
-    vector<bool> allTheFalseIneed;
-    vector<uint16_t> channelIdxs;
+    std::vector<bool> allTheTrueIneed;
+    std::vector<bool> allTheFalseIneed;
+    std::vector<uint16_t> channelIdxs;
 
     for(int i = 0; i< currentChannelsNum; i++){
         allTheTrueIneed.push_back(true);
@@ -1912,9 +1912,9 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentReaderOn(bool onVal
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnVoltageStimulusOn(bool onValue, bool applyFlag){
-    vector<bool> allTheTrueIneed;
-    vector<bool> allTheFalseIneed;
-    vector<uint16_t> channelIdxs;
+    std::vector<bool> allTheTrueIneed;
+    std::vector<bool> allTheFalseIneed;
+    std::vector<uint16_t> channelIdxs;
 
     for(int i = 0; i< currentChannelsNum; i++){
         allTheTrueIneed.push_back(true);
@@ -1933,9 +1933,9 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnVoltageStimulusOn(bool onV
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentStimulusOn(bool onValue, bool applyFlag){
-    vector<bool> allTheTrueIneed;
-    vector<bool> allTheFalseIneed;
-    vector<uint16_t> channelIdxs;
+    std::vector<bool> allTheTrueIneed;
+    std::vector<bool> allTheFalseIneed;
+    std::vector<uint16_t> channelIdxs;
 
     for(int i = 0; i< currentChannelsNum; i++){
         allTheTrueIneed.push_back(true);
@@ -1954,8 +1954,8 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentStimulusOn(bool onV
      return Success;
 }
 
-vector<double> MessageDispatcher_384PatchClamp_V01::user2AsicDomainTransform(int chIdx, vector<double> userDomainParams){
-    vector<double> asicDomainParameter;
+std::vector<double> MessageDispatcher_384PatchClamp_V01::user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams){
+    std::vector<double> asicDomainParameter;
     asicDomainParameter.resize(CompensationAsicParamsNum);
     double cp; // pipette capacitance
     double cm; // membrane capacitance
@@ -2007,7 +2007,7 @@ vector<double> MessageDispatcher_384PatchClamp_V01::user2AsicDomainTransform(int
 }
 
 std::vector<double> MessageDispatcher_384PatchClamp_V01::asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc){
-    vector<double> userDomainParameter;
+    std::vector<double> userDomainParameter;
     userDomainParameter.resize(CompensationUserParamsNum);
 
     double cpVc;
@@ -2062,10 +2062,10 @@ std::vector<double> MessageDispatcher_384PatchClamp_V01::asic2UserDomainTransfor
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams){
     /*! \todo still to understand how to obtain them. COuld they be imputs of the function?*/
-    vector<double> potentialMaxs;
-    vector<double> potentialMins;
+    std::vector<double> potentialMaxs;
+    std::vector<double> potentialMins;
 
-    double myInfinity = numeric_limits<double>::infinity();
+    double myInfinity = std::numeric_limits<double>::infinity();
 
     double asicCmCinj;
     MultiCoder::MultiCoderConfig_t aaa;

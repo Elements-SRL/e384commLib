@@ -3,11 +3,9 @@
 
 #include "messagedispatcher_opalkelly.h"
 
-using namespace std;
-
 class MessageDispatcher_384NanoPores_V01 : public MessageDispatcher_OpalKelly {
 public:
-    MessageDispatcher_384NanoPores_V01(string di);
+    MessageDispatcher_384NanoPores_V01(std::string di);
     virtual ~MessageDispatcher_384NanoPores_V01();
 
 protected:

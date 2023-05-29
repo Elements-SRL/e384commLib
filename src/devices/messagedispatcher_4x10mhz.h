@@ -3,11 +3,9 @@
 
 #include "messagedispatcher_opalkelly.h"
 
-using namespace std;
-
 class MessageDispatcher_4x10MHz_V01 : public MessageDispatcher_OpalKelly {
 public:
-    MessageDispatcher_4x10MHz_V01(string di);
+    MessageDispatcher_4x10MHz_V01(std::string di);
     virtual ~MessageDispatcher_4x10MHz_V01();
 
 protected:
@@ -78,7 +76,7 @@ protected:
 
 class MessageDispatcher_10MHz_V01 : public MessageDispatcher_OpalKelly {
 public:
-    MessageDispatcher_10MHz_V01(string di);
+    MessageDispatcher_10MHz_V01(std::string di);
     virtual ~MessageDispatcher_10MHz_V01();
 
 protected:

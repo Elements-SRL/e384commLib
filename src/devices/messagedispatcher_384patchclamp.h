@@ -5,11 +5,9 @@
 
 //#define E384PATCH_ADDITIONAL_SR_FLAG
 
-using namespace std;
-
 class MessageDispatcher_384PatchClamp_V01 : public MessageDispatcher_OpalKelly {
 public:
-    MessageDispatcher_384PatchClamp_V01(string di);
+    MessageDispatcher_384PatchClamp_V01(std::string di);
     virtual ~MessageDispatcher_384PatchClamp_V01();
 
     virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) override;
@@ -30,7 +28,7 @@ protected:
     const double nominalClock = 102.4; //MHz
     const double actualClock = 81.92; //MHz
     const double clockRatio = actualClock / nominalClock;
-    vector <double> membraneCapValueInjCapacitance;
+    std::vector <double> membraneCapValueInjCapacitance;
 
     enum ClampingModalities {
         VoltageClamp,

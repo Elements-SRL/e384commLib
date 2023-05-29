@@ -1,6 +1,6 @@
 #include "messagedispatcher_384nanopores.h"
 
-MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(string di) :
+MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::string di) :
     MessageDispatcher_OpalKelly(di) {
 
     deviceName = "384NanoPores";
@@ -720,12 +720,12 @@ void MessageDispatcher_384NanoPores_V01::initializeHW() {
 //    this_thread::sleep_for(chrono::milliseconds(100));
 //    this->resetAsic(false, true);
 
-    this_thread::sleep_for(chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stackOutgoingMessage(txStatus);
 
-    this_thread::sleep_for(chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stackOutgoingMessage(txStatus);

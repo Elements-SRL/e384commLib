@@ -1,6 +1,6 @@
 #include "messagedispatcher_384fakepatchclamp.h"
 
-MessageDispatcher_384FakePatchClamp::MessageDispatcher_384FakePatchClamp(string id) :
+MessageDispatcher_384FakePatchClamp::MessageDispatcher_384FakePatchClamp(std::string id) :
     MessageDispatcher_384PatchClamp_V01(id){
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
@@ -49,7 +49,7 @@ void MessageDispatcher_384FakePatchClamp::sendCommandsToDevice() {
 
     bool notSentTxData;
 
-    unique_lock <mutex> txMutexLock (txMutex);
+    std::unique_lock <std::mutex> txMutexLock (txMutex);
     txMutexLock.unlock();
 
     while (!stopConnectionFlag) {
@@ -60,7 +60,7 @@ void MessageDispatcher_384FakePatchClamp::sendCommandsToDevice() {
 
         txMutexLock.lock();
         while (txMsgBufferReadLength <= 0) {
-            txMsgBufferNotEmpty.wait_for(txMutexLock, chrono::milliseconds(100));
+            txMsgBufferNotEmpty.wait_for(txMutexLock, std::chrono::milliseconds(100));
             if (stopConnectionFlag) {
                 break;
             }
@@ -123,7 +123,7 @@ uint32_t MessageDispatcher_384FakePatchClamp::readDataFromDevice() {
 
     while (!stopConnectionFlag) {
         /*! No data to receive, just sleep */
-        this_thread::sleep_for(chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
             rxRawBuffer[rxRawBufferWriteOffset] = (((syntheticData+idx*20) & 0x1F00) >> 8) - 0x10;
@@ -143,7 +143,7 @@ uint32_t MessageDispatcher_384FakePatchClamp::readDataFromDevice() {
     }
 
     if (rxMsgBufferReadLength <= 0) {
-        unique_lock <mutex> rxMutexLock(rxMsgMutex);
+        std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
         parsingFlag = false;
         rxMsgBufferReadLength++;
         rxMsgBufferNotEmpty.notify_all();

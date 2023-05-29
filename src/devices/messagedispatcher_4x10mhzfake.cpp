@@ -1,7 +1,7 @@
-#include "messagedispatcher_384fake.h"
+#include "messagedispatcher_4x10mhzfake.h"
 
-MessageDispatcher_384Fake::MessageDispatcher_384Fake(std::string id) :
-    MessageDispatcher_384NanoPores_V01(id) {
+MessageDispatcher_4x10MHzFake::MessageDispatcher_4x10MHzFake(std::string id) :
+    MessageDispatcher_4x10MHz_V01(id) {
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
@@ -23,21 +23,21 @@ MessageDispatcher_384Fake::MessageDispatcher_384Fake(std::string id) :
 
 }
 
-MessageDispatcher_384Fake::~MessageDispatcher_384Fake() {
+MessageDispatcher_4x10MHzFake::~MessageDispatcher_4x10MHzFake() {
 
 }
 
-ErrorCodes_t MessageDispatcher_384Fake::connect() {
+ErrorCodes_t MessageDispatcher_4x10MHzFake::connect() {
     this->initializeBuffers();
     return MessageDispatcher::connect();
 }
 
-ErrorCodes_t MessageDispatcher_384Fake::disconnect() {
+ErrorCodes_t MessageDispatcher_4x10MHzFake::disconnect() {
     MessageDispatcher::disconnect();
     return this->deinitializeBuffers();
 }
 
-void MessageDispatcher_384Fake::sendCommandsToDevice() {
+void MessageDispatcher_4x10MHzFake::sendCommandsToDevice() {
     int writeTries = 0;
     okTRegisterEntries regs;
     regs.reserve(txMaxRegs);
@@ -110,7 +110,7 @@ void MessageDispatcher_384Fake::sendCommandsToDevice() {
     }
 }
 
-uint32_t MessageDispatcher_384Fake::readDataFromDevice() {
+uint32_t MessageDispatcher_4x10MHzFake::readDataFromDevice() {
     stopConnectionFlag = false;
 
     rxRawBufferReadOffset = 0;

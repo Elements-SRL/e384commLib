@@ -16,12 +16,11 @@
 /*! Fake device that generates synthetic data */
 #include "messagedispatcher_384fake.h"
 #include "messagedispatcher_384fakepatchclamp.h"
+#include "messagedispatcher_4x10mhzfake.h"
 #endif
 #include "utils.h"
 
-using namespace std;
-
-static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
+static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000107S", Device384Nanopores},
     {"221000108T", Device384Nanopores},
     {"221000106B", Device384PatchClamp},
@@ -30,10 +29,11 @@ static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
 //    {"22370012CI", Device10MHz}
     {"22370012CB", Device4x10MHz},
     {"22370012CI", Device4x10MHz}
-    #ifdef DEBUG
-    ,{"FAKE", Device384Fake}
+#ifdef DEBUG
+    ,{"FAKE_Nanopores", Device384Fake}
     ,{"FAKE_PATCH_CLAMP", Device384FakePatchClamp}
-    #endif
+    ,{"FAKE_4x10MHz", Device4x10MHzFake}
+#endif
 }; /*! \todo FCON queste info dovrebbero risiedere nel DB, e ci vanno comunque i numeri seriali corretti delle opal kelly */
 
 /********************************************************************************************\
@@ -46,7 +46,7 @@ static unordered_map <string, DeviceTypes_t> deviceIdMapping = {
  *  Ctor / Dtor  *
 \*****************/
 
-MessageDispatcher::MessageDispatcher(string deviceId) :
+MessageDispatcher::MessageDispatcher(std::string deviceId) :
     deviceId(deviceId) {
 
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAck] = false;
@@ -92,7 +92,7 @@ ErrorCodes_t MessageDispatcher::init() {
         return ErrorMemoryInitialization;
     }
 
-    txMsgBuffer = new (std::nothrow) vector <uint16_t>[TX_MSG_BUFFER_SIZE];
+    txMsgBuffer = new (std::nothrow) std::vector <uint16_t>[TX_MSG_BUFFER_SIZE];
     if (txMsgBuffer == nullptr) {
         return ErrorMemoryInitialization;
     }
@@ -166,7 +166,7 @@ ErrorCodes_t MessageDispatcher::deinit() {
 }
 
 ErrorCodes_t MessageDispatcher::detectDevices(
-        vector <string> &deviceIds) {
+        std::vector <std::string> &deviceIds) {
     /*! Gets number of devices */
     int numDevs;
     bool devCountOk = getDeviceCount(numDevs);
@@ -189,15 +189,17 @@ ErrorCodes_t MessageDispatcher::detectDevices(
 
 #ifdef DEBUG
     numDevs++;
-    deviceIds.push_back("FAKE");
+    deviceIds.push_back("FAKE_Nanopores");
     numDevs++;
     deviceIds.push_back("FAKE_PATCH_CLAMP");
+    numDevs++;
+    deviceIds.push_back("FAKE_4x10MHz");
 #endif
 
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getDeviceType(string deviceId, DeviceTypes_t &type) {
+ErrorCodes_t MessageDispatcher::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
     if (deviceIdMapping.count(deviceId) > 0) {
         type = deviceIdMapping[deviceId];
         return Success;
@@ -239,8 +241,13 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
     case Device384Fake:
         messageDispatcher = new MessageDispatcher_384Fake(deviceId);
         break;
+        
     case Device384FakePatchClamp:
         messageDispatcher = new MessageDispatcher_384FakePatchClamp(deviceId);
+        break;
+
+    case Device4x10MHzFake:
+        messageDispatcher = new MessageDispatcher_4x10MHzFake(deviceId);
         break;
 #endif
 
@@ -317,16 +324,14 @@ ErrorCodes_t MessageDispatcher::connect() {
     }
 #endif
 
-    deviceCommunicationThread = thread(&MessageDispatcher::handleCommunicationWithDevice, this);
-    rxConsumerThread = thread(&MessageDispatcher::parseDataFromDevice, this);
+    deviceCommunicationThread = std::thread(&MessageDispatcher::handleCommunicationWithDevice, this);
+    rxConsumerThread = std::thread(&MessageDispatcher::parseDataFromDevice, this);
 
     threadsStarted = true;
 
-#ifndef DEBUG
     /*! Initialize device */
-    this_thread::sleep_for(chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     this->initializeDevice();
-#endif
 
     return Success;
 }
@@ -364,15 +369,15 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
     this->initializeHW();
 
     /*! Some default values*/
-    vector <bool> allTrue(currentChannelsNum, true);
-    vector <bool> allFalse(currentChannelsNum, false);
+    std::vector <bool> allTrue(currentChannelsNum, true);
+    std::vector <bool> allFalse(currentChannelsNum, false);
 
-    vector <uint16_t> channelIndexes(currentChannelsNum);
+    std::vector <uint16_t> channelIndexes(currentChannelsNum);
     for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
         channelIndexes[idx] = idx;
     }
 
-    vector <uint16_t> boardIndexes(totalBoardsNum);
+    std::vector <uint16_t> boardIndexes(totalBoardsNum);
     for (uint16_t idx = 0; idx < totalBoardsNum; idx++) {
         boardIndexes[idx] = idx;
     }
@@ -394,12 +399,13 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
     this->setSourceVoltagesTuner(boardIndexes, selectedSourceVoltageVector, false);
     this->digitalOffsetCompensation(channelIndexes, allFalse, false);
 
+    /*! Make sure that at the beginning all the constant values tha might not be written later on are sent to the FPGA */
     txModifiedStartingWord = 0;
     txModifiedEndingWord = txDataWords;
 
     this->stackOutgoingMessage(txStatus);
 
-    this_thread::sleep_for(chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     return Success;
 }
@@ -430,7 +436,7 @@ ErrorCodes_t MessageDispatcher::resetFpga(bool resetFlag, bool applyFlagIn) {
     }
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelIndexes, vector<Measurement_t> voltages, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
     if (vHoldTunerCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -457,7 +463,7 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(vector<uint16_t> channelInde
     }
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(vector<uint16_t> channelIndexes, vector<Measurement_t> currents, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
     if (cHoldTunerCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -484,7 +490,7 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(vector<uint16_t> channelInde
     }
 }
 
-ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
     if (calibVcCurrentGainCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -508,7 +514,7 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(vector<uint16_t> channelIn
     }
 }
 
-ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
     if (calibVcCurrentOffsetCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -532,7 +538,7 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(vector<uint16_t> channel
     }
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
     if (calibCcVoltageGainCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -556,7 +562,7 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(vector<uint16_t> channelIn
     }
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
     if (calibCcVoltageOffsetCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -582,7 +588,7 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(vector<uint16_t> channel
 
 
 //---------------------------------
-ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
     if (calibVcVoltageGainCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -603,7 +609,7 @@ ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(vector<uint16_t> channelIn
     }
 }
 
-ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
     if (calibVcVoltageOffsetCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -627,7 +633,7 @@ ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(vector<uint16_t> channel
     }
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(vector<uint16_t> channelIndexes, vector<Measurement_t> gains, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
     if (calibCcCurrentGainCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -651,7 +657,7 @@ ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(vector<uint16_t> channelIn
     }
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(vector<uint16_t> channelIndexes, vector<Measurement_t> offsets, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
     if (calibCcCurrentOffsetCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -678,7 +684,7 @@ ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(vector<uint16_t> channel
 
 //---------------------------------
 
-ErrorCodes_t MessageDispatcher::setGateVoltagesTuner(vector<uint16_t> boardIndexes, vector<Measurement_t> gateVoltages, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setGateVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag){
     if (gateVoltageCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -702,7 +708,7 @@ ErrorCodes_t MessageDispatcher::setGateVoltagesTuner(vector<uint16_t> boardIndex
     }
 }
 
-ErrorCodes_t MessageDispatcher::setSourceVoltagesTuner(vector<uint16_t> boardIndexes, vector<Measurement_t> sourceVoltages, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setSourceVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag){
     if (sourceVoltageCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -802,7 +808,7 @@ ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool
     }
 }
 
-ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
     if (digitalOffsetCompensationCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -856,7 +862,7 @@ ErrorCodes_t  MessageDispatcher::setCurrentStimulusLpf(uint16_t filterIdx, bool 
     }
 }
 
-ErrorCodes_t MessageDispatcher::enableStimulus(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
     if (enableStimulusCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -876,7 +882,7 @@ ErrorCodes_t MessageDispatcher::enableStimulus(vector<uint16_t> channelIndexes, 
     }
 }
 
-ErrorCodes_t MessageDispatcher::turnChannelsOn(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::turnChannelsOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
     if (turnChannelsOnCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -896,7 +902,7 @@ ErrorCodes_t MessageDispatcher::turnChannelsOn(vector<uint16_t> channelIndexes, 
     }
 }
 
-ErrorCodes_t MessageDispatcher::turnCalSwOn(vector<uint16_t> channelIndexes, vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::turnCalSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
     if (calSwCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
@@ -1198,7 +1204,7 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t protId, uin
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step) {
-    if (voltageProtocolStepImplemented) {
+    if (!voltageProtocolStepImplemented) {
             return ErrorFeatureNotImplemented;
 
     } else if (itemIdx >= protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0) || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0Step) ||
@@ -1216,7 +1222,9 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t itemIdx, uint16_
         v0.convertValue(voltagePrefix);
         voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         v0Step.convertValue(voltagePrefix);
-        voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         t0.convertValue(timePrefix);
         protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         t0Step.convertValue(timePrefix);
@@ -1226,7 +1234,7 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t itemIdx, uint16_
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step) {
-    if (voltageProtocolRampImplemented) {
+    if (!voltageProtocolRampImplemented) {
             return ErrorFeatureNotImplemented;
 
     } else if (itemIdx >= protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0) || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0Step) ||
@@ -1245,11 +1253,11 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t itemIdx, uint16_
         v0.convertValue(voltagePrefix);
         voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         v0Step.convertValue(voltagePrefix);
-        voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         vFinal.convertValue(voltagePrefix);
         voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vFinal.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         vFinalStep.convertValue(voltagePrefix);
-        voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vFinalStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(vFinalStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         t0.convertValue(timePrefix);
         protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         t0Step.convertValue(timePrefix);
@@ -1259,7 +1267,7 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t itemIdx, uint16_
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step) {
-    if (voltageProtocolSinImplemented) {
+    if (!voltageProtocolSinImplemented) {
             return ErrorFeatureNotImplemented;
 
     } else if (itemIdx >= protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0) || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0Step) ||
@@ -1278,11 +1286,11 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t itemIdx, uint16_t
         v0.convertValue(voltagePrefix);
         voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         v0Step.convertValue(voltagePrefix);
-        voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         vAmp.convertValue(voltagePrefix);
         voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vAmp.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         vAmpStep.convertValue(voltagePrefix);
-        voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vAmpStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(vAmpStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         f0.convertValue(timePrefix);
         protocolFrequency0Coders[itemIdx]->encode(f0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         f0Step.convertValue(timePrefix);
@@ -1312,7 +1320,7 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolStructure(uint16_t protId, uin
 }
 
 ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step) {
-    if (currentProtocolStepImplemented) {
+    if (!currentProtocolStepImplemented) {
             return ErrorFeatureNotImplemented;
 
     } else if (itemIdx >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0Step) ||
@@ -1330,7 +1338,9 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t itemIdx, uint16_
         i0.convertValue(currentPrefix);
         currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         i0Step.convertValue(currentPrefix);
-        currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         t0.convertValue(timePrefix);
         protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         t0Step.convertValue(timePrefix);
@@ -1340,7 +1350,7 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t itemIdx, uint16_
 }
 
 ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step) {
-    if (currentProtocolRampImplemented) {
+    if (!currentProtocolRampImplemented) {
             return ErrorFeatureNotImplemented;
 
     } else if (itemIdx >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0Step) ||
@@ -1359,11 +1369,11 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t itemIdx, uint16_
         i0.convertValue(currentPrefix);
         currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         i0Step.convertValue(currentPrefix);
-        currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         iFinal.convertValue(currentPrefix);
         currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iFinal.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         iFinalStep.convertValue(currentPrefix);
-        currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iFinalStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(iFinalStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         t0.convertValue(timePrefix);
         protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         t0Step.convertValue(timePrefix);
@@ -1373,13 +1383,13 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t itemIdx, uint16_
 }
 
 ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step) {
-    if (itemIdx >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0Step) ||
-            !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iAmp) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iAmpStep) ||
-            !positiveProtocolFrequencyRange.includes(f0) || !protocolFrequencyRange.includes(f0Step)) {
+    if (!currentProtocolSinImplemented) {
+        return ErrorFeatureNotImplemented;
+    } else if (itemIdx >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0Step) ||
+               !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iAmp) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iAmpStep) ||
+               !positiveProtocolFrequencyRange.includes(f0) || !protocolFrequencyRange.includes(f0Step)) {
         return ErrorValueOutOfRange;
 
-    } else if (currentProtocolSinImplemented) {
-        return ErrorFeatureNotImplemented;
 
     } else {
         UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
@@ -1392,11 +1402,11 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t
         i0.convertValue(currentPrefix);
         currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         i0Step.convertValue(currentPrefix);
-        currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         iAmp.convertValue(currentPrefix);
         currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iAmp.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         iAmpStep.convertValue(currentPrefix);
-        currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iAmpStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(iAmpStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         f0.convertValue(timePrefix);
         protocolFrequency0Coders[itemIdx]->encode(f0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         f0Step.convertValue(timePrefix);
@@ -1436,9 +1446,9 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
     ErrorCodes_t ret = Success;
     double xFlt;
 
-    unique_lock <mutex> rxMutexLock (rxMsgMutex);
+    std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
     if (rxMsgBufferReadLength <= 0) {
-        rxMsgBufferNotEmpty.wait_for(rxMutexLock, chrono::milliseconds(10));
+        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(10));
         if (rxMsgBufferReadLength <= 0) {
             return ErrorNoDataAvailable;
         }
@@ -1732,7 +1742,7 @@ ErrorCodes_t MessageDispatcher::getCalibVcCurrentGainFeatures(RangedMeasurement_
     }
 }
 
-ErrorCodes_t MessageDispatcher::getCalibVcCurrentOffsetFeatures(vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures){
+ErrorCodes_t MessageDispatcher::getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures){
     if (calibVcCurrentOffsetCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -1752,7 +1762,7 @@ ErrorCodes_t MessageDispatcher::getCalibCcVoltageGainFeatures(RangedMeasurement_
     }
 }
 
-ErrorCodes_t MessageDispatcher::getCalibCcVoltageOffsetFeatures(vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures){
+ErrorCodes_t MessageDispatcher::getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures){
     if (calibCcVoltageOffsetCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
 
@@ -1866,15 +1876,6 @@ ErrorCodes_t MessageDispatcher::getCurrentStimulusLpfs(std::vector <Measurement_
     }
 }
 
-//ErrorCodes_t MessageDispatcher::getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps){
-//    if(vcCalibVoltStepsArray.size()==0){
-//        return ErrorFeatureNotImplemented;
-//    } else {
-//        vcCalibVoltSteps = vcCalibVoltStepsArray;
-//        return Success;
-//    }
-//}
-
 ErrorCodes_t MessageDispatcher::getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range) {
     if (vHoldRange.empty()) {
         return ErrorFeatureNotImplemented;
@@ -1943,16 +1944,6 @@ ErrorCodes_t MessageDispatcher::hasProtocolSinFeature() {
 }
 
 
-//ErrorCodes_t MessageDispatcher::getVcCalibResFeatures(std::vector <Measurement_t> &vcCalibRes){
-//    if(vcCalibResArray.size()==0){
-//        return ErrorFeatureNotImplemented;
-//    } else {
-//        vcCalibRes = vcCalibResArray;
-//        return Success;
-//    }
-
-//}
-
 ErrorCodes_t MessageDispatcher::getCalibData(CalibrationData_t &calibData){
     if(calibrationData.vcCalibResArray.size()==0){
         return ErrorFeatureNotImplemented;
@@ -2007,8 +1998,8 @@ ErrorCodes_t MessageDispatcher::getCalibDefaultCcDacOffset(Measurement_t &defaul
 \*********************/
 
 /*! \todo FCON questi due metodi dovrebbero cercare dispositivi con tutte le librerie di interfacciamento con device implementate (per ora c'è solo il front panel della opal kelly) */
-string MessageDispatcher::getDeviceSerial(int index) {
-    string serial;
+std::string MessageDispatcher::getDeviceSerial(int index) {
+    std::string serial;
     int numDevs;
     getDeviceCount(numDevs);
     if (index < numDevs) {
@@ -2028,7 +2019,7 @@ bool MessageDispatcher::getDeviceCount(int &numDevs) {
     return true;
 }
 
-bool MessageDispatcher::checkProtocolValidity(string &message) {
+bool MessageDispatcher::checkProtocolValidity(std::string &message) {
     /*! \todo FCON da riempire */
     return false;
 }
@@ -2096,17 +2087,17 @@ void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rx
 
     if (rxEnabledTypesMap[rxMsgTypeId]) {
         /*! change the message buffer length only if the message is not filtered out */
-        unique_lock <mutex> rxMutexLock(rxMsgMutex);
+        std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
         rxMsgBufferReadLength++;
         rxMsgBufferNotEmpty.notify_all();
     }
 }
 
-void MessageDispatcher::stackOutgoingMessage(vector <uint16_t> &txDataMessage, TxTriggerType_t triggerType) {
+void MessageDispatcher::stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, TxTriggerType_t triggerType) {
     if (txModifiedEndingWord > txModifiedStartingWord) {
-        unique_lock <mutex> txMutexLock (txMutex);
+        std::unique_lock <std::mutex> txMutexLock (txMutex);
         while (txMsgBufferReadLength >= TX_MSG_BUFFER_SIZE) {
-            txMsgBufferNotFull.wait_for(txMutexLock, chrono::milliseconds(100));
+            txMsgBufferNotFull.wait_for(txMutexLock, std::chrono::milliseconds(100));
         }
 
         /*! The next 2 lines ensure that words are written in blocks of 32 bits in case any device libraries require it */
@@ -2298,7 +2289,7 @@ ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t> channelInde
     return ErrorFeatureNotImplemented;
 }
 /*! \todo FCON recheck*/
-ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t paramToExtractFeatures, vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
+ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
     return ErrorFeatureNotImplemented;
 }
 
@@ -2310,12 +2301,12 @@ ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector<std::vector<doubl
     return ErrorFeatureNotImplemented;
 }
 
-vector<double> MessageDispatcher::user2AsicDomainTransform(int chIdx, vector<double> userDomainParams){
-    return vector<double>();
+std::vector<double> MessageDispatcher::user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams){
+    return std::vector<double>();
 }
 
-vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc){
-    return vector<double>();
+std::vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc){
+    return std::vector<double>();
 }
 
 ErrorCodes_t MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams){

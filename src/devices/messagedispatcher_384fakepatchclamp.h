@@ -5,7 +5,7 @@
 
 class MessageDispatcher_384FakePatchClamp: public MessageDispatcher_384PatchClamp_V01 {
 public:
-    MessageDispatcher_384FakePatchClamp(string id);
+    MessageDispatcher_384FakePatchClamp(std::string id);
     virtual ~MessageDispatcher_384FakePatchClamp();
 
     virtual ErrorCodes_t connect() override;

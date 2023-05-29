@@ -1,12 +1,12 @@
-#ifndef MESSAGEDISPATCHER_384FAKE_H
-#define MESSAGEDISPATCHER_384FAKE_H
+#ifndef MESSAGEDISPATCHER_4X10MHZFAKE_H
+#define MESSAGEDISPATCHER_4X10MHZFAKE_H
 
-#include "messagedispatcher_384nanopores.h"
+#include "messagedispatcher_4x10mhz.h"
 
-class MessageDispatcher_384Fake : public MessageDispatcher_384NanoPores_V01 {
+class MessageDispatcher_4x10MHzFake : public MessageDispatcher_4x10MHz_V01 {
 public:
-    MessageDispatcher_384Fake(std::string id);
-    virtual ~MessageDispatcher_384Fake();
+    MessageDispatcher_4x10MHzFake(std::string id);
+    virtual ~MessageDispatcher_4x10MHzFake();
 
     virtual ErrorCodes_t connect() override;
     virtual ErrorCodes_t disconnect() override;
@@ -26,4 +26,4 @@ protected:
     virtual uint32_t readDataFromDevice() override;
 };
 
-#endif // MESSAGEDISPATCHER_384FAKE_H
+#endif // MESSAGEDISPATCHER_4X10MHZFAKE_H
