@@ -276,11 +276,11 @@ ErrorCodes_t digitalOffsetCompensationOverride(
  * \param value [in] Value that will be added to the calibration offset.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setVcCurrentOffsetDelta(
-        E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN CharMeasurement_t value);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t setVcCurrentOffsetDelta(
+//        E384CL_ARGIN uint16_t channelIdx,
+//        E384CL_ARGIN CharMeasurement_t value);
 
 /*! \brief Correct the calibration offset of the voltage acquired in CC.
  *
@@ -288,11 +288,11 @@ ErrorCodes_t setVcCurrentOffsetDelta(
  * \param value [in] Value that will be added to the calibration offset.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setCcVoltageOffsetDelta(
-        E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN CharMeasurement_t value);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t setCcVoltageOffsetDelta(
+//        E384CL_ARGIN uint16_t channelIdx,
+//        E384CL_ARGIN CharMeasurement_t value);
 
 /*! \brief Zap.
  * A big voltage is applied in order to break the membrane.
@@ -301,11 +301,11 @@ ErrorCodes_t setCcVoltageOffsetDelta(
  * \param channelIdx [in] Index of the channel to zap.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t zap(
-        E384CL_ARGIN CharMeasurement_t duration,
-        E384CL_ARGIN uint16_t channelIdx);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t zap(
+//        E384CL_ARGIN CharMeasurement_t duration,
+//        E384CL_ARGIN uint16_t channelIdx);
 
 /*! \brief Sets the low pass filter on the voltage stimulus.
  *
@@ -427,6 +427,23 @@ ErrorCodes_t setCalibVcCurrentOffset(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCalibVcVoltageGain(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCalibVcVoltageOffset(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
 /*! \brief Set a CC voltage gain on a specific channel.
  *
  * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
@@ -454,6 +471,22 @@ ErrorCodes_t setCalibCcVoltageGain(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcVoltageOffset(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCalibCcCurrentGain(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCalibCcCurrentOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN LMeasHandle offsetsIn,
         E384CL_ARGIN bool applyFlagIn,
@@ -1198,10 +1231,10 @@ ErrorCodes_t resetFpga(
  * \param reset [in] False sets the digital offset compensation in normal operation state, true sets in reset state.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t resetDigitalOffsetCompensation(
-        E384CL_ARGIN bool reset);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t resetDigitalOffsetCompensation(
+//        E384CL_ARGIN bool reset);
 
 /*! \brief Get calibration eeprom size in bytes.
  *
@@ -1286,29 +1319,29 @@ ErrorCodes_t getBoardsNumber(
  * \param sourcesIdxs [out] Indexes of the available data sources to be used for current channels.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getAvailableChannelsSources(
-        E384CL_ARGOUT ChannelSources_t &voltageSourcesIdxs,
-        E384CL_ARGOUT ChannelSources_t &currentSourcesIdxs);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t getAvailableChannelsSources(
+//        E384CL_ARGOUT ChannelSources_t &voltageSourcesIdxs,
+//        E384CL_ARGOUT ChannelSources_t &currentSourcesIdxs);
 
 /*! \brief Check if the device implements the holding voltage tuner.
  *
  * \return Success if the device implements holding voltage tuner.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t hasVoltageHoldTuner(
-        E384CL_ARGVOID);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t hasVoltageHoldTuner(
+//        E384CL_ARGVOID);
 
 /*! \brief Check if the device implements the holding current tuner.
  *
  * \return Success if the device implements holding current tuner.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t hasCurrentHoldTuner(
-        E384CL_ARGVOID);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t hasCurrentHoldTuner(
+//        E384CL_ARGVOID);
 
 
 //------------------------------------------------------------------------
@@ -1367,27 +1400,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCalibCcVoltageOffsetFeatures(
         E384CL_ARGOUT LRangeHandle * calibVcCurrentOffsetFeaturesOut);
 
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-/*! \brief Get the gate voltage features, e.g. ranges, step, ...
- *
- * \param gateVoltagesFeatures [out] Structure containing the gate voltage features.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getGateVoltagesFeatures(
-        E384CL_ARGOUT LRange gateVoltagesFeaturesOut);
-
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-/*! \brief Get the source voltage features, e.g. ranges, step, ...
- *
- * \param sourceVoltagesFeatures [out] Structure containing the source voltage features.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getSourceVoltagesFeatures(
-        E384CL_ARGOUT LRange sourceVoltagesFeaturesOut);
 
 /*! \brief Get the clamping modalities available for the device.
  *
@@ -1410,8 +1422,7 @@ ErrorCodes_t getClampingModalitiesFeatures(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVCCurrentRanges(
-        E384CL_ARGOUT LRangeHandle * currentRanges,
-        E384CL_ARGOUT uint16_t &defaultVcCurrRangeIdx);
+        E384CL_ARGOUT LRangeHandle * currentRanges);
     
 
 /*! \brief Get the current ranges available in current clamp for the device.
@@ -1423,6 +1434,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCCurrentRanges(
         E384CL_ARGOUT LRangeHandle * currentRanges);
+
 
 /*! \brief Get the current range currently applied for voltage clamp.
  *
@@ -1492,7 +1504,7 @@ ErrorCodes_t getCCVoltageRange(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getSamplingRates(
-        E384CL_ARGOUT LRangeHandle * samplingRates);
+        E384CL_ARGOUT LMeasHandle * samplingRates);
 
 /*! \brief Get the real sampling rates available for the device.
  *
@@ -1503,7 +1515,7 @@ ErrorCodes_t getSamplingRates(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getRealSamplingRates(
-        E384CL_ARGOUT LRangeHandle * samplingRates);
+        E384CL_ARGOUT LMeasHandle * samplingRates);
 
 /*! \brief Get the voltage range for voltage protocols.
  *
@@ -1548,25 +1560,6 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getFrequencyProtocolRange(
         E384CL_ARGOUT RangedMeasurement_t &frequencyProtocolRange);
-
-/*! \brief Tell how many output digital trigger events the device can memorize.
- *
- * \param maxTriggersNum [out] Maximum number of output digital trigger events.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getMaxOutputTriggers(E384CL_ARGOUT unsigned int &maxTriggersNum);
-
-/*! \brief Get the number of physical digital trigger outputs.
- *
- * \param triggersNum [out] Number of output digital triggers.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getOutputTriggersNum(
-        E384CL_ARGOUT unsigned int &triggersNum);
 
 /*! \brief Tell how many protocol items the device can memorize.
  *
@@ -1624,108 +1617,81 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCurrentStimulusLpfs(
         E384CL_ARGOUT LStrHandle filterOptions);
 
-/*! \brief Get the number of LEDs for the device.
- *
- * \param ledsNum [out] Number of LEDs.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getLedsNumber(
-        E384CL_ARGOUT uint16_t &ledsNum);
 
-/*! \brief Get the LEDs colors for the device.
- *
- * \param ledsColors [out] Array containing the colors of the LEDs.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getLedsColors(
-        E384CL_ARGOUT uint32_t * ledsColors);
-
-/*! \brief Check if the device can work as a slave (triggered by digital input).
- *
- * \return Success if the device implements the feature.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t hasSlaveModality(
-        E384CL_ARGVOID);
 
 
 /*! \brief Tell if the device implements pipette compensation.
  *
  * \return Success if the device implements pipette compensation.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t hasPipetteCompensation(
-        E384CL_ARGVOID);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t hasPipetteCompensation(
+//        E384CL_ARGVOID);
 
 /*! \brief Tell if the device implements pipette compensation for current clamp.
  *
  * \return Success if the device implements pipette compensation for current clamp.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t hasCCPipetteCompensation(
-        E384CL_ARGVOID);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t hasCCPipetteCompensation(
+//        E384CL_ARGVOID);
 
 /*! \brief Tell if the device implements membrane compensation.
  *
  * \return Success if the device implements membrane compensation.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t hasMembraneCompensation(
-        E384CL_ARGVOID);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t hasMembraneCompensation(
+//        E384CL_ARGVOID);
 
 /*! \brief Tell if the device implements access resistance compensation.
  * \note Resistance compensation includes resistance correction and prediction.
  *
  * \return Success if the device implements access resistance compensation.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t hasAccessResistanceCompensation(
-        E384CL_ARGVOID);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t hasAccessResistanceCompensation(
+//        E384CL_ARGVOID);
 
 /*! \brief Tell if the device implements access resistance correction.
  *
  * \return Success if the device implements access resistance correction.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t hasAccessResistanceCorrection(
-        E384CL_ARGVOID);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t hasAccessResistanceCorrection(
+//        E384CL_ARGVOID);
 
 /*! \brief Tell if the device implements access resistance prediction.
  *
  * \return Success if the device implements access resistance prediction.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t hasAccessResistancePrediction(
-        E384CL_ARGVOID);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t hasAccessResistancePrediction(
+//        E384CL_ARGVOID);
 
 /*! \brief Tell if the device implements leak conductance compensation.
  *
  * \return Success if the device implements leak conductance compensation.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t hasLeakConductanceCompensation(
-        E384CL_ARGVOID);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t hasLeakConductanceCompensation(
+//        E384CL_ARGVOID);
 
 /*! \brief Tell if the device implements bridge balance compensation.
  *
  * \return Success if the device implements bridge balance compensation.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t hasBridgeBalanceCompensation(
-        E384CL_ARGVOID);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t hasBridgeBalanceCompensation(
+//        E384CL_ARGVOID);
 
 /*! \brief Get options for the pipette compensation.
  *
