@@ -1854,7 +1854,7 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRanges(std::vector <RangedMeasuremen
     }
 }
 
-ErrorCodes_t  MessageDispatcher::getVCCurrentRange(RangedMeasurement_t &range) {
+ErrorCodes_t MessageDispatcher::getVCCurrentRange(RangedMeasurement_t &range) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
 
@@ -1864,7 +1864,7 @@ ErrorCodes_t  MessageDispatcher::getVCCurrentRange(RangedMeasurement_t &range) {
     }
 }
 
-ErrorCodes_t  MessageDispatcher::getVCVoltageRange(RangedMeasurement_t &range) {
+ErrorCodes_t MessageDispatcher::getVCVoltageRange(RangedMeasurement_t &range) {
     if (vcVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
 
@@ -1874,7 +1874,7 @@ ErrorCodes_t  MessageDispatcher::getVCVoltageRange(RangedMeasurement_t &range) {
     }
 }
 
-ErrorCodes_t  MessageDispatcher::getCCCurrentRange(RangedMeasurement_t &range) {
+ErrorCodes_t MessageDispatcher::getCCCurrentRange(RangedMeasurement_t &range) {
     if (ccCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
 
@@ -1884,7 +1884,7 @@ ErrorCodes_t  MessageDispatcher::getCCCurrentRange(RangedMeasurement_t &range) {
     }
 }
 
-ErrorCodes_t  MessageDispatcher::getCCVoltageRange(RangedMeasurement_t &range) {
+ErrorCodes_t MessageDispatcher::getCCVoltageRange(RangedMeasurement_t &range) {
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
 

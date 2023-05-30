@@ -19,6 +19,8 @@ static void input2Measurement(CharMeasurement_t i, Measurement_t &m);
 static void input2VectorMeasurement(LMeasHandle i, vector <Measurement_t> &m);
 
 static void string2Output(string s, LStrHandle o);
+static void measurement2Output(Measurement_t m, CharMeasurement_t &o);
+static void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o);
 static void vectorString2Output(vector <string> v, LStrHandle o);
 static void vectorMeasurement2Output(vector <Measurement_t> v, LMeasHandle * o);
 static void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, LRangeHandle * o);
@@ -1615,10 +1617,12 @@ ErrorCodes_t getCCCurrentRanges(
 }
 
 ErrorCodes_t getVCCurrentRange(
-        RangedMeasurement_t &currentRange) {
+        CharRangedMeasurement_t &rangeOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        RangedMeasurement_t currentRange;
         ret = messageDispatcher->getVCCurrentRange(currentRange);
+        rangedMeasurement2Output(currentRange, rangeOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1627,10 +1631,12 @@ ErrorCodes_t getVCCurrentRange(
 }
 
 ErrorCodes_t getCCCurrentRange(
-        RangedMeasurement_t &currentRange) {
+        CharRangedMeasurement_t &rangeOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        RangedMeasurement_t currentRange;
         ret = messageDispatcher->getCCCurrentRange(currentRange);
+        rangedMeasurement2Output(currentRange, rangeOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1667,10 +1673,12 @@ ErrorCodes_t getCCVoltageRanges(
 }
 
 ErrorCodes_t getVCVoltageRange(
-        RangedMeasurement_t &voltageRange) {
+        CharRangedMeasurement_t &rangeOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        RangedMeasurement_t voltageRange;
         ret = messageDispatcher->getVCVoltageRange(voltageRange);
+        rangedMeasurement2Output(voltageRange, rangeOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1679,10 +1687,12 @@ ErrorCodes_t getVCVoltageRange(
 }
 
 ErrorCodes_t getCCVoltageRange(
-        RangedMeasurement_t &voltageRange) {
+        CharRangedMeasurement_t &rangeOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        RangedMeasurement_t voltageRange;
         ret = messageDispatcher->getCCVoltageRange(voltageRange);
+        rangedMeasurement2Output(voltageRange, rangeOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1720,10 +1730,12 @@ ErrorCodes_t getRealSamplingRates(
 
 ErrorCodes_t getVoltageProtocolRange(
         unsigned int rangeIdx,
-        RangedMeasurement_t &voltageProtocolRange) {
+        CharRangedMeasurement_t &rangeOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getVoltageProtocolRange(rangeIdx, voltageProtocolRange);
+        RangedMeasurement_t range;
+        ret = messageDispatcher->getVoltageProtocolRangeFeature(rangeIdx, range);
+        rangedMeasurement2Output(range, rangeOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1733,10 +1745,12 @@ ErrorCodes_t getVoltageProtocolRange(
 
 ErrorCodes_t getCurrentProtocolRange(
         unsigned int rangeIdx,
-        RangedMeasurement_t &currentProtocolRange) {
+        CharRangedMeasurement_t &rangeOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getCurrentProtocolRange(rangeIdx, currentProtocolRange);
+        RangedMeasurement_t range;
+        ret = messageDispatcher->getCurrentProtocolRangeFeature(rangeIdx, range);
+        rangedMeasurement2Output(range, rangeOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1745,10 +1759,12 @@ ErrorCodes_t getCurrentProtocolRange(
 }
 
 ErrorCodes_t getTimeProtocolRange(
-        RangedMeasurement_t &timeProtocolRange) {
+        CharRangedMeasurement_t &rangeOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getTimeProtocolRange(timeProtocolRange);
+        RangedMeasurement_t range;
+        ret = messageDispatcher->getTimeProtocolRangeFeature(range);
+        rangedMeasurement2Output(range, rangeOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1757,10 +1773,12 @@ ErrorCodes_t getTimeProtocolRange(
 }
 
 ErrorCodes_t getFrequencyProtocolRange(
-        RangedMeasurement_t &frequencyProtocolRange) {
+        CharRangedMeasurement_t &rangeOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getFrequencyProtocolRange(frequencyProtocolRange);
+        RangedMeasurement_t range;
+        ret = messageDispatcher->getFrequencyProtocolRangeFeature(range);
+        rangedMeasurement2Output(range, rangeOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2510,6 +2528,34 @@ void string2Output(string s, LStrHandle o) {
     }
 }
 
+void measurement2Output(Measurement_t m, CharMeasurement_t &o) {
+    o.value = m.value;
+    o.prefix = m.prefix;
+
+    size_t unitSize = m.unit.length();
+    o.unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
+    if (o.unit == nullptr) {
+        return;
+    }
+    MoveBlock(&m.unit, LStrBuf(*(o.unit)), unitSize);
+    LStrLen(* o.unit) = unitSize;
+}
+
+void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o) {
+    o.min = r.min;
+    o.max = r.max;
+    o.step = r.step;
+    o.prefix = r.prefix;
+
+    size_t unitSize = r.unit.length();
+    o.unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
+    if (o.unit == nullptr) {
+        return;
+    }
+    MoveBlock(&r.unit, LStrBuf(*(o.unit)), unitSize);
+    LStrLen(* o.unit) = unitSize;
+}
+
 void vectorString2Output(vector <string> v, LStrHandle o) {
     string a;
     for (auto s : v) {
@@ -2524,16 +2570,17 @@ void vectorMeasurement2Output(vector <Measurement_t> v, LMeasHandle * o) {
     if (!err) {
         for (auto m : v) {
             CharMeasurement_t * meas = LVecItem(** o, offset);
-            meas->value = m.value;
-            meas->prefix = m.prefix;
+            measurement2Output(m, * meas);
+//            meas->value = m.value;
+//            meas->prefix = m.prefix;
 
-            size_t unitSize = m.unit.length();
-            meas->unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
-            if (meas->unit == nullptr) {
-                return;
-            }
-            MoveBlock(&m.unit, LStrBuf(*(meas->unit)), unitSize);
-            LStrLen(* meas->unit) = unitSize;
+//            size_t unitSize = m.unit.length();
+//            meas->unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
+//            if (meas->unit == nullptr) {
+//                return;
+//            }
+//            MoveBlock(&m.unit, LStrBuf(*(meas->unit)), unitSize);
+//            LStrLen(* meas->unit) = unitSize;
             offset++;
         }
         LVecLen(** o) = v.size();
@@ -2546,18 +2593,19 @@ void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, LRangeHandle
     if (!err) {
         for (auto r : v) {
             CharRangedMeasurement_t * range = LVecItem(** o, offset);
-            range->min = r.min;
-            range->max = r.max;
-            range->step = r.step;
-            range->prefix = r.prefix;
+            rangedMeasurement2Output(r, * range);
+//            range->min = r.min;
+//            range->max = r.max;
+//            range->step = r.step;
+//            range->prefix = r.prefix;
 
-            size_t unitSize = r.unit.length();
-            range->unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
-            if (range->unit == nullptr) {
-                return;
-            }
-            MoveBlock(&r.unit, LStrBuf(*(range->unit)), unitSize);
-            LStrLen(* range->unit) = unitSize;
+//            size_t unitSize = r.unit.length();
+//            range->unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
+//            if (range->unit == nullptr) {
+//                return;
+//            }
+//            MoveBlock(&r.unit, LStrBuf(*(range->unit)), unitSize);
+//            LStrLen(* range->unit) = unitSize;
             offset++;
         }
         LVecLen(** o) = v.size();

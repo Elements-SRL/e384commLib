@@ -1370,26 +1370,25 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCCurrentRanges(
         E384CL_ARGOUT LRangeHandle * currentRanges);
 
-
 /*! \brief Get the current range currently applied for voltage clamp.
  *
- * \param currentRange [out] Current range currently applied for voltage clamp.
+ * \param rangeOut [out] Current range currently applied for voltage clamp.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVCCurrentRange(
-        E384CL_ARGOUT RangedMeasurement_t &currentRange);
+        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the current range currently applied for current clamp.
  *
- * \param currentRange [out] Current range currently applied for current clamp.
+ * \param rangeOut [out] Current range currently applied for current clamp.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCCurrentRange(
-        E384CL_ARGOUT RangedMeasurement_t &currentRange);
+        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the voltage ranges available in voltage clamp for the device.
  *
@@ -1413,23 +1412,23 @@ ErrorCodes_t getCCVoltageRanges(
 
 /*! \brief Get the voltage range currently applied for voltage clamp.
  *
- * \param voltageRange [out] Voltage range currently applied for voltage clamp.
+ * \param rangeOut [out] Voltage range currently applied for voltage clamp.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVCVoltageRange(
-        E384CL_ARGOUT RangedMeasurement_t &voltageRange);
+        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the voltage range currently applied for current clamp.
  *
- * \param voltageRange [out] Voltage range currently applied for current clamp.
+ * \param rangeOut [out] Voltage range currently applied for current clamp.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCVoltageRange(
-        E384CL_ARGOUT RangedMeasurement_t &voltageRange);
+        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the sampling rates available for the device.
  *
@@ -1455,46 +1454,46 @@ ErrorCodes_t getRealSamplingRates(
 /*! \brief Get the voltage range for voltage protocols.
  *
  * \param rangeIdx [in] Index of the voltage range to get info about.
- * \param voltageProtocolRange [out] Structure containing min voltage, max voltage and voltage step.
+ * \param rangeOut [out] Structure containing min voltage, max voltage and voltage step.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVoltageProtocolRange(
         E384CL_ARGIN unsigned int rangeIdx,
-        E384CL_ARGOUT RangedMeasurement_t &voltageProtocolRange);
+        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the current range for current protocols.
  *
  * \param rangeIdx [in] Index of the current range to get info about.
- * \param currentProtocolRange [out] Structure containing min current, max current and current step.
+ * \param rangeOut [out] Structure containing min current, max current and current step.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCurrentProtocolRange(
         E384CL_ARGIN unsigned int rangeIdx,
-        E384CL_ARGOUT RangedMeasurement_t &currentProtocolRange);
+        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the time range for voltage and current protocols.
  *
- * \param timeProtocolRange [out] Structure containing min time, max time and time step.
+ * \param rangeOut [out] Structure containing min time, max time and time step.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getTimeProtocolRange(
-        E384CL_ARGOUT RangedMeasurement_t &timeProtocolRange);
+        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the frequency range for voltage and current sinusoidal protocols.
  *
- * \param frequencyProtocolRange [out] Structure containing min frequency, max frequency and frequency step.
+ * \param rangeOut [out] Structure containing min frequency, max frequency and frequency step.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getFrequencyProtocolRange(
-        E384CL_ARGOUT RangedMeasurement_t &frequencyProtocolRange);
+        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
 
 /*! \brief Tell how many protocol items the device can memorize.
  *
