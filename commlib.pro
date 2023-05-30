@@ -23,7 +23,7 @@ TEMPLATE = lib
 CONFIG += c++14
 
 # use as static library
-DEFINES += E384COMMLIB_STATIC
+#DEFINES += E384COMMLIB_STATIC
 
 contains(DEFINES, E384COMMLIB_STATIC) {
     CONFIG += staticlib

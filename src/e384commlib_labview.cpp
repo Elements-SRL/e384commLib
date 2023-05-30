@@ -8,22 +8,20 @@
 #include <windows.h>
 #endif
 
-using namespace std;
-
 static MessageDispatcher * messageDispatcher = nullptr;
 
 /*! Private functions prototypes */
 
-static void input2String(LStrHandle i, string &s);
+static void input2String(LStrHandle i, std::string &s);
 static void input2Measurement(CharMeasurement_t i, Measurement_t &m);
-static void input2VectorMeasurement(LMeasHandle i, vector <Measurement_t> &m);
+static void input2VectorMeasurement(LMeasHandle i, std::vector <Measurement_t> &m);
 
-static void string2Output(string s, LStrHandle o);
+static void string2Output(std::string s, LStrHandle o);
 static void measurement2Output(Measurement_t m, CharMeasurement_t &o);
 static void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o);
-static void vectorString2Output(vector <string> v, LStrHandle o);
-static void vectorMeasurement2Output(vector <Measurement_t> v, LMeasHandle * o);
-static void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, LRangeHandle * o);
+static void vectorString2Output(std::vector <std::string> v, LStrHandle o);
+static void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o);
+static void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeHandle * o);
 
 template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t * o);
 template<typename I_t, typename O_t> void input2NumericVector(I_t * v, O_t &o, int inputLength);
@@ -50,7 +48,7 @@ ErrorCodes_t deinit() {
 
 ErrorCodes_t detectDevices(
         LStrHandle deviceIdsOut) {
-    vector <string> deviceIds;
+    std::vector <std::string> deviceIds;
 
     MessageDispatcher::detectDevices(deviceIds);
 
@@ -64,7 +62,7 @@ ErrorCodes_t connectDevice(
 
     ErrorCodes_t ret = Success;
     if (messageDispatcher == nullptr) {
-        string deviceId;
+        std::string deviceId;
         input2String(deviceIdIn, deviceId);
 
         ret = MessageDispatcher::connectDevice(deviceId, messageDispatcher);
@@ -1481,7 +1479,7 @@ ErrorCodes_t getVoltageHoldTunerFeatures(
         LRangeHandle * voltageHoldTunerFeaturesOut){
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t> ranges;
+        std::vector <RangedMeasurement_t> ranges;
         ret = messageDispatcher->getVoltageHoldTunerFeatures(ranges);
         vectorRangedMeasurement2Output(ranges, voltageHoldTunerFeaturesOut);
 
@@ -1495,7 +1493,7 @@ ErrorCodes_t getCurrentHoldTunerFeatures(
         LRangeHandle * currentHoldTunerFeaturesOut){
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t> ranges;
+        std::vector <RangedMeasurement_t> ranges;
         ret = messageDispatcher->getCurrentHoldTunerFeatures(ranges);
         vectorRangedMeasurement2Output(ranges, currentHoldTunerFeaturesOut);
 
@@ -1516,7 +1514,7 @@ ErrorCodes_t getCalibVcCurrentOffsetFeatures(
         LRangeHandle * calibVcCurrentOffsetFeaturesOut){
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t>  calibVcCurrentOffsetFeatures;
+        std::vector <RangedMeasurement_t>  calibVcCurrentOffsetFeatures;
         ret = messageDispatcher->getCalibVcCurrentOffsetFeatures(calibVcCurrentOffsetFeatures);
         vectorRangedMeasurement2Output( calibVcCurrentOffsetFeatures, calibVcCurrentOffsetFeaturesOut);
 
@@ -1524,52 +1522,6 @@ ErrorCodes_t getCalibVcCurrentOffsetFeatures(
         ret = ErrorDeviceNotConnected;
     }
     return ret;
-
-}
-
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-ErrorCodes_t getCalibVcVoltageGainFeatures(
-        LRange calibVcVoltageGainFeaturesOut){
-
-}
-
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-ErrorCodes_t getCalibVcVoltageOffsetFeatures(
-        LRange calibVcVoltageOffsetFeaturesOut){
-
-}
-
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-ErrorCodes_t getCalibCcVoltageGainFeatures(
-        LRange calibCcVoltageGainFeaturesOut){
-
-}
-
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-ErrorCodes_t getCalibCcVoltageOffsetFeatures(
-        LRangeHandle * calibCcVoltageOffsetFeaturesOut){
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t>  calibCcVoltageOffsetFeatures;
-        ret = messageDispatcher->getCalibCcVoltageOffsetFeatures(calibCcVoltageOffsetFeatures);
-        vectorRangedMeasurement2Output( calibCcVoltageOffsetFeatures, calibCcVoltageOffsetFeaturesOut);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-
-}
-
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-ErrorCodes_t getCalibCcCurrentGainFeatures(
-        LRange calibCcCurrentGainFeaturesOut){
-
-}
-
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-ErrorCodes_t getCalibCcCurrentOffsetFeatures(
-        LRange calibCcCurrentOffsetFeaturesOut){
 
 }
 
@@ -1591,7 +1543,7 @@ ErrorCodes_t getVCCurrentRanges(
         LRangeHandle * currentRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t> currentRanges;
+        std::vector <RangedMeasurement_t> currentRanges;
         uint16_t unused;
         ret = messageDispatcher->getVCCurrentRanges(currentRanges, unused);
         vectorRangedMeasurement2Output(currentRanges, currentRangesOut);
@@ -1606,7 +1558,7 @@ ErrorCodes_t getCCCurrentRanges(
         LRangeHandle * currentRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t> currentRanges;
+        std::vector <RangedMeasurement_t> currentRanges;
         ret = messageDispatcher->getCCCurrentRanges(currentRanges);
         vectorRangedMeasurement2Output(currentRanges, currentRangesOut);
 
@@ -1648,7 +1600,7 @@ ErrorCodes_t getVCVoltageRanges(
         LRangeHandle * voltageRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t> voltageRanges;
+        std::vector <RangedMeasurement_t> voltageRanges;
         ret = messageDispatcher->getVCVoltageRanges(voltageRanges);
         vectorRangedMeasurement2Output(voltageRanges, voltageRangesOut);
 
@@ -1662,7 +1614,7 @@ ErrorCodes_t getCCVoltageRanges(
         LRangeHandle * voltageRangesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        vector <RangedMeasurement_t> voltageRanges;
+        std::vector <RangedMeasurement_t> voltageRanges;
         ret = messageDispatcher->getCCVoltageRanges(voltageRanges);
         vectorRangedMeasurement2Output(voltageRanges, voltageRangesOut);
 
@@ -1704,7 +1656,7 @@ ErrorCodes_t getSamplingRates(
         LMeasHandle * samplingRatesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        vector <Measurement_t> samplingRates;
+        std::vector <Measurement_t> samplingRates;
         ret = messageDispatcher->getSamplingRatesFeatures(samplingRates);
         vectorMeasurement2Output(samplingRates, samplingRatesOut);
 
@@ -1718,7 +1670,7 @@ ErrorCodes_t getRealSamplingRates(
         LMeasHandle * realSamplingRatesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        vector <Measurement_t> realSamplingRates;
+        std::vector <Measurement_t> realSamplingRates;
         ret = messageDispatcher->getRealSamplingRatesFeatures(realSamplingRates);
         vectorMeasurement2Output(realSamplingRates, realSamplingRatesOut);
 
@@ -1866,94 +1818,6 @@ ErrorCodes_t getCurrentStimulusLpfs(
     }
     return ret;
 }
-
-//ErrorCodes_t hasPipetteCompensation() {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->hasPipetteCompensation();
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//ErrorCodes_t hasCCPipetteCompensation() {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->hasCCPipetteCompensation();
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//ErrorCodes_t hasMembraneCompensation() {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->hasMembraneCompensation();
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//ErrorCodes_t hasAccessResistanceCompensation() {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->hasResistanceCompensation();
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//ErrorCodes_t hasAccessResistanceCorrection() {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->hasResistanceCorrection();
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//ErrorCodes_t hasAccessResistancePrediction() {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->hasResistancePrediction();
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//ErrorCodes_t hasLeakConductanceCompensation() {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->hasLeakConductanceCompensation();
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//ErrorCodes_t hasBridgeBalanceCompensation() {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->hasBridgeBalanceCompensation();
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
 
 ErrorCodes_t getPipetteCompensationOptions(
         LStrHandle optionsOut) {
@@ -2504,8 +2368,8 @@ ErrorCodes_t getBridgeBalanceResistanceControl(
 // END NEW MICHELANGELO'S GETS
 
 /*! Private functions */
-void input2String(LStrHandle i, string &s) {
-    s = string((char *)LStrBuf(* i), LStrLen(* i));
+void input2String(LStrHandle i, std::string &s) {
+    s = std::string((char *)LStrBuf(* i), LStrLen(* i));
 }
 
 void input2Measurement(CharMeasurement_t i, Measurement_t &m) {
@@ -2514,13 +2378,13 @@ void input2Measurement(CharMeasurement_t i, Measurement_t &m) {
     input2String(i.unit, m.unit);
 }
 
-void input2VectorMeasurement(LMeasHandle i, vector <Measurement_t> &m){
+void input2VectorMeasurement(LMeasHandle i, std::vector <Measurement_t> &m){
     for(int j = 0; j<LVecLen(*i); j++){
         input2Measurement(*LVecItem(*i,j), m[j]);
     }
 }
 
-void string2Output(string s, LStrHandle o) {
+void string2Output(std::string s, LStrHandle o) {
     MgErr err = NumericArrayResize(uB, 1, (UHandle *)&o, s.length());
     if (!err) {
          MoveBlock(s.c_str(), LStrBuf(* o), s.length());
@@ -2556,15 +2420,15 @@ void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o)
     LStrLen(* o.unit) = unitSize;
 }
 
-void vectorString2Output(vector <string> v, LStrHandle o) {
-    string a;
+void vectorString2Output(std::vector <std::string> v, LStrHandle o) {
+    std::string a;
     for (auto s : v) {
         a += s + ",";
     }
     string2Output(a, o);
 }
 
-void vectorMeasurement2Output(vector <Measurement_t> v, LMeasHandle * o) {
+void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o) {
     int offset = 0;
     MgErr err = DSSetHSzClr(* o, Offset(LMeas, item)+sizeof(CharMeasurement_t)*v.size());
     if (!err) {
@@ -2587,7 +2451,7 @@ void vectorMeasurement2Output(vector <Measurement_t> v, LMeasHandle * o) {
     }
 }
 
-void vectorRangedMeasurement2Output(vector <RangedMeasurement_t> v, LRangeHandle * o) {
+void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeHandle * o) {
     int offset = 0;
     MgErr err = DSSetHSzClr(* o, Offset(LRange, item)+sizeof(CharRangedMeasurement_t)*v.size());
     if (!err) {

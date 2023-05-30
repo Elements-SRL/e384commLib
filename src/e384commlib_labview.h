@@ -1293,49 +1293,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCurrentHoldTunerFeatures(
         E384CL_ARGOUT LRangeHandle * currentHoldTunerFeaturesOut);
 
-/*! \brief Get the VC calibration current gain features, e.g. ranges, step, ...
- *
- * \param calibVcCurrentGainFeatures [out] Structure containing the VC calibration current gain  features.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getCalibVcCurrentGainFeatures(
-        E384CL_ARGOUT LRange calibVcCurrentGainFeaturesOut);
-
-/*! \brief Get the VC calibration current offset features, e.g. ranges, step, ...
- *
- * \param calibVcCurrentOffsetFeatures [out] Vector of structures containing the VC calibration current offset features, one element for each option.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getCalibVcCurrentOffsetFeatures(
-        E384CL_ARGOUT LRangeHandle * calibVcCurrentOffsetFeaturesOut);
-
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-/*! \brief Get the VC calibration current gain features, e.g. ranges, step, ...
- *
- * \param calibVcCurrentGainFeatures [out] Structure containing the VC calibration current gain  features.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getCalibCcVoltageGainFeatures(
-        E384CL_ARGOUT LRange calibVcCurrentGainFeaturesOut);
-
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-/*! \brief Get the VC calibration current offset features, e.g. ranges, step, ...
- *
- * \param calibVcCurrentOffsetFeatures [out] Vector of structures containing the VC calibration current offset features, one element for each option.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getCalibCcVoltageOffsetFeatures(
-        E384CL_ARGOUT LRangeHandle * calibVcCurrentOffsetFeaturesOut);
-
-
 /*! \brief Get the clamping modalities available for the device.
  *
  * \param clampingModalities [out] Array containing all the available clamping modalities.
@@ -1345,8 +1302,6 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getClampingModalitiesFeatures(
         E384CL_ARGOUT std::vector <uint16_t> &clampingModalities);
-
-//------------------------------------------------------------------------
 
 /*! \brief Get the current ranges available in voltage clamp for the device.
  *
@@ -1550,82 +1505,6 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCurrentStimulusLpfs(
         E384CL_ARGOUT LStrHandle filterOptions);
-
-
-
-
-/*! \brief Tell if the device implements pipette compensation.
- *
- * \return Success if the device implements pipette compensation.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t hasPipetteCompensation(
-//        E384CL_ARGVOID);
-
-/*! \brief Tell if the device implements pipette compensation for current clamp.
- *
- * \return Success if the device implements pipette compensation for current clamp.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t hasCCPipetteCompensation(
-//        E384CL_ARGVOID);
-
-/*! \brief Tell if the device implements membrane compensation.
- *
- * \return Success if the device implements membrane compensation.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t hasMembraneCompensation(
-//        E384CL_ARGVOID);
-
-/*! \brief Tell if the device implements access resistance compensation.
- * \note Resistance compensation includes resistance correction and prediction.
- *
- * \return Success if the device implements access resistance compensation.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t hasAccessResistanceCompensation(
-//        E384CL_ARGVOID);
-
-/*! \brief Tell if the device implements access resistance correction.
- *
- * \return Success if the device implements access resistance correction.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t hasAccessResistanceCorrection(
-//        E384CL_ARGVOID);
-
-/*! \brief Tell if the device implements access resistance prediction.
- *
- * \return Success if the device implements access resistance prediction.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t hasAccessResistancePrediction(
-//        E384CL_ARGVOID);
-
-/*! \brief Tell if the device implements leak conductance compensation.
- *
- * \return Success if the device implements leak conductance compensation.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t hasLeakConductanceCompensation(
-//        E384CL_ARGVOID);
-
-/*! \brief Tell if the device implements bridge balance compensation.
- *
- * \return Success if the device implements bridge balance compensation.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t hasBridgeBalanceCompensation(
-//        E384CL_ARGVOID);
 
 /*! \brief Get options for the pipette compensation.
  *
