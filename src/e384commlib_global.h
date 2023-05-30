@@ -301,7 +301,7 @@ typedef struct CharRangedMeasurement {
     LStrHandle unit; /*!< Unit. \note Can be any string, the library is not aware of real units meaning. */
 } CharRangedMeasurement_t;
 
-/*! \struct CompensationControl_t
+/*! \struct CharCompensationControl_t
  * \brief Structure used to return detailed information on a specific compensation implemented by the HW.
  */
 typedef struct CharCompensationControl {
@@ -317,6 +317,21 @@ typedef struct CharCompensationControl {
     LStrHandle unit; /*!< Unit. \note Can be any string, the library is not aware of real units meaning. */
     LStrHandle name; /*!< Name of the compensation. */
 } CharCompensationControl_t;
+
+/*! \struct CharCalibrationParams_t
+ * \brief Structure used to return calibration values.
+ * \note All fields are vectors of vectors because the first vector indexes ranges, while the second range indexes channels
+ */
+typedef struct CharCalibrationParams {
+    std::vector<std::vector<CharMeasurement_t>> allGainAdcMeas;
+    std::vector<std::vector<CharMeasurement_t>> allOffsetAdcMeas;
+    std::vector<std::vector<CharMeasurement_t>> allGainDacMeas;
+    std::vector<std::vector<CharMeasurement_t>> allOffsetDacMeas;
+    std::vector<std::vector<CharMeasurement_t>> ccAllGainAdcMeas;
+    std::vector<std::vector<CharMeasurement_t>> ccAllOffsetAdcMeas;
+    std::vector<std::vector<CharMeasurement_t>> ccAllGainDacMeas;
+    std::vector<std::vector<CharMeasurement_t>> ccAllOffsetDacMeas;
+} CharCalibrationParams_t;
 
 #include "lv_prolog.h"
 typedef struct {

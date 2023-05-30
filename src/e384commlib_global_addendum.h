@@ -846,6 +846,10 @@ typedef struct{
     std::vector<Measurement_t> ccCalibResForCcAdcOffsetArray;
 } CalibrationData_t;
 
+/*! \struct CalibrationParams_t
+ * \brief Structure used to return calibration values.
+ * \note All fields are vectors of vectors because the first vector indexes ranges, while the second range indexes channels
+ */
 typedef struct{
     std::vector<std::vector<Measurement_t>> allGainAdcMeas;
     std::vector<std::vector<Measurement_t>> allOffsetAdcMeas;
