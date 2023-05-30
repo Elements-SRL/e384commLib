@@ -165,12 +165,30 @@ public:
 
     ErrorCodes_t receiveCalibParams(CalibrationParams_t calibParams);
 
+    virtual ErrorCodes_t turnResistanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
+    virtual ErrorCodes_t turnLeakConductanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
+    virtual ErrorCodes_t turnBridgeBalanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
     virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
     virtual ErrorCodes_t enableVcCompensations(bool enable);
     virtual ErrorCodes_t enableCcCompensations(bool enable);
     virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
     virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn);
+    virtual ErrorCodes_t setLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
+    virtual ErrorCodes_t setBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
+    
+    virtual ErrorCodes_t setPipetteCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
+    virtual ErrorCodes_t setMembraneCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
+    virtual ErrorCodes_t setResistanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
+    virtual ErrorCodes_t setResistancePredictionOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
+    virtual ErrorCodes_t setCCPipetteCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
+    virtual ErrorCodes_t setLeakConductanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
+    virtual ErrorCodes_t setBridgeBalanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
 
+    virtual ErrorCodes_t setResistanceCorrectionLag(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
+    virtual ErrorCodes_t setResistancePredictionPercentage(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
+    virtual ErrorCodes_t setResistancePredictionBandwidthGain(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
+    virtual ErrorCodes_t setResistancePredictionTau(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
+    
     ErrorCodes_t setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest);
     ErrorCodes_t setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step);
     ErrorCodes_t setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step);
@@ -213,6 +231,7 @@ public:
     ErrorCodes_t getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges);
 
     ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates);
+    ErrorCodes_t getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates);
 
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
@@ -243,6 +262,14 @@ public:
     virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray);
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix);
+
+    virtual ErrorCodes_t getPipetteCompensationOptions(std::vector <std::string> options);
+    virtual ErrorCodes_t getCCPipetteCompensationOptions(std::vector <std::string> options);
+    virtual ErrorCodes_t getMembraneCompensationOptions(std::vector <std::string> options);
+    virtual ErrorCodes_t getResistanceCompensationOptions(std::vector <std::string> options);
+    virtual ErrorCodes_t getResistancePredictionOptions(std::vector <std::string> options);
+    virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> options);
+    virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> options);
 
 protected:
     // Check Device->PC table in protocol
