@@ -369,9 +369,9 @@ protected:
     uint16_t totalBoardsNum = 1;
 
     /*! Protocol's parameters */
-    unsigned int protocolMaxItemsNum = 20;
+    unsigned int protocolMaxItemsNum;
     unsigned int protocolWordOffset;
-    unsigned int protocolItemsWordsNum = 12;
+    unsigned int protocolItemsWordsNum;
     double protocolFpgaClockFrequencyHz = 10.0e6;
 
     bool voltageProtocolStepImplemented = false;

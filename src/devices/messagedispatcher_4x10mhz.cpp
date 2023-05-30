@@ -83,7 +83,9 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     voltageProtocolRampImplemented = true;
     voltageProtocolSinImplemented = true;
 
+    protocolMaxItemsNum = 20;
     protocolWordOffset = 14;
+    protocolItemsWordsNum = 12;
 
     /*! Current ranges */
     /*! VC */

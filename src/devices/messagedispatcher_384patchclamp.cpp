@@ -67,6 +67,26 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
 //    availableCurrentSourcesIdxs.CurrentFromDynamicClamp = ChannelSourceCurrentFromDynamicClamp;
 //    availableCurrentSourcesIdxs.CurrentFromCurrentPlusDynamicClamp = ChannelSourceCurrentFromCurrentPlusDynamicClamp;
 
+    /*! Protocols parameters */
+    protocolFpgaClockFrequencyHz = 10.0e3;
+
+    protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
+    protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
+    protocolTimeRange.max = LINT32_MAX*protocolTimeRange.step;
+    protocolTimeRange.prefix = UnitPfxMilli;
+    protocolTimeRange.unit = "s";
+
+    positiveProtocolTimeRange = protocolTimeRange;
+    positiveProtocolTimeRange.min = 0.0;
+
+    voltageProtocolStepImplemented = true;
+    voltageProtocolRampImplemented = true;
+    voltageProtocolSinImplemented = false;
+
+    protocolMaxItemsNum = 15;
+    protocolWordOffset = 204;
+    protocolItemsWordsNum = 16;
+
     /*! Current ranges */
     /*! VC */
     vcCurrentRangesNum = VCCurrentRangesNum;
@@ -1009,6 +1029,177 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     boolConfig.bitsNum = 4;
     sourceForCurrentChannelCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(sourceForCurrentChannelCoder);
+
+    /*! Protocol structure */
+    boolConfig.initialWord = protocolWordOffset;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolIdCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolIdCoder);
+
+    boolConfig.initialWord = protocolWordOffset+1;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolItemsNumberCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolItemsNumberCoder);
+
+    boolConfig.initialWord = protocolWordOffset+2;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolSweepsNumberCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolSweepsNumberCoder);
+
+    doubleConfig.initialWord = protocolWordOffset+3;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    voltageProtocolRestCoders.resize(VCVoltageRangesNum);
+
+    for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
+        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+        voltageProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(voltageProtocolRestCoders[rangeIdx]);
+    }
+
+    /*! Protocol items */
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    voltageProtocolStim0Coders.resize(VCVoltageRangesNum);
+    voltageProtocolStim0StepCoders.resize(VCVoltageRangesNum);
+    voltageProtocolStim1Coders.resize(VCVoltageRangesNum);
+    voltageProtocolStim1StepCoders.resize(VCVoltageRangesNum);
+
+    for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
+        voltageProtocolStim0Coders[rangeIdx].resize(protocolMaxItemsNum);
+        voltageProtocolStim0StepCoders[rangeIdx].resize(protocolMaxItemsNum);
+        voltageProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
+        voltageProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
+
+        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+
+        for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+            doubleConfig.initialWord = protocolWordOffset+4+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim0Coders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim0StepCoders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim1Coders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+            voltageProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(voltageProtocolStim1StepCoders[rangeIdx][itemIdx]);
+        }
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    currentProtocolStim0Coders.resize(CCCurrentRangesNum);
+    currentProtocolStim0StepCoders.resize(CCCurrentRangesNum);
+    currentProtocolStim1Coders.resize(CCCurrentRangesNum);
+    currentProtocolStim1StepCoders.resize(CCCurrentRangesNum);
+
+    for (unsigned int rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
+        currentProtocolStim0Coders[rangeIdx].resize(protocolMaxItemsNum);
+        currentProtocolStim0StepCoders[rangeIdx].resize(protocolMaxItemsNum);
+        currentProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
+        currentProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
+
+        doubleConfig.resolution = cHoldRange[rangeIdx].step;
+        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+
+        for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+            doubleConfig.initialWord = protocolWordOffset+4+protocolItemsWordsNum*itemIdx;
+            currentProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(currentProtocolStim0Coders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
+            currentProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(currentProtocolStim0StepCoders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+            currentProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(currentProtocolStim1Coders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+            currentProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(currentProtocolStim1StepCoders[rangeIdx][itemIdx]);
+        }
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = positiveProtocolTimeRange.step;
+    doubleConfig.minValue = positiveProtocolTimeRange.min;
+    doubleConfig.maxValue = positiveProtocolTimeRange.max;
+    protocolTime0Coders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
+        protocolTime0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(protocolTime0Coders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = protocolTimeRange.step;
+    doubleConfig.minValue = protocolTimeRange.min;
+    doubleConfig.maxValue = protocolTimeRange.max;
+    protocolTime0StepCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
+        protocolTime0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(protocolTime0StepCoders[itemIdx]);
+    }
+
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    protocolItemIdxCoders.resize(protocolMaxItemsNum);
+    protocolNextItemIdxCoders.resize(protocolMaxItemsNum);
+    protocolLoopRepetitionsCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        boolConfig.initialWord = protocolWordOffset+16+protocolItemsWordsNum*itemIdx;
+        protocolItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolItemIdxCoders[itemIdx]);
+
+        boolConfig.initialWord = protocolWordOffset+17+protocolItemsWordsNum*itemIdx;
+        protocolNextItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolNextItemIdxCoders[itemIdx]);
+
+        boolConfig.initialWord = protocolWordOffset+18+protocolItemsWordsNum*itemIdx;
+        protocolLoopRepetitionsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolLoopRepetitionsCoders[itemIdx]);
+    }
+
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    protocolApplyStepsCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
+        protocolApplyStepsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolApplyStepsCoders[itemIdx]);
+    }
+
+    boolConfig.initialBit = 2;
+    boolConfig.bitsNum = 4;
+    protocolItemTypeCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
+        protocolItemTypeCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolItemTypeCoders[itemIdx]);
+    }
 
     /*! V holding tuner */
     doubleConfig.initialBit = 0;
