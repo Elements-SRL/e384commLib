@@ -271,12 +271,12 @@ public:
     virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> options);
     virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> options);
 
-    virtual ErrorCodes_t getLiquidJunctionControl(CharCompensationControl_t &control);
-    virtual ErrorCodes_t getResistanceCorrectionLagControl(CharCompensationControl_t &control);
-    virtual ErrorCodes_t getResistancePredictionPercentageControl(CharCompensationControl_t &control);
-    virtual ErrorCodes_t getResistancePredictionBandwidthGainControl(CharCompensationControl_t &control);
-    virtual ErrorCodes_t getResistancePredictionTauControl(CharCompensationControl_t &control);
-    virtual ErrorCodes_t getBridgeBalanceResistanceControl(CharCompensationControl_t &control);
+//    virtual ErrorCodes_t getLiquidJunctionControl(CharCompensationControl_t &control);
+//    virtual ErrorCodes_t getResistanceCorrectionLagControl(CharCompensationControl_t &control);
+//    virtual ErrorCodes_t getResistancePredictionPercentageControl(CharCompensationControl_t &control);
+//    virtual ErrorCodes_t getResistancePredictionBandwidthGainControl(CharCompensationControl_t &control);
+//    virtual ErrorCodes_t getResistancePredictionTauControl(CharCompensationControl_t &control);
+//    virtual ErrorCodes_t getBridgeBalanceResistanceControl(CharCompensationControl_t &control);
 
 
 
