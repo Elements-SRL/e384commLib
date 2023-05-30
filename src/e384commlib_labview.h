@@ -1779,10 +1779,10 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
  * \param control [in] Specifications of the control for the liquid junction.
  * \return Success if the device implements liquid junction control.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t getLiquidJunctionControl(
-//        E384CL_ARGOUT CharCompensationControl_t &control);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getLiquidJunctionControl(
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the pipette capacitance.
  *
@@ -1839,10 +1839,10 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
  * \param control [in] Specifications of the control for the resistance correction lag.
  * \return Success if the device implements resistance correction lag control.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t getResistanceCorrectionLagControl(
-//        E384CL_ARGOUT CharCompensationControl_t &control);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getResistanceCorrectionLagControl(
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction gain.
  *
@@ -1859,30 +1859,30 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
  * \param control [in] Specifications of the control for the resistance prediction percentage.
  * \return Success if the device implements resistance prediction percentage control.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t getResistancePredictionPercentageControl(
-//        E384CL_ARGOUT CharCompensationControl_t &control);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getResistancePredictionPercentageControl(
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction bandwidth gain.
  *
  * \param control [in] Specifications of the control for the resistance prediction bandwidth gain.
  * \return Success if the device implements resistance prediction bandwidth gain control.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t getResistancePredictionBandwidthGainControl(
-//        E384CL_ARGOUT CharCompensationControl_t &control);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getResistancePredictionBandwidthGainControl(
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction tau.
  *
  * \param control [in] Specifications of the control for the resistance prediction tau.
  * \return Success if the device implements resistance prediction tau control.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t getResistancePredictionTauControl(
-//        E384CL_ARGOUT CharCompensationControl_t &control);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getResistancePredictionTauControl(
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the leak conductance.
  *
@@ -1899,10 +1899,10 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
  * \param control [in] Specifications of the control for the bridge balance resistance.
  * \return Success if the device implements bridge balance resistance control.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t getBridgeBalanceResistanceControl(
-//        E384CL_ARGOUT CharCompensationControl_t &control);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getBridgeBalanceResistanceControl(
+        E384CL_ARGOUT CharCompensationControl_t &control);
 
 // NEW MICHELANGELO'S GETS
 /*! \brief Gets the value of the pipette capacitance for voltage clamp for each channel.

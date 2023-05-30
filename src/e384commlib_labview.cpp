@@ -1839,7 +1839,7 @@ ErrorCodes_t getMaxProtocolItems(
         E384CL_ARGOUT unsigned int &maxItemsNum) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->getMaxProtocolItems(maxItemsNum);
+        ret = messageDispatcher->getMaxProtocolItemsFeature(maxItemsNum);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1850,7 +1850,7 @@ ErrorCodes_t getMaxProtocolItems(
 ErrorCodes_t hasProtocolStep() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->hasProtocolStep();
+        ret = messageDispatcher->hasProtocolStepFeature();
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1861,7 +1861,7 @@ ErrorCodes_t hasProtocolStep() {
 ErrorCodes_t hasProtocolRamp() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->hasProtocolRamp();
+        ret = messageDispatcher->hasProtocolRampFeature();
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1872,7 +1872,7 @@ ErrorCodes_t hasProtocolRamp() {
 ErrorCodes_t hasProtocolSin() {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->hasProtocolSin();
+        ret = messageDispatcher->hasProtocolSinFeature();
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2116,17 +2116,17 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
     return ret;
 }
 
-//ErrorCodes_t getLiquidJunctionControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getLiquidJunctionControl(control);
+ErrorCodes_t getLiquidJunctionControl(
+        CharCompensationControl_t &control) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->getLiquidJunctionControl(control);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
 //ErrorCodes_t getPipetteCapacitanceControl(
 //        CharCompensationControl_t &control) {
@@ -2188,17 +2188,17 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
 //    return ret;
 //}
 
-//ErrorCodes_t getResistanceCorrectionLagControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getResistanceCorrectionLagControl(control);
+ErrorCodes_t getResistanceCorrectionLagControl(
+        CharCompensationControl_t &control) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->getResistanceCorrectionLagControl(control);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
 //ErrorCodes_t getResistancePredictionGainControl(
 //        CharCompensationControl_t &control) {
@@ -2212,41 +2212,41 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
 //    return ret;
 //}
 
-//ErrorCodes_t getResistancePredictionPercentageControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getResistancePredictionPercentageControl(control);
+ErrorCodes_t getResistancePredictionPercentageControl(
+        CharCompensationControl_t &control) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->getResistancePredictionPercentageControl(control);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//ErrorCodes_t getResistancePredictionBandwidthGainControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getResistancePredictionBandwidthGainControl(control);
+ErrorCodes_t getResistancePredictionBandwidthGainControl(
+        CharCompensationControl_t &control) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->getResistancePredictionBandwidthGainControl(control);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//ErrorCodes_t getResistancePredictionTauControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getResistancePredictionTauControl(control);
+ErrorCodes_t getResistancePredictionTauControl(
+        CharCompensationControl_t &control) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->getResistancePredictionTauControl(control);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
 //ErrorCodes_t getLeakConductanceControl(
 //        CharCompensationControl_t &control) {
@@ -2260,17 +2260,17 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
 //    return ret;
 //}
 
-//ErrorCodes_t getBridgeBalanceResistanceControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getBridgeBalanceResistanceControl(control);
+ErrorCodes_t getBridgeBalanceResistanceControl(
+        CharCompensationControl_t &control) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->getBridgeBalanceResistanceControl(control);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
 // NEW MICHELANGELO'S GETS
 
