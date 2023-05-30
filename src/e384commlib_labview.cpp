@@ -486,20 +486,20 @@ ErrorCodes_t digitalOffsetCompensation(
     return ret;
 }
 
-ErrorCodes_t digitalOffsetCompensationOverride(
-        uint16_t channelIdx,
-        CharMeasurement_t valueIn) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        Measurement_t value;
-        input2Measurement(valueIn, value);
-        ret = messageDispatcher->digitalOffsetCompensationOverride(channelIdx, value);
+//ErrorCodes_t digitalOffsetCompensationOverride(
+//        uint16_t channelIdx,
+//        CharMeasurement_t valueIn) {
+//    ErrorCodes_t ret;
+//    if (messageDispatcher != nullptr) {
+//        Measurement_t value;
+//        input2Measurement(valueIn, value);
+//        ret = messageDispatcher->digitalOffsetCompensationOverride(channelIdx, value);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
+//    } else {
+//        ret = ErrorDeviceNotConnected;
+//    }
+//    return ret;
+//}
 
 //ErrorCodes_t setVcCurrentOffsetDelta(
 //        uint16_t channelIdx,

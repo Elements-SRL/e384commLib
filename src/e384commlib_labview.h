@@ -264,11 +264,11 @@ ErrorCodes_t digitalOffsetCompensation(
  * \param value [in] Override value.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t digitalOffsetCompensationOverride(
-        E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN CharMeasurement_t value);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t digitalOffsetCompensationOverride(
+//        E384CL_ARGIN uint16_t channelIdx,
+//        E384CL_ARGIN CharMeasurement_t value);
 
 /*! \brief Correct the calibration offset of the current acquired in VC.
  *
