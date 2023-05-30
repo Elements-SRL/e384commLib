@@ -1854,6 +1854,46 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRanges(std::vector <RangedMeasuremen
     }
 }
 
+ErrorCodes_t  MessageDispatcher::getVCCurrentRange(RangedMeasurement_t &range) {
+    if (vcCurrentRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        range = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t  MessageDispatcher::getVCVoltageRange(RangedMeasurement_t &range) {
+    if (vcVoltageRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        range = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t  MessageDispatcher::getCCCurrentRange(RangedMeasurement_t &range) {
+    if (ccCurrentRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        range = ccCurrentRangesArray[selectedVcCurrentRangeIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t  MessageDispatcher::getCCVoltageRange(RangedMeasurement_t &range) {
+    if (ccVoltageRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        range = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates) {
     if(samplingRatesArray.size()==0){
         return ErrorFeatureNotImplemented;

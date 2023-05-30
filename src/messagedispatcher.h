@@ -232,6 +232,11 @@ public:
     ErrorCodes_t getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
     ErrorCodes_t getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges);
 
+    ErrorCodes_t getVCCurrentRange(RangedMeasurement_t &range);
+    ErrorCodes_t getVCVoltageRange(RangedMeasurement_t &range);
+    ErrorCodes_t getCCCurrentRange(RangedMeasurement_t &range);
+    ErrorCodes_t getCCVoltageRange(RangedMeasurement_t &range);
+
     ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates);
     ErrorCodes_t getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates);
 
