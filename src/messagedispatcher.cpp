@@ -1418,6 +1418,11 @@ ErrorCodes_t MessageDispatcher::startProtocol() {
  *  Rx methods  *
 \****************/
 
+ErrorCodes_t MessageDispatcher::getRxDataBufferSize(uint32_t &size) {
+    size = E384CL_OUT_STRUCT_DATA_LEN;
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::allocateRxDataBuffer(int16_t * &data) {
     ErrorCodes_t ret = Success;
 

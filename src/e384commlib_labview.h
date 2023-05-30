@@ -270,30 +270,6 @@ ErrorCodes_t digitalOffsetCompensation(
 //        E384CL_ARGIN uint16_t channelIdx,
 //        E384CL_ARGIN CharMeasurement_t value);
 
-/*! \brief Correct the calibration offset of the current acquired in VC.
- *
- * \param channelIdx [in] Index of the channel to correct.
- * \param value [in] Value that will be added to the calibration offset.
- * \return Error code.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t setVcCurrentOffsetDelta(
-//        E384CL_ARGIN uint16_t channelIdx,
-//        E384CL_ARGIN CharMeasurement_t value);
-
-/*! \brief Correct the calibration offset of the voltage acquired in CC.
- *
- * \param channelIdx [in] Index of the channel to correct.
- * \param value [in] Value that will be added to the calibration offset.
- * \return Error code.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t setCcVoltageOffsetDelta(
-//        E384CL_ARGIN uint16_t channelIdx,
-//        E384CL_ARGIN CharMeasurement_t value);
-
 /*! \brief Zap.
  * A big voltage is applied in order to break the membrane.
  *
@@ -318,7 +294,6 @@ ErrorCodes_t setVoltageStimulusLpf(
         E384CL_ARGIN uint16_t filterIdx,
         E384CL_ARGIN bool applyFlagIn);
     
-
 /*! \brief Sets the low pass filter on the current stimulus.
  *
  * \param opened [in] Index of the filter setting (get available settings with method getCurrentStimulusLpfs).
@@ -1236,47 +1211,19 @@ ErrorCodes_t resetFpga(
 //ErrorCodes_t resetDigitalOffsetCompensation(
 //        E384CL_ARGIN bool reset);
 
-/*! \brief Get calibration eeprom size in bytes.
- *
- * \param size [out] Size of the calibration eeprom in bytes.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getCalibrationEepromSize(
-        E384CL_ARGOUT uint32_t &size);
-
-/*! \brief Write values on calibration eeprom.
- *
- * \param value [in] Values to be written.
- * \param address [in] Addresses in the eeprom memory of the first byte to be written.
- * \param size [in] Numbers of bytes to be written.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t writeCalibrationEeprom(
-        E384CL_ARGIN std::vector <uint32_t> value,
-        E384CL_ARGIN std::vector <uint32_t> address,
-        E384CL_ARGIN std::vector <uint32_t> size);
-
-/*! \brief Read values from calibration eeprom.
- *
- * \param value [out] Values to be read.
- * \param address [in] Addresses in the eeprom memory of the first byte to be read.
- * \param size [in] Numbers of bytes to be read.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t readCalibrationEeprom(
-        E384CL_ARGOUT std::vector <uint32_t> &value,
-        E384CL_ARGIN std::vector <uint32_t> address,
-        E384CL_ARGIN std::vector <uint32_t> size);
-
 /****************\
  *  Rx methods  *
 \****************/
+
+/*! \brief Get the size of the buffer to be passed to getNextMessage.
+ *
+ * \param size [out] Size of the buffer to be passed to getNextMessage.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getRxDataBufferSize(
+        E384CL_ARGOUT uint32_t &size);
 
 /*! \brief Get the next message from the queue sent by the connected device.
  *
@@ -1326,51 +1273,26 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBoardsNumber(
         E384CL_ARGOUT uint32_t &boardsNum);
 
-/*! \brief Get the available data sources for all channels type.
- * \note Unavailable sources have index -1.
- *
- * \param sourcesIdxs [out] Indexes of the available data sources to be used for voltage channels.
- * \param sourcesIdxs [out] Indexes of the available data sources to be used for current channels.
- * \return Error code.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t getAvailableChannelsSources(
-//        E384CL_ARGOUT ChannelSources_t &voltageSourcesIdxs,
-//        E384CL_ARGOUT ChannelSources_t &currentSourcesIdxs);
-
-/*! \brief Check if the device implements the holding voltage tuner.
- *
- * \return Success if the device implements holding voltage tuner.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t hasVoltageHoldTuner(
-//        E384CL_ARGVOID);
-
-/*! \brief Check if the device implements the holding current tuner.
- *
- * \return Success if the device implements holding current tuner.
- */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t hasCurrentHoldTuner(
-//        E384CL_ARGVOID);
-
-
-//------------------------------------------------------------------------
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
 /*! \brief Get the voltage hold tuner features, e.g. ranges, step, ...
  *
- * \param voltageHoldTunerFeatures [out] Structure containing the VoltageHoldTuner features.
+ * \param voltageHoldTunerFeatures [out] Vector of ranges for VoltageHoldTuner in each stimulus range.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVoltageHoldTunerFeatures(
-        E384CL_ARGOUT LRange voltageHoldTunerFeaturesOut);
+        E384CL_ARGOUT LRangeHandle * voltageHoldTunerFeaturesOut);
 
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
+/*! \brief Get the current hold tuner features, e.g. ranges, step, ...
+ *
+ * \param currentHoldTunerFeatures [out] Vector of ranges for VoltageHoldTuner in each stimulus range.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCurrentHoldTunerFeatures(
+        E384CL_ARGOUT LRangeHandle * currentHoldTunerFeaturesOut);
+
 /*! \brief Get the VC calibration current gain features, e.g. ranges, step, ...
  *
  * \param calibVcCurrentGainFeatures [out] Structure containing the VC calibration current gain  features.
@@ -1381,7 +1303,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCalibVcCurrentGainFeatures(
         E384CL_ARGOUT LRange calibVcCurrentGainFeaturesOut);
 
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
 /*! \brief Get the VC calibration current offset features, e.g. ranges, step, ...
  *
  * \param calibVcCurrentOffsetFeatures [out] Vector of structures containing the VC calibration current offset features, one element for each option.

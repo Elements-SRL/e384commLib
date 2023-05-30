@@ -501,36 +501,6 @@ ErrorCodes_t digitalOffsetCompensation(
 //    return ret;
 //}
 
-//ErrorCodes_t setVcCurrentOffsetDelta(
-//        uint16_t channelIdx,
-//        CharMeasurement_t valueIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        Measurement_t value;
-//        input2Measurement(valueIn, value);
-//        ret = messageDispatcher->setVcCurrentOffsetDelta(channelIdx, value);
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//ErrorCodes_t setCcVoltageOffsetDelta(
-//        uint16_t channelIdx,
-//        CharMeasurement_t valueIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        Measurement_t value;
-//        input2Measurement(valueIn, value);
-//        ret = messageDispatcher->setCcVoltageOffsetDelta(channelIdx, value);
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
 //ErrorCodes_t zap(
 //        CharMeasurement_t durationIn,
 //        uint16_t channelIdx) {
@@ -1478,6 +1448,18 @@ ErrorCodes_t resetFpga(bool reset) {
  *  Rx methods  *
 \****************/
 
+ErrorCodes_t getRxDataBufferSize(
+        uint32_t &size) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->getRxDataBufferSize(size);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
 ErrorCodes_t getNextMessage(
         RxOutput_t &rxOutput, int16_t* data) {
     ErrorCodes_t ret;
@@ -1534,52 +1516,32 @@ ErrorCodes_t getBoardsNumber(
     return ret;
 }
 
-//ErrorCodes_t getAvailableChannelsSources(
-//        ChannelSources_t &voltageSourcesIdxs,
-//        ChannelSources_t &currentSourcesIdxs) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getAvailableChannelsSources(voltageSourcesIdxs, currentSourcesIdxs);
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//ErrorCodes_t hasVoltageHoldTuner() {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->hasVoltageHoldTuner();
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//ErrorCodes_t hasCurrentHoldTuner() {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->hasCurrentHoldTuner();
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//------------------------------------------------------------------------
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
 ErrorCodes_t getVoltageHoldTunerFeatures(
-        LRange voltageHoldTunerFeaturesOut){
+        LRangeHandle * voltageHoldTunerFeaturesOut){
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t> ranges;
+        ret = messageDispatcher->getVoltageHoldTunerFeatures(ranges);
+        vectorRangedMeasurement2Output(ranges, voltageHoldTunerFeaturesOut);
 
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
 }
 
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
 ErrorCodes_t getCurrentHoldTunerFeatures(
-        LRange currentHoldTunerFeaturesOut){
+        LRangeHandle * currentHoldTunerFeaturesOut){
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        vector <RangedMeasurement_t> ranges;
+        ret = messageDispatcher->getCurrentHoldTunerFeatures(ranges);
+        vectorRangedMeasurement2Output(ranges, currentHoldTunerFeaturesOut);
 
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
 }
 
 /*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
@@ -1663,7 +1625,6 @@ ErrorCodes_t getClampingModalitiesFeatures(
     }
     return ret;
 }
-//------------------------------------------------------------------------
 
 ErrorCodes_t getVCCurrentRanges(
         LRangeHandle * currentRangesOut) {
