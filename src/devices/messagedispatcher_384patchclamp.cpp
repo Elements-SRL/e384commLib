@@ -1542,12 +1542,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[2] = 0x0070; // fans on by default
 
-    txStatus[36] = 0xFFFF; // stimulus on by default
-    txStatus[60] = 0x0000; //inswitch off by default
-    txStatus[84] = 0xFFFF;  //Cal switch on by default
-    txStatus[108] = 0xFFFF; // VC Switch on by default
-    txStatus[156] = 0xFFFF; // VC CC sek on by default
-    // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
+
 }
 
 MessageDispatcher_384PatchClamp_V01::~MessageDispatcher_384PatchClamp_V01() {

@@ -379,7 +379,7 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
     /*! Initialization in voltage clamp*/
     this->enableStimulus(channelIndexes, allTrue, false);
     this->turnChannelsOn(channelIndexes, allTrue, false);
-    this->turnVoltageReaderOn(true, false);
+    this->turnCurrentReaderOn(true, false);
     this->setVoltageHoldTuner(channelIndexes, selectedVoltageHoldVector, false);
     this->setCalibVcCurrentGain(channelIndexes, selectedCalibVcCurrentGainVector, false);
     this->setCalibVcCurrentOffset(channelIndexes, selectedCalibVcCurrentOffsetVector, false);
@@ -392,6 +392,10 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
     this->setGateVoltagesTuner(boardIndexes, selectedGateVoltageVector, false);
     this->setSourceVoltagesTuner(boardIndexes, selectedSourceVoltageVector, false);
     this->digitalOffsetCompensation(channelIndexes, allFalse, false);
+    if(calibrationData.vcCalibResArray.size() > 0){
+        this->turnCalSwOn(channelIndexes, allFalse, false);
+    }
+
 
     /*! Make sure that at the beginning all the constant values tha might not be written later on are sent to the FPGA */
     txModifiedStartingWord = 0;
@@ -2405,29 +2409,29 @@ ErrorCodes_t MessageDispatcher::getBridgeBalanceCompensationOptions(std::vector 
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getLiquidJunctionControl(CharCompensationControl_t &control){
-    return ErrorFeatureNotImplemented;
-}
+//ErrorCodes_t MessageDispatcher::getLiquidJunctionControl(CharCompensationControl_t &control){
+//    return ErrorFeatureNotImplemented;
+//}
 
-ErrorCodes_t MessageDispatcher::getResistanceCorrectionLagControl(CharCompensationControl_t &control){
-    return ErrorFeatureNotImplemented;
-}
+//ErrorCodes_t MessageDispatcher::getResistanceCorrectionLagControl(CharCompensationControl_t &control){
+//    return ErrorFeatureNotImplemented;
+//}
 
-ErrorCodes_t MessageDispatcher::getResistancePredictionPercentageControl(CharCompensationControl_t &control){
-    return ErrorFeatureNotImplemented;
-}
+//ErrorCodes_t MessageDispatcher::getResistancePredictionPercentageControl(CharCompensationControl_t &control){
+//    return ErrorFeatureNotImplemented;
+//}
 
-ErrorCodes_t MessageDispatcher::getResistancePredictionBandwidthGainControl(CharCompensationControl_t &control){
-    return ErrorFeatureNotImplemented;
-}
+//ErrorCodes_t MessageDispatcher::getResistancePredictionBandwidthGainControl(CharCompensationControl_t &control){
+//    return ErrorFeatureNotImplemented;
+//}
 
-ErrorCodes_t MessageDispatcher::getResistancePredictionTauControl(CharCompensationControl_t &control){
-    return ErrorFeatureNotImplemented;
-}
+//ErrorCodes_t MessageDispatcher::getResistancePredictionTauControl(CharCompensationControl_t &control){
+//    return ErrorFeatureNotImplemented;
+//}
 
-ErrorCodes_t MessageDispatcher::getBridgeBalanceResistanceControl(CharCompensationControl_t &control){
-    return ErrorFeatureNotImplemented;
-}
+//ErrorCodes_t MessageDispatcher::getBridgeBalanceResistanceControl(CharCompensationControl_t &control){
+//    return ErrorFeatureNotImplemented;
+//}
 
 std::vector<double> MessageDispatcher::user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams){
     return std::vector<double>();
