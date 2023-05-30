@@ -1506,7 +1506,20 @@ ErrorCodes_t getChannelsNumber(
     }
     return ret;
 }
-    
+
+ErrorCodes_t getAvailableChannelsSources(
+        ChannelSources_t &voltageSourcesIdxs,
+        ChannelSources_t &currentSourcesIdxs) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->getAvailableChannelsSourcesFeatures(voltageSourcesIdxs, currentSourcesIdxs);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
 ErrorCodes_t getBoardsNumber(
         uint32_t &boardsNum) {
     ErrorCodes_t ret;

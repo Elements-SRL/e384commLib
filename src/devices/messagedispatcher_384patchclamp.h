@@ -36,6 +36,17 @@ protected:
         ClampingModalitiesNum
     };
 
+    enum ChannelSourcesIdxs {
+        ChannelSourceVoltageFromVoltageClamp = 0,
+        ChannelSourceVoltageFromCurrentClamp = 1,
+//        ChannelSourceVoltageFromDynamicClamp = 2,
+//        ChannelSourceVoltageFromVoltagePlusDynamicClamp = 3,
+        ChannelSourceCurrentFromVoltageClamp = 0,
+        ChannelSourceCurrentFromCurrentClamp = 1/*,
+        ChannelSourceCurrentFromDynamicClamp = 2,
+        ChannelSourceCurrentFromCurrentPlusDynamicClamp = 3*/
+    };
+
     enum VCCurrentRanges {
         VCCurrentRange10nA,
         VCCurrentRange40nALbw,

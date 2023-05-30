@@ -25,8 +25,6 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000108T", Device384Nanopores},
     {"221000106B", Device384PatchClamp},
     {"221000106C", Device384PatchClamp},
-//    {"22370012CB", Device10MHz},
-//    {"22370012CI", Device10MHz}
     {"22370012CB", Device4x10MHz},
     {"22370012CI", Device4x10MHz}
 #ifdef DEBUG
@@ -231,10 +229,6 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
 
     case Device4x10MHz:
         messageDispatcher = new MessageDispatcher_4x10MHz_V01(deviceId);
-        break;
-
-    case Device10MHz:
-        messageDispatcher = new MessageDispatcher_10MHz_V01(deviceId);
         break;
 
 #ifdef DEBUG
@@ -1795,6 +1789,12 @@ ErrorCodes_t MessageDispatcher::getSourceVoltagesTunerFeatures(RangedMeasurement
 ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &CurrentChannelNumberFeatures){
     voltageChannelNumberFeatures = voltageChannelsNum;
     CurrentChannelNumberFeatures = currentChannelsNum;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getAvailableChannelsSourcesFeatures(ChannelSources_t &voltageSourcesIdxs, ChannelSources_t &currentSourcesIdxs) {
+    voltageSourcesIdxs = availableVoltageSourcesIdxs;
+    currentSourcesIdxs = availableCurrentSourcesIdxs;
     return Success;
 }
 

@@ -15,6 +15,10 @@ protected:
         ClampingModalitiesNum
     };
 
+    enum ChannelSourcesIdxs {
+        ChannelSourceVoltageFromVoltageClamp = 0
+    };
+
     enum VCCurrentRanges {
         VCCurrentRange4uA,
         VCCurrentRange200nA,

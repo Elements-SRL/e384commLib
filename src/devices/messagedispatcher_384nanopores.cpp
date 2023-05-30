@@ -46,6 +46,15 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
+    /*! Clamping modalities */
+    clampingModalitiesNum = ClampingModalitiesNum;
+    clampingModalitiesArray.resize(clampingModalitiesNum);
+    clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
+    defaultClampingModalityIdx = VoltageClamp;
+
+    /*! Channel sources */
+    availableVoltageSourcesIdxs.VoltageFromVoltageClamp = ChannelSourceVoltageFromVoltageClamp;
+
     /*! Protocols parameters */
     protocolFpgaClockFrequencyHz = 10.0e6;
 
@@ -72,13 +81,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     voltageProtocolSinImplemented = false;
 
     protocolWordOffset = 84;
-
-    /*! Clamping modalities */
-    /*! \todo FCON rechecks*/
-    clampingModalitiesNum = ClampingModalitiesNum;
-    clampingModalitiesArray.resize(clampingModalitiesNum);
-    clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
-    defaultClampingModalityIdx = VoltageClamp;
 
     /*! Current ranges */
     /*! VC */

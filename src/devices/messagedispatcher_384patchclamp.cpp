@@ -50,12 +50,22 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
     /*! Clamping modalities */
-    /*! \todo FCON rechecks*/
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
     clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
     clampingModalitiesArray[CurrentClamp] = ClampingModality_t::CURRENT_CLAMP;
     defaultClampingModalityIdx = VoltageClamp;
+
+    /*! Channel sources */
+    availableVoltageSourcesIdxs.VoltageFromVoltageClamp = ChannelSourceVoltageFromVoltageClamp;
+    availableVoltageSourcesIdxs.VoltageFromCurrentClamp = ChannelSourceVoltageFromCurrentClamp;
+//    availableVoltageSourcesIdxs.VoltageFromDynamicClamp = ChannelSourceVoltageFromDynamicClamp;
+//    availableVoltageSourcesIdxs.VoltageFromVoltagePlusDynamicClamp = ChannelSourceVoltageFromVoltagePlusDynamicClamp;
+
+    availableCurrentSourcesIdxs.CurrentFromVoltageClamp = ChannelSourceCurrentFromVoltageClamp;
+    availableCurrentSourcesIdxs.CurrentFromCurrentClamp = ChannelSourceCurrentFromCurrentClamp;
+//    availableCurrentSourcesIdxs.CurrentFromDynamicClamp = ChannelSourceCurrentFromDynamicClamp;
+//    availableCurrentSourcesIdxs.CurrentFromCurrentPlusDynamicClamp = ChannelSourceCurrentFromCurrentPlusDynamicClamp;
 
     /*! Current ranges */
     /*! VC */

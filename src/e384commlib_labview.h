@@ -1302,6 +1302,20 @@ ErrorCodes_t getChannelsNumber(
         E384CL_ARGOUT uint32_t &currentChannelsNum,
         E384CL_ARGOUT uint32_t &voltageChannelsNum);
     
+
+/*! \brief Get the available data sources for all channels type.
+ * \note Unavailable sources have index -1.
+ *
+ * \param sourcesIdxs [out] Indexes of the available data sources to be used for voltage channels.
+ * \param sourcesIdxs [out] Indexes of the available data sources to be used for current channels.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getAvailableChannelsSources(
+        E384CL_ARGOUT ChannelSources_t &voltageSourcesIdxs,
+        E384CL_ARGOUT ChannelSources_t &currentSourcesIdxs);
+
 /*! \brief Get the number of boards for the device.
  *
  * \param boardsNum [out] Number of current channels.

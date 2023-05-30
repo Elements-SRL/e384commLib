@@ -222,6 +222,7 @@ public:
     ErrorCodes_t getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures);
     ErrorCodes_t getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures);
     ErrorCodes_t getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &currentChannelNumberFeatures);
+    ErrorCodes_t getAvailableChannelsSourcesFeatures(ChannelSources_t &voltageSourcesIdxs, ChannelSources_t &currentSourcesIdxs);
     ErrorCodes_t getBoardsNumberFeatures(uint16_t &boardsNumberFeatures);
     ErrorCodes_t getClampingModalitiesFeatures(std::vector<uint16_t> &clampingModalitiesFeatures);
 
@@ -245,7 +246,6 @@ public:
     ErrorCodes_t hasProtocolStepFeature();
     ErrorCodes_t hasProtocolRampFeature();
     ErrorCodes_t hasProtocolSinFeature();
-
 
 //    ErrorCodes_t getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps);
 //    ErrorCodes_t getVcCalibResFeatures(std::vector <Measurement_t> &vCCalibRes);
@@ -353,6 +353,9 @@ protected:
     uint16_t voltageChannelsNum = 1;
     uint16_t currentChannelsNum = 1;
     uint16_t totalChannelsNum = voltageChannelsNum+currentChannelsNum;
+
+    ChannelSources_t availableVoltageSourcesIdxs;
+    ChannelSources_t availableCurrentSourcesIdxs;
 
     uint16_t totalBoardsNum = 1;
 
