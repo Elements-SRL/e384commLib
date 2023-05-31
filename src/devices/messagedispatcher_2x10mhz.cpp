@@ -594,6 +594,9 @@ MessageDispatcher_2x10MHz_V01::MessageDispatcher_2x10MHz_V01(std::string di) :
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
     txStatus[2] = 0x0001; /*! one voltage frame every current frame */
+#ifdef REALLY_4_CHANNELS
+    txStatus[13] = 0x00F0; /*! the 4 channels FW wants the voltage range x1 set */
+#endif
     txStatus[344] = 0x0400; /*! current gain 1 */
     txStatus[345] = 0x0400; /*! current gain 1 */
     txStatus[346] = 0x0400; /*! current gain 1 */
