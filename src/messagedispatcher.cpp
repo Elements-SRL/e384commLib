@@ -2427,7 +2427,7 @@ ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector<std::vector<doubl
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues){
+ErrorCodes_t MessageDispatcher::getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues){
     return ErrorFeatureNotImplemented;
 }
 
