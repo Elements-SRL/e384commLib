@@ -226,12 +226,12 @@ ErrorCodes_t setSamplingRate(
  * \param activeFlag [in] true: enable the filter; false: disable the filter.
  * \return Error code.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t setDigitalFilter(
-//        E384CL_ARGIN double cutoffFrequency,
-//        E384CL_ARGIN bool lowPassFlag,
-//        E384CL_ARGIN bool activeFlag);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setDigitalFilter(
+        E384CL_ARGIN double cutoffFrequency,
+        E384CL_ARGIN bool lowPassFlag,
+        E384CL_ARGIN bool activeFlag);
 
 /*! \brief Execute digital offset compensation.
  * Digital offset compensation tunes the offset of the applied voltage so that the
@@ -260,11 +260,11 @@ ErrorCodes_t digitalOffsetCompensation(
  * \param value [in] Override value.
  * \return Error code.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t digitalOffsetCompensationOverride(
-//        E384CL_ARGIN uint16_t channelIdx,
-//        E384CL_ARGIN CharMeasurement_t value);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t digitalOffsetCompensationOverride(
+        E384CL_ARGIN uint16_t channelIdx,
+        E384CL_ARGIN CharMeasurement_t value);
 
 /*! \brief Zap.
  * A big voltage is applied in order to break the membrane.
@@ -273,11 +273,11 @@ ErrorCodes_t digitalOffsetCompensation(
  * \param channelIdx [in] Index of the channel to zap.
  * \return Error code.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t zap(
-//        E384CL_ARGIN CharMeasurement_t duration,
-//        E384CL_ARGIN uint16_t channelIdx);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t zap(
+        E384CL_ARGIN CharMeasurement_t duration,
+        E384CL_ARGIN uint16_t channelIdx);
 
 /*! \brief Sets the low pass filter on the voltage stimulus.
  *
@@ -1230,10 +1230,10 @@ ErrorCodes_t resetFpga(
  * \param reset [in] False sets the digital offset compensation in normal operation state, true sets in reset state.
  * \return Error code.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t resetDigitalOffsetCompensation(
-//        E384CL_ARGIN bool reset);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t resetDigitalOffsetCompensation(
+        E384CL_ARGIN bool reset);
 
 /****************\
  *  Rx methods  *
@@ -1930,6 +1930,16 @@ ErrorCodes_t getBridgeBalanceResistance(
         E384CL_ARGOUT double * channelValuesOut,
         E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
+
+/*! \brief Gets all the calibration parameters.
+ *
+ * \param calibrationParams [out] structure containing all the calibration paramameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCalibParams(
+        E384CL_ARGIN CharCalibrationParams_t * calibrationParams);
 
 // END NEW MICHELANGELO'S GETS
 

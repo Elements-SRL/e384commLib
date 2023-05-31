@@ -456,19 +456,20 @@ ErrorCodes_t setSamplingRate(
     return ret;
 }
 
-//ErrorCodes_t setDigitalFilter(
-//        E384CL_ARGIN double cutoffFrequency,
-//        E384CL_ARGIN bool lowPassFlag,
-//        E384CL_ARGIN bool activeFlag) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
+ErrorCodes_t setDigitalFilter(
+        E384CL_ARGIN double cutoffFrequency,
+        E384CL_ARGIN bool lowPassFlag,
+        E384CL_ARGIN bool activeFlag) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        return ErrorFeatureNotImplemented;
 //        ret = messageDispatcher->setDigitalFilter(cutoffFrequency, lowPassFlag, activeFlag);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
 ErrorCodes_t digitalOffsetCompensation(
         uint16_t * channelIndexesIn,
@@ -489,35 +490,37 @@ ErrorCodes_t digitalOffsetCompensation(
     return ret;
 }
 
-//ErrorCodes_t digitalOffsetCompensationOverride(
-//        uint16_t channelIdx,
-//        CharMeasurement_t valueIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
+ErrorCodes_t digitalOffsetCompensationOverride(
+        uint16_t channelIdx,
+        CharMeasurement_t valueIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        return ErrorFeatureNotImplemented;
 //        Measurement_t value;
 //        input2Measurement(valueIn, value);
 //        ret = messageDispatcher->digitalOffsetCompensationOverride(channelIdx, value);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//ErrorCodes_t zap(
-//        CharMeasurement_t durationIn,
-//        uint16_t channelIdx) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
+ErrorCodes_t zap(
+        CharMeasurement_t durationIn,
+        uint16_t channelIdx) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        return ErrorFeatureNotImplemented;
 //        Measurement_t duration;
 //        input2Measurement(durationIn, duration);
 //        ret = messageDispatcher->zap(duration, channelIdx);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
 ErrorCodes_t setVoltageStimulusLpf(
         uint16_t filterIdx,
@@ -1395,16 +1398,17 @@ ErrorCodes_t resetFpga(bool reset) {
     return ret;
 }
 
-//ErrorCodes_t resetDigitalOffsetCompensation(bool reset) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
+ErrorCodes_t resetDigitalOffsetCompensation(bool reset) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        return ErrorFeatureNotImplemented;
 //        ret = messageDispatcher->resetDigitalOffsetCompensation(reset);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
 /****************\
  *  Rx methods  *
@@ -2451,6 +2455,11 @@ ErrorCodes_t getBridgeBalanceResistance(
         ret = ErrorDeviceNotConnected;
     }
     return ret;
+}
+
+ErrorCodes_t getCalibParams(
+        CharCalibrationParams_t * calibrationParams) {
+    return ErrorFeatureNotImplemented;
 }
 
 // END NEW MICHELANGELO'S GETS

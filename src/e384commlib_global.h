@@ -318,26 +318,16 @@ typedef struct CharCompensationControl {
     LStrHandle name; /*!< Name of the compensation. */
 } CharCompensationControl_t;
 
-/*! \struct CharCalibrationParams_t
- * \brief Structure used to return calibration values.
- * \note All fields are vectors of vectors because the first vector indexes ranges, while the second range indexes channels
- */
-typedef struct CharCalibrationParams {
-    std::vector<std::vector<CharMeasurement_t>> allGainAdcMeas;
-    std::vector<std::vector<CharMeasurement_t>> allOffsetAdcMeas;
-    std::vector<std::vector<CharMeasurement_t>> allGainDacMeas;
-    std::vector<std::vector<CharMeasurement_t>> allOffsetDacMeas;
-    std::vector<std::vector<CharMeasurement_t>> ccAllGainAdcMeas;
-    std::vector<std::vector<CharMeasurement_t>> ccAllOffsetAdcMeas;
-    std::vector<std::vector<CharMeasurement_t>> ccAllGainDacMeas;
-    std::vector<std::vector<CharMeasurement_t>> ccAllOffsetDacMeas;
-} CharCalibrationParams_t;
-
 #include "lv_prolog.h"
 typedef struct {
     int32	cnt;                    /* number of measurements that follow */
     CharMeasurement_t	item[1];	/* cnt measurements */
 } LMeas, *LMeasPtr, **LMeasHandle;
+
+typedef struct {
+    int32	cnt;            /* number of vector of measurements that follow */
+    LMeasHandle	item[1];	/* cnt vector of measurements */
+} LVecMeas, *LVecMeasPtr, **LVecMeasHandle;
 
 typedef struct {
     int32	cnt;                        /* number of ranged measurements that follow */
@@ -348,6 +338,21 @@ typedef struct {
     int32	cnt;                            /* number of compensation controls that follow */
     CharCompensationControl_t	item[1];	/* cnt compensation control */
 } LComp, *LCompPtr, **LCompHandle;
+
+/*! \struct CharCalibrationParams_t
+ * \brief Structure used to return calibration values.
+ * \note All fields are vectors of vectors because the first vector indexes ranges, while the second range indexes channels
+ */
+typedef struct CharCalibrationParams {
+    LVecMeasHandle allGainAdcMeas;
+    LVecMeasHandle allOffsetAdcMeas;
+    LVecMeasHandle allGainDacMeas;
+    LVecMeasHandle allOffsetDacMeas;
+    LVecMeasHandle ccAllGainAdcMeas;
+    LVecMeasHandle ccAllOffsetAdcMeas;
+    LVecMeasHandle ccAllGainDacMeas;
+    LVecMeasHandle ccAllOffsetDacMeas;
+} CharCalibrationParams_t;
 
 #define LVecBuf(sp)	(&((sp))->item[0])				/* pointer to first item of vector */
 #define LVecItem(sp, n)	((&((sp))->item[n]))		/* pointer to n-th item of vector */
