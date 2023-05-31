@@ -79,10 +79,8 @@ ErrorCodes_t disconnectDevice(
 
 /*! \brief Turn on/off the voltage stimulus for each channel.
  *
- * \param channelIndexesIn [in] Channel indexes.
- * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the voltage stimulus on, false to turn it off.
+ * \param onValueIn [in] True to turn the voltage stimulus on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
- * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
@@ -93,10 +91,8 @@ ErrorCodes_t turnVoltageStimulusOn(
 
 /*! \brief Turn on/off the current stimulus for each channel.
  *
- * \param channelIndexesIn [in] Channel indexes.
- * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the current stimulus on, false to turn it off.
+ * \param onValueIn [in] True to turn the current stimulus on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
- * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
@@ -110,14 +106,14 @@ ErrorCodes_t turnCurrentStimulusOn(
  *  \note In some devices the ADC can't be turned on independently of the DAC.
  *  \note This only activates the circuitry: in order to have the device return the desired channels use #setChannelsSources.
  *
- * \param  onValueIn [in] Boolean, one for each channel: True to turn the voltage reader on, false to turn it off.
+ * \param onValueIn [in] True to turn the voltage reader on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageReaderOn(
-        E384CL_ARGIN bool * onValueIn,
+        E384CL_ARGIN bool onValueIn,
         E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Turn on/off the current reader for each channel.
@@ -125,14 +121,14 @@ ErrorCodes_t turnVoltageReaderOn(
  *  \note In some devices the ADC can't be turned on independently of the DAC.
  *  \note This only activates the circuitry: in order to have the device return the desired channels use #setChannelsSources.
  *
- * \param onValueIn [in] Boolean, one for each channel: True to turn the current reader on, false to turn it off.
+ * \param onValueIn [in] True to turn the current reader on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentReaderOn(
-        E384CL_ARGIN bool * onValueIn,
+        E384CL_ARGIN bool onValueIn,
         E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Set the data sources for all channels.
@@ -243,7 +239,7 @@ ErrorCodes_t setSamplingRate(
  * the compensated voltage, that can be used as an estimate of the liquid junction voltage.
  *
  * \param channelIndexesIn [in] Channel indexes.
- * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the pipette compensation on, false to turn it off.
+ * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the pipette compensation on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
@@ -285,7 +281,8 @@ ErrorCodes_t digitalOffsetCompensation(
 
 /*! \brief Sets the low pass filter on the voltage stimulus.
  *
- * \param opened [in] Index of the filter setting (get available settings with method getVoltageStimulusLpfs).
+ * \param filterIdx [in] Index of the desired filtering option.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
@@ -296,7 +293,8 @@ ErrorCodes_t setVoltageStimulusLpf(
     
 /*! \brief Sets the low pass filter on the current stimulus.
  *
- * \param opened [in] Index of the filter setting (get available settings with method getCurrentStimulusLpfs).
+ * \param filterIdx [in] Index of the desired filtering option.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
@@ -353,7 +351,6 @@ ErrorCodes_t turnCalSwOn(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
-
 /*! \brief Set a channel voltage offset on a specific channel.
  *
  * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
@@ -402,7 +399,14 @@ ErrorCodes_t setCalibVcCurrentOffset(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
-
+/*! \brief Set a VC Voltage gain on a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param gainsIn [in] Vector of current gains.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcVoltageGain(
@@ -411,6 +415,14 @@ ErrorCodes_t setCalibVcVoltageGain(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+/*! \brief Set a VC voltage offset on a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param offsetsIn [in] Vector of current offsets.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcVoltageOffset(
@@ -451,6 +463,14 @@ ErrorCodes_t setCalibCcVoltageOffset(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+/*! \brief Set a CC current gain on a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param gainsIn [in] Vector of voltage gains.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcCurrentGain(
@@ -459,6 +479,14 @@ ErrorCodes_t setCalibCcCurrentGain(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+/*! \brief Set a CC current offset on a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param offsetsIn [in] Vector of voltage offsets.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcCurrentOffset(
@@ -499,31 +527,25 @@ ErrorCodes_t setSourceVoltage(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
-/*! \brief Turn on/off the voltage compesantions for each channel.
+/*! \brief Turn on/off the voltage clamp compesantions for each channel.
  *
- * \param channelIndexesIn [in] Channel indexes.
- * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the voltage compensations on, false to turn them off.
- * \param applyFlagIn [in] Flag for instant application of this setting.
- * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \param onValue [in] True to turn the voltage clamp compensations on, false to turn them off.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageCompensationsOn(
-         bool onValue);
+         E384CL_ARGIN bool onValue);
 
-/*! \brief Turn on/off the current stimulus for each channel.
+/*! \brief Turn on/off the current clamp compesantions for each channel.
  *
- * \param channelIndexesIn [in] Channel indexes.
- * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the current compensations on, false to turn them off.
- * \param applyFlagIn [in] Flag for instant application of this setting.
- * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \param onValue [in] True to turn the current clamp compensations on, false to turn them off.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentCompensationsOn(
-         bool onValue);
+         E384CL_ARGIN bool onValue);
 
 /*! \brief Turn on/off pipette compensation for each channel.
  *
@@ -577,7 +599,7 @@ ErrorCodes_t turnMembraneCompensationOn(
  * \note Resistance compensation includes resistance correction and prediction.
  *
  * \param channelIndexesIn [in] Channel indexes.
- * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the resistance compensation on, false to turn it off.
+ * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the resistance compensation on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
@@ -593,7 +615,7 @@ ErrorCodes_t turnAccessResistanceCompensationOn(
 /*! \brief Turn on/off access resistance correction for each channel.
  *
  * \param channelIndexesIn [in] Channel indexes.
- * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the resistance correction on, false to turn it off.
+ * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the resistance correction on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
@@ -609,7 +631,7 @@ ErrorCodes_t turnAccessResistanceCorrectionOn(
 /*! \brief Turn on/off access resistance prediction for each channel.
  *
  * \param channelIndexesIn [in] Channel indexes.
- * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the resistance prediction on, false to turn it off.
+ * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the resistance prediction on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
@@ -625,7 +647,7 @@ ErrorCodes_t turnAccessResistancePredictionOn(
 /*! \brief Turn on/off leak conductance compensation for each channel.
  *
  * \param channelIndexesIn [in] Channel indexes.
- * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the leak conductance compensation on, false to turn it off.
+ * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the leak conductance compensation on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
@@ -641,7 +663,7 @@ ErrorCodes_t turnLeakConductanceCompensationOn(
 /*! \brief Turn on/off bridge balance compensation for each channel.
  *
  * \param channelIndexesIn [in] Channel indexes.
- * \param  onValuesIn [in] Array of booleans, one for each channel: True to turn the bridge balance compensation on, false to turn it off.
+ * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the bridge balance compensation on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
@@ -1182,6 +1204,7 @@ ErrorCodes_t currSin(
 /*! \brief Reset the device's ASIC.
  *
  * \param reset [in] False sets the ASIC in normal operation state, true sets in reset state.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1193,6 +1216,7 @@ ErrorCodes_t resetAsic(
 /*! \brief Reset the device's FPGA.
  *
  * \param reset [in] False sets the FPGA in normal operation state, true sets in reset state.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1249,7 +1273,6 @@ ErrorCodes_t getChannelsNumber(
         E384CL_ARGOUT uint32_t &currentChannelsNum,
         E384CL_ARGOUT uint32_t &voltageChannelsNum);
     
-
 /*! \brief Get the available data sources for all channels type.
  * \note Unavailable sources have index -1.
  *
