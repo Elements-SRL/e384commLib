@@ -87,6 +87,10 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     protocolWordOffset = 14;
     protocolItemsWordsNum = 12;
 
+    stateMaxNum = 10;
+    stateWordOffset = 264;
+    stateWordsNum = 8;
+
     /*! Current ranges */
     /*! VC */
     vcCurrentRangesNum = VCCurrentRangesNum;
@@ -568,50 +572,106 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
         }
     }
 
-//    /*! VC current gain calibration */
-//    doubleConfig.initialWord = 344;
-//    doubleConfig.initialBit = 0;
-//    doubleConfig.bitsNum = 16;
-//    doubleConfig.resolution = calibVcCurrentGainRange.step;
-//    doubleConfig.minValue = calibVcCurrentGainRange.min;
-//    doubleConfig.maxValue = calibVcCurrentGainRange.max;
-//    calibVcCurrentGainCoders.resize(currentChannelsNum);
-//    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-//        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-//        coders.push_back(calibVcCurrentGainCoders[idx]);
-//        doubleConfig.initialWord++;
-//    }
+    /*! VC current gain calibration */
+    doubleConfig.initialWord = 344;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = calibVcCurrentGainRange.step;
+    doubleConfig.minValue = calibVcCurrentGainRange.min;
+    doubleConfig.maxValue = calibVcCurrentGainRange.max;
+    calibVcCurrentGainCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(calibVcCurrentGainCoders[idx]);
+        doubleConfig.initialWord++;
+    }
 
-//    /*! VC current offset calibration */
-//    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
-//    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-//        doubleConfig.initialWord = 348;
-//        doubleConfig.initialBit = 0;
-//        doubleConfig.bitsNum = 16;
-//        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
-//        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
-//        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
-//        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
-//        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-//            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
-//            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
-//            doubleConfig.initialWord++;
-//        }
-//    }
+    /*! VC current offset calibration */
+    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 348;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
+        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
+        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
+        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! VC voltage gain calibration */
+    doubleConfig.initialWord = 352;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = calibVcVoltageGainRange.step;
+    doubleConfig.minValue = calibVcVoltageGainRange.min;
+    doubleConfig.maxValue = calibVcVoltageGainRange.max;
+    calibVcVoltageGainCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        calibVcVoltageGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(calibVcVoltageGainCoders[idx]);
+        doubleConfig.initialWord++;
+    }
+
+    /*! VC voltage offset calibration */
+    calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 356;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
+        doubleConfig.minValue = calibVcVoltageOffsetRanges[rangeIdx].min;
+        doubleConfig.maxValue = calibVcVoltageOffsetRanges[rangeIdx].max;
+        calibVcVoltageOffsetCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            calibVcVoltageOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibVcVoltageOffsetCoders[rangeIdx][idx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! \todo 20230531 MPAC: STATE ARRAY CODERS*/
+
+    doubleConfig.initialWord = 262;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = 1;
+    doubleConfig.minValue = 0;
+    doubleConfig.maxValue = stateMaxNum;
+    numberOfStatesCoder = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(numberOfStatesCoder);
+
+    doubleConfig.initialWord = 263;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = 1;
+    doubleConfig.minValue = 0;
+    doubleConfig.maxValue = stateMaxNum;
+    initialStateCoder = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(initialStateCoder);
+
+
+
+
+
 
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
     txStatus[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus[344] = 0x0400; /*! current gain 1 */
-    txStatus[345] = 0x0400; /*! current gain 1 */
-    txStatus[346] = 0x0400; /*! current gain 1 */
-    txStatus[347] = 0x0400; /*! current gain 1 */
-    txStatus[352] = 0x0400; /*! voltage gain 1 */
-    txStatus[353] = 0x0400; /*! voltage gain 1 */
-    txStatus[354] = 0x0400; /*! voltage gain 1 */
-    txStatus[355] = 0x0400; /*! voltage gain 1 */
+//    txStatus[344] = 0x0400; /*! current gain 1 */
+//    txStatus[345] = 0x0400; /*! current gain 1 */
+//    txStatus[346] = 0x0400; /*! current gain 1 */
+//    txStatus[347] = 0x0400; /*! current gain 1 */
+//    txStatus[352] = 0x0400; /*! voltage gain 1 */
+//    txStatus[353] = 0x0400; /*! voltage gain 1 */
+//    txStatus[354] = 0x0400; /*! voltage gain 1 */
+//    txStatus[355] = 0x0400; /*! voltage gain 1 */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 

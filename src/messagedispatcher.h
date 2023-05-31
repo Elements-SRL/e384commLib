@@ -389,6 +389,11 @@ protected:
 
     uint16_t totalBoardsNum = 1;
 
+    /*! 20230531 MPAC: state array params*/
+    unsigned int stateMaxNum;
+    unsigned int stateWordOffset;
+    unsigned int stateWordsNum;
+
     /*! Protocol's parameters */
     unsigned int protocolMaxItemsNum;
     unsigned int protocolWordOffset;
@@ -565,6 +570,10 @@ protected:
 
 //    std::vector<std::vector<Measurement_t>> vcCalibResArrays;
 //    std::vector<std::vector<Measurement_t>> vcCalibVoltStepsArrays;
+
+    /*! \todo 20230531 MPAC: coders for 4x10MHz*/
+    DoubleCoder * numberOfStatesCoder;
+    DoubleCoder * initialStateCoder;
 
     CalibrationData_t calibrationData;
 
