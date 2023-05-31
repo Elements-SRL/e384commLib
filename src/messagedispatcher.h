@@ -86,7 +86,7 @@ public:
 
     enum CompensationUserParams {
         U_CpVc,     //VCPipetteCapacitance
-        U_Cm,       //embraneCapacitance
+        U_Cm,       //MembraneCapacitance
         U_Rs,       //SeriesResistance
         U_RsCp,     //SeriesCorrectionPerc
         U_RsPg,     //SeriesPredictionGain
@@ -279,12 +279,19 @@ public:
     virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> options);
     virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> options);
 
-//    virtual ErrorCodes_t getLiquidJunctionControl(CharCompensationControl_t &control);
-//    virtual ErrorCodes_t getResistanceCorrectionLagControl(CharCompensationControl_t &control);
-//    virtual ErrorCodes_t getResistancePredictionPercentageControl(CharCompensationControl_t &control);
-//    virtual ErrorCodes_t getResistancePredictionBandwidthGainControl(CharCompensationControl_t &control);
-//    virtual ErrorCodes_t getResistancePredictionTauControl(CharCompensationControl_t &control);
-//    virtual ErrorCodes_t getBridgeBalanceResistanceControl(CharCompensationControl_t &control);
+    virtual ErrorCodes_t getLiquidJunctionControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getPipetteCapacitanceControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getCCPipetteCapacitanceControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getMembraneCapacitanceControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getAccessResistanceControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getResistanceCorrectionPercentageControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getResistanceCorrectionLagControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getResistancePredictionGainControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getResistancePredictionPercentageControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getResistancePredictionBandwidthGainControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getResistancePredictionTauControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getLeakConductanceControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getBridgeBalanceResistanceControl(CompensationControl_t &control);
 
     /*! 20230531: MPAC here somehow useless*/
     virtual ErrorCodes_t getAccessResistanceCorrectionLag(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
@@ -293,8 +300,6 @@ public:
     virtual ErrorCodes_t getAccessResistancePredictionTau(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
     virtual ErrorCodes_t getLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
     virtual ErrorCodes_t getBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
-
-
 
 protected:
     // Check Device->PC table in protocol
