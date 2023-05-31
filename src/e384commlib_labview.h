@@ -1324,12 +1324,11 @@ ErrorCodes_t getCurrentHoldTunerFeatures(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getClampingModalitiesFeatures(
-        E384CL_ARGOUT std::vector <uint16_t> &clampingModalities);
+        E384CL_ARGOUT uint16_t * clampingModalities);
 
 /*! \brief Get the current ranges available in voltage clamp for the device.
  *
  * \param currentRanges [out] Array containing all the available current ranges in voltage clamp.
- * \param defaultVcCurrRangeIdx [out] Integer referring to the default current range.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1337,7 +1336,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVCCurrentRanges(
         E384CL_ARGOUT LRangeHandle * currentRanges);
     
-
 /*! \brief Get the current ranges available in current clamp for the device.
  *
  * \param currentRanges [out] Array containing all the available current ranges in current clamp.
@@ -1511,7 +1509,7 @@ ErrorCodes_t hasProtocolSin(
 
 /*! \brief Get the available options for the voltage stimulus low pass filter.
  *
- * \param opened [out] Available options for the voltage stimulus low pass filter.
+ * \param filterOptions [out] Available options for the voltage stimulus low pass filter.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1521,7 +1519,7 @@ ErrorCodes_t getVoltageStimulusLpfs(
 
 /*! \brief Get the available options for the current stimulus low pass filter.
  *
- * \param opened [out] Available options for the current stimulus low pass filter.
+ * \param filterOptions [out] Available options for the current stimulus low pass filter.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1531,7 +1529,7 @@ ErrorCodes_t getCurrentStimulusLpfs(
 
 /*! \brief Get options for the pipette compensation.
  *
- * \param option [out]: vector of strings of the available options.
+ * \param options [out]: vector of strings of the available options.
  * \return Success if the device has options for pipette compensation.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1541,7 +1539,7 @@ ErrorCodes_t getPipetteCompensationOptions(
 
 /*! \brief Get options for the pipette compensation for current clamp.
  *
- * \param option [out]: vector of strings of the available options.
+ * \param options [out]: vector of strings of the available options.
  * \return Success if the device has options for pipette compensation for current clamp.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1551,7 +1549,7 @@ ErrorCodes_t getCCPipetteCompensationOptions(
 
 /*! \brief Get options for the membrane compensation.
  *
- * \param option [out]: vector of strings of the available options.
+ * \param options [out]: vector of strings of the available options.
  * \return Success if the device has options for membrane compensation.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1562,7 +1560,7 @@ ErrorCodes_t getMembraneCompensationOptions(
 /*! \brief Get options for the access resistance compensation.
  * \note Resistance compensation includes resistance correction and prediction.
  *
- * \param option [out]: vector of strings of the available options.
+ * \param options [out]: vector of strings of the available options.
  * \return Success if the device has options for access resistance compensation.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1572,7 +1570,7 @@ ErrorCodes_t getAccessResistanceCompensationOptions(
 
 /*! \brief Get options for the access resistance correction.
  *
- * \param option [out]: vector of strings of the available options.
+ * \param options [out]: vector of strings of the available options.
  * \return Success if the device has options for access resistance correction.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1582,7 +1580,7 @@ ErrorCodes_t getAccessResistanceCorrectionOptions(
 
 /*! \brief Get options for the access resistance prediction.
  *
- * \param option [out]: vector of strings of the available options.
+ * \param options [out]: vector of strings of the available options.
  * \return Success if the device has options for access resistance prediction.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1592,7 +1590,7 @@ ErrorCodes_t getAccessResistancePredictionOptions(
 
 /*! \brief Get options for the leak conductance compensation.
  *
- * \param option [out]: vector of strings of the available options.
+ * \param options [out]: vector of strings of the available options.
  * \return Success if the device has options for leak conductance compensation.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1602,7 +1600,7 @@ ErrorCodes_t getLeakConductanceCompensationOptions(
 
 /*! \brief Get options for the bridge balance compensation.
  *
- * \param option [out]: vector of strings of the available options.
+ * \param options [out]: vector of strings of the available options.
  * \return Success if the device has options for bridge balance compensation.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1612,7 +1610,7 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
 
 /*! \brief Get the specifications of the control for the liquid junction.
  *
- * \param control [in] Specifications of the control for the liquid junction.
+ * \param control [out] Specifications of the control for the liquid junction.
  * \return Success if the device implements liquid junction control.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1622,7 +1620,7 @@ ErrorCodes_t getLiquidJunctionControl(
 
 /*! \brief Get the specifications of the control for the pipette capacitance.
  *
- * \param control [in] Specifications of the control for the pipette capacitance.
+ * \param control [out] Specifications of the control for the pipette capacitance.
  * \return Success if the device implements pipette capacitance control.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1632,7 +1630,7 @@ ErrorCodes_t getPipetteCapacitanceControl(
 
 /*! \brief Get the specifications of the control for the pipette capacitance for current clamp.
  *
- * \param control [in] Specifications of the control for the pipette capacitance for current clamp.
+ * \param control [out] Specifications of the control for the pipette capacitance for current clamp.
  * \return Success if the device implements pipette capacitance control for current clamp.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1642,7 +1640,7 @@ ErrorCodes_t getCCPipetteCapacitanceControl(
 
 /*! \brief Get the specifications of the control for the membrane capacitance.
  *
- * \param control [in] Specifications of the control for the membrane capacitance.
+ * \param control [out] Specifications of the control for the membrane capacitance.
  * \return Success if the device implements membrane capacitance control.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1652,7 +1650,7 @@ ErrorCodes_t getMembraneCapacitanceControl(
 
 /*! \brief Get the specifications of the control for the access resistance.
  *
- * \param control [in] Specifications of the control for the access resistance.
+ * \param control [out] Specifications of the control for the access resistance.
  * \return Success if the device implements access resistance control.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1662,7 +1660,7 @@ ErrorCodes_t getAccessResistanceControl(
 
 /*! \brief Get the specifications of the control for the resistance correction percentage.
  *
- * \param control [in] Specifications of the control for the resistance correction percentage.
+ * \param control [out] Specifications of the control for the resistance correction percentage.
  * \return Success if the device implements resistance correction percentage control.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1672,7 +1670,7 @@ ErrorCodes_t getResistanceCorrectionPercentageControl(
 
 /*! \brief Get the specifications of the control for the resistance correction lag.
  *
- * \param control [in] Specifications of the control for the resistance correction lag.
+ * \param control [out] Specifications of the control for the resistance correction lag.
  * \return Success if the device implements resistance correction lag control.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1682,7 +1680,7 @@ ErrorCodes_t getResistanceCorrectionLagControl(
 
 /*! \brief Get the specifications of the control for the resistance prediction gain.
  *
- * \param control [in] Specifications of the control for the resistance prediction gain.
+ * \param control [out] Specifications of the control for the resistance prediction gain.
  * \return Success if the device implements resistance prediction gain control.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1692,7 +1690,7 @@ ErrorCodes_t getResistancePredictionGainControl(
 
 /*! \brief Get the specifications of the control for the resistance prediction percentage.
  *
- * \param control [in] Specifications of the control for the resistance prediction percentage.
+ * \param control [out] Specifications of the control for the resistance prediction percentage.
  * \return Success if the device implements resistance prediction percentage control.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1702,7 +1700,7 @@ ErrorCodes_t getResistancePredictionPercentageControl(
 
 /*! \brief Get the specifications of the control for the resistance prediction bandwidth gain.
  *
- * \param control [in] Specifications of the control for the resistance prediction bandwidth gain.
+ * \param control [out] Specifications of the control for the resistance prediction bandwidth gain.
  * \return Success if the device implements resistance prediction bandwidth gain control.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1712,7 +1710,7 @@ ErrorCodes_t getResistancePredictionBandwidthGainControl(
 
 /*! \brief Get the specifications of the control for the resistance prediction tau.
  *
- * \param control [in] Specifications of the control for the resistance prediction tau.
+ * \param control [out] Specifications of the control for the resistance prediction tau.
  * \return Success if the device implements resistance prediction tau control.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1722,7 +1720,7 @@ ErrorCodes_t getResistancePredictionTauControl(
 
 /*! \brief Get the specifications of the control for the leak conductance.
  *
- * \param control [in] Specifications of the control for the leak conductance.
+ * \param control [out] Specifications of the control for the leak conductance.
  * \return Success if the device implements resistance prediction tau control.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1732,7 +1730,7 @@ ErrorCodes_t getLeakConductanceControl(
 
 /*! \brief Get the specifications of the control for the bridge balance resistance.
  *
- * \param control [in] Specifications of the control for the bridge balance resistance.
+ * \param control [out] Specifications of the control for the bridge balance resistance.
  * \return Success if the device implements bridge balance resistance control.
  */
 E384COMMLIB_NAME_MANGLING
