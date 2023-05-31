@@ -12,8 +12,8 @@ CONFIG(debug, debug|release) {
 
 CONFIG(release, debug|release) {
     TARGET = e384commlib
-    DEFINES += DEBUG
-    DEFINES += DEBUG_TX_DATA_PRINT
+#    DEFINES += DEBUG
+#    DEFINES += DEBUG_TX_DATA_PRINT
 }
 
 #DEFINES += E384NPR_ADDITIONAL_SR_FLAG
@@ -23,7 +23,7 @@ TEMPLATE = lib
 CONFIG += c++14
 
 # use as static library
-DEFINES += E384COMMLIB_STATIC
+#DEFINES += E384COMMLIB_STATIC
 
 contains(DEFINES, E384COMMLIB_STATIC) {
     CONFIG += staticlib

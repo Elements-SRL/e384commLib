@@ -1856,6 +1856,57 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompValueMatrix(std::vector
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues){
+    switch(compTypeToEnable){
+    case CompCfast:
+        if(pipetteCapEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        }
+        for(int i = 0; i<channelIndexes.size(); i++){
+            onValues[i] = compCfastEnable[channelIndexes[i]];
+        }
+    break;
+
+    case CompCslow:
+        if(membraneCapEnCompensationCoders.size() == 0 ){
+            return ErrorFeatureNotImplemented;
+        }
+        for(int i = 0; i<channelIndexes.size(); i++){
+            onValues[i] = compCslowEnable[channelIndexes[i]];
+        }
+    break;
+
+    case CompRsCorr:
+        if(rsCorrEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        }
+        for(int i = 0; i<channelIndexes.size(); i++){
+            onValues[i] = compRsCorrEnable[channelIndexes[i]];
+        }
+    break;
+
+    case CompRsPred:
+        if(rsPredEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        }
+        for(int i = 0; i<channelIndexes.size(); i++){
+            onValues[i] = compRsPredEnable[channelIndexes[i]] = onValues[i];
+        }
+    break;
+
+    case CompCcCfast:
+        if(pipetteCapCcEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        }
+        for(int i = 0; i<channelIndexes.size(); i++){
+            onValues[i] = compCcCfastEnable[channelIndexes[i]];
+        }
+    break;
+    }
+
+return Success;
+}
+
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
         switch(compTypeToEnable){
         case CompCfast:
@@ -2440,4 +2491,107 @@ double MessageDispatcher_384PatchClamp_V01::computeAsicCmCinj(double cm, bool ch
     return asicCmCinj;
 }
 
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getLiquidJunctionControl(CompensationControl_t &control) {
+    control.implemented = true;
+    control.min = vcVoltageRangesArray[VCVoltageRange500mV].min;
+    control.max = vcVoltageRangesArray[VCVoltageRange500mV].max;
+    control.compensable = vcVoltageRangesArray[VCVoltageRange500mV].max;
+    control.steps = vcVoltageRangesArray[VCVoltageRange500mV].steps();
+    control.step = vcVoltageRangesArray[VCVoltageRange500mV].step;
+    control.decimals = vcVoltageRangesArray[VCVoltageRange500mV].decimals();
+    control.value = vcVoltageRangesArray[VCVoltageRange500mV].min;
+    control.prefix = vcVoltageRangesArray[VCVoltageRange500mV].prefix;
+    control.unit = vcVoltageRangesArray[VCVoltageRange500mV].unit;
+    control.name = "Liquid Junction";
+    return Success;
+}
 
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getPipetteCapacitanceControl(CompensationControl_t &control) {
+    control.implemented = true;
+    control.min = pipetteCapacitanceRange_pF[0].min;
+    control.max = pipetteCapacitanceRange_pF.back().max;
+    control.compensable = pipetteCapacitanceRange_pF.back().max;
+    control.step = pipetteCapacitanceRange_pF[0].step;
+    control.steps = static_cast <uint32_t> (round(1.0+(control.max-control.min)/control.step));
+    control.decimals = pipetteCapacitanceRange_pF[0].decimals();
+    control.value = pipetteCapacitanceRange_pF[0].min;
+    control.prefix = pipetteCapacitanceRange_pF[0].prefix;
+    control.unit = pipetteCapacitanceRange_pF[0].unit;
+    control.name = "Pipette Capacitance";
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCCPipetteCapacitanceControl(CompensationControl_t &control) {
+    control.implemented = true;
+    control.min = pipetteCapacitanceRange_pF[0].min;
+    control.max = pipetteCapacitanceRange_pF.back().max;
+    control.compensable = pipetteCapacitanceRange_pF.back().max;
+    control.step = pipetteCapacitanceRange_pF[0].step;
+    control.steps = static_cast <uint32_t> (round(1.0+(control.max-control.min)/control.step));
+    control.decimals = pipetteCapacitanceRange_pF[0].decimals();
+    control.value = pipetteCapacitanceRange_pF[0].min;
+    control.prefix = pipetteCapacitanceRange_pF[0].prefix;
+    control.unit = pipetteCapacitanceRange_pF[0].unit;
+    control.name = "Pipette Capacitance";
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getMembraneCapacitanceControl(CompensationControl_t &control) {
+    control.implemented = true;
+    control.min = membraneCapValueRange_pF[0].min;
+    control.max = membraneCapValueRange_pF.back().max;
+    control.compensable = membraneCapValueRange_pF.back().max;
+    control.step = membraneCapValueRange_pF[0].step;
+    control.steps = static_cast <uint32_t> (round(1.0+(control.max-control.min)/control.step));
+    control.decimals = membraneCapValueRange_pF[0].decimals();
+    control.value = membraneCapValueRange_pF[0].min;
+    control.prefix = membraneCapValueRange_pF[0].prefix;
+    control.unit = membraneCapValueRange_pF[0].unit;
+    control.name = "Membrane Capacitance";
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getAccessResistanceControl(CompensationControl_t &control) {
+    control.implemented = true;
+    control.min = rsCorrValueRange.min;
+    control.max = rsCorrValueRange.max;
+    control.compensable = rsCorrValueRange.max;
+    control.step = rsCorrValueRange.step;
+    control.steps = rsCorrValueRange.steps();
+    control.decimals = rsCorrValueRange.decimals();
+    control.value = rsCorrValueRange.min;
+    control.prefix = rsCorrValueRange.prefix;
+    control.unit = rsCorrValueRange.unit;
+    control.name = "Access Resistance";
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getResistanceCorrectionPercentageControl(CompensationControl_t &control) {
+    control.implemented = true;
+    control.min = 1.0;
+    control.max = 100.0;
+    control.compensable = 100.0;
+    control.step = 1.0;
+    control.steps = static_cast <uint32_t> (round(1.0+(control.max-control.min)/control.step));
+    control.decimals = 1;
+    control.value = 1.0;
+    control.prefix = UnitPfxNone;
+    control.unit = "%";
+    control.name = "Correction Percentage";
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getResistancePredictionGainControl(CompensationControl_t &control) {
+    control.implemented = true;
+    control.min = rsPredGainRange.min;
+    control.max = rsPredGainRange.max;
+    control.compensable = rsPredGainRange.max;
+    control.step = rsPredGainRange.step;
+    control.steps = rsPredGainRange.steps();
+    control.decimals = rsPredGainRange.decimals();
+    control.value = rsPredGainRange.min;
+    control.prefix = rsPredGainRange.prefix;
+    control.unit = rsPredGainRange.unit;
+    control.name = "Prediction Gain";
+    return Success;
+}

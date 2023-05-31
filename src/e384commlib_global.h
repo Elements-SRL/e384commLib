@@ -301,7 +301,7 @@ typedef struct CharRangedMeasurement {
     LStrHandle unit; /*!< Unit. \note Can be any string, the library is not aware of real units meaning. */
 } CharRangedMeasurement_t;
 
-/*! \struct CompensationControl_t
+/*! \struct CharCompensationControl_t
  * \brief Structure used to return detailed information on a specific compensation implemented by the HW.
  */
 typedef struct CharCompensationControl {
@@ -325,6 +325,11 @@ typedef struct {
 } LMeas, *LMeasPtr, **LMeasHandle;
 
 typedef struct {
+    int32	cnt;            /* number of vector of measurements that follow */
+    LMeasHandle	item[1];	/* cnt vector of measurements */
+} LVecMeas, *LVecMeasPtr, **LVecMeasHandle;
+
+typedef struct {
     int32	cnt;                        /* number of ranged measurements that follow */
     CharRangedMeasurement_t	item[1];	/* cnt ranged measurements */
 } LRange, *LRangePtr, **LRangeHandle;
@@ -333,6 +338,21 @@ typedef struct {
     int32	cnt;                            /* number of compensation controls that follow */
     CharCompensationControl_t	item[1];	/* cnt compensation control */
 } LComp, *LCompPtr, **LCompHandle;
+
+/*! \struct CharCalibrationParams_t
+ * \brief Structure used to return calibration values.
+ * \note All fields are vectors of vectors because the first vector indexes ranges, while the second range indexes channels
+ */
+typedef struct CharCalibrationParams {
+    LVecMeasHandle allGainAdcMeas;
+    LVecMeasHandle allOffsetAdcMeas;
+    LVecMeasHandle allGainDacMeas;
+    LVecMeasHandle allOffsetDacMeas;
+    LVecMeasHandle ccAllGainAdcMeas;
+    LVecMeasHandle ccAllOffsetAdcMeas;
+    LVecMeasHandle ccAllGainDacMeas;
+    LVecMeasHandle ccAllOffsetDacMeas;
+} CharCalibrationParams_t;
 
 #define LVecBuf(sp)	(&((sp))->item[0])				/* pointer to first item of vector */
 #define LVecItem(sp, n)	((&((sp))->item[n]))		/* pointer to n-th item of vector */

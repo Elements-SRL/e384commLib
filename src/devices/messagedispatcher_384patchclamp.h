@@ -13,6 +13,7 @@ public:
     virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) override;
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray) override;
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix) override;
+    virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues) override;
     virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn) override;
     virtual ErrorCodes_t enableVcCompensations(bool enable) override;
     virtual ErrorCodes_t enableCcCompensations(bool enable) override;
@@ -163,6 +164,13 @@ protected:
     virtual ErrorCodes_t asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams) override;
     virtual double computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow) override;
 
+    virtual ErrorCodes_t getLiquidJunctionControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getPipetteCapacitanceControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getCCPipetteCapacitanceControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getMembraneCapacitanceControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getAccessResistanceControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getResistanceCorrectionPercentageControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getResistancePredictionGainControl(CompensationControl_t &control) override;
 };
 
 #endif // MESSAGEDISPATCHER_384PATCHCLAMP_H
