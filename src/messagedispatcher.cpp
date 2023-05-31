@@ -2455,29 +2455,57 @@ ErrorCodes_t MessageDispatcher::getBridgeBalanceCompensationOptions(std::vector 
     return ErrorFeatureNotImplemented;
 }
 
-//ErrorCodes_t MessageDispatcher::getLiquidJunctionControl(CharCompensationControl_t &control){
-//    return ErrorFeatureNotImplemented;
-//}
+ErrorCodes_t MessageDispatcher::getLiquidJunctionControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
 
-//ErrorCodes_t MessageDispatcher::getResistanceCorrectionLagControl(CharCompensationControl_t &control){
-//    return ErrorFeatureNotImplemented;
-//}
+ErrorCodes_t MessageDispatcher::getPipetteCapacitanceControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
 
-//ErrorCodes_t MessageDispatcher::getResistancePredictionPercentageControl(CharCompensationControl_t &control){
-//    return ErrorFeatureNotImplemented;
-//}
+ErrorCodes_t MessageDispatcher::getCCPipetteCapacitanceControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
 
-//ErrorCodes_t MessageDispatcher::getResistancePredictionBandwidthGainControl(CharCompensationControl_t &control){
-//    return ErrorFeatureNotImplemented;
-//}
+ErrorCodes_t MessageDispatcher::getMembraneCapacitanceControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
 
-//ErrorCodes_t MessageDispatcher::getResistancePredictionTauControl(CharCompensationControl_t &control){
-//    return ErrorFeatureNotImplemented;
-//}
+ErrorCodes_t MessageDispatcher::getAccessResistanceControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
 
-//ErrorCodes_t MessageDispatcher::getBridgeBalanceResistanceControl(CharCompensationControl_t &control){
-//    return ErrorFeatureNotImplemented;
-//}
+ErrorCodes_t MessageDispatcher::getResistanceCorrectionPercentageControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getResistanceCorrectionLagControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getResistancePredictionGainControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getResistancePredictionPercentageControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getResistancePredictionBandwidthGainControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getResistancePredictionTauControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getLeakConductanceControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getBridgeBalanceResistanceControl(CompensationControl_t &control){
+    return ErrorFeatureNotImplemented;
+}
 
 std::vector<double> MessageDispatcher::user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams){
     return std::vector<double>();

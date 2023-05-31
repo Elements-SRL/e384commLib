@@ -19,6 +19,7 @@ static void input2VectorMeasurement(LMeasHandle i, std::vector <Measurement_t> &
 static void string2Output(std::string s, LStrHandle o);
 static void measurement2Output(Measurement_t m, CharMeasurement_t &o);
 static void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o);
+static void compensationControl2Output(CompensationControl_t c, CharCompensationControl_t &o);
 static void vectorString2Output(std::vector <std::string> v, LStrHandle o);
 static void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o);
 static void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeHandle * o);
@@ -35,11 +36,13 @@ namespace e384CommLib {
 \*****************/
 
 ErrorCodes_t init() {
-
+    /*! \todo FCON sicuri non ci sia da fare nulla? */
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t deinit() {
-
+    /*! \todo FCON sicuri non ci sia da fare nulla? */
+    return ErrorFeatureNotImplemented;
 }
 
 /************************\
@@ -1504,12 +1507,6 @@ ErrorCodes_t getCurrentHoldTunerFeatures(
 }
 
 /*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
-ErrorCodes_t getCalibVcCurrentGainFeatures(
-        LRange calibVcCurrentGainFeaturesOut){
-
-}
-
-/*! \todo Discuss with patrick the output type (pointer, vector with 1 element, ...). This is just a stub in the e384commlib */
 ErrorCodes_t getCalibVcCurrentOffsetFeatures(
         LRangeHandle * calibVcCurrentOffsetFeaturesOut){
     ErrorCodes_t ret;
@@ -1932,10 +1929,12 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
 }
 
 ErrorCodes_t getLiquidJunctionControl(
-        CharCompensationControl_t &control) {
+        CharCompensationControl_t &controlOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
         ret = messageDispatcher->getLiquidJunctionControl(control);
+        compensationControl2Output(control, controlOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1943,71 +1942,83 @@ ErrorCodes_t getLiquidJunctionControl(
     return ret;
 }
 
-//ErrorCodes_t getPipetteCapacitanceControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getPipetteCapacitanceControl(control);
+ErrorCodes_t getPipetteCapacitanceControl(
+        CharCompensationControl_t &controlOut) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
+        ret = messageDispatcher->getPipetteCapacitanceControl(control);
+        compensationControl2Output(control, controlOut);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//ErrorCodes_t getCCPipetteCapacitanceControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getCCPipetteCapacitanceControl(control);
+ErrorCodes_t getCCPipetteCapacitanceControl(
+        CharCompensationControl_t &controlOut) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
+        ret = messageDispatcher->getCCPipetteCapacitanceControl(control);
+        compensationControl2Output(control, controlOut);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//ErrorCodes_t getMembraneCapacitanceControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getMembraneCapacitanceControl(control);
+ErrorCodes_t getMembraneCapacitanceControl(
+        CharCompensationControl_t &controlOut) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
+        ret = messageDispatcher->getMembraneCapacitanceControl(control);
+        compensationControl2Output(control, controlOut);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//ErrorCodes_t getAccessResistanceControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getAccessResistanceControl(control);
+ErrorCodes_t getAccessResistanceControl(
+        CharCompensationControl_t &controlOut) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
+        ret = messageDispatcher->getAccessResistanceControl(control);
+        compensationControl2Output(control, controlOut);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//ErrorCodes_t getResistanceCorrectionPercentageControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getResistanceCorrectionPercentageControl(control);
+ErrorCodes_t getResistanceCorrectionPercentageControl(
+        CharCompensationControl_t &controlOut) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
+        ret = messageDispatcher->getResistanceCorrectionPercentageControl(control);
+        compensationControl2Output(control, controlOut);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
 ErrorCodes_t getResistanceCorrectionLagControl(
-        CharCompensationControl_t &control) {
+        CharCompensationControl_t &controlOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
         ret = messageDispatcher->getResistanceCorrectionLagControl(control);
+        compensationControl2Output(control, controlOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2015,23 +2026,27 @@ ErrorCodes_t getResistanceCorrectionLagControl(
     return ret;
 }
 
-//ErrorCodes_t getResistancePredictionGainControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getResistancePredictionGainControl(control);
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-ErrorCodes_t getResistancePredictionPercentageControl(
-        CharCompensationControl_t &control) {
+ErrorCodes_t getResistancePredictionGainControl(
+        CharCompensationControl_t &controlOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
+        ret = messageDispatcher->getResistancePredictionGainControl(control);
+        compensationControl2Output(control, controlOut);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
+ErrorCodes_t getResistancePredictionPercentageControl(
+        CharCompensationControl_t &controlOut) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
         ret = messageDispatcher->getResistancePredictionPercentageControl(control);
+        compensationControl2Output(control, controlOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2040,10 +2055,12 @@ ErrorCodes_t getResistancePredictionPercentageControl(
 }
 
 ErrorCodes_t getResistancePredictionBandwidthGainControl(
-        CharCompensationControl_t &control) {
+        CharCompensationControl_t &controlOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
         ret = messageDispatcher->getResistancePredictionBandwidthGainControl(control);
+        compensationControl2Output(control, controlOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2052,10 +2069,12 @@ ErrorCodes_t getResistancePredictionBandwidthGainControl(
 }
 
 ErrorCodes_t getResistancePredictionTauControl(
-        CharCompensationControl_t &control) {
+        CharCompensationControl_t &controlOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
         ret = messageDispatcher->getResistancePredictionTauControl(control);
+        compensationControl2Output(control, controlOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2063,23 +2082,27 @@ ErrorCodes_t getResistancePredictionTauControl(
     return ret;
 }
 
-//ErrorCodes_t getLeakConductanceControl(
-//        CharCompensationControl_t &control) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        ret = messageDispatcher->getLeakConductanceControl(control);
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-ErrorCodes_t getBridgeBalanceResistanceControl(
-        CharCompensationControl_t &control) {
+ErrorCodes_t getLeakConductanceControl(
+        CharCompensationControl_t &controlOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
+        ret = messageDispatcher->getLeakConductanceControl(control);
+        compensationControl2Output(control, controlOut);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
+ErrorCodes_t getBridgeBalanceResistanceControl(
+        CharCompensationControl_t &controlOut) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        CompensationControl_t control;
         ret = messageDispatcher->getBridgeBalanceResistanceControl(control);
+        compensationControl2Output(control, controlOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -2378,9 +2401,9 @@ void input2Measurement(CharMeasurement_t i, Measurement_t &m) {
     input2String(i.unit, m.unit);
 }
 
-void input2VectorMeasurement(LMeasHandle i, std::vector <Measurement_t> &m){
-    for(int j = 0; j<LVecLen(*i); j++){
-        input2Measurement(*LVecItem(*i,j), m[j]);
+void input2VectorMeasurement(LMeasHandle i, std::vector <Measurement_t> &m) {
+    for (int j = 0; j < LVecLen(* i); j++) {
+        input2Measurement(*LVecItem(* i, j), m[j]);
     }
 }
 
@@ -2395,14 +2418,15 @@ void string2Output(std::string s, LStrHandle o) {
 void measurement2Output(Measurement_t m, CharMeasurement_t &o) {
     o.value = m.value;
     o.prefix = m.prefix;
+    string2Output(m.unit, o.unit); // vedere se può sostituire il pezzo sotto
 
-    size_t unitSize = m.unit.length();
-    o.unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
-    if (o.unit == nullptr) {
-        return;
-    }
-    MoveBlock(&m.unit, LStrBuf(*(o.unit)), unitSize);
-    LStrLen(* o.unit) = unitSize;
+//    size_t unitSize = m.unit.length();
+//    o.unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
+//    if (o.unit == nullptr) {
+//        return;
+//    }
+//    MoveBlock(&m.unit, LStrBuf(* o.unit), unitSize);
+//    LStrLen(* o.unit) = unitSize;
 }
 
 void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o) {
@@ -2410,14 +2434,45 @@ void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o)
     o.max = r.max;
     o.step = r.step;
     o.prefix = r.prefix;
+    string2Output(r.unit, o.unit); // vedere se può sostituire il pezzo sotto
 
-    size_t unitSize = r.unit.length();
-    o.unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
-    if (o.unit == nullptr) {
-        return;
-    }
-    MoveBlock(&r.unit, LStrBuf(*(o.unit)), unitSize);
-    LStrLen(* o.unit) = unitSize;
+//    size_t unitSize = r.unit.length();
+//    o.unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
+//    if (o.unit == nullptr) {
+//        return;
+//    }
+//    MoveBlock(&r.unit, LStrBuf(* o.unit), unitSize);
+//    LStrLen(* o.unit) = unitSize;
+}
+
+void compensationControl2Output(CompensationControl_t c, CharCompensationControl_t &o) {
+    o.implemented = c.implemented;
+    o.min = c.min;
+    o.max = c.max;
+    o.compensable = c.compensable;
+    o.steps = c.steps;
+    o.step = c.step;
+    o.decimals = c.decimals;
+    o.value = c.value;
+    o.prefix = c.prefix;
+    string2Output(c.unit, o.unit); // vedere se può sostituire il pezzo sotto
+    string2Output(c.name, o.name); // vedere se può sostituire il pezzo sotto
+
+//    size_t unitSize = c.unit.length();
+//    o.unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
+//    if (o.unit == nullptr) {
+//        return;
+//    }
+//    MoveBlock(&c.unit, LStrBuf(* o.unit), unitSize);
+//    LStrLen(* o.unit) = unitSize;
+
+//    size_t nameSize = c.name.length();
+//    o.name = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*nameSize);
+//    if (o.name == nullptr) {
+//        return;
+//    }
+//    MoveBlock(&c.name, LStrBuf(* o.name), nameSize);
+//    LStrLen(* o.name) = nameSize;
 }
 
 void vectorString2Output(std::vector <std::string> v, LStrHandle o) {
