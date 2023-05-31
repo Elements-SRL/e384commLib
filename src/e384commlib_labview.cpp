@@ -97,7 +97,6 @@ ErrorCodes_t disconnectDevice() {
  *  Tx methods  *
 \****************/
 
-
 ErrorCodes_t turnVoltageStimulusOn(
         bool onValueIn,
         bool applyFlagIn) {
@@ -2460,8 +2459,18 @@ ErrorCodes_t getBridgeBalanceResistance(
 }
 
 ErrorCodes_t getCalibParams(
-        CharCalibrationParams_t * calibrationParams) {
-    return ErrorFeatureNotImplemented;
+        CharCalibrationParams_t * calibrationParamsOut) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        return ErrorFeatureNotImplemented; /*! da rimuovere quando il metodo del messagedispatcher sarà implementato */
+        CalibrationParams_t calibrationParams;
+//        ret = messageDispatcher->getCalibParams(calibrationParams); /*! da implementare */
+        calibrationParams2Output(calibrationParams, * calibrationParamsOut);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
 }
 
 // END NEW MICHELANGELO'S GETS
@@ -2592,7 +2601,14 @@ void compensationControl2Output(CompensationControl_t c, CharCompensationControl
 }
 
 void calibrationParams2Output(CalibrationParams_t p, CharCalibrationParams_t &o) {
-
+    vectorVectorMeasurement2Output(p.allGainAdcMeas, &o.allGainAdcMeas);
+    vectorVectorMeasurement2Output(p.allOffsetAdcMeas, &o.allOffsetAdcMeas);
+    vectorVectorMeasurement2Output(p.allGainDacMeas, &o.allGainDacMeas);
+    vectorVectorMeasurement2Output(p.allOffsetDacMeas, &o.allOffsetDacMeas);
+    vectorVectorMeasurement2Output(p.ccAllGainAdcMeas, &o.ccAllGainAdcMeas);
+    vectorVectorMeasurement2Output(p.ccAllOffsetAdcMeas, &o.ccAllOffsetAdcMeas);
+    vectorVectorMeasurement2Output(p.ccAllGainDacMeas, &o.ccAllGainDacMeas);
+    vectorVectorMeasurement2Output(p.ccAllOffsetDacMeas, &o.ccAllOffsetDacMeas);
 }
 
 void vectorString2Output(std::vector <std::string> v, LStrHandle o) {
