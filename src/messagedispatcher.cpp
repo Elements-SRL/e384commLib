@@ -12,6 +12,7 @@
 #include "messagedispatcher_384nanopores.h"
 #include "messagedispatcher_384patchclamp.h"
 #include "messagedispatcher_4x10mhz.h"
+#include "messagedispatcher_2x10mhz.h"
 #ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "messagedispatcher_384fake.h"
@@ -25,15 +26,16 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000108T", Device384Nanopores},
     {"221000106B", Device384PatchClamp},
     {"221000106C", Device384PatchClamp},
-    {"22370012CB", Device4x10MHz},
     {"22370012CI", Device4x10MHz},
-    {"224800130Y", Device4x10MHz}
+    {"224800130Y", Device4x10MHz},
+    {"22370012CB", Device2x10MHz},
+    {"224800131L", Device2x10MHz}
 #ifdef DEBUG
     ,{"FAKE_Nanopores", Device384Fake}
     ,{"FAKE_PATCH_CLAMP", Device384FakePatchClamp}
     ,{"FAKE_4x10MHz", Device4x10MHzFake}
 #endif
-}; /*! \todo FCON queste info dovrebbero risiedere nel DB, e ci vanno comunque i numeri seriali corretti delle opal kelly */
+}; /*! \todo FCON queste info dovrebbero risiedere nel DB */
 
 /********************************************************************************************\
  *                                                                                          *
@@ -226,6 +228,10 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
 
     case Device384PatchClamp:
         messageDispatcher = new MessageDispatcher_384PatchClamp_V01(deviceId);
+        break;
+
+    case Device2x10MHz:
+        messageDispatcher = new MessageDispatcher_2x10MHz_V01(deviceId);
         break;
 
     case Device4x10MHz:

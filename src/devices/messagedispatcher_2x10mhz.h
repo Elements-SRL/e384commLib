@@ -1,12 +1,14 @@
-#ifndef MESSAGEDISPATCHER_4x10MHZ_H
-#define MESSAGEDISPATCHER_4x10MHZ_H
+#ifndef MESSAGEDISPATCHER_2X10MHZ_H
+#define MESSAGEDISPATCHER_2X10MHZ_H
 
 #include "messagedispatcher_opalkelly.h"
 
-class MessageDispatcher_4x10MHz_V01 : public MessageDispatcher_OpalKelly {
+#define REALLY_4_CHANNELS
+
+class MessageDispatcher_2x10MHz_V01 : public MessageDispatcher_OpalKelly {
 public:
-    MessageDispatcher_4x10MHz_V01(std::string di);
-    virtual ~MessageDispatcher_4x10MHz_V01();
+    MessageDispatcher_2x10MHz_V01(std::string di);
+    virtual ~MessageDispatcher_2x10MHz_V01();
 
 protected:
     enum ClampingModalities {
@@ -25,7 +27,6 @@ protected:
 
     enum VCVoltageRanges {
         VCVoltageRange1000mV,
-        VCVoltageRange20000mV,
         VCVoltageRangesNum
     };
 
@@ -73,4 +74,4 @@ protected:
     BoolArrayCoder * writeDacSpiCoder = nullptr;
 };
 
-#endif // MESSAGEDISPATCHER_4x10MHZ_H
+#endif // MESSAGEDISPATCHER_2X10MHZ_H

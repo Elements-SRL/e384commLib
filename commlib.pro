@@ -23,7 +23,7 @@ TEMPLATE = lib
 CONFIG += c++14
 
 # use as static library
-#DEFINES += E384COMMLIB_STATIC
+DEFINES += E384COMMLIB_STATIC
 
 contains(DEFINES, E384COMMLIB_STATIC) {
     CONFIG += staticlib
@@ -43,6 +43,7 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
+    src/devices/messagedispatcher_2x10mhz.cpp \
     src/messagedispatcher.cpp \
     src/messagedispatcher_opalkelly.cpp \
     src/devices/messagedispatcher_384nanopores.cpp \
@@ -50,6 +51,7 @@ SOURCES += \
     src/devices/messagedispatcher_4x10mhz.cpp
 
 HEADERS += \
+    src/devices/messagedispatcher_2x10mhz.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
