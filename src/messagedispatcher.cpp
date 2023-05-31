@@ -2427,6 +2427,10 @@ ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector<std::vector<doubl
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues){
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::getPipetteCompensationOptions(std::vector <std::string> options){
     return ErrorFeatureNotImplemented;
 }
@@ -2478,6 +2482,30 @@ ErrorCodes_t MessageDispatcher::getBridgeBalanceCompensationOptions(std::vector 
 //ErrorCodes_t MessageDispatcher::getBridgeBalanceResistanceControl(CharCompensationControl_t &control){
 //    return ErrorFeatureNotImplemented;
 //}
+
+ErrorCodes_t MessageDispatcher::getAccessResistanceCorrectionLag(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getAccessResistancePredictionPercentage(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getAccessResistancePredictionBandwidthGain(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getAccessResistancePredictionTau(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+    return ErrorFeatureNotImplemented;
+}
 
 std::vector<double> MessageDispatcher::user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams){
     return std::vector<double>();

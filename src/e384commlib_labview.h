@@ -1912,6 +1912,28 @@ ErrorCodes_t getBridgeBalanceResistance(
 
 // END NEW MICHELANGELO'S GETS
 
+// 20230531: ne functions
+/*! \brief something
+ *
+ * \param something else
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setDebugBit(
+        E384CL_ARGIN uint16_t wordOffset,
+        E384CL_ARGIN uint16_t bitOffset,
+        E384CL_ARGIN bool status);
+
+/*! \brief something
+ *
+ * \param something else
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setDebugWord(
+        E384CL_ARGIN uint16_t wordOffset,
+        E384CL_ARGIN uint16_t wordValue);
+
 #ifndef E384CL_LABVIEW_COMPATIBILITY
 }
 #endif

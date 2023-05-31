@@ -1665,6 +1665,57 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompValueMatrix(std::vector
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues){
+    switch(compTypeToEnable){
+    case CompCfast:
+        if(pipetteCapEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        }
+        for(int i = 0; i<channelIndexes.size(); i++){
+            onValues[i] = compCfastEnable[channelIndexes[i]];
+        }
+    break;
+
+    case CompCslow:
+        if(membraneCapEnCompensationCoders.size() == 0 ){
+            return ErrorFeatureNotImplemented;
+        }
+        for(int i = 0; i<channelIndexes.size(); i++){
+            onValues[i] = compCslowEnable[channelIndexes[i]];
+        }
+    break;
+
+    case CompRsCorr:
+        if(rsCorrEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        }
+        for(int i = 0; i<channelIndexes.size(); i++){
+            onValues[i] = compRsCorrEnable[channelIndexes[i]];
+        }
+    break;
+
+    case CompRsPred:
+        if(rsPredEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        }
+        for(int i = 0; i<channelIndexes.size(); i++){
+            onValues[i] = compRsPredEnable[channelIndexes[i]] = onValues[i];
+        }
+    break;
+
+    case CompCcCfast:
+        if(pipetteCapCcEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        }
+        for(int i = 0; i<channelIndexes.size(); i++){
+            onValues[i] = compCcCfastEnable[channelIndexes[i]];
+        }
+    break;
+    }
+
+return Success;
+}
+
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
         switch(compTypeToEnable){
         case CompCfast:

@@ -2089,283 +2089,388 @@ ErrorCodes_t getBridgeBalanceResistanceControl(
 
 // NEW MICHELANGELO'S GETS
 
-//ErrorCodes_t getPipetteCapacitance(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+ErrorCodes_t getPipetteCapacitance(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        std::vector<std::vector<double>> thisCompValueMatrix;
+        uint16_t currChanNum;
+        uint16_t voltChanNum;
+        messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//        ret = messageDispatcher->getPipetteCapacitance(channelIndexes, channelValues, activeNotActive);
+        ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompCfast, activeNotActive);
+        if(ret == ErrorFeatureNotImplemented){
+            return ret;
+        } else {
+            ret = messageDispatcher->getCompValueMatrix(thisCompValueMatrix);
+            for(int i = 0; i < currChanNum; i++){
+                channelValues[i] = thisCompValueMatrix[channelIndexes[i]][MessageDispatcher::U_CpVc];
+            }
+            numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+            numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        }
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+ErrorCodes_t getCCPipetteCapacitance(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        std::vector<std::vector<double>> thisCompValueMatrix;
+        uint16_t currChanNum;
+        uint16_t voltChanNum;
+        messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+        ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompCcCfast, activeNotActive);
+        if(ret == ErrorFeatureNotImplemented){
+            return ret;
+        } else {
+            ret = messageDispatcher->getCompValueMatrix(thisCompValueMatrix);
+            for(int i = 0; i < currChanNum; i++){
+                channelValues[i] = thisCompValueMatrix[channelIndexes[i]][MessageDispatcher::U_CpCc];
+            }
+            numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+            numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        }
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//ErrorCodes_t getCCPipetteCapacitance(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//        ret = messageDispatcher->getCCPipetteCapacitance(channelIndexes, channelValues, activeNotActive);
+ErrorCodes_t getMembraneCapacitance(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        std::vector<std::vector<double>> thisCompValueMatrix;
+        uint16_t currChanNum;
+        uint16_t voltChanNum;
+        messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompCslow, activeNotActive);
+        if(ret == ErrorFeatureNotImplemented){
+            return ret;
+        } else {
+            ret = messageDispatcher->getCompValueMatrix(thisCompValueMatrix);
+            for(int i = 0; i < currChanNum; i++){
+                channelValues[i] = thisCompValueMatrix[channelIndexes[i]][MessageDispatcher::U_Cm];
+            }
+            numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+            numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        }
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
 
-//ErrorCodes_t getMembraneCapacitance(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+ErrorCodes_t getAccessResistance(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        std::vector<std::vector<double>> thisCompValueMatrix;
+        uint16_t currChanNum;
+        uint16_t voltChanNum;
+        messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//        ret = messageDispatcher->getMembraneCapacitance(channelIndexes, channelValues, activeNotActive);
+        ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompCslow, activeNotActive);
+        if(ret == ErrorFeatureNotImplemented){
+            return ret;
+        } else {
+            ret = messageDispatcher->getCompValueMatrix(thisCompValueMatrix);
+            for(int i = 0; i < currChanNum; i++){
+                channelValues[i] = thisCompValueMatrix[channelIndexes[i]][MessageDispatcher::U_Rs];
+            }
+            numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+            numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        }
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+ErrorCodes_t getAccessResistanceCorrectionPercentage(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        std::vector<std::vector<double>> thisCompValueMatrix;
+        uint16_t currChanNum;
+        uint16_t voltChanNum;
+        messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//ErrorCodes_t getAccessResistance(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompRsCorr, activeNotActive);
+        if(ret == ErrorFeatureNotImplemented){
+            return ret;
+        } else {
+            ret = messageDispatcher->getCompValueMatrix(thisCompValueMatrix);
+            for(int i = 0; i < currChanNum; i++){
+                channelValues[i] = thisCompValueMatrix[channelIndexes[i]][MessageDispatcher::U_RsCp];
+            }
+            numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+            numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        }
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//        ret = messageDispatcher->getAccessResistance(channelIndexes, channelValues, activeNotActive);
 
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+ErrorCodes_t getAccessResistanceCorrectionLag(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+        ret = messageDispatcher->getAccessResistanceCorrectionLag(channelIndexes, channelValues, activeNotActive);
 
-//ErrorCodes_t getAccessResistanceCorrectionPercentage(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
-//        ret = messageDispatcher->getAccessResistanceCorrectionPercentage(channelIndexes, channelValues, activeNotActive);
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+ErrorCodes_t getAccessResistancePredictionGain(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        std::vector<std::vector<double>> thisCompValueMatrix;
+        uint16_t currChanNum;
+        uint16_t voltChanNum;
+        messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+        ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompRsPred, activeNotActive);
+        if(ret == ErrorFeatureNotImplemented){
+            return ret;
+        } else {
+            ret = messageDispatcher->getCompValueMatrix(thisCompValueMatrix);
+            for(int i = 0; i < currChanNum; i++){
+                channelValues[i] = thisCompValueMatrix[channelIndexes[i]][MessageDispatcher::U_RsPg];
+            }
+            numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+            numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        }
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//ErrorCodes_t getAccessResistanceCorrectionLag(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//        ret = messageDispatcher->getAccessResistanceCorrectionLag(channelIndexes, channelValues, activeNotActive);
+ErrorCodes_t getAccessResistancePredictionPercentage(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        ret = messageDispatcher->getAccessResistancePredictionPercentage(channelIndexes, channelValues, activeNotActive);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
-//ErrorCodes_t getAccessResistancePredictionGain(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//        ret = messageDispatcher->getAccessResistancePredictionGain(channelIndexes, channelValues, activeNotActive);
+ErrorCodes_t getAccessResistancePredictionBandwidthGain(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        ret = messageDispatcher->getAccessResistancePredictionBandwidthGain(channelIndexes, channelValues, activeNotActive);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
-//ErrorCodes_t getAccessResistancePredictionPercentage(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//        ret = messageDispatcher->getAccessResistancePredictionPercentage(channelIndexes, channelValues, activeNotActive);
+ErrorCodes_t getAccessResistancePredictionTau(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        ret = messageDispatcher->getAccessResistancePredictionTau(channelIndexes, channelValues, activeNotActive);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
-//ErrorCodes_t getAccessResistancePredictionBandwidthGain(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//        ret = messageDispatcher->getAccessResistancePredictionBandwidthGain(channelIndexes, channelValues, activeNotActive);
+ErrorCodes_t getLeakConductance(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        ret = messageDispatcher->getLeakConductance(channelIndexes, channelValues, activeNotActive);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
-//ErrorCodes_t getAccessResistancePredictionTau(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn = 0) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
-//        ret = messageDispatcher->getAccessResistancePredictionTau(channelIndexes, channelValues, activeNotActive);
+ErrorCodes_t getBridgeBalanceResistance(
+        uint16_t * channelIndexesIn,
+        double * channelValuesOut,
+        bool * activeNotActiveOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<double> channelValues;
+        std::vector<bool> activeNotActive;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
+        ret = messageDispatcher->getBridgeBalanceResistance(channelIndexes, channelValues, activeNotActive);
 
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
+        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
 
-//ErrorCodes_t getLeakConductance(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-
-//        ret = messageDispatcher->getLeakConductance(channelIndexes, channelValues, activeNotActive);
-
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
-
-//ErrorCodes_t getBridgeBalanceResistance(
-//        uint16_t * channelIndexesIn,
-//        double * channelValuesOut,
-//        bool * activeNotActiveOut,
-//        int vectorLengthIn) {
-//    ErrorCodes_t ret;
-//    if (messageDispatcher != nullptr) {
-//        std::vector<uint16_t> channelIndexes;
-//        std::vector<double> channelValues;
-//        std::vector<bool> activeNotActive;
-//        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-
-//        ret = messageDispatcher->getBridgeBalanceResistance(channelIndexes, channelValues, activeNotActive);
-
-//        numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-//        numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
-
-//    } else {
-//        ret = ErrorDeviceNotConnected;
-//    }
-//    return ret;
-//}
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
 // END NEW MICHELANGELO'S GETS
+
+// 20230531: new functions
+/*! \brief something
+ *
+ * \param something else
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setDebugBit(
+        E384CL_ARGIN uint16_t wordOffset,
+        E384CL_ARGIN uint16_t bitOffset,
+        E384CL_ARGIN bool status){
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->setDebugBit(wordOffset, bitOffset, status);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
+/*! \brief something
+ *
+ * \param something else
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setDebugWord(
+        E384CL_ARGIN uint16_t wordOffset,
+        E384CL_ARGIN uint16_t wordValue){
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->setDebugWord(wordOffset, wordValue);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
 
 /*! Private functions */
 void input2String(LStrHandle i, std::string &s) {

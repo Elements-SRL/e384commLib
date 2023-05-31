@@ -268,6 +268,8 @@ public:
     virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray);
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix);
+    virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues);
+
 
     virtual ErrorCodes_t getPipetteCompensationOptions(std::vector <std::string> options);
     virtual ErrorCodes_t getCCPipetteCompensationOptions(std::vector <std::string> options);
@@ -283,6 +285,14 @@ public:
 //    virtual ErrorCodes_t getResistancePredictionBandwidthGainControl(CharCompensationControl_t &control);
 //    virtual ErrorCodes_t getResistancePredictionTauControl(CharCompensationControl_t &control);
 //    virtual ErrorCodes_t getBridgeBalanceResistanceControl(CharCompensationControl_t &control);
+
+    /*! 20230531: MPAC here somehow useless*/
+    virtual ErrorCodes_t getAccessResistanceCorrectionLag(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
+    virtual ErrorCodes_t getAccessResistancePredictionPercentage(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
+    virtual ErrorCodes_t getAccessResistancePredictionBandwidthGain(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
+    virtual ErrorCodes_t getAccessResistancePredictionTau(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
+    virtual ErrorCodes_t getLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
+    virtual ErrorCodes_t getBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
 
 
 
