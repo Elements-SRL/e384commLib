@@ -189,8 +189,10 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
             case TxTriggerStartProtocol:
                 dev->ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
                 break;
+            case TxTriggerStartStateArray:
+                dev->ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
+                break;
             }
-
         } else {
             continue;
         }

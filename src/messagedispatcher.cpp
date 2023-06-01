@@ -1449,7 +1449,8 @@ ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, double voltage, 
 }
 
 ErrorCodes_t MessageDispatcher::startStateArray(){
-    return ErrorFeatureNotImplemented;
+    this->stackOutgoingMessage(txStatus, TxTriggerStartStateArray);
+    return Success;
 }
 
 

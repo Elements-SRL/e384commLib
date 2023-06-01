@@ -228,7 +228,8 @@ typedef enum ProtocolItemTypes {
  */
 typedef enum TxTriggerType_t {
     TxTriggerParameteresUpdated,
-    TxTriggerStartProtocol
+    TxTriggerStartProtocol,
+    TxTriggerStartStateArray,
 } TxTriggerType_t;
 
 /*! \enum UnitPfx_t
