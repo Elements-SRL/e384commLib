@@ -250,12 +250,12 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
     selectedCalibVcCurrentGainVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcCurrentGain = {1.0, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
+    defaultCalibVcCurrentGain = {1.0, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
 
     /*! Calib VC current offset */
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
+    defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
 
     /*! Calib VC voltage gain */
     calibVcVoltageGainRange.step = 1.0/1024.0;
@@ -264,12 +264,12 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     calibVcVoltageGainRange.prefix = UnitPfxNone;
     calibVcVoltageGainRange.unit = "";
     selectedCalibVcVoltageGainVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcVoltageGain = {1.0, calibVcVoltageGainRange.prefix, calibVcVoltageGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
+    defaultCalibVcVoltageGain = {1.0, calibVcVoltageGainRange.prefix, calibVcVoltageGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
 
     /*! Calib VC voltage offset */
     calibVcVoltageOffsetRanges = vcVoltageRangesArray;
     selectedCalibVcVoltageOffsetVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcVoltageOffset = {0.0, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].prefix, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].unit};
+    defaultCalibVcVoltageOffset = {0.0, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].prefix, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].unit};
 
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
@@ -288,6 +288,8 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
     fill(selectedCalibVcCurrentGainVector.begin(), selectedCalibVcCurrentGainVector.end(), defaultCalibVcCurrentGain);
     fill(selectedCalibVcCurrentOffsetVector.begin(), selectedCalibVcCurrentOffsetVector.end(), defaultCalibVcCurrentOffset);
+    fill(selectedCalibVcVoltageGainVector.begin(), selectedCalibVcVoltageGainVector.end(), defaultCalibVcVoltageGain);
+    fill(selectedCalibVcVoltageOffsetVector.begin(), selectedCalibVcVoltageOffsetVector.end(), defaultCalibVcVoltageOffset);
 
     /**********\
      * Coders *
