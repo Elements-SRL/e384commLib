@@ -1434,7 +1434,6 @@ ErrorCodes_t MessageDispatcher::setStateArrayStructure(int numberOfStates, int i
     return Success;
 }
 
-//TODO LROSSI ASK SOMEONE IF THIS IS ACTUALLY HOW THIS SHOULD WORK
 ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, double voltage, bool stateFlag, double timeout, int timeoutState, double minTriggerValue, double maxTriggerValue, int triggerState){
     if (appliedVoltageCoders.empty()){
         return ErrorFeatureNotImplemented;
