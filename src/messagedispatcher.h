@@ -574,6 +574,14 @@ protected:
     /*! \todo 20230531 MPAC: coders for 4x10MHz*/
     DoubleCoder * numberOfStatesCoder;
     DoubleCoder * initialStateCoder;
+    std::vector<std::vector<DoubleCoder*>> appliedVoltageCoders;
+    std::vector<BoolArrayCoder*> stateFlagsCoders;
+    std::vector<DoubleCoder*> timeout0Coders;
+    std::vector<DoubleCoder*> timeout1Coders;
+    std::vector<DoubleCoder*> timeoutStateCoders;
+    std::vector<std::vector<DoubleCoder*>> minTriggerCurrCoders;
+    std::vector<std::vector<DoubleCoder*>> maxTriggerCurrCoders;
+    std::vector<DoubleCoder*> triggerStateCoders;
 
     CalibrationData_t calibrationData;
 

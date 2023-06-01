@@ -243,7 +243,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     selectedVoltageHoldVector.resize(currentChannelsNum);
     Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
 
-    /*! VC current gain */
+    /*! Calib VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
     calibVcCurrentGainRange.min = 0;//SHORT_MIN * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
@@ -252,10 +252,24 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     selectedCalibVcCurrentGainVector.resize(currentChannelsNum);
     Measurement_t defaultCalibVcCurrentGain = {1.0, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
 
-    /*! VC current offset */
+    /*! Calib VC current offset */
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
     Measurement_t defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
+
+    /*! Calib VC voltage gain */
+    calibVcVoltageGainRange.step = 1.0/1024.0;
+    calibVcVoltageGainRange.min = 0;//SHORT_MIN * calibVcVoltageGainRange.step;
+    calibVcVoltageGainRange.max = SHORT_MAX * calibVcVoltageGainRange.step;
+    calibVcVoltageGainRange.prefix = UnitPfxNone;
+    calibVcVoltageGainRange.unit = "";
+    selectedCalibVcVoltageGainVector.resize(currentChannelsNum);
+    Measurement_t defaultCalibVcVoltageGain = {1.0, calibVcVoltageGainRange.prefix, calibVcVoltageGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
+
+    /*! Calib VC voltage offset */
+    calibVcVoltageOffsetRanges = vcVoltageRangesArray;
+    selectedCalibVcVoltageOffsetVector.resize(currentChannelsNum);
+    Measurement_t defaultCalibVcVoltageOffset = {0.0, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].prefix, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].unit};
 
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
@@ -653,6 +667,102 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     doubleConfig.maxValue = stateMaxNum;
     initialStateCoder = new DoubleOffsetBinaryCoder(doubleConfig);
     coders.push_back(initialStateCoder);
+
+    appliedVoltageCoders.resize(VCVoltageRangesNum);
+    for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
+        appliedVoltageCoders[rangeIdx].resize(stateMaxNum);
+    }
+
+    stateFlagsCoders.resize(stateMaxNum);
+    timeout0Coders.resize(stateMaxNum);
+    timeout1Coders.resize(stateMaxNum);
+    timeoutStateCoders.resize(stateMaxNum);
+
+    minTriggerCurrCoders.resize(VCCurrentRangesNum);
+    maxTriggerCurrCoders.resize(VCCurrentRangesNum);
+    for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+        minTriggerCurrCoders[rangeIdx].resize(stateMaxNum);
+        maxTriggerCurrCoders[rangeIdx].resize(stateMaxNum);
+    }
+
+    triggerStateCoders.resize(stateMaxNum);
+
+    for(int stateIdx = 0; stateIdx < stateMaxNum; stateIdx++){
+        doubleConfig.initialWord = stateWordOffset;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
+            doubleConfig.resolution = -vHoldRange[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
+            doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
+            doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
+            appliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(appliedVoltageCoders[rangeIdx][stateIdx]);
+        }
+
+        boolConfig.initialWord = stateWordOffset + 1;
+        boolConfig.initialBit = 0;
+        boolConfig.bitsNum = 7;
+        stateFlagsCoders[stateIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(stateFlagsCoders[stateIdx]);
+
+        doubleConfig.initialWord = stateWordOffset+2;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = 1/(10.08e6);
+        doubleConfig.minValue = 0;
+        doubleConfig.maxValue = (4.2950e+09 - 1)*doubleConfig.resolution;
+        timeout0Coders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(timeout0Coders[stateIdx]);
+
+        doubleConfig.initialWord = stateWordOffset+3;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = 1/(10.08e6);
+        doubleConfig.minValue = 0;
+        doubleConfig.maxValue = (4.2950e+09 - 1)*doubleConfig.resolution;
+        timeout1Coders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(timeout1Coders[stateIdx]);
+
+        doubleConfig.initialWord = stateWordOffset+4;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = 1;
+        doubleConfig.minValue = 0;
+        doubleConfig.maxValue = 65536;
+        timeoutStateCoders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(timeoutStateCoders[stateIdx]);
+
+        doubleConfig.initialWord = stateWordOffset+5;
+        doubleConfig.initialBit = 0;
+        for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+            doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
+            doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
+            doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
+            minTriggerCurrCoders[rangeIdx][stateIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(minTriggerCurrCoders[rangeIdx][stateIdx]);
+        }
+
+        doubleConfig.initialWord = stateWordOffset+6;
+        doubleConfig.initialBit = 0;
+        for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+            doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
+            doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
+            doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
+            maxTriggerCurrCoders[rangeIdx][stateIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(maxTriggerCurrCoders[rangeIdx][stateIdx]);
+        }
+
+        doubleConfig.initialWord = stateWordOffset+7;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = 1;
+        doubleConfig.minValue = 0;
+        doubleConfig.maxValue = stateMaxNum;
+        triggerStateCoders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(triggerStateCoders[stateIdx]);
+
+        stateWordOffset = stateWordOffset + stateWordsNum;
+    }
 
 
 
