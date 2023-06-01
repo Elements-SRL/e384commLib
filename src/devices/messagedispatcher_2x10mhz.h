@@ -3,7 +3,7 @@
 
 #include "messagedispatcher_opalkelly.h"
 
-#define REALLY_4_CHANNELS
+//#define REALLY_4_CHANNELS
 
 class MessageDispatcher_2x10MHz_V01 : public MessageDispatcher_OpalKelly {
 public:

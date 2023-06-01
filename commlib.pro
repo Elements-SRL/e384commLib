@@ -13,7 +13,7 @@ CONFIG(debug, debug|release) {
 CONFIG(release, debug|release) {
     TARGET = e384commlib
 #    DEFINES += DEBUG
-#    DEFINES += DEBUG_TX_DATA_PRINT
+    DEFINES += DEBUG_TX_DATA_PRINT
 }
 
 #DEFINES += E384NPR_ADDITIONAL_SR_FLAG
@@ -48,7 +48,8 @@ SOURCES += \
     src/messagedispatcher_opalkelly.cpp \
     src/devices/messagedispatcher_384nanopores.cpp \
     src/devices/messagedispatcher_384patchclamp.cpp \
-    src/devices/messagedispatcher_4x10mhz.cpp
+    src/devices/messagedispatcher_4x10mhz.cpp \
+    src/calibration/calibrationmanager.cpp
 
 HEADERS += \
     src/devices/messagedispatcher_2x10mhz.h \
@@ -61,6 +62,7 @@ HEADERS += \
     src/devices/messagedispatcher_384nanopores.h \
     src/devices/messagedispatcher_384patchclamp.h \
     src/devices/messagedispatcher_4x10mhz.h \
+    src/calibration/calibrationmanager.h \
     src/utils.h
 
 contains(DEFINES, DEBUG) {

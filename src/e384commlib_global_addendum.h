@@ -834,7 +834,7 @@ typedef struct CompensationControl {
     }
 } CompensationControl_t;
 
-typedef struct{
+typedef struct CalibrationData {
     std::vector<std::vector<Measurement_t>> vcCalibStepsArrays;
     std::vector<Measurement_t> vcCalibResArray;
     std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
