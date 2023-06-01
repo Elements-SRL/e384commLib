@@ -1419,6 +1419,30 @@ ErrorCodes_t MessageDispatcher::startProtocol() {
     return Success;
 }
 
+/*****************\
+ *  State Array  *
+\*****************/
+ErrorCodes_t MessageDispatcher::setStateArrayStructure(int numberOfStates, int initialState){
+    if (numberOfStatesCoder == nullptr ) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (numberOfStates > stateMaxNum || initialState >= numberOfStates){
+        return ErrorValueOutOfRange;
+    }
+    numberOfStatesCoder->encode(numberOfStates, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    initialStateCoder->encode(initialState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::setSateArrayState(){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::startStateArray(){
+    return ErrorFeatureNotImplemented;
+}
+
+
 /****************\
  *  Rx methods  *
 \****************/

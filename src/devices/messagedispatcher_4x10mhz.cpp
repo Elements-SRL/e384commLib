@@ -650,22 +650,16 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
 
     /*! \todo 20230531 MPAC: STATE ARRAY CODERS*/
 
-    doubleConfig.initialWord = 262;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = 1;
-    doubleConfig.minValue = 0;
-    doubleConfig.maxValue = stateMaxNum;
-    numberOfStatesCoder = new DoubleOffsetBinaryCoder(doubleConfig);
+    boolConfig.initialWord = 262;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    numberOfStatesCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(numberOfStatesCoder);
 
-    doubleConfig.initialWord = 263;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = 1;
-    doubleConfig.minValue = 0;
-    doubleConfig.maxValue = stateMaxNum;
-    initialStateCoder = new DoubleOffsetBinaryCoder(doubleConfig);
+    boolConfig.initialWord = 263;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 16;
+    initialStateCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(initialStateCoder);
 
     appliedVoltageCoders.resize(VCVoltageRangesNum);
@@ -674,8 +668,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     }
 
     stateFlagsCoders.resize(stateMaxNum);
-    timeout0Coders.resize(stateMaxNum);
-    timeout1Coders.resize(stateMaxNum);
+    timeoutCoders.resize(stateMaxNum);
     timeoutStateCoders.resize(stateMaxNum);
 
     minTriggerCurrCoders.resize(VCCurrentRangesNum);
@@ -707,29 +700,17 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
 
         doubleConfig.initialWord = stateWordOffset+2;
         doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
+        doubleConfig.bitsNum = 32;
         doubleConfig.resolution = 1/(10.08e6);
         doubleConfig.minValue = 0;
         doubleConfig.maxValue = (4.2950e+09 - 1)*doubleConfig.resolution;
-        timeout0Coders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-        coders.push_back(timeout0Coders[stateIdx]);
+        timeoutCoders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(timeoutCoders[stateIdx]);
 
-        doubleConfig.initialWord = stateWordOffset+3;
-        doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
-        doubleConfig.resolution = 1/(10.08e6);
-        doubleConfig.minValue = 0;
-        doubleConfig.maxValue = (4.2950e+09 - 1)*doubleConfig.resolution;
-        timeout1Coders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-        coders.push_back(timeout1Coders[stateIdx]);
-
-        doubleConfig.initialWord = stateWordOffset+4;
-        doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
-        doubleConfig.resolution = 1;
-        doubleConfig.minValue = 0;
-        doubleConfig.maxValue = 65536;
-        timeoutStateCoders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        boolConfig.initialWord = stateWordOffset+4;
+        boolConfig.initialBit = 0;
+        boolConfig.bitsNum = 16;
+        timeoutStateCoders[stateIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(timeoutStateCoders[stateIdx]);
 
         doubleConfig.initialWord = stateWordOffset+5;
@@ -752,13 +733,10 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
             coders.push_back(maxTriggerCurrCoders[rangeIdx][stateIdx]);
         }
 
-        doubleConfig.initialWord = stateWordOffset+7;
-        doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
-        doubleConfig.resolution = 1;
-        doubleConfig.minValue = 0;
-        doubleConfig.maxValue = stateMaxNum;
-        triggerStateCoders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        boolConfig.initialWord = stateWordOffset+7;
+        boolConfig.initialBit = 0;
+        boolConfig.bitsNum = 16;
+        triggerStateCoders[stateIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(triggerStateCoders[stateIdx]);
 
         stateWordOffset = stateWordOffset + stateWordsNum;

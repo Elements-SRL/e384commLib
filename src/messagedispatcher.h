@@ -201,6 +201,10 @@ public:
 
     ErrorCodes_t startProtocol();
 
+    ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState);
+    ErrorCodes_t setSateArrayState();
+    ErrorCodes_t startStateArray();
+
     /****************\
      *  Rx methods  *
     \****************/
@@ -572,16 +576,15 @@ protected:
 //    std::vector<std::vector<Measurement_t>> vcCalibVoltStepsArrays;
 
     /*! \todo 20230531 MPAC: coders for 4x10MHz*/
-    DoubleCoder * numberOfStatesCoder;
-    DoubleCoder * initialStateCoder;
+    BoolCoder * numberOfStatesCoder = nullptr;
+    BoolCoder * initialStateCoder = nullptr;
     std::vector<std::vector<DoubleCoder*>> appliedVoltageCoders;
     std::vector<BoolArrayCoder*> stateFlagsCoders;
-    std::vector<DoubleCoder*> timeout0Coders;
-    std::vector<DoubleCoder*> timeout1Coders;
-    std::vector<DoubleCoder*> timeoutStateCoders;
+    std::vector<DoubleCoder*> timeoutCoders;
+    std::vector<BoolCoder*> timeoutStateCoders;
     std::vector<std::vector<DoubleCoder*>> minTriggerCurrCoders;
     std::vector<std::vector<DoubleCoder*>> maxTriggerCurrCoders;
-    std::vector<DoubleCoder*> triggerStateCoders;
+    std::vector<BoolCoder*> triggerStateCoders;
 
     CalibrationData_t calibrationData;
 
