@@ -1435,17 +1435,17 @@ ErrorCodes_t MessageDispatcher::setStateArrayStructure(int numberOfStates, int i
 }
 
 //TODO LROSSI ASK SOMEONE IF THIS IS ACTUALLY HOW THIS SHOULD WORK
-ErrorCodes_t MessageDispatcher::setSateArrayState(int idx, double voltage, bool stateFlag, double timeout, int timeoutState, double minTriggerValue, double maxTriggerValue, int triggerState){
+ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, double voltage, bool stateFlag, double timeout, int timeoutState, double minTriggerValue, double maxTriggerValue, int triggerState){
     if (appliedVoltageCoders.empty()){
         return ErrorFeatureNotImplemented;
     }
-    appliedVoltageCoders[selectedVcVoltageRangeIdx][idx]->encode(voltage, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stateFlagsCoders[idx]->encode(stateFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    timeoutCoders[idx]->encode(timeout, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    timeoutStateCoders[idx]->encode(timeoutState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    minTriggerCurrCoders[selectedVcVoltageRangeIdx][idx]->encode(minTriggerValue, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    maxTriggerCurrCoders[selectedVcVoltageRangeIdx][idx]->encode(maxTriggerValue, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    triggerStateCoders[idx]->encode(triggerState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    appliedVoltageCoders[selectedVcVoltageRangeIdx][stateIdx]->encode(voltage, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateFlagsCoders[stateIdx]->encode(stateFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    timeoutCoders[stateIdx]->encode(timeout, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    timeoutStateCoders[stateIdx]->encode(timeoutState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    minTriggerCurrCoders[selectedVcCurrentRangeIdx][stateIdx]->encode(minTriggerValue, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    maxTriggerCurrCoders[selectedVcCurrentRangeIdx][stateIdx]->encode(maxTriggerValue, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    triggerStateCoders[stateIdx]->encode(triggerState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     return Success;
 }
 
