@@ -245,6 +245,7 @@ public:
 
     ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams);
     ErrorCodes_t getCalibFileNames(std::vector<std::string> &calibFileNames);
+    ErrorCodes_t getCalibFilesFlags(std::vector<std::vector <bool>> &calibFilesFlags);
 
     ErrorCodes_t getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
     ErrorCodes_t getCurrentProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
@@ -335,8 +336,10 @@ protected:
     bool areVcCompsEnabled = false;
     bool areCcCompsEnabled = false;
 
+    ErrorCodes_t calibrationLoadingError;
     CalibrationParams_t calibrationParams;
     std::vector<std::string> calibrationFileNames;
+    std::vector<std::vector<bool>> calibrationFilesOkFlags;
 
     /*************\
      *  Methods  *

@@ -404,8 +404,10 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
         }
 
         CalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum);
-        calibrationParams = calibrationManager.getCalibrationParams();
+
+        calibrationParams = calibrationManager.getCalibrationParams(calibrationLoadingError);
         calibrationFileNames = calibrationManager.getCalibrationFileNames();
+        calibrationFilesOkFlags = calibrationManager.getCalibrationFilesOkFlags();
 
         /*! Perform CC calibration first to initialize the commlib values: the VC calibration commands will override the FPGA calibration later */
         if (ccVoltageRangesNum > 0) {
@@ -1150,7 +1152,7 @@ ErrorCodes_t MessageDispatcher::setCalibParams(CalibrationParams_t calibParams){
     if(calibParams.ccAllOffsetDacMeas.size()>0 && calibrationParams.ccAllOffsetDacMeas.size()){
         calibrationParams.ccAllOffsetDacMeas = calibParams.ccAllOffsetDacMeas;
     }
-    return Success;
+    return calibrationLoadingError;
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest) {
@@ -1943,6 +1945,11 @@ ErrorCodes_t MessageDispatcher::getCalibParams(CalibrationParams_t &calibParams)
 
 ErrorCodes_t MessageDispatcher::getCalibFileNames(std::vector<std::string> &calibFileNames){
     calibFileNames = this->calibrationFileNames;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibFilesFlags(std::vector<std::vector <bool>> &calibFilesFlags) {
+    calibFilesFlags = calibrationFilesOkFlags;
     return Success;
 }
 

@@ -18,7 +18,8 @@ typedef enum ErrorGroups {
     ErrorGroupDeviceCommands =      0x00040000, /*!< Error codes related to failed commands to the device. */
     ErrorGroupDeviceFeatures =      0x00050000, /*!< Error codes related to wrongly used features. */
     ErrorGroupDeviceIssues =        0x00060000, /*!< Error codes related to issues with the device. */
-    ErrorGroupLibraryIssues =       0x00070000  /*!< Error codes related to issues with the library. */
+    ErrorGroupLibraryIssues =       0x00070000, /*!< Error codes related to issues with the library. */
+    ErrorGroupCalibration =         0x00080000  /*!< Error codes related to issues with calibration parameters. */
 } ErrorGroups_t;
 
 /*! \enum ErrorCodes_t
@@ -74,6 +75,13 @@ typedef enum ErrorCodes {
     ErrorExpiredDevice =                ErrorGroupDeviceIssues +        0x00000000, /*!< Error returned when the device has expired */
 
     ErrorMemoryInitialization =         ErrorGroupLibraryIssues +       0x00000000, /*!< Error returned when the library fails to initialize the memory */
+
+    ErrorCalibrationDirMissing =        ErrorGroupCalibration +         0x00000000, /*!< Error returned when the calibration folder is missing */
+    ErrorCalibrationMappingNotOpened =  ErrorGroupCalibration +         0x00000001, /*!< Error returned when the calibration mapping file cannot be opened */
+    ErrorCalibrationMappingCorrupted =  ErrorGroupCalibration +         0x00000002, /*!< Error returned when the calibration mapping file is corrupted */
+    ErrorCalibrationFileCorrupted =  ErrorGroupCalibration +            0x00000003, /*!< Error returned when a calibration file is corrupted */
+    ErrorCalibrationFileMissing =  ErrorGroupCalibration +              0x00000004, /*!< Error returned when a calibration file is missing */
+    ErrorCalibrationSoftwareBug =  ErrorGroupCalibration +              0x00000005, /*!< Error returned when there's a bug in the calibration loading procedure */
 
     ErrorUnknown =                                                      0xFFFFFFFF  /*!< Undefined error. */
 } ErrorCodes_t;
