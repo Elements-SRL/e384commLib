@@ -453,11 +453,11 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
 
     calibrationData.ccCalibCurrStepsArrays.resize(CCCurrentRangesNum);
     calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA].resize(5);
-    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][0] = {-8.0, UnitPfxNano, "A"};
+    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][0] = {-7.9, UnitPfxNano, "A"};
     calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][1] = {-4.0, UnitPfxNano, "A"};
     calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][2] = {0.0, UnitPfxNano, "A"};
     calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][3] = {4.0, UnitPfxNano, "A"};
-    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][4] = {8.0, UnitPfxNano, "A"};
+    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][4] = {7.9, UnitPfxNano, "A"};
 
     /*! CC calibration resistances on each board*/
     calibrationData.ccCalibResArray.resize(CCCurrentRangesNum);
@@ -744,6 +744,12 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     fill(selectedCurrentHoldVector.begin(), selectedCurrentHoldVector.end(), defaultCurrentHoldTuner);
     fill(selectedCalibVcCurrentGainVector.begin(), selectedCalibVcCurrentGainVector.end(), defaultCalibVcCurrentGain);
     fill(selectedCalibVcCurrentOffsetVector.begin(), selectedCalibVcCurrentOffsetVector.end(), defaultCalibVcCurrentOffset);
+    fill(selectedCalibVcVoltageGainVector.begin(), selectedCalibVcVoltageGainVector.end(), defaultCalibVcVoltageGain);
+    fill(selectedCalibVcVoltageOffsetVector.begin(), selectedCalibVcVoltageOffsetVector.end(), defaultCalibVcVoltageOffset);
+    fill(selectedCalibCcCurrentGainVector.begin(), selectedCalibCcCurrentGainVector.end(), defaultCalibCcCurrentGain);
+    fill(selectedCalibCcCurrentOffsetVector.begin(), selectedCalibCcCurrentOffsetVector.end(), defaultCalibCcCurrentOffset);
+    fill(selectedCalibCcVoltageGainVector.begin(), selectedCalibCcVoltageGainVector.end(), defaultCalibCcVoltageGain);
+    fill(selectedCalibCcVoltageOffsetVector.begin(), selectedCalibCcVoltageOffsetVector.end(), defaultCalibCcVoltageOffset);
 
     // Initialization of the USER compensation domain with standard parameters
     for(int i = 0; i < currentChannelsNum; i++){

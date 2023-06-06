@@ -280,6 +280,15 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
     defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
 
+    /*! VC Voltage calib gain (DAC)*/
+    calibVcVoltageGainRange.step = 1.0/1024.0;
+    calibVcVoltageGainRange.min = 0;
+    calibVcVoltageGainRange.max = SHORT_MAX * calibVcVoltageGainRange.step;
+    calibVcVoltageGainRange.prefix = UnitPfxNone;
+    calibVcVoltageGainRange.unit = "";
+    selectedCalibVcVoltageGainVector.resize(currentChannelsNum);
+    defaultCalibVcVoltageGain = {1.0, calibVcVoltageGainRange.prefix, calibVcVoltageGainRange.unit};
+
     /*! VC Voltage calib offset (DAC)*/
     calibVcVoltageOffsetRanges = vcVoltageRangesArray;
     selectedCalibVcVoltageOffsetVector.resize(currentChannelsNum);
@@ -320,6 +329,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
     fill(selectedCalibVcCurrentGainVector.begin(), selectedCalibVcCurrentGainVector.end(), defaultCalibVcCurrentGain);
     fill(selectedCalibVcCurrentOffsetVector.begin(), selectedCalibVcCurrentOffsetVector.end(), defaultCalibVcCurrentOffset);
+    fill(selectedCalibVcVoltageGainVector.begin(), selectedCalibVcVoltageGainVector.end(), defaultCalibVcVoltageGain);
+    fill(selectedCalibVcVoltageOffsetVector.begin(), selectedCalibVcVoltageOffsetVector.end(), defaultCalibVcVoltageOffset);
     fill(selectedGateVoltageVector.begin(), selectedGateVoltageVector.end(), defaultGateVoltage);
     fill(selectedSourceVoltageVector.begin(), selectedSourceVoltageVector.end(), defaultSourceVoltage);
 
