@@ -15,6 +15,8 @@ public:
     CalibrationManager(std::string serialNumber, uint16_t currentChannelsNum, uint16_t boardsNum, uint16_t vcCurrentRangesNum, uint16_t vcVoltageRangesNum, uint16_t ccVoltageRangesNum, uint16_t ccCurrentRangesNum);
 
     e384CommLib::CalibrationParams_t getCalibrationParams();
+    std::vector <std::string> getCalibrationFileNames();
+
 
 private:
     bool loadMappingFile();

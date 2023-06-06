@@ -244,6 +244,7 @@ public:
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
 
     ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams);
+    ErrorCodes_t getCalibFileNames(std::vector<std::string> &calibFileNames);
 
     ErrorCodes_t getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
     ErrorCodes_t getCurrentProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
@@ -335,6 +336,7 @@ protected:
     bool areCcCompsEnabled = false;
 
     CalibrationParams_t calibrationParams;
+    std::vector<std::string> calibrationFileNames;
 
     /*************\
      *  Methods  *

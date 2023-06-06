@@ -405,6 +405,7 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
 
         CalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum);
         calibrationParams = calibrationManager.getCalibrationParams();
+        calibrationFileNames = calibrationManager.getCalibrationFileNames();
 
         /*! Perform CC calibration first to initialize the commlib values: the VC calibration commands will override the FPGA calibration later */
         if (ccVoltageRangesNum > 0) {
@@ -1937,6 +1938,11 @@ ErrorCodes_t MessageDispatcher::getCalibParams(CalibrationParams_t &calibParams)
     if(calibrationParams.ccAllOffsetDacMeas.size()>0){
         calibParams.ccAllOffsetDacMeas = calibrationParams.ccAllOffsetDacMeas;
     }
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibFileNames(std::vector<std::string> &calibFileNames){
+    calibFileNames = this->calibrationFileNames;
     return Success;
 }
 

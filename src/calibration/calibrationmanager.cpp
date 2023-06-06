@@ -30,6 +30,14 @@ e384CommLib::CalibrationParams_t CalibrationManager::getCalibrationParams() {
     return calibrationParams;
 }
 
+std::vector <std::string> CalibrationManager::getCalibrationFileNames(){
+    std::vector<std::string> calibFileNames;
+    for(int i = 0; i < calibrationFileNames.size(); i++){
+        calibFileNames.push_back(calibrationFileNames[i][1]);
+    }
+    return calibFileNames;
+}
+
 bool CalibrationManager::loadMappingFile() {
     mappingFileStream.open(mappingFilePath, std::ios::in);
     if (mappingFileStream.is_open()) {
