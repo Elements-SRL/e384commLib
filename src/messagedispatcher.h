@@ -163,7 +163,7 @@ public:
     virtual ErrorCodes_t turnVoltageStimulusOn(bool onValue, bool applyFlag);
     virtual ErrorCodes_t turnCurrentStimulusOn(bool onValue, bool applyFlag);
 
-    ErrorCodes_t receiveCalibParams(CalibrationParams_t calibParams);
+    ErrorCodes_t setCalibParams(CalibrationParams_t calibParams);
 
     virtual ErrorCodes_t turnResistanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
     virtual ErrorCodes_t turnLeakConductanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
@@ -242,6 +242,8 @@ public:
 
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
+
+    ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams);
 
     ErrorCodes_t getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
     ErrorCodes_t getCurrentProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
@@ -332,15 +334,7 @@ protected:
     bool areVcCompsEnabled = false;
     bool areCcCompsEnabled = false;
 
-    std::vector<std::vector<Measurement_t>> allGainAdcMeas;
-    std::vector<std::vector<Measurement_t>> allOffsetAdcMeas;
-    std::vector<std::vector<Measurement_t>> allGainDacMeas;
-    std::vector<std::vector<Measurement_t>> allOffsetDacMeas;
-    std::vector<std::vector<Measurement_t>> ccAllGainAdcMeas;
-    std::vector<std::vector<Measurement_t>> ccAllOffsetAdcMeas;
-    std::vector<std::vector<Measurement_t>> ccAllGainDacMeas;
-    std::vector<std::vector<Measurement_t>> ccAllOffsetDacMeas;
-
+    CalibrationParams_t calibrationParams;
 
     /*************\
      *  Methods  *

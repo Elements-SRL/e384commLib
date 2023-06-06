@@ -19,6 +19,7 @@
 #include "messagedispatcher_384fakepatchclamp.h"
 #include "messagedispatcher_4x10mhzfake.h"
 #endif
+#include "calibrationmanager.h"
 #include "utils.h"
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
@@ -367,6 +368,8 @@ ErrorCodes_t MessageDispatcher::disconnect() {
 \****************/
 
 ErrorCodes_t MessageDispatcher::initializeDevice() {
+    amIinVoltageClamp = clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP;
+
     this->initializeHW();
 
     /*! Some default values*/
@@ -383,26 +386,51 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
         boardIndexes[idx] = idx;
     }
 
-    /*! Initialization in voltage clamp*/
-    this->enableStimulus(channelIndexes, allTrue, false);
-    this->turnChannelsOn(channelIndexes, allTrue, false);
-    this->turnCurrentReaderOn(true, false);
-    this->setVoltageHoldTuner(channelIndexes, selectedVoltageHoldVector, false);
-    this->setCalibVcCurrentGain(channelIndexes, selectedCalibVcCurrentGainVector, false);
-    this->setCalibVcCurrentOffset(channelIndexes, selectedCalibVcCurrentOffsetVector, false);
-    this->setSamplingRate(defaultSamplingRateIdx, false);
-    this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
-    this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
-//    this->setCCCurrentRange(defaultCcCurrentRangeIdx, false);
-//    this->setCCVoltageRange(defaultCcVoltageRangeIdx, false);
-    this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
-    this->setGateVoltagesTuner(boardIndexes, selectedGateVoltageVector, false);
-    this->setSourceVoltagesTuner(boardIndexes, selectedSourceVoltageVector, false);
-    this->digitalOffsetCompensation(channelIndexes, allFalse, false);
-    if(calibrationData.vcCalibResArray.size() > 0){
-        this->turnCalSwOn(channelIndexes, allFalse, false);
-    }
+    if (amIinVoltageClamp) {
+        /*! Initialization in voltage clamp */
+        this->enableStimulus(channelIndexes, allTrue, false);
+        this->turnChannelsOn(channelIndexes, allTrue, false);
+        this->turnCurrentReaderOn(true, false);
+        this->setVoltageHoldTuner(channelIndexes, selectedVoltageHoldVector, false);
+        this->setSamplingRate(defaultSamplingRateIdx, false);
+        this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
+        this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
+        this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
+        this->setGateVoltagesTuner(boardIndexes, selectedGateVoltageVector, false);
+        this->setSourceVoltagesTuner(boardIndexes, selectedSourceVoltageVector, false);
+        this->digitalOffsetCompensation(channelIndexes, allFalse, false);
+        if (calibrationData.vcCalibResArray.size() > 0) {
+            this->turnCalSwOn(channelIndexes, allFalse, false);
+        }
 
+        CalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum);
+        calibrationParams = calibrationManager.getCalibrationParams();
+
+        /*! Perform CC calibration first to initialize the commlib values: the VC calibration commands will override the FPGA calibration later */
+        if (ccVoltageRangesNum > 0) {
+            this->setCalibCcVoltageGain(channelIndexes, calibrationParams.ccAllGainDacMeas[selectedCcVoltageRangeIdx], false);
+            this->setCalibCcVoltageOffset(channelIndexes, calibrationParams.ccAllOffsetDacMeas[selectedCcVoltageRangeIdx], false);
+        }
+
+        if (ccCurrentRangesNum > 0) {
+            this->setCalibCcCurrentGain(channelIndexes, calibrationParams.ccAllGainAdcMeas[selectedCcCurrentRangeIdx], false);
+            this->setCalibCcCurrentOffset(channelIndexes, calibrationParams.ccAllOffsetAdcMeas[selectedCcCurrentRangeIdx], false);
+        }
+
+        if (vcCurrentRangesNum > 0) {
+            this->setCalibVcCurrentGain(channelIndexes, calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx], false);
+            this->setCalibVcCurrentOffset(channelIndexes, calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx], false);
+        }
+
+        if (vcVoltageRangesNum > 0) {
+            this->setCalibVcVoltageGain(channelIndexes, calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx], false);
+            this->setCalibVcVoltageOffset(channelIndexes, calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx], false);
+        }
+
+    } else {
+        /*! Initialization in current clamp */
+        /*! \todo FCON ... Noone deafult in current clamp, why bother? */
+    }
 
     /*! Make sure that at the beginning all the constant values tha might not be written later on are sent to the FPGA */
     txModifiedStartingWord = 0;
@@ -1089,103 +1117,39 @@ ErrorCodes_t MessageDispatcher::turnCurrentStimulusOn(bool onValue, bool applyFl
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::receiveCalibParams(CalibrationParams_t calibParams){
-
-//    for(int chanIdxIdx = 0; chanIdxIdx < calibParams.channelIndexes.size(); chanIdxIdx++){
-//        if(calibParams.gainAdcMeas.size()>0 && this->gainAdcMeas.size()){
-//            for(int rangeIdx = 0; rangeIdx < vcCurrentRangesArray.size(); rangeIdx++){
-//                this->gainAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.gainAdcMeas[rangeIdx][chanIdxIdx];
-//            }
-
-//        }
-
-//        if(calibParams.offsetAdcMeas.size()>0 && this->offsetAdcMeas.size()){
-//            for(int rangeIdx = 0; rangeIdx < vcCurrentRangesArray.size(); rangeIdx++){
-//                this->offsetAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.offsetAdcMeas[rangeIdx][chanIdxIdx];
-//            }
-
-//        }
-
-//        if(calibParams.gainDacMeas.size()>0 && this->gainDacMeas.size()){
-//            for(int rangeIdx = 0; rangeIdx < vcVoltageRangesArray.size(); rangeIdx++){
-//                this->gainDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.gainDacMeas[rangeIdx][chanIdxIdx];
-//            }
-
-//        }
-
-//        if(calibParams.offsetDacMeas.size()>0 && this->offsetDacMeas.size()){
-//            for(int rangeIdx = 0; rangeIdx < vcVoltageRangesArray.size(); rangeIdx++){
-//                this->offsetDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.offsetDacMeas[rangeIdx][chanIdxIdx];
-//            }
-
-//        }
-
-//        if(calibParams.ccGainAdcMeas.size()>0 && this->ccGainAdcMeas.size()){
-//            for(int rangeIdx = 0; rangeIdx < ccVoltageRangesArray.size(); rangeIdx++){
-//                this->ccGainAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.ccGainAdcMeas[rangeIdx][chanIdxIdx];
-//            }
-
-//        }
-
-//        if(calibParams.offsetAdcMeas.size()>0 && this->offsetAdcMeas.size()){
-//            for(int rangeIdx = 0; rangeIdx < ccVoltageRangesArray.size(); rangeIdx++){
-//                this->offsetAdcMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.offsetAdcMeas[rangeIdx][chanIdxIdx];
-//            }
-
-//        }
-
-//        if(calibParams.ccGainDacMeas.size()>0 && this->ccGainDacMeas.size()){
-//            for(int rangeIdx = 0; rangeIdx < ccCurrentRangesArray.size(); rangeIdx++){
-//                this->ccGainDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.ccGainDacMeas[rangeIdx][chanIdxIdx];
-//            }
-
-//        }
-
-//        if(calibParams.ccOffsetDacMeas.size()>0 && this->ccOffsetDacMeas.size()){
-//            for(int rangeIdx = 0; rangeIdx < ccCurrentRangesArray.size(); rangeIdx++){
-//                this->ccOffsetDacMeas[rangeIdx][calibParams.channelIndexes[chanIdxIdx]] = calibParams.ccOffsetDacMeas[rangeIdx][chanIdxIdx];
-//            }
-
-//        }
-
-//    }
-
-    /*! \note 20230524 MPAC: we receive from EMCR ALL the calibration params for ALL the channels, although we could've
-    calibrated only one board. W send toFPGA everything everytime*/
-    if(calibParams.allGainAdcMeas.size()>0 && this->allGainAdcMeas.size()){
-        this->allGainAdcMeas = calibParams.allGainAdcMeas;
+ErrorCodes_t MessageDispatcher::setCalibParams(CalibrationParams_t calibParams){
+    if(calibParams.allGainAdcMeas.size()>0 && calibrationParams.allGainAdcMeas.size()){
+        calibrationParams.allGainAdcMeas = calibParams.allGainAdcMeas;
     }
 
-    if(calibParams.allOffsetAdcMeas.size()>0 && this->allOffsetAdcMeas.size()){
-        this->allOffsetAdcMeas = calibParams.allOffsetAdcMeas;
+    if(calibParams.allOffsetAdcMeas.size()>0 && calibrationParams.allOffsetAdcMeas.size()){
+        calibrationParams.allOffsetAdcMeas = calibParams.allOffsetAdcMeas;
     }
 
-    if(calibParams.allGainDacMeas.size()>0 && this->allGainDacMeas.size()){
-        this->allGainDacMeas = calibParams.allGainDacMeas;
+    if(calibParams.allGainDacMeas.size()>0 && calibrationParams.allGainDacMeas.size()){
+        calibrationParams.allGainDacMeas = calibParams.allGainDacMeas;
     }
 
-    if(calibParams.allOffsetDacMeas.size()>0 && this->allOffsetDacMeas.size()){
-        this->allOffsetDacMeas = calibParams.allOffsetDacMeas;
+    if(calibParams.allOffsetDacMeas.size()>0 && calibrationParams.allOffsetDacMeas.size()){
+        calibrationParams.allOffsetDacMeas = calibParams.allOffsetDacMeas;
     }
 
-    if(calibParams.ccAllGainAdcMeas.size()>0 && this->ccAllGainAdcMeas.size()){
-        this->ccAllGainAdcMeas = calibParams.ccAllGainAdcMeas;
+    if(calibParams.ccAllGainAdcMeas.size()>0 && calibrationParams.ccAllGainAdcMeas.size()){
+        calibrationParams.ccAllGainAdcMeas = calibParams.ccAllGainAdcMeas;
     }
 
-    if(calibParams.ccAllOffsetAdcMeas.size()>0 && this->ccAllOffsetAdcMeas.size()){
-        this->ccAllOffsetAdcMeas = calibParams.ccAllOffsetAdcMeas;
+    if(calibParams.ccAllOffsetAdcMeas.size()>0 && calibrationParams.ccAllOffsetAdcMeas.size()){
+        calibrationParams.ccAllOffsetAdcMeas = calibParams.ccAllOffsetAdcMeas;
     }
 
-    if(calibParams.ccAllGainDacMeas.size()>0 && this->ccAllGainDacMeas.size()){
-        this->ccAllGainDacMeas = calibParams.ccAllGainDacMeas;
+    if(calibParams.ccAllGainDacMeas.size()>0 && calibrationParams.ccAllGainDacMeas.size()){
+        calibrationParams.ccAllGainDacMeas = calibParams.ccAllGainDacMeas;
     }
 
-    if(calibParams.ccAllOffsetDacMeas.size()>0 && this->ccAllOffsetDacMeas.size()){
-        this->ccAllOffsetDacMeas = calibParams.ccAllOffsetDacMeas;
+    if(calibParams.ccAllOffsetDacMeas.size()>0 && calibrationParams.ccAllOffsetDacMeas.size()){
+        calibrationParams.ccAllOffsetDacMeas = calibParams.ccAllOffsetDacMeas;
     }
     return Success;
-
-
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest) {
@@ -1939,6 +1903,41 @@ ErrorCodes_t MessageDispatcher::getCurrentStimulusLpfs(std::vector <Measurement_
         ccCurrentFilters = ccCurrentFiltersArray;
         return Success;
     }
+}
+
+ErrorCodes_t MessageDispatcher::getCalibParams(CalibrationParams_t &calibParams){
+    if(calibrationParams.allGainAdcMeas.size()>0){
+        calibParams.allGainAdcMeas = calibrationParams.allGainAdcMeas;
+    }
+
+    if(calibrationParams.allOffsetAdcMeas.size()>0){
+        calibParams.allOffsetAdcMeas = calibrationParams.allOffsetAdcMeas;
+    }
+
+    if(calibrationParams.allGainDacMeas.size()>0){
+        calibParams.allGainDacMeas = calibrationParams.allGainDacMeas;
+    }
+
+    if(calibrationParams.allOffsetDacMeas.size()>0){
+        calibParams.allOffsetDacMeas = calibrationParams.allOffsetDacMeas;
+    }
+
+    if(calibrationParams.ccAllGainAdcMeas.size()>0){
+        calibParams.ccAllGainAdcMeas = calibrationParams.ccAllGainAdcMeas;
+    }
+
+    if(calibrationParams.ccAllOffsetAdcMeas.size()>0){
+        calibParams.ccAllOffsetAdcMeas = calibrationParams.ccAllOffsetAdcMeas;
+    }
+
+    if(calibrationParams.ccAllGainDacMeas.size()>0){
+        calibParams.ccAllGainDacMeas = calibrationParams.ccAllGainDacMeas;
+    }
+
+    if(calibrationParams.ccAllOffsetDacMeas.size()>0){
+        calibParams.ccAllOffsetDacMeas = calibrationParams.ccAllOffsetDacMeas;
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range) {

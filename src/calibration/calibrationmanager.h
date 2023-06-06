@@ -14,18 +14,20 @@ class CalibrationManager {
 public:
     CalibrationManager(std::string serialNumber, uint16_t currentChannelsNum, uint16_t boardsNum, uint16_t vcCurrentRangesNum, uint16_t vcVoltageRangesNum, uint16_t ccVoltageRangesNum, uint16_t ccCurrentRangesNum);
 
+    e384CommLib::CalibrationParams_t getCalibrationParams();
+
 private:
     bool loadMappingFile();
     std::vector <std::vector <bool>> loadCalibrationFiles();
-    bool loadVcAdc(std::fstream &stream);
-    bool loadVcDac(std::fstream &stream);
-    bool loadCcAdc(std::fstream &stream);
-    bool loadCcDac(std::fstream &stream);
+    void loadDefaultParams();
+    bool loadVcAdc(std::fstream &stream, uint32_t boardIdx);
+    bool loadVcDac(std::fstream &stream, uint32_t boardIdx);
+    bool loadCcAdc(std::fstream &stream, uint32_t boardIdx);
+    bool loadCcDac(std::fstream &stream, uint32_t boardIdx);
+    bool loadSetOfParams(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <e384CommLib::Measurement_t>> &outGains, std::vector <std::vector <e384CommLib::Measurement_t>> &outOffsets, std::string offsetUnit);
 
     bool readCsvPortion(std::fstream &stream, std::vector <std::vector <std::string>> &out);
-
     void discardCsvLine(std::fstream &stream);
-//    bool readCsvPortion(std::fstream &stream, std::vector <std::vector <double>> &out);
 
     std::string serialNumber;
     uint16_t currentChannelsNum;

@@ -215,20 +215,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     // mapping ADC Current Clamp
     // undefined
 
-    /*! Calibraition param vectors*/
-    allGainAdcMeas.resize(VCCurrentRangesNum);
-    allGainAdcMeas[VCCurrentRange200nA].resize(currentChannelsNum);
-    allGainAdcMeas[VCCurrentRange4uA].resize(currentChannelsNum);
-
-    allOffsetAdcMeas.resize(VCCurrentRangesNum);
-    allOffsetAdcMeas[VCCurrentRange200nA].resize(currentChannelsNum);
-    allOffsetAdcMeas[VCCurrentRange4uA].resize(currentChannelsNum);
-
-    //gainDacMeas;
-
-    allOffsetDacMeas.resize(VCVoltageRangesNum);
-    allOffsetDacMeas[VCVoltageRange500mV].resize(currentChannelsNum);
-
     /*! VC calibration voltage steps*/
     calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
     calibrationData.vcCalibStepsArrays[VCCurrentRange4uA].resize(5);
