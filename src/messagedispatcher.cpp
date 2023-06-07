@@ -1152,7 +1152,7 @@ ErrorCodes_t MessageDispatcher::setCalibParams(CalibrationParams_t calibParams){
     if(calibParams.ccAllOffsetDacMeas.size()>0 && calibrationParams.ccAllOffsetDacMeas.size()){
         calibrationParams.ccAllOffsetDacMeas = calibParams.ccAllOffsetDacMeas;
     }
-    return calibrationLoadingError;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest) {
@@ -1940,7 +1940,7 @@ ErrorCodes_t MessageDispatcher::getCalibParams(CalibrationParams_t &calibParams)
     if(calibrationParams.ccAllOffsetDacMeas.size()>0){
         calibParams.ccAllOffsetDacMeas = calibrationParams.ccAllOffsetDacMeas;
     }
-    return Success;
+    return calibrationLoadingError;
 }
 
 ErrorCodes_t MessageDispatcher::getCalibFileNames(std::vector<std::string> &calibFileNames){

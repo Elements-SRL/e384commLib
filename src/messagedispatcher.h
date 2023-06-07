@@ -336,7 +336,7 @@ protected:
     bool areVcCompsEnabled = false;
     bool areCcCompsEnabled = false;
 
-    ErrorCodes_t calibrationLoadingError;
+    ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
     CalibrationParams_t calibrationParams;
     std::vector<std::string> calibrationFileNames;
     std::vector<std::vector<bool>> calibrationFilesOkFlags;

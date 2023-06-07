@@ -82,6 +82,7 @@ typedef enum ErrorCodes {
     ErrorCalibrationFileCorrupted =  ErrorGroupCalibration +            0x00000003, /*!< Error returned when a calibration file is corrupted */
     ErrorCalibrationFileMissing =  ErrorGroupCalibration +              0x00000004, /*!< Error returned when a calibration file is missing */
     ErrorCalibrationSoftwareBug =  ErrorGroupCalibration +              0x00000005, /*!< Error returned when there's a bug in the calibration loading procedure */
+    ErrorCalibrationNotLoadedYet =  ErrorGroupCalibration +             0x00000006, /*!< Error returned when calibration were not loaded yet */
 
     ErrorUnknown =                                                      0xFFFFFFFF  /*!< Undefined error. */
 } ErrorCodes_t;
