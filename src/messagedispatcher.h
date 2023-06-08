@@ -202,7 +202,7 @@ public:
     ErrorCodes_t startProtocol();
 
     ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState);
-    ErrorCodes_t setSateArrayState(int idx, double voltage, bool stateFlag, double timeout, int timeoutState, double minTriggerValue, double maxTriggerValue, int triggerState);
+    ErrorCodes_t setSateArrayState(int idx, Measurement_t voltage, bool stateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState);
     ErrorCodes_t startStateArray();
 
     /****************\
