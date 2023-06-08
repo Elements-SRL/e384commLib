@@ -56,6 +56,8 @@ private:
     std::vector <std::fstream> ccCalibrationFileStreams;
     std::vector <std::vector <bool>> calibrationFilesOkFlags;
 
+    std::vector<int> correctBoardsNumbering;
+
     CalibrationParams_t calibrationParams;
 };
 }

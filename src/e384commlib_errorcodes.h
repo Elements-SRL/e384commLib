@@ -83,6 +83,7 @@ typedef enum ErrorCodes {
     ErrorCalibrationFileMissing =  ErrorGroupCalibration +              0x00000004, /*!< Error returned when a calibration file is missing */
     ErrorCalibrationSoftwareBug =  ErrorGroupCalibration +              0x00000005, /*!< Error returned when there's a bug in the calibration loading procedure */
     ErrorCalibrationNotLoadedYet =  ErrorGroupCalibration +             0x00000006, /*!< Error returned when calibration were not loaded yet */
+    ErrorCalibrationMappingWrongNumbering = ErrorGroupCalibration +     0x00000007, /*!< Error returned when boards numbering in mapping file is wrong */
 
     ErrorUnknown =                                                      0xFFFFFFFF  /*!< Undefined error. */
 } ErrorCodes_t;

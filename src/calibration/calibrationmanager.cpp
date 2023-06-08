@@ -19,6 +19,10 @@ CalibrationManager::CalibrationManager(std::string serialNumber, uint16_t curren
     mappingFileDir = CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR;
     mappingFilePath = mappingFileDir + CAL_MAPPING_FILE_NAME;
 
+    for(int i = 1; i <= boardsNum; i++){
+       correctBoardsNumbering.push_back(i);
+    }
+
     this->loadDefaultParams();
 }
 
@@ -52,6 +56,7 @@ std::vector <std::vector <bool>> CalibrationManager::getCalibrationFilesOkFlags(
 
 bool CalibrationManager::loadMappingFile() {
     struct stat sb;
+    std::vector<int> actualBoardsNumbering;
     int aaa = stat(mappingFileDir.c_str(), &sb);
     if (aaa != 0) {
         status = ErrorCalibrationDirMissing;
@@ -68,19 +73,18 @@ bool CalibrationManager::loadMappingFile() {
         for (uint16_t idx = 0; idx < boardsNum; idx++) {
             std::string bbb = calibrationFileNames[idx][0];
             std::string forseBuona;
-//            int anotherIdx = 0;
             for (int k= 0; k < bbb.size(); k++){
                 if(bbb[k]== '0' || bbb[k]== '1' || bbb[k]== '2' || bbb[k]== '3' || bbb[k]== '4' || bbb[k]== '5' || bbb[k]== '6' || bbb[k]== '7' || bbb[k]== '8' || bbb[k]== '9'){
                     forseBuona.push_back(bbb[k]);
-//                    anotherIdx++;
                 }
             }
             int boardNumber = std::stoi(forseBuona);
-            if (boardNumber < 0 || boardNumber > boardsNum) {
-//                status = ErrorCalibrationMappingNotOpened;
-                status = ErrorCalibrationMappingCorrupted;
-                ret = false;
-            }
+            actualBoardsNumbering.push_back(boardNumber);
+        }
+
+        if(actualBoardsNumbering != correctBoardsNumbering){
+            status = ErrorCalibrationMappingWrongNumbering;
+            ret = false;
         }
 
         mappingFileStream.close();
