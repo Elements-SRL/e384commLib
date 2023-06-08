@@ -388,6 +388,8 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
 
     if (amIinVoltageClamp) {
         /*! Initialization in voltage clamp */
+        this->enableCcCompensations(false);
+        this->enableVcCompensations(true);
         this->enableStimulus(channelIndexes, allTrue, false);
         this->turnChannelsOn(channelIndexes, allTrue, false);
         this->turnCurrentReaderOn(true, false);
