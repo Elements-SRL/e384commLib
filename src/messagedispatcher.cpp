@@ -408,6 +408,8 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
         calibrationParams = calibrationManager.getCalibrationParams(calibrationLoadingError);
         calibrationFileNames = calibrationManager.getCalibrationFileNames();
         calibrationFilesOkFlags = calibrationManager.getCalibrationFilesOkFlags();
+        calibrationMappingFileDir = calibrationManager.getMappingFileDir();
+        calibrationMappingFilePath = calibrationManager.getMappingFilePath();
 
         /*! Perform CC calibration first to initialize the commlib values: the VC calibration commands will override the FPGA calibration later */
         if (ccVoltageRangesNum > 0) {
@@ -1950,6 +1952,16 @@ ErrorCodes_t MessageDispatcher::getCalibFileNames(std::vector<std::string> &cali
 
 ErrorCodes_t MessageDispatcher::getCalibFilesFlags(std::vector<std::vector <bool>> &calibFilesFlags) {
     calibFilesFlags = calibrationFilesOkFlags;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibMappingFileDir(std::string &dir){
+    dir = this->calibrationMappingFileDir;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibMappingFilePath(std::string &path){
+    path = this->calibrationMappingFilePath;
     return Success;
 }
 

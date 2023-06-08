@@ -19,6 +19,8 @@ public:
     CalibrationParams_t getCalibrationParams(ErrorCodes_t &error);
     std::vector <std::string> getCalibrationFileNames();
     std::vector <std::vector <bool>> getCalibrationFilesOkFlags();
+    std::string getMappingFileDir();
+    std::string getMappingFilePath();
 
 private:
     bool loadMappingFile();

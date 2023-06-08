@@ -92,6 +92,14 @@ bool CalibrationManager::loadMappingFile() {
     }
 }
 
+std::string CalibrationManager::getMappingFileDir(){
+    return this->mappingFileDir;
+}
+
+std::string CalibrationManager::getMappingFilePath(){
+    return this->mappingFilePath;
+}
+
 std::vector <std::vector <bool>> CalibrationManager::loadCalibrationFiles() {
     std::vector <std::vector <bool>> rets;
     rets.resize(2);

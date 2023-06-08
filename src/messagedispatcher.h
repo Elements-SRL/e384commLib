@@ -246,6 +246,8 @@ public:
     ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams);
     ErrorCodes_t getCalibFileNames(std::vector<std::string> &calibFileNames);
     ErrorCodes_t getCalibFilesFlags(std::vector<std::vector <bool>> &calibFilesFlags);
+    ErrorCodes_t getCalibMappingFileDir(std::string &dir);
+    ErrorCodes_t getCalibMappingFilePath(std::string &path);
 
     ErrorCodes_t getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
     ErrorCodes_t getCurrentProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
@@ -340,6 +342,8 @@ protected:
     CalibrationParams_t calibrationParams;
     std::vector<std::string> calibrationFileNames;
     std::vector<std::vector<bool>> calibrationFilesOkFlags;
+    std::string calibrationMappingFileDir;
+    std::string calibrationMappingFilePath;
 
     /*************\
      *  Methods  *
