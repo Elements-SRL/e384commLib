@@ -2034,7 +2034,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
                 return ErrorFeatureNotImplemented;
             }
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "U_CpVc chan " + std::to_string(channelIndexes[j]) + ": userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Cp]) + "\n";
+            debugString += "[U_CpVc chan " + std::to_string(channelIndexes[j]) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Cp]) + "\n";
 #endif
             //encode
             temp = pipetteCapValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
@@ -2046,7 +2046,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
                 return ErrorFeatureNotImplemented;
             }
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "U_Cm chan " + std::to_string(channelIndexes[j]) + ": userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Cm]) + "\n";
+            debugString += "[U_Cm chan " + std::to_string(channelIndexes[j]) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Cm]) + "\n";
 #endif
             //encode
             temp = membraneCapValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
@@ -2058,7 +2058,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
                 return ErrorFeatureNotImplemented;
             }
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "U_Rs chan " + std::to_string(channelIndexes[j]) + ": userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Taum]) + "\n";
+            debugString += "[U_Rs chan " + std::to_string(channelIndexes[j]) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Taum]) + "\n";
 #endif
             //encode
             temp = membraneCapTauValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
@@ -2070,7 +2070,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
                 return ErrorFeatureNotImplemented;
             }
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "U_RsCp chan " + std::to_string(channelIndexes[j]) + ": userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsCr]) + "\n";
+            debugString += "[U_RsCp chan " + std::to_string(channelIndexes[j]) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsCr]) + "\n";
 #endif
             //encode
             temp = rsCorrValCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
@@ -2082,7 +2082,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
                 return ErrorFeatureNotImplemented;
             }
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "U_RsPg chan " + std::to_string(channelIndexes[j]) + ": userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsPg]) + "\n";
+            debugString += "[U_RsPg chan " + std::to_string(channelIndexes[j]) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsPg]) + "\n";
 #endif
             //encode
             temp = rsPredGainCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
@@ -2094,7 +2094,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
                 return ErrorFeatureNotImplemented;
             }
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "U_CpCc chan " + std::to_string(channelIndexes[j]) + ": userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsPtau]) + "\n";
+            debugString += "[U_CpCc chan " + std::to_string(channelIndexes[j]) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsPtau]) + "\n";
 #endif
             //encode
             temp = rsPredTauCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
@@ -2134,7 +2134,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompOptions(std::vector<uin
             for(uint32_t i = 0; i < channelIndexes.size(); i++){
                 selectedRsCorrBws[i] = options[i];
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "CompRsCorr chan " + std::to_string(channelIndexes[i]) + ": selected opt " + std::to_string(selectedRsCorrBws[i]) +"\n";
+            debugString += "[CompRsCorr chan " + std::to_string(channelIndexes[i]) + "]: selected opt " + std::to_string(selectedRsCorrBws[i]) +"\n";
 #endif
                 rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             }
