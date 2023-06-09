@@ -835,10 +835,13 @@ typedef struct CompensationControl {
 } CompensationControl_t;
 
 typedef struct CalibrationData {
+    uint16_t samplingRateIdx = 0;
+
     std::vector<std::vector<Measurement_t>> vcCalibStepsArrays;
     std::vector<Measurement_t> vcCalibResArray;
     std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
     bool areCalibResistOnBoard;
+    bool canInputsBeOpened;
 
     std::vector<std::vector<Measurement_t>> ccCalibVoltStepsArrays;
     std::vector<std::vector<Measurement_t>> ccCalibCurrStepsArrays;

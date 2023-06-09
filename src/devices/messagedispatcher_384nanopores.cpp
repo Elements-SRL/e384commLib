@@ -215,6 +215,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     // mapping ADC Current Clamp
     // undefined
 
+    calibrationData.samplingRateIdx = SamplingRate7_5kHz;
+
     /*! VC calibration voltage steps*/
     calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
     calibrationData.vcCalibStepsArrays[VCCurrentRange4uA].resize(5);
@@ -242,6 +244,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     };
 
     calibrationData.areCalibResistOnBoard = false;
+    calibrationData.canInputsBeOpened = true;
 
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange500mV].min = -500.0;

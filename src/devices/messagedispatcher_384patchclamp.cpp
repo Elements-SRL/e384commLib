@@ -365,6 +365,8 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     // mapping ADC Current Clamp
     // undefined
 
+    calibrationData.samplingRateIdx = SamplingRate5kHz;
+
     /*! VC calibration voltage steps*/
     calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
     calibrationData.vcCalibStepsArrays[VCCurrentRange10nA].resize(5);
@@ -405,13 +407,14 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
 
     // mapping VC current range - calibration resistances
     calibrationData.vcCurrRange2CalibResMap = {
-      {VCCurrentRange10nA, CalibRes5_0MOhm},
-      {VCCurrentRange40nALbw, CalibRes5_0MOhm},
-      {VCCurrentRange40nAHbw, CalibRes5_0MOhm},
-      {VCCurrentRange400nA, CalibRes5_0MOhm}
+        {VCCurrentRange10nA, CalibRes5_0MOhm},
+        {VCCurrentRange40nALbw, CalibRes5_0MOhm},
+        {VCCurrentRange40nAHbw, CalibRes5_0MOhm},
+        {VCCurrentRange400nA, CalibRes5_0MOhm}
     };
 
     calibrationData.areCalibResistOnBoard = true;
+    calibrationData.canInputsBeOpened = true;
 
     calibrationData.ccCalibVoltStepsArrays.resize(CCVoltageRangesNum);
     calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV].resize(5);

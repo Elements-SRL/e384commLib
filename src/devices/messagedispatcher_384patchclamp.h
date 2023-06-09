@@ -125,11 +125,6 @@ protected:
         SamplingRatesNum
     };
 
-    enum Leds {
-        LedBlue,
-        LedsNum
-    };
-
     enum CalibResistances{
         CalibRes5_0MOhm,
         CalibResNum

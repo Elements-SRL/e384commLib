@@ -229,6 +229,30 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     // mapping ADC Current Clamp
     // undefined
 
+    calibrationData.samplingRateIdx = SamplingRate833kHz;
+
+    /*! VC calibration voltage steps*/
+    calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA].resize(5);
+
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][0] = {-500.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][1] = {-250.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][2] = {0.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][3] = {250.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][4] = {500.0, UnitPfxMilli, "V"};
+
+    /*! VC calibration resistances*/
+    calibrationData.vcCalibResArray.resize(VCCurrentRangesNum);
+    calibrationData.vcCalibResArray[VCCurrentRange100nA] = {10.0, UnitPfxMega, "Ohm"};
+
+    // mapping VC current range - calibration resistances
+    calibrationData.vcCurrRange2CalibResMap = {
+        {VCCurrentRange100nA, CalibRes10_0MOhm}
+    };
+
+    calibrationData.areCalibResistOnBoard = false;
+    calibrationData.canInputsBeOpened = false;
+
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange1000mV].min = -1000.0; /*! \todo FCON qui bisogna mettere due range */
     vHoldRange[VCVoltageRange1000mV].max = 1000.0;
@@ -640,8 +664,8 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
-        doubleConfig.minValue = calibVcVoltageOffsetRanges[rangeIdx].min;
-        doubleConfig.maxValue = calibVcVoltageOffsetRanges[rangeIdx].max;
+        doubleConfig.minValue = calibVcVoltageOffsetRanges[rangeIdx].max;
+        doubleConfig.maxValue = calibVcVoltageOffsetRanges[rangeIdx].min;
         calibVcVoltageOffsetCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
             calibVcVoltageOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
