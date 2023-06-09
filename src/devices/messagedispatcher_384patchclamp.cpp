@@ -365,36 +365,6 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     // mapping ADC Current Clamp
     // undefined
 
-    /*! Calibraition param vectors*/
-    allGainAdcMeas.resize(VCCurrentRangesNum);
-    allGainAdcMeas[VCCurrentRange10nA].resize(currentChannelsNum);
-    allGainAdcMeas[VCCurrentRange40nALbw].resize(currentChannelsNum);
-    allGainAdcMeas[VCCurrentRange40nAHbw].resize(currentChannelsNum);
-    allGainAdcMeas[VCCurrentRange400nA].resize(currentChannelsNum);
-
-    allOffsetAdcMeas.resize(VCCurrentRangesNum);
-    allOffsetAdcMeas[VCCurrentRange10nA].resize(currentChannelsNum);
-    allOffsetAdcMeas[VCCurrentRange40nALbw].resize(currentChannelsNum);
-    allOffsetAdcMeas[VCCurrentRange40nAHbw].resize(currentChannelsNum);
-    allOffsetAdcMeas[VCCurrentRange400nA].resize(currentChannelsNum);
-
-    //gainDacMeas;
-
-    allOffsetDacMeas.resize(VCVoltageRangesNum);
-    allOffsetDacMeas[VCVoltageRange500mV].resize(currentChannelsNum);
-
-    ccAllGainAdcMeas.resize(CCVoltageRangesNum);
-    ccAllGainAdcMeas[CCVoltageRange1000mV].resize(currentChannelsNum);
-
-    ccAllOffsetAdcMeas.resize(CCVoltageRangesNum);
-    ccAllOffsetAdcMeas[CCVoltageRange1000mV].resize(currentChannelsNum);
-
-    ccAllGainDacMeas.resize(CCCurrentRangesNum);
-    ccAllGainDacMeas[CCCurrentRange8nA].resize(currentChannelsNum);
-
-    ccAllOffsetDacMeas.resize(CCCurrentRangesNum);
-    ccAllOffsetDacMeas[CCCurrentRange8nA].resize(currentChannelsNum);
-
     /*! VC calibration voltage steps*/
     calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
     calibrationData.vcCalibStepsArrays[VCCurrentRange10nA].resize(5);
@@ -453,11 +423,11 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
 
     calibrationData.ccCalibCurrStepsArrays.resize(CCCurrentRangesNum);
     calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA].resize(5);
-    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][0] = {-8.0, UnitPfxNano, "A"};
+    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][0] = {-7.9, UnitPfxNano, "A"};
     calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][1] = {-4.0, UnitPfxNano, "A"};
     calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][2] = {0.0, UnitPfxNano, "A"};
     calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][3] = {4.0, UnitPfxNano, "A"};
-    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][4] = {8.0, UnitPfxNano, "A"};
+    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][4] = {7.9, UnitPfxNano, "A"};
 
     /*! CC calibration resistances on each board*/
     calibrationData.ccCalibResArray.resize(CCCurrentRangesNum);
@@ -1512,7 +1482,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     /*! Cslow / membrane capacitance compensation TAU and TAU RANGES */
     membraneCapTauValCompensationMultiCoders.resize(currentChannelsNum);
 
-    doubleConfig.initialWord = 3814;
+    doubleConfig.initialWord = 3184;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
@@ -1908,57 +1878,107 @@ return Success;
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
-        switch(compTypeToEnable){
-        case CompCfast:
-            if(pipetteCapEnCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            for(int i = 0; i<channelIndexes.size(); i++){
-                compCfastEnable[channelIndexes[i]] = onValues[i];
-                pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(areVcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            }
-        break;
-
-        case CompCslow:
-            if(membraneCapEnCompensationCoders.size() == 0 ){
-                return ErrorFeatureNotImplemented;
-            }
-            for(int i = 0; i<channelIndexes.size(); i++){
-                compCslowEnable[channelIndexes[i]] = onValues[i];
-                membraneCapEnCompensationCoders[channelIndexes[i]]->encode(areVcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            }
-        break;
-
-        case CompRsCorr:
-            if(rsCorrEnCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            for(int i = 0; i<channelIndexes.size(); i++){
-                compRsCorrEnable[channelIndexes[i]] = onValues[i];
-                rsCorrEnCompensationCoders[channelIndexes[i]]->encode(areVcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            }
-        break;
-
-        case CompRsPred:
-            if(rsPredEnCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            for(int i = 0; i<channelIndexes.size(); i++){
-                compRsPredEnable[channelIndexes[i]] = onValues[i];
-                rsPredEnCompensationCoders[channelIndexes[i]]->encode(areVcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            }
-        break;
-
-        case CompCcCfast:
-            if(pipetteCapCcEnCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
-            for(int i = 0; i<channelIndexes.size(); i++){
-                compCcCfastEnable[channelIndexes[i]] = onValues[i];/*! \todo MPAC, forse mettere anche questi in and a areCcCompsEnabled*/
-                pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(areCcCompsEnabled && onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            }
-        break;
+    std::string debugString = "";
+    switch(compTypeToEnable){
+    case CompCfast:
+        if(pipetteCapEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else if (!areVcCompsEnabled) {
+            return ErrorThisCompensationNotEnabled;
         }
+#ifdef DEBUG_TX_DATA_PRINT
+        debugString += "enable cfast: ";
+#endif
+        for(int i = 0; i<channelIndexes.size(); i++){
+            compCfastEnable[channelIndexes[i]] = onValues[i];
+            pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
+#endif
+        }
+        break;
+
+    case CompCslow:
+        if(membraneCapEnCompensationCoders.size() == 0 ){
+            return ErrorFeatureNotImplemented;
+        } else if (!areVcCompsEnabled) {
+            return ErrorThisCompensationNotEnabled;
+        }
+#ifdef DEBUG_TX_DATA_PRINT
+        debugString += "enable cslow: ";
+#endif
+        for(int i = 0; i<channelIndexes.size(); i++){
+            compCslowEnable[channelIndexes[i]] = onValues[i];
+            membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
+#endif
+        }
+        break;
+
+    case CompRsCorr:
+        if(rsCorrEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else if (!areVcCompsEnabled) {
+            return ErrorThisCompensationNotEnabled;
+        }
+#ifdef DEBUG_TX_DATA_PRINT
+        debugString += "enable rscorr: ";
+#endif
+        for(int i = 0; i<channelIndexes.size(); i++){
+            compRsCorrEnable[channelIndexes[i]] = onValues[i];
+            rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
+#endif
+        }
+        break;
+
+    case CompRsPred:
+        if(rsPredEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        }else if (!areVcCompsEnabled) {
+            return ErrorThisCompensationNotEnabled;
+        }
+#ifdef DEBUG_TX_DATA_PRINT
+        debugString += "enable rspred: ";
+#endif
+        for(int i = 0; i<channelIndexes.size(); i++){
+            compRsPredEnable[channelIndexes[i]] = onValues[i];
+            rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
+#endif
+        }
+        break;
+
+    case CompCcCfast:
+        if(pipetteCapCcEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else if (!areCcCompsEnabled) {
+            return ErrorThisCompensationNotEnabled;
+        }
+#ifdef DEBUG_TX_DATA_PRINT
+        debugString += "enable cccfast: ";
+#endif
+        for(int i = 0; i<channelIndexes.size(); i++){
+            compCcCfastEnable[channelIndexes[i]] = onValues[i];/*! \todo MPAC, forse mettere anche questi in and a areCcCompsEnabled*/
+            pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
+#endif
+
+        }
+        break;
+    }
+
+#ifdef DEBUG_TX_DATA_PRINT
+    debugString += "\n";
+    std::fprintf(txFid, debugString.c_str());
+    std::fprintf(txFid, "\n");
+    std::fflush(txFid);
+#endif
+
     if (applyFlagIn) {
         this->stackOutgoingMessage(txStatus);
     }
@@ -1975,6 +1995,11 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableVcCompensations(bool ena
         rsPredEnCompensationCoders[i]->encode(areVcCompsEnabled && compRsPredEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
+#ifdef DEBUG_TX_DATA_PRINT
+    std::fprintf(txFid, "Vc comps enabled %d\n", enable);
+    std::fflush(txFid);
+#endif
+
     return Success;
 }
 
@@ -1985,10 +2010,15 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCcCompensations(bool ena
         pipetteCapCcEnCompensationCoders[i]->encode(areCcCompsEnabled && compCcCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
+#ifdef DEBUG_TX_DATA_PRINT
+    std::fprintf(txFid, "Cc comps enabled %d\n", enable);
+    std::fflush(txFid);
+#endif
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
+    std::string debugString = "";
     // make local copy of the user domain param vectors
     std::vector<std::vector<double>> localCompValueSubMatrix;
     localCompValueSubMatrix.resize(channelIndexes.size());
@@ -2000,7 +2030,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
     for (int j = 0; j < localCompValueSubMatrix.size(); j++){
         // update value in user domain
         localCompValueSubMatrix[j][paramToUpdate] = newParamValues[j];
-
+        double cane = localCompValueSubMatrix[0][paramToUpdate];
         // convert user domain to asic domain
         std::vector<double> asicParams = user2AsicDomainTransform(channelIndexes[j], localCompValueSubMatrix[j]);
         double temp;
@@ -2010,56 +2040,71 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
         switch(paramToUpdate)
         {
         case U_CpVc:
-            if(pipetteCapValCompensationMultiCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += "[U_CpVc chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Cp]) + "\n";
+#endif
             //encode
             temp = pipetteCapValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_Cp] = temp;
         break;
         case U_Cm:
-            if(membraneCapValCompensationMultiCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += "[U_Cm chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Cm]) + "\n";
+#endif
             //encode
             temp = membraneCapValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_Cm] = temp;
-        break;
-        case U_Rs:
-            if(membraneCapTauValCompensationMultiCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
+
             //encode
             temp = membraneCapTauValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_Taum] = temp;
         break;
+        case U_Rs:
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += "[U_Rs chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Taum]) + "\n";
+#endif
+            //encode
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_Taum] = temp;
+
+            //encode
+            temp = rsCorrValCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_RsCr] = temp;
+        break;
         case U_RsCp:
-            if(rsCorrValCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += "[U_RsCp chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsCr]) + "\n";
+#endif
             //encode
             temp = rsCorrValCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_RsCr] = temp;
         break;
         case U_RsPg:
-            if(rsPredGainCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += "[U_RsPg chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsPg]) + "\n";
+#endif
             //encode
             temp = rsPredGainCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_RsPg] = temp;
-        break;
-        case U_CpCc:
-            if(rsPredTauCompensationCoders.size() == 0){
-                return ErrorFeatureNotImplemented;
-            }
+
             //encode
             temp = rsPredTauCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_RsPtau] = temp;
+        break;
+        case U_CpCc:
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += "[U_CpCc chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsPtau]) + "\n";
+#endif
+            //encode
+            temp = pipetteCapValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_RsPtau] = temp;
         break;
@@ -2086,6 +2131,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn){
+    std::string debugString = "";
     switch(type)
     {
     case CompRsCorr:
@@ -2094,6 +2140,9 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompOptions(std::vector<uin
         } else {
             for(uint32_t i = 0; i < channelIndexes.size(); i++){
                 selectedRsCorrBws[i] = options[i];
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += "[CompRsCorr chan " + std::to_string(channelIndexes[i]+1) + "]: selected opt " + std::to_string(selectedRsCorrBws[i]) +"\n";
+#endif
                 rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             }
 
@@ -2322,7 +2371,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     /*! Compensable for U_CpVc*/
     uCpVcCompensable[chIdx].max = pipetteCapacitanceRange_pF.back().max - asicCmCinj;
 
-    potentialMins.push_back(pipetteCapacitanceRange_pF.back().min - asicCmCinj);
+    potentialMins.push_back(pipetteCapacitanceRange_pF.front().min - asicCmCinj);
     potentialMins.push_back(0.0);
     uCpVcCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
@@ -2425,7 +2474,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     potentialMins.clear();
 
     //step
-    uRsCompensable[chIdx].step = 0.1e6; //Ohm
+    uRsCompensable[chIdx].step = 0.1; //MOhm
 
     /*! Compensable for U_RsCp*/
     // max

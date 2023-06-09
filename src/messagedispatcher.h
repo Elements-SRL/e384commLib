@@ -163,7 +163,7 @@ public:
     virtual ErrorCodes_t turnVoltageStimulusOn(bool onValue, bool applyFlag);
     virtual ErrorCodes_t turnCurrentStimulusOn(bool onValue, bool applyFlag);
 
-    ErrorCodes_t receiveCalibParams(CalibrationParams_t calibParams);
+    ErrorCodes_t setCalibParams(CalibrationParams_t calibParams);
 
     virtual ErrorCodes_t turnResistanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
     virtual ErrorCodes_t turnLeakConductanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
@@ -246,6 +246,12 @@ public:
 
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
+
+    ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams);
+    ErrorCodes_t getCalibFileNames(std::vector<std::string> &calibFileNames);
+    ErrorCodes_t getCalibFilesFlags(std::vector<std::vector <bool>> &calibFilesFlags);
+    ErrorCodes_t getCalibMappingFileDir(std::string &dir);
+    ErrorCodes_t getCalibMappingFilePath(std::string &path);
 
     ErrorCodes_t getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
     ErrorCodes_t getCurrentProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
@@ -336,15 +342,12 @@ protected:
     bool areVcCompsEnabled = false;
     bool areCcCompsEnabled = false;
 
-    std::vector<std::vector<Measurement_t>> allGainAdcMeas;
-    std::vector<std::vector<Measurement_t>> allOffsetAdcMeas;
-    std::vector<std::vector<Measurement_t>> allGainDacMeas;
-    std::vector<std::vector<Measurement_t>> allOffsetDacMeas;
-    std::vector<std::vector<Measurement_t>> ccAllGainAdcMeas;
-    std::vector<std::vector<Measurement_t>> ccAllOffsetAdcMeas;
-    std::vector<std::vector<Measurement_t>> ccAllGainDacMeas;
-    std::vector<std::vector<Measurement_t>> ccAllOffsetDacMeas;
-
+    ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
+    CalibrationParams_t calibrationParams;
+    std::vector<std::string> calibrationFileNames;
+    std::vector<std::vector<bool>> calibrationFilesOkFlags;
+    std::string calibrationMappingFileDir;
+    std::string calibrationMappingFilePath;
 
     /*************\
      *  Methods  *
