@@ -2030,7 +2030,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
     for (int j = 0; j < localCompValueSubMatrix.size(); j++){
         // update value in user domain
         localCompValueSubMatrix[j][paramToUpdate] = newParamValues[j];
-
+        double cane = localCompValueSubMatrix[0][paramToUpdate];
         // convert user domain to asic domain
         std::vector<double> asicParams = user2AsicDomainTransform(channelIndexes[j], localCompValueSubMatrix[j]);
         double temp;
@@ -2371,7 +2371,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     /*! Compensable for U_CpVc*/
     uCpVcCompensable[chIdx].max = pipetteCapacitanceRange_pF.back().max - asicCmCinj;
 
-    potentialMins.push_back(pipetteCapacitanceRange_pF.back().min - asicCmCinj);
+    potentialMins.push_back(pipetteCapacitanceRange_pF.front().min - asicCmCinj);
     potentialMins.push_back(0.0);
     uCpVcCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
@@ -2474,7 +2474,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     potentialMins.clear();
 
     //step
-    uRsCompensable[chIdx].step = 0.1e6; //Ohm
+    uRsCompensable[chIdx].step = 0.1; //MOhm
 
     /*! Compensable for U_RsCp*/
     // max
