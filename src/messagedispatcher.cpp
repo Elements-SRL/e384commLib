@@ -24,6 +24,7 @@
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000107S", Device384Nanopores},
+    {"2210001076", Device384PatchClamp},
     {"221000108T", Device384PatchClamp},
     {"221000106B", Device384PatchClamp},
     {"221000106C", Device384PatchClamp},
