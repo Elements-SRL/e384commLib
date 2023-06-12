@@ -254,12 +254,12 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     calibrationData.canInputsBeOpened = false;
 
     vHoldRange.resize(VCVoltageRangesNum);
-    vHoldRange[VCVoltageRange1000mV].min = -1000.0; /*! \todo FCON qui bisogna mettere due range */
+    vHoldRange[VCVoltageRange1000mV].min = -1000.0;
     vHoldRange[VCVoltageRange1000mV].max = 1000.0;
     vHoldRange[VCVoltageRange1000mV].step = 0.0625;
     vHoldRange[VCVoltageRange1000mV].prefix = UnitPfxMilli;
     vHoldRange[VCVoltageRange1000mV].unit = "V";
-    vHoldRange[VCVoltageRange20000mV].min = -20000.0; /*! \todo FCON qui bisogna mettere due range */
+    vHoldRange[VCVoltageRange20000mV].min = -20000.0;
     vHoldRange[VCVoltageRange20000mV].max = 20000.0;
     vHoldRange[VCVoltageRange20000mV].step = 1.28125;
     vHoldRange[VCVoltageRange20000mV].prefix = UnitPfxMilli;
@@ -767,11 +767,6 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
 
         stateWordOffset = stateWordOffset + stateWordsNum;
     }
-
-
-
-
-
 
     /*! Default status */
     txStatus.resize(txDataWords);

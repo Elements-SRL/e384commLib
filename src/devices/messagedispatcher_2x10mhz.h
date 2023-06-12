@@ -67,6 +67,11 @@ protected:
         SamplingRatesNum
     };
 
+    enum CalibResistances {
+        CalibRes10_0MOhm,
+        CalibResNum
+    };
+
     virtual void initializeHW() override;
 
     BoolArrayCoder * dcmResetCoder = nullptr;

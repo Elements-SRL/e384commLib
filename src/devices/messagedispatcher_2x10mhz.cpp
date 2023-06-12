@@ -227,8 +227,32 @@ MessageDispatcher_2x10MHz_V01::MessageDispatcher_2x10MHz_V01(std::string di) :
     // mapping ADC Current Clamp
     // undefined
 
+    calibrationData.samplingRateIdx = SamplingRate833kHz;
+
+    /*! VC calibration voltage steps*/
+    calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA].resize(5);
+
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][0] = {-500.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][1] = {-250.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][2] = {0.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][3] = {250.0, UnitPfxMilli, "V"};
+    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][4] = {500.0, UnitPfxMilli, "V"};
+
+    /*! VC calibration resistances*/
+    calibrationData.vcCalibResArray.resize(VCCurrentRangesNum);
+    calibrationData.vcCalibResArray[VCCurrentRange100nA] = {10.0, UnitPfxMega, "Ohm"};
+
+    // mapping VC current range - calibration resistances
+    calibrationData.vcCurrRange2CalibResMap = {
+        {VCCurrentRange100nA, CalibRes10_0MOhm}
+    };
+
+    calibrationData.areCalibResistOnBoard = false;
+    calibrationData.canInputsBeOpened = false;
+
     vHoldRange.resize(VCVoltageRangesNum);
-    vHoldRange[VCVoltageRange1000mV].min = -1000.0; /*! \todo FCON qui bisogna mettere due range */
+    vHoldRange[VCVoltageRange1000mV].min = -1000.0;
     vHoldRange[VCVoltageRange1000mV].max = 1000.0;
     vHoldRange[VCVoltageRange1000mV].step = 0.0625;
     vHoldRange[VCVoltageRange1000mV].prefix = UnitPfxMilli;
@@ -236,19 +260,33 @@ MessageDispatcher_2x10MHz_V01::MessageDispatcher_2x10MHz_V01(std::string di) :
     selectedVoltageHoldVector.resize(currentChannelsNum);
     Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
 
-    /*! VC current gain */
+    /*! Calib VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
     calibVcCurrentGainRange.min = 0;//SHORT_MIN * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
     selectedCalibVcCurrentGainVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcCurrentGain = {1.0, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
+    defaultCalibVcCurrentGain = {1.0, calibVcCurrentGainRange.prefix, calibVcCurrentGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
 
-    /*! VC current offset */
+    /*! Calib VC current offset */
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
     selectedCalibVcCurrentOffsetVector.resize(currentChannelsNum);
-    Measurement_t defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
+    defaultCalibVcCurrentOffset = {0.0, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].prefix, calibVcCurrentOffsetRanges[defaultVcCurrentRangeIdx].unit};
+
+    /*! Calib VC voltage gain */
+    calibVcVoltageGainRange.step = 1.0/1024.0;
+    calibVcVoltageGainRange.min = 0;//SHORT_MIN * calibVcVoltageGainRange.step;
+    calibVcVoltageGainRange.max = SHORT_MAX * calibVcVoltageGainRange.step;
+    calibVcVoltageGainRange.prefix = UnitPfxNone;
+    calibVcVoltageGainRange.unit = "";
+    selectedCalibVcVoltageGainVector.resize(currentChannelsNum);
+    defaultCalibVcVoltageGain = {1.0, calibVcVoltageGainRange.prefix, calibVcVoltageGainRange.unit}; /*! \todo FCON qui c'è il valor medio per i 200nA */
+
+    /*! Calib VC voltage offset */
+    calibVcVoltageOffsetRanges = vcVoltageRangesArray;
+    selectedCalibVcVoltageOffsetVector.resize(currentChannelsNum);
+    defaultCalibVcVoltageOffset = {0.0, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].prefix, calibVcVoltageOffsetRanges[defaultVcVoltageRangeIdx].unit};
 
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
@@ -267,6 +305,8 @@ MessageDispatcher_2x10MHz_V01::MessageDispatcher_2x10MHz_V01(std::string di) :
     fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
     fill(selectedCalibVcCurrentGainVector.begin(), selectedCalibVcCurrentGainVector.end(), defaultCalibVcCurrentGain);
     fill(selectedCalibVcCurrentOffsetVector.begin(), selectedCalibVcCurrentOffsetVector.end(), defaultCalibVcCurrentOffset);
+    fill(selectedCalibVcVoltageGainVector.begin(), selectedCalibVcVoltageGainVector.end(), defaultCalibVcVoltageGain);
+    fill(selectedCalibVcVoltageOffsetVector.begin(), selectedCalibVcVoltageOffsetVector.end(), defaultCalibVcVoltageOffset);
 
     /**********\
      * Coders *
@@ -558,36 +598,67 @@ MessageDispatcher_2x10MHz_V01::MessageDispatcher_2x10MHz_V01(std::string di) :
         }
     }
 
-//    /*! VC current gain calibration */
-//    doubleConfig.initialWord = 344;
-//    doubleConfig.initialBit = 0;
-//    doubleConfig.bitsNum = 16;
-//    doubleConfig.resolution = calibVcCurrentGainRange.step;
-//    doubleConfig.minValue = calibVcCurrentGainRange.min;
-//    doubleConfig.maxValue = calibVcCurrentGainRange.max;
-//    calibVcCurrentGainCoders.resize(currentChannelsNum);
-//    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-//        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-//        coders.push_back(calibVcCurrentGainCoders[idx]);
-//        doubleConfig.initialWord++;
-//    }
+    /*! VC current gain calibration */
+    doubleConfig.initialWord = 344;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = calibVcCurrentGainRange.step;
+    doubleConfig.minValue = calibVcCurrentGainRange.min;
+    doubleConfig.maxValue = calibVcCurrentGainRange.max;
+    calibVcCurrentGainCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(calibVcCurrentGainCoders[idx]);
+        doubleConfig.initialWord++;
+    }
 
-//    /*! VC current offset calibration */
-//    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
-//    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-//        doubleConfig.initialWord = 348;
-//        doubleConfig.initialBit = 0;
-//        doubleConfig.bitsNum = 16;
-//        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
-//        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
-//        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
-//        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
-//        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-//            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
-//            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
-//            doubleConfig.initialWord++;
-//        }
-//    }
+    /*! VC current offset calibration */
+    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 348;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
+        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
+        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
+        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! VC voltage gain calibration */
+    doubleConfig.initialWord = 352;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = calibVcVoltageGainRange.step;
+    doubleConfig.minValue = calibVcVoltageGainRange.min;
+    doubleConfig.maxValue = calibVcVoltageGainRange.max;
+    calibVcVoltageGainCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        calibVcVoltageGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(calibVcVoltageGainCoders[idx]);
+        doubleConfig.initialWord++;
+    }
+
+    /*! VC voltage offset calibration */
+    calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 356;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
+        doubleConfig.minValue = calibVcVoltageOffsetRanges[rangeIdx].min;
+        doubleConfig.maxValue = calibVcVoltageOffsetRanges[rangeIdx].max;
+        calibVcVoltageOffsetCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            calibVcVoltageOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibVcVoltageOffsetCoders[rangeIdx][idx]);
+            doubleConfig.initialWord++;
+        }
+    }
 
     /*! Default status */
     txStatus.resize(txDataWords);
