@@ -1438,6 +1438,7 @@ ErrorCodes_t MessageDispatcher::setStateArrayEnabled(int chIdx, bool enabledFlag
         return ErrorFeatureNotImplemented;
     }
     enableStateArrayChannelsCoder[chIdx]->encode(enabledFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    return Success;
 }
 
 bool MessageDispatcher::isStateArrayAvailable(){
