@@ -1,4 +1,4 @@
-#include "messagedispatcher.h"
+﻿#include "messagedispatcher.h"
 
 #include <iostream>
 #include <ctime>
@@ -1431,6 +1431,13 @@ ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, Measurement_t vo
 ErrorCodes_t MessageDispatcher::startStateArray(){
     this->stackOutgoingMessage(txStatus, TxTriggerStartStateArray);
     return Success;
+}
+
+ErrorCodes_t MessageDispatcher::setStateArrayEnabled(int chIdx, bool enabledFlag){
+    if (enableStateArrayChannelsCoder.empty()){
+        return ErrorFeatureNotImplemented;
+    }
+    enableStateArrayChannelsCoder[chIdx]->encode(enabledFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
 }
 
 bool MessageDispatcher::isStateArrayAvailable(){

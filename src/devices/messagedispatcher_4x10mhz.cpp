@@ -664,6 +664,16 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     initialStateCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(initialStateCoder);
 
+    boolConfig.initialWord = 3;
+    boolConfig.bitsNum = 1;
+
+    enableStateArrayChannelsCoder.resize(currentChannelsNum);
+    for(int chNum = 0; chNum < currentChannelsNum; chNum++){
+        boolConfig.initialBit = chNum;
+        enableStateArrayChannelsCoder[chNum] = new BoolArrayCoder(boolConfig);
+        coders.push_back(enableStateArrayChannelsCoder[chNum]);
+    }
+
     appliedVoltageCoders.resize(VCVoltageRangesNum);
     for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
         appliedVoltageCoders[rangeIdx].resize(stateMaxNum);

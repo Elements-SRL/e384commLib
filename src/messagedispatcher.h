@@ -378,7 +378,7 @@ protected:
     virtual std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams);
     virtual std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);
     virtual ErrorCodes_t asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams);
-    virtual double computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow);
+    virtual double computeAsicCmCinj(double cm, bool chanCslowEnable, Multi ::MultiCoderConfig_t multiconfigCslow);
 
     /****************\
      *  Parameters  *
@@ -582,6 +582,8 @@ protected:
     /*! \todo 20230531 MPAC: coders for 4x10MHz*/
     BoolCoder * numberOfStatesCoder = nullptr;
     BoolCoder * initialStateCoder = nullptr;
+    std::vector<BoolCoder*> enableStateArrayChannelsCoder;
+
     std::vector<std::vector<DoubleCoder*>> appliedVoltageCoders;
     std::vector<BoolArrayCoder*> stateFlagsCoders;
     std::vector<DoubleCoder*> timeoutCoders;
