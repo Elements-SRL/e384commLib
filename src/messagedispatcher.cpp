@@ -1456,6 +1456,12 @@ ErrorCodes_t MessageDispatcher::startStateArray(){
     return Success;
 }
 
+bool MessageDispatcher::isStateArrayAvailable(){
+    if (appliedVoltageCoders.empty()){
+        return false;
+    }
+    return true;
+}
 
 /****************\
  *  Rx methods  *
