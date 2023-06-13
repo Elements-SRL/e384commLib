@@ -134,16 +134,16 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     /*! VC */
     vcVoltageFiltersNum = VCVoltageFiltersNum;
     vcVoltageFiltersArray.resize(vcVoltageFiltersNum);
-    vcVoltageFiltersArray[VCVoltageFilter20kHz].value = 20.0;
-    vcVoltageFiltersArray[VCVoltageFilter20kHz].prefix = UnitPfxKilo;
-    vcVoltageFiltersArray[VCVoltageFilter20kHz].unit = "Hz";
-    vcVoltageFiltersArray[VCVoltageFilter1kHz].value = 1.0;
-    vcVoltageFiltersArray[VCVoltageFilter1kHz].prefix = UnitPfxKilo;
-    vcVoltageFiltersArray[VCVoltageFilter1kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter10kHz].value = 10.0;
+    vcVoltageFiltersArray[VCVoltageFilter10kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter10kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter1_5kHz].value = 1.5;
+    vcVoltageFiltersArray[VCVoltageFilter1_5kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter1_5kHz].unit = "Hz";
     vcVoltageFiltersArray[VCVoltageFilter3Hz].value = 3.0;
     vcVoltageFiltersArray[VCVoltageFilter3Hz].prefix = UnitPfxNone;
     vcVoltageFiltersArray[VCVoltageFilter3Hz].unit = "Hz";
-    defaultVcVoltageFilterIdx = VCVoltageFilter20kHz;
+    defaultVcVoltageFilterIdx = VCVoltageFilter10kHz;
 
     /*! Current filters */
     /*! CC */
@@ -391,9 +391,9 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 8;
     vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x00); // 20kHz on all channels
-    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x55); // 1kHz on all channels
-    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0xCC); // 3Hz on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x00); // 10kHz on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x55); // 1.5kHz on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0xAA); // 3Hz on all channels
     coders.push_back(vcVoltageFilterCoder);
 
     /*! Current filter CC */

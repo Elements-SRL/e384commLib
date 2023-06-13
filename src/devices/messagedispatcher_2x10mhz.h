@@ -43,9 +43,9 @@ protected:
     };
 
     enum VCVoltageFilters {
-        VCVoltageFilter20kHz,
-        VCVoltageFilter1kHz,
-        VCVoltageFilter3Hz,
+        VCVoltageFilter10kHz,
+        VCVoltageFilter1_5kHz,
+        VCVoltageFilter30Hz,
         VCVoltageFiltersNum
     };
 
