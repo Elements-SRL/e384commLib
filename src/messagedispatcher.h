@@ -204,6 +204,7 @@ public:
     ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState);
     ErrorCodes_t setSateArrayState(int idx, Measurement_t voltage, bool stateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState);
     ErrorCodes_t startStateArray();
+    ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag);
     bool isStateArrayAvailable();
 
     /****************\
@@ -378,7 +379,7 @@ protected:
     virtual std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams);
     virtual std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);
     virtual ErrorCodes_t asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams);
-    virtual double computeAsicCmCinj(double cm, bool chanCslowEnable, Multi ::MultiCoderConfig_t multiconfigCslow);
+    virtual double computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow);
 
     /****************\
      *  Parameters  *
