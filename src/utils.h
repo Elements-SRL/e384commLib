@@ -6,6 +6,8 @@
 #include <vector>
 #include <algorithm>
 
+#define UTL_SEPARATOR "\\\\"
+
 template<typename I_t> bool areAllTheVectorElementsLessThan(std::vector<I_t> myVector, I_t maxValue){
     if(myVector.empty()){
         return false;

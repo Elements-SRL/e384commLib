@@ -20,8 +20,10 @@ static void string2Output(std::string s, LStrHandle o);
 static void measurement2Output(Measurement_t m, CharMeasurement_t &o);
 static void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o);
 static void compensationControl2Output(CompensationControl_t c, CharCompensationControl_t &o);
+static void calibrationParams2Output(CalibrationParams_t p, CharCalibrationParams_t &o);
 static void vectorString2Output(std::vector <std::string> v, LStrHandle o);
 static void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o);
+static void vectorVectorMeasurement2Output(std::vector <std::vector <Measurement_t>> v, LVecMeasHandle * o);
 static void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeHandle * o);
 
 template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t * o);
@@ -2589,6 +2591,10 @@ void compensationControl2Output(CompensationControl_t c, CharCompensationControl
 //    LStrLen(* o.name) = nameSize;
 }
 
+void calibrationParams2Output(CalibrationParams_t p, CharCalibrationParams_t &o) {
+
+}
+
 void vectorString2Output(std::vector <std::string> v, LStrHandle o) {
     std::string a;
     for (auto s : v) {
@@ -2617,6 +2623,19 @@ void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o) {
             offset++;
         }
         LVecLen(** o) = v.size();
+    }
+}
+
+void vectorVectorMeasurement2Output(std::vector <std::vector <Measurement_t>> m, LVecMeasHandle * o) {
+    int offset = 0;
+    MgErr err = DSSetHSzClr(* o, Offset(LVecMeas, item)+sizeof(CharMeasurement_t)*m.size());
+    if (!err) {
+        for (auto v : m) {
+            LMeasHandle * vec = LVecItem(** o, offset);
+            vectorMeasurement2Output(v, vec);
+            offset++;
+        }
+        LVecLen(** o) = m.size();
     }
 }
 
