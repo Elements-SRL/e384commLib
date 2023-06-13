@@ -24,14 +24,14 @@
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000107S", Device384Nanopores},
+    {"221000108T", Device384Nanopores},
     {"2210001076", Device384PatchClamp},
-    {"221000108T", Device384PatchClamp},
     {"221000106B", Device384PatchClamp},
     {"221000106C", Device384PatchClamp},
     {"22370012CI", Device4x10MHz},
-    {"224800130Y", Device4x10MHz},
     {"22370012CB", Device2x10MHz},
-    {"224800131L", Device2x10MHz}
+    {"224800131L", Device2x10MHz},
+    {"224800130Y", Device2x10MHz}
 #ifdef DEBUG
     ,{"FAKE_Nanopores", Device384Fake}
     ,{"FAKE_PATCH_CLAMP", Device384FakePatchClamp}
@@ -869,7 +869,7 @@ ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t> 
     }
 }
 
-ErrorCodes_t  MessageDispatcher::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn){
     if (vcVoltageFilterCoder == nullptr) {
         return ErrorFeatureNotImplemented;
 
@@ -886,7 +886,7 @@ ErrorCodes_t  MessageDispatcher::setVoltageStimulusLpf(uint16_t filterIdx, bool 
     }
 }
 
-ErrorCodes_t  MessageDispatcher::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn){
     if (ccCurrentFilterCoder == nullptr) {
         return ErrorFeatureNotImplemented;
 
