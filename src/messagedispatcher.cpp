@@ -1434,7 +1434,7 @@ ErrorCodes_t MessageDispatcher::startStateArray(){
 }
 
 bool MessageDispatcher::isStateArrayAvailable(){
-    if (appliedVoltageCoders.empty()){
+    if (numberOfStatesCoder == nullptr){
         return false;
     }
     return true;
