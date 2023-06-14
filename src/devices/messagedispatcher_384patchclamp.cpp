@@ -1,8 +1,6 @@
 #include "messagedispatcher_384patchclamp.h"
 #include "utils.h"
 
-/*! \todo FCON tutto da rifare, è una copia del nanopore */
-
 MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::string di) :
     MessageDispatcher_OpalKelly(di) {
 

@@ -22,8 +22,11 @@ protected:
      *  Methods  *
     \*************/
 
-    virtual void sendCommandsToDevice() override;
+    virtual bool writeRegistersAndActivateTriggers(TxTriggerType_t type) override;
     virtual uint32_t readDataFromDevice() override;
+
+private:
+    uint16_t syntheticData = 0;
 };
 
 #endif // MESSAGEDISPATCHER_384FAKE_H

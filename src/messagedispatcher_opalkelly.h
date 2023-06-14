@@ -38,6 +38,7 @@ protected:
 
     virtual void handleCommunicationWithDevice() override;
     virtual void sendCommandsToDevice() override;
+    virtual bool writeRegistersAndActivateTriggers(TxTriggerType_t type);
     virtual uint32_t readDataFromDevice() override;
     virtual void parseDataFromDevice() override;
 

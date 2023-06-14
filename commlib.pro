@@ -4,7 +4,7 @@ CONFIG(debug, debug|release) {
     TARGET = e384commlibd
     DEFINES += DEBUG
     # comment or uncomment depending on the desired verbosity
-    DEFINES += DEBUG_TX_DATA_PRINT
+#    DEFINES += DEBUG_TX_DATA_PRINT
 #    DEFINES += DEBUG_RX_RAW_DATA_PRINT
 #    DEFINES += DEBUG_RX_PROCESSING_PRINT
 #    DEFINES += DEBUG_RX_DATA_PRINT

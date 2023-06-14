@@ -180,20 +180,7 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
     notSentTxData = true;
     writeTries = 0;
     while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
-        if (dev->WriteRegisters(regs) == okCFrontPanel::NoError) {
-            switch (type) {
-            case TxTriggerParameteresUpdated:
-                dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-                break;
-
-            case TxTriggerStartProtocol:
-                dev->ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
-                break;
-            case TxTriggerStartStateArray:
-                dev->ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
-                break;
-            }
-        } else {
+        if (!writeRegistersAndActivateTriggers(type)) {
             continue;
         }
 
@@ -209,6 +196,28 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
 #endif
 
         notSentTxData = false;
+    }
+}
+
+bool MessageDispatcher_OpalKelly::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
+    if (dev->WriteRegisters(regs) == okCFrontPanel::NoError) {
+        switch (type) {
+        case TxTriggerParameteresUpdated:
+            dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+            break;
+
+        case TxTriggerStartProtocol:
+            dev->ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
+            break;
+
+        case TxTriggerStartStateArray:
+            dev->ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
+            break;
+        }
+        return true;
+
+    } else {
+        return false;
     }
 }
 
