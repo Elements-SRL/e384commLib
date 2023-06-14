@@ -87,8 +87,8 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     protocolWordOffset = 14;
     protocolItemsWordsNum = 12;
 
-    stateMaxNum = 10;
-    stateWordOffset = 264;
+    stateMaxNum = 20;
+    stateWordOffset = 280;
     stateWordsNum = 8;
 
     /*! Current ranges */
@@ -589,7 +589,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     }
 
     /*! VC current gain calibration */
-    doubleConfig.initialWord = 344;
+    doubleConfig.initialWord = 262;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcCurrentGainRange.step;
@@ -605,7 +605,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     /*! VC current offset calibration */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 348;
+        doubleConfig.initialWord = 266;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -620,7 +620,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     }
 
     /*! VC voltage gain calibration */
-    doubleConfig.initialWord = 352;
+    doubleConfig.initialWord = 270;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcVoltageGainRange.step;
@@ -636,7 +636,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     /*! VC voltage offset calibration */
     calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 356;
+        doubleConfig.initialWord = 274;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
@@ -652,13 +652,13 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
 
     /*! \todo 20230531 MPAC: STATE ARRAY CODERS*/
 
-    boolConfig.initialWord = 262;
+    boolConfig.initialWord = 278;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 16;
     numberOfStatesCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(numberOfStatesCoder);
 
-    boolConfig.initialWord = 263;
+    boolConfig.initialWord = 279;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 16;
     initialStateCoder = new BoolArrayCoder(boolConfig);
