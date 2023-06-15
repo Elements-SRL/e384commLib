@@ -151,6 +151,7 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
             long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
             if (t > waitingTimeBeforeReadingData*1e6) {
                 waitingTimeForReadingPassed = true;
+                parsingFlag = true;
             }
         }
     }
@@ -224,7 +225,6 @@ bool MessageDispatcher_OpalKelly::writeRegistersAndActivateTriggers(TxTriggerTyp
 uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead; /*!< Bytes read during last transfer from Opal Kelly */
-    parsingFlag = true;
 
     /******************\
      *  Reading part  *

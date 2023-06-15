@@ -26,6 +26,8 @@ protected:
     virtual uint32_t readDataFromDevice() override;
 
 private:
+    ErrorCodes_t fillBuffer();
+
     uint16_t syntheticData = 0;
 };
 
