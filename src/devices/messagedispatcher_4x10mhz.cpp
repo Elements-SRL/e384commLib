@@ -679,18 +679,20 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
         appliedVoltageCoders[rangeIdx].resize(stateMaxNum);
     }
 
-    stateFlagsCoders.resize(stateMaxNum);
-    timeoutCoders.resize(stateMaxNum);
-    timeoutStateCoders.resize(stateMaxNum);
+    stateTimeoutFlagCoders.resize(stateMaxNum);
+    stateTriggerFlagCoders.resize(stateMaxNum);
+    stateTriggerDeltaFlagCoders.resize(stateMaxNum);
 
-    minTriggerCurrCoders.resize(VCCurrentRangesNum);
-    maxTriggerCurrCoders.resize(VCCurrentRangesNum);
+    stateTimeoutValueCoders.resize(stateMaxNum);
+    stateTimeoutNextStateCoders.resize(stateMaxNum);
+    stateMinTriggerCurrentCoders.resize(VCCurrentRangesNum);
+    stateMaxTriggerCurrentCoders.resize(VCCurrentRangesNum);
     for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
-        minTriggerCurrCoders[rangeIdx].resize(stateMaxNum);
-        maxTriggerCurrCoders[rangeIdx].resize(stateMaxNum);
+        stateMinTriggerCurrentCoders[rangeIdx].resize(stateMaxNum);
+        stateMaxTriggerCurrentCoders[rangeIdx].resize(stateMaxNum);
     }
 
-    triggerStateCoders.resize(stateMaxNum);
+    stateTriggerNextStateCoders.resize(stateMaxNum);
 
     for(int stateIdx = 0; stateIdx < stateMaxNum; stateIdx++){
         doubleConfig.initialWord = stateWordOffset;
@@ -705,10 +707,18 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
         }
 
         boolConfig.initialWord = stateWordOffset + 1;
+        boolConfig.bitsNum = 1;
         boolConfig.initialBit = 0;
-        boolConfig.bitsNum = 7;
-        stateFlagsCoders[stateIdx] = new BoolArrayCoder(boolConfig);
-        coders.push_back(stateFlagsCoders[stateIdx]);
+        stateTimeoutFlagCoders[stateIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(stateTimeoutFlagCoders[stateIdx]);
+
+        boolConfig.initialBit = 1;
+        stateTriggerFlagCoders[stateIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(stateTriggerFlagCoders[stateIdx]);
+
+        boolConfig.initialBit = 2;
+        stateTriggerDeltaFlagCoders[stateIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(stateTriggerDeltaFlagCoders[stateIdx]);
 
         doubleConfig.initialWord = stateWordOffset+2;
         doubleConfig.initialBit = 0;
@@ -716,14 +726,14 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
         doubleConfig.resolution = 1/(10.08e6);
         doubleConfig.minValue = 0;
         doubleConfig.maxValue = (4.2950e+09 - 1)*doubleConfig.resolution;
-        timeoutCoders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-        coders.push_back(timeoutCoders[stateIdx]);
+        stateTimeoutValueCoders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(stateTimeoutValueCoders[stateIdx]);
 
         boolConfig.initialWord = stateWordOffset+4;
         boolConfig.initialBit = 0;
         boolConfig.bitsNum = 16;
-        timeoutStateCoders[stateIdx] = new BoolArrayCoder(boolConfig);
-        coders.push_back(timeoutStateCoders[stateIdx]);
+        stateTimeoutNextStateCoders[stateIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(stateTimeoutNextStateCoders[stateIdx]);
 
         doubleConfig.initialWord = stateWordOffset+5;
         doubleConfig.initialBit = 0;
@@ -731,8 +741,8 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
             doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
             doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
             doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
-            minTriggerCurrCoders[rangeIdx][stateIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(minTriggerCurrCoders[rangeIdx][stateIdx]);
+            stateMinTriggerCurrentCoders[rangeIdx][stateIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(stateMinTriggerCurrentCoders[rangeIdx][stateIdx]);
         }
 
         doubleConfig.initialWord = stateWordOffset+6;
@@ -741,15 +751,15 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
             doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
             doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
             doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
-            maxTriggerCurrCoders[rangeIdx][stateIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(maxTriggerCurrCoders[rangeIdx][stateIdx]);
+            stateMaxTriggerCurrentCoders[rangeIdx][stateIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(stateMaxTriggerCurrentCoders[rangeIdx][stateIdx]);
         }
 
         boolConfig.initialWord = stateWordOffset+7;
         boolConfig.initialBit = 0;
         boolConfig.bitsNum = 16;
-        triggerStateCoders[stateIdx] = new BoolArrayCoder(boolConfig);
-        coders.push_back(triggerStateCoders[stateIdx]);
+        stateTriggerNextStateCoders[stateIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(stateTriggerNextStateCoders[stateIdx]);
 
         stateWordOffset = stateWordOffset + stateWordsNum;
     }
