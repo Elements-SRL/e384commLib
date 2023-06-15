@@ -1,24 +1,27 @@
 #include "messagedispatcher_384fakepatchclamp.h"
 
 MessageDispatcher_384FakePatchClamp::MessageDispatcher_384FakePatchClamp(std::string id) :
-    MessageDispatcher_384PatchClamp_V01(id){
+    MessageDispatcher_384PatchClamp_V01(id) {
+
+    waitingTimeBeforeReadingData = 0;
+
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate100Hz].value =100.0;
-    samplingRatesArray[SamplingRate100Hz].prefix = UnitPfxNone;
-    samplingRatesArray[SamplingRate100Hz].unit = "Hz";
-    defaultSamplingRateIdx = SamplingRate100Hz;
+    samplingRatesArray[SamplingRate6kHz].value = 6.0;
+    samplingRatesArray[SamplingRate6kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate6kHz].unit = "Hz";
+    defaultSamplingRateIdx = SamplingRate6kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate100Hz].value = 100.0;
-    realSamplingRatesArray[SamplingRate100Hz].prefix = UnitPfxNone;
-    realSamplingRatesArray[SamplingRate100Hz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate6kHz].value = 6.0;
+    realSamplingRatesArray[SamplingRate6kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate6kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate100Hz].value = 0.01;
-    integrationStepArray[SamplingRate100Hz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate100Hz].unit = "s";
+    integrationStepArray[SamplingRate6kHz].value = 1.0/6.0;
+    integrationStepArray[SamplingRate6kHz].prefix = UnitPfxMilli;
+    integrationStepArray[SamplingRate6kHz].unit = "s";
 
 }
 
@@ -42,28 +45,30 @@ bool MessageDispatcher_384FakePatchClamp::writeRegistersAndActivateTriggers(TxTr
 
 uint32_t MessageDispatcher_384FakePatchClamp::readDataFromDevice() {
     /*! Declare variables to manage buffers indexing */
-    uint32_t bytesRead; /*!< Bytes read during last transfer from Opal Kelly */
+    uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
     parsingFlag = true;
 
     /*! No data to receive, just sleep */
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
-        rxRawBuffer[rxRawBufferWriteOffset] = (((syntheticData+idx*20) & 0x1F00) >> 8) - 0x10;
-        rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
-        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+    while (bytesRead+totalChannelsNum*RX_WORD_SIZE < OKY_RX_TRANSFER_SIZE) {
+        for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
+            rxRawBuffer[rxRawBufferWriteOffset] = (((syntheticData+idx*20) & 0x1F00) >> 8) - 0x10;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+            rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+        }
+
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            rxRawBuffer[rxRawBufferWriteOffset] = ((syntheticData+idx*20) & 0xFF00) >> 8;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+            rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+        }
+
+        syntheticData += 1;
+        bytesRead += totalChannelsNum*RX_WORD_SIZE;
+
+        this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
     }
-
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        rxRawBuffer[rxRawBufferWriteOffset] = ((syntheticData+idx*20) & 0xFF00) >> 8;
-        rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
-        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
-    }
-
-    syntheticData += 50;
-    bytesRead += totalChannelsNum*RX_WORD_SIZE;
-
-    this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
 
     return bytesRead;
 }

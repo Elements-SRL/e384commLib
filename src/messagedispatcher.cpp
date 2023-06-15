@@ -451,6 +451,11 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::sendCommands() {
+    this->stackOutgoingMessage(txStatus);
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::resetAsic(bool resetFlag, bool applyFlagIn) {
     if (asicResetCoder != nullptr) {
         asicResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);

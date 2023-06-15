@@ -14,7 +14,7 @@ public:
 protected:
 
     enum SamplingRates {
-        SamplingRate100Hz,
+        SamplingRate6kHz,
         SamplingRatesNum
     };
 
@@ -27,6 +27,10 @@ protected:
 
 private:
     uint16_t syntheticData = 0;
+
+    std::chrono::steady_clock::time_point startPrintfTime;
+    std::chrono::steady_clock::time_point currentPrintfTime;
+    uint32_t totalBytesWritten = 0;
 };
 
 #endif // MESSAGEDISPATCHER_384FAKE_H

@@ -14,7 +14,7 @@ public:
 protected:
 
     enum SamplingRates {
-        SamplingRate100Hz,
+        SamplingRate6kHz,
         SamplingRatesNum
     };
 

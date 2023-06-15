@@ -244,8 +244,13 @@ uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
 
     if (bytesRead > INT32_MAX) {
         if (bytesRead == ok_Timeout) {
-            /*! The device cannot recover from timeout condition \todo FCON si riesce a mandare una notifica ad alto livello che il thread è morto */
-            stopConnectionFlag = true;
+            /*! The device cannot recover from timeout condition */
+            dev->Close();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            txModifiedStartingWord = 0;
+            txModifiedEndingWord = txMaxWords;
+            this->sendCommands();
+            dev->OpenBySerial(deviceId);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 #ifdef DEBUG_RX_PROCESSING_PRINT
