@@ -2205,9 +2205,6 @@ void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rx
     } else {
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
-            if (rxDataBufferWriteIdx < rxDataWords/2 && rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] < 0x8000) {
-                std::cout << "Negative Voltage" << std::endl;
-            }
         }
     }
 
