@@ -203,8 +203,10 @@ public:
     ErrorCodes_t startProtocol();
 
     ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState);
-    ErrorCodes_t setSateArrayState(int idx, Measurement_t voltage, bool stateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState);
+    ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag);
     ErrorCodes_t startStateArray();
+    ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag);
+    bool isStateArrayAvailable();
 
     /****************\
      *  Rx methods  *
@@ -582,13 +584,18 @@ protected:
     /*! \todo 20230531 MPAC: coders for 4x10MHz*/
     BoolCoder * numberOfStatesCoder = nullptr;
     BoolCoder * initialStateCoder = nullptr;
+    std::vector<BoolCoder*> enableStateArrayChannelsCoder;
+
     std::vector<std::vector<DoubleCoder*>> appliedVoltageCoders;
-    std::vector<BoolArrayCoder*> stateFlagsCoders;
-    std::vector<DoubleCoder*> timeoutCoders;
-    std::vector<BoolCoder*> timeoutStateCoders;
-    std::vector<std::vector<DoubleCoder*>> minTriggerCurrCoders;
-    std::vector<std::vector<DoubleCoder*>> maxTriggerCurrCoders;
-    std::vector<BoolCoder*> triggerStateCoders;
+
+    std::vector<BoolArrayCoder*> stateTimeoutFlagCoders;
+    std::vector<BoolArrayCoder*> stateTriggerFlagCoders;
+    std::vector<BoolArrayCoder*> stateTriggerDeltaFlagCoders;
+    std::vector<DoubleCoder*> stateTimeoutValueCoders;
+    std::vector<BoolCoder*> stateTimeoutNextStateCoders;
+    std::vector<std::vector<DoubleCoder*>> stateMinTriggerCurrentCoders;
+    std::vector<std::vector<DoubleCoder*>> stateMaxTriggerCurrentCoders;
+    std::vector<BoolCoder*> stateTriggerNextStateCoders;
 
     CalibrationData_t calibrationData;
 

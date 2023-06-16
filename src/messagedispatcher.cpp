@@ -1,4 +1,4 @@
-#include "messagedispatcher.h"
+﻿#include "messagedispatcher.h"
 
 #include <iostream>
 #include <ctime>
@@ -1417,20 +1417,22 @@ ErrorCodes_t MessageDispatcher::setStateArrayStructure(int numberOfStates, int i
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, Measurement_t voltage, bool stateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState){
+ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag){
     if (appliedVoltageCoders.empty()){
         return ErrorFeatureNotImplemented;
     }
     voltage.convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
     appliedVoltageCoders[selectedVcVoltageRangeIdx][stateIdx]->encode(voltage.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stateFlagsCoders[stateIdx]->encode(stateFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    timeoutCoders[stateIdx]->encode(timeout, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    timeoutStateCoders[stateIdx]->encode(timeoutState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateTimeoutFlagCoders[stateIdx]->encode(timeoutStateFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateTriggerFlagCoders[stateIdx]->encode(triggerFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateTriggerDeltaFlagCoders[stateIdx]->encode(deltaFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateTimeoutValueCoders[stateIdx]->encode(timeout, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateTimeoutNextStateCoders[stateIdx]->encode(timeoutState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     minTriggerValue.convertValue(vcCurrentRangesArray[selectedVcCurrentRangeIdx].prefix);
     maxTriggerValue.convertValue(vcCurrentRangesArray[selectedVcCurrentRangeIdx].prefix);
-    minTriggerCurrCoders[selectedVcCurrentRangeIdx][stateIdx]->encode(minTriggerValue.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    maxTriggerCurrCoders[selectedVcCurrentRangeIdx][stateIdx]->encode(maxTriggerValue.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    triggerStateCoders[stateIdx]->encode(triggerState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateMinTriggerCurrentCoders[selectedVcCurrentRangeIdx][stateIdx]->encode(minTriggerValue.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateMaxTriggerCurrentCoders[selectedVcCurrentRangeIdx][stateIdx]->encode(maxTriggerValue.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateTriggerNextStateCoders[stateIdx]->encode(triggerState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     return Success;
 }
 
@@ -1439,6 +1441,20 @@ ErrorCodes_t MessageDispatcher::startStateArray(){
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::setStateArrayEnabled(int chIdx, bool enabledFlag){
+    if (enableStateArrayChannelsCoder.empty()){
+        return ErrorFeatureNotImplemented;
+    }
+    enableStateArrayChannelsCoder[chIdx]->encode(enabledFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    return Success;
+}
+
+bool MessageDispatcher::isStateArrayAvailable(){
+    if (numberOfStatesCoder == nullptr){
+        return false;
+    }
+    return true;
+}
 
 /****************\
  *  Rx methods  *
