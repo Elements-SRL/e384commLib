@@ -29,9 +29,10 @@ private:
     ErrorCodes_t fillBuffer();
 
     uint16_t syntheticData = 0;
+    double generatedSamplingRate = 100.0e6;
 
-    std::chrono::steady_clock::time_point startPrintfTime;
-    std::chrono::steady_clock::time_point currentPrintfTime;
+    std::chrono::steady_clock::time_point startTime;
+    std::chrono::steady_clock::time_point currentTime;
     uint32_t totalBytesWritten = 0;
 };
 

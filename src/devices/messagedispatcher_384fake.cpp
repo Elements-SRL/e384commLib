@@ -31,7 +31,7 @@ MessageDispatcher_384Fake::~MessageDispatcher_384Fake() {
 ErrorCodes_t MessageDispatcher_384Fake::connect() {
     this->initializeBuffers();
     this->fillBuffer();
-//    startPrintfTime = std::chrono::steady_clock::now();
+    startTime = std::chrono::steady_clock::now();
 
     return MessageDispatcher::connect();
 }
@@ -46,12 +46,15 @@ bool MessageDispatcher_384Fake::writeRegistersAndActivateTriggers(TxTriggerType_
 }
 
 uint32_t MessageDispatcher_384Fake::readDataFromDevice() {
-#ifdef DEBUG_MAX_SPEED
-    uint32_t bytesRead = OKY_RX_TRANSFER_SIZE; /*!< Bytes read during last transfer from Opal Kelly */
-#else
-    /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
-
+#ifdef DEBUG_MAX_SPEED
+    currentTime = std::chrono::steady_clock::now();
+    long long duration = (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count());
+    if (duration > (1000.0*(double)OKY_RX_TRANSFER_SIZE)/generatedSamplingRate) {
+        startTime = currentTime;
+        bytesRead = OKY_RX_TRANSFER_SIZE;
+    }
+#else
     /*! No data to receive, just sleep */
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
