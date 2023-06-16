@@ -13,8 +13,8 @@ CONFIG(debug, debug|release) {
 CONFIG(release, debug|release) {
     TARGET = e384commlib
     DEFINES += DEBUG
-    DEFINES += DEBUG_MAX_SPEED
-#    DEFINES += DEBUG_TX_DATA_PRINT
+#    DEFINES += DEBUG_MAX_SPEED
+    DEFINES += DEBUG_TX_DATA_PRINT
 }
 
 #DEFINES += E384NPR_ADDITIONAL_SR_FLAG
