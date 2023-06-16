@@ -304,7 +304,7 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
 
     while (!stopConnectionFlag) {
         rxRawMutexLock.lock();
-        while (rxRawBufferReadLength <= OKY_RX_TRANSFER_SIZE && !stopConnectionFlag) {
+        while (rxRawBufferReadLength < OKY_RX_TRANSFER_SIZE && !stopConnectionFlag) {
             rxRawBufferNotEmpty.wait_for(rxRawMutexLock, std::chrono::milliseconds(10));
         }
         maxRxRawBytesRead = rxRawBufferReadLength;

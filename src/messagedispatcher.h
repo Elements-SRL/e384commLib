@@ -215,7 +215,7 @@ public:
     ErrorCodes_t getRxDataBufferSize(uint32_t &size);
     ErrorCodes_t allocateRxDataBuffer(int16_t * &data);
     ErrorCodes_t deallocateRxDataBuffer(int16_t * &data);
-    ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data);
+    virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data);
     ErrorCodes_t convertVoltageValue(int16_t intValue, double &fltValue);
     ErrorCodes_t convertCurrentValue(int16_t intValue, double &fltValue);
     ErrorCodes_t convertVoltageValues(int16_t * intValue, double * fltValue, int valuesNum);
