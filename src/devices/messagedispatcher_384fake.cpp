@@ -265,7 +265,7 @@ void MessageDispatcher_384Fake::parseDataFromDevice() {
         }
 
         if (okCnt+nokCnt > 50) {
-            std::cout << okCnt << " " << nokCnt << std::endl;
+            std::cout << "okCnt " << okCnt << " nokCnt " << nokCnt << std::endl;
             okCnt = 0;
             nokCnt = 0;
         }
@@ -288,6 +288,7 @@ static uint32_t totCnt = 0;
 
 ErrorCodes_t MessageDispatcher_384Fake::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     ErrorCodes_t ret = Success;
+    double xFlt;
 
     std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
     if (rxMsgBufferReadLength <= 0) {
@@ -296,19 +297,242 @@ ErrorCodes_t MessageDispatcher_384Fake::getNextMessage(RxOutput_t &rxOutput, int
             return ErrorNoDataAvailable;
         }
     }
+    uint32_t maxMsgRead = rxMsgBufferReadLength;
+    rxMutexLock.unlock();
 
+    if (!parsingFlag) {
+        return ErrorDeviceNotConnected;
+    }
+
+    uint32_t msgReadCount = 0;
+
+    rxOutput.dataLen = 0; /*! Initialize data length in case more messages are merged */
+    lastParsedMsgType = MsgTypeIdInvalid;
+
+    uint32_t dataOffset;
+    uint32_t samplesNum;
+    uint32_t sampleIdx;
+    uint32_t timeSamplesNum;
+    int16_t rawFloat;
+    uint32_t dataWritten;
+    bool exitLoop = false;
+    bool messageReadFlag = false;
+
+    while (msgReadCount < maxMsgRead) {
+        dataOffset = rxMsgBuffer[rxMsgBufferReadOffset].startDataPtr;
+        sampleIdx = 0;
+        rxOutput.msgTypeId = rxMsgBuffer[rxMsgBufferReadOffset].typeId;
+        switch (rxOutput.msgTypeId) {
+        case (MsgDirectionDeviceToPc+MsgTypeIdFpgaReset):
+            if (lastParsedMsgType == MsgTypeIdInvalid) {
+                lastParsedMsgType = MsgTypeIdFpgaReset;
+
+                /*! This message cannot be merged, leave anyway */
+                exitLoop = true;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp):
+            if (lastParsedMsgType == MsgTypeIdInvalid) {
+                /*! \todo FCON da implementare */
+                //            rxOutput.dataLen = 1;
+                //            rxOutput.channelIdx = * (rxDataBuffer+dataOffset);
+                //            rawFloat = * (rxDataBuffer+((dataOffset+1) & RX_DATA_BUFFER_MASK));
+                //            voltageOffsetCorrected = (((double)rawFloat)-liquidJunctionOffsetBinary)*liquidJunctionResolution;
+                //            this->selectVoltageOffsetResolution();
+                //            rxOutput.data[0] = (int16_t)(rawFloat-liquidJunctionOffsetBinary);
+                //            lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToPc;
+
+                //            this->setDigitalOffsetCompensationOverrideValue(rxOutput.channelIdx, {voltageOffsetCorrected, liquidJunctionControl.prefix, nullptr});
+
+                lastParsedMsgType = MsgTypeIdDigitalOffsetComp;
+
+                /*! This message cannot be merged, leave anyway */
+                exitLoop = true;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
+            if (lastParsedMsgType == MsgTypeIdInvalid) {
+                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
+                rxOutput.dataLen = 0;
+                rxOutput.protocolId = * (rxDataBuffer+dataOffset);
+                rxOutput.protocolItemIdx = * (rxDataBuffer+((dataOffset+1) & RX_DATA_BUFFER_MASK));
+                rxOutput.protocolRepsIdx = * (rxDataBuffer+((dataOffset+2) & RX_DATA_BUFFER_MASK));
+                rxOutput.protocolSweepIdx = * (rxDataBuffer+((dataOffset+3) & RX_DATA_BUFFER_MASK));
+
+                lastParsedMsgType = MsgTypeIdAcquisitionHeader;
+
+                /*! This message cannot be merged, but stay in the loop in case there are more to read */
+                exitLoop = false;
+                messageReadFlag = true;
+
+            } else if (lastParsedMsgType == MsgTypeIdAcquisitionHeader) {
+                /*! If there are more of this kind in a sequence ignore subsequent ones */
+                exitLoop = false;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData):
+            samplesNum = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
+            dataWritten = rxOutput.dataLen;
+            if (lastParsedMsgType == MsgTypeIdInvalid ||
+                    (lastParsedMsgType == MsgTypeIdAcquisitionData && dataWritten+samplesNum < E384CL_OUT_STRUCT_DATA_LEN)) {
+                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid)
+                    OR if we are merging successive acquisition data messages that do not overflow the available memory */
+                rxOutput.dataLen += samplesNum;
+                timeSamplesNum = samplesNum/totalChannelsNum;
+                /*! \todo FCON è da lasciare implementato questo? */
+                //            if (msgReadCount == 0) {
+                //                /*! Update firstSampleOffset only if it is not merging messages */
+                //                rxOutput.firstSampleOffset = * ((uint32_t *)(rxDataBuffer+dataOffset));
+                //            }
+                //            dataOffset = (dataOffset+2) & RX_DATA_BUFFER_MASK;
+
+                for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
+#ifdef DISABLE_IIR
+                    for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                        data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
+                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                    }
+
+                    for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                        data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
+                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                    }
+#else
+                    for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                        rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                        xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                        data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                    }
+
+                    for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                        rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                        xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                        data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                    }
+
+                    if (iirOff < 1) {
+                        iirOff = IIR_ORD;
+
+                    } else {
+                        iirOff--;
+                    }
+#endif
+                }
+
+                lastParsedMsgType = MsgTypeIdAcquisitionData;
+
+                /*! This message can be merged, stay in the loop in case there are more to read */
+                exitLoop = false;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail):
+            if (lastParsedMsgType == MsgTypeIdInvalid) {
+                /*! Evaluate only if it's the first repetition */
+                rxOutput.dataLen = 0;
+                rxOutput.protocolId = rxDataBuffer[dataOffset];
+
+                lastParsedMsgType = MsgTypeIdAcquisitionTail;
+
+                /*! This message cannot be merged, but stay in the loop in case there are more to read */
+                exitLoop = false;
+                messageReadFlag = true;
+
+            } else if (lastParsedMsgType == MsgTypeIdAcquisitionTail) {
+                /*! If there are more of this kind in a sequence ignore subsequent ones */
+                exitLoop = false;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
+            if (lastParsedMsgType == MsgTypeIdInvalid) {
+                //            rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
+                //            for (uint16_t dataIdx = 0; dataIdx < rxOutput.dataLen; dataIdx++) {
+                //                rxOutput.uintData[dataIdx] = * (rxDataBuffer+dataOffset);
+                //                dataOffset = (dataOffset+1)&FTD_RX_DATA_BUFFER_MASK;
+                //            }
+
+                lastParsedMsgType = MsgTypeIdAcquisitionSaturation;
+
+                /*! This message cannot be merged, leave anyway */
+                exitLoop = true;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+
+            break;
+
+        default:
+            lastParsedMsgType = MsgTypeIdInvalid;
+
+            /*! Leave and look for following messages */
+            exitLoop = true;
+            messageReadFlag = true;
+            break;
+        }
+
+        if (messageReadFlag) {
+            msgReadCount++;
+            rxMsgBufferReadOffset = (rxMsgBufferReadOffset+1) & RX_MSG_BUFFER_MASK;
+        }
+
+        if (exitLoop) {
+            break;
+        }
+    }
+
+    rxMutexLock.lock();
     totMsg += rxMsgBufferReadLength;
     totCnt++;
 
+    rxMsgBufferReadLength -= msgReadCount;
+    rxMsgBufferNotFull.notify_all();
+    rxMutexLock.unlock();
+
     if (totCnt > 50*700) {
-//        std::cout << totMsg/totCnt << std::endl;
+        std::cout << "totMsg/totCnt " << totMsg/totCnt << std::endl;
         totMsg = 0;
         totCnt = 0;
     }
-
-    rxMsgBufferReadLength = 0;
-    rxMsgBufferNotFull.notify_all();
-    rxMutexLock.unlock();
 
     return ret;
 }
