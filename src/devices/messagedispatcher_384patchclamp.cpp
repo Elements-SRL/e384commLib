@@ -413,6 +413,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
 
     calibrationData.areCalibResistOnBoard = true;
     calibrationData.canInputsBeOpened = true;
+    calibrationData.adcCalibratedInOffsetBinary = true;
 
     calibrationData.ccCalibVoltStepsArrays.resize(CCVoltageRangesNum);
     calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV].resize(5);

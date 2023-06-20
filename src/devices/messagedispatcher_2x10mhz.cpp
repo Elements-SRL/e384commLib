@@ -250,6 +250,7 @@ MessageDispatcher_2x10MHz_V01::MessageDispatcher_2x10MHz_V01(std::string di) :
 
     calibrationData.areCalibResistOnBoard = false;
     calibrationData.canInputsBeOpened = false;
+    calibrationData.adcCalibratedInOffsetBinary = false;
 
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange1000mV].min = -1000.0;

@@ -842,6 +842,7 @@ typedef struct CalibrationData {
     std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
     bool areCalibResistOnBoard;
     bool canInputsBeOpened;
+    bool adcCalibratedInOffsetBinary;
 
     std::vector<std::vector<Measurement_t>> ccCalibVoltStepsArrays;
     std::vector<std::vector<Measurement_t>> ccCalibCurrStepsArrays;

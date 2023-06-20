@@ -267,8 +267,6 @@ public:
     ErrorCodes_t hasProtocolRampFeature();
     ErrorCodes_t hasProtocolSinFeature();
 
-//    ErrorCodes_t getVcCalibVoltStepsFeatures(std::vector <Measurement_t> &vcCalibVoltSteps);
-//    ErrorCodes_t getVcCalibResFeatures(std::vector <Measurement_t> &vCCalibRes);
     ErrorCodes_t getCalibData(CalibrationData_t &calibData);
     ErrorCodes_t getCalibDefaultVcAdcGain(Measurement_t &defaultVcAdcGain);
     ErrorCodes_t getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset);

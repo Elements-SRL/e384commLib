@@ -247,6 +247,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
 
     calibrationData.areCalibResistOnBoard = false;
     calibrationData.canInputsBeOpened = true;
+    calibrationData.adcCalibratedInOffsetBinary = true;
 
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange500mV].min = -500.0;
