@@ -99,8 +99,6 @@ public:
      *  Connection methods  *
     \************************/
 
-    ErrorCodes_t init();
-    ErrorCodes_t deinit();
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher);
@@ -326,7 +324,8 @@ protected:
         RxMessageNum
     } RxMessageTypes_t;
 
-
+    ErrorCodes_t init();
+    ErrorCodes_t deinit();
 
     std::vector <double> membraneCapValueInjCapacitance;
     std::vector<std::vector<std::string>> compensationOptionStrings;

@@ -20,24 +20,6 @@ namespace e384CommLib {
 
 E384COMMLIBSHARED_EXPORT
 
-/*******************\
- *  Init / Deinit  *
-\*******************/
-
-/*! \brief Initialize the communication library.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t init(
-        E384CL_ARGVOID);
-
-/*! \brief Deinitialize the communication library.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t deinit(
-        E384CL_ARGVOID);
-
 /************************\
  *  Connection methods  *
 \************************/
