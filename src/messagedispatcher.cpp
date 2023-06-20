@@ -1007,6 +1007,23 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
     }
 }
 
+ErrorCodes_t MessageDispatcher::setDownsamplingCoefficient(uint32_t ratio) {
+//    if (ratio == 0) {
+//        return ErrorValueOutOfRange;
+
+//    } else {
+//        downsamplingRatio = ratio;
+//        samplingRateCoder->encode(samplingRateIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+//        selectedSamplingRateIdx = samplingRateIdx;
+//        this->setAdcFilter();
+//        this->computeRawDataFilterCoefficients();
+//        if (applyFlagIn) {
+//            this->stackOutgoingMessage(txStatus);
+//        }
+        return Success;
+//    }
+}
+
 ErrorCodes_t MessageDispatcher::setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) {
     BoolCoder::CoderConfig_t boolConfig;
     boolConfig.initialWord = wordOffset;

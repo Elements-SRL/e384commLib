@@ -5,7 +5,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
 
     deviceName = "384NanoPores";
 
-    fwName = "384NanoPores_V01_top.bit";
+    fwName = "384NanoPores_V01.bit";
 
     waitingTimeBeforeReadingData = 10; //s
 

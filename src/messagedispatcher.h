@@ -154,6 +154,7 @@ public:
 
     ErrorCodes_t setAdcFilter();
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn);
+    ErrorCodes_t setDownsamplingCoefficient(uint32_t ratio);
 
     ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
     ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
@@ -689,6 +690,9 @@ protected:
 
     bool amIinVoltageClamp = true;
     uint16_t selectedSamplingRateIdx;
+
+    uint32_t downsamplingRatio = 1;
+    bool downsamplingFlag = false;
 
     /*! Read data buffer management */
     uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */

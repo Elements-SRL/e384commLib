@@ -5,7 +5,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
 
     deviceName = "4x10MHz";
 
-    fwName = "4x10MHz_V01_top.bit";
+    fwName = "4x10MHz_V01.bit";
 
     waitingTimeBeforeReadingData = 2; //s
 

@@ -6,7 +6,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
 
     deviceName = "384PatchClamp";
 
-    fwName = "384PatchClamp_V01_top.bit";
+    fwName = "384PatchClamp_V01.bit";
 
     waitingTimeBeforeReadingData = 10; //s
 
