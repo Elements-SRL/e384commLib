@@ -85,90 +85,6 @@ MessageDispatcher::~MessageDispatcher() {
  *  Connection methods  *
 \************************/
 
-ErrorCodes_t MessageDispatcher::init() {
-    rxMsgBuffer = new (std::nothrow) MsgResume_t[RX_MSG_BUFFER_SIZE];
-    if (rxMsgBuffer == nullptr) {
-        return ErrorMemoryInitialization;
-    }
-
-    rxDataBuffer = new (std::nothrow) uint16_t[RX_DATA_BUFFER_SIZE+1]; /*!< The last item is a copy of the first one, it is used to safely read 2 consecutive 16bit words at a time to form a 32bit word */
-    if (rxDataBuffer == nullptr) {
-        return ErrorMemoryInitialization;
-    }
-
-    txMsgBuffer = new (std::nothrow) std::vector <uint16_t>[TX_MSG_BUFFER_SIZE];
-    if (txMsgBuffer == nullptr) {
-        return ErrorMemoryInitialization;
-    }
-
-    txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
-    txMsgLength.resize(TX_MSG_BUFFER_SIZE);
-    txMsgTrigger.resize(TX_MSG_BUFFER_SIZE);
-
-    /*! Allocate memory for raw data filters */
-    this->initializeRawDataFilterVariables();
-
-    /*! Allocate memory for compensations */
-//    this->initializeCompensations(); /*! \todo FCON */
-
-    /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
-    voltageDataValues.resize(voltageChannelsNum);
-    std::fill(voltageDataValues.begin(), voltageDataValues.end(), 0);
-
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::deinit() {
-    if (rxMsgBuffer != nullptr) {
-        delete [] rxMsgBuffer;
-        rxMsgBuffer = nullptr;
-    }
-
-    if (rxDataBuffer != nullptr) {
-        delete [] rxDataBuffer;
-        rxDataBuffer = nullptr;
-    }
-
-    if (txMsgBuffer != nullptr) {
-        delete [] txMsgBuffer;
-        txMsgBuffer = nullptr;
-    }
-
-    if (iirX != nullptr) {
-        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
-            delete [] iirX[channelIdx];
-        }
-        delete [] iirX;
-        iirX = nullptr;
-    }
-
-    if (iirY != nullptr) {
-        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
-            delete [] iirY[channelIdx];
-        }
-        delete [] iirY;
-        iirY = nullptr;
-    }
-
-#ifdef DEBUG_TX_DATA_PRINT
-    fclose(txFid);
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    fclose(rxRawFid);
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    fclose(rxProcFid);
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-    fclose(rxFid);
-#endif
-
-    return Success;
-}
-
 ErrorCodes_t MessageDispatcher::detectDevices(
         std::vector <std::string> &deviceIds) {
     /*! Gets number of devices */
@@ -2148,6 +2064,90 @@ ErrorCodes_t MessageDispatcher::getCalibDefaultCcDacOffset(Measurement_t &defaul
 /*********************\
  *  Private methods  *
 \*********************/
+
+ErrorCodes_t MessageDispatcher::init() {
+    rxMsgBuffer = new (std::nothrow) MsgResume_t[RX_MSG_BUFFER_SIZE];
+    if (rxMsgBuffer == nullptr) {
+        return ErrorMemoryInitialization;
+    }
+
+    rxDataBuffer = new (std::nothrow) uint16_t[RX_DATA_BUFFER_SIZE+1]; /*!< The last item is a copy of the first one, it is used to safely read 2 consecutive 16bit words at a time to form a 32bit word */
+    if (rxDataBuffer == nullptr) {
+        return ErrorMemoryInitialization;
+    }
+
+    txMsgBuffer = new (std::nothrow) std::vector <uint16_t>[TX_MSG_BUFFER_SIZE];
+    if (txMsgBuffer == nullptr) {
+        return ErrorMemoryInitialization;
+    }
+
+    txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
+    txMsgLength.resize(TX_MSG_BUFFER_SIZE);
+    txMsgTrigger.resize(TX_MSG_BUFFER_SIZE);
+
+    /*! Allocate memory for raw data filters */
+    this->initializeRawDataFilterVariables();
+
+    /*! Allocate memory for compensations */
+//    this->initializeCompensations(); /*! \todo FCON */
+
+    /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
+    voltageDataValues.resize(voltageChannelsNum);
+    std::fill(voltageDataValues.begin(), voltageDataValues.end(), 0);
+
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::deinit() {
+    if (rxMsgBuffer != nullptr) {
+        delete [] rxMsgBuffer;
+        rxMsgBuffer = nullptr;
+    }
+
+    if (rxDataBuffer != nullptr) {
+        delete [] rxDataBuffer;
+        rxDataBuffer = nullptr;
+    }
+
+    if (txMsgBuffer != nullptr) {
+        delete [] txMsgBuffer;
+        txMsgBuffer = nullptr;
+    }
+
+    if (iirX != nullptr) {
+        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
+            delete [] iirX[channelIdx];
+        }
+        delete [] iirX;
+        iirX = nullptr;
+    }
+
+    if (iirY != nullptr) {
+        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
+            delete [] iirY[channelIdx];
+        }
+        delete [] iirY;
+        iirY = nullptr;
+    }
+
+#ifdef DEBUG_TX_DATA_PRINT
+    fclose(txFid);
+#endif
+
+#ifdef DEBUG_RX_RAW_DATA_PRINT
+    fclose(rxRawFid);
+#endif
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+    fclose(rxProcFid);
+#endif
+
+#ifdef DEBUG_RX_DATA_PRINT
+    fclose(rxFid);
+#endif
+
+    return Success;
+}
 
 /*! \todo FCON questi due metodi dovrebbero cercare dispositivi con tutte le librerie di interfacciamento con device implementate (per ora c'è solo il front panel della opal kelly) */
 std::string MessageDispatcher::getDeviceSerial(int index) {

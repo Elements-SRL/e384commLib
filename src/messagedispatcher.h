@@ -324,9 +324,6 @@ protected:
         RxMessageNum
     } RxMessageTypes_t;
 
-    ErrorCodes_t init();
-    ErrorCodes_t deinit();
-
     std::vector <double> membraneCapValueInjCapacitance;
     std::vector<std::vector<std::string>> compensationOptionStrings;
 
@@ -353,6 +350,9 @@ protected:
     /*************\
      *  Methods  *
     \*************/
+
+    ErrorCodes_t init();
+    ErrorCodes_t deinit();
 
     static std::string getDeviceSerial(int index);
     static bool getDeviceCount(int &numDevs);
