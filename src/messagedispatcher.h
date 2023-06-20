@@ -47,7 +47,8 @@
 #define RX_MAX_BYTES_TO_WAIT_FOR 16384
 #define RX_MSG_BUFFER_SIZE 0x10000 // ~64k
 #define RX_MSG_BUFFER_MASK (RX_MSG_BUFFER_SIZE-1)
-#define RX_DATA_BUFFER_SIZE 0x10000000 // ~256M
+#define RX_DATA_BUFFER_SIZE 0x10000000 /*! ~256M The biggest data frame possible has a dataload of 1024 words (4 x 10MHz current frame)
+                                           So this buffer has to be at least 1024 times bigger than RX_MSG_BUFFER_SIZE */
 #define RX_DATA_BUFFER_MASK (RX_DATA_BUFFER_SIZE-1)
 
 #define TX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
