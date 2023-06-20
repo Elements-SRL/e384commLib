@@ -100,6 +100,9 @@ uint32_t MessageDispatcher_384Fake::readDataFromDevice() {
 void MessageDispatcher_384Fake::parseDataFromDevice() {
     uint32_t okCnt = 0;
     uint32_t nokCnt = 0;
+    double ratio = 0.0;
+    double ratioSum;
+    double ratioMax = 0.0;
 
     RxParsePhase_t rxParsePhase = RxParseLookForHeader;
 
@@ -257,6 +260,11 @@ void MessageDispatcher_384Fake::parseDataFromDevice() {
         }
 
         rxRawMutexLock.lock();
+        ratio = (double)rxRawBufferReadLength/(double)OKY_RX_TRANSFER_SIZE;
+        if (ratio > ratioMax) {
+            ratioMax = ratio;
+        }
+        ratioSum += ratio;
         if (rxRawBufferReadLength <= OKY_RX_TRANSFER_SIZE+(3+768)*2) {
             okCnt++;
 
@@ -265,9 +273,12 @@ void MessageDispatcher_384Fake::parseDataFromDevice() {
         }
 
         if (okCnt+nokCnt > 50) {
-            std::cout << "okCnt " << okCnt << " nokCnt " << nokCnt << std::endl;
+//            std::cout << "okCnt " << okCnt << " nokCnt " << nokCnt << std::endl;
+            std::cout << "ratioMean " << ratioSum/(double)(okCnt+nokCnt) << " ratioMax " << ratioMax << std::endl;
             okCnt = 0;
             nokCnt = 0;
+            ratioSum = 0.0;
+            ratioMax = 0.0;
         }
 
         rxRawBufferReadLength -= maxRxRawBytesRead-rxRawBytesAvailable;
@@ -528,8 +539,8 @@ ErrorCodes_t MessageDispatcher_384Fake::getNextMessage(RxOutput_t &rxOutput, int
     rxMsgBufferNotFull.notify_all();
     rxMutexLock.unlock();
 
-    if (totCnt > 50*700) {
-        std::cout << "totMsg/totCnt " << totMsg/totCnt << std::endl;
+    if (totMsg > 50*700) {
+//        std::cout << "totMsg/totCnt " << totMsg/totCnt << std::endl;
         totMsg = 0;
         totCnt = 0;
     }
