@@ -691,9 +691,6 @@ protected:
     bool amIinVoltageClamp = true;
     uint16_t selectedSamplingRateIdx;
 
-    uint32_t downsamplingRatio = 1;
-    bool downsamplingFlag = false;
-
     /*! Read data buffer management */
     uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */
     uint32_t rxRawBufferReadOffset = 0; /*!< Device Rx buffer offset position in which data are collected by the outputDataBuffer */
@@ -754,6 +751,11 @@ protected:
     bool rawDataFilterActiveFlag = false;
     bool rawDataFilterVoltageFlag = false;
     bool rawDataFilterCurrentFlag = false;
+
+    uint32_t downsamplingRatio = 1;
+    bool downsamplingFlag = false;
+    uint32_t downsamplingOffset = 0;
+    Measurement_t rawDataFilterCutoffFrequencyOverride = {30.0, UnitPfxKilo, "Hz"};
 
     double iirVNum[IIR_ORD+1];
     double iirVDen[IIR_ORD+1];
