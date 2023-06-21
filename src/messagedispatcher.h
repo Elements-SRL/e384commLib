@@ -14,7 +14,7 @@
 #include "e384commlib_global.h"
 #include "commandcoder.h"
 
-#ifdef E384CL_LABVIEW_COMPATIBILITY
+#ifdef E384COMMLIB_LABVIEW_WRAPPER
 #include "e384commlib_global_addendum.h"
 #endif
 
@@ -56,7 +56,7 @@
 #define TX_MSG_BUFFER_MASK (TX_MSG_BUFFER_SIZE-1)
 #define TX_MAX_WRITE_TRIES 10
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 using namespace e384CommLib;
 #endif
 
@@ -66,7 +66,8 @@ typedef struct MsgResume {
     uint32_t startDataPtr;
 } MsgResume_t;
 
-class MessageDispatcher {
+class E384COMMLIBSHARED_EXPORT
+        MessageDispatcher {
 public:
 
     /*****************\

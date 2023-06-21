@@ -9,7 +9,7 @@
 
 #include "e384commlib_global.h"
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 namespace e384CommLib {
 #endif
 
@@ -865,7 +865,7 @@ typedef struct CalibrationParams {
     std::vector<std::vector<Measurement_t>> ccAllOffsetDacMeas;
 } CalibrationParams_t;
 
-#ifdef E384COMMLIB_STATIC
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 } // namespace e384CommLib
 #endif
 

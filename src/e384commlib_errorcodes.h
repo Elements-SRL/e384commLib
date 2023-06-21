@@ -4,7 +4,7 @@
 #ifndef E384COMMLIB_ERRORCODES_H
 #define E384COMMLIB_ERRORCODES_H
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 namespace e384CommLib {
 #endif
 
@@ -89,7 +89,7 @@ typedef enum ErrorCodes {
     ErrorUnknown =                                                          0xFFFFFFFF  /*!< Undefined error. */
 } ErrorCodes_t;
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 } // e384CommLib
 #endif
 

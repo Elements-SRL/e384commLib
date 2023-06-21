@@ -53,7 +53,7 @@
  *  Arguments qualifiers  *
 \**************************/
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 #define E384COMMLIB_NAME_MANGLING
 #else
 #define E384COMMLIB_NAME_MANGLING extern "C"
@@ -81,7 +81,7 @@
  */
 #define E384CL_DATA_ARRAY_SIZE (65536)
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 namespace e384CommLib {
 #endif
 
@@ -251,7 +251,7 @@ typedef enum UnitPfx {
     UnitPfxNum              /*!< Invalid item used only for loop purposes. */
 } UnitPfx_t;
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 /*! Momentarily close namespace because it gets open in e4dccommlib_global_addendum.h */
 }  // namespace e384CommLib
 
@@ -275,7 +275,7 @@ typedef struct ChannelSources {
     int16_t CurrentFromCurrentPlusDynamicClamp = -1; /*!< Get current applied by current clamp front-end plus current computed by dynamic clamp. */
 } ChannelSources_t;
 
-#ifdef E384CL_LABVIEW_COMPATIBILITY
+#ifdef E384COMMLIB_LABVIEW_WRAPPER
 #include "extcode.h"
 /*! \typedef CharMeasurement_t
  */
@@ -362,7 +362,7 @@ typedef struct CharCalibrationParams {
 #include "lv_epilog.h"
 #endif
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 } // namespace e384CommLib
 #else
 // typedef LStrHandle E384clString_t;
