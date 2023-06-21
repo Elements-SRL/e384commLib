@@ -20,7 +20,7 @@ PYBIND11_MODULE(e384CommLibPython, m) {
     }, "Detect plugged in devices");
 
 //    todo completare gli error codes
-    py::enum_<ErrorCodes_t>(m, "ErrorCode")
+    py::enum_<ErrorCodes_t>(m, "ErrorCodes")
             .value("Success",                           Success)
             .value("ErrorNoDeviceFound",                ErrorNoDeviceFound)
             .value("ErrorListDeviceFailed",             ErrorListDeviceFailed)

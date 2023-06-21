@@ -1,4 +1,5 @@
-QT       -= core gui
+QT     -= core gui
+CONFIG -= qt
 
 CONFIG(debug, debug|release) {
     TARGET = e384commlibd
@@ -30,12 +31,23 @@ DEFINES += E384COMMLIB_PYTHON_WRAPPER
 contains(DEFINES, E384COMMLIB_LABVIEW_WRAPPER) {
     # create .dll
     DEFINES += E384COMMLIB_LIBRARY
+    SOURCES += src/e384commlib_labview.cpp
+    HEADERS += src/e384commlib_labview.h
+    include(LabVIEW/includelabview.pri)
 }
+
 contains(DEFINES, E384COMMLIB_PYTHON_WRAPPER) {
     # create .dll
     DEFINES += E384COMMLIB_LIBRARY
-#    TARGET = e384CommLibPython
+    TARGET = e384CommLibPython
+    CONFIG -= app_bundle
+
+    SOURCES += src/e384commlib_python.cpp
+    LIBS += -L"$$(LOCAL_PYTHON_3_10_7)\libs" -lpython310
+    INCLUDEPATH += $$(LOCAL_PYBIND_11)\include \
+            "$$(LOCAL_PYTHON_3_10_7)\include"
 }
+
 ! contains(DEFINES, E384COMMLIB_LIBRARY){
     DEFINES += E384COMMLIB_STATIC
     CONFIG += staticlib
@@ -80,21 +92,6 @@ contains(DEFINES, DEBUG) {
         src/devices/messagedispatcher_384fakepatchclamp.h \
         src/devices/messagedispatcher_4x10mhzfake.h
 }
-contains(DEFINES, E384COMMLIB_LABVIEW_WRAPPER) {
-    SOURCES += src/e384commlib_labview.cpp
-    HEADERS += src/e384commlib_labview.h
-    include(LabVIEW/includelabview.pri)
-}
-
-#contains(DEFINES, E384COMMLIB_PYTHON_WRAPPER){
-#    SOURCES += \
-#        src/e384commlib_python.cpp
-#    LIBS += -L"C:\Users\lucar\AppData\Local\Programs\Python\Python310\libs" -lpython310
-##    LIBS += -L"C:\Users\lucar\build-e384commlib-Desktop_Qt_5_12_11_MSVC2017_64bit-Release\release" -le384commlib
-#    INCLUDEPATH += C:\Users\lucar\pybind11\include \
-#            "C:\Users\lucar\AppData\Local\Programs\Python\Python310\include"
-##            C:\Users\lucar\e384commLib
-#}
 
 INCLUDEPATH += \
     ./src \

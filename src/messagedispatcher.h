@@ -66,8 +66,7 @@ typedef struct MsgResume {
     uint32_t startDataPtr;
 } MsgResume_t;
 
-class E384COMMLIBSHARED_EXPORT
-        MessageDispatcher {
+class E384COMMLIBSHARED_EXPORT MessageDispatcher {
 public:
 
     /*****************\
