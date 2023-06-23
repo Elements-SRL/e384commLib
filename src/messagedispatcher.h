@@ -154,7 +154,7 @@ public:
 
     ErrorCodes_t setAdcFilter();
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn);
-    ErrorCodes_t setDownsamplingCoefficient(uint32_t ratio);
+    ErrorCodes_t setDownsamplingRatio(uint32_t ratio);
 
     ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
     ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
@@ -246,6 +246,7 @@ public:
 
     ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates);
     ErrorCodes_t getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates);
+    ErrorCodes_t getDownsamplingRatiosFeatures(std::vector <uint32_t> &downsamplingRatios);
 
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);

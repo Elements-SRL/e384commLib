@@ -1007,7 +1007,7 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
     }
 }
 
-ErrorCodes_t MessageDispatcher::setDownsamplingCoefficient(uint32_t ratio) {
+ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratio) {
     if (ratio == 0) {
         return ErrorValueOutOfRange;
 
@@ -1529,27 +1529,54 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                     OR if we are merging successive acquisition data messages that do not overflow the available memory */
 
                 if (downsamplingFlag) {
+                    timeSamplesNum = samplesNum/totalChannelsNum;
+                    uint32_t downsamplingCount = 0;
+                    for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
+                        if (++downsamplingOffset == downsamplingRatio) {
+                            downsamplingOffset = 0;
+                            downsamplingCount++;
+                            for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                                data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                            }
+
+                            for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                                data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                            }
+
+                        } else {
+                            for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                            }
+
+                            for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                            }
+                        }
+
+                        if (iirOff < 1) {
+                            iirOff = IIR_ORD;
+
+                        } else {
+                            iirOff--;
+                        }
+                    }
+
+                    rxOutput.dataLen += downsamplingCount*totalChannelsNum;
+
+                } else if (rawDataFilterActiveFlag) {
                     rxOutput.dataLen += samplesNum;
                     timeSamplesNum = samplesNum/totalChannelsNum;
-                    /*! \todo FCON è da lasciare implementato questo? */
-                    //            if (msgReadCount == 0) {
-                    //                /*! Update firstSampleOffset only if it is not merging messages */
-                    //                rxOutput.firstSampleOffset = * ((uint32_t *)(rxDataBuffer+dataOffset));
-                    //            }
-                    //            dataOffset = (dataOffset+2) & RX_DATA_BUFFER_MASK;
-
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-#ifdef DISABLE_IIR
-                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
-
-                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                            data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
-#else
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
                             rawFloat = (int16_t)rxDataBuffer[dataOffset];
                             xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
@@ -1570,21 +1597,12 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                         } else {
                             iirOff--;
                         }
-#endif
                     }
 
                 } else {
                     rxOutput.dataLen += samplesNum;
                     timeSamplesNum = samplesNum/totalChannelsNum;
-                    /*! \todo FCON è da lasciare implementato questo? */
-                    //            if (msgReadCount == 0) {
-                    //                /*! Update firstSampleOffset only if it is not merging messages */
-                    //                rxOutput.firstSampleOffset = * ((uint32_t *)(rxDataBuffer+dataOffset));
-                    //            }
-                    //            dataOffset = (dataOffset+2) & RX_DATA_BUFFER_MASK;
-
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-#ifdef DISABLE_IIR
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
                             data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
@@ -1594,28 +1612,6 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                             data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
-#else
-                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            rawFloat = (int16_t)rxDataBuffer[dataOffset];
-                            xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
-                            data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
-
-                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                            rawFloat = (int16_t)rxDataBuffer[dataOffset];
-                            xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                            data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
-
-                        if (iirOff < 1) {
-                            iirOff = IIR_ORD;
-
-                        } else {
-                            iirOff--;
-                        }
-#endif
                     }
                 }
 
@@ -1933,6 +1929,11 @@ ErrorCodes_t MessageDispatcher::getRealSamplingRatesFeatures(std::vector <Measur
         realSamplingRates = realSamplingRatesArray;
         return Success;
     }
+}
+
+ErrorCodes_t MessageDispatcher::getDownsamplingRatiosFeatures(std::vector <uint32_t> &downsamplingRatios) {
+    downsamplingRatios = {10, 20, 50, 100, 200, 500, 1000};
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters){
