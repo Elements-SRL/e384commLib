@@ -1,16 +1,18 @@
+include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
+
 DEFINES += E384COMMLIB_STATIC
 
-INCLUDEPATH += C:\e384CommLib\include
-DEPENDPATH += C:\e384CommLib\include
+INCLUDEPATH += $$(E384COMMLIB_PATH)include
+DEPENDPATH += $$(E384COMMLIB_PATH)include
 
-win32-g++:CONFIG(release, debug|release): LIBS += -LC:/e384CommLib/lib/ -le384commlib
-else:win32-g++:CONFIG(debug, debug|release): LIBS += -LC:/e384CommLib/lib/ -le384commlibd
-else:msvc:win32:CONFIG(release, debug|release): LIBS += -LC:/e384CommLib/lib/ -le384commlib
-else:msvc:win32:CONFIG(debug, debug|release): LIBS += -LC:/e384CommLib/lib/ -le384commlibd
-else:unix:CONFIG(release, debug|release): LIBS += -LC:/e384CommLib/lib/ -le384commlib
-else:unix:CONFIG(debug, debug|release): LIBS += -LC:/e384CommLib/lib/ -le384commlibd
+win32-g++:CONFIG(release, debug|release): LIBS += -L$$(E384COMMLIB_PATH)lib/release/ -le384commlib
+else:win32-g++:CONFIG(debug, debug|release): LIBS += -L$$(E384COMMLIB_PATH)lib/debug/ -le384commlibd
+else:msvc:win32:CONFIG(release, debug|release): LIBS += -L$$(E384COMMLIB_PATH)lib/release/ -le384commlib
+else:msvc:win32:CONFIG(debug, debug|release): LIBS += -L$$(E384COMMLIB_PATH)lib/debug/ -le384commlibd
+else:unix:CONFIG(release, debug|release): LIBS += -L$$(E384COMMLIB_PATH)lib/release/ -le384commlib
+else:unix:CONFIG(debug, debug|release): LIBS += -L$$(E384COMMLIB_PATH)lib/debug/ -le384commlibd
 
-win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += C:/e384CommLib/lib/libe384commlib.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += C:/e384CommLib/lib/libe384commlibd.a
-else:msvc:win32:CONFIG(release, debug|release): PRE_TARGETDEPS += C:/e384CommLib/lib/e384commlib.lib
-else:msvc:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += C:/e384CommLib/lib/e384commlibd.lib
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PATH)lib/release/libe384commlib.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PATH)lib/debug/libe384commlibd.a
+else:msvc:win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PATH)lib/release/e384commlib.lib
+else:msvc:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PATH)lib/debug/e384commlibd.lib

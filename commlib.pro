@@ -77,7 +77,7 @@ contains(DEFINES, DEBUG) {
 contains(DEFINES, E384CL_LABVIEW_COMPATIBILITY) {
     SOURCES += src/e384commlib_labview.cpp
     HEADERS += src/e384commlib_labview.h
-    include(LabVIEW/includelabview.pri)
+    include($$(LABVIEW_TO_C_PATH)/includelabview.pri)
 }
 
 INCLUDEPATH += \
@@ -89,4 +89,4 @@ DEPENDPATH += \
     ./src/devices \
     ./src/calibration
 
-include(frontPanel/includefrontpanel.pri)
+include($$(FRONT_PANEL_PATH)/includefrontpanel.pri)
