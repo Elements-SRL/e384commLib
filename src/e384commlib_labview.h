@@ -4,7 +4,7 @@
 #ifndef E384COMMLIB_LABVIEW_H
 #define E384COMMLIB_LABVIEW_H
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 #include <vector>
 #include <string>
 #endif
@@ -14,7 +14,7 @@
 
 class MessageDispatcher;
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 namespace e384CommLib {
 #endif
 
@@ -1947,7 +1947,7 @@ ErrorCodes_t setDebugWord(
         E384CL_ARGIN uint16_t wordOffset,
         E384CL_ARGIN uint16_t wordValue);
 
-#ifndef E384CL_LABVIEW_COMPATIBILITY
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 }
 #endif
 
