@@ -1007,7 +1007,8 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
     }
 }
 
-ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratio) {
+ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratioIdx) {
+    uint32_t ratio = downsamplingRatios[ratioIdx];
     if (ratio == 0) {
         return ErrorValueOutOfRange;
 
@@ -1532,7 +1533,7 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                     timeSamplesNum = samplesNum/totalChannelsNum;
                     uint32_t downsamplingCount = 0;
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-                        if (++downsamplingOffset == downsamplingRatio) {
+                        if (++downsamplingOffset >= downsamplingRatio) {
                             downsamplingOffset = 0;
                             downsamplingCount++;
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
@@ -1932,7 +1933,7 @@ ErrorCodes_t MessageDispatcher::getRealSamplingRatesFeatures(std::vector <Measur
 }
 
 ErrorCodes_t MessageDispatcher::getDownsamplingRatiosFeatures(std::vector <uint32_t> &downsamplingRatios) {
-    downsamplingRatios = {10, 20, 50, 100, 200, 500, 1000};
+    downsamplingRatios = this->downsamplingRatios;
     return Success;
 }
 

@@ -154,7 +154,7 @@ public:
 
     ErrorCodes_t setAdcFilter();
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn);
-    ErrorCodes_t setDownsamplingRatio(uint32_t ratio);
+    ErrorCodes_t setDownsamplingRatio(uint32_t ratioIdx);
 
     ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
     ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
@@ -500,6 +500,7 @@ protected:
     std::vector <Measurement_t> integrationStepArray;
     unsigned int defaultSamplingRateIdx = 0;
     BoolCoder * samplingRateCoder = nullptr;
+    std::vector <uint32_t> downsamplingRatios = {1, 10, 20, 50, 100, 200, 500, 1000};
     std::unordered_map<uint16_t, uint16_t> sr2LpfVcCurrentMap;
     std::unordered_map<uint16_t, uint16_t> sr2LpfCcVoltageMap;
     std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
