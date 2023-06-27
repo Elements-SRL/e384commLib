@@ -8,20 +8,20 @@ MessageDispatcher_4x10MHzFake::MessageDispatcher_4x10MHzFake(std::string id) :
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate6kHz].value = 6.0;
-    samplingRatesArray[SamplingRate6kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate6kHz].unit = "Hz";
-    defaultSamplingRateIdx = SamplingRate6kHz;
+    samplingRatesArray[SamplingRate1MHz].value = 1.0;
+    samplingRatesArray[SamplingRate1MHz].prefix = UnitPfxMega;
+    samplingRatesArray[SamplingRate1MHz].unit = "Hz";
+    defaultSamplingRateIdx = SamplingRate1MHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate6kHz].value = 6.0;
-    realSamplingRatesArray[SamplingRate6kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate6kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate1MHz].value = 1.0;
+    realSamplingRatesArray[SamplingRate1MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate1MHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate6kHz].value = 1.0/6.0;
-    integrationStepArray[SamplingRate6kHz].prefix = UnitPfxMilli;
-    integrationStepArray[SamplingRate6kHz].unit = "s";
+    integrationStepArray[SamplingRate1MHz].value = 1.0;
+    integrationStepArray[SamplingRate1MHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate1MHz].unit = "s";
 }
 
 MessageDispatcher_4x10MHzFake::~MessageDispatcher_4x10MHzFake() {
