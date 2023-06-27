@@ -88,15 +88,15 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     /*! VC */
     vcCurrentRangesNum = VCCurrentRangesNum;
     vcCurrentRangesArray.resize(vcCurrentRangesNum);
-    vcCurrentRangesArray[VCCurrentRange4uA].min = -4000000.0;
-    vcCurrentRangesArray[VCCurrentRange4uA].max = 4000000.0;
+    vcCurrentRangesArray[VCCurrentRange4uA].min = -4000.0;
+    vcCurrentRangesArray[VCCurrentRange4uA].max = 4000.0;
     vcCurrentRangesArray[VCCurrentRange4uA].step = vcCurrentRangesArray[VCCurrentRange4uA].max/SHORT_MAX;
-    vcCurrentRangesArray[VCCurrentRange4uA].prefix = UnitPfxPico;
+    vcCurrentRangesArray[VCCurrentRange4uA].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange4uA].unit = "A";
-    vcCurrentRangesArray[VCCurrentRange200nA].min = -200000.0;
-    vcCurrentRangesArray[VCCurrentRange200nA].max = 200000.0;
+    vcCurrentRangesArray[VCCurrentRange200nA].min = -200.0;
+    vcCurrentRangesArray[VCCurrentRange200nA].max = 200.0;
     vcCurrentRangesArray[VCCurrentRange200nA].step = vcCurrentRangesArray[VCCurrentRange200nA].max/SHORT_MAX;
-    vcCurrentRangesArray[VCCurrentRange200nA].prefix = UnitPfxPico;
+    vcCurrentRangesArray[VCCurrentRange200nA].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange200nA].unit = "A";
     defaultVcCurrentRangeIdx = VCCurrentRange200nA;
 
