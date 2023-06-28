@@ -48,11 +48,17 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return ret;
     }, "Connect to one of the plugged in device");
 
-    m.def("getSamplingRate",[](){
+    m.def("getSamplingRates",[](){
         std::vector <Measurement_t> samplingRates;
         ErrorCodes_t err = md->getSamplingRatesFeatures(samplingRates);
         return  std::make_tuple(err, samplingRates);
     }, "Get all the sampling rate the device can handle");
+
+    m.def("setSamplingRate",[](int si){
+        ErrorCodes_t err = md->setSamplingRate(si, true);
+        return  err;
+    }, "Set sampling rate to the one associated with the corrisponding index");
+
 
     m.def("setVoltageHoldTuner",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
         return md->setVoltageHoldTuner(channelIndexes, voltages, applyFlag);
@@ -85,6 +91,29 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         }
         return std::make_tuple(err, voltageDataOut, currentDataOut);
     }, "Get buffered voltage and current values");
+
+
+    m.def("getVCCurrentRanges",[](){
+        std::vector<RangedMeasurement_t> currentRanges;
+        uint16_t defVcCurrRangeIdx;
+        ErrorCodes_t res = md->getVCCurrentRanges(currentRanges, defVcCurrRangeIdx);
+        return std::make_tuple(res, currentRanges, defVcCurrRangeIdx);
+    });
+    m.def("getVCVoltageRanges",[](){
+        std::vector<RangedMeasurement_t> voltageRanges;
+        ErrorCodes_t res = md->getVCVoltageRanges(voltageRanges);
+        return std::make_tuple(res, voltageRanges);
+    });
+    m.def("getCCCurrentRanges",[](){
+        std::vector<RangedMeasurement_t> currentRanges;
+        ErrorCodes_t res = md->getCCCurrentRanges(currentRanges);
+        return std::make_tuple(res, currentRanges);
+    });
+    m.def("getCCVoltageRanges",[](){
+        std::vector<RangedMeasurement_t> voltageRanges;
+        ErrorCodes_t res = md->getCCVoltageRanges(voltageRanges);
+        return std::make_tuple(res, voltageRanges);
+    });
 
 //    todo completare gli error codes
     py::enum_<ErrorCodes_t>(m, "ErrorCodes")
@@ -131,6 +160,14 @@ PYBIND11_MODULE(e384CommLibPython, m) {
             .def_readonly("value", &Measurement_t::value)
             .def_readonly("prefix", &Measurement_t::prefix)
             .def_readonly("unit", &Measurement_t::unit);
+
+    py::class_<RangedMeasurement_t>(m, "RangedMeasurement")
+            .def(py::init<double, double, double, UnitPfx_t, std::string>())
+            .def_readonly("min", &RangedMeasurement_t::min)
+            .def_readonly("max", &RangedMeasurement_t::max)
+            .def_readonly("step", &RangedMeasurement_t::step)
+            .def_readonly("prefix", &RangedMeasurement_t::prefix)
+            .def_readonly("unit", &RangedMeasurement_t::unit);
 
 //    py::class_<RxOutput>(m, "RxOutput")
 //            .def(py::init<const std::string &>())
