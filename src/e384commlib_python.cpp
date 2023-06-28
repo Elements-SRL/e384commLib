@@ -92,7 +92,6 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return std::make_tuple(err, voltageDataOut, currentDataOut);
     }, "Get buffered voltage and current values");
 
-
     m.def("getVCCurrentRanges",[](){
         std::vector<RangedMeasurement_t> currentRanges;
         uint16_t defVcCurrRangeIdx;
@@ -124,6 +123,7 @@ PYBIND11_MODULE(e384CommLibPython, m) {
 //    todo completare gli error codes
     py::enum_<ErrorCodes_t>(m, "ErrorCodes")
             .value("Success",                           Success)
+            .value("ErrorNoDataAvailable",             ErrorNoDataAvailable)
             .value("ErrorNoDeviceFound",                ErrorNoDeviceFound)
             .value("ErrorListDeviceFailed",             ErrorListDeviceFailed)
             .value("ErrorEepromAlreadyConnected",       ErrorEepromAlreadyConnected)
