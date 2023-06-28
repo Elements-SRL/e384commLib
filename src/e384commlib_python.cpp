@@ -114,6 +114,12 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         ErrorCodes_t res = md->getCCVoltageRanges(voltageRanges);
         return std::make_tuple(res, voltageRanges);
     });
+    m.def("getChannelsNumber",[](){
+        uint16_t vNum;
+        uint16_t cNum;
+        ErrorCodes_t res = md->getChannelNumberFeatures(vNum, cNum);
+        return std::make_tuple(res, vNum, cNum);
+    }, "Get the number of voltage and current channels");
 
 //    todo completare gli error codes
     py::enum_<ErrorCodes_t>(m, "ErrorCodes")
