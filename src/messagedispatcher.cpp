@@ -1007,21 +1007,21 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
     }
 }
 
-ErrorCodes_t MessageDispatcher::setDownsamplingCoefficient(uint32_t ratio) {
-//    if (ratio == 0) {
-//        return ErrorValueOutOfRange;
+ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratioIdx) {
+    uint32_t ratio = downsamplingRatios[ratioIdx];
+    if (ratio == 0) {
+        return ErrorValueOutOfRange;
 
-//    } else {
-//        downsamplingRatio = ratio;
-//        samplingRateCoder->encode(samplingRateIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-//        selectedSamplingRateIdx = samplingRateIdx;
-//        this->setAdcFilter();
-//        this->computeRawDataFilterCoefficients();
-//        if (applyFlagIn) {
-//            this->stackOutgoingMessage(txStatus);
-//        }
-        return Success;
-//    }
+    } else if (ratio == 1) {
+        downsamplingFlag = false;
+
+    } else {
+        downsamplingFlag = true;
+
+    }
+    downsamplingRatio = ratio;
+    this->computeRawDataFilterCoefficients();
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) {
@@ -1528,48 +1528,92 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                     (lastParsedMsgType == MsgTypeIdAcquisitionData && dataWritten+samplesNum < E384CL_OUT_STRUCT_DATA_LEN)) {
                 /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid)
                     OR if we are merging successive acquisition data messages that do not overflow the available memory */
-                rxOutput.dataLen += samplesNum;
-                timeSamplesNum = samplesNum/totalChannelsNum;
-                /*! \todo FCON è da lasciare implementato questo? */
-                //            if (msgReadCount == 0) {
-                //                /*! Update firstSampleOffset only if it is not merging messages */
-                //                rxOutput.firstSampleOffset = * ((uint32_t *)(rxDataBuffer+dataOffset));
-                //            }
-                //            dataOffset = (dataOffset+2) & RX_DATA_BUFFER_MASK;
 
-                for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-#ifdef DISABLE_IIR
-                    for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                        data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
-                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                if (downsamplingFlag) {
+                    timeSamplesNum = samplesNum/totalChannelsNum;
+                    uint32_t downsamplingCount = 0;
+                    for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
+                        if (++downsamplingOffset >= downsamplingRatio) {
+                            downsamplingOffset = 0;
+                            downsamplingCount++;
+                            for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                                data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                            }
+
+                            for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                                data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                            }
+
+                        } else {
+                            for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                            }
+
+                            for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                            }
+                        }
+
+                        if (iirOff < 1) {
+                            iirOff = IIR_ORD;
+
+                        } else {
+                            iirOff--;
+                        }
                     }
 
-                    for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                        data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
-                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                    }
-#else
-                    for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                        rawFloat = (int16_t)rxDataBuffer[dataOffset];
-                        xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
-                        data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                    rxOutput.dataLen += downsamplingCount*totalChannelsNum;
+
+                } else if (rawDataFilterActiveFlag) {
+                    rxOutput.dataLen += samplesNum;
+                    timeSamplesNum = samplesNum/totalChannelsNum;
+                    for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
+                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                            rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                            xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                            data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                        }
+
+                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                            rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                            xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                            data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                        }
+
+                        if (iirOff < 1) {
+                            iirOff = IIR_ORD;
+
+                        } else {
+                            iirOff--;
+                        }
                     }
 
-                    for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                        rawFloat = (int16_t)rxDataBuffer[dataOffset];
-                        xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                        data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-                        dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                    }
+                } else {
+                    rxOutput.dataLen += samplesNum;
+                    timeSamplesNum = samplesNum/totalChannelsNum;
+                    for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
+                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                            data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
+                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                        }
 
-                    if (iirOff < 1) {
-                        iirOff = IIR_ORD;
-
-                    } else {
-                        iirOff--;
+                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                            data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
+                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                        }
                     }
-#endif
                 }
 
                 lastParsedMsgType = MsgTypeIdAcquisitionData;
@@ -1886,6 +1930,11 @@ ErrorCodes_t MessageDispatcher::getRealSamplingRatesFeatures(std::vector <Measur
         realSamplingRates = realSamplingRatesArray;
         return Success;
     }
+}
+
+ErrorCodes_t MessageDispatcher::getDownsamplingRatiosFeatures(std::vector <uint32_t> &downsamplingRatios) {
+    downsamplingRatios = this->downsamplingRatios;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters){
@@ -2314,8 +2363,57 @@ void MessageDispatcher::initializeRawDataFilterVariables() {
 }
 
 void MessageDispatcher::computeRawDataFilterCoefficients() {
-    if (rawDataFilterActiveFlag && (rawDataFilterCutoffFrequency < samplingRate*0.5)) {
-        rawDataFilterCutoffFrequency.convertValue(1.0/integrationStep.multiplier());
+    bool enableFilter;
+    double cutoffFrequency;
+
+    if (downsamplingFlag) {
+        rawDataFilterCutoffFrequencyOverride.convertValue(UnitPfxNone);
+        rawDataFilterCutoffFrequencyOverride.value = samplingRate.getNoPrefixValue()*0.25;
+
+    } else {
+        rawDataFilterCutoffFrequencyOverride.convertValue(UnitPfxTera);
+        rawDataFilterCutoffFrequencyOverride.value = 1.0e9;
+    }
+    rawDataFilterCutoffFrequency.convertValue(1.0/integrationStep.multiplier());
+    rawDataFilterCutoffFrequencyOverride.convertValue(1.0/integrationStep.multiplier());
+
+    if (rawDataFilterActiveFlag) {
+        if (downsamplingFlag) {
+            if (rawDataFilterCutoffFrequency < rawDataFilterCutoffFrequencyOverride) {
+                if (rawDataFilterCutoffFrequency < samplingRate*0.5) {
+                    cutoffFrequency = rawDataFilterCutoffFrequency.value;
+                    enableFilter = true;
+
+                } else {
+                    enableFilter = false;
+                }
+
+            } else {
+                cutoffFrequency = rawDataFilterCutoffFrequencyOverride.value;
+                enableFilter = true;
+            }
+
+        } else {
+            if (rawDataFilterCutoffFrequency < samplingRate*0.5) {
+                cutoffFrequency = rawDataFilterCutoffFrequency.value;
+                enableFilter = true;
+
+            } else {
+                enableFilter = false;
+            }
+        }
+
+    } else {
+        if (downsamplingFlag) {
+            cutoffFrequency = rawDataFilterCutoffFrequencyOverride.value;
+            enableFilter = true;
+
+        } else {
+            enableFilter = false;
+        }
+    }
+
+    if (enableFilter) {
         if (rawDataFilterVoltageFlag) {
             double k1 = tan(M_PI*rawDataFilterCutoffFrequency.value*integrationStep.value); /*!< pre-warp coefficient */
             double k12 = k1*k1;

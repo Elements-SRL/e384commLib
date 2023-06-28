@@ -154,7 +154,7 @@ public:
 
     ErrorCodes_t setAdcFilter();
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn);
-    ErrorCodes_t setDownsamplingCoefficient(uint32_t ratio);
+    ErrorCodes_t setDownsamplingRatio(uint32_t ratioIdx);
 
     ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
     ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
@@ -246,6 +246,7 @@ public:
 
     ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates);
     ErrorCodes_t getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates);
+    ErrorCodes_t getDownsamplingRatiosFeatures(std::vector <uint32_t> &downsamplingRatios);
 
     ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
     ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
@@ -499,6 +500,7 @@ protected:
     std::vector <Measurement_t> integrationStepArray;
     unsigned int defaultSamplingRateIdx = 0;
     BoolCoder * samplingRateCoder = nullptr;
+    std::vector <uint32_t> downsamplingRatios = {1, 10, 20, 50, 100, 200, 500, 1000};
     std::unordered_map<uint16_t, uint16_t> sr2LpfVcCurrentMap;
     std::unordered_map<uint16_t, uint16_t> sr2LpfCcVoltageMap;
     std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
@@ -691,9 +693,6 @@ protected:
     bool amIinVoltageClamp = true;
     uint16_t selectedSamplingRateIdx;
 
-    uint32_t downsamplingRatio = 1;
-    bool downsamplingFlag = false;
-
     /*! Read data buffer management */
     uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */
     uint32_t rxRawBufferReadOffset = 0; /*!< Device Rx buffer offset position in which data are collected by the outputDataBuffer */
@@ -754,6 +753,11 @@ protected:
     bool rawDataFilterActiveFlag = false;
     bool rawDataFilterVoltageFlag = false;
     bool rawDataFilterCurrentFlag = false;
+
+    uint32_t downsamplingRatio = 1;
+    bool downsamplingFlag = false;
+    uint32_t downsamplingOffset = 0;
+    Measurement_t rawDataFilterCutoffFrequencyOverride = {30.0, UnitPfxKilo, "Hz"};
 
     double iirVNum[IIR_ORD+1];
     double iirVDen[IIR_ORD+1];

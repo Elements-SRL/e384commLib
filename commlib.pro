@@ -19,7 +19,7 @@ CONFIG(release, debug|release) {
 }
 
 #DEFINES += E384NPR_ADDITIONAL_SR_FLAG
-DEFINES += DISABLE_IIR
+#DEFINES += DISABLE_IIR
 
 TEMPLATE = lib
 CONFIG += c++14
@@ -33,7 +33,7 @@ contains(DEFINES, E384COMMLIB_LABVIEW_WRAPPER) {
     DEFINES += E384COMMLIB_LIBRARY
     SOURCES += src/e384commlib_labview.cpp
     HEADERS += src/e384commlib_labview.h
-    include(LabVIEW/includelabview.pri)
+    include($$(LABVIEW_TO_C_PATH)/includelabview.pri)
 }
 
 contains(DEFINES, E384COMMLIB_PYTHON_WRAPPER) {
@@ -102,4 +102,4 @@ DEPENDPATH += \
     ./src/devices \
     ./src/calibration
 
-include(frontPanel/includefrontpanel.pri)
+include($$(FRONT_PANEL_PATH)/includefrontpanel.pri)
