@@ -59,6 +59,9 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return  err;
     }, "Set sampling rate to the one associated with the corrisponding index");
 
+    m.def("purge",[](){
+        return  md->purge();
+    }, "Remove all queued messages");
 
     m.def("setVoltageHoldTuner",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
         return md->setVoltageHoldTuner(channelIndexes, voltages, applyFlag);
@@ -76,10 +79,10 @@ PYBIND11_MODULE(e384CommLibPython, m) {
             currentDataOut[i].resize(currentChannelsNum);
         }
         if (err!= Success){
-            return std::make_tuple(err, voltageDataOut, currentDataOut);
+            return std::make_tuple(err, voltageDataOut, currentDataOut, rxOutput.msgTypeId);
         }
         if (rxOutput.msgTypeId != MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData){
-            return std::make_tuple(ErrorNoDataAvailable, voltageDataOut, currentDataOut);
+            return std::make_tuple(ErrorNoDataAvailable, voltageDataOut, currentDataOut, rxOutput.msgTypeId);
         }
         for (unsigned long wordsIdx = 0; wordsIdx < rxOutput.dataLen; wordsIdx += totalChannelsNum) {
             for (int chIdx = 0; chIdx < voltageChannelsNum; chIdx++) {
@@ -89,7 +92,7 @@ PYBIND11_MODULE(e384CommLibPython, m) {
                 md->convertCurrentValue(data[wordsIdx+chIdx+voltageChannelsNum], currentDataOut[wordsIdx/totalChannelsNum][chIdx]);
             }
         }
-        return std::make_tuple(err, voltageDataOut, currentDataOut);
+        return std::make_tuple(err, voltageDataOut, currentDataOut, rxOutput.msgTypeId);
     }, "Get buffered voltage and current values");
 
     m.def("getVCCurrentRanges",[](){
