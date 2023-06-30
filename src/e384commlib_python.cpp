@@ -66,6 +66,13 @@ PYBIND11_MODULE(e384CommLibPython, m) {
     m.def("setVoltageHoldTuner",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
         return md->setVoltageHoldTuner(channelIndexes, voltages, applyFlag);
     });
+    m.def("setCalibVcVoltageOffset",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
+        return md->setCalibVcVoltageOffset(channelIndexes, voltages, applyFlag);
+    });
+
+    m.def("setCalibVcVoltageGains",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
+        return md->setCalibVcVoltageGain(channelIndexes, gains, applyFlag);
+    });
 
     m.def("getBufferedVoltagesAndCurrents", [](){
         RxOutput_t rxOutput;
