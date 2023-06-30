@@ -1417,6 +1417,28 @@ ErrorCodes_t MessageDispatcher::deallocateRxDataBuffer(int16_t * &data) {
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::purge() {
+    std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
+    if (rxMsgBufferReadLength <= 0) {
+        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(10));
+        if (rxMsgBufferReadLength <= 0) {
+            return ErrorNoDataAvailable;
+        }
+    }
+    rxMutexLock.unlock();
+
+    if (!parsingFlag) {
+        return ErrorDeviceNotConnected;
+    }
+
+    rxMutexLock.lock();
+    rxMsgBufferReadLength = 0;
+    rxMsgBufferNotFull.notify_all();
+    rxMutexLock.unlock();
+
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     ErrorCodes_t ret = Success;
     double xFlt;
