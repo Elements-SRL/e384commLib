@@ -1894,6 +1894,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
         for(int i = 0; i<channelIndexes.size(); i++){
             compCfastEnable[channelIndexes[i]] = onValues[i];
             pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            myChannels[channelIndexes[i]]->setCompensatingCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
@@ -1912,6 +1913,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
         for(int i = 0; i<channelIndexes.size(); i++){
             compCslowEnable[channelIndexes[i]] = onValues[i];
             membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            myChannels[channelIndexes[i]]->setCompensatingCslowRs(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
@@ -1930,6 +1932,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
         for(int i = 0; i<channelIndexes.size(); i++){
             compRsCorrEnable[channelIndexes[i]] = onValues[i];
             rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            myChannels[channelIndexes[i]]->setCompensatingRsCp(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
@@ -1948,6 +1951,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
         for(int i = 0; i<channelIndexes.size(); i++){
             compRsPredEnable[channelIndexes[i]] = onValues[i];
             rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            myChannels[channelIndexes[i]]->setCompensatingRsPg(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
@@ -1966,6 +1970,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
         for(int i = 0; i<channelIndexes.size(); i++){
             compCcCfastEnable[channelIndexes[i]] = onValues[i];/*! \todo MPAC, forse mettere anche questi in and a areCcCompsEnabled*/
             pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            myChannels[channelIndexes[i]]->setCompensatingCcCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
@@ -2039,8 +2044,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
 
         // select asicParam to encode based on enum
         /*! \todo FCON recheck: IN CASE THERE'S INTERACTION AMONG ASICPARAMS, THEY COULD BE DESCRIBED IN THE SWITCH-CASE */
-        switch(paramToUpdate)
-        {
+        switch(paramToUpdate) {
         case U_CpVc:
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += "[U_CpVc chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Cp]) + "\n";
@@ -2049,6 +2053,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
             temp = pipetteCapValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_Cp] = temp;
+
         break;
         case U_Cm:
 #ifdef DEBUG_TX_DATA_PRINT
@@ -2168,15 +2173,16 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnVoltageReaderOn(bool onVal
         channelIdxs.push_back(i);
     }
 
-    if(onValueIn == true){
-        amIinVoltageClamp = false;
+    if (onValueIn == true){
+        this->setClampingModality(CURRENT_CLAMP);
         turnCcSwOn(channelIdxs, allTheTrueIneed, applyFlagIn);
         turnVcCcSelOn(channelIdxs, allTheFalseIneed,applyFlagIn);
         setCalibCcVoltageGain(channelIdxs, selectedCalibCcVoltageGainVector, applyFlagIn);
         setCalibCcVoltageOffset(channelIdxs, selectedCalibCcVoltageOffsetVector, applyFlagIn);
         setAdcFilter();
-    }else{
-        amIinVoltageClamp = true;
+
+    } else {
+        this->setClampingModality(VOLTAGE_CLAMP);
         turnCcSwOn(channelIdxs, allTheFalseIneed, applyFlagIn);
     }
 
@@ -2195,14 +2201,14 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentReaderOn(bool onVal
     }
 
     if(onValueIn == true){
-        amIinVoltageClamp = true;
+        this->setClampingModality(VOLTAGE_CLAMP);
         turnVcSwOn(channelIdxs, allTheTrueIneed, applyFlagIn);
         turnVcCcSelOn(channelIdxs, allTheTrueIneed, applyFlagIn);
         setCalibVcCurrentGain(channelIdxs, selectedCalibVcCurrentGainVector, applyFlagIn);
         setCalibVcCurrentOffset(channelIdxs, selectedCalibVcCurrentOffsetVector, applyFlagIn);
         setAdcFilter();
     }else{
-        amIinVoltageClamp = false;
+        this->setClampingModality(CURRENT_CLAMP);
         turnVcSwOn(channelIdxs, allTheFalseIneed, applyFlagIn);
     }
 
@@ -2274,7 +2280,7 @@ std::vector<double> MessageDispatcher_384PatchClamp_V01::user2AsicDomainTransfor
     membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
     asicCmCinj = computeAsicCmCinj(userDomainParams[U_Cm], compCslowEnable[chIdx], aaa);
 
-    if(amIinVoltageClamp){
+    if (selectedClampingModality == VOLTAGE_CLAMP){
         cp = userDomainParams[U_CpVc] + asicCmCinj;
     } else {
         // A_Cp
@@ -2322,7 +2328,7 @@ std::vector<double> MessageDispatcher_384PatchClamp_V01::asic2UserDomainTransfor
     asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compCslowEnable[chIdx], aaa);
 
     //  pipette capacitance to pipette capacitance VC domain conversion
-    if(amIinVoltageClamp){
+    if (selectedClampingModality == VOLTAGE_CLAMP){
         cpVc = asicDomainParams[A_Cp] - asicCmCinj;
     } else {
         cpVc = oldUCpVc; /*! \todo recheck */
@@ -2343,7 +2349,7 @@ std::vector<double> MessageDispatcher_384PatchClamp_V01::asic2UserDomainTransfor
     rsPg = -1 + asicDomainParams[A_Taum] / asicDomainParams[A_RsPtau];
 
     // Series prediction tau to Pipette capacitance CC domain conversion
-    if(amIinVoltageClamp){
+    if (selectedClampingModality == VOLTAGE_CLAMP){
         cpCC = oldUCpCc; /*! \todo recheck */
     } else {
         cpCC = asicDomainParams[A_Cp];
@@ -2524,7 +2530,7 @@ double MessageDispatcher_384PatchClamp_V01::computeAsicCmCinj(double cm, bool ch
     bool done = false;
     int i;
     double asicCmCinj;
-    if(!amIinVoltageClamp || (amIinVoltageClamp && !chanCslowEnable)){
+    if((selectedClampingModality == CURRENT_CLAMP) || ((selectedClampingModality == VOLTAGE_CLAMP) && !chanCslowEnable)){
         asicCmCinj = 0;
     } else {
         for(i = 0; i<multiconfigCslow.thresholdVector.size(); i++){

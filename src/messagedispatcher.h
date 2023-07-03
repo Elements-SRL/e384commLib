@@ -13,6 +13,7 @@
 #include "e384commlib_errorcodes.h"
 #include "e384commlib_global.h"
 #include "commandcoder.h"
+#include "modelboard.h"
 
 #ifdef E384COMMLIB_LABVIEW_WRAPPER
 #include "e384commlib_global_addendum.h"
@@ -114,6 +115,11 @@ public:
 
     ErrorCodes_t initializeDevice();
 
+    ErrorCodes_t setChannelSelected(uint16_t chIdx, bool newState);
+    ErrorCodes_t setBoardSelected(uint16_t brdIdx, bool newState);
+    ErrorCodes_t setRowSelected(uint16_t rowIdx, bool newState);
+    ErrorCodes_t setAllChannelsSelected(bool newState);
+
     ErrorCodes_t sendCommands();
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn = true);
@@ -147,6 +153,8 @@ public:
     ErrorCodes_t turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
     ErrorCodes_t enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
+    ErrorCodes_t setClampingModality(uint32_t idx);
+    ErrorCodes_t setClampingModality(ClampingModality_t mode);
     ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag);
     ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag);
 
@@ -212,6 +220,12 @@ public:
      *  Rx methods  *
     \****************/
 
+    ErrorCodes_t getSerialNumber(std::string &serialNumber);
+
+    ErrorCodes_t getBoards(std::vector <ModelBoard *> &boards);
+    ErrorCodes_t getChannels(std::vector <ModelChannel *> &channels);
+    ErrorCodes_t getSelectedChannels(std::vector <bool> &selected);
+
     ErrorCodes_t getRxDataBufferSize(uint32_t &size);
     ErrorCodes_t allocateRxDataBuffer(int16_t * &data);
     ErrorCodes_t deallocateRxDataBuffer(int16_t * &data);
@@ -230,9 +244,13 @@ public:
     ErrorCodes_t getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures);
     ErrorCodes_t getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures);
     ErrorCodes_t getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &currentChannelNumberFeatures);
+    ErrorCodes_t getChannelNumberFeatures(int &voltageChannelNumberFeatures, int &currentChannelNumberFeatures);
     ErrorCodes_t getAvailableChannelsSourcesFeatures(ChannelSources_t &voltageSourcesIdxs, ChannelSources_t &currentSourcesIdxs);
     ErrorCodes_t getBoardsNumberFeatures(uint16_t &boardsNumberFeatures);
-    ErrorCodes_t getClampingModalitiesFeatures(std::vector<uint16_t> &clampingModalitiesFeatures);
+    ErrorCodes_t getBoardsNumberFeatures(int &boardsNumberFeatures);
+    ErrorCodes_t getClampingModalitiesFeatures(std::vector<ClampingModality_t> &clampingModalitiesFeatures);
+    ErrorCodes_t getClampingModality(ClampingModality_t &clampingModality);
+    ErrorCodes_t getClampingModalityIdx(uint32_t &idx);
 
     ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultVcCurrRangeIdx);
     ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges);
@@ -244,12 +262,33 @@ public:
     ErrorCodes_t getCCCurrentRange(RangedMeasurement_t &range);
     ErrorCodes_t getCCVoltageRange(RangedMeasurement_t &range);
 
+    ErrorCodes_t getVCCurrentRangeIdx(uint32_t &idx);
+    ErrorCodes_t getVCVoltageRangeIdx(uint32_t &idx);
+    ErrorCodes_t getCCCurrentRangeIdx(uint32_t &idx);
+    ErrorCodes_t getCCVoltageRangeIdx(uint32_t &idx);
+
     ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates);
+    ErrorCodes_t getSamplingRate(Measurement_t &samplingRate);
+    ErrorCodes_t getSamplingRateIdx(uint32_t &idx);
     ErrorCodes_t getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates);
     ErrorCodes_t getDownsamplingRatiosFeatures(std::vector <uint32_t> &downsamplingRatios);
+    ErrorCodes_t getDownsamplingRatio(uint32_t &ratio);
+    ErrorCodes_t getDownsamplingRatioIdx(uint32_t &idx);
 
-    ErrorCodes_t getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters);
-    ErrorCodes_t getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters);
+    ErrorCodes_t getVCVoltageFilters(std::vector <Measurement_t> &filters);
+    ErrorCodes_t getVCCurrentFilters(std::vector <Measurement_t> &filters);
+    ErrorCodes_t getCCVoltageFilters(std::vector <Measurement_t> &filters);
+    ErrorCodes_t getCCCurrentFilters(std::vector <Measurement_t> &filters);
+
+    ErrorCodes_t getVCVoltageFilter(Measurement_t &filter);
+    ErrorCodes_t getVCCurrentFilter(Measurement_t &filter);
+    ErrorCodes_t getCCVoltageFilter(Measurement_t &filter);
+    ErrorCodes_t getCCCurrentFilter(Measurement_t &filter);
+
+    ErrorCodes_t getVCVoltageFilterIdx(uint32_t &idx);
+    ErrorCodes_t getVCCurrentFilterIdx(uint32_t &idx);
+    ErrorCodes_t getCCVoltageFilterIdx(uint32_t &idx);
+    ErrorCodes_t getCCCurrentFilterIdx(uint32_t &idx);
 
     ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams);
     ErrorCodes_t getCalibFileNames(std::vector<std::string> &calibFileNames);
@@ -334,11 +373,11 @@ protected:
     \************/
 
     std::vector<std::vector<double>> compValueMatrix;
-    std::vector<bool> compCfastEnable;
-    std::vector<bool> compCslowEnable;
-    std::vector<bool> compRsCorrEnable;
-    std::vector<bool> compRsPredEnable;
-    std::vector<bool> compCcCfastEnable;
+    std::vector<bool> compCfastEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<bool> compCslowEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<bool> compRsCorrEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<bool> compRsPredEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<bool> compCcCfastEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     bool areVcCompsEnabled = false;
     bool areCcCompsEnabled = false;
 
@@ -382,6 +421,11 @@ protected:
     virtual ErrorCodes_t asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams);
     virtual double computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow);
 
+    void fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
+    void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
+
+    void flushBoardList();
+
     /****************\
      *  Parameters  *
     \****************/
@@ -398,6 +442,7 @@ protected:
     ChannelSources_t availableCurrentSourcesIdxs;
 
     uint16_t totalBoardsNum = 1;
+    uint16_t channelsPerBoard = 1;
 
     /*! 20230531 MPAC: state array params*/
     unsigned int stateMaxNum;
@@ -435,8 +480,9 @@ protected:
     BoolCoder * docResetCoder = nullptr; //DOC = digital offset compensation
 
     uint32_t clampingModalitiesNum;
-    uint32_t selectedClampingMdalityIdx = 0;
-    std::vector <uint16_t> clampingModalitiesArray;
+    uint32_t selectedClampingModalityIdx = 0;
+    uint32_t selectedClampingModality = VOLTAGE_CLAMP;
+    std::vector <ClampingModality_t> clampingModalitiesArray;
     uint16_t defaultClampingModalityIdx;
     BoolCoder * clampingModeCoder = nullptr;
 
@@ -507,8 +553,8 @@ protected:
 
     std::vector <BoolCoder *> digitalOffsetCompensationCoders;
 
-    std::vector<Measurement_t> selectedVoltageHoldVector;
-    std::vector<Measurement_t> selectedCurrentHoldVector;
+    std::vector<Measurement_t> selectedVoltageHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<Measurement_t> selectedCurrentHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector <std::vector <DoubleCoder *>> vHoldTunerCoders;
     std::vector <std::vector <DoubleCoder *>> cHoldTunerCoders;
 
@@ -686,11 +732,13 @@ protected:
     bool stopConnectionFlag = false;
     bool parsingFlag = false;
 
+    std::vector <ModelBoard *> myBoards;
+    std::vector <ModelChannel *> myChannels;
+
     /*! Read data buffer management */
     uint16_t rxMaxWords;
     uint32_t maxInputDataLoadSize;
 
-    bool amIinVoltageClamp = true;
     uint16_t selectedSamplingRateIdx;
 
     /*! Read data buffer management */
@@ -754,7 +802,8 @@ protected:
     bool rawDataFilterVoltageFlag = false;
     bool rawDataFilterCurrentFlag = false;
 
-    uint32_t downsamplingRatio = 1;
+    uint32_t selectedDownsamplingRatioIdx = 0;
+    uint32_t selectedDownsamplingRatio = 1;
     bool downsamplingFlag = false;
     uint32_t downsamplingOffset = 0;
     Measurement_t rawDataFilterCutoffFrequencyOverride = {30.0, UnitPfxKilo, "Hz"};

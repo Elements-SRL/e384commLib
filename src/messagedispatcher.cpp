@@ -271,6 +271,7 @@ ErrorCodes_t MessageDispatcher::disconnect() {
         }
 
         this->deinit();
+        this->flushBoardList();
 
         connected = false;
 
@@ -286,7 +287,9 @@ ErrorCodes_t MessageDispatcher::disconnect() {
 \****************/
 
 ErrorCodes_t MessageDispatcher::initializeDevice() {
-    amIinVoltageClamp = clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP;
+    channelsPerBoard = currentChannelsNum/totalBoardsNum;
+
+    this->fillBoardList(totalBoardsNum, currentChannelsNum/totalBoardsNum);
 
     this->initializeHW();
 
@@ -304,7 +307,7 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
         boardIndexes[idx] = idx;
     }
 
-    if (amIinVoltageClamp) {
+    if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
         /*! Initialization in voltage clamp */
         this->enableCcCompensations(false);
         this->enableVcCompensations(true);
@@ -368,6 +371,47 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::setChannelSelected(uint16_t chIdx, bool newState) {
+    if (chIdx < currentChannelsNum) {
+        myChannels[chIdx]->setSelected(newState);
+        return Success;
+
+    } else {
+        return ErrorValueOutOfRange;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setBoardSelected(uint16_t brdIdx, bool newState) {
+    if (brdIdx < totalBoardsNum) {
+        for (auto ch : myBoards[brdIdx]->getChannelsOnBoard()) {
+            ch->setSelected(newState);
+        }
+        return Success;
+
+    } else {
+        return ErrorValueOutOfRange;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setRowSelected(uint16_t rowIdx, bool newState) {
+    if (rowIdx < channelsPerBoard) {
+        for (auto brd : myBoards) {
+            brd->getChannelsOnBoard()[rowIdx]->setSelected(newState);
+        }
+        return Success;
+
+    } else {
+        return ErrorValueOutOfRange;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setAllChannelsSelected(bool newState) {
+    for (auto ch : myChannels) {
+        ch->setSelected(newState);
+    }
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::sendCommands() {
     this->stackOutgoingMessage(txStatus);
     return Success;
@@ -409,7 +453,7 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t> channe
     } else if (!areAllTheVectorElementsInRange(voltages, vHoldRange[selectedVcVoltageRangeIdx].getMin(), vHoldRange[selectedVcVoltageRangeIdx].getMax())) {
         return ErrorValueOutOfRange;
 
-    } else if (!amIinVoltageClamp) {
+    } else if (selectedClampingModality != VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
 
     } else {
@@ -417,6 +461,7 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t> channe
             voltages[i].convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
             selectedVoltageHoldVector[channelIndexes[i]] = voltages[i];
             vHoldTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            myChannels[channelIndexes[i]]->setVhold(voltages[i]);
         }
 
         if (applyFlag) {
@@ -436,7 +481,7 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channe
     } else if (!areAllTheVectorElementsInRange(currents, cHoldRange[selectedCcCurrentRangeIdx].getMin(), cHoldRange[selectedCcCurrentRangeIdx].getMax())) {
         return ErrorValueOutOfRange;
 
-    } else if (amIinVoltageClamp) {
+    } else if (selectedClampingModality == VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
 
     } else {
@@ -444,6 +489,7 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channe
             currents[i].convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
             selectedCurrentHoldVector[channelIndexes[i]] = currents[i];
             cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            myChannels[channelIndexes[i]]->setChold(currents[i]);
         }
 
         if (applyFlag) {
@@ -781,7 +827,7 @@ ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t> 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             digitalOffsetCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-
+            myChannels[channelIndexes[i]]->setCompensatingDoc(onValues[i]);
         }
 
         if (applyFlag) {
@@ -834,8 +880,8 @@ ErrorCodes_t MessageDispatcher::enableStimulus(std::vector<uint16_t> channelInde
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
-           enableStimulusCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-
+            enableStimulusCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            myChannels[channelIndexes[i]]->setInStimActive(onValues[i]);
         }
 
         if (applyFlag) {
@@ -855,7 +901,7 @@ ErrorCodes_t MessageDispatcher::turnChannelsOn(std::vector<uint16_t> channelInde
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
            turnChannelsOnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-
+           myChannels[channelIndexes[i]]->setOn(onValues[i]);
         }
 
         if (applyFlag) {
@@ -868,8 +914,10 @@ ErrorCodes_t MessageDispatcher::turnChannelsOn(std::vector<uint16_t> channelInde
 ErrorCodes_t MessageDispatcher::turnCalSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
     if (calSwCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
+
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
+
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
            calSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -943,12 +991,33 @@ ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t> channelIn
         }
         return Success;
     }
+}
 
+ErrorCodes_t MessageDispatcher::setClampingModality(uint32_t idx) {
+    if (idx < clampingModalitiesNum) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        selectedClampingModalityIdx = idx;
+        selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode) {
+    auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
+    if (iter == clampingModalitiesArray.end()) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()));
+    }
 }
 
 ErrorCodes_t MessageDispatcher::setSourceForVoltageChannel(uint16_t source, bool applyFlag){
     if (sourceForVoltageChannelCoder == nullptr) {
         return ErrorFeatureNotImplemented;
+
     } else {
         sourceForVoltageChannelCoder->encode(source, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         selectedSourceForVoltageChannelIdx = source;
@@ -974,12 +1043,13 @@ ErrorCodes_t MessageDispatcher::setSourceForCurrentChannel(uint16_t source, bool
 
 ErrorCodes_t MessageDispatcher::setAdcFilter(){
     // Still to be properly implemented
-    if(amIinVoltageClamp){
+    if (selectedClampingModality == VOLTAGE_CLAMP){
         if (vcCurrentFilterCoder != nullptr) {
             vcCurrentFilterCoder->encode(sr2LpfVcCurrentMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedVcCurrentFilterIdx = sr2LpfVcCurrentMap[selectedSamplingRateIdx];
         }
-    }else{
+
+    } else {
         if (ccVoltageFilterCoder != nullptr) {
             ccVoltageFilterCoder->encode(sr2LpfCcVoltageMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedCcVoltageFilterIdx = sr2LpfCcVoltageMap[selectedSamplingRateIdx];
@@ -1008,6 +1078,7 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
 }
 
 ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratioIdx) {
+    selectedDownsamplingRatioIdx = ratioIdx;
     uint32_t ratio = downsamplingRatios[ratioIdx];
     if (ratio == 0) {
         return ErrorValueOutOfRange;
@@ -1017,9 +1088,8 @@ ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratioIdx) {
 
     } else {
         downsamplingFlag = true;
-
     }
-    downsamplingRatio = ratio;
+    selectedDownsamplingRatio = ratio;
     this->computeRawDataFilterCoefficients();
     return Success;
 }
@@ -1394,6 +1464,29 @@ bool MessageDispatcher::isStateArrayAvailable(){
  *  Rx methods  *
 \****************/
 
+ErrorCodes_t MessageDispatcher::getSerialNumber(std::string &serialNumber) {
+    serialNumber = deviceId;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getBoards(std::vector <ModelBoard *> &boards) {
+    boards = myBoards;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getChannels(std::vector <ModelChannel *> &channels) {
+    channels = myChannels;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getSelectedChannels(std::vector <bool> &selected) {
+    selected.resize(this->myChannels.size());
+    for (int idx = 0; idx < this->myChannels.size(); idx++) {
+        selected[idx] = this->myChannels[idx]->isSelected();
+    }
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getRxDataBufferSize(uint32_t &size) {
     size = E384CL_OUT_STRUCT_DATA_LEN;
     return Success;
@@ -1533,7 +1626,7 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                     timeSamplesNum = samplesNum/totalChannelsNum;
                     uint32_t downsamplingCount = 0;
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-                        if (++downsamplingOffset >= downsamplingRatio) {
+                        if (++downsamplingOffset >= selectedDownsamplingRatio) {
                             downsamplingOffset = 0;
                             downsamplingCount++;
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
@@ -1811,9 +1904,15 @@ ErrorCodes_t MessageDispatcher::getSourceVoltagesTunerFeatures(RangedMeasurement
     }
 }
 
-ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &CurrentChannelNumberFeatures){
+ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &currentChannelNumberFeatures){
     voltageChannelNumberFeatures = voltageChannelsNum;
-    CurrentChannelNumberFeatures = currentChannelsNum;
+    currentChannelNumberFeatures = currentChannelsNum;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(int &voltageChannelNumberFeatures, int &currentChannelNumberFeatures){
+    voltageChannelNumberFeatures = (int)voltageChannelsNum;
+    currentChannelNumberFeatures = (int)currentChannelsNum;
     return Success;
 }
 
@@ -1828,17 +1927,43 @@ ErrorCodes_t MessageDispatcher::getBoardsNumberFeatures(uint16_t &boardsNumberFe
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getClampingModalitiesFeatures(std::vector <uint16_t> &clampingModalitiesFeatures) {
-    if (clampingModalitiesArray.size()==0){
+ErrorCodes_t MessageDispatcher::getBoardsNumberFeatures(int &boardsNumberFeatures) {
+    boardsNumberFeatures = (int)totalBoardsNum;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getClampingModalitiesFeatures(std::vector <ClampingModality_t> &clampingModalitiesFeatures) {
+    if (clampingModalitiesArray.empty()) {
         return ErrorFeatureNotImplemented;
+
     } else {
         clampingModalitiesFeatures = clampingModalitiesArray;
         return Success;
     }
 }
 
+ErrorCodes_t MessageDispatcher::getClampingModality(ClampingModality_t &clampingModality) {
+    if (clampingModalitiesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        clampingModality = (ClampingModality_t)selectedClampingModality;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getClampingModalityIdx(uint32_t &idx) {
+    if (clampingModalitiesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        idx = selectedClampingModalityIdx;
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultVcCurrRangeIdx) {
-    if (vcCurrentRangesArray.size()==0){
+    if (vcCurrentRangesArray.empty()){
         return ErrorFeatureNotImplemented;
     } else {
         currentRanges = vcCurrentRangesArray;
@@ -1848,7 +1973,7 @@ ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasuremen
 }
 
 ErrorCodes_t MessageDispatcher::getVCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
-    if(vcVoltageRangesArray.size()==0){
+    if(vcVoltageRangesArray.empty()){
         return ErrorFeatureNotImplemented;
     } else {
         voltageRanges = vcVoltageRangesArray;
@@ -1857,7 +1982,7 @@ ErrorCodes_t MessageDispatcher::getVCVoltageRanges(std::vector <RangedMeasuremen
 }
 
 ErrorCodes_t MessageDispatcher::getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
-    if(ccCurrentRangesArray.size()==0){
+    if(ccCurrentRangesArray.empty()){
         return ErrorFeatureNotImplemented;
     } else {
         currentRanges = ccCurrentRangesArray;
@@ -1866,7 +1991,7 @@ ErrorCodes_t MessageDispatcher::getCCCurrentRanges(std::vector <RangedMeasuremen
 }
 
 ErrorCodes_t MessageDispatcher::getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
-    if(ccVoltageRangesArray.size()==0){
+    if(ccVoltageRangesArray.empty()){
         return ErrorFeatureNotImplemented;
     } else {
         voltageRanges = ccVoltageRangesArray;
@@ -1914,18 +2039,80 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRange(RangedMeasurement_t &range) {
     }
 }
 
-ErrorCodes_t MessageDispatcher::getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates) {
-    if(samplingRatesArray.size()==0){
+ErrorCodes_t MessageDispatcher::getVCCurrentRangeIdx(uint32_t &idx) {
+    if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
+
+    } else {
+        idx = selectedVcCurrentRangeIdx;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getVCVoltageRangeIdx(uint32_t &idx) {
+    if (vcVoltageRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        idx = selectedVcVoltageRangeIdx;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCCCurrentRangeIdx(uint32_t &idx) {
+    if (ccCurrentRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        idx = selectedVcCurrentRangeIdx;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(uint32_t &idx) {
+    if (ccVoltageRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        idx = selectedCcVoltageRangeIdx;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates) {
+    if(samplingRatesArray.empty()){
+        return ErrorFeatureNotImplemented;
+
     } else {
         samplingRates = samplingRatesArray;
         return Success;
     }
 }
 
-ErrorCodes_t MessageDispatcher::getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates) {
-    if(realSamplingRatesArray.size()==0){
+ErrorCodes_t MessageDispatcher::getSamplingRate(Measurement_t &samplingRate) {
+    if(samplingRatesArray.empty()){
         return ErrorFeatureNotImplemented;
+
+    } else {
+        samplingRate = realSamplingRatesArray[selectedSamplingRateIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getSamplingRateIdx(uint32_t &idx) {
+    if(samplingRatesArray.empty()){
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        idx = selectedSamplingRateIdx;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates) {
+    if(realSamplingRatesArray.empty()){
+        return ErrorFeatureNotImplemented;
+
     } else {
         realSamplingRates = realSamplingRatesArray;
         return Success;
@@ -1937,20 +2124,132 @@ ErrorCodes_t MessageDispatcher::getDownsamplingRatiosFeatures(std::vector <uint3
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getVoltageStimulusLpfs(std::vector <Measurement_t> &vcVoltageFilters){
-    if(vcVoltageFiltersArray.size()==0){
+ErrorCodes_t MessageDispatcher::getDownsamplingRatio(uint32_t &ratio) {
+    ratio = selectedDownsamplingRatio;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getDownsamplingRatioIdx(uint32_t &idx) {
+    idx = selectedDownsamplingRatioIdx;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getVCVoltageFilters(std::vector <Measurement_t> &filters){
+    if (vcVoltageFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
+
     } else {
-        vcVoltageFilters = vcVoltageFiltersArray;
+        filters = vcVoltageFiltersArray;
         return Success;
     }
 }
 
-ErrorCodes_t MessageDispatcher::getCurrentStimulusLpfs(std::vector <Measurement_t> &ccCurrentFilters){
-    if(ccCurrentFiltersArray.size()==0){
+ErrorCodes_t MessageDispatcher::getVCCurrentFilters(std::vector <Measurement_t> &filters){
+    if (vcCurrentFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
+
     } else {
-        ccCurrentFilters = ccCurrentFiltersArray;
+        filters = vcCurrentFiltersArray;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCCVoltageFilters(std::vector <Measurement_t> &filters){
+    if (ccVoltageFiltersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        filters = ccVoltageFiltersArray;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCCCurrentFilters(std::vector <Measurement_t> &filters){
+    if (ccCurrentFiltersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        filters = ccCurrentFiltersArray;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getVCVoltageFilter(Measurement_t &filter) {
+    if (vcVoltageFiltersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        filter = vcVoltageFiltersArray[selectedVcVoltageFilterIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getVCCurrentFilter(Measurement_t &filter) {
+    if (vcCurrentFiltersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        filter = vcCurrentFiltersArray[selectedVcCurrentFilterIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCCVoltageFilter(Measurement_t &filter) {
+    if (ccVoltageFiltersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        filter = ccVoltageFiltersArray[selectedCcVoltageFilterIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCCCurrentFilter(Measurement_t &filter) {
+    if (ccCurrentFiltersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        filter = ccCurrentFiltersArray[selectedCcCurrentFilterIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getVCVoltageFilterIdx(uint32_t &idx) {
+    if (vcVoltageFiltersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        idx = selectedVcVoltageFilterIdx;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getVCCurrentFilterIdx(uint32_t &idx) {
+    if (vcCurrentFiltersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        idx = selectedVcCurrentFilterIdx;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCCVoltageFilterIdx(uint32_t &idx) {
+    if (ccVoltageFiltersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        idx = selectedCcVoltageFilterIdx;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCCCurrentFilterIdx(uint32_t &idx) {
+    if (ccCurrentFiltersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        idx = selectedCcCurrentFilterIdx;
         return Success;
     }
 }
@@ -2079,7 +2378,7 @@ ErrorCodes_t MessageDispatcher::hasProtocolSinFeature() {
 
 
 ErrorCodes_t MessageDispatcher::getCalibData(CalibrationData_t &calibData){
-    if(calibrationData.vcCalibResArray.size()==0){
+    if(calibrationData.vcCalibResArray.empty()){
         return ErrorFeatureNotImplemented;
     } else {
         calibData = calibrationData;
@@ -2757,4 +3056,39 @@ ErrorCodes_t MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vecto
 
 double MessageDispatcher::computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow){
     return -DBL_MAX;
+}
+
+void MessageDispatcher::fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
+    this->myBoards.resize(numOfBoards);
+    for(uint16_t i = 0; i< numOfBoards; i++ ){
+        ModelBoard* board = new ModelBoard;
+        board->setId(i);
+        board->fillChannelList(numOfChannelsOnBoard);
+        this->myBoards[i] = board;
+    }
+}
+
+void MessageDispatcher::fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
+    if(this->myBoards.size() == 0){
+        this->fillBoardList(numOfBoards, numOfChannelsOnBoard);
+    }
+    uint16_t newChannelId = 0;
+    myChannels.resize(numOfChannelsOnBoard*numOfBoards);
+    for(uint16_t i = 0; i< numOfBoards; i++ ){
+        for(uint16_t j = 0; j< numOfChannelsOnBoard; j++ ){
+            this->myChannels[newChannelId] = this->myBoards[i]->getChannelsOnBoard()[j];
+            newChannelId++;
+        }
+    }
+}
+
+void MessageDispatcher::flushBoardList() {
+    int numOfBoards = this->myBoards.size();
+    for(uint16_t i = 0; i< numOfBoards; i++ ){
+        if (this->myBoards[i] != nullptr) {
+            delete this->myBoards[i];
+        }
+    }
+    myBoards.clear();
+    myChannels.clear();
 }

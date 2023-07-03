@@ -2,8 +2,12 @@ include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
 
 DEFINES += E384COMMLIB_STATIC
 
-INCLUDEPATH += $$(E384COMMLIB_PATH)include
-DEPENDPATH += $$(E384COMMLIB_PATH)include
+INCLUDEPATH += \
+        $$(E384COMMLIB_PATH)include \
+        $$(E384COMMLIB_PATH)include/model
+DEPENDPATH += \
+        $$(E384COMMLIB_PATH)include
+        $$(E384COMMLIB_PATH)include/model
 
 win32-g++:CONFIG(release, debug|release): LIBS += -L$$(E384COMMLIB_PATH)lib/release/ -le384commlib
 else:win32-g++:CONFIG(debug, debug|release): LIBS += -L$$(E384COMMLIB_PATH)lib/debug/ -le384commlibd
