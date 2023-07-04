@@ -289,7 +289,7 @@ ErrorCodes_t MessageDispatcher::disconnect() {
 ErrorCodes_t MessageDispatcher::initializeDevice() {
     channelsPerBoard = currentChannelsNum/totalBoardsNum;
 
-    this->fillBoardList(totalBoardsNum, currentChannelsNum/totalBoardsNum);
+    this->fillChannelList(totalBoardsNum, currentChannelsNum/totalBoardsNum);
 
     this->initializeHW();
 
