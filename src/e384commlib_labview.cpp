@@ -2460,19 +2460,20 @@ ErrorCodes_t getBridgeBalanceResistance(
 }
 
 ErrorCodes_t getCalibParams(
-        CharCalibrationParams_t * calibrationParams) {
-    return ErrorFeatureNotImplemented;
+        CharCalibrationParams_t &calibrationParamsOut) {
+
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        CalibrationParams_t calibParams;
+        ret = messageDispatcher->getCalibParams(calibParams);
+        calibrationParams2Output(calibParams, calibrationParamsOut);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
 }
 
-// END NEW MICHELANGELO'S GETS
-
-// 20230531: new functions
-/*! \brief something
- *
- * \param something else
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setDebugBit(
         E384CL_ARGIN uint16_t wordOffset,
         E384CL_ARGIN uint16_t bitOffset,
@@ -2487,12 +2488,6 @@ ErrorCodes_t setDebugBit(
     return ret;
 }
 
-/*! \brief something
- *
- * \param something else
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setDebugWord(
         E384CL_ARGIN uint16_t wordOffset,
         E384CL_ARGIN uint16_t wordValue){

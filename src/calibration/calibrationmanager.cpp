@@ -1,6 +1,8 @@
 #include "calibrationmanager.h"
 
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 namespace e384CommLib {
+#endif
 CalibrationManager::CalibrationManager(std::string serialNumber, uint16_t currentChannelsNum, uint16_t boardsNum, uint16_t vcCurrentRangesNum, uint16_t vcVoltageRangesNum, uint16_t ccVoltageRangesNum, uint16_t ccCurrentRangesNum) :
     serialNumber(serialNumber),
     currentChannelsNum(currentChannelsNum),
@@ -323,4 +325,6 @@ void CalibrationManager::discardCsvLine(std::fstream &stream) {
     std::string word;
     getline(stream, word);
 }
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 }
+#endif
