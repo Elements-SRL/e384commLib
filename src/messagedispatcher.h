@@ -364,6 +364,7 @@ protected:
     virtual void sendCommandsToDevice() = 0;
     virtual void initializeHW() = 0;
 
+    void forceOutMessage();
     bool checkProtocolValidity(std::string &message);
 
     void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);

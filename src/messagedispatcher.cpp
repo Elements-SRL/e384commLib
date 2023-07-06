@@ -369,6 +369,7 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
 }
 
 ErrorCodes_t MessageDispatcher::sendCommands() {
+    this->forceOutMessage();
     this->stackOutgoingMessage(txStatus);
     return Success;
 }
@@ -549,8 +550,6 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(std::vector<uint16_t> ch
     }
 }
 
-
-//---------------------------------
 ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
     if (calibVcVoltageGainCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
@@ -643,9 +642,6 @@ ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(std::vector<uint16_t> ch
         return Success;
     }
 }
-
-
-//---------------------------------
 
 ErrorCodes_t MessageDispatcher::setGateVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag){
     if (gateVoltageCoders.size() == 0) {
@@ -974,12 +970,13 @@ ErrorCodes_t MessageDispatcher::setSourceForCurrentChannel(uint16_t source, bool
 
 ErrorCodes_t MessageDispatcher::setAdcFilter(){
     // Still to be properly implemented
-    if(amIinVoltageClamp){
+    if (amIinVoltageClamp) {
         if (vcCurrentFilterCoder != nullptr) {
             vcCurrentFilterCoder->encode(sr2LpfVcCurrentMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedVcCurrentFilterIdx = sr2LpfVcCurrentMap[selectedSamplingRateIdx];
         }
-    }else{
+
+    } else {
         if (ccVoltageFilterCoder != nullptr) {
             ccVoltageFilterCoder->encode(sr2LpfCcVoltageMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedCcVoltageFilterIdx = sr2LpfCcVoltageMap[selectedSamplingRateIdx];
@@ -1332,6 +1329,7 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t
 }
 
 ErrorCodes_t MessageDispatcher::startProtocol() {
+    this->forceOutMessage();
     this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
     return Success;
 }
@@ -1371,6 +1369,7 @@ ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, Measurement_t vo
 }
 
 ErrorCodes_t MessageDispatcher::startStateArray(){
+    this->forceOutMessage();
     this->stackOutgoingMessage(txStatus, TxTriggerStartStateArray);
     return Success;
 }
@@ -2235,6 +2234,13 @@ bool MessageDispatcher::getDeviceCount(int &numDevs) {
     okCFrontPanel okDev;
     numDevs = okDev.GetDeviceCount();
     return true;
+}
+
+void MessageDispatcher::forceOutMessage() {
+    if (txModifiedEndingWord <= txModifiedStartingWord) {
+        txModifiedStartingWord = 0;
+        txModifiedEndingWord = 1;
+    }
 }
 
 bool MessageDispatcher::checkProtocolValidity(std::string &message) {
