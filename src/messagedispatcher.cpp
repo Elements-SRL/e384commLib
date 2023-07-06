@@ -1706,13 +1706,7 @@ ErrorCodes_t MessageDispatcher::purgeData() {
     ErrorCodes_t ret = Success;
 
     std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
-    if (rxMsgBufferReadLength <= 0) {
-        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(10));
-        if (rxMsgBufferReadLength <= 0) {
-            return ErrorNoDataAvailable;
-        }
-    }
-
+    rxMsgBufferReadOffset = (rxMsgBufferReadOffset+rxMsgBufferReadLength) & RX_MSG_BUFFER_MASK;
     rxMsgBufferReadLength = 0;
     rxMsgBufferNotFull.notify_all();
     rxMutexLock.unlock();
