@@ -1243,6 +1243,15 @@ ErrorCodes_t getNextMessage(
         E384CL_ARGOUT RxOutput_t &rxOutput,
         E384CL_ARGOUT int16_t * data);
 
+/*! \brief Purge buffered data.
+ *
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t purgeData(
+        E384CL_ARGVOID);
+
 /*! \brief Get the number of channels for the device.
  *
  * \param currentChannelsNum [out] Number of current channels.
@@ -1921,14 +1930,14 @@ ErrorCodes_t getBridgeBalanceResistance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCalibParams(
-        E384CL_ARGIN CharCalibrationParams_t * calibrationParams);
+        E384CL_ARGIN CharCalibrationParams_t &calibrationParams);
 
-// END NEW MICHELANGELO'S GETS
-
-// 20230531: ne functions
-/*! \brief something
+/*! \brief Set a debug bit
  *
- * \param something else
+ * \param wordOffset [in] word of the debug bit to be modified.
+ * \param bitOffset [in] debug bit to be modified.
+ * \param status [in] new status of the debug bit.
+ * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT

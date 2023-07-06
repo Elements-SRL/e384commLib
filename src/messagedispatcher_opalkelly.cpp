@@ -181,7 +181,7 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
     notSentTxData = true;
     writeTries = 0;
     while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
-        if (!writeRegistersAndActivateTriggers(type)) {
+        if (!this->writeRegistersAndActivateTriggers(type)) {
             continue;
         }
 

@@ -413,6 +413,7 @@ ErrorCodes_t MessageDispatcher::setAllChannelsSelected(bool newState) {
 }
 
 ErrorCodes_t MessageDispatcher::sendCommands() {
+    this->forceOutMessage();
     this->stackOutgoingMessage(txStatus);
     return Success;
 }
@@ -595,8 +596,6 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(std::vector<uint16_t> ch
     }
 }
 
-
-//---------------------------------
 ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
     if (calibVcVoltageGainCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
@@ -689,9 +688,6 @@ ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(std::vector<uint16_t> ch
         return Success;
     }
 }
-
-
-//---------------------------------
 
 ErrorCodes_t MessageDispatcher::setGateVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag){
     if (gateVoltageCoders.size() == 0) {
@@ -1402,6 +1398,7 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t
 }
 
 ErrorCodes_t MessageDispatcher::startProtocol() {
+    this->forceOutMessage();
     this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
     return Success;
 }
@@ -1441,6 +1438,7 @@ ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, Measurement_t vo
 }
 
 ErrorCodes_t MessageDispatcher::startStateArray(){
+    this->forceOutMessage();
     this->stackOutgoingMessage(txStatus, TxTriggerStartStateArray);
     return Success;
 }
@@ -1790,6 +1788,18 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
 
     rxMutexLock.lock();
     rxMsgBufferReadLength -= msgReadCount;
+    rxMsgBufferNotFull.notify_all();
+    rxMutexLock.unlock();
+
+    return ret;
+}
+
+ErrorCodes_t MessageDispatcher::purgeData() {
+    ErrorCodes_t ret = Success;
+
+    std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
+    rxMsgBufferReadOffset = (rxMsgBufferReadOffset+rxMsgBufferReadLength) & RX_MSG_BUFFER_MASK;
+    rxMsgBufferReadLength = 0;
     rxMsgBufferNotFull.notify_all();
     rxMutexLock.unlock();
 
@@ -2534,6 +2544,13 @@ bool MessageDispatcher::getDeviceCount(int &numDevs) {
     okCFrontPanel okDev;
     numDevs = okDev.GetDeviceCount();
     return true;
+}
+
+void MessageDispatcher::forceOutMessage() {
+    if (txModifiedEndingWord <= txModifiedStartingWord) {
+        txModifiedStartingWord = 0;
+        txModifiedEndingWord = 1;
+    }
 }
 
 bool MessageDispatcher::checkProtocolValidity(std::string &message) {
