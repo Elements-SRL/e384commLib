@@ -1543,9 +1543,9 @@ ErrorCodes_t getClampingModalitiesFeatures(
         uint16_t * clampingModalitiesOut) {
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
-        std::vector <uint16_t> clampingModalities;
+        std::vector <ClampingModality_t> clampingModalities;
         ret = messageDispatcher->getClampingModalitiesFeatures(clampingModalities);
-        numericVector2Output<std::vector <uint16_t>, uint16_t>(clampingModalities, clampingModalitiesOut);
+        numericVector2Output<std::vector <ClampingModality_t>, uint16_t>(clampingModalities, clampingModalitiesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1802,7 +1802,7 @@ ErrorCodes_t getVoltageStimulusLpfs(
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <Measurement_t> vcVoltageFilters;
-        ret = messageDispatcher->getVoltageStimulusLpfs(vcVoltageFilters);
+        ret = messageDispatcher->getVCVoltageFilters(vcVoltageFilters);
         std::vector <std::string> filterOptions;
         for(uint16_t i = 0; i < vcVoltageFilters.size(); i++){
             filterOptions[i] = vcVoltageFilters[i].niceLabel();
@@ -1820,7 +1820,7 @@ ErrorCodes_t getCurrentStimulusLpfs(
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         std::vector <Measurement_t> ccCurrentFilters;
-        ret = messageDispatcher->getCurrentStimulusLpfs(ccCurrentFilters);
+        ret = messageDispatcher->getCCCurrentFilters(ccCurrentFilters);
         std::vector <std::string> filterOptions;
         for(uint16_t i = 0; i < ccCurrentFilters.size(); i++){
             filterOptions[i] = ccCurrentFilters[i].niceLabel();
