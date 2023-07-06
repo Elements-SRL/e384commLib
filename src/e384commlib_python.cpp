@@ -60,7 +60,7 @@ PYBIND11_MODULE(e384CommLibPython, m) {
     }, "Set sampling rate to the one associated with the corrisponding index");
 
     m.def("purge",[](){
-        return  md->purge();
+        return  md->purgeData();
     }, "Remove all queued messages");
 
     m.def("setVoltageHoldTuner",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
