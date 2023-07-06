@@ -1702,6 +1702,24 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
     return ret;
 }
 
+ErrorCodes_t MessageDispatcher::purgeData() {
+    ErrorCodes_t ret = Success;
+
+    std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
+    if (rxMsgBufferReadLength <= 0) {
+        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(10));
+        if (rxMsgBufferReadLength <= 0) {
+            return ErrorNoDataAvailable;
+        }
+    }
+
+    rxMsgBufferReadLength = 0;
+    rxMsgBufferNotFull.notify_all();
+    rxMutexLock.unlock();
+
+    return ret;
+}
+
 ErrorCodes_t MessageDispatcher::convertVoltageValue(int16_t intValue, double &fltValue) {
     fltValue = voltageResolution*(double)intValue;
 

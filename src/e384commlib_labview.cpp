@@ -1440,6 +1440,17 @@ ErrorCodes_t getNextMessage(
     return ret;
 }
 
+ErrorCodes_t purgeData() {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->purgeData();
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
 ErrorCodes_t getChannelsNumber(
         uint32_t &currentChannelsNum,
         uint32_t &voltageChannelsNum) {

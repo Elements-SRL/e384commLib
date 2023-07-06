@@ -1243,6 +1243,15 @@ ErrorCodes_t getNextMessage(
         E384CL_ARGOUT RxOutput_t &rxOutput,
         E384CL_ARGOUT int16_t * data);
 
+/*! \brief Purge buffered data.
+ *
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t purgeData(
+        E384CL_ARGVOID);
+
 /*! \brief Get the number of channels for the device.
  *
  * \param currentChannelsNum [out] Number of current channels.
