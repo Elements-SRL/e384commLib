@@ -119,6 +119,16 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
+    if (deviceIdMapping.count(deviceId) > 0) {
+        type = deviceIdMapping[deviceId];
+        return Success;
+
+    } else {
+        return ErrorDeviceTypeNotRecognized;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher) {
     ErrorCodes_t ret = Success;
 
@@ -2502,16 +2512,6 @@ ErrorCodes_t MessageDispatcher::deinit() {
 #endif
 
     return Success;
-}
-
-ErrorCodes_t MessageDispatcher::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
-    if (deviceIdMapping.count(deviceId) > 0) {
-        type = deviceIdMapping[deviceId];
-        return Success;
-
-    } else {
-        return ErrorDeviceTypeNotRecognized;
-    }
 }
 
 /*! \todo FCON questi due metodi dovrebbero cercare dispositivi con tutte le librerie di interfacciamento con device implementate (per ora c'è solo il front panel della opal kelly) */

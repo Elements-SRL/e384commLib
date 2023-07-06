@@ -101,6 +101,7 @@ public:
     \************************/
 
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
+    static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher);
     ErrorCodes_t disconnectDevice();
     ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag);
@@ -394,7 +395,6 @@ protected:
     ErrorCodes_t init();
     ErrorCodes_t deinit();
 
-    static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static std::string getDeviceSerial(int index);
     static bool getDeviceCount(int &numDevs);
     virtual void handleCommunicationWithDevice() = 0;
