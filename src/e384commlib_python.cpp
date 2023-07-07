@@ -66,13 +66,34 @@ PYBIND11_MODULE(e384CommLibPython, m) {
     m.def("setVoltageHoldTuner",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
         return md->setVoltageHoldTuner(channelIndexes, voltages, applyFlag);
     });
-    m.def("setCalibVcVoltageOffset",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
+//    Voltage Clamp Calibration
+    m.def("setCalibVcVoltageOffsets",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
         return md->setCalibVcVoltageOffset(channelIndexes, voltages, applyFlag);
     });
-
     m.def("setCalibVcVoltageGains",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
         return md->setCalibVcVoltageGain(channelIndexes, gains, applyFlag);
     });
+    m.def("setCalibVcCurrentOffsets",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
+        return md->setCalibVcCurrentOffset(channelIndexes, currents, applyFlag);
+    });
+    m.def("setCalibVcCurrentGains",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
+        return md->setCalibVcCurrentGain(channelIndexes, gains, applyFlag);
+    });
+
+    //    Current Clamp Calibration
+    m.def("setCalibCcVoltageOffsets",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
+        return md->setCalibCcVoltageOffset(channelIndexes, voltages, applyFlag);
+    });
+    m.def("setCalibCcVoltageGains",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
+        return md->setCalibCcVoltageGain(channelIndexes, gains, applyFlag);
+    });
+    m.def("setCalibCcCurrentOffsets",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
+        return md->setCalibCcCurrentOffset(channelIndexes, currents, applyFlag);
+    });
+    m.def("setCalibCcCurrentGains",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
+        return md->setCalibCcCurrentGain(channelIndexes, gains, applyFlag);
+    });
+
 
     m.def("getBufferedVoltagesAndCurrents", [](){
         RxOutput_t rxOutput;
