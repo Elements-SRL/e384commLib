@@ -13,7 +13,7 @@
 #include "e384commlib_errorcodes.h"
 #include "e384commlib_global.h"
 #include "commandcoder.h"
-#include "modelboard.h"
+#include "boardmodel.h"
 
 #ifdef E384COMMLIB_LABVIEW_WRAPPER
 #include "e384commlib_global_addendum.h"
@@ -222,8 +222,8 @@ public:
 
     ErrorCodes_t getSerialNumber(std::string &serialNumber);
 
-    ErrorCodes_t getBoards(std::vector <ModelBoard *> &boards);
-    ErrorCodes_t getChannels(std::vector <ModelChannel *> &channels);
+    ErrorCodes_t getBoards(std::vector <BoardModel *> &boards);
+    ErrorCodes_t getChannels(std::vector <ChannelModel *> &channels);
     ErrorCodes_t getSelectedChannels(std::vector <bool> &selected);
 
     ErrorCodes_t getRxDataBufferSize(uint32_t &size);
@@ -734,8 +734,8 @@ protected:
     bool stopConnectionFlag = false;
     bool parsingFlag = false;
 
-    std::vector <ModelBoard *> myBoards;
-    std::vector <ModelChannel *> myChannels;
+    std::vector <BoardModel *> myBoards;
+    std::vector <ChannelModel *> myChannels;
 
     /*! Read data buffer management */
     uint16_t rxMaxWords;

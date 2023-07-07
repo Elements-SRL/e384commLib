@@ -1467,12 +1467,12 @@ ErrorCodes_t MessageDispatcher::getSerialNumber(std::string &serialNumber) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getBoards(std::vector <ModelBoard *> &boards) {
+ErrorCodes_t MessageDispatcher::getBoards(std::vector <BoardModel *> &boards) {
     boards = myBoards;
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getChannels(std::vector <ModelChannel *> &channels) {
+ErrorCodes_t MessageDispatcher::getChannels(std::vector <ChannelModel *> &channels) {
     channels = myChannels;
     return Success;
 }
@@ -3078,7 +3078,7 @@ double MessageDispatcher::computeAsicCmCinj(double cm, bool chanCslowEnable, Mul
 void MessageDispatcher::fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
     this->myBoards.resize(numOfBoards);
     for(uint16_t i = 0; i< numOfBoards; i++ ){
-        ModelBoard* board = new ModelBoard;
+        BoardModel* board = new BoardModel;
         board->setId(i);
         board->fillChannelList(numOfChannelsOnBoard);
         this->myBoards[i] = board;

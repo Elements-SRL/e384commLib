@@ -1,11 +1,11 @@
-#include "modelboard.h"
+#include "boardmodel.h"
 
-ModelBoard::ModelBoard()
+BoardModel::BoardModel()
 {
 
 }
 
-ModelBoard::~ModelBoard()
+BoardModel::~BoardModel()
 {
     int numOfChannels = this->channelsOnBoard.size();
     for(uint16_t i = 0; i< numOfChannels; i++ ){
@@ -15,45 +15,45 @@ ModelBoard::~ModelBoard()
     }
 }
 
-uint16_t ModelBoard::getId(){
+uint16_t BoardModel::getId(){
     return this->id;
 }
 
-std::vector<ModelChannel*> ModelBoard::getChannelsOnBoard(){
+std::vector<ChannelModel*> BoardModel::getChannelsOnBoard(){
     return this->channelsOnBoard;
 }
 
-Measurement_t ModelBoard::getGateVoltage(){
+Measurement_t BoardModel::getGateVoltage(){
     return this->gateVoltage;
 }
 
-Measurement_t ModelBoard::getSourceVoltage(){
+Measurement_t BoardModel::getSourceVoltage(){
     return this->sourceVoltage;
 }
 
 
-void ModelBoard::setId(uint16_t id){
+void BoardModel::setId(uint16_t id){
     this->id = id;
 }
 
-void ModelBoard::setChannelsOnBoard (std::vector<ModelChannel*> channelsOnBoard){
+void BoardModel::setChannelsOnBoard (std::vector<ChannelModel*> channelsOnBoard){
     this->channelsOnBoard = channelsOnBoard;
 }
 
-void ModelBoard::setGateVoltage(Measurement_t gateVoltage){
+void BoardModel::setGateVoltage(Measurement_t gateVoltage){
     this->gateVoltage = gateVoltage;
 }
 
-void ModelBoard::setSourceVoltage(Measurement_t sourceVoltage){
+void BoardModel::setSourceVoltage(Measurement_t sourceVoltage){
     this->sourceVoltage = sourceVoltage;
 }
 
 
-void ModelBoard::fillChannelList(uint16_t numChannelsOnBoard){
+void BoardModel::fillChannelList(uint16_t numChannelsOnBoard){
     this->channelsOnBoard.resize(numChannelsOnBoard);
     for(uint16_t i =0; i< numChannelsOnBoard; i++ ){
         uint16_t newChannelId = numChannelsOnBoard*this->getId() + i; // board_0: ch_0 -> ch_15; board_1: ch_16 -> ch_31; ...
-        ModelChannel* channel = new ModelChannel;
+        ChannelModel* channel = new ChannelModel;
         channel->setId(newChannelId);
         this->channelsOnBoard[i] = channel;
     }

@@ -1,24 +1,24 @@
-#ifndef MODELBOARD_H
-#define MODELBOARD_H
+#ifndef BOARDMODEL_H
+#define BOARDMODEL_H
 
 #include <vector>
 
 #include "e384commlib_global.h"
 #include "e384commlib_global_addendum.h"
-#include "modelchannel.h"
+#include "channelmodel.h"
 
-class ModelBoard {
+class BoardModel {
 public:
-    ModelBoard();
-    ~ModelBoard();
+    BoardModel();
+    ~BoardModel();
 
     uint16_t getId();
-    std::vector<ModelChannel*> getChannelsOnBoard();
+    std::vector<ChannelModel*> getChannelsOnBoard();
     Measurement_t getGateVoltage();
     Measurement_t getSourceVoltage();
 
     void setId(uint16_t id);
-    void setChannelsOnBoard (std::vector<ModelChannel*> channelsOnBoard);
+    void setChannelsOnBoard (std::vector<ChannelModel*> channelsOnBoard);
     void setGateVoltage(Measurement_t gateVoltage);
     void setSourceVoltage(Measurement_t sourceVoltage);
 
@@ -26,10 +26,9 @@ public:
 
 private:
     uint16_t id = 65535;
-    std::vector<ModelChannel*> channelsOnBoard;
+    std::vector<ChannelModel*> channelsOnBoard;
     Measurement_t gateVoltage = {0.0, UnitPfxMilli, "V"};
     Measurement_t sourceVoltage = {0.0, UnitPfxMilli, "V"};
-
 };
 
-#endif // MODELBOARD_H
+#endif // BOARDMODEL_H

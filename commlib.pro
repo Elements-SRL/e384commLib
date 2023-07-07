@@ -69,8 +69,8 @@ SOURCES += \
     src/devices/messagedispatcher_384patchclamp.cpp \
     src/devices/messagedispatcher_2x10mhz.cpp \
     src/devices/messagedispatcher_4x10mhz.cpp \
-    src/model/modelboard.cpp \
-    src/model/modelchannel.cpp \
+    src/model/boardmodel.cpp \
+    src/model/channelmodel.cpp \
     src/calibration/calibrationmanager.cpp
 
 HEADERS += \
@@ -84,8 +84,8 @@ HEADERS += \
     src/devices/messagedispatcher_384patchclamp.h \
     src/devices/messagedispatcher_2x10mhz.h \
     src/devices/messagedispatcher_4x10mhz.h \
-    src/model/modelboard.h \
-    src/model/modelchannel.h \
+    src/model/boardmodel.h \
+    src/model/channelmodel.h \
     src/calibration/calibrationmanager.h \
     src/utils.h
 

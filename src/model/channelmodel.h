@@ -1,5 +1,5 @@
-#ifndef MODELCHANNEL_H
-#define MODELCHANNEL_H
+#ifndef CHANNELMODEL_H
+#define CHANNELMODEL_H
 
 #include "e384commlib_global.h"
 #include "e384commlib_global_addendum.h"
@@ -8,10 +8,10 @@
 using namespace e384CommLib;
 #endif
 
-class ModelChannel {
+class ChannelModel {
 public:
-    ModelChannel();
-    ~ModelChannel();
+    ChannelModel();
+    ~ChannelModel();
 
     uint16_t getId();
     bool isOn();
@@ -55,4 +55,4 @@ private:
     Measurement_t vDoc = {0.0, UnitPfxMilli, "V"};  // digital offset compensation voltage
 };
 
-#endif // MODELCHANNEL_H
+#endif // CHANNELMODEL_H
