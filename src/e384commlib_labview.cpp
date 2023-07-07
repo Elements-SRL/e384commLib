@@ -2540,15 +2540,7 @@ void string2Output(std::string s, LStrHandle o) {
 void measurement2Output(Measurement_t m, CharMeasurement_t &o) {
     o.value = m.value;
     o.prefix = m.prefix;
-    string2Output(m.unit, o.unit); // vedere se può sostituire il pezzo sotto
-
-//    size_t unitSize = m.unit.length();
-//    o.unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
-//    if (o.unit == nullptr) {
-//        return;
-//    }
-//    MoveBlock(&m.unit, LStrBuf(* o.unit), unitSize);
-//    LStrLen(* o.unit) = unitSize;
+    string2Output(m.unit, o.unit);
 }
 
 void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o) {
@@ -2556,15 +2548,7 @@ void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o)
     o.max = r.max;
     o.step = r.step;
     o.prefix = r.prefix;
-    string2Output(r.unit, o.unit); // vedere se può sostituire il pezzo sotto
-
-//    size_t unitSize = r.unit.length();
-//    o.unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
-//    if (o.unit == nullptr) {
-//        return;
-//    }
-//    MoveBlock(&r.unit, LStrBuf(* o.unit), unitSize);
-//    LStrLen(* o.unit) = unitSize;
+    string2Output(r.unit, o.unit);
 }
 
 void compensationControl2Output(CompensationControl_t c, CharCompensationControl_t &o) {
@@ -2577,28 +2561,19 @@ void compensationControl2Output(CompensationControl_t c, CharCompensationControl
     o.decimals = c.decimals;
     o.value = c.value;
     o.prefix = c.prefix;
-    string2Output(c.unit, o.unit); // vedere se può sostituire il pezzo sotto
-    string2Output(c.name, o.name); // vedere se può sostituire il pezzo sotto
-
-//    size_t unitSize = c.unit.length();
-//    o.unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
-//    if (o.unit == nullptr) {
-//        return;
-//    }
-//    MoveBlock(&c.unit, LStrBuf(* o.unit), unitSize);
-//    LStrLen(* o.unit) = unitSize;
-
-//    size_t nameSize = c.name.length();
-//    o.name = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*nameSize);
-//    if (o.name == nullptr) {
-//        return;
-//    }
-//    MoveBlock(&c.name, LStrBuf(* o.name), nameSize);
-//    LStrLen(* o.name) = nameSize;
+    string2Output(c.unit, o.unit);
+    string2Output(c.name, o.name);
 }
 
 void calibrationParams2Output(CalibrationParams_t p, CharCalibrationParams_t &o) {
-
+    vectorVectorMeasurement2Output(p.allGainAdcMeas, &o.allGainAdcMeas);
+    vectorVectorMeasurement2Output(p.allGainDacMeas, &o.allGainDacMeas);
+    vectorVectorMeasurement2Output(p.allOffsetAdcMeas, &o.allOffsetAdcMeas);
+    vectorVectorMeasurement2Output(p.allOffsetDacMeas, &o.allOffsetDacMeas);
+    vectorVectorMeasurement2Output(p.ccAllGainAdcMeas, &o.ccAllGainAdcMeas);
+    vectorVectorMeasurement2Output(p.ccAllGainDacMeas, &o.ccAllGainDacMeas);
+    vectorVectorMeasurement2Output(p.ccAllOffsetAdcMeas, &o.ccAllOffsetAdcMeas);
+    vectorVectorMeasurement2Output(p.ccAllOffsetDacMeas, &o.ccAllOffsetDacMeas);
 }
 
 void vectorString2Output(std::vector <std::string> v, LStrHandle o) {
@@ -2616,16 +2591,6 @@ void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o) {
         for (auto m : v) {
             CharMeasurement_t * meas = LVecItem(** o, offset);
             measurement2Output(m, * meas);
-//            meas->value = m.value;
-//            meas->prefix = m.prefix;
-
-//            size_t unitSize = m.unit.length();
-//            meas->unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
-//            if (meas->unit == nullptr) {
-//                return;
-//            }
-//            MoveBlock(&m.unit, LStrBuf(*(meas->unit)), unitSize);
-//            LStrLen(* meas->unit) = unitSize;
             offset++;
         }
         LVecLen(** o) = v.size();
@@ -2652,18 +2617,6 @@ void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeH
         for (auto r : v) {
             CharRangedMeasurement_t * range = LVecItem(** o, offset);
             rangedMeasurement2Output(r, * range);
-//            range->min = r.min;
-//            range->max = r.max;
-//            range->step = r.step;
-//            range->prefix = r.prefix;
-
-//            size_t unitSize = r.unit.length();
-//            range->unit = (LStrHandle)DSNewHClr(sizeof(int32_t)+sizeof(uChar)*unitSize);
-//            if (range->unit == nullptr) {
-//                return;
-//            }
-//            MoveBlock(&r.unit, LStrBuf(*(range->unit)), unitSize);
-//            LStrLen(* range->unit) = unitSize;
             offset++;
         }
         LVecLen(** o) = v.size();

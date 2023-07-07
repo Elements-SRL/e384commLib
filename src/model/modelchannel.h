@@ -4,10 +4,11 @@
 #include "e384commlib_global.h"
 #include "e384commlib_global_addendum.h"
 
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 using namespace e384CommLib;
+#endif
 
-class ModelChannel
-{
+class ModelChannel {
 public:
     ModelChannel();
     ~ModelChannel();
@@ -38,7 +39,6 @@ public:
     void setChold(Measurement_t cHold);
     void setVdoc(Measurement_t vDoc);
 
-
 private:
     uint16_t id = 65535;                            // Channel ID
     bool on = false;                                // Channel is ON (true) or off (false)
@@ -53,7 +53,6 @@ private:
     Measurement_t vHold = {0.0, UnitPfxMilli, "V"}; // holding voltage
     Measurement_t cHold = {0.0, UnitPfxNano, "A"};  // holding current
     Measurement_t vDoc = {0.0, UnitPfxMilli, "V"};  // digital offset compensation voltage
-
 };
 
 #endif // MODELCHANNEL_H
