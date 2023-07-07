@@ -291,6 +291,10 @@ public:
     ErrorCodes_t getCCVoltageFilterIdx(uint32_t &idx);
     ErrorCodes_t getCCCurrentFilterIdx(uint32_t &idx);
 
+    ErrorCodes_t hasChannelSwitches();
+    ErrorCodes_t hasStimulusSwitches();
+    ErrorCodes_t hasOffsetCompensation();
+
     ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams);
     ErrorCodes_t getCalibFileNames(std::vector<std::string> &calibFileNames);
     ErrorCodes_t getCalibFilesFlags(std::vector<std::vector <bool>> &calibFilesFlags);
@@ -321,7 +325,6 @@ public:
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray);
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix);
     virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues);
-
 
     virtual ErrorCodes_t getPipetteCompensationOptions(std::vector <std::string> options);
     virtual ErrorCodes_t getCCPipetteCompensationOptions(std::vector <std::string> options);
@@ -540,7 +543,6 @@ protected:
 
     std::vector <BoolCoder *> enableStimulusCoders;
     std::vector <BoolCoder *> turnChannelsOnCoders;
-
 
     uint32_t samplingRatesNum;
     std::vector <Measurement_t> samplingRatesArray;

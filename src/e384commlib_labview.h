@@ -125,6 +125,22 @@ ErrorCodes_t setChannelsSources(
         E384CL_ARGIN int16_t voltageSourcesIdx,
         E384CL_ARGIN int16_t currentSourcesIdx);
 
+/*! \brief Set a channel voltage offset on a specific channel.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param voltagesIn [in] Vector of voltage offsets.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setVoltageHoldTuner(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle * voltagesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
 /*! \brief Set the holding current tuner. This value is added to the whole current protocol currently applied and to the following.
  *
  * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
@@ -137,7 +153,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentHoldTuner(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle currentsIn,
+        E384CL_ARGIN LMeasHandle * currentsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -333,22 +349,6 @@ ErrorCodes_t turnCalSwOn(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
-/*! \brief Set a channel voltage offset on a specific channel.
- *
- * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
- * \param voltagesIn [in] Vector of voltage offsets.
- * \param applyFlagIn [in] Flag for instant application of this setting.
- * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setVoltageHoldTuner(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle voltagesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
-
 /*! \brief Set a VC current gain on a specific channel.
  *
  * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
@@ -361,7 +361,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcCurrentGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -377,7 +377,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcCurrentOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -393,7 +393,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcVoltageGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -409,7 +409,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcVoltageOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -425,7 +425,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcVoltageGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -441,7 +441,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcVoltageOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -457,7 +457,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcCurrentGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -473,7 +473,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcCurrentOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -489,7 +489,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setGateVoltage(
         E384CL_ARGIN uint16_t * boardIndexesIn,
-        E384CL_ARGIN LMeasHandle gateVoltagesIn,
+        E384CL_ARGIN LMeasHandle * gateVoltagesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -505,7 +505,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setSourceVoltage(
         E384CL_ARGIN uint16_t * boardIndexesIn,
-        E384CL_ARGIN LMeasHandle sourceVoltagesIn,
+        E384CL_ARGIN LMeasHandle * sourceVoltagesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 

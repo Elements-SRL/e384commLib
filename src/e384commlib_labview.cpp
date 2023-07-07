@@ -166,7 +166,7 @@ ErrorCodes_t setChannelsSources(
 
 ErrorCodes_t setVoltageHoldTuner(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle voltagesIn,
+        E384CL_ARGIN LMeasHandle * voltagesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -174,7 +174,7 @@ ErrorCodes_t setVoltageHoldTuner(
         std::vector<uint16_t> channelIndexes;
         std::vector<Measurement_t> voltages;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2VectorMeasurement(voltagesIn, voltages);
+        input2VectorMeasurement(* voltagesIn, voltages);
         ret = messageDispatcher->setVoltageHoldTuner(channelIndexes, voltages, applyFlagIn);
 
     } else {
@@ -183,9 +183,27 @@ ErrorCodes_t setVoltageHoldTuner(
     return ret;
 }
 
+ErrorCodes_t setCurrentHoldTuner(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle * currentsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<Measurement_t> currents;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2VectorMeasurement(* currentsIn, currents);
+        ret = messageDispatcher->setCurrentHoldTuner(channelIndexes, currents, true);
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
 ErrorCodes_t setCalibVcCurrentGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -193,7 +211,7 @@ ErrorCodes_t setCalibVcCurrentGain(
         std::vector<uint16_t> channelIndexes;
         std::vector<Measurement_t> gains;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2VectorMeasurement(gainsIn, gains);
+        input2VectorMeasurement(* gainsIn, gains);
         ret = messageDispatcher->setCalibVcCurrentGain(channelIndexes, gains, applyFlagIn);
 
     } else {
@@ -204,7 +222,7 @@ ErrorCodes_t setCalibVcCurrentGain(
 
 ErrorCodes_t setCalibVcCurrentOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -212,7 +230,7 @@ ErrorCodes_t setCalibVcCurrentOffset(
         std::vector<uint16_t> channelIndexes;
         std::vector<Measurement_t> offsets;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2VectorMeasurement(offsetsIn, offsets);
+        input2VectorMeasurement(* offsetsIn, offsets);
         ret = messageDispatcher->setCalibVcCurrentOffset(channelIndexes, offsets, applyFlagIn);
 
     } else {
@@ -223,7 +241,7 @@ ErrorCodes_t setCalibVcCurrentOffset(
 
 ErrorCodes_t setCalibVcVoltageGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -231,7 +249,7 @@ ErrorCodes_t setCalibVcVoltageGain(
         std::vector<uint16_t> channelIndexes;
         std::vector<Measurement_t> gains;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2VectorMeasurement(gainsIn, gains);
+        input2VectorMeasurement(* gainsIn, gains);
         ret = messageDispatcher->setCalibVcVoltageGain(channelIndexes, gains, applyFlagIn);
 
     } else {
@@ -242,7 +260,7 @@ ErrorCodes_t setCalibVcVoltageGain(
 
 ErrorCodes_t setCalibVcVoltageOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -250,7 +268,7 @@ ErrorCodes_t setCalibVcVoltageOffset(
         std::vector<uint16_t> channelIndexes;
         std::vector<Measurement_t> offsets;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2VectorMeasurement(offsetsIn, offsets);
+        input2VectorMeasurement(* offsetsIn, offsets);
         ret = messageDispatcher->setCalibVcVoltageOffset(channelIndexes, offsets, applyFlagIn);
 
     } else {
@@ -263,7 +281,7 @@ ErrorCodes_t setCalibVcVoltageOffset(
 
 ErrorCodes_t setCalibCcVoltageGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -271,7 +289,7 @@ ErrorCodes_t setCalibCcVoltageGain(
         std::vector<uint16_t> channelIndexes;
         std::vector<Measurement_t> gains;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2VectorMeasurement(gainsIn, gains);
+        input2VectorMeasurement(* gainsIn, gains);
         ret = messageDispatcher->setCalibCcVoltageGain(channelIndexes, gains, applyFlagIn);
 
     } else {
@@ -282,7 +300,7 @@ ErrorCodes_t setCalibCcVoltageGain(
 
 ErrorCodes_t setCalibCcVoltageOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -290,7 +308,7 @@ ErrorCodes_t setCalibCcVoltageOffset(
         std::vector<uint16_t> channelIndexes;
         std::vector<Measurement_t> offsets;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2VectorMeasurement(offsetsIn, offsets);
+        input2VectorMeasurement(* offsetsIn, offsets);
         ret = messageDispatcher->setCalibCcVoltageOffset(channelIndexes, offsets, applyFlagIn);
 
     } else {
@@ -301,7 +319,7 @@ ErrorCodes_t setCalibCcVoltageOffset(
 
 ErrorCodes_t setCalibCcCurrentGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -309,7 +327,7 @@ ErrorCodes_t setCalibCcCurrentGain(
         std::vector<uint16_t> channelIndexes;
         std::vector<Measurement_t> gains;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2VectorMeasurement(gainsIn, gains);
+        input2VectorMeasurement(* gainsIn, gains);
         ret = messageDispatcher->setCalibCcCurrentGain(channelIndexes, gains, applyFlagIn);
 
     } else {
@@ -320,7 +338,7 @@ ErrorCodes_t setCalibCcCurrentGain(
 
 ErrorCodes_t setCalibCcCurrentOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -328,7 +346,7 @@ ErrorCodes_t setCalibCcCurrentOffset(
         std::vector<uint16_t> channelIndexes;
         std::vector<Measurement_t> offsets;
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2VectorMeasurement(offsetsIn, offsets);
+        input2VectorMeasurement(* offsetsIn, offsets);
         ret = messageDispatcher->setCalibCcCurrentOffset(channelIndexes, offsets, applyFlagIn);
 
     } else {
@@ -339,7 +357,7 @@ ErrorCodes_t setCalibCcCurrentOffset(
 
 ErrorCodes_t setGateVoltage(
         E384CL_ARGIN uint16_t * boardIndexesIn,
-        E384CL_ARGIN LMeasHandle gateVoltagesIn,
+        E384CL_ARGIN LMeasHandle * gateVoltagesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -347,7 +365,7 @@ ErrorCodes_t setGateVoltage(
         std::vector<uint16_t> boardIndexes;
         std::vector<Measurement_t> gateVoltages;
         input2NumericVector<uint16_t>(boardIndexesIn, boardIndexes, vectorLengthIn);
-        input2VectorMeasurement(gateVoltagesIn, gateVoltages);
+        input2VectorMeasurement(* gateVoltagesIn, gateVoltages);
         ret = messageDispatcher->setGateVoltagesTuner(boardIndexes, gateVoltages, applyFlagIn);
 
     } else {
@@ -358,7 +376,7 @@ ErrorCodes_t setGateVoltage(
 
 ErrorCodes_t setSourceVoltage(
         E384CL_ARGIN uint16_t * boardIndexesIn,
-        E384CL_ARGIN LMeasHandle sourceVoltagesIn,
+        E384CL_ARGIN LMeasHandle * sourceVoltagesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn) {
     ErrorCodes_t ret;
@@ -366,27 +384,9 @@ ErrorCodes_t setSourceVoltage(
         std::vector<uint16_t> boardIndexes;
         std::vector<Measurement_t> sourceVoltages;
         input2NumericVector<uint16_t>(boardIndexesIn, boardIndexes, vectorLengthIn);
-        input2VectorMeasurement(sourceVoltagesIn, sourceVoltages);
+        input2VectorMeasurement(* sourceVoltagesIn, sourceVoltages);
         ret = messageDispatcher->setSourceVoltagesTuner(boardIndexes, sourceVoltages, applyFlagIn);
 
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t setCurrentHoldTuner(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle currentsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        std::vector<uint16_t> channelIndexes;
-        std::vector<Measurement_t> currents;
-        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-        input2VectorMeasurement(currentsIn, currents);
-        ret = messageDispatcher->setCurrentHoldTuner(channelIndexes, currents, true);
     } else {
         ret = ErrorDeviceNotConnected;
     }
@@ -2524,6 +2524,7 @@ void input2Measurement(CharMeasurement_t i, Measurement_t &m) {
 }
 
 void input2VectorMeasurement(LMeasHandle i, std::vector <Measurement_t> &m) {
+    m.resize(LVecLen(* i));
     for (int j = 0; j < LVecLen(* i); j++) {
         input2Measurement(*LVecItem(* i, j), m[j]);
     }

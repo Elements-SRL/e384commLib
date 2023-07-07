@@ -2264,6 +2264,33 @@ ErrorCodes_t MessageDispatcher::getCCCurrentFilterIdx(uint32_t &idx) {
     }
 }
 
+ErrorCodes_t MessageDispatcher::hasChannelSwitches() {
+    if (turnChannelsOnCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::hasStimulusSwitches() {
+    if (enableStimulusCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::hasOffsetCompensation() {
+    if (digitalOffsetCompensationCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::getCalibParams(CalibrationParams_t &calibParams){
     if(calibrationParams.allGainAdcMeas.size()>0){
         calibParams.allGainAdcMeas = calibrationParams.allGainAdcMeas;

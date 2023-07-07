@@ -404,20 +404,19 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     // undefined
 
     /*! Digital offset compensation */
-    boolConfig.initialWord = 12;
-    boolConfig.initialBit = 0;
-    boolConfig.bitsNum = 1;
-    digitalOffsetCompensationCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        digitalOffsetCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
-        coders.push_back(digitalOffsetCompensationCoders[idx]);
-        boolConfig.initialBit++;
-        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
-            boolConfig.initialBit = 0;
-            boolConfig.initialWord++;
-        }
-    }
-
+//    boolConfig.initialWord = 12;
+//    boolConfig.initialBit = 0;
+//    boolConfig.bitsNum = 1;
+//    digitalOffsetCompensationCoders.resize(currentChannelsNum);
+//    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+//        digitalOffsetCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
+//        coders.push_back(digitalOffsetCompensationCoders[idx]);
+//        boolConfig.initialBit++;
+//        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+//            boolConfig.initialBit = 0;
+//            boolConfig.initialWord++;
+//        }
+//    }
 
     /*! Enable stimulus */
     boolConfig.initialWord = 13;
