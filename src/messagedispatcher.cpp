@@ -1478,9 +1478,18 @@ ErrorCodes_t MessageDispatcher::getChannels(std::vector <ChannelModel *> &channe
 }
 
 ErrorCodes_t MessageDispatcher::getSelectedChannels(std::vector <bool> &selected) {
-    selected.resize(this->myChannels.size());
-    for (int idx = 0; idx < this->myChannels.size(); idx++) {
-        selected[idx] = this->myChannels[idx]->isSelected();
+    selected.resize(myChannels.size());
+    for (int idx = 0; idx < myChannels.size(); idx++) {
+        selected[idx] = myChannels[idx]->isSelected();
+    }
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getSelectedChannelsIndexes(std::vector <uint16_t> &indexes) {
+    for (int idx = 0; idx < myChannels.size(); idx++) {
+        if (myChannels[idx]->isSelected()) {
+            indexes.push_back(idx);
+        }
     }
     return Success;
 }

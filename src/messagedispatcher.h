@@ -225,6 +225,7 @@ public:
     ErrorCodes_t getBoards(std::vector <BoardModel *> &boards);
     ErrorCodes_t getChannels(std::vector <ChannelModel *> &channels);
     ErrorCodes_t getSelectedChannels(std::vector <bool> &selected);
+    ErrorCodes_t getSelectedChannelsIndexes(std::vector <uint16_t> &indexes);
 
     ErrorCodes_t getRxDataBufferSize(uint32_t &size);
     ErrorCodes_t allocateRxDataBuffer(int16_t * &data);
