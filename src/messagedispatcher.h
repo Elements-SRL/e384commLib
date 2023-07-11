@@ -308,6 +308,7 @@ public:
     ErrorCodes_t getFrequencyProtocolRangeFeature(RangedMeasurement_t &range);
 
     ErrorCodes_t getMaxProtocolItemsFeature(uint32_t &num);
+    ErrorCodes_t hasProtocols();
     ErrorCodes_t hasProtocolStepFeature();
     ErrorCodes_t hasProtocolRampFeature();
     ErrorCodes_t hasProtocolSinFeature();

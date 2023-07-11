@@ -2395,6 +2395,15 @@ ErrorCodes_t MessageDispatcher::getMaxProtocolItemsFeature(uint32_t &num) {
     }
 }
 
+ErrorCodes_t MessageDispatcher::hasProtocols() {
+    if (protocolMaxItemsNum < 1) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::hasProtocolStepFeature() {
     if (voltageProtocolStepImplemented || currentProtocolStepImplemented) {
         return Success;

@@ -80,7 +80,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     voltageProtocolRampImplemented = false;
     voltageProtocolSinImplemented = false;
 
-    protocolMaxItemsNum = 15;
+    protocolMaxItemsNum = 0;
     protocolWordOffset = 84;
     protocolItemsWordsNum = 16;
 
