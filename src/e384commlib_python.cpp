@@ -95,6 +95,21 @@ PYBIND11_MODULE(e384CommLibPython, m) {
     });
 
 
+    m.def("setVCVoltageRange",[](uint16_t voltageRangeIdx){
+        return md->setVCVoltageRange(voltageRangeIdx, true);
+    });
+
+    m.def("setVCCurrentRange",[](uint16_t currentRangeIdx){
+        return md->setVCCurrentRange(currentRangeIdx, true);
+    });
+    m.def("setCCVoltageRange",[](uint16_t voltageRangeIdx){
+        return md->setCCVoltageRange(voltageRangeIdx, true);
+    });
+    m.def("setCCCurrentRange",[](uint16_t currentRangeIdx){
+        return md->setCCCurrentRange(currentRangeIdx, true);
+    });
+
+
     m.def("getBufferedVoltagesAndCurrents", [](){
         RxOutput_t rxOutput;
         ErrorCodes_t err = md->getNextMessage(rxOutput, data);
