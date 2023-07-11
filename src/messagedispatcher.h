@@ -243,6 +243,8 @@ public:
     ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
     ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
     ErrorCodes_t getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures);
+    ErrorCodes_t hasGateVoltageTuners();
+    ErrorCodes_t hasSourceVoltageTuners();
     ErrorCodes_t getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures);
     ErrorCodes_t getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures);
     ErrorCodes_t getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &currentChannelNumberFeatures);
@@ -323,6 +325,7 @@ public:
     ErrorCodes_t getCalibDefaultCcDacGain(Measurement_t &defaultCcDacGain);
     ErrorCodes_t getCalibDefaultCcDacOffset(Measurement_t &defaultCcDacOffset);
 
+    virtual ErrorCodes_t hasCompFeature(uint16_t feature);
     virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray);
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix);

@@ -1903,8 +1903,26 @@ ErrorCodes_t MessageDispatcher::getCalibCcVoltageOffsetFeatures(std::vector<Rang
     }
 }
 
+ErrorCodes_t MessageDispatcher::hasGateVoltageTuners() {
+    if (gateVoltageCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::hasSourceVoltageTuners() {
+    if (sourceVoltageCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures){
-    if (gateVoltageCoders.size() == 0) {
+    if (gateVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
     } else{
@@ -1914,7 +1932,7 @@ ErrorCodes_t MessageDispatcher::getGateVoltagesTunerFeatures(RangedMeasurement_t
 }
 
 ErrorCodes_t MessageDispatcher::getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures){
-    if (sourceVoltageCoders.size() == 0) {
+    if (sourceVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
     } else{
@@ -2981,9 +2999,10 @@ ErrorCodes_t MessageDispatcher::setBridgeBalanceResistance(std::vector<uint16_t>
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::hasCompFeature(uint16_t feature) {
+    return ErrorFeatureNotImplemented;
+}
 
-
-/*! \todo FCON recheck*/
 ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
     return ErrorFeatureNotImplemented;
 }

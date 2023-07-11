@@ -1721,21 +1721,21 @@ void MessageDispatcher_384PatchClamp_V01::initializeHW() {
 //    this->resetAsic(false, true);
 }
 
-//void MessageDispatcher_384PatchClamp_V01::updateDeviceStatus(vector <bool> &fsmRunFlag, bool &poreForming, bool &communicationError) {
-//    for (int idx = 0; idx < fsmStateChannelsNum; idx++) {
-//        fsmRunFlag[idx] = (infoStruct.status & (0x0001 << idx)) == 0 ? false : true;
-//    }
-//    poreForming = (infoStruct.status & (0x0001 << 8)) == 0 ? false : true;
-//    communicationError = (infoStruct.status & (0x0001 << 9)) == 0 ? false : true;
-//}
+ErrorCodes_t MessageDispatcher_384PatchClamp_V01::hasCompFeature(uint16_t feature) {
+    switch (feature) {
+    case U_CpVc:
+    case U_Cm:
+    case U_Rs:
+    case U_RsCp:
+    case U_RsPg:
+    case U_CpCc:
+        return Success;
 
-//void MessageDispatcher_384PatchClamp_V01::updateVoltageOffsetCompensations(vector <Measurement_t> &offsets) {
-//    for (int idx = 0; idx < currentChannelsNum; idx++) {
-//        offsets[idx] = voltageOffsetCompensationGain*(double)infoStruct.vComp[idx];
-//    }
-//}
+    default:
+        return ErrorFeatureNotImplemented;
+    }
+}
 
-/*! \todo FCON recheck*/
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
     switch(paramToExtractFeatures){
     case U_CpVc:

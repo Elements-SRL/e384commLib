@@ -10,6 +10,7 @@ public:
     MessageDispatcher_384PatchClamp_V01(std::string di);
     virtual ~MessageDispatcher_384PatchClamp_V01();
 
+    virtual ErrorCodes_t hasCompFeature(uint16_t feature) override;
     virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) override;
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray) override;
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix) override;
