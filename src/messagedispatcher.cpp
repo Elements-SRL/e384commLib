@@ -1073,9 +1073,7 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
     }
 }
 
-ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratioIdx) {
-    selectedDownsamplingRatioIdx = ratioIdx;
-    uint32_t ratio = downsamplingRatios[ratioIdx];
+ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratio) {
     if (ratio == 0) {
         return ErrorValueOutOfRange;
 
@@ -2156,18 +2154,13 @@ ErrorCodes_t MessageDispatcher::getRealSamplingRatesFeatures(std::vector <Measur
     }
 }
 
-ErrorCodes_t MessageDispatcher::getDownsamplingRatiosFeatures(std::vector <uint32_t> &downsamplingRatios) {
-    downsamplingRatios = this->downsamplingRatios;
+ErrorCodes_t MessageDispatcher::getMaxDownsamplingRatioFeature(uint32_t &ratio) {
+    ratio = maxDownSamplingRatio;
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getDownsamplingRatio(uint32_t &ratio) {
     ratio = selectedDownsamplingRatio;
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::getDownsamplingRatioIdx(uint32_t &idx) {
-    idx = selectedDownsamplingRatioIdx;
     return Success;
 }
 
