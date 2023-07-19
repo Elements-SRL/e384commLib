@@ -293,13 +293,21 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
 
     this->initializeHW();
 
+    CalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum);
+
+    calibrationParams = calibrationManager.getCalibrationParams(calibrationLoadingError);
+    calibrationFileNames = calibrationManager.getCalibrationFileNames();
+    calibrationFilesOkFlags = calibrationManager.getCalibrationFilesOkFlags();
+    calibrationMappingFileDir = calibrationManager.getMappingFileDir();
+    calibrationMappingFilePath = calibrationManager.getMappingFilePath();
+
     /*! Some default values*/
     std::vector <bool> allTrue(currentChannelsNum, true);
     std::vector <bool> allFalse(currentChannelsNum, false);
 
-    std::vector <uint16_t> channelIndexes(currentChannelsNum);
+    allChannelIndexes.resize(currentChannelsNum);
     for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
-        channelIndexes[idx] = idx;
+        allChannelIndexes[idx] = idx;
     }
 
     std::vector <uint16_t> boardIndexes(totalBoardsNum);
@@ -311,48 +319,29 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
         /*! Initialization in voltage clamp */
         this->enableCcCompensations(false);
         this->enableVcCompensations(true);
-        this->enableStimulus(channelIndexes, allTrue, false);
-        this->turnChannelsOn(channelIndexes, allTrue, false);
+        this->enableStimulus(allChannelIndexes, allTrue, false);
+        this->turnChannelsOn(allChannelIndexes, allTrue, false);
         this->turnCurrentReaderOn(true, false);
-        this->setVoltageHoldTuner(channelIndexes, selectedVoltageHoldVector, false);
+        this->setVoltageHoldTuner(allChannelIndexes, selectedVoltageHoldVector, false);
         this->setSamplingRate(defaultSamplingRateIdx, false);
         this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
         this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
         this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
         this->setGateVoltagesTuner(boardIndexes, selectedGateVoltageVector, false);
         this->setSourceVoltagesTuner(boardIndexes, selectedSourceVoltageVector, false);
-        this->digitalOffsetCompensation(channelIndexes, allFalse, false);
+        this->digitalOffsetCompensation(allChannelIndexes, allFalse, false);
         if (calibrationData.vcCalibResArray.size() > 0) {
-            this->turnCalSwOn(channelIndexes, allFalse, false);
-        }
-
-        CalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum);
-
-        calibrationParams = calibrationManager.getCalibrationParams(calibrationLoadingError);
-        calibrationFileNames = calibrationManager.getCalibrationFileNames();
-        calibrationFilesOkFlags = calibrationManager.getCalibrationFilesOkFlags();
-        calibrationMappingFileDir = calibrationManager.getMappingFileDir();
-        calibrationMappingFilePath = calibrationManager.getMappingFilePath();
-
-        /*! Perform CC calibration first to initialize the commlib values: the VC calibration commands will override the FPGA calibration later */
-        if (ccVoltageRangesNum > 0) {
-            this->setCalibCcVoltageGain(channelIndexes, calibrationParams.ccAllGainDacMeas[selectedCcVoltageRangeIdx], false);
-            this->setCalibCcVoltageOffset(channelIndexes, calibrationParams.ccAllOffsetDacMeas[selectedCcVoltageRangeIdx], false);
-        }
-
-        if (ccCurrentRangesNum > 0) {
-            this->setCalibCcCurrentGain(channelIndexes, calibrationParams.ccAllGainAdcMeas[selectedCcCurrentRangeIdx], false);
-            this->setCalibCcCurrentOffset(channelIndexes, calibrationParams.ccAllOffsetAdcMeas[selectedCcCurrentRangeIdx], false);
+            this->turnCalSwOn(allChannelIndexes, allFalse, false);
         }
 
         if (vcCurrentRangesNum > 0) {
-            this->setCalibVcCurrentGain(channelIndexes, calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx], false);
-            this->setCalibVcCurrentOffset(channelIndexes, calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx], false);
+            this->updateCalibVcCurrentGain(allChannelIndexes, false);
+            this->updateCalibVcCurrentOffset(allChannelIndexes, false);
         }
 
         if (vcVoltageRangesNum > 0) {
-            this->setCalibVcVoltageGain(channelIndexes, calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx], false);
-            this->setCalibVcVoltageOffset(channelIndexes, calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx], false);
+            this->updateCalibVcVoltageGain(allChannelIndexes, false);
+            this->updateCalibVcVoltageOffset(allChannelIndexes, false);
         }
 
     } else {
@@ -507,14 +496,28 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(std::vector<uint16_t> chan
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-//    } else if (!areAllTheVectorElementsInRange(gains, calibVcCurrentGainRange.getMin(), calibVcCurrentGainRange.getMax())) {
-//        return ErrorValueOutOfRange;
-
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             gains[i].convertValue(calibVcCurrentGainRange.prefix);
-            selectedCalibVcCurrentGainVector[channelIndexes[i]] = gains[i];
-            calibVcCurrentGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]] = gains[i];
+        }
+        this->updateCalibVcCurrentGain(channelIndexes, applyFlag);
+
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::updateCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
+    if (calibVcCurrentGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            double gain = calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].value;
+            calibVcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -531,14 +534,28 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(std::vector<uint16_t> ch
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-//    } else if (!areAllTheVectorElementsInRange(offsets, calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].getMin(), calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].getMax())) {
-//        return ErrorValueOutOfRange;
-
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             offsets[i].convertValue(calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
-            selectedCalibVcCurrentOffsetVector[channelIndexes[i]] = offsets[i];
-            calibVcCurrentOffsetCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]] = offsets[i];
+        }
+        this->updateCalibVcCurrentOffset(channelIndexes, applyFlag);
+
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::updateCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
+    if (calibVcCurrentOffsetCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            double offset = calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].value;
+            calibVcCurrentOffsetCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -555,14 +572,28 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(std::vector<uint16_t> chan
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-//    } else if (!areAllTheVectorElementsInRange(gains, calibCcVoltageGainRange.getMin(), calibCcVoltageGainRange.getMax())) {
-//        return ErrorValueOutOfRange;
-
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             gains[i].convertValue(calibCcVoltageGainRange.prefix);
-            selectedCalibCcVoltageGainVector[channelIndexes[i]] = gains[i];
-            calibCcVoltageGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            calibrationParams.ccAllGainAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]] = gains[i];
+        }
+        this->updateCalibCcVoltageGain(channelIndexes, applyFlag);
+
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::updateCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
+    if (calibCcVoltageGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            double gain = calibrationParams.ccAllGainAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].value;
+            calibCcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -579,14 +610,28 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(std::vector<uint16_t> ch
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-//    } else if (!areAllTheVectorElementsInRange(offsets, calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].getMin(), calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].getMax())) {
-//        return ErrorValueOutOfRange;
-
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             offsets[i].convertValue(calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].prefix);
-            selectedCalibCcVoltageOffsetVector[channelIndexes[i]] = offsets[i];
-            calibCcVoltageOffsetCoders[selectedCcVoltageRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            calibrationParams.ccAllOffsetAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]] = offsets[i];
+        }
+        this->updateCalibCcVoltageOffset(channelIndexes, applyFlag);
+
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::updateCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
+    if (calibCcVoltageOffsetCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            double offset = calibrationParams.ccAllOffsetAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].value;
+            calibCcVoltageOffsetCoders[selectedCcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -606,8 +651,25 @@ ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(std::vector<uint16_t> chan
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             gains[i].convertValue(calibVcVoltageGainRange.prefix);
-            selectedCalibVcVoltageGainVector[channelIndexes[i]] = gains[i];
-            calibVcVoltageGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]] = gains[i];
+        }
+        this->updateCalibVcVoltageGain(channelIndexes, applyFlag);
+
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::updateCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
+    if (calibVcVoltageGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            double gain = calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].value;
+            calibVcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -624,14 +686,28 @@ ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(std::vector<uint16_t> ch
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-//    } else if (!areAllTheVectorElementsInRange(offsets, calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].getMin(), calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].getMax())) {
-//        return ErrorValueOutOfRange;
-
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             offsets[i].convertValue(calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
-            selectedCalibVcVoltageOffsetVector[channelIndexes[i]] = offsets[i];
-            calibVcVoltageOffsetCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]] = offsets[i];
+        }
+        this->updateCalibVcVoltageOffset(channelIndexes, applyFlag);
+
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::updateCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
+    if (calibVcVoltageOffsetCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            double offset = calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].value;
+            calibVcVoltageOffsetCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -648,14 +724,28 @@ ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(std::vector<uint16_t> chan
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-//    } else if (!areAllTheVectorElementsInRange(gains, calibCcCurrentGainRange.getMin(), calibCcCurrentGainRange.getMax())) {
-//        return ErrorValueOutOfRange;
-
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             gains[i].convertValue(calibCcCurrentGainRange.prefix);
-            selectedCalibCcCurrentGainVector[channelIndexes[i]] = gains[i];
-            calibCcCurrentGainCoders[channelIndexes[i]]->encode(gains[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            calibrationParams.ccAllGainDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]] = gains[i];
+        }
+        this->updateCalibCcCurrentGain(channelIndexes, applyFlag);
+
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::updateCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
+    if (calibCcCurrentGainCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            double gain = calibrationParams.ccAllGainDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].value;
+            calibCcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -672,14 +762,28 @@ ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(std::vector<uint16_t> ch
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-//    } else if (!areAllTheVectorElementsInRange(offsets, calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].getMin(), calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].getMax())) {
-//        return ErrorValueOutOfRange;
-
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             offsets[i].convertValue(calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
-            selectedCalibCcCurrentOffsetVector[channelIndexes[i]] = offsets[i];
-            calibCcCurrentOffsetCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(offsets[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            calibrationParams.ccAllOffsetDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]] = offsets[i];
+        }
+        this->updateCalibCcCurrentOffset(channelIndexes, applyFlag);
+
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::updateCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
+    if (calibCcCurrentOffsetCoders.size() == 0) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            double offset = calibrationParams.ccAllOffsetDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].value;
+            calibCcCurrentOffsetCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
@@ -749,6 +853,10 @@ ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool
         selectedVcCurrentRangeIdx = currentRangeIdx;
         currentRange = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
         currentResolution = currentRange.step;
+
+        this->updateCalibVcCurrentGain(allChannelIndexes, false);
+        this->updateCalibVcCurrentOffset(allChannelIndexes, false);
+
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -768,6 +876,10 @@ ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool
         selectedVcVoltageRangeIdx = voltageRangeIdx;
         voltageRange = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
         voltageResolution = voltageRange.step;
+
+        this->updateCalibVcVoltageGain(allChannelIndexes, false);
+        this->updateCalibVcVoltageOffset(allChannelIndexes, false);
+
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -787,6 +899,10 @@ ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t currentRangeIdx, bool
         selectedCcCurrentRangeIdx = currentRangeIdx;
         currentRange = ccCurrentRangesArray[selectedCcCurrentRangeIdx];
         currentResolution = currentRange.step;
+
+        this->updateCalibCcCurrentGain(allChannelIndexes, false);
+        this->updateCalibCcCurrentOffset(allChannelIndexes, false);
+
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -806,6 +922,10 @@ ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool
         selectedCcVoltageRangeIdx = voltageRangeIdx;
         voltageRange = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
         voltageResolution = voltageRange.step;
+
+        this->updateCalibCcVoltageGain(allChannelIndexes, false);
+        this->updateCalibCcVoltageOffset(allChannelIndexes, false);
+
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
@@ -2450,46 +2570,6 @@ ErrorCodes_t MessageDispatcher::getCalibData(CalibrationData_t &calibData){
         calibData = calibrationData;
         return Success;
     }
-}
-
-ErrorCodes_t MessageDispatcher::getCalibDefaultVcAdcGain(Measurement_t &defaultVcAdcGain){
-    defaultVcAdcGain = defaultCalibVcCurrentGain;
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset){
-    defaultVcAdcOffset =defaultCalibVcCurrentOffset;
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::getCalibDefaultVcDacGain(Measurement_t &defaultVcDacGain){
-    defaultVcDacGain = defaultCalibVcVoltageGain;
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset){
-    defaultVcDacOffset = defaultCalibVcVoltageOffset;
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::getCalibDefaultCcAdcGain(Measurement_t &defaultCcAdcGain){
-    defaultCcAdcGain = defaultCalibCcVoltageGain;
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::getCalibDefaultCcAdcOffset(Measurement_t &defaultCcAdcOffset){
-    defaultCcAdcOffset = defaultCalibCcVoltageOffset;
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::getCalibDefaultCcDacGain(Measurement_t &defaultCcDacGain){
-    defaultCcDacGain = defaultCalibCcCurrentGain;
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::getCalibDefaultCcDacOffset(Measurement_t &defaultCcDacOffset){
-    defaultCcDacOffset = defaultCalibCcCurrentOffset;
-    return Success;
 }
 
 /*********************\

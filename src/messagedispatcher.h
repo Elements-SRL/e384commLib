@@ -125,17 +125,25 @@ public:
     ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
     ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn);
-    ErrorCodes_t setCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
-    ErrorCodes_t setCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
-    ErrorCodes_t setCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
-    ErrorCodes_t setCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
     ErrorCodes_t setGateVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
     ErrorCodes_t setSourceVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag);
 
+    ErrorCodes_t setCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+    ErrorCodes_t updateCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag);
+    ErrorCodes_t setCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+    ErrorCodes_t updateCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag);
+    ErrorCodes_t setCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+    ErrorCodes_t updateCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag);
+    ErrorCodes_t setCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+    ErrorCodes_t updateCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag);
     ErrorCodes_t setCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+    ErrorCodes_t updateCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag);
     ErrorCodes_t setCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+    ErrorCodes_t updateCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag);
     ErrorCodes_t setCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+    ErrorCodes_t updateCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag);
     ErrorCodes_t setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+    ErrorCodes_t updateCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
@@ -315,14 +323,6 @@ public:
     ErrorCodes_t hasProtocolSinFeature();
 
     ErrorCodes_t getCalibData(CalibrationData_t &calibData);
-    ErrorCodes_t getCalibDefaultVcAdcGain(Measurement_t &defaultVcAdcGain);
-    ErrorCodes_t getCalibDefaultVcAdcOffset(Measurement_t &defaultVcAdcOffset);
-    ErrorCodes_t getCalibDefaultVcDacGain(Measurement_t &defaultVcDacGain);
-    ErrorCodes_t getCalibDefaultVcDacOffset(Measurement_t &defaultVcDacOffset);
-    ErrorCodes_t getCalibDefaultCcAdcGain(Measurement_t &defaultCcAdcGain);
-    ErrorCodes_t getCalibDefaultCcAdcOffset(Measurement_t &defaultCcAdcOffset);
-    ErrorCodes_t getCalibDefaultCcDacGain(Measurement_t &defaultCcDacGain);
-    ErrorCodes_t getCalibDefaultCcDacOffset(Measurement_t &defaultCcDacOffset);
 
     virtual ErrorCodes_t hasCompFeature(uint16_t feature);
     virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
@@ -374,7 +374,7 @@ protected:
     } RxMessageTypes_t;
 
     std::vector <double> membraneCapValueInjCapacitance;
-    std::vector<std::vector<std::string>> compensationOptionStrings;
+    std::vector <std::vector<std::string>> compensationOptionStrings;
 
     /************\
      *  Fields  *
@@ -567,45 +567,29 @@ protected:
 
     // Calibration DAC coders and ranges
     RangedMeasurement_t calibCcCurrentGainRange;
-    std::vector<Measurement_t> selectedCalibCcCurrentGainVector;
     std::vector <DoubleCoder *> calibCcCurrentGainCoders;
-    Measurement_t defaultCalibCcCurrentGain;
 
     std::vector <RangedMeasurement_t> calibCcCurrentOffsetRanges;
-    std::vector<Measurement_t> selectedCalibCcCurrentOffsetVector;
     std::vector <std::vector <DoubleCoder *>> calibCcCurrentOffsetCoders;
-    Measurement_t defaultCalibCcCurrentOffset;
 
     RangedMeasurement_t calibVcVoltageGainRange;
-    std::vector<Measurement_t> selectedCalibVcVoltageGainVector;
     std::vector <DoubleCoder *> calibVcVoltageGainCoders;
-    Measurement_t defaultCalibVcVoltageGain;
 
     std::vector <RangedMeasurement_t> calibVcVoltageOffsetRanges;
-    std::vector<Measurement_t> selectedCalibVcVoltageOffsetVector;
     std::vector <std::vector <DoubleCoder *>> calibVcVoltageOffsetCoders;
-    Measurement_t defaultCalibVcVoltageOffset;
 
     // Calibration ADC coders and ranges
     RangedMeasurement_t calibVcCurrentGainRange;
-    std::vector<Measurement_t> selectedCalibVcCurrentGainVector;
     std::vector <DoubleCoder *> calibVcCurrentGainCoders;
-    Measurement_t defaultCalibVcCurrentGain;
 
     std::vector <RangedMeasurement_t> calibVcCurrentOffsetRanges;
-    std::vector<Measurement_t> selectedCalibVcCurrentOffsetVector;
     std::vector <std::vector <DoubleCoder *>> calibVcCurrentOffsetCoders;
-    Measurement_t defaultCalibVcCurrentOffset;
 
     RangedMeasurement_t calibCcVoltageGainRange;
-    std::vector<Measurement_t> selectedCalibCcVoltageGainVector;
     std::vector <DoubleCoder *> calibCcVoltageGainCoders;
-    Measurement_t defaultCalibCcVoltageGain;
 
     std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
-    std::vector<Measurement_t> selectedCalibCcVoltageOffsetVector;
     std::vector <std::vector <DoubleCoder *>> calibCcVoltageOffsetCoders;
-    Measurement_t defaultCalibCcVoltageOffset;
 
     RangedMeasurement_t gateVoltageRange;
     std::vector<Measurement_t> selectedGateVoltageVector;
@@ -795,6 +779,8 @@ protected:
 
     Measurement_t samplingRate = {200.0, UnitPfxKilo, "Hz"};
     Measurement_t integrationStep = {5.0, UnitPfxMicro, "s"};
+
+    std::vector <uint16_t> allChannelIndexes;
 
     /*! Protocols variables */
     uint16_t selectedProtocolItemsNum = 0;
