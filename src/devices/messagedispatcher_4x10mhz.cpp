@@ -5,7 +5,7 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
 
     deviceName = "4x10MHz";
 
-    fwName = "4x10MHz_V02.bit";
+    fwName = "4x10MHz_V03.bit";
 
     waitingTimeBeforeReadingData = 2; //s
 
@@ -673,8 +673,6 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
             doubleConfig.initialWord++;
         }
     }
-
-    /*! \todo 20230531 MPAC: STATE ARRAY CODERS*/
 
     boolConfig.initialWord = 278;
     boolConfig.initialBit = 0;
