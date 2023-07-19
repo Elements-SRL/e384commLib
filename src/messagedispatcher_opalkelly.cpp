@@ -41,15 +41,10 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
         return ErrorDeviceConnectionFailed;
     }
 
-    if(!dev->IsFrontPanelEnabled()){ // doesn't load FW is one is already loaded
-        error = dev->ConfigureFPGA(fwName);
+    error = dev->ConfigureFPGA(fwName);
 
-        if (error != okCFrontPanel::NoError) {
-            return ErrorDeviceFwLoadingFailed;
-        }
-
-    } else {
-
+    if (error != okCFrontPanel::NoError) {
+        return ErrorDeviceFwLoadingFailed;
     }
 
     ErrorCodes_t err = this->initializeBuffers();
