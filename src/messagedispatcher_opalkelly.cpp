@@ -41,10 +41,12 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
         return ErrorDeviceConnectionFailed;
     }
 
-    error = dev->ConfigureFPGA(fwName);
+    if (dev->IsFrontPanelEnabled() == false) {
+        error = dev->ConfigureFPGA(fwName);
 
-    if (error != okCFrontPanel::NoError) {
-        return ErrorDeviceFwLoadingFailed;
+        if (error != okCFrontPanel::NoError) {
+            return ErrorDeviceFwLoadingFailed;
+        }
     }
 
     ErrorCodes_t err = this->initializeBuffers();
@@ -238,7 +240,7 @@ uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
     bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxRawBuffer+rxRawBufferWriteOffset);
 
     if (bytesRead > INT32_MAX) {
-        if (bytesRead == ok_Timeout) {
+        if (bytesRead == ok_Timeout || bytesRead == ok_Failed) {
             /*! The device cannot recover from timeout condition */
             dev->Close();
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
