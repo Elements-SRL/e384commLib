@@ -67,17 +67,17 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return md->setVoltageHoldTuner(channelIndexes, voltages, applyFlag);
     });
 //    Voltage Clamp Calibration
-    m.def("setCalibVcVoltageOffsets",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
-        return md->setCalibVcVoltageOffset(channelIndexes, voltages, applyFlag);
+    m.def("setCalibVcVoltageOffsets",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages){
+        return md->setCalibVcVoltageOffset(channelIndexes, voltages, true);
     });
-    m.def("setCalibVcVoltageGains",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
-        return md->setCalibVcVoltageGain(channelIndexes, gains, applyFlag);
+    m.def("setCalibVcVoltageGains",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains){
+        return md->setCalibVcVoltageGain(channelIndexes, gains, true);
     });
-    m.def("setCalibVcCurrentOffsets",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
-        return md->setCalibVcCurrentOffset(channelIndexes, currents, applyFlag);
+    m.def("setCalibVcCurrentOffsets",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents){
+        return md->setCalibVcCurrentOffset(channelIndexes, currents, true);
     });
-    m.def("setCalibVcCurrentGains",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
-        return md->setCalibVcCurrentGain(channelIndexes, gains, applyFlag);
+    m.def("setCalibVcCurrentGains",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains){
+        return md->setCalibVcCurrentGain(channelIndexes, gains, true);
     });
 
     //    Current Clamp Calibration

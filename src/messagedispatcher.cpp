@@ -647,7 +647,6 @@ ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(std::vector<uint16_t> chan
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             gains[i].convertValue(calibVcVoltageGainRange.prefix);
