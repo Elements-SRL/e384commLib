@@ -50,7 +50,7 @@ MessageDispatcher_2x10MHz_V01::MessageDispatcher_2x10MHz_V01(std::string di) :
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
     txDataWords = 360; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
-    txDataWords = (txDataWords/2+1)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
+    txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
@@ -657,12 +657,8 @@ MessageDispatcher_2x10MHz_V01::MessageDispatcher_2x10MHz_V01(std::string di) :
     txStatus[13] = 0x00F0; /*! the 4 channels FW wants the voltage range x1 set */
     txStatus[344] = 0x0400; /*! current gain 1 */
     txStatus[345] = 0x0400; /*! current gain 1 */
-    txStatus[346] = 0x0400; /*! current gain 1 */
-    txStatus[347] = 0x0400; /*! current gain 1 */
     txStatus[352] = 0x0400; /*! voltage gain 1 */
     txStatus[353] = 0x0400; /*! voltage gain 1 */
-    txStatus[354] = 0x0400; /*! voltage gain 1 */
-    txStatus[355] = 0x0400; /*! voltage gain 1 */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 

@@ -149,6 +149,7 @@ public:
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
     ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
     ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
+    virtual ErrorCodes_t setLiquidJunctionrange(uint16_t idx);
 
     ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
     ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
@@ -509,6 +510,11 @@ protected:
     uint16_t defaultVcVoltageRangeIdx;
     BoolCoder * vcVoltageRangeCoder = nullptr;
 
+    uint32_t liquidJunctionRangesNum;
+    uint32_t selectedLiquidJunctionRangeIdx = 0;
+    std::vector <RangedMeasurement_t> liquidJunctionRangesArray;
+    uint16_t defaultLiquidJunctionRangeIdx;
+
     uint32_t ccCurrentRangesNum;
     uint32_t selectedCcCurrentRangeIdx = 0;
     std::vector <RangedMeasurement_t> ccCurrentRangesArray;
@@ -768,12 +774,15 @@ protected:
 
     double currentResolution = 1.0;
     double voltageResolution = 1.0;
+    double liquidJunctionResolution = 1.0;
+    bool liquidJunctionSameRangeAsVcDac = true;
 
     double voltageOffsetCorrected = 0.0; /*!< Value currently corrected in applied voltages by the device (expressed in the unit of the liquid junction control) */
     double voltageOffsetCorrection = 0.0; /*!< Value to be used to correct the measured voltage values (expressed in the unit of current voltage range) */
 
     RangedMeasurement_t voltageRange;
     RangedMeasurement_t currentRange;
+    RangedMeasurement_t liquidJunctionRange;
     std::vector <RangedMeasurement_t> vHoldRange;
     std::vector <RangedMeasurement_t> cHoldRange;
 

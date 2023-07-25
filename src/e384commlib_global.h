@@ -190,6 +190,7 @@ typedef enum DeviceTypes {
     Device384Fake,              /*!< Fake nanopore device */
     Device384FakePatchClamp,    /*!< Fake patch clamp device */
     Device4x10MHzFake,          /*!< Fake 4x10MHz device */
+    Device2x10MHzFake,          /*!< Fake 2x10MHz device */
 #endif
     DeviceUnknown,              /*!< Invalid item used only for initiliazation purposes. */
     DevicesNum

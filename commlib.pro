@@ -90,12 +90,16 @@ HEADERS += \
     src/utils.h
 
 contains(DEFINES, DEBUG) {
-    SOURCES += src/devices/messagedispatcher_384fake.cpp \
+    SOURCES += \
+    src/devices/messagedispatcher_384fakenanopores.cpp \
         src/devices/messagedispatcher_384fakepatchclamp.cpp \
-        src/devices/messagedispatcher_4x10mhzfake.cpp
-    HEADERS += src/devices/messagedispatcher_384fake.h \
+        src/devices/messagedispatcher_4x10mhzfake.cpp \
+        src/devices/messagedispatcher_2x10mhzfake.cpp
+    HEADERS += \
+    src/devices/messagedispatcher_384fakenanopores.h \
         src/devices/messagedispatcher_384fakepatchclamp.h \
-        src/devices/messagedispatcher_4x10mhzfake.h
+        src/devices/messagedispatcher_4x10mhzfake.h \
+        src/devices/messagedispatcher_2x10mhzfake.h
 }
 
 INCLUDEPATH += \

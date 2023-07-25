@@ -15,9 +15,10 @@
 #include "messagedispatcher_2x10mhz.h"
 #ifdef DEBUG
 /*! Fake device that generates synthetic data */
-#include "messagedispatcher_384fake.h"
+#include "messagedispatcher_384fakenanopores.h"
 #include "messagedispatcher_384fakepatchclamp.h"
 #include "messagedispatcher_4x10mhzfake.h"
+#include "messagedispatcher_2x10mhzfake.h"
 #endif
 #include "calibrationmanager.h"
 #include "utils.h"
@@ -37,6 +38,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     ,{"FAKE_Nanopores", Device384Fake}
     ,{"FAKE_PATCH_CLAMP", Device384FakePatchClamp}
     ,{"FAKE_4x10MHz", Device4x10MHzFake}
+    ,{"FAKE_2x10MHz", Device2x10MHzFake}
 #endif
 }; /*! \todo FCON queste info dovrebbero risiedere nel DB */
 
@@ -114,6 +116,8 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     deviceIds.push_back("FAKE_PATCH_CLAMP");
     numDevs++;
     deviceIds.push_back("FAKE_4x10MHz");
+    numDevs++;
+    deviceIds.push_back("FAKE_2x10MHz");
 #endif
 
     return Success;
@@ -159,7 +163,7 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
 
 #ifdef DEBUG
     case Device384Fake:
-        messageDispatcher = new MessageDispatcher_384Fake(deviceId);
+        messageDispatcher = new MessageDispatcher_384FakeNanopores(deviceId);
         break;
         
     case Device384FakePatchClamp:
@@ -168,6 +172,10 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
 
     case Device4x10MHzFake:
         messageDispatcher = new MessageDispatcher_4x10MHzFake(deviceId);
+        break;
+
+    case Device2x10MHzFake:
+        messageDispatcher = new MessageDispatcher_2x10MHzFake(deviceId);
         break;
 #endif
 
@@ -883,6 +891,12 @@ ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
+        /*! Most of the times the liquid junction (aka digital offset compensation) will be performed by the same DAC that appliese the voltage sitmulus
+            Voltage clamp, so by default the same range is selected for the liquid junction
+            When this isnot the case the boolean variable below is set properly by the corresponding derived class of the messagedispatcher */
+        if (liquidJunctionSameRangeAsVcDac) {
+            this->setLiquidJunctionrange(voltageRangeIdx);
+        }
         return Success;
     }
 }
@@ -929,6 +943,18 @@ ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
         }
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setLiquidJunctionrange(uint16_t idx) {
+    if (idx >= liquidJunctionRangesNum) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        selectedLiquidJunctionRangeIdx = idx;
+        liquidJunctionRange = liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx];
+        liquidJunctionResolution = liquidJunctionRange.step;
         return Success;
     }
 }
@@ -1689,16 +1715,16 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
 
         case (MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp):
             if (lastParsedMsgType == MsgTypeIdInvalid) {
-                /*! \todo FCON da implementare */
-                //            rxOutput.dataLen = 1;
-                //            rxOutput.channelIdx = * (rxDataBuffer+dataOffset);
-                //            rawFloat = * (rxDataBuffer+((dataOffset+1) & RX_DATA_BUFFER_MASK));
-                //            voltageOffsetCorrected = (((double)rawFloat)-liquidJunctionOffsetBinary)*liquidJunctionResolution;
-                //            this->selectVoltageOffsetResolution();
-                //            rxOutput.data[0] = (int16_t)(rawFloat-liquidJunctionOffsetBinary);
-                //            lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToPc;
+                rxOutput.dataLen = currentChannelsNum;
+                for (unsigned int idx = 0; idx < currentChannelsNum; idx++) {
+                    rawFloat = rxDataBuffer[dataOffset];
+                    voltageOffsetCorrected = ((double)rawFloat)*liquidJunctionResolution;
+                    data[idx] = (int16_t)rawFloat;
+                    dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+                }
+                lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToPc;
 
-                //            this->setDigitalOffsetCompensationOverrideValue(rxOutput.channelIdx, {voltageOffsetCorrected, liquidJunctionControl.prefix, nullptr});
+//                this->setDigitalOffsetCompensationOverrideValue(rxOutput.channelIdx, {voltageOffsetCorrected, liquidJunctionControl.prefix, nullptr});
 
                 lastParsedMsgType = MsgTypeIdDigitalOffsetComp;
 
@@ -1716,10 +1742,10 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
             if (lastParsedMsgType == MsgTypeIdInvalid) {
                 /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
                 rxOutput.dataLen = 0;
-                rxOutput.protocolId = * (rxDataBuffer+dataOffset);
-                rxOutput.protocolItemIdx = * (rxDataBuffer+((dataOffset+1) & RX_DATA_BUFFER_MASK));
-                rxOutput.protocolRepsIdx = * (rxDataBuffer+((dataOffset+2) & RX_DATA_BUFFER_MASK));
-                rxOutput.protocolSweepIdx = * (rxDataBuffer+((dataOffset+3) & RX_DATA_BUFFER_MASK));
+                rxOutput.protocolId = rxDataBuffer[dataOffset];
+                rxOutput.protocolItemIdx = rxDataBuffer[(dataOffset+1) & RX_DATA_BUFFER_MASK];
+                rxOutput.protocolRepsIdx = rxDataBuffer[(dataOffset+2) & RX_DATA_BUFFER_MASK];
+                rxOutput.protocolSweepIdx = rxDataBuffer[(dataOffset+3) & RX_DATA_BUFFER_MASK];
 
                 lastParsedMsgType = MsgTypeIdAcquisitionHeader;
 

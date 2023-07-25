@@ -1,6 +1,6 @@
-#include "messagedispatcher_384fake.h"
+#include "messagedispatcher_384fakenanopores.h"
 
-MessageDispatcher_384Fake::MessageDispatcher_384Fake(std::string id) :
+MessageDispatcher_384FakeNanopores::MessageDispatcher_384FakeNanopores(std::string id) :
     MessageDispatcher_384NanoPores_V01(id) {
 
     waitingTimeBeforeReadingData = 0;
@@ -24,11 +24,11 @@ MessageDispatcher_384Fake::MessageDispatcher_384Fake(std::string id) :
     integrationStepArray[SamplingRate6kHz].unit = "s";
 }
 
-MessageDispatcher_384Fake::~MessageDispatcher_384Fake() {
+MessageDispatcher_384FakeNanopores::~MessageDispatcher_384FakeNanopores() {
 
 }
 
-ErrorCodes_t MessageDispatcher_384Fake::connect() {
+ErrorCodes_t MessageDispatcher_384FakeNanopores::connect() {
     this->initializeBuffers();
     this->fillBuffer();
     startTime = std::chrono::steady_clock::now();
@@ -36,16 +36,16 @@ ErrorCodes_t MessageDispatcher_384Fake::connect() {
     return MessageDispatcher::connect();
 }
 
-ErrorCodes_t MessageDispatcher_384Fake::disconnect() {
+ErrorCodes_t MessageDispatcher_384FakeNanopores::disconnect() {
     MessageDispatcher::disconnect();
     return this->deinitializeBuffers();
 }
 
-bool MessageDispatcher_384Fake::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
+bool MessageDispatcher_384FakeNanopores::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
     return true;
 }
 
-uint32_t MessageDispatcher_384Fake::readDataFromDevice() {
+uint32_t MessageDispatcher_384FakeNanopores::readDataFromDevice() {
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
 #ifdef DEBUG_MAX_SPEED
     currentTime = std::chrono::steady_clock::now();
@@ -97,7 +97,7 @@ uint32_t MessageDispatcher_384Fake::readDataFromDevice() {
     return bytesRead;
 }
 
-ErrorCodes_t MessageDispatcher_384Fake::fillBuffer() {
+ErrorCodes_t MessageDispatcher_384FakeNanopores::fillBuffer() {
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
 
