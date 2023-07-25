@@ -144,6 +144,11 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         ErrorCodes_t res = md->getVCCurrentRanges(currentRanges, defVcCurrRangeIdx);
         return std::make_tuple(res, currentRanges, defVcCurrRangeIdx);
     });
+    m.def("getVCCurrentRange",[](){
+        RangedMeasurement_t currentRange;
+        ErrorCodes_t res = md->getVCCurrentRange(currentRange);
+        return std::make_tuple(res, currentRange);
+    });
     m.def("getVCVoltageRanges",[](){
         std::vector<RangedMeasurement_t> voltageRanges;
         ErrorCodes_t res = md->getVCVoltageRanges(voltageRanges);
