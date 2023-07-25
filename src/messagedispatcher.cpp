@@ -524,6 +524,7 @@ ErrorCodes_t MessageDispatcher::updateCalibVcCurrentGain(std::vector<uint16_t> c
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(calibVcCurrentGainRange.prefix);
             double gain = calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].value;
             calibVcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
@@ -562,6 +563,7 @@ ErrorCodes_t MessageDispatcher::updateCalibVcCurrentOffset(std::vector<uint16_t>
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
             double offset = calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].value;
             calibVcCurrentOffsetCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
@@ -600,6 +602,7 @@ ErrorCodes_t MessageDispatcher::updateCalibCcVoltageGain(std::vector<uint16_t> c
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            calibrationParams.ccAllGainAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].convertValue(calibCcVoltageGainRange.prefix);
             double gain = calibrationParams.ccAllGainAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].value;
             calibCcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
@@ -638,6 +641,7 @@ ErrorCodes_t MessageDispatcher::updateCalibCcVoltageOffset(std::vector<uint16_t>
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            calibrationParams.ccAllOffsetAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].convertValue(calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].prefix);
             double offset = calibrationParams.ccAllOffsetAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].value;
             calibCcVoltageOffsetCoders[selectedCcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
@@ -675,6 +679,7 @@ ErrorCodes_t MessageDispatcher::updateCalibVcVoltageGain(std::vector<uint16_t> c
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].convertValue(calibVcVoltageGainRange.prefix);
             double gain = calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].value;
             calibVcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
@@ -713,6 +718,7 @@ ErrorCodes_t MessageDispatcher::updateCalibVcVoltageOffset(std::vector<uint16_t>
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].convertValue(calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
             double offset = calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].value;
             calibVcVoltageOffsetCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
@@ -751,6 +757,7 @@ ErrorCodes_t MessageDispatcher::updateCalibCcCurrentGain(std::vector<uint16_t> c
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            calibrationParams.ccAllGainDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].convertValue(calibCcCurrentGainRange.prefix);
             double gain = calibrationParams.ccAllGainDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].value;
             calibCcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
@@ -789,6 +796,7 @@ ErrorCodes_t MessageDispatcher::updateCalibCcCurrentOffset(std::vector<uint16_t>
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            calibrationParams.ccAllOffsetDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].convertValue(calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
             double offset = calibrationParams.ccAllOffsetDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].value;
             calibCcCurrentOffsetCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
