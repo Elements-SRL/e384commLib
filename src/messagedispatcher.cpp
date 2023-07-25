@@ -1160,6 +1160,7 @@ ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode) {
 
     } else {
         this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()));
+        return Success;
     }
 }
 
@@ -1265,19 +1266,19 @@ ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t wordOffset, uint16_t wordV
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool onValueIn, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool onValueIn, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnVoltageStimulusOn(bool onValue, bool applyFlag){
+ErrorCodes_t MessageDispatcher::turnVoltageStimulusOn(bool, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnCurrentStimulusOn(bool onValue, bool applyFlag){
+ErrorCodes_t MessageDispatcher::turnCurrentStimulusOn(bool, bool){
     return ErrorFeatureNotImplemented;
 }
 
@@ -1561,7 +1562,7 @@ ErrorCodes_t MessageDispatcher::setStateArrayStructure(int numberOfStates, int i
     if (numberOfStatesCoder == nullptr ) {
         return ErrorFeatureNotImplemented;
     }
-    if (numberOfStates > stateMaxNum || initialState >= numberOfStates){
+    if ((unsigned int)numberOfStates > stateMaxNum || initialState >= numberOfStates){
         return ErrorValueOutOfRange;
     }
     numberOfStatesCoder->encode(numberOfStates, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -2722,7 +2723,7 @@ void MessageDispatcher::forceOutMessage() {
     }
 }
 
-bool MessageDispatcher::checkProtocolValidity(std::string &message) {
+bool MessageDispatcher::checkProtocolValidity(std::string &) {
     /*! \todo FCON da riempire */
     return false;
 }
@@ -3021,227 +3022,227 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
     return y;
 }
 
-ErrorCodes_t MessageDispatcher::turnResistanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::turnResistanceCompensationOn(std::vector<uint16_t>,std::vector<bool>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnLeakConductanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::turnLeakConductanceCompensationOn(std::vector<uint16_t>,std::vector<bool>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnBridgeBalanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::turnBridgeBalanceCompensationOn(std::vector<uint16_t>,std::vector<bool>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t>, uint16_t, std::vector<bool>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::enableVcCompensations(bool enable){
+ErrorCodes_t MessageDispatcher::enableVcCompensations(bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::enableCcCompensations(bool enable){
+ErrorCodes_t MessageDispatcher::enableCcCompensations(bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t>, CompensationUserParams, std::vector<double>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t>, CompensationTypes, std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setPipetteCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setPipetteCompensationOptions(std::vector<uint16_t>, std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setMembraneCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setMembraneCompensationOptions(std::vector<uint16_t>, std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setResistanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setResistanceCompensationOptions(std::vector<uint16_t>, std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setResistancePredictionOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setResistancePredictionOptions(std::vector<uint16_t>, std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCCPipetteCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setCCPipetteCompensationOptions(std::vector<uint16_t>, std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setLeakConductanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setLeakConductanceCompensationOptions(std::vector<uint16_t>, std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setBridgeBalanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setBridgeBalanceCompensationOptions(std::vector<uint16_t>, std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setResistanceCorrectionLag(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setResistanceCorrectionLag(std::vector<uint16_t>, std::vector<double> channelValues, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setResistancePredictionPercentage(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setResistancePredictionPercentage(std::vector<uint16_t>, std::vector<double> channelValues, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setResistancePredictionBandwidthGain(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setResistancePredictionBandwidthGain(std::vector<uint16_t>, std::vector<double> channelValues, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setResistancePredictionTau(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setResistancePredictionTau(std::vector<uint16_t>, std::vector<double> channelValues, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setLeakConductance(std::vector<uint16_t>, std::vector<double> channelValues, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn){
+ErrorCodes_t MessageDispatcher::setBridgeBalanceResistance(std::vector<uint16_t>, std::vector<double> channelValues, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::hasCompFeature(uint16_t feature) {
+ErrorCodes_t MessageDispatcher::hasCompFeature(uint16_t) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
+ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t, std::vector<RangedMeasurement_t> &, double &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray){
+ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes ,std::vector <std::string> &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix){
+ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector<std::vector<double>> &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues){
+ErrorCodes_t MessageDispatcher::getCompensationEnables(std::vector<uint16_t>, uint16_t, std::vector<bool> &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getPipetteCompensationOptions(std::vector <std::string> options){
+ErrorCodes_t MessageDispatcher::getPipetteCompensationOptions(std::vector <std::string>){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCCPipetteCompensationOptions(std::vector <std::string> options){
+ErrorCodes_t MessageDispatcher::getCCPipetteCompensationOptions(std::vector <std::string>){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getMembraneCompensationOptions(std::vector <std::string> options){
+ErrorCodes_t MessageDispatcher::getMembraneCompensationOptions(std::vector <std::string>){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getResistanceCompensationOptions(std::vector <std::string> options){
+ErrorCodes_t MessageDispatcher::getResistanceCompensationOptions(std::vector <std::string>){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getResistancePredictionOptions(std::vector <std::string> options){
+ErrorCodes_t MessageDispatcher::getResistancePredictionOptions(std::vector <std::string>){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getLeakConductanceCompensationOptions(std::vector <std::string> options){
+ErrorCodes_t MessageDispatcher::getLeakConductanceCompensationOptions(std::vector <std::string>){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getBridgeBalanceCompensationOptions(std::vector <std::string> options){
+ErrorCodes_t MessageDispatcher::getBridgeBalanceCompensationOptions(std::vector <std::string>){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getLiquidJunctionControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getLiquidJunctionControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getPipetteCapacitanceControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getPipetteCapacitanceControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCCPipetteCapacitanceControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getCCPipetteCapacitanceControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getMembraneCapacitanceControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getMembraneCapacitanceControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getAccessResistanceControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getAccessResistanceControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getResistanceCorrectionPercentageControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getResistanceCorrectionPercentageControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getResistanceCorrectionLagControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getResistanceCorrectionLagControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getResistancePredictionGainControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getResistancePredictionGainControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getResistancePredictionPercentageControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getResistancePredictionPercentageControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getResistancePredictionBandwidthGainControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getResistancePredictionBandwidthGainControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getResistancePredictionTauControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getResistancePredictionTauControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getLeakConductanceControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getLeakConductanceControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getBridgeBalanceResistanceControl(CompensationControl_t &control){
+ErrorCodes_t MessageDispatcher::getBridgeBalanceResistanceControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getAccessResistanceCorrectionLag(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+ErrorCodes_t MessageDispatcher::getAccessResistanceCorrectionLag(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getAccessResistancePredictionPercentage(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+ErrorCodes_t MessageDispatcher::getAccessResistancePredictionPercentage(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getAccessResistancePredictionBandwidthGain(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+ErrorCodes_t MessageDispatcher::getAccessResistancePredictionBandwidthGain(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getAccessResistancePredictionTau(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+ErrorCodes_t MessageDispatcher::getAccessResistancePredictionTau(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+ErrorCodes_t MessageDispatcher::getLeakConductance(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive){
+ErrorCodes_t MessageDispatcher::getBridgeBalanceResistance(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
     return ErrorFeatureNotImplemented;
 }
 
-std::vector<double> MessageDispatcher::user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams){
+std::vector<double> MessageDispatcher::user2AsicDomainTransform(int, std::vector<double>){
     return std::vector<double>();
 }
 
-std::vector<double> MessageDispatcher::asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc){
+std::vector<double> MessageDispatcher::asic2UserDomainTransform(int, std::vector<double>, double, double){
     return std::vector<double>();
 }
 
-ErrorCodes_t MessageDispatcher::asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams){
+ErrorCodes_t MessageDispatcher::asic2UserDomainCompensable(int, std::vector<double>, std::vector<double>){
     return ErrorFeatureNotImplemented;
 }
 
-double MessageDispatcher::computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow){
+double MessageDispatcher::computeAsicCmCinj(double, bool, MultiCoder::MultiCoderConfig_t){
     return -DBL_MAX;
 }
 
@@ -3270,7 +3271,7 @@ void MessageDispatcher::fillChannelList(uint16_t numOfBoards, uint16_t numOfChan
 }
 
 void MessageDispatcher::flushBoardList() {
-    int numOfBoards = this->myBoards.size();
+    size_t numOfBoards = this->myBoards.size();
     for(uint16_t i = 0; i< numOfBoards; i++ ){
         if (this->myBoards[i] != nullptr) {
             delete this->myBoards[i];
