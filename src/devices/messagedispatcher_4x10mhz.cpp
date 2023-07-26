@@ -145,6 +145,10 @@ MessageDispatcher_4x10MHz_V01::MessageDispatcher_4x10MHz_V01(std::string di) :
     vcVoltageFiltersArray[VCVoltageFilter3Hz].unit = "Hz";
     defaultVcVoltageFilterIdx = VCVoltageFilter10kHz;
 
+    liquidJunctionRangesNum = vcVoltageRangesNum;
+    liquidJunctionRangesArray = vcVoltageRangesArray;
+    defaultLiquidJunctionRangeIdx = defaultVcVoltageRangeIdx;
+
     /*! Current filters */
     /*! CC */
     ccCurrentFiltersNum = CCCurrentFiltersNum;

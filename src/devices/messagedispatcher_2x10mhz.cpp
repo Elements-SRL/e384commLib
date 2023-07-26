@@ -116,6 +116,10 @@ MessageDispatcher_2x10MHz_V01::MessageDispatcher_2x10MHz_V01(std::string di) :
     vcVoltageRangesArray[VCVoltageRange1000mV].unit = "V";
     defaultVcVoltageRangeIdx = VCVoltageRange1000mV;
 
+    liquidJunctionRangesNum = vcVoltageRangesNum;
+    liquidJunctionRangesArray = vcVoltageRangesArray;
+    defaultLiquidJunctionRangeIdx = defaultVcVoltageRangeIdx;
+
     /*! Current ranges */
     /*! CC */
     ccCurrentRangesNum = CCCurrentRangesNum;

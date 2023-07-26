@@ -323,6 +323,9 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
         boardIndexes[idx] = idx;
     }
 
+    voltageOffsetCorrected.resize(currentChannelsNum);
+    std::fill(voltageOffsetCorrected.begin(), voltageOffsetCorrected.end(), 0.0);
+
     if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
         /*! Initialization in voltage clamp */
         this->enableCcCompensations(false);
@@ -902,7 +905,7 @@ ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool
             Voltage clamp, so by default the same range is selected for the liquid junction
             When this isnot the case the boolean variable below is set properly by the corresponding derived class of the messagedispatcher */
         if (liquidJunctionSameRangeAsVcDac) {
-            this->setLiquidJunctionrange(voltageRangeIdx);
+            this->setLiquidJunctionRange(voltageRangeIdx);
         }
         return Success;
     }
@@ -954,7 +957,7 @@ ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool
     }
 }
 
-ErrorCodes_t MessageDispatcher::setLiquidJunctionrange(uint16_t idx) {
+ErrorCodes_t MessageDispatcher::setLiquidJunctionRange(uint16_t idx) {
     if (idx >= liquidJunctionRangesNum) {
         return ErrorValueOutOfRange;
 
@@ -1725,13 +1728,10 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
             if (lastParsedMsgType == MsgTypeIdInvalid) {
                 rxOutput.dataLen = currentChannelsNum;
                 for (unsigned int idx = 0; idx < currentChannelsNum; idx++) {
-                    rawFloat = rxDataBuffer[dataOffset];
-                    voltageOffsetCorrected = ((double)rawFloat)*liquidJunctionResolution;
-                    data[idx] = (int16_t)rawFloat;
+                    data[idx] = (int16_t)rxDataBuffer[dataOffset];
+                    voltageOffsetCorrected[idx] = ((double)data[idx])*liquidJunctionResolution;
                     dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                 }
-                lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToPc;
-
 //                this->setDigitalOffsetCompensationOverrideValue(rxOutput.channelIdx, {voltageOffsetCorrected, liquidJunctionControl.prefix, nullptr});
 
                 lastParsedMsgType = MsgTypeIdDigitalOffsetComp;
@@ -1745,6 +1745,7 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                 exitLoop = true;
                 messageReadFlag = false;
             }
+            break;
 
         case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
             if (lastParsedMsgType == MsgTypeIdInvalid) {
@@ -1973,6 +1974,12 @@ ErrorCodes_t MessageDispatcher::convertVoltageValue(int16_t intValue, double &fl
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::convertLiquidJunctionValue(int16_t intValue, double &fltValue) {
+    fltValue = liquidJunctionResolution*(double)intValue;
+
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::convertCurrentValue(int16_t intValue, double &fltValue) {
     fltValue = currentResolution*(double)intValue;
 
@@ -1982,6 +1989,14 @@ ErrorCodes_t MessageDispatcher::convertCurrentValue(int16_t intValue, double &fl
 ErrorCodes_t MessageDispatcher::convertVoltageValues(int16_t * intValues, double * fltValues, int valuesNum) {
     for (int idx = 0; idx < valuesNum; idx++) {
         fltValues[idx] = voltageResolution*(double)intValues[idx];
+    }
+
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::convertLiquidJunctionValues(int16_t * intValues, double * fltValues, int valuesNum) {
+    for (int idx = 0; idx < valuesNum; idx++) {
+        fltValues[idx] = liquidJunctionResolution*(double)intValues[idx];
     }
 
     return Success;
@@ -2204,6 +2219,16 @@ ErrorCodes_t MessageDispatcher::getVCVoltageRange(RangedMeasurement_t &range) {
 
     } else {
         range = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getLiquidJunctionRange(RangedMeasurement_t &range) {
+    if (liquidJunctionRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else {
+        range = liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx];
         return Success;
     }
 }

@@ -111,6 +111,10 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     vcVoltageRangesArray[VCVoltageRange500mV].unit = "V";
     defaultVcVoltageRangeIdx = VCVoltageRange500mV;
 
+    liquidJunctionRangesNum = vcVoltageRangesNum;
+    liquidJunctionRangesArray = vcVoltageRangesArray;
+    defaultLiquidJunctionRangeIdx = defaultVcVoltageRangeIdx;
+
     /*! Current ranges */
     /*! CC */
     ccCurrentRangesNum = CCCurrentRangesNum;

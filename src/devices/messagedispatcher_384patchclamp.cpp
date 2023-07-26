@@ -122,6 +122,10 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     vcVoltageRangesArray[VCVoltageRange500mV].unit = "V";
     defaultVcVoltageRangeIdx = VCVoltageRange500mV;
 
+    liquidJunctionRangesNum = vcVoltageRangesNum;
+    liquidJunctionRangesArray = vcVoltageRangesArray;
+    defaultLiquidJunctionRangeIdx = defaultVcVoltageRangeIdx;
+
     /*! Current ranges */
     /*! CC */
     ccCurrentRangesNum = CCCurrentRangesNum;

@@ -53,31 +53,55 @@ uint32_t MessageDispatcher_384FakePatchClamp::readDataFromDevice() {
 
     /*! No data to receive, just sleep */
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    bool voltageOffsetFlag = false;
 
     while (bytesRead+(totalChannelsNum+3)*RX_WORD_SIZE < OKY_RX_TRANSFER_SIZE) {
-        rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
-        rxRawBuffer[rxRawBufferWriteOffset+1] = 0XA5;
-        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
-        rxRawBuffer[rxRawBufferWriteOffset] = 0x00;
-        rxRawBuffer[rxRawBufferWriteOffset+1] = 0x00;
-        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
-        rxRawBuffer[rxRawBufferWriteOffset] = 0X03;
-        rxRawBuffer[rxRawBufferWriteOffset+1] = 0X00;
-        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
-        for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
-            rxRawBuffer[rxRawBufferWriteOffset] = (((syntheticData+idx*20) & 0x1F00) >> 8) - 0x10;
-            rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+        if (voltageOffsetFlag) {
+            rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = 0XA5;
             rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
-        }
-
-        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            rxRawBuffer[rxRawBufferWriteOffset] = ((syntheticData+idx*20) & 0xFF00) >> 8;
-            rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+            rxRawBuffer[rxRawBufferWriteOffset] = 0x03;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = 0x06;
             rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
-        }
+            rxRawBuffer[rxRawBufferWriteOffset] = 0X01;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = 0X80;
+            rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+            for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+                rxRawBuffer[rxRawBufferWriteOffset] = (((syntheticData+idx*20) & 0x1F00) >> 8) - 0x10;
+                rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+                rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+            }
+            bytesRead += (currentChannelsNum+3)*RX_WORD_SIZE;
+            voltageOffsetFlag = false;
 
-        syntheticData += 1;
-        bytesRead += (totalChannelsNum+3)*RX_WORD_SIZE;
+        } else {
+            rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = 0XA5;
+            rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+            rxRawBuffer[rxRawBufferWriteOffset] = 0x00;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = 0x00;
+            rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+            rxRawBuffer[rxRawBufferWriteOffset] = 0X03;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = 0X00;
+            rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+            for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
+                rxRawBuffer[rxRawBufferWriteOffset] = (((syntheticData+idx*20) & 0x1F00) >> 8) - 0x10;
+                rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+                rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+            }
+
+            for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+                rxRawBuffer[rxRawBufferWriteOffset] = ((syntheticData+idx*20) & 0xFF00) >> 8;
+                rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+                rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+            }
+
+            syntheticData += 1;
+            bytesRead += (totalChannelsNum+3)*RX_WORD_SIZE;
+            if (rxRawBufferWriteOffset <= (totalChannelsNum+3)*RX_WORD_SIZE) {
+                voltageOffsetFlag = true;
+            }
+        }
     }
 #endif
 

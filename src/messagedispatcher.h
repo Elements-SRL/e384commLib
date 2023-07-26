@@ -149,7 +149,7 @@ public:
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
     ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
     ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
-    virtual ErrorCodes_t setLiquidJunctionrange(uint16_t idx);
+    virtual ErrorCodes_t setLiquidJunctionRange(uint16_t idx);
 
     ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
     ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
@@ -242,8 +242,10 @@ public:
     ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data);
     ErrorCodes_t purgeData();
     ErrorCodes_t convertVoltageValue(int16_t intValue, double &fltValue);
+    ErrorCodes_t convertLiquidJunctionValue(int16_t intValue, double &fltValue);
     ErrorCodes_t convertCurrentValue(int16_t intValue, double &fltValue);
     ErrorCodes_t convertVoltageValues(int16_t * intValue, double * fltValue, int valuesNum);
+    ErrorCodes_t convertLiquidJunctionValues(int16_t * intValue, double * fltValue, int valuesNum);
     ErrorCodes_t convertCurrentValues(int16_t * intValue, double * fltValue, int valuesNum);
 
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
@@ -272,6 +274,7 @@ public:
 
     ErrorCodes_t getVCCurrentRange(RangedMeasurement_t &range);
     ErrorCodes_t getVCVoltageRange(RangedMeasurement_t &range);
+    ErrorCodes_t getLiquidJunctionRange(RangedMeasurement_t &range);
     ErrorCodes_t getCCCurrentRange(RangedMeasurement_t &range);
     ErrorCodes_t getCCVoltageRange(RangedMeasurement_t &range);
 
@@ -442,7 +445,7 @@ protected:
 
     uint16_t rxSyncWord;
 
-    int packetsPerFrame = 1;
+    unsigned int packetsPerFrame = 1;
 
     uint16_t voltageChannelsNum = 1;
     uint16_t currentChannelsNum = 1;
@@ -777,7 +780,7 @@ protected:
     double liquidJunctionResolution = 1.0;
     bool liquidJunctionSameRangeAsVcDac = true;
 
-    double voltageOffsetCorrected = 0.0; /*!< Value currently corrected in applied voltages by the device (expressed in the unit of the liquid junction control) */
+    std::vector <double> voltageOffsetCorrected; /*!< Value currently corrected in applied voltages by the device (expressed in the unit of the liquid junction control) */
     double voltageOffsetCorrection = 0.0; /*!< Value to be used to correct the measured voltage values (expressed in the unit of current voltage range) */
 
     RangedMeasurement_t voltageRange;
