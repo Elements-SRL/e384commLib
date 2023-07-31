@@ -49,7 +49,7 @@ protected:
      *  Parameters  *
     \****************/
 
-    okCFrontPanel * dev;
+    okCFrontPanel dev;
 
     std::string fwName = "top.bit";
 

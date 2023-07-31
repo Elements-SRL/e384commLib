@@ -33,16 +33,14 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
     createDebugFile(rxFid, "e384CommLib_rx");
 #endif
 
-    dev = new okCFrontPanel;
-
-    okCFrontPanel::ErrorCode error = dev->OpenBySerial(deviceId);
+    okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
 
     if (error != okCFrontPanel::NoError) {
         return ErrorDeviceConnectionFailed;
     }
 
-    if (dev->IsFrontPanelEnabled() == false) {
-        error = dev->ConfigureFPGA(fwName);
+    if (dev.IsFrontPanelEnabled() == false) {
+        error = dev.ConfigureFPGA(fwName);
 
         if (error != okCFrontPanel::NoError) {
             return ErrorDeviceFwLoadingFailed;
@@ -67,11 +65,7 @@ ErrorCodes_t MessageDispatcher_OpalKelly::disconnect() {
 
     this->deinitializeBuffers();
 
-    if (dev != nullptr) {
-        dev->Close();
-        delete dev;
-        dev = nullptr;
-    }
+    dev.Close();
     return Success;
 }
 
@@ -198,18 +192,18 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
 }
 
 bool MessageDispatcher_OpalKelly::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
-    if (dev->WriteRegisters(regs) == okCFrontPanel::NoError) {
+    if (dev.WriteRegisters(regs) == okCFrontPanel::NoError) {
         switch (type) {
         case TxTriggerParameteresUpdated:
-            dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+            dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
             break;
 
         case TxTriggerStartProtocol:
-            dev->ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
+            dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
             break;
 
         case TxTriggerStartStateArray:
-            dev->ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
+            dev.ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
             break;
         }
         return true;
@@ -237,17 +231,18 @@ uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
 //    std::chrono::steady_clock::time_point currentPrintfTime;
 //    startPrintfTime = std::chrono::steady_clock::now();
     /*! Read the data */
-    bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxRawBuffer+rxRawBufferWriteOffset);
+    bytesRead = dev.ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxRawBuffer+rxRawBufferWriteOffset);
 
     if (bytesRead > INT32_MAX) {
         if (bytesRead == ok_Timeout || bytesRead == ok_Failed) {
             /*! The device cannot recover from timeout condition */
-            dev->Close();
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            dev.Close();
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
             txModifiedStartingWord = 0;
             txModifiedEndingWord = txMaxWords;
             this->sendCommands();
-            dev->OpenBySerial(deviceId);
+            okCFrontPanel::ErrorCode err = dev.OpenBySerial(deviceId);
+            std::this_thread::sleep_for(std::chrono::milliseconds(10000));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 #ifdef DEBUG_RX_PROCESSING_PRINT
