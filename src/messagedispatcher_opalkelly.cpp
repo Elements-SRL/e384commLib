@@ -39,13 +39,11 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
         return ErrorDeviceConnectionFailed;
     }
 
-//    if (dev.IsFrontPanelEnabled() == false) {
-        error = dev.ConfigureFPGA(fwName);
+    error = dev.ConfigureFPGA(fwName);
 
-        if (error != okCFrontPanel::NoError) {
-            return ErrorDeviceFwLoadingFailed;
-        }
-//    }
+    if (error != okCFrontPanel::NoError) {
+        return ErrorDeviceFwLoadingFailed;
+    }
 
     ErrorCodes_t err = this->initializeBuffers();
     if (err != Success) {
