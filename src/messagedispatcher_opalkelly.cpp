@@ -39,13 +39,13 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
         return ErrorDeviceConnectionFailed;
     }
 
-    if (dev.IsFrontPanelEnabled() == false) {
+//    if (dev.IsFrontPanelEnabled() == false) {
         error = dev.ConfigureFPGA(fwName);
 
         if (error != okCFrontPanel::NoError) {
             return ErrorDeviceFwLoadingFailed;
         }
-    }
+//    }
 
     ErrorCodes_t err = this->initializeBuffers();
     if (err != Success) {
@@ -241,8 +241,7 @@ uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
             txModifiedStartingWord = 0;
             txModifiedEndingWord = txMaxWords;
             this->sendCommands();
-            okCFrontPanel::ErrorCode err = dev.OpenBySerial(deviceId);
-            std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+            dev.OpenBySerial(deviceId);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 #ifdef DEBUG_RX_PROCESSING_PRINT
@@ -266,10 +265,9 @@ uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
         fprintf(rxRawFid, "Bytes read %d\n", bytesRead);
         fflush(rxRawFid);
 #endif
+        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & OKY_RX_BUFFER_MASK;
     }
-
     /*! Update buffer writing point */
-    rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & OKY_RX_BUFFER_MASK;
     return bytesRead;
 }
 
