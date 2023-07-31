@@ -1690,7 +1690,6 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[2] = 0x0070; // fans on by default
-    txStatus[4] = 0x0001;
 }
 
 MessageDispatcher_384PatchClamp_V01::~MessageDispatcher_384PatchClamp_V01() {
