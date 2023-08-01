@@ -991,6 +991,13 @@ ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t> 
     }
 }
 
+ErrorCodes_t MessageDispatcher::expandTraces(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+        myChannels[channelIndexes[i]]->setExpandedTrace(onValues[i]);
+    }
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn){
     if (vcVoltageFilterCoder == nullptr) {
         return ErrorFeatureNotImplemented;

@@ -1,7 +1,6 @@
 #include "channelmodel.h"
 
-ChannelModel::ChannelModel()
-{
+ChannelModel::ChannelModel() {
 
 }
 
@@ -13,8 +12,12 @@ uint16_t ChannelModel::getId(){
     return this->id;
 }
 
-bool ChannelModel::isOn(){
+bool ChannelModel::isOn() {
     return this->on;
+}
+
+bool ChannelModel::isExpanded() {
+    return expanded;
 }
 
 bool ChannelModel::isCompensatingDoc(){
@@ -60,6 +63,10 @@ void ChannelModel::setId(uint16_t id){
 
 void ChannelModel::setOn(bool on){
     this->on = on;
+}
+
+void ChannelModel::setExpandedTrace(bool expanded) {
+    this->expanded = expanded;
 }
 
 void ChannelModel::setCompensatingDoc(bool compensating){

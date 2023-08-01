@@ -15,6 +15,7 @@ public:
 
     uint16_t getId();
     bool isOn();
+    bool isExpanded();
     bool isCompensatingDoc();
     bool isCompensatingCfast();
     bool isCompensatingCslowRs();
@@ -27,6 +28,7 @@ public:
 
     void setId(uint16_t id);
     void setOn(bool on);
+    void setExpandedTrace(bool expanded);
     void setCompensatingDoc(bool compensating);
     void setCompensatingCfast(bool compensating);
     void setCompensatingCslowRs(bool compensating);
@@ -42,6 +44,7 @@ public:
 private:
     uint16_t id = 65535;                            // Channel ID
     bool on = false;                                // Channel is ON (true) or off (false)
+    bool expanded = false;                          // The channels is currently shown in the big central plot
     bool compensating = false;                      // The channels is currently doing digital offset compensation
     bool compensatingCfast = false;                 // The channel is currently compensating Cfast
     bool compensatingCslowRs = false;               // The channel is currently compensating CslowRs
