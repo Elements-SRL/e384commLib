@@ -235,7 +235,7 @@ uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
         if (bytesRead == ok_Timeout || bytesRead == ok_Failed) {
             /*! The device cannot recover from timeout condition */
             dev.Close();
-            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             txModifiedStartingWord = 0;
             txModifiedEndingWord = txMaxWords;
             this->sendCommands();

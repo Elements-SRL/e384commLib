@@ -1700,9 +1700,9 @@ void MessageDispatcher_384PatchClamp_V01::initializeHW() {
     this->resetFpga(true, true);
     this->resetFpga(false, false);
 
-//    this->resetAsic(true, true);
-//    this_thread::sleep_for(chrono::milliseconds(100));
-//    this->resetAsic(false, true);
+    this->resetAsic(true, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    this->resetAsic(false, true);
 }
 
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::hasCompFeature(uint16_t feature) {
