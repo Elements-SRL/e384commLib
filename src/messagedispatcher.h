@@ -428,6 +428,9 @@ protected:
     void computeRawDataFilterCoefficients();
     double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
 
+    void updateVoltageHoldTuner(bool applyFlag);
+    void updateCurrentHoldTuner(bool applyFlag);
+
     /*! \todo FCON rechecks Compensation methods */
     virtual std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams);
     virtual std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);

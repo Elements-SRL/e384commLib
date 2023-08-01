@@ -445,7 +445,7 @@ ErrorCodes_t MessageDispatcher::resetFpga(bool resetFlag, bool applyFlagIn) {
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
-    if (vHoldTunerCoders.size() == 0) {
+    if (vHoldTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
@@ -473,7 +473,7 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t> channe
 }
 
 ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
-    if (cHoldTunerCoders.size() == 0) {
+    if (cHoldTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
@@ -897,6 +897,7 @@ ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool
 
         this->updateCalibVcVoltageGain(allChannelIndexes, false);
         this->updateCalibVcVoltageOffset(allChannelIndexes, false);
+        this->updateVoltageHoldTuner(false);
 
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
@@ -926,6 +927,7 @@ ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t currentRangeIdx, bool
 
         this->updateCalibCcCurrentGain(allChannelIndexes, false);
         this->updateCalibCcCurrentOffset(allChannelIndexes, false);
+        this->updateCurrentHoldTuner(false);
 
         if (applyFlagIn) {
             this->stackOutgoingMessage(txStatus);
@@ -3054,6 +3056,36 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
 
     iirY[channelIdx][iirOff] = y;
     return y;
+}
+
+void MessageDispatcher::updateVoltageHoldTuner(bool applyFlag) {
+    if (vHoldTunerCoders.empty()) {
+        return;
+
+    } else {
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+            vHoldTunerCoders[selectedVcVoltageRangeIdx][i]->encode(selectedVoltageHoldVector[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+    }
+}
+
+void MessageDispatcher::updateCurrentHoldTuner(bool applyFlag) {
+    if (cHoldTunerCoders.empty()) {
+        return;
+
+    } else {
+        for (uint32_t i = 0; i < voltageChannelsNum; i++) {
+            cHoldTunerCoders[selectedCcCurrentRangeIdx][i]->encode(selectedCurrentHoldVector[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+    }
 }
 
 ErrorCodes_t MessageDispatcher::turnResistanceCompensationOn(std::vector<uint16_t>,std::vector<bool>, bool){
