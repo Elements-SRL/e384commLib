@@ -403,9 +403,6 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageStatus]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus, RxMessageStatus);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageOffset]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp, RxMessageVoltageOffset);
                         }
 
                         rxFrameOffset = rxRawBufferReadOffset;

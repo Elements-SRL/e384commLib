@@ -31,9 +31,6 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
     rxWordLengths[RxMessageStatus] = 1;
 
-    rxWordOffsets[RxMessageVoltageOffset] = rxWordOffsets[RxMessageStatus] + rxWordLengths[RxMessageStatus];
-    rxWordLengths[RxMessageVoltageOffset] = currentChannelsNum;
-
     maxOutputPacketsNum = E384CL_DATA_ARRAY_SIZE/totalChannelsNum;
 
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */

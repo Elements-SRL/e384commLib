@@ -52,10 +52,13 @@ Measurement_t ChannelModel::getVhold(){
     return this->vHold;
 }
 
-Measurement_t ChannelModel::getVdoc(){
-    return this->vDoc;
+Measurement_t ChannelModel::getChold(){
+    return this->cHold;
 }
 
+Measurement_t ChannelModel::getLiquidJunctionVoltage(){
+    return this->liquidJunctionVoltage;
+}
 
 void ChannelModel::setId(uint16_t id){
     this->id = id;
@@ -109,6 +112,6 @@ void ChannelModel::setChold(Measurement_t cHold){
     this->cHold = cHold;
 }
 
-void ChannelModel::setVdoc(Measurement_t vDoc){
-    this->vDoc = vDoc;
+void ChannelModel::setLiquidJunctionVoltage(Measurement_t voltage){
+    this->liquidJunctionVoltage = voltage;
 }

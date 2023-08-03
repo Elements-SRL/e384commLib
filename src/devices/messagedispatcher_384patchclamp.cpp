@@ -32,15 +32,12 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
     rxWordLengths[RxMessageStatus] = 1;
 
-    rxWordOffsets[RxMessageVoltageOffset] = rxWordOffsets[RxMessageStatus] + rxWordLengths[RxMessageStatus];
-    rxWordLengths[RxMessageVoltageOffset] = currentChannelsNum;
-
     maxOutputPacketsNum = E384CL_DATA_ARRAY_SIZE/totalChannelsNum;
 
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 4120; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 4504; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
@@ -1189,6 +1186,23 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             cHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(cHoldTunerCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! liquid junction voltage */
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    liquidJunctionVoltageCoders.resize(liquidJunctionRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < liquidJunctionRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 4120;
+        doubleConfig.resolution = liquidJunctionRangesArray[rangeIdx].step;
+        doubleConfig.minValue = liquidJunctionRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
+        liquidJunctionVoltageCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            liquidJunctionVoltageCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(liquidJunctionVoltageCoders[rangeIdx][channelIdx]);
             doubleConfig.initialWord++;
         }
     }

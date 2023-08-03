@@ -41,9 +41,6 @@ MessageDispatcher_2x10MHz_V01::MessageDispatcher_2x10MHz_V01(std::string di) :
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
     rxWordLengths[RxMessageStatus] = 1;
 
-    rxWordOffsets[RxMessageVoltageOffset] = rxWordOffsets[RxMessageStatus] + rxWordLengths[RxMessageStatus];
-    rxWordLengths[RxMessageVoltageOffset] = currentChannelsNum;
-
     maxOutputPacketsNum = E384CL_DATA_ARRAY_SIZE/totalChannelsNum;
 
     rxMaxWords = currentChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */

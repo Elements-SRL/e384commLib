@@ -125,8 +125,9 @@ public:
     ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn = true);
     ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
     ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn);
-    ErrorCodes_t setGateVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
-    ErrorCodes_t setSourceVoltagesTuner(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag);
+    ErrorCodes_t setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
+    ErrorCodes_t setGateVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
+    ErrorCodes_t setSourceVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag);
 
     ErrorCodes_t setCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
     ErrorCodes_t updateCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag);
@@ -251,14 +252,15 @@ public:
 
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
     ErrorCodes_t getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures);
+    ErrorCodes_t getLiquidJunctionVoltageFeatures(std::vector <RangedMeasurement_t> &ranges);
     ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);
     ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
     ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
     ErrorCodes_t getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures);
-    ErrorCodes_t hasGateVoltageTuners();
-    ErrorCodes_t hasSourceVoltageTuners();
-    ErrorCodes_t getGateVoltagesTunerFeatures(RangedMeasurement_t &gateVoltagesTunerFeatures);
-    ErrorCodes_t getSourceVoltagesTunerFeatures(RangedMeasurement_t &sourceVoltagesTunerFeatures);
+    ErrorCodes_t hasGateVoltages();
+    ErrorCodes_t hasSourceVoltages();
+    ErrorCodes_t getGateVoltagesFeatures(RangedMeasurement_t &gateVoltagesFeatures);
+    ErrorCodes_t getSourceVoltagesFeatures(RangedMeasurement_t &sourceVoltagesFeatures);
     ErrorCodes_t getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &currentChannelNumberFeatures);
     ErrorCodes_t getChannelNumberFeatures(int &voltageChannelNumberFeatures, int &currentChannelNumberFeatures);
     ErrorCodes_t getAvailableChannelsSourcesFeatures(ChannelSources_t &voltageSourcesIdxs, ChannelSources_t &currentSourcesIdxs);
@@ -374,9 +376,20 @@ protected:
         RxMessageDataHeader,
         RxMessageDataTail,
         RxMessageStatus,
-        RxMessageVoltageOffset,
         RxMessageNum
     } RxMessageTypes_t;
+
+    typedef enum LiquidJunctionState {
+        LiquidJunctionIdle,
+        LiquidJunctionStarting,
+        LiquidJunctionFirstStep,
+        LiquidJunctionConverge,
+        LiquidJunctionSuccess,
+        LiquidJunctionFailOpenCircuit,
+        LiquidJunctionFailTooManySteps,
+        LiquidJunctionFailSaturation,
+        LiquidJunctionStatesNum
+    } LiquidJunctionState_t;
 
     std::vector <double> membraneCapValueInjCapacitance;
     std::vector <std::vector<std::string>> compensationOptionStrings;
@@ -384,6 +397,19 @@ protected:
     /************\
      *  Fields  *
     \************/
+
+    std::vector <LiquidJunctionState_t> liquidJunctionStates;
+    std::vector <int64_t> liquidJunctionCurrentSums;
+    std::vector <double> liquidJunctionCurrentEstimates;
+    int64_t liquidJunctionCurrentEstimatesNum;
+    std::vector <Measurement_t> liquidJunctionVoltagesBackup;
+    std::vector <double> liquidJunctionDeltaVoltages;
+    std::vector <double> liquidJunctionDeltaCurrents;
+    std::vector <uint16_t> liquidJunctionConvergingCount;
+    std::vector <uint16_t> liquidJunctionConvergedCount;
+    std::vector <uint16_t> liquidJunctionPositiveSaturationCount;
+    std::vector <uint16_t> liquidJunctionNegativeSaturationCount;
+    std::vector <uint16_t> liquidJunctionOpenCircuitCount;
 
     std::vector<std::vector<double>> compValueMatrix;
     std::vector<bool> compCfastEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
@@ -413,6 +439,7 @@ protected:
     virtual void handleCommunicationWithDevice() = 0;
     virtual uint32_t readDataFromDevice() = 0;
     virtual void parseDataFromDevice() = 0;
+    void computeLiquidJunction();
     virtual void sendCommandsToDevice() = 0;
     virtual void initializeHW() = 0;
 
@@ -571,12 +598,14 @@ protected:
     std::unordered_map<uint16_t, uint16_t> sr2LpfCcVoltageMap;
     std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
 
-    std::vector <BoolCoder *> digitalOffsetCompensationCoders;
-
     std::vector<Measurement_t> selectedVoltageHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector<Measurement_t> selectedCurrentHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector <std::vector <DoubleCoder *>> vHoldTunerCoders;
     std::vector <std::vector <DoubleCoder *>> cHoldTunerCoders;
+
+    std::vector <BoolCoder *> digitalOffsetCompensationCoders;
+    std::vector<Measurement_t> selectedLiquidJunctionVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector <std::vector <DoubleCoder *>> liquidJunctionVoltageCoders;
 
     // Calibration DAC coders and ranges
     RangedMeasurement_t calibCcCurrentGainRange;
@@ -833,6 +862,7 @@ protected:
 
     std::thread deviceCommunicationThread;
     std::thread rxConsumerThread;
+    std::thread liquidJunctionThread;
 
     mutable std::mutex rxRawMutex;
     std::condition_variable rxRawBufferNotEmpty;
@@ -845,6 +875,8 @@ protected:
     mutable std::mutex txMutex;
     std::condition_variable txMsgBufferNotEmpty;
     std::condition_variable txMsgBufferNotFull;
+
+    mutable std::mutex ljMutex;
 
 #ifdef DEBUG_TX_DATA_PRINT
     FILE * txFid = nullptr;
