@@ -1889,15 +1889,23 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                             downsamplingCount++;
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
                                 rawFloat = (int16_t)rxDataBuffer[dataOffset];
+#ifdef FILTER_CLIP_NEEDED
                                 xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                                 data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+#else
+                                data[dataWritten+sampleIdx++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
+#endif
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
 
                             for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
                                 rawFloat = (int16_t)rxDataBuffer[dataOffset];
+#ifdef FILTER_CLIP_NEEDED
                                 xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
                                 data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+#else
+                                data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
+#endif
                                 liquidJunctionCurrentSums[currentChannelIdx] += data[dataWritten+sampleIdx];
                                 sampleIdx++;
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
@@ -1936,15 +1944,23 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
                             rawFloat = (int16_t)rxDataBuffer[dataOffset];
+#ifdef FILTER_CLIP_NEEDED
                             xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                             data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+#else
+                            data[dataWritten+sampleIdx++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
+#endif
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
 
                         for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
                             rawFloat = (int16_t)rxDataBuffer[dataOffset];
+#ifdef FILTER_CLIP_NEEDED
                             xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
                             data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+#else
+                            data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
+#endif
                             liquidJunctionCurrentSums[currentChannelIdx] += data[dataWritten+sampleIdx];
                             sampleIdx++;
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
@@ -3345,13 +3361,14 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
         }
     }
 
+#ifdef USE_2ND_ORDER_BUTTERWORTH
     if (enableFilter) {
-        if (rawDataFilterVoltageFlag) {
-            double k1 = tan(M_PI*rawDataFilterCutoffFrequency.value*integrationStep.value); /*!< pre-warp coefficient */
-            double k12 = k1*k1;
-            double k2 = -2+2*k12; /*!< frequently used expression */
-            double d = 1.0/(1.0+k1*IIR_2_SIN_PI_4+k12); /*!< denominator */
+        double k1 = tan(M_PI*rawDataFilterCutoffFrequency.value*integrationStep.value); /*!< pre-warp coefficient */
+        double k12 = k1*k1;
+        double k2 = -2+2*k12; /*!< frequently used expression */
+        double d = 1.0/(1.0+k1*IIR_2_SIN_PI_4+k12); /*!< denominator */
 
+        if (rawDataFilterVoltageFlag) {
             /*! Denominators */
             iirVDen[0] = 1.0;
             iirVDen[1] = k2*d;
@@ -3384,11 +3401,6 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
         }
 
         if (rawDataFilterCurrentFlag) {
-            double k1 = tan(M_PI*rawDataFilterCutoffFrequency.value*integrationStep.value); /*!< pre-warp coefficient */
-            double k12 = k1*k1;
-            double k2 = -2+2*k12; /*!< frequently used expression */
-            double d = 1.0/(1.0+k1*IIR_2_SIN_PI_4+k12); /*!< denominator */
-
             /*! Denominators */
             iirIDen[0] = 1.0;
             iirIDen[1] = k2*d;
@@ -3436,6 +3448,77 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
         iirIDen[1] = 0.0;
         iirIDen[2] = 0.0;
     }
+#else
+    if (enableFilter) {
+        double wT = 2.0*M_PI*rawDataFilterCutoffFrequency.value*integrationStep.value;
+        double ky = (2.0-wT)/(2.0+wT);
+        double kx;
+        if (rawDataFilterLowPassFlag) {
+            kx = 1.0-ky;
+
+        } else {
+            kx = 1.0+ky;
+        }
+        if (rawDataFilterVoltageFlag) {
+
+            /*! Denominators */
+            iirVDen[0] = 1.0;
+            iirVDen[1] = -ky;
+
+            /*! Gains and numerators */
+            if (rawDataFilterLowPassFlag) {
+                iirVNum[0] = kx*0.5;
+                iirVNum[1] = kx*0.5;
+
+            } else {
+                iirVNum[0] = kx*0.5;
+                iirVNum[1] = -kx*0.5;
+            }
+
+        } else {
+            /*! Voltage is not filtered */
+            iirVNum[0] = 1.0;
+            iirVNum[1] = 0.0;
+            iirVDen[0] = 1.0;
+            iirVDen[1] = 0.0;
+        }
+
+        if (rawDataFilterCurrentFlag) {
+            /*! Denominators */
+            iirIDen[0] = 1.0;
+            iirIDen[1] = -ky;
+
+            /*! Gains and numerators */
+            if (rawDataFilterLowPassFlag) {
+                iirINum[0] = kx*0.5;
+                iirINum[1] = kx*0.5;
+
+            } else {
+                iirINum[0] = kx*0.5;
+                iirINum[1] = -kx*0.5;
+            }
+
+        } else {
+            /*! Current is not filtered */
+            iirINum[0] = 1.0;
+            iirINum[1] = 0.0;
+            iirIDen[0] = 1.0;
+            iirIDen[1] = 0.0;
+        }
+
+    } else {
+        /*! Delta impulse response with no autoregressive part */
+        iirVNum[0] = 1.0;
+        iirVNum[1] = 0.0;
+        iirVDen[0] = 1.0;
+        iirVDen[1] = 0.0;
+
+        iirINum[0] = 1.0;
+        iirINum[1] = 0.0;
+        iirIDen[0] = 1.0;
+        iirIDen[1] = 0.0;
+    }
+#endif
 
     /*! reset FIFOs */
     for (uint16_t channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {

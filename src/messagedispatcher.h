@@ -38,10 +38,15 @@
 #define LINT32_MAX (static_cast <double> (0x7FFFFFFF))
 #define LINT32_MIN (-LINT32_MAX-1.0)
 
+#ifdef USE_2ND_ORDER_BUTTERWORTH
 #define IIR_ORD 2
 #define IIR_2_SIN_PI_4 (2.0*sin(M_PI/4.0))
 #define IIR_2_COS_PI_4 (2.0*cos(M_PI/4.0))
 #define IIR_2_COS_PI_4_2 (IIR_2_COS_PI_4*IIR_2_COS_PI_4)
+#define FILTER_CLIP_NEEDED
+#else /*! 1st order iir */
+#define IIR_ORD 1
+#endif
 
 #define RX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
 #define RX_FEW_PACKETS_COEFF 0.01 /*!< = 10.0/1000.0: 10.0 because I want to get data once every 10ms, 1000 to convert sampling rate from Hz to kHz */
