@@ -9,6 +9,7 @@ CONFIG(debug, debug|release) {
 #    DEFINES += DEBUG_RX_RAW_DATA_PRINT
 #    DEFINES += DEBUG_RX_PROCESSING_PRINT
 #    DEFINES += DEBUG_RX_DATA_PRINT
+#    DEFINES += DEBUG_LIQUID_JUNCTION_PRINT
 }
 
 CONFIG(release, debug|release) {

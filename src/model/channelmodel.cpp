@@ -20,8 +20,8 @@ bool ChannelModel::isExpanded() {
     return expanded;
 }
 
-bool ChannelModel::isCompensatingDoc(){
-    return this->compensating;
+bool ChannelModel::isCompensatingLiquidJunction(){
+    return compensatingLiquidJunction;
 }
 
 bool ChannelModel::isCompensatingCfast(){
@@ -72,8 +72,8 @@ void ChannelModel::setExpandedTrace(bool expanded) {
     this->expanded = expanded;
 }
 
-void ChannelModel::setCompensatingDoc(bool compensating){
-    this->compensating = compensating;
+void ChannelModel::setCompensatingLiquidJunction(bool compensating){
+    compensatingLiquidJunction = compensating;
 }
 
 void ChannelModel::setCompensatingCfast(bool compensating){

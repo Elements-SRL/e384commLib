@@ -26,7 +26,7 @@ typedef enum ErrorGroups {
  *  \brief Enumerated error codes.
  */
 typedef enum ErrorCodes {
-    Success =                                                           0x00000000, /*!< Method returns with no errors. */
+    Success =                                                               0x00000000, /*!< Method returns with no errors. */
 
     ErrorNoDeviceFound =                    ErrorGroupDeviceDetection +     0x00000001, /*!< Error returned when no devices are detected. */
     ErrorListDeviceFailed =                 ErrorGroupDeviceDetection +     0x00000002, /*!< Error returned when device detection fails.
@@ -68,6 +68,9 @@ typedef enum ErrorCodes {
                                                                                              e.g. a data acq. packet without first sample index. */
     ErrorWrongClampModality =               ErrorGroupDeviceCommands +      0x0000000A, /*!< Error returned a command is used in the wrong clamp modality
                                                                                              e.g. set holding voltage in current clamp. */
+    WarningValueClipped =                   ErrorGroupDeviceCommands +      0x8000000B, /*!< Warning returned when trying to set a value that is out of range for the current device,
+                                                                                             but differently from the ErrorValueOutOfRange, the command is still applied but clipped,
+                                                                                         *   e.g. a voltage offset bigger then the DAC range. */
 
     ErrorFeatureNotImplemented =            ErrorGroupDeviceFeatures +      0x00000000, /*!< Error returned when trying to use a feature that is not implemented for the current device. */
     ErrorUpgradesNotAvailable =             ErrorGroupDeviceFeatures +      0x00000001, /*!< Error returned when there are no upgrades available for the current device. */

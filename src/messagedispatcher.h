@@ -391,12 +391,14 @@ protected:
         LiquidJunctionStatesNum
     } LiquidJunctionState_t;
 
-    std::vector <double> membraneCapValueInjCapacitance;
-    std::vector <std::vector<std::string>> compensationOptionStrings;
-
     /************\
      *  Fields  *
     \************/
+
+    std::vector <double> membraneCapValueInjCapacitance;
+    std::vector <std::vector<std::string>> compensationOptionStrings;
+
+    bool anyLiquidJuctionActive = false;
 
     std::vector <LiquidJunctionState_t> liquidJunctionStates;
     std::vector <int64_t> liquidJunctionCurrentSums;
@@ -440,6 +442,7 @@ protected:
     virtual uint32_t readDataFromDevice() = 0;
     virtual void parseDataFromDevice() = 0;
     void computeLiquidJunction();
+    void updateGlobalLiquidJunctionFlag();
     virtual void sendCommandsToDevice() = 0;
     virtual void initializeHW() = 0;
 
@@ -658,10 +661,6 @@ protected:
     std::vector <RangedMeasurement_t> vcLeakCalibRange;
     std::vector <std::vector <DoubleCoder *>> vcLeakCalibCoders;
 
-//    std::vector<std::vector<Measurement_t>> vcCalibResArrays;
-//    std::vector<std::vector<Measurement_t>> vcCalibVoltStepsArrays;
-
-    /*! \todo 20230531 MPAC: coders for 4x10MHz*/
     BoolCoder * numberOfStatesCoder = nullptr;
     BoolCoder * initialStateCoder = nullptr;
     std::vector<BoolCoder*> enableStateArrayChannelsCoder;
@@ -765,8 +764,8 @@ protected:
     bool stopConnectionFlag = false;
     bool parsingFlag = false;
 
-    std::vector <BoardModel *> myBoards;
-    std::vector <ChannelModel *> myChannels;
+    std::vector <BoardModel *> boardModels;
+    std::vector <ChannelModel *> channelModels;
 
     /*! Read data buffer management */
     uint16_t rxMaxWords;
@@ -892,6 +891,10 @@ protected:
 
 #ifdef DEBUG_RX_DATA_PRINT
     FILE * rxFid = nullptr;
+#endif
+
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+    FILE * ljFid = nullptr;
 #endif
 };
 

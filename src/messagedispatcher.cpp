@@ -252,6 +252,12 @@ ErrorCodes_t MessageDispatcher::connect() {
     }
 #endif
 
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+    if (rxFid == nullptr) {
+        createDebugFile(ljFid, "e384CommLib_lj");
+    }
+#endif
+
     /*! Initialize device */
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     this->initializeDevice();
@@ -303,6 +309,14 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
 
     this->initializeHW();
 
+    CalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum);
+
+    calibrationParams = calibrationManager.getCalibrationParams(calibrationLoadingError);
+    calibrationFileNames = calibrationManager.getCalibrationFileNames();
+    calibrationFilesOkFlags = calibrationManager.getCalibrationFilesOkFlags();
+    calibrationMappingFileDir = calibrationManager.getMappingFileDir();
+    calibrationMappingFilePath = calibrationManager.getMappingFilePath();
+
     liquidJunctionCurrentEstimatesNum = 0;
     liquidJunctionStates.resize(currentChannelsNum);
     std::fill(liquidJunctionStates.begin(), liquidJunctionStates.end(), LiquidJunctionIdle);
@@ -331,13 +345,8 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
     selectedLiquidJunctionVector.resize(currentChannelsNum);
     fill(selectedLiquidJunctionVector.begin(), selectedLiquidJunctionVector.end(), 0.0*liquidJunctionRange.getMax());
 
-    CalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum);
-
-    calibrationParams = calibrationManager.getCalibrationParams(calibrationLoadingError);
-    calibrationFileNames = calibrationManager.getCalibrationFileNames();
-    calibrationFilesOkFlags = calibrationManager.getCalibrationFilesOkFlags();
-    calibrationMappingFileDir = calibrationManager.getMappingFileDir();
-    calibrationMappingFilePath = calibrationManager.getMappingFilePath();
+    voltageOffsetCorrected.resize(currentChannelsNum);
+    std::fill(voltageOffsetCorrected.begin(), voltageOffsetCorrected.end(), 0.0);
 
     /*! Some default values*/
     std::vector <bool> allTrue(currentChannelsNum, true);
@@ -353,9 +362,6 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
         boardIndexes[idx] = idx;
     }
 
-    voltageOffsetCorrected.resize(currentChannelsNum);
-    std::fill(voltageOffsetCorrected.begin(), voltageOffsetCorrected.end(), 0.0);
-
     if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
         /*! Initialization in voltage clamp */
         this->enableCcCompensations(false);
@@ -364,6 +370,7 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
         this->turnChannelsOn(allChannelIndexes, allTrue, false);
         this->turnCurrentReaderOn(true, false);
         this->setVoltageHoldTuner(allChannelIndexes, selectedVoltageHoldVector, false);
+        this->setLiquidJunctionVoltage(allChannelIndexes, selectedLiquidJunctionVector, false);
         this->setSamplingRate(defaultSamplingRateIdx, false);
         this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
         this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
@@ -403,7 +410,7 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
 
 ErrorCodes_t MessageDispatcher::setChannelSelected(uint16_t chIdx, bool newState) {
     if (chIdx < currentChannelsNum) {
-        myChannels[chIdx]->setSelected(newState);
+        channelModels[chIdx]->setSelected(newState);
         return Success;
 
     } else {
@@ -413,7 +420,7 @@ ErrorCodes_t MessageDispatcher::setChannelSelected(uint16_t chIdx, bool newState
 
 ErrorCodes_t MessageDispatcher::setBoardSelected(uint16_t brdIdx, bool newState) {
     if (brdIdx < totalBoardsNum) {
-        for (auto ch : myBoards[brdIdx]->getChannelsOnBoard()) {
+        for (auto ch : boardModels[brdIdx]->getChannelsOnBoard()) {
             ch->setSelected(newState);
         }
         return Success;
@@ -425,7 +432,7 @@ ErrorCodes_t MessageDispatcher::setBoardSelected(uint16_t brdIdx, bool newState)
 
 ErrorCodes_t MessageDispatcher::setRowSelected(uint16_t rowIdx, bool newState) {
     if (rowIdx < channelsPerBoard) {
-        for (auto brd : myBoards) {
+        for (auto brd : boardModels) {
             brd->getChannelsOnBoard()[rowIdx]->setSelected(newState);
         }
         return Success;
@@ -436,7 +443,7 @@ ErrorCodes_t MessageDispatcher::setRowSelected(uint16_t rowIdx, bool newState) {
 }
 
 ErrorCodes_t MessageDispatcher::setAllChannelsSelected(bool newState) {
-    for (auto ch : myChannels) {
+    for (auto ch : channelModels) {
         ch->setSelected(newState);
     }
     return Success;
@@ -481,24 +488,27 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t> channe
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(voltages, vHoldRange[selectedVcVoltageRangeIdx].getMin(), vHoldRange[selectedVcVoltageRangeIdx].getMax())) {
-        return ErrorValueOutOfRange;
-
     } else if (selectedClampingModality != VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             voltages[i].convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
+            voltages[i].value = vHoldTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedVoltageHoldVector[channelIndexes[i]] = voltages[i];
-            vHoldTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            myChannels[channelIndexes[i]]->setVhold(voltages[i]);
+            channelModels[channelIndexes[i]]->setVhold(voltages[i]);
         }
 
         if (applyFlag) {
             this->stackOutgoingMessage(txStatus);
         }
-        return Success;
+
+        if (!areAllTheVectorElementsInRange(voltages, vHoldRange[selectedVcVoltageRangeIdx].getMin(), vHoldRange[selectedVcVoltageRangeIdx].getMax())) {
+            return WarningValueClipped;
+
+        } else {
+            return Success;
+        }
     }
 }
 
@@ -509,24 +519,27 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channe
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(currents, cHoldRange[selectedCcCurrentRangeIdx].getMin(), cHoldRange[selectedCcCurrentRangeIdx].getMax())) {
-        return ErrorValueOutOfRange;
-
     } else if (selectedClampingModality == VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             currents[i].convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
+            currents[i].value = cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedCurrentHoldVector[channelIndexes[i]] = currents[i];
-            cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            myChannels[channelIndexes[i]]->setChold(currents[i]);
+            channelModels[channelIndexes[i]]->setChold(currents[i]);
         }
 
         if (applyFlag) {
             this->stackOutgoingMessage(txStatus);
         }
-        return Success;
+
+        if (!areAllTheVectorElementsInRange(currents, cHoldRange[selectedCcCurrentRangeIdx].getMin(), cHoldRange[selectedCcCurrentRangeIdx].getMax())) {
+            return WarningValueClipped;
+
+        } else {
+            return Success;
+        }
     }
 }
 
@@ -537,24 +550,27 @@ ErrorCodes_t MessageDispatcher::setLiquidJunctionVoltage(std::vector<uint16_t> c
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(voltages, liquidJunctionRange.getMin(), liquidJunctionRange.getMax())) {
-        return ErrorValueOutOfRange;
-
     } else if (selectedClampingModality != VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             voltages[i].convertValue(liquidJunctionRange.prefix);
+            voltages[i].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedLiquidJunctionVector[channelIndexes[i]] = voltages[i];
-            liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            myChannels[channelIndexes[i]]->setLiquidJunctionVoltage(voltages[i]);
+            channelModels[channelIndexes[i]]->setLiquidJunctionVoltage(voltages[i]);
         }
 
         if (applyFlag) {
             this->stackOutgoingMessage(txStatus);
         }
-        return Success;
+
+        if (!areAllTheVectorElementsInRange(voltages, liquidJunctionRange.getMin(), liquidJunctionRange.getMax())) {
+            return WarningValueClipped;
+
+        } else {
+            return Success;
+        }
     }
 }
 
@@ -876,18 +892,22 @@ ErrorCodes_t MessageDispatcher::setGateVoltages(std::vector<uint16_t> boardIndex
     } else if (!areAllTheVectorElementsLessThan(boardIndexes, totalBoardsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(gateVoltages, gateVoltageRange.getMin(), gateVoltageRange.getMax())) {
-        return ErrorValueOutOfRange;
-
     } else {
         for(uint32_t i = 0; i < boardIndexes.size(); i++){
             gateVoltages[i].convertValue(gateVoltageRange.prefix);
+            gateVoltages[i].value = gateVoltageCoders[boardIndexes[i]]->encode(gateVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedGateVoltageVector[boardIndexes[i]] = gateVoltages[i];
-            gateVoltageCoders[boardIndexes[i]]->encode(gateVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
             this->stackOutgoingMessage(txStatus);
+        }
+
+        if (!areAllTheVectorElementsInRange(gateVoltages, gateVoltageRange.getMin(), gateVoltageRange.getMax())) {
+            return WarningValueClipped;
+
+        } else {
+            return Success;
         }
         return Success;
     }
@@ -900,20 +920,23 @@ ErrorCodes_t MessageDispatcher::setSourceVoltages(std::vector<uint16_t> boardInd
     } else if (!areAllTheVectorElementsLessThan(boardIndexes, totalBoardsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (!areAllTheVectorElementsInRange(sourceVoltages, sourceVoltageRange.getMin(), sourceVoltageRange.getMax())) {
-        return ErrorValueOutOfRange;
-
     } else {
         for(uint32_t i = 0; i < boardIndexes.size(); i++){
             sourceVoltages[i].convertValue(sourceVoltageRange.prefix);
+            sourceVoltages[i].value = sourceVoltageCoders[boardIndexes[i]]->encode(sourceVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedSourceVoltageVector[boardIndexes[i]] = sourceVoltages[i];
-            sourceVoltageCoders[boardIndexes[i]]->encode(sourceVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         }
 
         if (applyFlag) {
             this->stackOutgoingMessage(txStatus);
         }
-        return Success;
+
+        if (!areAllTheVectorElementsInRange(sourceVoltages, sourceVoltageRange.getMin(), sourceVoltageRange.getMax())) {
+            return WarningValueClipped;
+
+        } else {
+            return Success;
+        }
     }
 }
 
@@ -1030,7 +1053,7 @@ ErrorCodes_t MessageDispatcher::setLiquidJunctionRange(uint16_t idx) {
 }
 
 ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
-    if (digitalOffsetCompensationCoders.size() == 0) {
+    if (digitalOffsetCompensationCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
@@ -1040,7 +1063,7 @@ ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t> 
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             uint16_t chIdx = channelIndexes[i];
             digitalOffsetCompensationCoders[chIdx]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            myChannels[chIdx]->setCompensatingDoc(onValues[i]);
+            channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
             if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
                 liquidJunctionStates[chIdx] = LiquidJunctionStarting;
 
@@ -1048,6 +1071,8 @@ ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t> 
                 liquidJunctionStates[chIdx] = LiquidJunctionIdle;
             }
         }
+
+        this->updateGlobalLiquidJunctionFlag();
 
         if (applyFlag) {
             this->stackOutgoingMessage(txStatus);
@@ -1058,7 +1083,7 @@ ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t> 
 
 ErrorCodes_t MessageDispatcher::expandTraces(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        myChannels[channelIndexes[i]]->setExpandedTrace(onValues[i]);
+        channelModels[channelIndexes[i]]->setExpandedTrace(onValues[i]);
     }
     return Success;
 }
@@ -1107,7 +1132,7 @@ ErrorCodes_t MessageDispatcher::enableStimulus(std::vector<uint16_t> channelInde
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
             enableStimulusCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            myChannels[channelIndexes[i]]->setInStimActive(onValues[i]);
+            channelModels[channelIndexes[i]]->setInStimActive(onValues[i]);
         }
 
         if (applyFlag) {
@@ -1127,7 +1152,7 @@ ErrorCodes_t MessageDispatcher::turnChannelsOn(std::vector<uint16_t> channelInde
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
            turnChannelsOnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-           myChannels[channelIndexes[i]]->setOn(onValues[i]);
+           channelModels[channelIndexes[i]]->setOn(onValues[i]);
         }
 
         if (applyFlag) {
@@ -1697,26 +1722,26 @@ ErrorCodes_t MessageDispatcher::getSerialNumber(std::string &serialNumber) {
 }
 
 ErrorCodes_t MessageDispatcher::getBoards(std::vector <BoardModel *> &boards) {
-    boards = myBoards;
+    boards = boardModels;
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getChannels(std::vector <ChannelModel *> &channels) {
-    channels = myChannels;
+    channels = channelModels;
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getSelectedChannels(std::vector <bool> &selected) {
-    selected.resize(myChannels.size());
-    for (int idx = 0; idx < myChannels.size(); idx++) {
-        selected[idx] = myChannels[idx]->isSelected();
+    selected.resize(channelModels.size());
+    for (int idx = 0; idx < channelModels.size(); idx++) {
+        selected[idx] = channelModels[idx]->isSelected();
     }
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getSelectedChannelsIndexes(std::vector <uint16_t> &indexes) {
-    for (int idx = 0; idx < myChannels.size(); idx++) {
-        if (myChannels[idx]->isSelected()) {
+    for (int idx = 0; idx < channelModels.size(); idx++) {
+        if (channelModels[idx]->isSelected()) {
             indexes.push_back(idx);
         }
     }
@@ -2820,6 +2845,10 @@ ErrorCodes_t MessageDispatcher::deinit() {
     fclose(rxFid);
 #endif
 
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+    fclose(ljFid);
+#endif
+
     return Success;
 }
 
@@ -2849,7 +2878,7 @@ void MessageDispatcher::computeLiquidJunction() {
     std::unique_lock <std::mutex> ljMutexLock (ljMutex);
     ljMutexLock.unlock();
 
-    std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+//    std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> voltages;
@@ -2857,80 +2886,147 @@ void MessageDispatcher::computeLiquidJunction() {
     Measurement_t voltage;
 
     while (!stopConnectionFlag) {
-        /*! \todo FCON val la pena mettere un check per vedere se c'è almeno una digital offset compensation attiva */
-        ljMutexLock.lock();
-        for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        if (anyLiquidJuctionActive && liquidJunctionCurrentEstimatesNum > 0) {
             channelIndexes.clear();
             voltages.clear();
-            switch(liquidJunctionStates[channelIdx]) {
-            case LiquidJunctionIdle:
-                break;
+            ljMutexLock.lock();
+            for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                switch(liquidJunctionStates[channelIdx]) {
+                case LiquidJunctionIdle:
+                    break;
 
-            case LiquidJunctionStarting:
-                channelIndexes.push_back(channelIdx);
-                liquidJunctionVoltagesBackup[channelIdx] = selectedLiquidJunctionVector[channelIdx];
-                voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
-                liquidJunctionStates[channelIdx] = LiquidJunctionFirstStep;
-                liquidJunctionConvergingCount[channelIdx] = 0;
-                liquidJunctionConvergedCount[channelIdx] = 0;
-                liquidJunctionPositiveSaturationCount[channelIdx] = 0;
-                liquidJunctionNegativeSaturationCount[channelIdx] = 0;
-                liquidJunctionOpenCircuitCount[channelIdx] = 0;
-                break;
+                case LiquidJunctionStarting:
+                    channelIndexes.push_back(channelIdx);
+                    liquidJunctionVoltagesBackup[channelIdx] = selectedLiquidJunctionVector[channelIdx];
+                    voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
+                    liquidJunctionStates[channelIdx] = LiquidJunctionFirstStep;
+                    liquidJunctionConvergingCount[channelIdx] = 0;
+                    liquidJunctionConvergedCount[channelIdx] = 0;
+                    liquidJunctionPositiveSaturationCount[channelIdx] = 0;
+                    liquidJunctionNegativeSaturationCount[channelIdx] = 0;
+                    liquidJunctionOpenCircuitCount[channelIdx] = 0;
 
-            case LiquidJunctionFirstStep:
-                liquidJunctionCurrentEstimates[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum;
-                if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) { /*! More or less 10% from saturation */
-                    liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
-                    liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+                    fprintf(ljFid,
+                           "%d: starting. "
+                           "Liq jun %s, "
+                           "conving %d, "
+                           "convd %d, "
+                           "possat %d, "
+                           "negsat %d, "
+                           "opencirc %d\n",
+                           channelIdx,
+                           selectedLiquidJunctionVector[channelIdx].label().c_str(),
+                           liquidJunctionConvergingCount[channelIdx],
+                           liquidJunctionConvergedCount[channelIdx],
+                           liquidJunctionPositiveSaturationCount[channelIdx],
+                           liquidJunctionNegativeSaturationCount[channelIdx],
+                           liquidJunctionOpenCircuitCount[channelIdx]);
+                    fflush(ljFid);
+#endif
+                    break;
 
-                } else if (liquidJunctionCurrentEstimates[channelIdx] > 0.0) { /*! Positive but not saturating */
-                    liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*10.0;
-                    liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
-
-                } else if (liquidJunctionCurrentEstimates[channelIdx] < -30000.0) { /*! More or less 10% from saturation */
-                    liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
-                    liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
-
-                } else { /*! Negative but not saturating */
-                    liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*10.0;
-                    liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
-                }
-                selectedLiquidJunctionVector[channelIdx].value += liquidJunctionDeltaVoltages[channelIdx];
-                channelIndexes.push_back(channelIdx);
-                voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
-
-                liquidJunctionConvergingCount[channelIdx]++;
-                break;
-
-            case LiquidJunctionConverge:
-                liquidJunctionDeltaCurrents[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum-liquidJunctionCurrentEstimates[channelIdx];
-                liquidJunctionCurrentEstimates[channelIdx] += liquidJunctionDeltaCurrents[channelIdx];
-
-                if (abs(liquidJunctionDeltaCurrents[channelIdx]) < 10.0) { /*! current change smaller than 10 LSB */
+                case LiquidJunctionFirstStep:
+                    liquidJunctionCurrentEstimates[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum;
                     if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) { /*! More or less 10% from saturation */
                         liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
-                        liquidJunctionConvergedCount[channelIdx] = 0;
-                        liquidJunctionPositiveSaturationCount[channelIdx]++;
-                        liquidJunctionNegativeSaturationCount[channelIdx] = 0;
-                        liquidJunctionOpenCircuitCount[channelIdx] = 0;
+                        liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
+
+                    } else if (liquidJunctionCurrentEstimates[channelIdx] > 0.0) { /*! Positive but not saturating */
+                        liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*10.0;
+                        liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
 
                     } else if (liquidJunctionCurrentEstimates[channelIdx] < -30000.0) { /*! More or less 10% from saturation */
                         liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
-                        liquidJunctionConvergedCount[channelIdx] = 0;
-                        liquidJunctionPositiveSaturationCount[channelIdx] = 0;
-                        liquidJunctionNegativeSaturationCount[channelIdx]++;
-                        liquidJunctionOpenCircuitCount[channelIdx] = 0;
+                        liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
 
-                    } else { /*! Not saturating */
-                        if (liquidJunctionDeltaCurrents[channelIdx]*liquidJunctionDeltaVoltages[channelIdx] > 0.0) { /*! Current change consistent with votlage change */
+                    } else { /*! Negative but not saturating */
+                        liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*10.0;
+                        liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
+                    }
+                    selectedLiquidJunctionVector[channelIdx].value += liquidJunctionDeltaVoltages[channelIdx];
+                    channelIndexes.push_back(channelIdx);
+                    voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
+
+                    liquidJunctionConvergingCount[channelIdx]++;
+
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+                    fprintf(ljFid,
+                           "%d: first. "
+                           "Curr est %f, "
+                           "DV %f, "
+                           "Liq jun %s, "
+                           "conving %d, "
+                           "convd %d, "
+                           "possat %d, "
+                           "negsat %d, "
+                           "opencirc %d\n",
+                           channelIdx,
+                           liquidJunctionCurrentEstimates[channelIdx],
+                           liquidJunctionDeltaVoltages[channelIdx],
+                           selectedLiquidJunctionVector[channelIdx].label().c_str(),
+                           liquidJunctionConvergingCount[channelIdx],
+                           liquidJunctionConvergedCount[channelIdx],
+                           liquidJunctionPositiveSaturationCount[channelIdx],
+                           liquidJunctionNegativeSaturationCount[channelIdx],
+                           liquidJunctionOpenCircuitCount[channelIdx]);
+                    fflush(ljFid);
+#endif
+                    break;
+
+                case LiquidJunctionConverge:
+                    liquidJunctionDeltaCurrents[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum-liquidJunctionCurrentEstimates[channelIdx];
+                    liquidJunctionCurrentEstimates[channelIdx] += liquidJunctionDeltaCurrents[channelIdx];
+
+                    if (abs(liquidJunctionDeltaCurrents[channelIdx]) < 10.0) { /*! current change smaller than 10 LSB */
+                        if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) { /*! More or less 10% from saturation */
+                            liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
+                            liquidJunctionConvergedCount[channelIdx] = 0;
+                            liquidJunctionPositiveSaturationCount[channelIdx]++;
+                            liquidJunctionNegativeSaturationCount[channelIdx] = 0;
+                            liquidJunctionOpenCircuitCount[channelIdx] = 0;
+
+                        } else if (liquidJunctionCurrentEstimates[channelIdx] < -30000.0) { /*! More or less 10% from saturation */
+                            liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
+                            liquidJunctionConvergedCount[channelIdx] = 0;
+                            liquidJunctionPositiveSaturationCount[channelIdx] = 0;
+                            liquidJunctionNegativeSaturationCount[channelIdx]++;
+                            liquidJunctionOpenCircuitCount[channelIdx] = 0;
+
+                        } else { /*! Not saturating */
+                            if (liquidJunctionDeltaCurrents[channelIdx]*liquidJunctionDeltaVoltages[channelIdx] > 0.0) { /*! Current change consistent with voltage change */
+                                liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionCurrentEstimates[channelIdx]*liquidJunctionDeltaVoltages[channelIdx]/liquidJunctionDeltaCurrents[channelIdx];
+
+                            } else if (liquidJunctionDeltaCurrents[channelIdx] > 0.0) {
+                                liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
+
+                            } else {
+                                liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
+                            }
+
+                            if (abs(liquidJunctionCurrentEstimates[channelIdx]) < 10.0) {
+                                liquidJunctionConvergedCount[channelIdx]++;
+
+                            } else {
+                                liquidJunctionConvergedCount[channelIdx] = 0;
+                            }
+                            liquidJunctionPositiveSaturationCount[channelIdx] = 0;
+                            liquidJunctionNegativeSaturationCount[channelIdx] = 0;
+                            liquidJunctionOpenCircuitCount[channelIdx]++;
+                        }
+
+                    } else { /*! current change greater than 10 LSB */
+                        if (liquidJunctionDeltaCurrents[channelIdx]*liquidJunctionDeltaVoltages[channelIdx] > 0.0) { /*! Current change consistent with voltage change */
                             liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionCurrentEstimates[channelIdx]*liquidJunctionDeltaVoltages[channelIdx]/liquidJunctionDeltaCurrents[channelIdx];
+                            liquidJunctionOpenCircuitCount[channelIdx] = 0;
 
                         } else if (liquidJunctionDeltaCurrents[channelIdx] > 0.0) {
                             liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
+                            liquidJunctionOpenCircuitCount[channelIdx]++;
 
                         } else {
                             liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
+                            liquidJunctionOpenCircuitCount[channelIdx]++;
                         }
 
                         if (abs(liquidJunctionCurrentEstimates[channelIdx]) < 10.0) {
@@ -2941,70 +3037,109 @@ void MessageDispatcher::computeLiquidJunction() {
                         }
                         liquidJunctionPositiveSaturationCount[channelIdx] = 0;
                         liquidJunctionNegativeSaturationCount[channelIdx] = 0;
-                        liquidJunctionOpenCircuitCount[channelIdx]++;
                     }
 
-                } else { /*! current change greater than 10 LSB */
-                    if (liquidJunctionDeltaCurrents[channelIdx]*liquidJunctionDeltaVoltages[channelIdx] > 0.0) { /*! Current change consistent with votlage change */
-                        liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionCurrentEstimates[channelIdx]*liquidJunctionDeltaVoltages[channelIdx]/liquidJunctionDeltaCurrents[channelIdx];
-                        liquidJunctionOpenCircuitCount[channelIdx] = 0;
+                    selectedLiquidJunctionVector[channelIdx].value += liquidJunctionDeltaVoltages[channelIdx];
+                    liquidJunctionConvergingCount[channelIdx]++;
 
-                    } else if (liquidJunctionDeltaCurrents[channelIdx] > 0.0) {
-                        liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
-                        liquidJunctionOpenCircuitCount[channelIdx]++;
+                    channelIndexes.push_back(channelIdx);
+                    voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
 
-                    } else {
-                        liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
-                        liquidJunctionOpenCircuitCount[channelIdx]++;
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+                    fprintf(ljFid,
+                           "%d: converge. "
+                           "DI %f, "
+                           "Curr est %f, "
+                           "DV %f, "
+                           "Liq jun %s, "
+                           "conving %d, "
+                           "convd %d, "
+                           "possat %d, "
+                           "negsat %d, "
+                           "opencirc %d\n",
+                           channelIdx,
+                           liquidJunctionDeltaCurrents[channelIdx],
+                           liquidJunctionCurrentEstimates[channelIdx],
+                           liquidJunctionDeltaVoltages[channelIdx],
+                           selectedLiquidJunctionVector[channelIdx].label().c_str(),
+                           liquidJunctionConvergingCount[channelIdx],
+                           liquidJunctionConvergedCount[channelIdx],
+                           liquidJunctionPositiveSaturationCount[channelIdx],
+                           liquidJunctionNegativeSaturationCount[channelIdx],
+                           liquidJunctionOpenCircuitCount[channelIdx]);
+                    fflush(ljFid);
+#endif
+
+                    if (liquidJunctionConvergingCount[channelIdx] > 50) {
+                        liquidJunctionStates[channelIdx] = LiquidJunctionFailTooManySteps;
+
+                    } else if (liquidJunctionConvergedCount[channelIdx] > 2) {
+                        liquidJunctionStates[channelIdx] = LiquidJunctionSuccess;
+
+                    } else if (liquidJunctionOpenCircuitCount[channelIdx] > 10) {
+                        liquidJunctionStates[channelIdx] = LiquidJunctionFailOpenCircuit;
+
+                    } else if (liquidJunctionPositiveSaturationCount[channelIdx] > 20 || liquidJunctionNegativeSaturationCount[channelIdx] > 20) {
+                        liquidJunctionStates[channelIdx] = LiquidJunctionFailSaturation;
                     }
+                    break;
 
-                    if (abs(liquidJunctionCurrentEstimates[channelIdx]) < 10.0) {
-                        liquidJunctionConvergedCount[channelIdx]++;
+                case LiquidJunctionSuccess:
+                    liquidJunctionStates[channelIdx] = LiquidJunctionIdle;
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+                    fprintf(ljFid,
+                           "%d: success.",
+                           channelIdx);
+                    fflush(ljFid);
+#endif
+                    break;
 
-                    } else {
-                        liquidJunctionConvergedCount[channelIdx] = 0;
-                    }
-                    liquidJunctionPositiveSaturationCount[channelIdx] = 0;
-                    liquidJunctionNegativeSaturationCount[channelIdx] = 0;
+                case LiquidJunctionFailOpenCircuit:
+                    liquidJunctionStates[channelIdx] = LiquidJunctionIdle;
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+                    fprintf(ljFid,
+                           "%d: open circuit.",
+                           channelIdx);
+                    fflush(ljFid);
+#endif
+                    break;
+
+                case LiquidJunctionFailTooManySteps:
+                    liquidJunctionStates[channelIdx] = LiquidJunctionIdle;
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+                    fprintf(ljFid,
+                           "%d: too many steps.",
+                           channelIdx);
+                    fflush(ljFid);
+#endif
+                    break;
+
+                case LiquidJunctionFailSaturation:
+                    liquidJunctionStates[channelIdx] = LiquidJunctionIdle;
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+                    fprintf(ljFid,
+                           "%d: saturation.",
+                           channelIdx);
+                    fflush(ljFid);
+#endif
+                    break;
+
                 }
-
-                selectedLiquidJunctionVector[channelIdx].value += liquidJunctionDeltaVoltages[channelIdx];
-                liquidJunctionConvergingCount[channelIdx]++;
-
-                channelIndexes.push_back(channelIdx);
-                voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
-
-                if (liquidJunctionConvergingCount[channelIdx] > 50) {
-                    liquidJunctionStates[channelIdx] = LiquidJunctionFailTooManySteps;
-
-                } else if (liquidJunctionConvergedCount[channelIdx] > 2) {
-                    liquidJunctionStates[channelIdx] = LiquidJunctionSuccess;
-
-                } else if (liquidJunctionOpenCircuitCount[channelIdx] > 10) {
-                    liquidJunctionStates[channelIdx] = LiquidJunctionFailOpenCircuit;
-
-                } else if (liquidJunctionPositiveSaturationCount[channelIdx] > 20 || liquidJunctionNegativeSaturationCount[channelIdx] > 20) {
-                    liquidJunctionStates[channelIdx] = LiquidJunctionFailSaturation;
-                }
-                break;
-
-            case LiquidJunctionSuccess:
-                break;
-
-            case LiquidJunctionFailOpenCircuit:
-                break;
-
-            case LiquidJunctionFailTooManySteps:
-                break;
-
-            case LiquidJunctionFailSaturation:
-                break;
-
             }
-        }
-        ljMutexLock.unlock();
+            ljMutexLock.unlock();
 
-        this->setLiquidJunctionVoltage(channelIndexes, voltages, true);
+            this->setLiquidJunctionVoltage(channelIndexes, voltages, true);
+
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+        } else {
+            if (anyLiquidJuctionActive) {
+                fprintf(ljFid,
+                        "not performing: %lld.\n",
+                        liquidJunctionCurrentEstimatesNum);
+                fflush(ljFid);
+            }
+#endif
+        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -3014,6 +3149,16 @@ void MessageDispatcher::computeLiquidJunction() {
         ljMutexLock.unlock();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
+void MessageDispatcher::updateGlobalLiquidJunctionFlag() {
+    anyLiquidJuctionActive = false;
+    for (auto channel : channelModels) {
+        if (channel->isCompensatingLiquidJunction()) {
+            anyLiquidJuctionActive = true;
+            break;
+        }
     }
 }
 
@@ -3578,36 +3723,36 @@ double MessageDispatcher::computeAsicCmCinj(double, bool, MultiCoder::MultiCoder
 }
 
 void MessageDispatcher::fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
-    this->myBoards.resize(numOfBoards);
+    this->boardModels.resize(numOfBoards);
     for(uint16_t i = 0; i< numOfBoards; i++ ){
         BoardModel* board = new BoardModel;
         board->setId(i);
         board->fillChannelList(numOfChannelsOnBoard);
-        this->myBoards[i] = board;
+        this->boardModels[i] = board;
     }
 }
 
 void MessageDispatcher::fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
-    if(this->myBoards.size() == 0){
+    if(this->boardModels.size() == 0){
         this->fillBoardList(numOfBoards, numOfChannelsOnBoard);
     }
     uint16_t newChannelId = 0;
-    myChannels.resize(numOfChannelsOnBoard*numOfBoards);
+    channelModels.resize(numOfChannelsOnBoard*numOfBoards);
     for(uint16_t i = 0; i< numOfBoards; i++ ){
         for(uint16_t j = 0; j< numOfChannelsOnBoard; j++ ){
-            this->myChannels[newChannelId] = this->myBoards[i]->getChannelsOnBoard()[j];
+            this->channelModels[newChannelId] = this->boardModels[i]->getChannelsOnBoard()[j];
             newChannelId++;
         }
     }
 }
 
 void MessageDispatcher::flushBoardList() {
-    size_t numOfBoards = this->myBoards.size();
+    size_t numOfBoards = this->boardModels.size();
     for(uint16_t i = 0; i< numOfBoards; i++ ){
-        if (this->myBoards[i] != nullptr) {
-            delete this->myBoards[i];
+        if (this->boardModels[i] != nullptr) {
+            delete this->boardModels[i];
         }
     }
-    myBoards.clear();
-    myChannels.clear();
+    boardModels.clear();
+    channelModels.clear();
 }

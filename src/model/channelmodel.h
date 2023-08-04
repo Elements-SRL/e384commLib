@@ -16,7 +16,7 @@ public:
     uint16_t getId();
     bool isOn();
     bool isExpanded();
-    bool isCompensatingDoc();
+    bool isCompensatingLiquidJunction();
     bool isCompensatingCfast();
     bool isCompensatingCslowRs();
     bool isCompensatingRsCp();
@@ -30,7 +30,7 @@ public:
     void setId(uint16_t id);
     void setOn(bool on);
     void setExpandedTrace(bool expanded);
-    void setCompensatingDoc(bool compensating);
+    void setCompensatingLiquidJunction(bool compensating);
     void setCompensatingCfast(bool compensating);
     void setCompensatingCslowRs(bool compensating);
     void setCompensatingRsCp(bool compensating);
@@ -45,8 +45,8 @@ public:
 private:
     uint16_t id = 65535;                                                // Channel ID
     bool on = false;                                                    // Channel is ON (true) or off (false)
-    bool expanded = false;                                              // The channels is currently shown in the big central plot
-    bool compensating = false;                                          // The channels is currently doing digital offset compensation
+    bool expanded = false;                                              // The channel is currently shown in the big central plot
+    bool compensatingLiquidJunction = false;                            // The channel is currently compensating the liquid junction
     bool compensatingCfast = false;                                     // The channel is currently compensating Cfast
     bool compensatingCslowRs = false;                                   // The channel is currently compensating CslowRs
     bool compensatingRsCp = false;                                      // The channel is currently compensating RsCp

@@ -6,7 +6,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
 
     deviceName = "384PatchClamp";
 
-    fwName = "384PatchClamp_V01.bit";
+    fwName = "384PatchClamp_V02.bit";
 
     waitingTimeBeforeReadingData = 10; //s
 
@@ -1892,7 +1892,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
         for(int i = 0; i<channelIndexes.size(); i++){
             compCfastEnable[channelIndexes[i]] = onValues[i];
             pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            myChannels[channelIndexes[i]]->setCompensatingCfast(onValues[i]);
+            channelModels[channelIndexes[i]]->setCompensatingCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
@@ -1911,7 +1911,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
         for(int i = 0; i<channelIndexes.size(); i++){
             compCslowEnable[channelIndexes[i]] = onValues[i];
             membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            myChannels[channelIndexes[i]]->setCompensatingCslowRs(onValues[i]);
+            channelModels[channelIndexes[i]]->setCompensatingCslowRs(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
@@ -1930,7 +1930,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
         for(int i = 0; i<channelIndexes.size(); i++){
             compRsCorrEnable[channelIndexes[i]] = onValues[i];
             rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            myChannels[channelIndexes[i]]->setCompensatingRsCp(onValues[i]);
+            channelModels[channelIndexes[i]]->setCompensatingRsCp(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
@@ -1949,7 +1949,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
         for(int i = 0; i<channelIndexes.size(); i++){
             compRsPredEnable[channelIndexes[i]] = onValues[i];
             rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            myChannels[channelIndexes[i]]->setCompensatingRsPg(onValues[i]);
+            channelModels[channelIndexes[i]]->setCompensatingRsPg(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
@@ -1968,7 +1968,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::enableCompensation(std::vector
         for(int i = 0; i<channelIndexes.size(); i++){
             compCcCfastEnable[channelIndexes[i]] = onValues[i];/*! \todo MPAC, forse mettere anche questi in and a areCcCompsEnabled*/
             pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            myChannels[channelIndexes[i]]->setCompensatingCcCfast(onValues[i]);
+            channelModels[channelIndexes[i]]->setCompensatingCcCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
