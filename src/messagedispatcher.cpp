@@ -1052,6 +1052,9 @@ ErrorCodes_t MessageDispatcher::setLiquidJunctionRange(uint16_t idx) {
         selectedLiquidJunctionRangeIdx = idx;
         liquidJunctionRange = liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx];
         liquidJunctionResolution = liquidJunctionRange.step;
+
+        this->setLiquidJunctionVoltage(allChannelIndexes, selectedLiquidJunctionVector, true);
+
         return Success;
     }
 }
