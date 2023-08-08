@@ -612,12 +612,12 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     rsPredTauRange.prefix = UnitPfxMicro;
     rsPredTauRange.unit = "s";
 
-    /*! FEATURES/COMPENSABLES USER DOMAIN CpVc*/
+    /*! FEATURES/COMPENSABLES USER DOMAIN CpVc */
     /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
     uCpVcCompensable.resize(currentChannelsNum);
 
     /*! FEATURES/COMPENSABLES USER DOMAIN Cm*/
-        uCmCompensable.resize(currentChannelsNum);
+    uCmCompensable.resize(currentChannelsNum);
 
     /*! FEATURES/COMPENSABLES USER DOMAIN Rs*/  
     uRsCompensable.resize(currentChannelsNum);

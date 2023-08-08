@@ -131,6 +131,7 @@ public:
     ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
     ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn);
     ErrorCodes_t setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
+    ErrorCodes_t resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlagIn);
     ErrorCodes_t setGateVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
     ErrorCodes_t setSourceVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag);
 
@@ -252,7 +253,6 @@ public:
     ErrorCodes_t convertLiquidJunctionValue(int16_t intValue, double &fltValue);
     ErrorCodes_t convertCurrentValue(int16_t intValue, double &fltValue);
     ErrorCodes_t convertVoltageValues(int16_t * intValue, double * fltValue, int valuesNum);
-    ErrorCodes_t convertLiquidJunctionValues(int16_t * intValue, double * fltValue, int valuesNum);
     ErrorCodes_t convertCurrentValues(int16_t * intValue, double * fltValue, int valuesNum);
 
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
@@ -285,6 +285,8 @@ public:
     ErrorCodes_t getLiquidJunctionRange(RangedMeasurement_t &range);
     ErrorCodes_t getCCCurrentRange(RangedMeasurement_t &range);
     ErrorCodes_t getCCVoltageRange(RangedMeasurement_t &range);
+
+    ErrorCodes_t getLiquidJunctionVoltages(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> &voltages);
 
     ErrorCodes_t getVCCurrentRangeIdx(uint32_t &idx);
     ErrorCodes_t getVCVoltageRangeIdx(uint32_t &idx);
@@ -393,6 +395,7 @@ protected:
         LiquidJunctionFailOpenCircuit,
         LiquidJunctionFailTooManySteps,
         LiquidJunctionFailSaturation,
+        LiquidJunctionTerminate,
         LiquidJunctionStatesNum
     } LiquidJunctionState_t;
 
@@ -412,6 +415,7 @@ protected:
     std::vector <Measurement_t> liquidJunctionVoltagesBackup;
     std::vector <double> liquidJunctionDeltaVoltages;
     std::vector <double> liquidJunctionDeltaCurrents;
+    std::vector <double> liquidJunctionSmallestCurrentChange;
     std::vector <uint16_t> liquidJunctionConvergingCount;
     std::vector <uint16_t> liquidJunctionConvergedCount;
     std::vector <uint16_t> liquidJunctionPositiveSaturationCount;
@@ -447,7 +451,6 @@ protected:
     virtual uint32_t readDataFromDevice() = 0;
     virtual void parseDataFromDevice() = 0;
     void computeLiquidJunction();
-    void updateGlobalLiquidJunctionFlag();
     virtual void sendCommandsToDevice() = 0;
     virtual void initializeHW() = 0;
 
@@ -816,9 +819,6 @@ protected:
     double voltageResolution = 1.0;
     double liquidJunctionResolution = 1.0;
     bool liquidJunctionSameRangeAsVcDac = true;
-
-    std::vector <double> voltageOffsetCorrected; /*!< Value currently corrected in applied voltages by the device (expressed in the unit of the liquid junction control) */
-    double voltageOffsetCorrection = 0.0; /*!< Value to be used to correct the measured voltage values (expressed in the unit of current voltage range) */
 
     RangedMeasurement_t voltageRange;
     RangedMeasurement_t currentRange;
