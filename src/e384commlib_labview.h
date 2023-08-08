@@ -18,8 +18,6 @@ class MessageDispatcher;
 namespace e384CommLib {
 #endif
 
-E384COMMLIBSHARED_EXPORT
-
 /************************\
  *  Connection methods  *
 \************************/
@@ -144,7 +142,7 @@ ErrorCodes_t setVoltageHoldTuner(
 /*! \brief Set the holding current tuner. This value is added to the whole current protocol currently applied and to the following.
  *
  * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
- * \param currentsIn [in] Vector of voltage offsets.
+ * \param currentsIn [in] Vector of current offsets.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
@@ -154,6 +152,36 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentHoldTuner(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN LMeasHandle * currentsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Set the liquid junction voltage.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param voltagesIn [in] Vector of voltage offsets.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setLiquidJunctionVoltage(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle * voltagesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Set the liquid junction voltage to 0.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t resetLiquidJunctionVoltage(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -1251,6 +1279,20 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t purgeData(
         E384CL_ARGVOID);
+
+/*! \brief Get the voltage currently corrected by liquid junction compensation.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to get the votlage from.
+ * \param voltages [out] Array of compensated voltages.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getLiquidJunctionVoltages(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGOUT LMeasHandle * voltages,
+        E384CL_ARGIN int vectorLengthIn);
 
 /*! \brief Get the number of channels for the device.
  *

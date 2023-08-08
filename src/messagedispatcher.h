@@ -72,7 +72,7 @@ typedef struct MsgResume {
     uint32_t startDataPtr;
 } MsgResume_t;
 
-class E384COMMLIBSHARED_EXPORT MessageDispatcher {
+class MessageDispatcher {
 public:
 
     /*****************\
@@ -250,10 +250,11 @@ public:
     ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data);
     ErrorCodes_t purgeData();
     ErrorCodes_t convertVoltageValue(int16_t intValue, double &fltValue);
-    ErrorCodes_t convertLiquidJunctionValue(int16_t intValue, double &fltValue);
     ErrorCodes_t convertCurrentValue(int16_t intValue, double &fltValue);
     ErrorCodes_t convertVoltageValues(int16_t * intValue, double * fltValue, int valuesNum);
     ErrorCodes_t convertCurrentValues(int16_t * intValue, double * fltValue, int valuesNum);
+
+    ErrorCodes_t getLiquidJunctionVoltages(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> &voltages);
 
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
     ErrorCodes_t getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures);
@@ -285,8 +286,6 @@ public:
     ErrorCodes_t getLiquidJunctionRange(RangedMeasurement_t &range);
     ErrorCodes_t getCCCurrentRange(RangedMeasurement_t &range);
     ErrorCodes_t getCCVoltageRange(RangedMeasurement_t &range);
-
-    ErrorCodes_t getLiquidJunctionVoltages(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> &voltages);
 
     ErrorCodes_t getVCCurrentRangeIdx(uint32_t &idx);
     ErrorCodes_t getVCVoltageRangeIdx(uint32_t &idx);

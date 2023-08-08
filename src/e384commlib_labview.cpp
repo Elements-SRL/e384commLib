@@ -195,6 +195,42 @@ ErrorCodes_t setCurrentHoldTuner(
         input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
         input2VectorMeasurement(* currentsIn, currents);
         ret = messageDispatcher->setCurrentHoldTuner(channelIndexes, currents, true);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
+ErrorCodes_t setLiquidJunctionVoltage(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle * voltagesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector<Measurement_t> voltages;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        input2VectorMeasurement(* voltagesIn, voltages);
+        ret = messageDispatcher->setLiquidJunctionVoltage(channelIndexes, voltages, true);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
+ErrorCodes_t resetLiquidJunctionVoltage(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        ret = messageDispatcher->resetLiquidJunctionVoltage(channelIndexes, true);
+
     } else {
         ret = ErrorDeviceNotConnected;
     }
@@ -366,7 +402,7 @@ ErrorCodes_t setGateVoltage(
         std::vector<Measurement_t> gateVoltages;
         input2NumericVector<uint16_t>(boardIndexesIn, boardIndexes, vectorLengthIn);
         input2VectorMeasurement(* gateVoltagesIn, gateVoltages);
-        ret = messageDispatcher->setGateVoltagesTuner(boardIndexes, gateVoltages, applyFlagIn);
+        ret = messageDispatcher->setGateVoltages(boardIndexes, gateVoltages, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -385,7 +421,7 @@ ErrorCodes_t setSourceVoltage(
         std::vector<Measurement_t> sourceVoltages;
         input2NumericVector<uint16_t>(boardIndexesIn, boardIndexes, vectorLengthIn);
         input2VectorMeasurement(* sourceVoltagesIn, sourceVoltages);
-        ret = messageDispatcher->setSourceVoltagesTuner(boardIndexes, sourceVoltages, applyFlagIn);
+        ret = messageDispatcher->setSourceVoltages(boardIndexes, sourceVoltages, applyFlagIn);
 
     } else {
         ret = ErrorDeviceNotConnected;
@@ -1433,6 +1469,24 @@ ErrorCodes_t getNextMessage(
     ErrorCodes_t ret;
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->getNextMessage(rxOutput, data);
+
+    } else {
+        ret = ErrorDeviceNotConnected;
+    }
+    return ret;
+}
+
+ErrorCodes_t getLiquidJunctionVoltages(
+        uint16_t * channelIndexesIn,
+        LMeasHandle * voltagesOut,
+        int vectorLengthIn) {
+    ErrorCodes_t ret;
+    if (messageDispatcher != nullptr) {
+        std::vector<uint16_t> channelIndexes;
+        std::vector <Measurement_t> voltages;
+        input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+        ret = messageDispatcher->getLiquidJunctionVoltages(channelIndexes, voltages);
+        vectorMeasurement2Output(voltages, voltagesOut);
 
     } else {
         ret = ErrorDeviceNotConnected;

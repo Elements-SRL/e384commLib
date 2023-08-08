@@ -2076,12 +2076,6 @@ ErrorCodes_t MessageDispatcher::convertVoltageValue(int16_t intValue, double &fl
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::convertLiquidJunctionValue(int16_t intValue, double &fltValue) {
-    fltValue = liquidJunctionResolution*(double)intValue;
-
-    return Success;
-}
-
 ErrorCodes_t MessageDispatcher::convertCurrentValue(int16_t intValue, double &fltValue) {
     fltValue = currentResolution*(double)intValue;
 
@@ -2102,6 +2096,22 @@ ErrorCodes_t MessageDispatcher::convertCurrentValues(int16_t * intValues, double
     }
 
     return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> &voltages) {
+    if (selectedLiquidJunctionVector.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        voltages.resize(channelIndexes.size());
+        for (auto channel : channelIndexes) {
+            voltages[channel] = selectedLiquidJunctionVector[channel];
+        }
+        return Success;
+    }
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures){
@@ -2354,21 +2364,6 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRange(RangedMeasurement_t &range) {
     } else {
         range = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
         return Success;
-    }
-}
-
-ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> &voltages) {
-    if (selectedLiquidJunctionVector.empty()) {
-        return ErrorFeatureNotImplemented;
-
-    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
-        return ErrorValueOutOfRange;
-
-    } else {
-        voltages.resize(channelIndexes.size());
-        for (auto channel : channelIndexes) {
-            voltages[channel] = selectedLiquidJunctionVector[channel];
-        }
     }
 }
 
