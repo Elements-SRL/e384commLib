@@ -334,13 +334,6 @@ MessageDispatcher_2x10MHz_V01::MessageDispatcher_2x10MHz_V01(std::string di) :
     writeDacSpiCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(writeDacSpiCoder);
 
-    /*! DOC reset */
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 2;
-    boolConfig.bitsNum = 1;
-    docResetCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(docResetCoder);
-
     /*! Sampling rate */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 3;

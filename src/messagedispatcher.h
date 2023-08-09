@@ -258,7 +258,7 @@ public:
 
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
     ErrorCodes_t getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures);
-    ErrorCodes_t getLiquidJunctionVoltageFeatures(std::vector <RangedMeasurement_t> &ranges);
+    ErrorCodes_t getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges);
     ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);
     ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
     ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
@@ -531,7 +531,6 @@ protected:
 
     BoolCoder * asicResetCoder = nullptr;
     BoolCoder * fpgaResetCoder = nullptr;
-    BoolCoder * docResetCoder = nullptr; //DOC = digital offset compensation
 
     uint32_t clampingModalitiesNum;
     uint32_t selectedClampingModalityIdx = 0;
@@ -539,8 +538,6 @@ protected:
     std::vector <ClampingModality_t> clampingModalitiesArray;
     uint16_t defaultClampingModalityIdx;
     BoolCoder * clampingModeCoder = nullptr;
-
-    BoolCoder * docOverrideCoder = nullptr;
 
     uint32_t vcCurrentRangesNum;
     uint32_t selectedVcCurrentRangeIdx = 0;

@@ -2137,7 +2137,7 @@ ErrorCodes_t MessageDispatcher::getCurrentHoldTunerFeatures(std::vector <RangedM
     }
 }
 
-ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltageFeatures(std::vector <RangedMeasurement_t> &ranges) {
+ErrorCodes_t MessageDispatcher::getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges) {
     if (liquidJunctionVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
@@ -2599,7 +2599,7 @@ ErrorCodes_t MessageDispatcher::hasStimulusSwitches() {
 }
 
 ErrorCodes_t MessageDispatcher::hasOffsetCompensation() {
-    if (digitalOffsetCompensationCoders.empty()) {
+    if (liquidJunctionVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
     } else {

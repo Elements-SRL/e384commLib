@@ -5,7 +5,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
 
     deviceName = "384NanoPores";
 
-    fwName = "384NanoPores_V01.bit";
+    fwName = "384NanoPores_V02.bit";
 
     waitingTimeBeforeReadingData = 10; //s
 
@@ -36,7 +36,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 1620; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 3063; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
@@ -53,7 +53,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     availableVoltageSourcesIdxs.VoltageFromVoltageClamp = ChannelSourceVoltageFromVoltageClamp;
 
     /*! Protocols parameters */
-    protocolFpgaClockFrequencyHz = 10.0e6;
+    protocolFpgaClockFrequencyHz = 10.0e3;
 
     protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
     protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
@@ -64,20 +64,11 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     positiveProtocolTimeRange = protocolTimeRange;
     positiveProtocolTimeRange.min = 0.0;
 
-    protocolFrequencyRange.step = protocolFpgaClockFrequencyHz/(256.0*(UINT24_MAX+1.0)); /*! 10.08MHz / 256 / 2^24 */
-    protocolFrequencyRange.min = INT24_MIN*protocolFrequencyRange.step;
-    protocolFrequencyRange.max = INT24_MAX*protocolFrequencyRange.step;
-    protocolFrequencyRange.prefix = UnitPfxNone;
-    protocolFrequencyRange.unit = "Hz";
-
-    positiveProtocolFrequencyRange = protocolFrequencyRange;
-    positiveProtocolFrequencyRange.min = 0.0;
-
-    voltageProtocolStepImplemented = false;
-    voltageProtocolRampImplemented = false;
+    voltageProtocolStepImplemented = true;
+    voltageProtocolRampImplemented = true;
     voltageProtocolSinImplemented = false;
 
-    protocolMaxItemsNum = 0;
+    protocolMaxItemsNum = 15;
     protocolWordOffset = 84;
     protocolItemsWordsNum = 16;
 
@@ -103,7 +94,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     vcVoltageRangesArray.resize(vcVoltageRangesNum);
     vcVoltageRangesArray[VCVoltageRange500mV].min = -500.0;
     vcVoltageRangesArray[VCVoltageRange500mV].max = 500.0;
-    vcVoltageRangesArray[VCVoltageRange500mV].step = 0.125;
+    vcVoltageRangesArray[VCVoltageRange500mV].step = 1.0;
     vcVoltageRangesArray[VCVoltageRange500mV].prefix = UnitPfxMilli;
     vcVoltageRangesArray[VCVoltageRange500mV].unit = "V";
     defaultVcVoltageRangeIdx = VCVoltageRange500mV;
@@ -253,15 +244,35 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange500mV].min = -500.0;
     vHoldRange[VCVoltageRange500mV].max = 500.0;
-    vHoldRange[VCVoltageRange500mV].step = 0.125;
+    vHoldRange[VCVoltageRange500mV].step = 1.0;
     vHoldRange[VCVoltageRange500mV].prefix = UnitPfxMilli;
     vHoldRange[VCVoltageRange500mV].unit = "V";
     selectedVoltageHoldVector.resize(currentChannelsNum);
     Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
 
-    /*! VC current calib gain */
+    /*! VC leak calibration (shunt resistance)*/
+    vcLeakCalibRange.resize(VCCurrentRangesNum);
+    vcLeakCalibRange[VCCurrentRange200nA].step = (vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step)/4096.0;
+    vcLeakCalibRange[VCCurrentRange200nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step);
+    vcLeakCalibRange[VCCurrentRange200nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange200nA].step;
+    vcLeakCalibRange[VCCurrentRange200nA]. prefix = UnitPfxNone;
+    vcLeakCalibRange[VCCurrentRange200nA].unit = "S";
+    vcLeakCalibRange[VCCurrentRange4uA].step = (vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step)/4096.0;
+    vcLeakCalibRange[VCCurrentRange4uA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step);
+    vcLeakCalibRange[VCCurrentRange4uA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange4uA].step;
+    vcLeakCalibRange[VCCurrentRange4uA]. prefix = UnitPfxNone;
+    vcLeakCalibRange[VCCurrentRange4uA].unit = "S";
+
+    /*! VC voltage calib gain (DAC) */
+    calibVcVoltageGainRange.step = 1.0/1024.0;
+    calibVcVoltageGainRange.min = 0;
+    calibVcVoltageGainRange.max = SHORT_MAX * calibVcVoltageGainRange.step;
+    calibVcVoltageGainRange.prefix = UnitPfxNone;
+    calibVcVoltageGainRange.unit = "";
+
+    /*! VC current calib gain (ADC) */
     calibVcCurrentGainRange.step = 1.0/1024.0;
-    calibVcCurrentGainRange.min = 0;//SHORT_MIN * calibVcCurrentGainRange.step;
+    calibVcCurrentGainRange.min = 0;
     calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
@@ -274,8 +285,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
 
     /*! Gate voltage range*/
     gateVoltageRange.step = 1;
-    gateVoltageRange.min = -24000;//SHORT_MIN * gateVoltageRange.step;
-    gateVoltageRange.max = 24000;//SHORT_MAX * gateVoltageRange.step;
+    gateVoltageRange.min = -24000;
+    gateVoltageRange.max = 24000;
     gateVoltageRange.prefix = UnitPfxMilli;
     gateVoltageRange.unit = "V";
     selectedGateVoltageVector.resize(totalBoardsNum);
@@ -330,33 +341,12 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     fpgaResetCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(fpgaResetCoder);
 
-    /*! DOC reset */
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 2;
-    boolConfig.bitsNum = 1;
-    docResetCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(docResetCoder);
-
     /*! Sampling rate */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 3;
     boolConfig.bitsNum = 4;
     samplingRateCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(samplingRateCoder);
-
-    /*! Clamping mode */
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 7;
-    boolConfig.bitsNum = 8;
-    clampingModeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(clampingModeCoder);
-
-    /*! DOC override */
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 9;
-    boolConfig.bitsNum = 1;
-    docOverrideCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(docOverrideCoder);
 
     /*! Current range VC */
     boolConfig.initialWord = 10;
@@ -473,7 +463,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
 
     /*! Protocol items */
     doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
+    doubleConfig.bitsNum = 32;
     voltageProtocolStim0Coders.resize(VCVoltageRangesNum);
     voltageProtocolStim0StepCoders.resize(VCVoltageRangesNum);
     voltageProtocolStim1Coders.resize(VCVoltageRangesNum);
@@ -494,70 +484,80 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
             voltageProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim0Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+5+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim0StepCoders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim1Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+7+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim1StepCoders[rangeIdx][itemIdx]);
         }
     }
 
     doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
+    doubleConfig.bitsNum = 32;
+    currentProtocolStim0Coders.resize(CCCurrentRangesNum);
+    currentProtocolStim0StepCoders.resize(CCCurrentRangesNum);
+    currentProtocolStim1Coders.resize(CCCurrentRangesNum);
+    currentProtocolStim1StepCoders.resize(CCCurrentRangesNum);
+
+    for (unsigned int rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
+        currentProtocolStim0Coders[rangeIdx].resize(protocolMaxItemsNum);
+        currentProtocolStim0StepCoders[rangeIdx].resize(protocolMaxItemsNum);
+        currentProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
+        currentProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
+
+        doubleConfig.resolution = cHoldRange[rangeIdx].step;
+        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+
+        for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+            doubleConfig.initialWord = protocolWordOffset+4+protocolItemsWordsNum*itemIdx;
+            currentProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(currentProtocolStim0Coders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
+            currentProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(currentProtocolStim0StepCoders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+            currentProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(currentProtocolStim1Coders[rangeIdx][itemIdx]);
+
+            doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+            currentProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(currentProtocolStim1StepCoders[rangeIdx][itemIdx]);
+        }
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
     doubleConfig.resolution = positiveProtocolTimeRange.step;
     doubleConfig.minValue = positiveProtocolTimeRange.min;
     doubleConfig.maxValue = positiveProtocolTimeRange.max;
     protocolTime0Coders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
         protocolTime0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(protocolTime0Coders[itemIdx]);
     }
 
     doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
+    doubleConfig.bitsNum = 32;
     doubleConfig.resolution = protocolTimeRange.step;
     doubleConfig.minValue = protocolTimeRange.min;
     doubleConfig.maxValue = protocolTimeRange.max;
     protocolTime0StepCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
         protocolTime0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(protocolTime0StepCoders[itemIdx]);
-    }
-
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = positiveProtocolFrequencyRange.step;
-    doubleConfig.minValue = positiveProtocolFrequencyRange.min;
-    doubleConfig.maxValue = positiveProtocolFrequencyRange.max;
-    protocolFrequency0Coders.resize(protocolMaxItemsNum);
-
-    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
-        protocolFrequency0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-        coders.push_back(protocolFrequency0Coders[itemIdx]);
-    }
-
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = protocolFrequencyRange.step;
-    doubleConfig.minValue = protocolFrequencyRange.min;
-    doubleConfig.maxValue = protocolFrequencyRange.max;
-    protocolFrequency0StepCoders.resize(protocolMaxItemsNum);
-
-    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
-        protocolFrequency0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(protocolFrequency0StepCoders[itemIdx]);
     }
 
     boolConfig.initialBit = 0;
@@ -567,15 +567,15 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     protocolLoopRepetitionsCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+16+protocolItemsWordsNum*itemIdx;
         protocolItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolItemIdxCoders[itemIdx]);
 
-        boolConfig.initialWord = protocolWordOffset+13+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+17+protocolItemsWordsNum*itemIdx;
         protocolNextItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolNextItemIdxCoders[itemIdx]);
 
-        boolConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+18+protocolItemsWordsNum*itemIdx;
         protocolLoopRepetitionsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolLoopRepetitionsCoders[itemIdx]);
     }
@@ -585,7 +585,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     protocolApplyStepsCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
         protocolApplyStepsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolApplyStepsCoders[itemIdx]);
     }
@@ -595,7 +595,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     protocolItemTypeCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
         protocolItemTypeCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolItemTypeCoders[itemIdx]);
     }
@@ -605,7 +605,7 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     doubleConfig.bitsNum = 16;
     vHoldTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 420;
+        doubleConfig.initialWord = 328;
         doubleConfig.resolution = vHoldRange[rangeIdx].step;
         doubleConfig.minValue = vHoldRange[rangeIdx].min;
         doubleConfig.maxValue = vHoldRange[rangeIdx].max;
@@ -617,39 +617,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
         }
     }
 
-    /*! VC current gain tuner */
-    doubleConfig.initialWord = 852;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibVcCurrentGainRange.step;
-    doubleConfig.minValue = calibVcCurrentGainRange.min;
-    doubleConfig.maxValue = calibVcCurrentGainRange.max;
-    calibVcCurrentGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibVcCurrentGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
-
-    /*! VC current offset tuner */
-    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 1236;
-        doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
-        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
-        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
-        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
-        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
-        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
-            doubleConfig.initialWord++;
-        }
-    }
-
-    /*! gate voltage tuner */
-    doubleConfig.initialWord = 804;
+    /*! gate voltage */
+    doubleConfig.initialWord = 712;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = gateVoltageRange.step;
@@ -662,8 +631,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
         doubleConfig.initialWord++;
     }
 
-    /*! source voltage tuner */
-    doubleConfig.initialWord = 828;
+    /*! source voltage */
+    doubleConfig.initialWord = 736;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = sourceVoltageRange.step;
@@ -674,6 +643,102 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
         sourceVoltageCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(sourceVoltageCoders[idx]);
         doubleConfig.initialWord++;
+    }
+
+    /*! liquid junction voltage */
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    liquidJunctionVoltageCoders.resize(liquidJunctionRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < liquidJunctionRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 2680;
+        doubleConfig.resolution = liquidJunctionRangesArray[rangeIdx].step;
+        doubleConfig.minValue = liquidJunctionRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
+        liquidJunctionVoltageCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            liquidJunctionVoltageCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(liquidJunctionVoltageCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! VC leak calibration */
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    vcLeakCalibCoders.resize(VCCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 760;
+        doubleConfig.resolution = vcLeakCalibRange[rangeIdx].step;
+        doubleConfig.minValue = vcLeakCalibRange[rangeIdx].min;
+        doubleConfig.maxValue = vcLeakCalibRange[rangeIdx].max;
+        vcLeakCalibCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            vcLeakCalibCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(vcLeakCalibCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! VC voltage gain */
+    doubleConfig.initialWord = 1144;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = calibVcVoltageGainRange.step;
+    doubleConfig.minValue = calibVcVoltageGainRange.min;
+    doubleConfig.maxValue = calibVcVoltageGainRange.max;
+    calibVcVoltageGainCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        calibVcVoltageGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(calibVcVoltageGainCoders[idx]);
+        doubleConfig.initialWord++;
+    }
+
+    /*! VC voltage offset */
+    calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 1528;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
+        doubleConfig.minValue = calibVcVoltageOffsetRanges[rangeIdx].min;
+        doubleConfig.maxValue = calibVcVoltageOffsetRanges[rangeIdx].max;
+        calibVcVoltageOffsetCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            calibVcVoltageOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibVcVoltageOffsetCoders[rangeIdx][idx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! VC current gain */
+    doubleConfig.initialWord = 1912;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = calibVcCurrentGainRange.step;
+    doubleConfig.minValue = calibVcCurrentGainRange.min;
+    doubleConfig.maxValue = calibVcCurrentGainRange.max;
+    calibVcCurrentGainCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(calibVcCurrentGainCoders[idx]);
+        doubleConfig.initialWord++;
+    }
+
+    /*! VC current offset */
+    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 2296;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
+        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
+        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
+        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
+            doubleConfig.initialWord++;
+        }
     }
 
     boolConfig.initialWord = 2;
@@ -707,27 +772,13 @@ void MessageDispatcher_384NanoPores_V01::initializeHW() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     this->resetAsic(false, true);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stackOutgoingMessage(txStatus);
+//    minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+//    stackOutgoingMessage(txStatus);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stackOutgoingMessage(txStatus);
+//    plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+//    stackOutgoingMessage(txStatus);
 }
-
-//void MessageDispatcher_384NanoPores_V01::updateDeviceStatus(vector <bool> &fsmRunFlag, bool &poreForming, bool &communicationError) {
-//    for (int idx = 0; idx < fsmStateChannelsNum; idx++) {
-//        fsmRunFlag[idx] = (infoStruct.status & (0x0001 << idx)) == 0 ? false : true;
-//    }
-//    poreForming = (infoStruct.status & (0x0001 << 8)) == 0 ? false : true;
-//    communicationError = (infoStruct.status & (0x0001 << 9)) == 0 ? false : true;
-//}
-
-//void MessageDispatcher_384NanoPores_V01::updateVoltageOffsetCompensations(vector <Measurement_t> &offsets) {
-//    for (int idx = 0; idx < currentChannelsNum; idx++) {
-//        offsets[idx] = voltageOffsetCompensationGain*(double)infoStruct.vComp[idx];
-//    }
-//}

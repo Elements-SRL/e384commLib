@@ -436,10 +436,9 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     calibrationData.ccCalibResArray.resize(CCCurrentRangesNum);
     calibrationData.ccCalibResArray[CCCurrentRange8nA] = {5.0, UnitPfxMega, "Ohm"};
 
-    /*! CC calibration resistances on MOdel cell*/
+    /*! CC calibration resistances on Model cell*/
     calibrationData.ccCalibResForCcAdcOffsetArray.resize(CCVoltageRangesNum);
     calibrationData.ccCalibResForCcAdcOffsetArray[CCVoltageRange1000mV] = {120.0, UnitPfxKilo, "Ohm"};
-
 
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange500mV].min = -500.0;
@@ -498,7 +497,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
 
     /*! VC current calib gain (ADC) */
     calibVcCurrentGainRange.step = 1.0/1024.0;
-    calibVcCurrentGainRange.min = 0;//SHORT_MIN * calibVcCurrentGainRange.step;
+    calibVcCurrentGainRange.min = 0;
     calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
@@ -738,13 +737,6 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     fpgaResetCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(fpgaResetCoder);
 
-    /*! DOC reset */
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 2;
-    boolConfig.bitsNum = 1;
-    docResetCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(docResetCoder);
-
     /*! Sampling rate */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 3;
@@ -772,13 +764,6 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     boolConfig.bitsNum = 2;
     clampingModeCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(clampingModeCoder);
-
-    /*! DOC override */
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 9;
-    boolConfig.bitsNum = 1;
-    docOverrideCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(docOverrideCoder);
 
     /*! Voltage channel / source */
     boolConfig.initialWord = 3;
