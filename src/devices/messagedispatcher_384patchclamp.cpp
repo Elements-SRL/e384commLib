@@ -2525,21 +2525,6 @@ double MessageDispatcher_384PatchClamp_V01::computeAsicCmCinj(double cm, bool ch
     return asicCmCinj;
 }
 
-ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getLiquidJunctionControl(CompensationControl_t &control) {
-    control.implemented = true;
-    control.min = vcVoltageRangesArray[VCVoltageRange500mV].min;
-    control.max = vcVoltageRangesArray[VCVoltageRange500mV].max;
-    control.compensable = vcVoltageRangesArray[VCVoltageRange500mV].max;
-    control.steps = vcVoltageRangesArray[VCVoltageRange500mV].steps();
-    control.step = vcVoltageRangesArray[VCVoltageRange500mV].step;
-    control.decimals = vcVoltageRangesArray[VCVoltageRange500mV].decimals();
-    control.value = vcVoltageRangesArray[VCVoltageRange500mV].min;
-    control.prefix = vcVoltageRangesArray[VCVoltageRange500mV].prefix;
-    control.unit = vcVoltageRangesArray[VCVoltageRange500mV].unit;
-    control.name = "Liquid Junction";
-    return Success;
-}
-
 ErrorCodes_t MessageDispatcher_384PatchClamp_V01::getPipetteCapacitanceControl(CompensationControl_t &control) {
     control.implemented = true;
     control.min = pipetteCapacitanceRange_pF[0].min;

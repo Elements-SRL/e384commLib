@@ -528,22 +528,6 @@ ErrorCodes_t digitalOffsetCompensation(
     return ret;
 }
 
-ErrorCodes_t digitalOffsetCompensationOverride(
-        uint16_t channelIdx,
-        CharMeasurement_t valueIn) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        return ErrorFeatureNotImplemented;
-//        Measurement_t value;
-//        input2Measurement(valueIn, value);
-//        ret = messageDispatcher->digitalOffsetCompensationOverride(channelIdx, value);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
 ErrorCodes_t zap(
         CharMeasurement_t durationIn,
         uint16_t channelIdx) {
@@ -1992,20 +1976,6 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
         std::vector <std::string> options;
         ret = messageDispatcher->getBridgeBalanceCompensationOptions(options);
         vectorString2Output(options, optionsOut);
-
-    } else {
-        ret = ErrorDeviceNotConnected;
-    }
-    return ret;
-}
-
-ErrorCodes_t getLiquidJunctionControl(
-        CharCompensationControl_t &controlOut) {
-    ErrorCodes_t ret;
-    if (messageDispatcher != nullptr) {
-        CompensationControl_t control;
-        ret = messageDispatcher->getLiquidJunctionControl(control);
-        compensationControl2Output(control, controlOut);
 
     } else {
         ret = ErrorDeviceNotConnected;

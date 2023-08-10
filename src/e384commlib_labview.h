@@ -278,20 +278,6 @@ ErrorCodes_t digitalOffsetCompensation(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
-/*! \brief Override digital offset compensation value.
- * Override the liquid junction voltage value. This also becomes the starting point of an
- * automated compensation.
- *
- * \param channelIdx [in] Index of the channel to override.
- * \param value [in] Override value.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t digitalOffsetCompensationOverride(
-        E384CL_ARGIN uint16_t channelIdx,
-        E384CL_ARGIN CharMeasurement_t value);
-
 /*! \brief Zap.
  * A big voltage is applied in order to break the membrane.
  *
@@ -1640,16 +1626,6 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceCompensationOptions(
         E384CL_ARGOUT LStrHandle options);
-
-/*! \brief Get the specifications of the control for the liquid junction.
- *
- * \param control [out] Specifications of the control for the liquid junction.
- * \return Success if the device implements liquid junction control.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getLiquidJunctionControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the pipette capacitance.
  *

@@ -351,7 +351,6 @@ public:
     virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> options);
     virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> options);
 
-    virtual ErrorCodes_t getLiquidJunctionControl(CompensationControl_t &control);
     virtual ErrorCodes_t getPipetteCapacitanceControl(CompensationControl_t &control);
     virtual ErrorCodes_t getCCPipetteCapacitanceControl(CompensationControl_t &control);
     virtual ErrorCodes_t getMembraneCapacitanceControl(CompensationControl_t &control);

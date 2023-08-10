@@ -3726,10 +3726,6 @@ ErrorCodes_t MessageDispatcher::getBridgeBalanceCompensationOptions(std::vector 
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getLiquidJunctionControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
 ErrorCodes_t MessageDispatcher::getPipetteCapacitanceControl(CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
