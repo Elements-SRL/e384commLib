@@ -3484,7 +3484,7 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
     }
 #else
     if (enableFilter) {
-        double wT = 2.0*M_PI*rawDataFilterCutoffFrequency.value*integrationStep.value;
+        double wT = 2.0*M_PI*cutoffFrequency*integrationStep.value;
         double ky = (2.0-wT)/(2.0+wT);
         double kx;
         if (rawDataFilterLowPassFlag) {
