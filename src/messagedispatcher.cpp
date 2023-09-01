@@ -364,6 +364,7 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
 
     if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
         /*! Initialization in voltage clamp */
+        this->setClampingModality(VOLTAGE_CLAMP);
         this->enableCcCompensations(false);
         this->enableVcCompensations(true);
         this->enableStimulus(allChannelIndexes, allTrue, false);
@@ -1270,6 +1271,23 @@ ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode) {
 
     } else {
         this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()));
+        switch (mode) {
+        case VOLTAGE_CLAMP:
+            rawDataFilterVoltageFlag = false;
+            rawDataFilterCurrentFlag = true;
+            break;
+
+        case ZERO_CURRENT_CLAMP:
+        case CURRENT_CLAMP:
+            rawDataFilterVoltageFlag = true;
+            rawDataFilterCurrentFlag = false;
+            break;
+
+        case DYNAMIC_CLAMP:
+            rawDataFilterVoltageFlag = false;
+            rawDataFilterCurrentFlag = false;
+            break;
+        }
         return Success;
     }
 }
@@ -1328,6 +1346,8 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
     } else {
         samplingRateCoder->encode(samplingRateIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         selectedSamplingRateIdx = samplingRateIdx;
+        samplingRate = realSamplingRatesArray[selectedSamplingRateIdx];
+        integrationStep = integrationStepArray[selectedSamplingRateIdx];
         this->setAdcFilter();
         this->computeRawDataFilterCoefficients();
         if (applyFlagIn) {
@@ -2426,7 +2446,7 @@ ErrorCodes_t MessageDispatcher::getSamplingRate(Measurement_t &samplingRate) {
         return ErrorFeatureNotImplemented;
 
     } else {
-        samplingRate = realSamplingRatesArray[selectedSamplingRateIdx];
+        samplingRate = this->samplingRate;
         return Success;
     }
 }
@@ -3330,7 +3350,7 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
 
     if (downsamplingFlag) {
         rawDataFilterCutoffFrequencyOverride.convertValue(UnitPfxNone);
-        rawDataFilterCutoffFrequencyOverride.value = samplingRate.getNoPrefixValue()*0.25;
+        rawDataFilterCutoffFrequencyOverride.value = samplingRate.getNoPrefixValue()*0.25/(double)selectedDownsamplingRatio;
 
     } else {
         rawDataFilterCutoffFrequencyOverride.convertValue(UnitPfxTera);
