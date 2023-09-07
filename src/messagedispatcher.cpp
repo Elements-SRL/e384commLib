@@ -155,15 +155,15 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
         break;
 
     case Device2x10MHz_PCBV01:
-        messageDispatcher = new MessageDispatcher_2x10MHz_PCBV01_V01(deviceId);
+        messageDispatcher = new MessageDispatcher_2x10MHz_PCBV01_V02(deviceId);
         break;
 
     case Device2x10MHz_PCBV02:
-        messageDispatcher = new MessageDispatcher_2x10MHz_PCBV02_V01(deviceId);
+        messageDispatcher = new MessageDispatcher_2x10MHz_PCBV02_V02(deviceId);
         break;
 
     case Device4x10MHz_PCBV01:
-        messageDispatcher = new MessageDispatcher_4x10MHz_PCBV01_V02(deviceId);
+        messageDispatcher = new MessageDispatcher_4x10MHz_PCBV01_V03(deviceId);
         break;
 
 #ifdef DEBUG
@@ -1266,7 +1266,9 @@ ErrorCodes_t MessageDispatcher::setClampingModality(uint32_t idx, bool applyFlag
     } else {
         selectedClampingModalityIdx = idx;
         selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];
-        clampingModeCoder->encode(selectedClampingModalityIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        if (clampingModeCoder != nullptr) {
+            clampingModeCoder->encode(selectedClampingModalityIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
 
         switch (selectedClampingModality) {
         case VOLTAGE_CLAMP:

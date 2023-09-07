@@ -78,6 +78,10 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     voltageProtocolRampImplemented = true;
     voltageProtocolSinImplemented = false;
 
+    currentProtocolStepImplemented = true;
+    currentProtocolRampImplemented = true;
+    currentProtocolSinImplemented = false;
+
     protocolMaxItemsNum = 15;
     protocolWordOffset = 204;
     protocolItemsWordsNum = 16;
