@@ -363,6 +363,35 @@ ErrorCodes_t turnCalSwOn(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+/*! \brief Enables or disables the stimulus in current clamp.
+ *  \note The stimulus is disabled via a physical switch, not by digital means, so this allows the I0 current clamp mode
+ *
+ * \param channelIndexesIn [in] Vector of indexes of the channel to control.
+ * \param onValuesIn [in] Vector of on values: True to enable the stimulus, false to disable it.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t enableCcStimulus(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Select the clamping modality.
+ *
+ * \param clampingModallityIndex [in] Index of the clamping modality to select.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setClampingModality(
+        E384CL_ARGIN ClampingModality_t clampingModalityIndex,
+        E384CL_ARGIN bool applyFlagIn);
+
 /*! \brief Set a VC current gain on a specific channel.
  *
  * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
