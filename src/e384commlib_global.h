@@ -184,8 +184,9 @@ typedef enum{
 typedef enum DeviceTypes {
     Device384Nanopores,         /*!< 384 channels device for nanopores experiments */
     Device384PatchClamp,        /*!< Nanion's Syncropatch */
-    Device4x10MHz,              /*!< 4 channels 10MHz nanopore reader */
-    Device2x10MHz,              /*!< 2 channels 10MHz nanopore reader */
+    Device2x10MHz_PCBV01,       /*!< 2 channels 10MHz nanopore reader */
+    Device2x10MHz_PCBV02,       /*!< 2 channels 10MHz nanopore reader */
+    Device4x10MHz_PCBV01,       /*!< 4 channels 10MHz nanopore reader */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
     Device384FakePatchClamp,    /*!< Fake patch clamp device */

@@ -3,7 +3,7 @@
 
 #include "messagedispatcher_4x10mhz.h"
 
-class MessageDispatcher_4x10MHzFake : public MessageDispatcher_4x10MHz_V01 {
+class MessageDispatcher_4x10MHzFake : public MessageDispatcher_4x10MHz_PCBV01_V02 {
 public:
     MessageDispatcher_4x10MHzFake(std::string id);
     virtual ~MessageDispatcher_4x10MHzFake();

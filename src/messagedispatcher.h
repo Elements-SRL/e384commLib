@@ -169,8 +169,8 @@ public:
     ErrorCodes_t turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
     ErrorCodes_t enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
-    ErrorCodes_t setClampingModality(uint32_t idx);
-    ErrorCodes_t setClampingModality(ClampingModality_t mode);
+    ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag);
+    ErrorCodes_t setClampingModality(ClampingModality_t mode, bool applyFlag);
     ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag);
     ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag);
 

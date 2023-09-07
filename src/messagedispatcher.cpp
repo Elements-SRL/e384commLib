@@ -30,16 +30,16 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"2210001076", Device384PatchClamp},
     {"221000106B", Device384PatchClamp},
     {"221000106C", Device384PatchClamp},
-    {"22370012CI", Device4x10MHz},
-    {"22370012CB", Device2x10MHz},
-    {"224800131L", Device2x10MHz},
-    {"224800130Y", Device2x10MHz},
-    {"224800130X", Device4x10MHz}
+    {"22370012CI", Device4x10MHz_PCBV01},
+    {"22370012CB", Device2x10MHz_PCBV02},
+    {"224800131L", Device2x10MHz_PCBV02},
+    {"224800130Y", Device2x10MHz_PCBV02},
+    {"224800130X", Device4x10MHz_PCBV01}
 #ifdef DEBUG
-    ,{"FAKE_Nanopores", Device384Fake}
-    ,{"FAKE_PATCH_CLAMP", Device384FakePatchClamp}
-    ,{"FAKE_4x10MHz", Device4x10MHzFake}
-    ,{"FAKE_2x10MHz", Device2x10MHzFake}
+    ,{"FAKE_Nanopores", Device384Fake},
+    {"FAKE_PATCH_CLAMP", Device384FakePatchClamp},
+    {"FAKE_4x10MHz", Device4x10MHzFake},
+    {"FAKE_2x10MHz", Device2x10MHzFake}
 #endif
 }; /*! \todo FCON queste info dovrebbero risiedere nel DB */
 
@@ -154,12 +154,16 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
         messageDispatcher = new MessageDispatcher_384PatchClamp_V01(deviceId);
         break;
 
-    case Device2x10MHz:
-        messageDispatcher = new MessageDispatcher_2x10MHz_V01(deviceId);
+    case Device2x10MHz_PCBV01:
+        messageDispatcher = new MessageDispatcher_2x10MHz_PCBV01_V01(deviceId);
         break;
 
-    case Device4x10MHz:
-        messageDispatcher = new MessageDispatcher_4x10MHz_V01(deviceId);
+    case Device2x10MHz_PCBV02:
+        messageDispatcher = new MessageDispatcher_2x10MHz_PCBV02_V01(deviceId);
+        break;
+
+    case Device4x10MHz_PCBV01:
+        messageDispatcher = new MessageDispatcher_4x10MHz_PCBV01_V02(deviceId);
         break;
 
 #ifdef DEBUG
@@ -364,7 +368,7 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
 
     if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
         /*! Initialization in voltage clamp */
-        this->setClampingModality(VOLTAGE_CLAMP);
+        this->setClampingModality(VOLTAGE_CLAMP, false);
         this->enableCcCompensations(false);
         this->enableVcCompensations(true);
         this->enableStimulus(allChannelIndexes, allTrue, false);
@@ -1240,8 +1244,10 @@ ErrorCodes_t MessageDispatcher::turnVcCcSelOn(std::vector<uint16_t> channelIndex
 ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
     if (ccStimEnCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
+
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
+
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
            ccStimEnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1253,25 +1259,16 @@ ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t> channelIn
     }
 }
 
-ErrorCodes_t MessageDispatcher::setClampingModality(uint32_t idx) {
-    if (idx < clampingModalitiesNum) {
+ErrorCodes_t MessageDispatcher::setClampingModality(uint32_t idx, bool applyFlag) {
+    if (idx >= clampingModalitiesNum) {
         return ErrorValueOutOfRange;
 
     } else {
         selectedClampingModalityIdx = idx;
         selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];
-        return Success;
-    }
-}
+        clampingModeCoder->encode(selectedClampingModalityIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
 
-ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode) {
-    auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
-    if (iter == clampingModalitiesArray.end()) {
-        return ErrorValueOutOfRange;
-
-    } else {
-        this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()));
-        switch (mode) {
+        switch (selectedClampingModality) {
         case VOLTAGE_CLAMP:
             rawDataFilterVoltageFlag = false;
             rawDataFilterCurrentFlag = true;
@@ -1288,7 +1285,21 @@ ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode) {
             rawDataFilterCurrentFlag = false;
             break;
         }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
         return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode, bool applyFlag) {
+    auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
+    if (iter == clampingModalitiesArray.end()) {
+        return ErrorValueOutOfRange;
+
+    } else {
+        return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag);
     }
 }
 

@@ -1,7 +1,7 @@
 #include "messagedispatcher_2x10mhzfake.h"
 
 MessageDispatcher_2x10MHzFake::MessageDispatcher_2x10MHzFake(std::string id) :
-    MessageDispatcher_2x10MHz_V01(id) {
+    MessageDispatcher_2x10MHz_PCBV01_V02(id) {
 
     waitingTimeBeforeReadingData = 0;
 

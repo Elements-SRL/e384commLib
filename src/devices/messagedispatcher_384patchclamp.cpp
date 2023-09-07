@@ -2155,15 +2155,15 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnVoltageReaderOn(bool onVal
     }
 
     if (onValueIn){
-        this->setClampingModality(CURRENT_CLAMP);
-        this->turnCcSwOn(allChannelIndexes, allTheTrueIneed, applyFlagIn);
-        this->turnVcCcSelOn(allChannelIndexes, allTheFalseIneed,applyFlagIn);
-        this->updateCalibCcVoltageGain(allChannelIndexes, applyFlagIn);
+        this->setClampingModality(CURRENT_CLAMP, false);
+        this->turnCcSwOn(allChannelIndexes, allTheTrueIneed, false);
+        this->turnVcCcSelOn(allChannelIndexes, allTheFalseIneed, false);
+        this->updateCalibCcVoltageGain(allChannelIndexes, false);
         this->updateCalibCcVoltageOffset(allChannelIndexes, applyFlagIn);
         this->setAdcFilter();
 
     } else {
-        this->setClampingModality(VOLTAGE_CLAMP);
+        this->setClampingModality(VOLTAGE_CLAMP, false);
         this->turnCcSwOn(allChannelIndexes, allTheFalseIneed, applyFlagIn);
     }
 
@@ -2180,15 +2180,15 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentReaderOn(bool onVal
     }
 
     if(onValueIn){
-        this->setClampingModality(VOLTAGE_CLAMP);
-        this->turnVcSwOn(allChannelIndexes, allTheTrueIneed, applyFlagIn);
-        this->turnVcCcSelOn(allChannelIndexes, allTheTrueIneed, applyFlagIn);
-        this->updateCalibVcCurrentGain(allChannelIndexes, applyFlagIn);
+        this->setClampingModality(VOLTAGE_CLAMP, false);
+        this->turnVcSwOn(allChannelIndexes, allTheTrueIneed, false);
+        this->turnVcCcSelOn(allChannelIndexes, allTheTrueIneed, false);
+        this->updateCalibVcCurrentGain(allChannelIndexes, false);
         this->updateCalibVcCurrentOffset(allChannelIndexes, applyFlagIn);
         this->setAdcFilter();
 
     }else{
-        this->setClampingModality(CURRENT_CLAMP);
+        this->setClampingModality(CURRENT_CLAMP, false);
         this->turnVcSwOn(allChannelIndexes, allTheFalseIneed, applyFlagIn);
     }
 
@@ -2205,7 +2205,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnVoltageStimulusOn(bool onV
     }
 
     if(onValue){
-        this->updateCalibVcVoltageGain(allChannelIndexes, applyFlag);
+        this->updateCalibVcVoltageGain(allChannelIndexes, false);
         this->updateCalibVcVoltageOffset(allChannelIndexes, applyFlag);
 
     } else {
@@ -2224,8 +2224,8 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::turnCurrentStimulusOn(bool onV
     }
 
     if(onValue){
-        this->enableCcStimulus(allChannelIndexes, allTheTrueIneed, applyFlag);
-        this->updateCalibCcCurrentGain(allChannelIndexes, applyFlag);
+        this->enableCcStimulus(allChannelIndexes, allTheTrueIneed, false);
+        this->updateCalibCcCurrentGain(allChannelIndexes, false);
         this->updateCalibCcCurrentOffset(allChannelIndexes, applyFlag);
 
     } else {
