@@ -1462,7 +1462,7 @@ ErrorCodes_t MessageDispatcher::setCalibParams(CalibrationParams_t calibParams){
 
 ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest) {
     if (voltageProtocolRestCoders.empty()) {
-            return ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
 
     } else if (itemsNum >= protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(vRest)) { /*! \todo FCON sommare i valori sommati con l'holder o altri meccanismi */
         return ErrorValueOutOfRange;
@@ -1578,7 +1578,7 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t itemIdx, uint16_t
 
 ErrorCodes_t MessageDispatcher::setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest) {
     if (currentProtocolRestCoders.empty()) {
-            return ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
 
     } else if (itemsNum >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iRest)) { /*! \todo FCON sommare i valori sommati con l'holder o altri meccanismi */
         return ErrorValueOutOfRange;
@@ -1598,11 +1598,11 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolStructure(uint16_t protId, uin
 
 ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step) {
     if (!currentProtocolStepImplemented) {
-            return ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
 
     } else if (itemIdx >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0Step) ||
                !positiveProtocolTimeRange.includes(t0) || !protocolTimeRange.includes(t0Step)) {
-           return ErrorValueOutOfRange;
+        return ErrorValueOutOfRange;
 
     } else {
         UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;

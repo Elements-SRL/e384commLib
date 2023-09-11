@@ -445,20 +445,12 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     calibrationData.ccCalibResForCcAdcOffsetArray[CCVoltageRange1000mV] = {120.0, UnitPfxKilo, "Ohm"};
 
     vHoldRange.resize(VCVoltageRangesNum);
-    vHoldRange[VCVoltageRange500mV].min = -500.0;
-    vHoldRange[VCVoltageRange500mV].max = 500.0;
-    vHoldRange[VCVoltageRange500mV].step = 0.125;
-    vHoldRange[VCVoltageRange500mV].prefix = UnitPfxMilli;
-    vHoldRange[VCVoltageRange500mV].unit = "V";
+    vHoldRange[VCVoltageRange500mV] = vcVoltageRangesArray[VCVoltageRange500mV];
     selectedVoltageHoldVector.resize(currentChannelsNum);
     Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
 
     cHoldRange.resize(CCCurrentRangesNum);
-    cHoldRange[CCCurrentRange8nA].min = -8.0;
-    cHoldRange[CCCurrentRange8nA].max = 8.0 - 16.0/8192.0;
-    cHoldRange[CCCurrentRange8nA].step = 16.0/8192.0;
-    cHoldRange[CCCurrentRange8nA].prefix = UnitPfxNano;
-    cHoldRange[CCCurrentRange8nA].unit = "A";
+    cHoldRange[CCCurrentRange8nA] = ccCurrentRangesArray[CCCurrentRange8nA];
     selectedCurrentHoldVector.resize(currentChannelsNum);
     Measurement_t defaultCurrentHoldTuner = {0.0, cHoldRange[CCCurrentRange8nA].prefix, cHoldRange[CCCurrentRange8nA].unit};
 
@@ -1004,6 +996,19 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         voltageProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(voltageProtocolRestCoders[rangeIdx]);
+    }
+
+    doubleConfig.initialWord = protocolWordOffset+3;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    currentProtocolRestCoders.resize(CCCurrentRangesNum);
+
+    for (unsigned int rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
+        doubleConfig.resolution = cHoldRange[rangeIdx].step;
+        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+        currentProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(currentProtocolRestCoders[rangeIdx]);
     }
 
     /*! Protocol items */

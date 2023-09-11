@@ -1401,8 +1401,8 @@ MessageDispatcher_4x10MHz_PCBV01_V03::MessageDispatcher_4x10MHz_PCBV01_V03(std::
     for (uint32_t rangeIdx = 0; rangeIdx < liquidJunctionRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 6;
         doubleConfig.resolution = liquidJunctionRangesArray[rangeIdx].step;
-        doubleConfig.minValue = liquidJunctionRangesArray[rangeIdx].min;
-        doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
+        doubleConfig.minValue = liquidJunctionRangesArray[rangeIdx].max;
+        doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].min;
         liquidJunctionVoltageCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             liquidJunctionVoltageCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
