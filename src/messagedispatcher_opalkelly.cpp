@@ -79,13 +79,10 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
     std::chrono::steady_clock::time_point startWhileTime = std::chrono::steady_clock::now();
 
     bool waitingTimeForReadingPassed = false;
-
-//    int okWrites = 0;
-//    std::chrono::steady_clock::time_point startPrintfTime;
-//    std::chrono::steady_clock::time_point currentPrintfTime;
-//    startPrintfTime = std::chrono::steady_clock::now();
+    bool anyOperationPerformed;
 
     while (!stopConnectionFlag) {
+        anyOperationPerformed = false;
 
         /***********************\
          *  Data copying part  *
@@ -93,14 +90,15 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
 
         txMutexLock.lock();
         if (txMsgBufferReadLength > 0) {
+            anyOperationPerformed = true;
             txMutexLock.unlock();
 
             this->sendCommandsToDevice();
 
             txMutexLock.lock();
             txMsgBufferReadLength--;
-            txMsgBufferNotFull.notify_all();
             txMutexLock.unlock();
+            txMsgBufferNotFull.notify_all();
 
         } else {
             txMutexLock.unlock();
@@ -109,27 +107,17 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
         /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
         if (waitingTimeForReadingPassed) {
             rxRawMutexLock.lock();
-            if (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE <= OKY_RX_BUFFER_SIZE && !stopConnectionFlag) {
+            if (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE <= OKY_RX_BUFFER_SIZE) {
+                anyOperationPerformed = true;
                 rxRawMutexLock.unlock();
-                if (stopConnectionFlag) {
-                    break;
-                }
 
                 uint32_t bytesRead = this->readDataFromDevice();
 
                 if (bytesRead <= INT32_MAX) {
                     rxRawMutexLock.lock();
                     rxRawBufferReadLength += bytesRead;
-                    rxRawBufferNotEmpty.notify_all();
                     rxRawMutexLock.unlock();
-//                    okWrites++;
-//                    if (okWrites > 100) {
-//                        okWrites = 0;
-//                        currentPrintfTime = steady_clock::now();
-//                        printf("%lld\n", (duration_cast <milliseconds> (currentPrintfTime-startPrintfTime).count()));
-//                        fflush(stdout);
-//                        startPrintfTime = currentPrintfTime;
-//                    }
+                    rxRawBufferNotEmpty.notify_all();
                 }
 
             } else {
@@ -142,6 +130,10 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
                 waitingTimeForReadingPassed = true;
                 parsingFlag = true;
             }
+        }
+
+        if (!anyOperationPerformed) {
+            std::this_thread::sleep_for(std::chrono::microseconds(1));
         }
     }
 }
@@ -426,14 +418,15 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
 
         rxRawMutexLock.lock();
         rxRawBufferReadLength -= maxRxRawBytesRead-rxRawBytesAvailable;
-        rxRawBufferNotFull.notify_all();
         rxRawMutexLock.unlock();
+        rxRawBufferNotFull.notify_all();
     }
 
     if (rxMsgBufferReadLength <= 0) {
         std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
         parsingFlag = false;
         rxMsgBufferReadLength++;
+        rxMutexLock.unlock();
         rxMsgBufferNotEmpty.notify_all();
     }
 }
@@ -441,6 +434,7 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
 ErrorCodes_t MessageDispatcher_OpalKelly::initializeBuffers() {
     rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_BUFFER_SIZE];
     if (rxRawBuffer != nullptr) {
+        rxRawBuffer16 = (uint16_t *)rxRawBuffer;
         return Success;
 
     } else {
@@ -453,6 +447,7 @@ ErrorCodes_t MessageDispatcher_OpalKelly::deinitializeBuffers() {
         delete [] rxRawBuffer;
         rxRawBuffer = nullptr;
     }
+    rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
     return Success;
 }

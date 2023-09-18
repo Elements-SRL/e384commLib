@@ -102,24 +102,24 @@ ErrorCodes_t MessageDispatcher_384FakeNanopores::fillBuffer() {
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
 
     while (bytesRead+(totalChannelsNum+3)*RX_WORD_SIZE < OKY_RX_BUFFER_SIZE) {
-        rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
-        rxRawBuffer[rxRawBufferWriteOffset+1] = 0XA5;
+        rxRawBuffer[rxRawBufferWriteOffset+1] = 0X5A;
+        rxRawBuffer[rxRawBufferWriteOffset] = 0XA5;
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
-        rxRawBuffer[rxRawBufferWriteOffset] = 0x00;
         rxRawBuffer[rxRawBufferWriteOffset+1] = 0x00;
+        rxRawBuffer[rxRawBufferWriteOffset] = 0x00;
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
-        rxRawBuffer[rxRawBufferWriteOffset] = 0X03;
-        rxRawBuffer[rxRawBufferWriteOffset+1] = 0X00;
+        rxRawBuffer[rxRawBufferWriteOffset+1] = 0X03;
+        rxRawBuffer[rxRawBufferWriteOffset] = 0X00;
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
         for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
-            rxRawBuffer[rxRawBufferWriteOffset] = (((syntheticData+idx*20) & 0x1F00) >> 8) - 0x10;
-            rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = (((syntheticData+idx*20) & 0x1F00) >> 8) - 0x10;
+            rxRawBuffer[rxRawBufferWriteOffset] = (syntheticData+idx*20) & 0x00FF;
             rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
         }
 
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            rxRawBuffer[rxRawBufferWriteOffset] = ((syntheticData+idx*20) & 0xFF00) >> 8;
-            rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = ((syntheticData+idx*20) & 0xFF00) >> 8;
+            rxRawBuffer[rxRawBufferWriteOffset] = (syntheticData+idx*20) & 0x00FF;
             rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
         }
 
