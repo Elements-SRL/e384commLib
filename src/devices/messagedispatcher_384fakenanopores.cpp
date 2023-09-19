@@ -50,7 +50,7 @@ uint32_t MessageDispatcher_384FakeNanopores::readDataFromDevice() {
 #ifdef DEBUG_MAX_SPEED
     currentTime = std::chrono::steady_clock::now();
     long long duration = (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count());
-    if (duration > (1000.0*(double)OKY_RX_TRANSFER_SIZE)/generatedSamplingRate) {
+    if (duration > (1000.0*(double)OKY_RX_TRANSFER_SIZE)/generatedByteRate) {
         startTime = currentTime;
         bytesRead = OKY_RX_TRANSFER_SIZE;
     }
