@@ -772,13 +772,13 @@ void MessageDispatcher_384NanoPores_V01::initializeHW() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     this->resetAsic(false, true);
 
-//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-//    minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-//    stackOutgoingMessage(txStatus);
+    minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stackOutgoingMessage(txStatus);
 
-//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-//    plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-//    stackOutgoingMessage(txStatus);
+    plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stackOutgoingMessage(txStatus);
 }
