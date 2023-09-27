@@ -25,7 +25,6 @@ CONFIG(release, debug|release) {
 TEMPLATE = lib
 CONFIG += c++14
 
-# use as static library
 #DEFINES += E384COMMLIB_LABVIEW_WRAPPER
 #DEFINES += E384COMMLIB_PYTHON_WRAPPER
 
@@ -49,7 +48,7 @@ contains(DEFINES, E384COMMLIB_PYTHON_WRAPPER) {
             "$$(LOCAL_PYTHON_3_10_7)\include"
 }
 
-! contains(DEFINES, E384COMMLIB_LIBRARY){
+! contains(DEFINES, E384COMMLIB_LIBRARY) {
     # build statically
     DEFINES += E384COMMLIB_STATIC
     CONFIG += staticlib
