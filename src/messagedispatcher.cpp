@@ -10,6 +10,7 @@
 #include "okFrontPanelDLL.h"
 
 #include "messagedispatcher_384nanopores.h"
+#include "messagedispatcher_384nanopores_sr7p5khz_v01.h"
 #include "messagedispatcher_384patchclamp.h"
 #include "messagedispatcher_4x10mhz.h"
 #include "messagedispatcher_2x10mhz.h"
@@ -24,8 +25,8 @@
 #include "utils.h"
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
-    {"221000107S", Device384Nanopores},
-    {"221000108T", Device384Nanopores},
+    {"221000107S", Device384Nanopores_SR7p5kHz},
+    {"221000108T", Device384Nanopores_SR7p5kHz},
     {"22510013B4", Device384Nanopores},
     {"2210001076", Device384PatchClamp},
     {"221000106B", Device384PatchClamp},
@@ -148,6 +149,10 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
     switch (deviceType) {
     case Device384Nanopores:
         messageDispatcher = new MessageDispatcher_384NanoPores_V01(deviceId);
+        break;
+
+    case Device384Nanopores_SR7p5kHz:
+        messageDispatcher = new MessageDispatcher_384NanoPores_SR7p5kHz_V01(deviceId);
         break;
 
     case Device384PatchClamp:
