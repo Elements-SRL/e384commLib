@@ -115,4 +115,4 @@ DEPENDPATH += \
     ./src/model \
     ./src/calibration
 
-include($$(FRONT_PANEL_PATH)/includefrontpanel.pri)
+include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
