@@ -1556,8 +1556,8 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
         }
     }
 
-    /*! Rs correction compensation BANDWIDTH*/
-    /*! \todo QUESTO VIENE IMPATTATO DALLA SWITCHED CAP FREQUENCY SOILO  A LIVELLO DI RAPPRESENTAZINE DI STRINGHE PER LA BANDA NELLA GUI. ATTIVAMENTE QUI NN FACCIAMO NULLA!!!!!*/
+    /*! Rs correction compensation BANDWIDTH */
+    /*! \todo QUESTO VIENE IMPATTATO DALLA SWITCHED CAP FREQUENCY SOLO  A LIVELLO DI RAPPRESENTAZINE DI STRINGHE PER LA BANDA NELLA GUI. ATTIVAMENTE QUI NN FACCIAMO NULLA!!!!!*/
     boolConfig.initialWord = 3616;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 3;
@@ -2277,13 +2277,12 @@ std::vector<double> MessageDispatcher_384PatchClamp_V01::user2AsicDomainTransfor
     taum = userDomainParams[U_Cm] * userDomainParams[U_Rs];
 
     // Series correction percentage to Series correction resistance domain conversion
-    rsCr = userDomainParams[U_Rs] * userDomainParams[U_RsCp];
+    rsCr = userDomainParams[U_Rs] * userDomainParams[U_RsCp] * 0.01; // RsCp is a percentage
 
     // Series prediction gain domain conversion
     rsPg = userDomainParams[U_RsPg];
 
     // pipette capacitance CC to Series prediction tau domain conversion
-    /*! \todo MPAC recheck: added +1 after discussion with MBEN and FCON */
     rsPtau = taum / (userDomainParams[U_RsPg] + 1);
 
     asicDomainParameter[A_Cp] = cp;
@@ -2317,7 +2316,7 @@ std::vector<double> MessageDispatcher_384PatchClamp_V01::asic2UserDomainTransfor
     if (selectedClampingModality == VOLTAGE_CLAMP){
         cpVc = asicDomainParams[A_Cp] - asicCmCinj;
     } else {
-        cpVc = oldUCpVc; /*! \todo recheck */
+        cpVc = oldUCpVc;
     }
 
     // membrane capacitance domain conversion
@@ -2327,11 +2326,9 @@ std::vector<double> MessageDispatcher_384PatchClamp_V01::asic2UserDomainTransfor
     rs = asicDomainParams[A_Taum] / asicDomainParams[A_Cm];
 
     // Series correction resistance to Series correction percentage domain conversion
-    /*! \todo FCON recheck: should use U_Rs's value after it's been updated according to clipping */
-    rsCp = asicDomainParams[A_RsCr] / rs;
+    rsCp = asicDomainParams[A_RsCr] / rs * 100.0;
 
     // Series prediction gain domain conversion
-    /*! \todo MPAC RECHECK: added -1 after discussion with MBEN and FCON */
     rsPg = -1 + asicDomainParams[A_Taum] / asicDomainParams[A_RsPtau];
 
     // Series prediction tau to Pipette capacitance CC domain conversion
@@ -2403,7 +2400,6 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     potentialMaxs.clear();
 
     //min
-    /*! MPAC: added +1 after discussion with MBEN and FCON*/
     potentialMins.push_back(membraneCapValueRange_pF.front().min);
 
     potentialMins.push_back(membraneCapTauValueRange_us.front().min/userDomainParams[U_Rs]);
@@ -2422,7 +2418,6 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
 
     /*! Compensable for U_Rs*/
     //max
-    /*! MPAC: added +1 after discussion with MBEN and FCON*/
     if(compCslowEnable[chIdx]){
         potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/userDomainParams[U_Cm]);
     } else {
@@ -2430,7 +2425,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     }
 
     if(compRsCorrEnable[chIdx]){
-        potentialMaxs.push_back(rsCorrValueRange.max / userDomainParams[U_RsCp]);
+        potentialMaxs.push_back(rsCorrValueRange.max / userDomainParams[U_RsCp] * 100.0);
     } else {
         potentialMaxs.push_back(myInfinity);
     }
@@ -2445,7 +2440,6 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     potentialMaxs.clear();
 
     //min
-    /*! MPAC: added +1 after discussion with MBEN and FCON*/
     if(compCslowEnable[chIdx]){
         potentialMins.push_back(membraneCapTauValueRange_us.front().min / userDomainParams[U_Cm]);
     } else {
@@ -2453,7 +2447,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     }
 
     if(compRsCorrEnable[chIdx]){
-        potentialMins.push_back(rsCorrValueRange.min / userDomainParams[U_RsCp]);
+        potentialMins.push_back(rsCorrValueRange.min / userDomainParams[U_RsCp] * 100.0);
     } else {
         potentialMins.push_back(0);
     }
@@ -2473,7 +2467,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     /*! Compensable for U_RsCp*/
     // max
     /*! \todo Pay attention to possible divisions by 0*/
-    potentialMaxs.push_back(rsCorrValueRange.max / userDomainParams[U_Rs]);
+    potentialMaxs.push_back(rsCorrValueRange.max / userDomainParams[U_Rs] * 100.0);
     potentialMaxs.push_back(100.0); //%
     uRsCpCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
     potentialMaxs.clear();
@@ -2481,7 +2475,7 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
     //min
     /*! \todo Pay attention to possible divisions by 0*/
     potentialMins.push_back(0.0); //%
-    potentialMins.push_back(rsCorrValueRange.min / userDomainParams[U_Rs]);
+//    potentialMins.push_back(rsCorrValueRange.min / userDomainParams[U_Rs] * 100.0);
     uRsCpCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
 
@@ -2489,14 +2483,12 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::asic2UserDomainCompensable(int
 
     /*! Compensable for U_RsPg*/
     //max
-    /*! MPAC: added -1 after discussion with MBEN and FCON*/
     potentialMaxs.push_back(rsPredGainRange.max);
     potentialMaxs.push_back(-1 + userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.min);
     uRsPgCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
     potentialMaxs.clear();
 
     //min
-    /*! MPAC: added -1 after discussion with MBEN and FCON*/
     potentialMins.push_back(rsPredGainRange.min);
     potentialMins.push_back(-1 + userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.max);
     uRsPgCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
