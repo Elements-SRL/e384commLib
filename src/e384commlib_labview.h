@@ -3,20 +3,10 @@
  */
 #ifndef E384COMMLIB_LABVIEW_H
 #define E384COMMLIB_LABVIEW_H
-
-#ifndef E384COMMLIB_LABVIEW_WRAPPER
-#include <vector>
-#include <string>
-#endif
-
 #include "e384commlib_global.h"
 #include "e384commlib_errorcodes.h"
 
 class MessageDispatcher;
-
-#ifndef E384COMMLIB_LABVIEW_WRAPPER
-namespace e384CommLib {
-#endif
 
 /************************\
  *  Connection methods  *
@@ -2002,10 +1992,5 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setDebugWord(
         E384CL_ARGIN uint16_t wordOffset,
         E384CL_ARGIN uint16_t wordValue);
-
-#ifndef E384COMMLIB_LABVIEW_WRAPPER
-}
-#endif
-
 
 #endif // E384COMMLIB_LABVIEW_H
