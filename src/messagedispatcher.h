@@ -468,7 +468,6 @@ protected:
     void updateVoltageHoldTuner(bool applyFlag);
     void updateCurrentHoldTuner(bool applyFlag);
 
-    /*! \todo FCON rechecks Compensation methods */
     virtual std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams);
     virtual std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc);
     virtual ErrorCodes_t asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams);
@@ -716,44 +715,43 @@ protected:
     std::vector <BoolArrayCoder *> protocolItemTypeCoders;
 
     /*! Compensations coders (all in asic domain) */
-    std::vector<BoolCoder*> pipetteCapEnCompensationCoders;
-    std::vector<MultiCoder*> pipetteCapValCompensationMultiCoders;
-    std::vector<BoolCoder*> membraneCapEnCompensationCoders;
-    std::vector<MultiCoder*> membraneCapValCompensationMultiCoders;
-    std::vector<MultiCoder*> membraneCapTauValCompensationMultiCoders; // includes Tau Values and Tau Ranges
-    std::vector<BoolCoder*>  rsCorrEnCompensationCoders;
-    std::vector<DoubleCoder*>  rsCorrValCompensationCoders;
-    std::vector<BoolArrayCoder*>  rsCorrBwCompensationCoders;
-    std::vector<BoolCoder*>  rsPredEnCompensationCoders;
-    std::vector<DoubleCoder*> rsPredGainCompensationCoders;
-    std::vector<DoubleCoder*> rsPredTauCompensationCoders;
-    std::vector<BoolCoder*> pipetteCapCcEnCompensationCoders;
-    std::vector<MultiCoder*> pipetteCapCcValCompensationMultiCoders;
+    std::vector <BoolCoder*> pipetteCapEnCompensationCoders;
+    std::vector <MultiCoder*> pipetteCapValCompensationMultiCoders;
+    std::vector <BoolCoder*> membraneCapEnCompensationCoders;
+    std::vector <MultiCoder*> membraneCapValCompensationMultiCoders;
+    std::vector <MultiCoder*> membraneCapTauValCompensationMultiCoders; // includes Tau Values and Tau Ranges
+    std::vector <BoolCoder*>  rsCorrEnCompensationCoders;
+    std::vector <DoubleCoder*>  rsCorrValCompensationCoders;
+    std::vector <BoolArrayCoder*>  rsCorrBwCompensationCoders;
+    std::vector <BoolCoder*>  rsPredEnCompensationCoders;
+    std::vector <DoubleCoder*> rsPredGainCompensationCoders;
+    std::vector <DoubleCoder*> rsPredTauCompensationCoders;
+    std::vector <BoolCoder*> pipetteCapCcEnCompensationCoders;
+    std::vector <MultiCoder*> pipetteCapCcValCompensationMultiCoders;
 
     /*! Compensation options*/
-    std::vector<uint16_t> selectedRsCorrBws;
-    std::vector<Measurement_t> rsCorrBwArray;
+    std::vector <uint16_t> selectedRsCorrBws;
+    std::vector <Measurement_t> rsCorrBwArray;
     uint16_t defaultRsCorrBwIdx;
 
     /*! Features in ASIC domain, depend on asic*/
-    std::vector<RangedMeasurement> pipetteCapacitanceRange_pF;
-    std::vector<RangedMeasurement> membraneCapValueRange_pF;
-    std::vector<RangedMeasurement> membraneCapTauValueRange_us;
+    std::vector <RangedMeasurement> pipetteCapacitanceRange_pF;
+    std::vector <RangedMeasurement> membraneCapValueRange_pF;
+    std::vector <RangedMeasurement> membraneCapTauValueRange_us;
     RangedMeasurement_t rsCorrValueRange;
     RangedMeasurement_t rsPredGainRange;
     RangedMeasurement_t rsPredTauRange;
 
     /*! Features in USER domain, depend on the asic parameters*/
-    std::vector<RangedMeasurement> uCpVcCompensable;
-    std::vector<RangedMeasurement> uCmCompensable;
-    std::vector<RangedMeasurement> uRsCompensable;
-    std::vector<RangedMeasurement> uRsCpCompensable;
-    std::vector<RangedMeasurement> uRsPgCompensable;
-    std::vector<RangedMeasurement> uCpCcCompensable;
+    std::vector <RangedMeasurement> uCpVcCompensable;
+    std::vector <RangedMeasurement> uCmCompensable;
+    std::vector <RangedMeasurement> uRsCompensable;
+    std::vector <RangedMeasurement> uRsCpCompensable;
+    std::vector <RangedMeasurement> uRsPgCompensable;
+    std::vector <RangedMeasurement> uCpCcCompensable;
 
     /*! Default paramter values in USER domain*/
-    std::vector<double> defaultUserDomainParams;
-
+    std::vector <double> defaultUserDomainParams;
 
     /***************\
      *  Variables  *
