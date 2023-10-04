@@ -2814,9 +2814,6 @@ ErrorCodes_t MessageDispatcher::init() {
     /*! Allocate memory for raw data filters */
     this->initializeRawDataFilterVariables();
 
-    /*! Allocate memory for compensations */
-//    this->initializeCompensations(); /*! \todo FCON */
-
     /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
     voltageDataValues.resize(voltageChannelsNum);
     std::fill(voltageDataValues.begin(), voltageDataValues.end(), 0);
