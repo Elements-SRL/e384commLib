@@ -138,78 +138,78 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate7_5kHz].value = 7.5;
-    samplingRatesArray[SamplingRate7_5kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate7_5kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate6_25kHz].value = 6.25;
+    samplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
 #ifdef E384NPR_ADDITIONAL_SR_FLAG
-    samplingRatesArray[SamplingRate15kHz].value = 15.0;
-    samplingRatesArray[SamplingRate15kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate15kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate30kHz].value = 30.0;
-    samplingRatesArray[SamplingRate30kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate30kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate60kHz].value = 60.0;
-    samplingRatesArray[SamplingRate60kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate60kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate120kHz].value = 120.0;
-    samplingRatesArray[SamplingRate120kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate120kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate12_5kHz].value = 12.5;
+    samplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate25kHz].value = 25.0;
+    samplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate25kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate50kHz].value = 50.0;
+    samplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate50kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate100kHz].value = 100.0;
+    samplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate100kHz].unit = "Hz";
 #endif
-    defaultSamplingRateIdx = SamplingRate7_5kHz;
+    defaultSamplingRateIdx = SamplingRate6_25kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate7_5kHz].value = 7.5;
-    realSamplingRatesArray[SamplingRate7_5kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate7_5kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate6_25kHz].value = 6.25;
+    realSamplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
 #ifdef E384NPR_ADDITIONAL_SR_FLAG
-    realSamplingRatesArray[SamplingRate15kHz].value = 15.0;
-    realSamplingRatesArray[SamplingRate15kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate15kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate30kHz].value = 30.0;
-    realSamplingRatesArray[SamplingRate30kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate30kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate60kHz].value = 60.0;
-    realSamplingRatesArray[SamplingRate60kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate60kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate120kHz].value = 120.0;
-    realSamplingRatesArray[SamplingRate120kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate120kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate12_5kHz].value = 12.5;
+    realSamplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate25kHz].value = 25.0;
+    realSamplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate25kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate50kHz].value = 50.0;
+    realSamplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate50kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate100kHz].value = 100.0;
+    realSamplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate100kHz].unit = "Hz";
 #endif
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate7_5kHz].value = 1.0/7.5;
-    integrationStepArray[SamplingRate7_5kHz].prefix = UnitPfxMilli;
-    integrationStepArray[SamplingRate7_5kHz].unit = "s";
+    integrationStepArray[SamplingRate6_25kHz].value = 1.0/6.25;
+    integrationStepArray[SamplingRate6_25kHz].prefix = UnitPfxMilli;
+    integrationStepArray[SamplingRate6_25kHz].unit = "s";
 #ifdef E384NPR_ADDITIONAL_SR_FLAG
-    integrationStepArray[SamplingRate15kHz].value = 1.0/15.0;
-    integrationStepArray[SamplingRate15kHz].prefix = UnitPfxMilli;
-    integrationStepArray[SamplingRate15kHz].unit = "s";
-    integrationStepArray[SamplingRate30kHz].value = 1.0/30.0;
-    integrationStepArray[SamplingRate30kHz].prefix = UnitPfxMilli;
-    integrationStepArray[SamplingRate30kHz].unit = "s";
-    integrationStepArray[SamplingRate60kHz].value = 1.0/60.0;
-    integrationStepArray[SamplingRate60kHz].prefix = UnitPfxMilli;
-    integrationStepArray[SamplingRate60kHz].unit = "s";
-    integrationStepArray[SamplingRate120kHz].value = 1.0/120.0;
-    integrationStepArray[SamplingRate120kHz].prefix = UnitPfxMilli;
-    integrationStepArray[SamplingRate120kHz].unit = "s";
+    integrationStepArray[SamplingRate12_5kHz].value = 1.0/12.5;
+    integrationStepArray[SamplingRate12_5kHz].prefix = UnitPfxMilli;
+    integrationStepArray[SamplingRate12_5kHz].unit = "s";
+    integrationStepArray[SamplingRate25kHz].value = 1.0/25.0;
+    integrationStepArray[SamplingRate25kHz].prefix = UnitPfxMilli;
+    integrationStepArray[SamplingRate25kHz].unit = "s";
+    integrationStepArray[SamplingRate50kHz].value = 1.0/50.0;
+    integrationStepArray[SamplingRate50kHz].prefix = UnitPfxMilli;
+    integrationStepArray[SamplingRate50kHz].unit = "s";
+    integrationStepArray[SamplingRate100kHz].value = 1.0/100.0;
+    integrationStepArray[SamplingRate100kHz].prefix = UnitPfxMilli;
+    integrationStepArray[SamplingRate100kHz].unit = "s";
 #endif
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-        {SamplingRate7_5kHz, VCCurrentFilter20kHz}
+        {SamplingRate6_25kHz, VCCurrentFilter20kHz}
     #ifdef E384NPR_ADDITIONAL_SR_FLAG
-        ,{SamplingRate15kHz, VCCurrentFilter20kHz},
-        {SamplingRate30kHz, VCCurrentFilter20kHz},
-        {SamplingRate60kHz, VCCurrentFilter100kHz},
-        {SamplingRate120kHz, VCCurrentFilter100kHz}
+        ,{SamplingRate12_5kHz, VCCurrentFilter20kHz},
+        {SamplingRate25kHz, VCCurrentFilter20kHz},
+        {SamplingRate50kHz, VCCurrentFilter100kHz},
+        {SamplingRate100kHz, VCCurrentFilter100kHz}
     #endif
     };
 
     // mapping ADC Current Clamp
     // undefined
 
-    calibrationData.samplingRateIdx = SamplingRate7_5kHz;
+    calibrationData.samplingRateIdx = SamplingRate6_25kHz;
 
     /*! VC calibration voltage steps*/
     calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
@@ -772,13 +772,13 @@ void MessageDispatcher_384NanoPores_V01::initializeHW() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     this->resetAsic(false, true);
 
-//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-//    minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-//    stackOutgoingMessage(txStatus);
+    minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stackOutgoingMessage(txStatus);
 
-//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-//    plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-//    stackOutgoingMessage(txStatus);
+    plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stackOutgoingMessage(txStatus);
 }

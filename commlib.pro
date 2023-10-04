@@ -25,7 +25,6 @@ CONFIG(release, debug|release) {
 TEMPLATE = lib
 CONFIG += c++14
 
-# use as static library
 #DEFINES += E384COMMLIB_LABVIEW_WRAPPER
 #DEFINES += E384COMMLIB_PYTHON_WRAPPER
 
@@ -49,7 +48,7 @@ contains(DEFINES, E384COMMLIB_PYTHON_WRAPPER) {
             "$$(LOCAL_PYTHON_3_10_7)\include"
 }
 
-! contains(DEFINES, E384COMMLIB_LIBRARY){
+! contains(DEFINES, E384COMMLIB_LIBRARY) {
     # build statically
     DEFINES += E384COMMLIB_STATIC
     CONFIG += staticlib
@@ -64,6 +63,7 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
+    src/devices/messagedispatcher_384nanopores_sr7p5khz_v01.cpp \
     src/messagedispatcher.cpp \
     src/messagedispatcher_opalkelly.cpp \
     src/devices/messagedispatcher_384nanopores.cpp \
@@ -75,6 +75,7 @@ SOURCES += \
     src/calibration/calibrationmanager.cpp
 
 HEADERS += \
+    src/devices/messagedispatcher_384nanopores_sr7p5khz_v01.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
@@ -114,4 +115,4 @@ DEPENDPATH += \
     ./src/model \
     ./src/calibration
 
-include($$(FRONT_PANEL_PATH)/includefrontpanel.pri)
+include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
