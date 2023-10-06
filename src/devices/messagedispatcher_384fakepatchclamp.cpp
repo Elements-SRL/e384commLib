@@ -1,7 +1,7 @@
 #include "messagedispatcher_384fakepatchclamp.h"
 
 MessageDispatcher_384FakePatchClamp::MessageDispatcher_384FakePatchClamp(std::string id) :
-    MessageDispatcher_384PatchClamp_V01(id) {
+    MessageDispatcher_384PatchClamp_V04(id) {
 
     waitingTimeBeforeReadingData = 0;
 

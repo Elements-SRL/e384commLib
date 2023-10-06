@@ -454,6 +454,15 @@ MessageDispatcher_384PatchClamp_V04::MessageDispatcher_384PatchClamp_V04(std::st
     selectedCurrentHoldVector.resize(currentChannelsNum);
     Measurement_t defaultCurrentHoldTuner = {0.0, cHoldRange[CCCurrentRange8nA].prefix, cHoldRange[CCCurrentRange8nA].unit};
 
+    /** \todo MPAC, recheck fatto come VHoldRange e cHoldRange*/
+    vHalfRange = vHoldRange;
+    selectedVoltageHalfVector.resize(currentChannelsNum);
+    Measurement_t defaultVoltageHalfTuner = {0.0, vHalfRange[VCVoltageRange500mV].prefix, vHalfRange[VCVoltageRange500mV].unit};
+
+    cHalfRange = cHoldRange;
+    selectedCurrentHalfVector.resize(currentChannelsNum);
+    Measurement_t defaultCurrentHalfTuner = {0.0, cHalfRange[CCCurrentRange8nA].prefix, cHalfRange[CCCurrentRange8nA].unit};
+
     /*! VC leak calibration (shunt resistance)*/
     vcLeakCalibRange.resize(VCCurrentRangesNum);
     vcLeakCalibRange[VCCurrentRange10nA].step = (vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step)/4096.0;

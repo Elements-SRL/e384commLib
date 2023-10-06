@@ -535,17 +535,17 @@ ErrorCodes_t MessageDispatcher::setVoltageHalfTuner(std::vector<uint16_t> channe
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            voltages[i].convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
+            voltages[i].convertValue(vHalfRange[selectedVcVoltageRangeIdx].prefix);
             voltages[i].value = vHalfTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedVoltageHalfVector[channelIndexes[i]] = voltages[i];
-            channelModels[channelIndexes[i]]->setVhold(voltages[i]);
+            channelModels[channelIndexes[i]]->setVhalf(voltages[i]);
         }
 
         if (applyFlag) {
             this->stackOutgoingMessage(txStatus);
         }
 
-        if (!areAllTheVectorElementsInRange(voltages, vHoldRange[selectedVcVoltageRangeIdx].getMin(), vHoldRange[selectedVcVoltageRangeIdx].getMax())) {
+        if (!areAllTheVectorElementsInRange(voltages, vHalfRange[selectedVcVoltageRangeIdx].getMin(), vHalfRange[selectedVcVoltageRangeIdx].getMax())) {
             return WarningValueClipped;
 
         } else {
@@ -569,7 +569,7 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channe
             currents[i].convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
             currents[i].value = cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedCurrentHoldVector[channelIndexes[i]] = currents[i];
-            channelModels[channelIndexes[i]]->setChold(currents[i]);
+            channelModels[channelIndexes[i]]->setChalf(currents[i]);
         }
 
         if (applyFlag) {
@@ -598,17 +598,17 @@ ErrorCodes_t MessageDispatcher::setCurrentHalfTuner(std::vector<uint16_t> channe
 
     } else {
         for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            currents[i].convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
+            currents[i].convertValue(cHalfRange[selectedCcCurrentRangeIdx].prefix);
             currents[i].value = cHalfTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedCurrentHalfVector[channelIndexes[i]] = currents[i];
-            channelModels[channelIndexes[i]]->setChold(currents[i]);
+            channelModels[channelIndexes[i]]->setChalf(currents[i]);
         }
 
         if (applyFlag) {
             this->stackOutgoingMessage(txStatus);
         }
 
-        if (!areAllTheVectorElementsInRange(currents, cHoldRange[selectedCcCurrentRangeIdx].getMin(), cHoldRange[selectedCcCurrentRangeIdx].getMax())) {
+        if (!areAllTheVectorElementsInRange(currents, cHalfRange[selectedCcCurrentRangeIdx].getMin(), cHalfRange[selectedCcCurrentRangeIdx].getMax())) {
             return WarningValueClipped;
 
         } else {
