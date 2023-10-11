@@ -92,12 +92,12 @@ public:
     };
 
     enum CompensationUserParams {
-        U_CpVc,     //VCPipetteCapacitance
-        U_Cm,       //MembraneCapacitance
-        U_Rs,       //SeriesResistance
-        U_RsCp,     //SeriesCorrectionPerc
-        U_RsPg,     //SeriesPredictionGain
-        U_CpCc,     //CCPipetteCapacitance
+        U_CpVc,     // VCPipetteCapacitance
+        U_Cm,       // MembraneCapacitance
+        U_Rs,       // SeriesResistance
+        U_RsCp,     // SeriesCorrectionPerc
+        U_RsPg,     // SeriesPredictionGain
+        U_CpCc,     // CCPipetteCapacitance
         CompensationUserParamsNum
     };
 
@@ -107,11 +107,11 @@ public:
 
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
-    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher);
+    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
     ErrorCodes_t disconnectDevice();
     ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag);
 
-    virtual ErrorCodes_t connect();
+    virtual ErrorCodes_t connect(std::string fwPath);
     virtual ErrorCodes_t disconnect();
 
     /****************\

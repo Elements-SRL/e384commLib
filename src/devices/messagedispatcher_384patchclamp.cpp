@@ -678,8 +678,6 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
     // Default USER DOMAIN compensation parameters
-    double defaultPipetteInjCapacitance = pipetteInjCapacitance[0];
-    double defaultMembraneCapValueInjCapacitance = membraneCapValueInjCapacitance[0];
     defaultUserDomainParams.resize(CompensationUserParamsNum);
     defaultUserDomainParams[U_CpVc] = pipetteCapacitanceRange_pF[0].min;
     defaultUserDomainParams[U_Cm] = membraneCapValueRange_pF[0].min;
@@ -1348,7 +1346,7 @@ MessageDispatcher_384PatchClamp_V01::MessageDispatcher_384PatchClamp_V01(std::st
         }
     }
 
-    /*! Compensation coders*/
+    /*! Compensation coders */
     /*! Cfast / pipette capacitance compensation ENABLE */
     boolConfig.initialWord = 2752;
     boolConfig.initialBit = 0;
@@ -2025,17 +2023,16 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
     // make local copy of the user domain param vectors
     std::vector<std::vector<double>> localCompValueSubMatrix;
     localCompValueSubMatrix.resize(channelIndexes.size());
-    for(int i = 0; i< channelIndexes.size(); i++){
-        localCompValueSubMatrix[i] = this->compValueMatrix[channelIndexes[i]];
+    for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
+        localCompValueSubMatrix[chIdx] = this->compValueMatrix[channelIndexes[chIdx]];
     }
 
     // for each user param vector
-    for (int j = 0; j < localCompValueSubMatrix.size(); j++){
+    for (int chIdx = 0; chIdx < localCompValueSubMatrix.size(); chIdx++) {
         // update value in user domain
-        localCompValueSubMatrix[j][paramToUpdate] = newParamValues[j];
-        double cane = localCompValueSubMatrix[0][paramToUpdate];
+        localCompValueSubMatrix[chIdx][paramToUpdate] = newParamValues[chIdx];
         // convert user domain to asic domain
-        std::vector<double> asicParams = user2AsicDomainTransform(channelIndexes[j], localCompValueSubMatrix[j]);
+        std::vector<double> asicParams = this->user2AsicDomainTransform(channelIndexes[chIdx], localCompValueSubMatrix[chIdx]);
         double temp;
 
         // select asicParam to encode based on enum
@@ -2043,86 +2040,95 @@ ErrorCodes_t MessageDispatcher_384PatchClamp_V01::setCompValues(std::vector<uint
         switch(paramToUpdate) {
         case U_CpVc:
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_CpVc chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Cp]) + "\n";
+            debugString += "[U_CpVc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cp]) + "\n";
 #endif
             //encode
-            temp = pipetteCapValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            // update asic domain vector with coder return value
+            asicParams[A_Cp] = temp;
+            break;
+
+        case U_Cm:
+#ifdef DEBUG_TX_DATA_PRINT
+            debugString += "[U_Cm chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cm]) + "\n";
+#endif
+            //encode
+            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_Cp] = temp;
 
-        break;
-        case U_Cm:
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_Cm chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Cm]) + "\n";
-#endif
             //encode
-            temp = membraneCapValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_Cm] = temp;
 
             //encode
-            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_Taum] = temp;
-        break;
+            break;
+
         case U_Rs:
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_Rs chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_Taum]) + "\n";
+            debugString += "[U_Rs chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Taum]) + "\n";
 #endif
             //encode
-            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_Taum] = temp;
 
             //encode
-            temp = rsCorrValCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_RsCr] = temp;
-        break;
+            break;
+
         case U_RsCp:
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_RsCp chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsCr]) + "\n";
+            debugString += "[U_RsCp chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsCr]) + "\n";
 #endif
             //encode
-            temp = rsCorrValCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_RsCr] = temp;
-        break;
+            break;
+
         case U_RsPg:
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_RsPg chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsPg]) + "\n";
+            debugString += "[U_RsPg chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPg]) + "\n";
 #endif
             //encode
-            temp = rsPredGainCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = rsPredGainCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_RsPg] = temp;
 
             //encode
-            temp = rsPredTauCompensationCoders[channelIndexes[j]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = rsPredTauCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_RsPtau] = temp;
-        break;
+            break;
+
         case U_CpCc:
 #ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_CpCc chan " + std::to_string(channelIndexes[j]+1) + "]: userDom " + std::to_string(newParamValues[j]) +", asicDom " + std::to_string(asicParams[A_RsPtau]) + "\n";
+            debugString += "[U_CpCc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPtau]) + "\n";
 #endif
             //encode
-            temp = pipetteCapValCompensationMultiCoders[channelIndexes[j]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
             // update asic domain vector with coder return value
             asicParams[A_RsPtau] = temp;
-        break;
+            break;
         }
 
         // convert to user domain
-        double oldUCpVc = localCompValueSubMatrix[j][U_CpVc];
-        double oldUCpCc = localCompValueSubMatrix[j][U_CpCc];
-        localCompValueSubMatrix[j] = asic2UserDomainTransform(channelIndexes[j], asicParams, oldUCpVc, oldUCpCc);
+        double oldUCpVc = localCompValueSubMatrix[chIdx][U_CpVc];
+        double oldUCpCc = localCompValueSubMatrix[chIdx][U_CpCc];
+        localCompValueSubMatrix[chIdx] = asic2UserDomainTransform(channelIndexes[chIdx], asicParams, oldUCpVc, oldUCpCc);
 
         /*! \todo call here function to compute the compensable value ranges in the user domain*/
-        asic2UserDomainCompensable(channelIndexes[j], asicParams, localCompValueSubMatrix[j]);
+        asic2UserDomainCompensable(channelIndexes[chIdx], asicParams, localCompValueSubMatrix[chIdx]);
 
         //copy back to compValuematrix
-        this->compValueMatrix[channelIndexes[j]] = localCompValueSubMatrix[j];
+        this->compValueMatrix[channelIndexes[chIdx]] = localCompValueSubMatrix[chIdx];
 
     //end for
     }

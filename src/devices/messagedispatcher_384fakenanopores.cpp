@@ -4,6 +4,7 @@ MessageDispatcher_384FakeNanopores::MessageDispatcher_384FakeNanopores(std::stri
     MessageDispatcher_384NanoPores_V01(id) {
 
     waitingTimeBeforeReadingData = 0;
+    motherboardBootTime_s = 0;
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
@@ -28,12 +29,12 @@ MessageDispatcher_384FakeNanopores::~MessageDispatcher_384FakeNanopores() {
 
 }
 
-ErrorCodes_t MessageDispatcher_384FakeNanopores::connect() {
+ErrorCodes_t MessageDispatcher_384FakeNanopores::connect(std::string fwPath) {
     this->initializeBuffers();
     this->fillBuffer();
     startTime = std::chrono::steady_clock::now();
 
-    return MessageDispatcher::connect();
+    return MessageDispatcher::connect(fwPath);
 }
 
 ErrorCodes_t MessageDispatcher_384FakeNanopores::disconnect() {

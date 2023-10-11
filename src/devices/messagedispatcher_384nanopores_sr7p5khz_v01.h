@@ -2,8 +2,7 @@
 #define MESSAGEDISPATCHER_384NANOPORES_SR7P5KHZ_V01_H
 #include "messagedispatcher_384nanopores.h"
 
-class MessageDispatcher_384NanoPores_SR7p5kHz_V01 :public MessageDispatcher_384NanoPores_V01
-{
+class MessageDispatcher_384NanoPores_SR7p5kHz_V01 :public MessageDispatcher_384NanoPores_V01 {
 public:
     MessageDispatcher_384NanoPores_SR7p5kHz_V01(std::string di);
     virtual ~MessageDispatcher_384NanoPores_SR7p5kHz_V01();

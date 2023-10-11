@@ -23,7 +23,7 @@ public:
     MessageDispatcher_OpalKelly(std::string deviceId);
     virtual ~MessageDispatcher_OpalKelly();
 
-    virtual ErrorCodes_t connect() override;
+    virtual ErrorCodes_t connect(std::string fwPath) override;
     virtual ErrorCodes_t disconnect() override;
 
 protected:

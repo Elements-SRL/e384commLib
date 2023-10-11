@@ -63,14 +63,17 @@ ErrorCodes_t detectDevices(
 }
 
 ErrorCodes_t connectDevice(
-        LStrHandle deviceIdIn) {
+        LStrHandle deviceIdIn,
+        LStrHandle fwPathIn) {
 
     ErrorCodes_t ret = Success;
     if (messageDispatcher == nullptr) {
         std::string deviceId;
+        std::string fwPath;
         input2String(deviceIdIn, deviceId);
+        input2String(fwPathIn, fwPath);
 
-        ret = MessageDispatcher::connectDevice(deviceId, messageDispatcher);
+        ret = MessageDispatcher::connectDevice(deviceId, messageDispatcher, fwPath);
 
     } else {
         ret = ErrorDeviceAlreadyConnected;

@@ -8,7 +8,7 @@ public:
     MessageDispatcher_384FakeNanopores(std::string id);
     virtual ~MessageDispatcher_384FakeNanopores();
 
-    virtual ErrorCodes_t connect() override;
+    virtual ErrorCodes_t connect(std::string fwPath) override;
     virtual ErrorCodes_t disconnect() override;
 
 protected:

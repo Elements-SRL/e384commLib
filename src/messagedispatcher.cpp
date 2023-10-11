@@ -135,7 +135,7 @@ ErrorCodes_t MessageDispatcher::getDeviceType(std::string deviceId, DeviceTypes_
     }
 }
 
-ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher) {
+ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     ErrorCodes_t ret = Success;
 
     DeviceTypes_t deviceType;
@@ -194,7 +194,7 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
     }
 
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->connect();
+        ret = messageDispatcher->connect(fwPath);
 
         if (ret != Success) {
             messageDispatcher->disconnect();
@@ -227,7 +227,7 @@ ErrorCodes_t MessageDispatcher::enableRxMessageType(MsgTypeId_t messageType, boo
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::connect() {
+ErrorCodes_t MessageDispatcher::connect(std::string fwPath) {
     if (connected) {
         return ErrorDeviceAlreadyConnected;
     }
