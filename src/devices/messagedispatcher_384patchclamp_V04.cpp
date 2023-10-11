@@ -1150,12 +1150,12 @@ MessageDispatcher_384PatchClamp_V04::MessageDispatcher_384PatchClamp_V04(std::st
 
     boolConfig.initialBit = 1;
     boolConfig.bitsNum = 1;
-    protocolStimHalfCoder.resize(protocolMaxItemsNum);
+    protocolStimHalfCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
         boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
-        protocolStimHalfCoder[itemIdx] = new BoolArrayCoder(boolConfig);
-        coders.push_back(protocolStimHalfCoder[itemIdx]);
+        protocolStimHalfCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolStimHalfCoders[itemIdx]);
     }
 
     boolConfig.initialBit = 2;

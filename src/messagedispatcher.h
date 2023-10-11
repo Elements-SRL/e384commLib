@@ -720,7 +720,7 @@ protected:
     std::vector <BoolArrayCoder *> protocolLoopRepetitionsCoders;
 
     std::vector <BoolArrayCoder *> protocolApplyStepsCoders;
-    std::vector <BoolArrayCoder *> protocolStimHalfCoder;
+    std::vector <BoolArrayCoder *> protocolStimHalfCoders;
     std::vector <BoolArrayCoder *> protocolItemTypeCoders;
 
     /*! Compensations coders (all in asic domain) */

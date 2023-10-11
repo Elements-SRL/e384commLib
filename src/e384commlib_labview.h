@@ -36,12 +36,14 @@ ErrorCodes_t detectDevices(
  * Calling this method if a device is already connected will return an error code.
  *
  * \param deviceId [in] Device ID of the device to connect to.
+ * \param fwPathIn [in] Path of the Firmware file (empty string if it is in the same folder as the application that calls the library).
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t connectDevice(
-        E384CL_ARGIN LStrHandle deviceId);
+        E384CL_ARGIN LStrHandle deviceId,
+        LStrHandle fwPathIn);
 
 /*! \brief Disconnects from connected device.
  * Calling this method if no device is connected will return an error code.
