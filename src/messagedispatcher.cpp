@@ -522,6 +522,37 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t> channe
     }
 }
 
+ErrorCodes_t MessageDispatcher::setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
+    if (vHalfTunerCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else if (selectedClampingModality != VOLTAGE_CLAMP) {
+        return ErrorWrongClampModality;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            voltages[i].convertValue(vHalfRange[selectedVcVoltageRangeIdx].prefix);
+            voltages[i].value = vHalfTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedVoltageHalfVector[channelIndexes[i]] = voltages[i];
+            channelModels[channelIndexes[i]]->setVhalf(voltages[i]);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+
+        if (!areAllTheVectorElementsInRange(voltages, vHalfRange[selectedVcVoltageRangeIdx].getMin(), vHalfRange[selectedVcVoltageRangeIdx].getMax())) {
+            return WarningValueClipped;
+
+        } else {
+            return Success;
+        }
+    }
+}
+
 ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
     if (cHoldTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
@@ -545,6 +576,37 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channe
         }
 
         if (!areAllTheVectorElementsInRange(currents, cHoldRange[selectedCcCurrentRangeIdx].getMin(), cHoldRange[selectedCcCurrentRangeIdx].getMax())) {
+            return WarningValueClipped;
+
+        } else {
+            return Success;
+        }
+    }
+}
+
+ErrorCodes_t MessageDispatcher::setCurrentHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
+    if (cHalfTunerCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+
+    } else if (selectedClampingModality == VOLTAGE_CLAMP) {
+        return ErrorWrongClampModality;
+
+    } else {
+        for(uint32_t i = 0; i < channelIndexes.size(); i++){
+            currents[i].convertValue(cHalfRange[selectedCcCurrentRangeIdx].prefix);
+            currents[i].value = cHalfTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedCurrentHalfVector[channelIndexes[i]] = currents[i];
+            channelModels[channelIndexes[i]]->setChalf(currents[i]);
+        }
+
+        if (applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+
+        if (!areAllTheVectorElementsInRange(currents, cHalfRange[selectedCcCurrentRangeIdx].getMin(), cHalfRange[selectedCcCurrentRangeIdx].getMax())) {
             return WarningValueClipped;
 
         } else {
@@ -1485,7 +1547,7 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t protId, uin
     }
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step) {
+ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
     if (!voltageProtocolStepImplemented) {
             return ErrorFeatureNotImplemented;
 
@@ -1500,6 +1562,7 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t itemIdx, uint16_
         protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoder[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         v0.convertValue(voltagePrefix);
         voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1515,7 +1578,7 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t itemIdx, uint16_
     }
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step) {
+ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
     if (!voltageProtocolRampImplemented) {
             return ErrorFeatureNotImplemented;
 
@@ -1531,6 +1594,7 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t itemIdx, uint16_
         protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoder[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         v0.convertValue(voltagePrefix);
         voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1548,7 +1612,7 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t itemIdx, uint16_
     }
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step) {
+ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step, bool vHalfFlag) {
     if (!voltageProtocolSinImplemented) {
             return ErrorFeatureNotImplemented;
 
@@ -1564,6 +1628,7 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t itemIdx, uint16_t
         protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoder[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         v0.convertValue(voltagePrefix);
         voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1601,7 +1666,7 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolStructure(uint16_t protId, uin
     }
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step) {
+ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag) {
     if (!currentProtocolStepImplemented) {
         return ErrorFeatureNotImplemented;
 
@@ -1616,6 +1681,7 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t itemIdx, uint16_
         protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoder[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         i0.convertValue(currentPrefix);
         currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1631,7 +1697,7 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t itemIdx, uint16_
     }
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step) {
+ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag) {
     if (!currentProtocolRampImplemented) {
             return ErrorFeatureNotImplemented;
 
@@ -1647,6 +1713,7 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t itemIdx, uint16_
         protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoder[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         i0.convertValue(currentPrefix);
         currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1664,7 +1731,7 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t itemIdx, uint16_
     }
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step) {
+ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag) {
     if (!currentProtocolSinImplemented) {
         return ErrorFeatureNotImplemented;
     } else if (itemIdx >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0Step) ||
@@ -1680,6 +1747,7 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t
         protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoder[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         i0.convertValue(currentPrefix);
         currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -2166,12 +2234,32 @@ ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedM
     }
 }
 
+ErrorCodes_t MessageDispatcher::getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &voltageHalfTunerFeatures){
+    if (vHalfTunerCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else{
+        voltageHalfTunerFeatures = vHalfRange;
+        return Success;
+    }
+}
+
 ErrorCodes_t MessageDispatcher::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures){
     if (cHoldTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
     } else{
         currentHoldTunerFeatures = cHoldRange;
+        return Success;
+    }
+}
+
+ErrorCodes_t MessageDispatcher::getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &currentHalfTunerFeatures){
+    if (cHalfTunerCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else{
+        currentHalfTunerFeatures = cHalfRange;
         return Success;
     }
 }

@@ -56,6 +56,14 @@ Measurement_t ChannelModel::getChold(){
     return this->cHold;
 }
 
+Measurement_t ChannelModel::getVhalf(){
+    return this->vHalf;
+}
+
+Measurement_t ChannelModel::getChalf(){
+    return this->cHalf;
+}
+
 Measurement_t ChannelModel::getLiquidJunctionVoltage(){
     return this->liquidJunctionVoltage;
 }
@@ -110,6 +118,14 @@ void ChannelModel::setVhold(Measurement_t vHold){
 
 void ChannelModel::setChold(Measurement_t cHold){
     this->cHold = cHold;
+}
+
+void ChannelModel::setVhalf(Measurement_t vHalf){
+    this->vHalf = vHalf;
+}
+
+void ChannelModel::setChalf(Measurement_t cHalf){
+    this->cHalf = cHalf;
 }
 
 void ChannelModel::setLiquidJunctionVoltage(Measurement_t voltage){

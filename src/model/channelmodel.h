@@ -25,6 +25,8 @@ public:
     bool isSelected();
     Measurement_t getVhold();
     Measurement_t getChold();
+    Measurement_t getVhalf();
+    Measurement_t getChalf();
     Measurement_t getLiquidJunctionVoltage();
 
     void setId(uint16_t id);
@@ -40,6 +42,8 @@ public:
     void setSelected(bool selected);
     void setVhold(Measurement_t vHold);
     void setChold(Measurement_t cHold);
+    void setVhalf(Measurement_t vHalf);
+    void setChalf(Measurement_t cHalf);
     void setLiquidJunctionVoltage(Measurement_t voltage);
 
 private:
@@ -56,6 +60,8 @@ private:
     bool selected = false;                                              // The channel is selected in the GUI
     Measurement_t vHold = {0.0, UnitPfxMilli, "V"};                     // holding voltage
     Measurement_t cHold = {0.0, UnitPfxNano, "A"};                      // holding current
+    Measurement_t vHalf = {0.0, UnitPfxMilli, "V"};                     // voltage half
+    Measurement_t cHalf = {0.0, UnitPfxNano, "A"};                      // current half
     Measurement_t liquidJunctionVoltage = {0.0, UnitPfxMilli, "V"};     // digital offset compensation voltage
 };
 

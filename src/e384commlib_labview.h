@@ -123,7 +123,7 @@ ErrorCodes_t setChannelsSources(
         E384CL_ARGIN int16_t voltageSourcesIdx,
         E384CL_ARGIN int16_t currentSourcesIdx);
 
-/*! \brief Set a channel voltage offset on a specific channel.
+/*! \brief Set the holding voltage tuner. This value is added to the whole voltage protocol currently applied and to the following.
  *
  * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
  * \param voltagesIn [in] Vector of voltage offsets.
@@ -150,6 +150,38 @@ ErrorCodes_t setVoltageHoldTuner(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentHoldTuner(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle * currentsIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Set the channel voltage half. This value is added to the voltage protocol items that have the vHalfFlag set.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param voltagesIn [in] Vector of voltage halfs.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setVoltageHalf(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle * voltagesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Set the channel current half. This value is added to the current protocol items that have the cHalfFlag set.
+ *
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param currentsIn [in] Vector of current halfs.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCurrentHalf(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN LMeasHandle * currentsIn,
         E384CL_ARGIN bool applyFlagIn,
@@ -1052,6 +1084,7 @@ ErrorCodes_t setVoltageProtocolStructure(
  * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
@@ -1065,7 +1098,8 @@ ErrorCodes_t voltStepTimeStep(
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps);
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t vHalfFlag);
 
 /*! \brief Commits a voltage protocol item consisting of a voltage ramp.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1079,6 +1113,7 @@ ErrorCodes_t voltStepTimeStep(
  * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
@@ -1091,7 +1126,8 @@ ErrorCodes_t voltRamp(
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps);
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t vHalfFlag);
 
 /*! \brief Commits a voltage protocol item consisting of a sinusoidal wave.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1105,6 +1141,7 @@ ErrorCodes_t voltRamp(
  * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
@@ -1117,7 +1154,8 @@ ErrorCodes_t voltSin(
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps);
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t vHalfFlag);
 
 /*! \brief Start a protocol.
  *
@@ -1159,6 +1197,7 @@ ErrorCodes_t setCurrentProtocolStructure(
  * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
@@ -1172,7 +1211,8 @@ ErrorCodes_t currStepTimeStep(
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps);
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t cHalfFlag);
 
 /*! \brief Commits a current protocol item consisting of a current ramp.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1186,6 +1226,7 @@ ErrorCodes_t currStepTimeStep(
  * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
@@ -1198,7 +1239,8 @@ ErrorCodes_t currRamp(
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps);
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t cHalfFlag);
 
 /*! \brief Commits a current protocol item consisting of a sinusoidal wave.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1212,6 +1254,7 @@ ErrorCodes_t currRamp(
  * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
@@ -1224,7 +1267,8 @@ ErrorCodes_t currSin(
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps);
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t cHalfFlag);
 
 /*! \brief Reset the device's ASIC.
  *
@@ -1356,13 +1400,33 @@ ErrorCodes_t getVoltageHoldTunerFeatures(
 
 /*! \brief Get the current hold tuner features, e.g. ranges, step, ...
  *
- * \param currentHoldTunerFeatures [out] Vector of ranges for VoltageHoldTuner in each stimulus range.
+ * \param currentHoldTunerFeatures [out] Vector of ranges for CurrentHoldTuner in each stimulus range.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCurrentHoldTunerFeatures(
         E384CL_ARGOUT LRangeHandle * currentHoldTunerFeaturesOut);
+
+/*! \brief Get the voltage half features, e.g. ranges, step, ...
+ *
+ * \param voltageHalfFeatures [out] Vector of ranges for VoltageHalf in each stimulus range.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getVoltageHalfFeatures(
+        E384CL_ARGOUT LRangeHandle * voltageHalfFeaturesOut);
+
+/*! \brief Get the current half features, e.g. ranges, step, ...
+ *
+ * \param currentHalfFeatures [out] Vector of ranges for CurrentHalf in each stimulus range.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCurrentHalfFeatures(
+        E384CL_ARGOUT LRangeHandle * currentHalfFeaturesOut);
 
 /*! \brief Get the clamping modalities available for the device.
  *
