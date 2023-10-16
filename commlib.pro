@@ -19,7 +19,7 @@ CONFIG(release, debug|release) {
 #    DEFINES += DEBUG_MAX_SPEED
 }
 
-#DEFINES += E384NPR_ADDITIONAL_SR_FLAG
+DEFINES += E384NPR_ADDITIONAL_SR_FLAG
 #DEFINES += DISABLE_IIR
 
 TEMPLATE = lib
@@ -63,11 +63,12 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
-    src/devices/messagedispatcher_384nanopores_sr7p5khz_v01.cpp \
     src/messagedispatcher.cpp \
     src/messagedispatcher_opalkelly.cpp \
     src/devices/messagedispatcher_384nanopores.cpp \
+    src/devices/messagedispatcher_384nanopores_sr7p5khz_v01.cpp \
     src/devices/messagedispatcher_384patchclamp.cpp \
+    src/devices/messagedispatcher_384patchclamp_V04.cpp \
     src/devices/messagedispatcher_2x10mhz.cpp \
     src/devices/messagedispatcher_4x10mhz.cpp \
     src/model/boardmodel.cpp \
@@ -75,7 +76,6 @@ SOURCES += \
     src/calibration/calibrationmanager.cpp
 
 HEADERS += \
-    src/devices/messagedispatcher_384nanopores_sr7p5khz_v01.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
@@ -83,7 +83,9 @@ HEADERS += \
     src/messagedispatcher.h \
     src/messagedispatcher_opalkelly.h \
     src/devices/messagedispatcher_384nanopores.h \
+    src/devices/messagedispatcher_384nanopores_sr7p5khz_v01.h \
     src/devices/messagedispatcher_384patchclamp.h \
+    src/devices/messagedispatcher_384patchclamp_V04.h \
     src/devices/messagedispatcher_2x10mhz.h \
     src/devices/messagedispatcher_4x10mhz.h \
     src/model/boardmodel.h \

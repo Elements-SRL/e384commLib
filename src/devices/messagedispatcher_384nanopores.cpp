@@ -7,6 +7,8 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
 
     fwName = "384NanoPores_V02.bit";
 
+    fwSize_B = 4725200;
+    motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
     waitingTimeBeforeReadingData = 10; //s
 
     rxSyncWord = 0x5aa5;
@@ -767,6 +769,8 @@ MessageDispatcher_384NanoPores_V01::~MessageDispatcher_384NanoPores_V01() {
 void MessageDispatcher_384NanoPores_V01::initializeHW() {
     this->resetFpga(true, true);
     this->resetFpga(false, false);
+
+    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
 
     this->resetAsic(true, true);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));

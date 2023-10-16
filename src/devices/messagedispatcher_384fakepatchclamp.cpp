@@ -1,9 +1,10 @@
 #include "messagedispatcher_384fakepatchclamp.h"
 
 MessageDispatcher_384FakePatchClamp::MessageDispatcher_384FakePatchClamp(std::string id) :
-    MessageDispatcher_384PatchClamp_V01(id) {
+    MessageDispatcher_384PatchClamp_V04(id) {
 
     waitingTimeBeforeReadingData = 0;
+    motherboardBootTime_s = 0;
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
@@ -28,11 +29,11 @@ MessageDispatcher_384FakePatchClamp::~MessageDispatcher_384FakePatchClamp() {
 
 }
 
-ErrorCodes_t MessageDispatcher_384FakePatchClamp::connect() {
+ErrorCodes_t MessageDispatcher_384FakePatchClamp::connect(std::string fwPath) {
     this->initializeBuffers();
     this->fillBuffer();
 
-    return MessageDispatcher::connect();
+    return MessageDispatcher::connect(fwPath);
 }
 
 ErrorCodes_t MessageDispatcher_384FakePatchClamp::disconnect() {

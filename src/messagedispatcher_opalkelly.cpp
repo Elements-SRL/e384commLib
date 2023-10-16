@@ -12,7 +12,7 @@ MessageDispatcher_OpalKelly::~MessageDispatcher_OpalKelly() {
 
 }
 
-ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
+ErrorCodes_t MessageDispatcher_OpalKelly::connect(std::string fwPath) {
     if (connected) {
         return ErrorDeviceAlreadyConnected;
     }
@@ -39,7 +39,12 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
         return ErrorDeviceConnectionFailed;
     }
 
-    error = dev.ConfigureFPGA(fwName);
+    if (fwPath != "") {
+        error = dev.ConfigureFPGA(fwPath + fwName);
+
+    } else {
+        error = dev.ConfigureFPGA(fwName);
+    }
 
     if (error != okCFrontPanel::NoError) {
         return ErrorDeviceFwLoadingFailed;
@@ -50,7 +55,7 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect() {
         return err;
 
     } else {
-        return MessageDispatcher::connect();
+        return MessageDispatcher::connect(fwPath);
     }
 }
 

@@ -28,11 +28,11 @@ MessageDispatcher_2x10MHzFake::~MessageDispatcher_2x10MHzFake() {
 
 }
 
-ErrorCodes_t MessageDispatcher_2x10MHzFake::connect() {
+ErrorCodes_t MessageDispatcher_2x10MHzFake::connect(std::string fwPath) {
     this->initializeBuffers();
     this->fillBuffer();
 
-    return MessageDispatcher::connect();
+    return MessageDispatcher::connect(fwPath);
 }
 
 ErrorCodes_t MessageDispatcher_2x10MHzFake::disconnect() {

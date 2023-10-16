@@ -12,6 +12,7 @@
 #define OKY_START_PROTOCOL_TRIGGER_IN_BIT 1
 #define OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR 0x53
 #define OKY_START_STATE_ARRAY_TRIGGER_IN_BIT 3
+#define OKY_MOTHERBOARD_FPGA_BYTES_PER_S 333333
 
 #include "okFrontPanelDLL.h"
 
@@ -22,7 +23,7 @@ public:
     MessageDispatcher_OpalKelly(std::string deviceId);
     virtual ~MessageDispatcher_OpalKelly();
 
-    virtual ErrorCodes_t connect() override;
+    virtual ErrorCodes_t connect(std::string fwPath) override;
     virtual ErrorCodes_t disconnect() override;
 
 protected:
@@ -58,6 +59,8 @@ protected:
     \***************/
 
     int waitingTimeBeforeReadingData = 1;
+    int motherboardBootTime_s = 1;
+    int fwSize_B = 1000;
 
     okTRegisterEntries regs;
 

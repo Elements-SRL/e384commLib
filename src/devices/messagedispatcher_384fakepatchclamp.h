@@ -1,14 +1,14 @@
 #ifndef MESSAGEDISPATCHER_384FAKEPATCHCLAMP_H
 #define MESSAGEDISPATCHER_384FAKEPATCHCLAMP_H
 
-#include "messagedispatcher_384patchclamp.h"
+#include "messagedispatcher_384patchclamp_V04.h"
 
-class MessageDispatcher_384FakePatchClamp: public MessageDispatcher_384PatchClamp_V01 {
+class MessageDispatcher_384FakePatchClamp: public MessageDispatcher_384PatchClamp_V04 {
 public:
     MessageDispatcher_384FakePatchClamp(std::string id);
     virtual ~MessageDispatcher_384FakePatchClamp();
 
-    virtual ErrorCodes_t connect() override;
+    virtual ErrorCodes_t connect(std::string fwPath) override;
     virtual ErrorCodes_t disconnect() override;
 
 protected:

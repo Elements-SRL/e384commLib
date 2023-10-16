@@ -1,8 +1,7 @@
 #include "messagedispatcher_384nanopores_sr7p5khz_v01.h"
 
 MessageDispatcher_384NanoPores_SR7p5kHz_V01::MessageDispatcher_384NanoPores_SR7p5kHz_V01(std::string di):
-    MessageDispatcher_384NanoPores_V01(di)
-{
+    MessageDispatcher_384NanoPores_V01(di) {
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
