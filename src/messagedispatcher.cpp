@@ -35,7 +35,9 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
     {"224800130Y", Device2x10MHz_PCBV02},
-    {"224800130X", Device4x10MHz_PCBV01}
+    {"224800130X", Device4x10MHz_PCBV01},
+    {"233600165Q", Device2x10MHz_PCBV02},
+    {"233600161X", Device2x10MHz_PCBV02}
 #ifdef DEBUG
     ,{"FAKE_Nanopores", Device384Fake},
     {"FAKE_PATCH_CLAMP", Device384FakePatchClamp},
@@ -175,7 +177,7 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
     case Device384Fake:
         messageDispatcher = new MessageDispatcher_384FakeNanopores(deviceId);
         break;
-        
+
     case Device384FakePatchClamp:
         messageDispatcher = new MessageDispatcher_384FakePatchClamp(deviceId);
         break;
@@ -1995,7 +1997,9 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
 #else
                                 data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
 #endif
-                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
+                                if (anyLiquidJuctionActive) {
+                                    liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
+                                }
                                 sampleIdx++;
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
@@ -2011,7 +2015,9 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
                             for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
                                 rawFloat = (int16_t)rxDataBuffer[dataOffset];
                                 xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)round(xFlt);
+                                if (anyLiquidJuctionActive) {
+                                    liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)round(xFlt);
+                                }
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
                             liquidJunctionCurrentEstimatesNum++;
@@ -2050,7 +2056,9 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
 #else
                             data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
 #endif
-                            liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
+                            if (anyLiquidJuctionActive) {
+                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
+                            }
                             sampleIdx++;
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
@@ -2075,11 +2083,15 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
 
                         for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
                             data[dataWritten+sampleIdx] = rxDataBuffer[dataOffset];
-                            liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
+                            if (anyLiquidJuctionActive) {
+                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
+                            }
                             sampleIdx++;
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
-                        liquidJunctionCurrentEstimatesNum++;
+                        if (anyLiquidJuctionActive) {
+                            liquidJunctionCurrentEstimatesNum++;
+                        }
                     }
                 }
 
@@ -2174,8 +2186,8 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
 
     rxMutexLock.lock();
     rxMsgBufferReadLength -= msgReadCount;
-    rxMsgBufferNotFull.notify_all();
     rxMutexLock.unlock();
+    rxMsgBufferNotFull.notify_all();
 
     return ret;
 }
@@ -2186,8 +2198,8 @@ ErrorCodes_t MessageDispatcher::purgeData() {
     std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
     rxMsgBufferReadOffset = (rxMsgBufferReadOffset+rxMsgBufferReadLength) & RX_MSG_BUFFER_MASK;
     rxMsgBufferReadLength = 0;
-    rxMsgBufferNotFull.notify_all();
     rxMutexLock.unlock();
+    rxMsgBufferNotFull.notify_all();
 
     return ret;
 }
@@ -3404,13 +3416,14 @@ void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rx
         /*! change the message buffer length only if the message is not filtered out */
         std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
         rxMsgBufferReadLength++;
+        rxMutexLock.unlock();
         rxMsgBufferNotEmpty.notify_all();
     }
 }
 
 void MessageDispatcher::stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, TxTriggerType_t triggerType) {
     if (txModifiedEndingWord > txModifiedStartingWord) {
-        std::unique_lock <std::mutex> txMutexLock (txMutex);
+        std::unique_lock <std::mutex> txMutexLock(txMutex);
         while (txMsgBufferReadLength >= TX_MSG_BUFFER_SIZE) {
             txMsgBufferNotFull.wait_for(txMutexLock, std::chrono::milliseconds(100));
         }
@@ -3430,6 +3443,7 @@ void MessageDispatcher::stackOutgoingMessage(std::vector <uint16_t> &txDataMessa
         txMsgBufferWriteOffset = (txMsgBufferWriteOffset+1)&TX_MSG_BUFFER_MASK;
         txMsgBufferReadLength++;
 
+        txMutexLock.unlock();
         txMsgBufferNotEmpty.notify_all();
     }
 }
