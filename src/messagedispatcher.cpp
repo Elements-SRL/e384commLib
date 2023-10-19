@@ -69,7 +69,7 @@ MessageDispatcher::MessageDispatcher(std::string deviceId) :
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdInvalid] = false;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus] = true;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus] = false;
 
     /*! Initialize rx word offsets and lengths with default values */
     rxWordOffsets.resize(RxMessageNum);
@@ -3410,10 +3410,7 @@ void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rx
     if (rxEnabledTypesMap[rxMsgTypeId]) {
         /*! Update the message buffer only if the message is not filtered out */
         rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
-    }
-
-    if (rxEnabledTypesMap[rxMsgTypeId]) {
-        /*! change the message buffer length only if the message is not filtered out */
+        /*! change the message buffer length */
         std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
         rxMsgBufferReadLength++;
         rxMutexLock.unlock();
