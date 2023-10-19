@@ -527,7 +527,7 @@ protected:
     std::vector<uint16_t> rxWordOffsets;
     std::vector<uint16_t> rxWordLengths;
 
-    std::unordered_map <uint16_t, bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
+    std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
 
     std::vector <CommandCoder*> coders;
 

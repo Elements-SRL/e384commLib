@@ -58,7 +58,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
 
 MessageDispatcher::MessageDispatcher(std::string deviceId) :
     deviceId(deviceId) {
-
+    rxEnabledTypesMap.resize(MsgDirectionDeviceToPc*2);
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAck] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdNack] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdPing] = false;
@@ -1905,7 +1905,7 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
 
     std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
     if (rxMsgBufferReadLength <= 0) {
-        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(10));
+        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(3));
         if (rxMsgBufferReadLength <= 0) {
             return ErrorNoDataAvailable;
         }

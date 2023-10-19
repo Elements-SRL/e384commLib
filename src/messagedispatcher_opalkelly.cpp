@@ -292,7 +292,7 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
         /*! Since OKY_RX_TRANSFER_SIZE bytes are obtained each time from the opal kelly, wait that at least these many are available,
          *  Otherwise it means that no reads from the Opal kelly took place. */
         while (rxRawBufferReadLength < OKY_RX_TRANSFER_SIZE && !stopConnectionFlag) {
-            rxRawBufferNotEmpty.wait_for(rxRawMutexLock, std::chrono::milliseconds(10));
+            rxRawBufferNotEmpty.wait_for(rxRawMutexLock, std::chrono::milliseconds(3));
         }
         maxRxRawBytesRead = rxRawBufferReadLength;
         rxRawBytesAvailable = maxRxRawBytesRead;
