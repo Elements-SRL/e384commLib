@@ -3291,18 +3291,8 @@ void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rx
         }
 
     } else {
-        if (rxDataBufferWriteOffset+rxDataWords <= RX_DATA_BUFFER_SIZE) {
-            for (uint32_t rxDataBufferWriteIdx = rxDataBufferWriteOffset; rxDataBufferWriteIdx < rxDataBufferWriteOffset+rxDataWords; rxDataBufferWriteIdx++) {
-                rxDataBuffer[rxDataBufferWriteIdx] = this->popUint16FromRxRawBuffer();
-            }
-
-        } else {
-            for (uint32_t rxDataBufferWriteIdx = rxDataBufferWriteOffset; rxDataBufferWriteIdx < RX_DATA_BUFFER_SIZE; rxDataBufferWriteIdx++) {
-                rxDataBuffer[rxDataBufferWriteIdx] = this->popUint16FromRxRawBuffer();
-            }
-            for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataBufferWriteOffset+rxDataWords-RX_DATA_BUFFER_SIZE; rxDataBufferWriteIdx++) {
-                rxDataBuffer[rxDataBufferWriteIdx] = this->popUint16FromRxRawBuffer();
-            }
+        for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
+            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
         }
     }
 
@@ -3355,16 +3345,15 @@ void MessageDispatcher::stackOutgoingMessage(std::vector <uint16_t> &txDataMessa
 }
 
 uint16_t MessageDispatcher::popUint16FromRxRawBuffer() {
-//    uint16_t value = (rxRawBuffer[rxRawBufferReadOffset] << 8) + rxRawBuffer[rxRawBufferReadOffset+1];
-    uint16_t value = rxRawBuffer16[rxRawBufferReadOffset >> 1];
+    uint16_t value = (rxRawBuffer[rxRawBufferReadOffset] << 8) + rxRawBuffer[rxRawBufferReadOffset+1];
     rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_WORD_SIZE) & rxRawBufferMask;
     rxRawBytesAvailable -= RX_WORD_SIZE;
     return value;
 }
 
 uint16_t MessageDispatcher::readUint16FromRxRawBuffer(uint32_t n) {
-//    uint16_t value = (rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask] << 8) + rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask];
-    return rxRawBuffer16[((rxRawBufferReadOffset+n) & rxRawBufferMask) >> 1];
+    uint16_t value = (rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask] << 8) + rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask];
+    return value;
 }
 
 void MessageDispatcher::initializeRawDataFilterVariables() {
