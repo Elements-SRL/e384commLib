@@ -68,7 +68,7 @@ using namespace e384CommLib;
 
 typedef struct MsgResume {
     uint16_t typeId;
-    uint16_t dataLength;
+    uint32_t dataLength;
     uint32_t startDataPtr;
 } MsgResume_t;
 

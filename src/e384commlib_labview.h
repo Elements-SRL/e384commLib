@@ -33,7 +33,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t connectDevice(
         E384CL_ARGIN LStrHandle deviceId,
-        LStrHandle fwPathIn);
+        E384CL_ARGIN LStrHandle fwPathIn);
 
 /*! \brief Disconnects from connected device.
  * Calling this method if no device is connected will return an error code.
@@ -44,6 +44,19 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t disconnectDevice(
         E384CL_ARGVOID);
+
+/*! \brief Enables or disables message types, so that disabled messages are not returned by getNextMessage
+ *  \note Message types are available in e384comllib_global.h.
+ *
+ * \param messageType [in] Message type to enable or disable.
+ * \param flag [in] true to enable the message type, false to disable it.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t enableRxMessageType(
+        E384CL_ARGIN MsgTypeId_t messageType,
+        E384CL_ARGIN bool flag);
 
 /****************\
  *  Tx methods  *
