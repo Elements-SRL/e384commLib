@@ -39,12 +39,12 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"224800130X", Device4x10MHz_PCBV01},
     {"233600165Q", Device2x10MHz_PCBV02},
     {"233600161X", Device2x10MHz_PCBV02}
-#ifdef DEBUG
+    #ifdef DEBUG
     ,{"FAKE_Nanopores", Device384Fake},
     {"FAKE_PATCH_CLAMP", Device384FakePatchClamp},
     {"FAKE_4x10MHz", Device4x10MHzFake},
     {"FAKE_2x10MHz", Device2x10MHzFake}
-#endif
+    #endif
 }; /*! \todo FCON queste info dovrebbero risiedere nel DB */
 
 /********************************************************************************************\
@@ -129,13 +129,12 @@ ErrorCodes_t MessageDispatcher::detectDevices(
 }
 
 ErrorCodes_t MessageDispatcher::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
-    if (deviceIdMapping.count(deviceId) > 0) {
-        type = deviceIdMapping[deviceId];
-        return Success;
-
-    } else {
+    if (deviceIdMapping.count(deviceId) == 0) {
         return ErrorDeviceTypeNotRecognized;
     }
+
+    type = deviceIdMapping[deviceId];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
@@ -284,31 +283,25 @@ ErrorCodes_t MessageDispatcher::connect(std::string fwPath) {
     return Success;
 }
 
-
 ErrorCodes_t MessageDispatcher::disconnect() {
-    if (!connected) {
+    if (!connected || stopConnectionFlag) {
         return ErrorDeviceNotConnected;
     }
 
-    if (!stopConnectionFlag) {
-        stopConnectionFlag = true;
+    stopConnectionFlag = true;
 
-        if (threadsStarted) {
-            deviceCommunicationThread.join();
-            rxConsumerThread.join();
-            liquidJunctionThread.join();
-        }
-
-        this->deinit();
-        this->flushBoardList();
-
-        connected = false;
-
-        return Success;
-
-    } else {
-        return ErrorDeviceNotConnected;
+    if (threadsStarted) {
+        deviceCommunicationThread.join();
+        rxConsumerThread.join();
+        liquidJunctionThread.join();
     }
+
+    this->deinit();
+    this->flushBoardList();
+
+    connected = false;
+
+    return Success;
 }
 
 /****************\
@@ -422,37 +415,31 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
 }
 
 ErrorCodes_t MessageDispatcher::setChannelSelected(uint16_t chIdx, bool newState) {
-    if (chIdx < currentChannelsNum) {
-        channelModels[chIdx]->setSelected(newState);
-        return Success;
-
-    } else {
+    if (chIdx >= currentChannelsNum) {
         return ErrorValueOutOfRange;
     }
+    channelModels[chIdx]->setSelected(newState);
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setBoardSelected(uint16_t brdIdx, bool newState) {
-    if (brdIdx < totalBoardsNum) {
-        for (auto ch : boardModels[brdIdx]->getChannelsOnBoard()) {
-            ch->setSelected(newState);
-        }
-        return Success;
-
-    } else {
+    if (brdIdx >= totalBoardsNum) {
         return ErrorValueOutOfRange;
     }
+    for (auto ch : boardModels[brdIdx]->getChannelsOnBoard()) {
+        ch->setSelected(newState);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setRowSelected(uint16_t rowIdx, bool newState) {
-    if (rowIdx < channelsPerBoard) {
-        for (auto brd : boardModels) {
-            brd->getChannelsOnBoard()[rowIdx]->setSelected(newState);
-        }
-        return Success;
-
-    } else {
+    if (rowIdx >= channelsPerBoard) {
         return ErrorValueOutOfRange;
     }
+    for (auto brd : boardModels) {
+        brd->getChannelsOnBoard()[rowIdx]->setSelected(newState);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setAllChannelsSelected(bool newState) {
@@ -469,29 +456,25 @@ ErrorCodes_t MessageDispatcher::sendCommands() {
 }
 
 ErrorCodes_t MessageDispatcher::resetAsic(bool resetFlag, bool applyFlagIn) {
-    if (asicResetCoder != nullptr) {
-        asicResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
-
-    } else {
+    if (asicResetCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
+    asicResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::resetFpga(bool resetFlag, bool applyFlagIn) {
-    if (fpgaResetCoder != nullptr) {
-        fpgaResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
-
-    } else {
+    if (fpgaResetCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
+    fpgaResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
@@ -503,26 +486,23 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t> channe
 
     } else if (selectedClampingModality != VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            voltages[i].convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
-            voltages[i].value = vHoldTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            selectedVoltageHoldVector[channelIndexes[i]] = voltages[i];
-            channelModels[channelIndexes[i]]->setVhold(voltages[i]);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-
-        if (!areAllTheVectorElementsInRange(voltages, vHoldRange[selectedVcVoltageRangeIdx].getMin(), vHoldRange[selectedVcVoltageRangeIdx].getMax())) {
-            return WarningValueClipped;
-
-        } else {
-            return Success;
-        }
     }
+
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        voltages[i].convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
+        voltages[i].value = vHoldTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedVoltageHoldVector[channelIndexes[i]] = voltages[i];
+        channelModels[channelIndexes[i]]->setVhold(voltages[i]);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+
+    if (!areAllTheVectorElementsInRange(voltages, vHoldRange[selectedVcVoltageRangeIdx].getMin(), vHoldRange[selectedVcVoltageRangeIdx].getMax())) {
+        return WarningValueClipped;
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
@@ -534,26 +514,22 @@ ErrorCodes_t MessageDispatcher::setVoltageHalf(std::vector<uint16_t> channelInde
 
     } else if (selectedClampingModality != VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            voltages[i].convertValue(vHalfRange[selectedVcVoltageRangeIdx].prefix);
-            voltages[i].value = vHalfTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            selectedVoltageHalfVector[channelIndexes[i]] = voltages[i];
-            channelModels[channelIndexes[i]]->setVhalf(voltages[i]);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-
-        if (!areAllTheVectorElementsInRange(voltages, vHalfRange[selectedVcVoltageRangeIdx].getMin(), vHalfRange[selectedVcVoltageRangeIdx].getMax())) {
-            return WarningValueClipped;
-
-        } else {
-            return Success;
-        }
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        voltages[i].convertValue(vHalfRange[selectedVcVoltageRangeIdx].prefix);
+        voltages[i].value = vHalfTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedVoltageHalfVector[channelIndexes[i]] = voltages[i];
+        channelModels[channelIndexes[i]]->setVhalf(voltages[i]);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+
+    if (!areAllTheVectorElementsInRange(voltages, vHalfRange[selectedVcVoltageRangeIdx].getMin(), vHalfRange[selectedVcVoltageRangeIdx].getMax())) {
+        return WarningValueClipped;
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
@@ -565,26 +541,22 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channe
 
     } else if (selectedClampingModality == VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            currents[i].convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
-            currents[i].value = cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            selectedCurrentHoldVector[channelIndexes[i]] = currents[i];
-            channelModels[channelIndexes[i]]->setChold(currents[i]);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-
-        if (!areAllTheVectorElementsInRange(currents, cHoldRange[selectedCcCurrentRangeIdx].getMin(), cHoldRange[selectedCcCurrentRangeIdx].getMax())) {
-            return WarningValueClipped;
-
-        } else {
-            return Success;
-        }
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        currents[i].convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
+        currents[i].value = cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedCurrentHoldVector[channelIndexes[i]] = currents[i];
+        channelModels[channelIndexes[i]]->setChold(currents[i]);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+
+    if (!areAllTheVectorElementsInRange(currents, cHoldRange[selectedCcCurrentRangeIdx].getMin(), cHoldRange[selectedCcCurrentRangeIdx].getMax())) {
+        return WarningValueClipped;
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCurrentHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
@@ -596,26 +568,23 @@ ErrorCodes_t MessageDispatcher::setCurrentHalf(std::vector<uint16_t> channelInde
 
     } else if (selectedClampingModality == VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            currents[i].convertValue(cHalfRange[selectedCcCurrentRangeIdx].prefix);
-            currents[i].value = cHalfTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            selectedCurrentHalfVector[channelIndexes[i]] = currents[i];
-            channelModels[channelIndexes[i]]->setChalf(currents[i]);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-
-        if (!areAllTheVectorElementsInRange(currents, cHalfRange[selectedCcCurrentRangeIdx].getMin(), cHalfRange[selectedCcCurrentRangeIdx].getMax())) {
-            return WarningValueClipped;
-
-        } else {
-            return Success;
-        }
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        currents[i].convertValue(cHalfRange[selectedCcCurrentRangeIdx].prefix);
+        currents[i].value = cHalfTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedCurrentHalfVector[channelIndexes[i]] = currents[i];
+        channelModels[channelIndexes[i]]->setChalf(currents[i]);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+
+    if (!areAllTheVectorElementsInRange(currents, cHalfRange[selectedCcCurrentRangeIdx].getMin(), cHalfRange[selectedCcCurrentRangeIdx].getMax())) {
+        return WarningValueClipped;
+
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
@@ -627,26 +596,23 @@ ErrorCodes_t MessageDispatcher::setLiquidJunctionVoltage(std::vector<uint16_t> c
 
     } else if (selectedClampingModality != VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            voltages[i].convertValue(liquidJunctionRange.prefix);
-            voltages[i].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            selectedLiquidJunctionVector[channelIndexes[i]] = voltages[i];
-            channelModels[channelIndexes[i]]->setLiquidJunctionVoltage(voltages[i]);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-
-        if (!areAllTheVectorElementsInRange(voltages, liquidJunctionRange.getMin(), liquidJunctionRange.getMax())) {
-            return WarningValueClipped;
-
-        } else {
-            return Success;
-        }
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        voltages[i].convertValue(liquidJunctionRange.prefix);
+        voltages[i].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedLiquidJunctionVector[channelIndexes[i]] = voltages[i];
+        channelModels[channelIndexes[i]]->setLiquidJunctionVoltage(voltages[i]);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+
+    if (!areAllTheVectorElementsInRange(voltages, liquidJunctionRange.getMin(), liquidJunctionRange.getMax())) {
+        return WarningValueClipped;
+
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlagIn) {
@@ -660,16 +626,14 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(std::vector<uint16_t> chan
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            gains[i].convertValue(calibVcCurrentGainRange.prefix);
-            calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]] = gains[i];
-        }
-        this->updateCalibVcCurrentGain(channelIndexes, applyFlag);
-
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        gains[i].convertValue(calibVcCurrentGainRange.prefix);
+        calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]] = gains[i];
+    }
+    this->updateCalibVcCurrentGain(channelIndexes, applyFlag);
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::updateCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
@@ -678,19 +642,17 @@ ErrorCodes_t MessageDispatcher::updateCalibVcCurrentGain(std::vector<uint16_t> c
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(calibVcCurrentGainRange.prefix);
-            double gain = calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].value;
-            calibVcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(calibVcCurrentGainRange.prefix);
+        double gain = calibrationParams.allGainAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].value;
+        calibVcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
@@ -699,16 +661,14 @@ ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(std::vector<uint16_t> ch
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            offsets[i].convertValue(calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
-            calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]] = offsets[i];
-        }
-        this->updateCalibVcCurrentOffset(channelIndexes, applyFlag);
-
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        offsets[i].convertValue(calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
+        calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]] = offsets[i];
+    }
+    this->updateCalibVcCurrentOffset(channelIndexes, applyFlag);
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::updateCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
@@ -717,19 +677,17 @@ ErrorCodes_t MessageDispatcher::updateCalibVcCurrentOffset(std::vector<uint16_t>
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
-            double offset = calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].value;
-            calibVcCurrentOffsetCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
+        double offset = calibrationParams.allOffsetAdcMeas[selectedVcCurrentRangeIdx][channelIndexes[i]].value;
+        calibVcCurrentOffsetCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
@@ -738,16 +696,14 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(std::vector<uint16_t> chan
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            gains[i].convertValue(calibCcVoltageGainRange.prefix);
-            calibrationParams.ccAllGainAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]] = gains[i];
-        }
-        this->updateCalibCcVoltageGain(channelIndexes, applyFlag);
-
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        gains[i].convertValue(calibCcVoltageGainRange.prefix);
+        calibrationParams.ccAllGainAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]] = gains[i];
+    }
+    this->updateCalibCcVoltageGain(channelIndexes, applyFlag);
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::updateCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
@@ -756,19 +712,17 @@ ErrorCodes_t MessageDispatcher::updateCalibCcVoltageGain(std::vector<uint16_t> c
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            calibrationParams.ccAllGainAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].convertValue(calibCcVoltageGainRange.prefix);
-            double gain = calibrationParams.ccAllGainAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].value;
-            calibCcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        calibrationParams.ccAllGainAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].convertValue(calibCcVoltageGainRange.prefix);
+        double gain = calibrationParams.ccAllGainAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].value;
+        calibCcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
@@ -777,16 +731,14 @@ ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(std::vector<uint16_t> ch
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            offsets[i].convertValue(calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].prefix);
-            calibrationParams.ccAllOffsetAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]] = offsets[i];
-        }
-        this->updateCalibCcVoltageOffset(channelIndexes, applyFlag);
-
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        offsets[i].convertValue(calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].prefix);
+        calibrationParams.ccAllOffsetAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]] = offsets[i];
+    }
+    this->updateCalibCcVoltageOffset(channelIndexes, applyFlag);
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::updateCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
@@ -795,19 +747,17 @@ ErrorCodes_t MessageDispatcher::updateCalibCcVoltageOffset(std::vector<uint16_t>
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            calibrationParams.ccAllOffsetAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].convertValue(calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].prefix);
-            double offset = calibrationParams.ccAllOffsetAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].value;
-            calibCcVoltageOffsetCoders[selectedCcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        calibrationParams.ccAllOffsetAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].convertValue(calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].prefix);
+        double offset = calibrationParams.ccAllOffsetAdcMeas[selectedCcVoltageRangeIdx][channelIndexes[i]].value;
+        calibCcVoltageOffsetCoders[selectedCcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
@@ -816,15 +766,14 @@ ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(std::vector<uint16_t> chan
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            gains[i].convertValue(calibVcVoltageGainRange.prefix);
-            calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]] = gains[i];
-        }
-        this->updateCalibVcVoltageGain(channelIndexes, applyFlag);
-
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        gains[i].convertValue(calibVcVoltageGainRange.prefix);
+        calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]] = gains[i];
+    }
+    this->updateCalibVcVoltageGain(channelIndexes, applyFlag);
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::updateCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
@@ -833,19 +782,17 @@ ErrorCodes_t MessageDispatcher::updateCalibVcVoltageGain(std::vector<uint16_t> c
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].convertValue(calibVcVoltageGainRange.prefix);
-            double gain = calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].value;
-            calibVcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].convertValue(calibVcVoltageGainRange.prefix);
+        double gain = calibrationParams.allGainDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].value;
+        calibVcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
@@ -854,16 +801,14 @@ ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(std::vector<uint16_t> ch
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            offsets[i].convertValue(calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
-            calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]] = offsets[i];
-        }
-        this->updateCalibVcVoltageOffset(channelIndexes, applyFlag);
-
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        offsets[i].convertValue(calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
+        calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]] = offsets[i];
+    }
+    this->updateCalibVcVoltageOffset(channelIndexes, applyFlag);
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::updateCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
@@ -872,19 +817,17 @@ ErrorCodes_t MessageDispatcher::updateCalibVcVoltageOffset(std::vector<uint16_t>
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].convertValue(calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
-            double offset = calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].value;
-            calibVcVoltageOffsetCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].convertValue(calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
+        double offset = calibrationParams.allOffsetDacMeas[selectedVcVoltageRangeIdx][channelIndexes[i]].value;
+        calibVcVoltageOffsetCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
@@ -893,16 +836,14 @@ ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(std::vector<uint16_t> chan
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            gains[i].convertValue(calibCcCurrentGainRange.prefix);
-            calibrationParams.ccAllGainDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]] = gains[i];
-        }
-        this->updateCalibCcCurrentGain(channelIndexes, applyFlag);
-
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        gains[i].convertValue(calibCcCurrentGainRange.prefix);
+        calibrationParams.ccAllGainDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]] = gains[i];
+    }
+    this->updateCalibCcCurrentGain(channelIndexes, applyFlag);
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::updateCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
@@ -911,19 +852,17 @@ ErrorCodes_t MessageDispatcher::updateCalibCcCurrentGain(std::vector<uint16_t> c
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            calibrationParams.ccAllGainDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].convertValue(calibCcCurrentGainRange.prefix);
-            double gain = calibrationParams.ccAllGainDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].value;
-            calibCcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        calibrationParams.ccAllGainDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].convertValue(calibCcCurrentGainRange.prefix);
+        double gain = calibrationParams.ccAllGainDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].value;
+        calibCcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
@@ -932,16 +871,14 @@ ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(std::vector<uint16_t> ch
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            offsets[i].convertValue(calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
-            calibrationParams.ccAllOffsetDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]] = offsets[i];
-        }
-        this->updateCalibCcCurrentOffset(channelIndexes, applyFlag);
-
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        offsets[i].convertValue(calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
+        calibrationParams.ccAllOffsetDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]] = offsets[i];
+    }
+    this->updateCalibCcCurrentOffset(channelIndexes, applyFlag);
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::updateCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
@@ -950,19 +887,17 @@ ErrorCodes_t MessageDispatcher::updateCalibCcCurrentOffset(std::vector<uint16_t>
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            calibrationParams.ccAllOffsetDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].convertValue(calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
-            double offset = calibrationParams.ccAllOffsetDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].value;
-            calibCcCurrentOffsetCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        calibrationParams.ccAllOffsetDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].convertValue(calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
+        double offset = calibrationParams.ccAllOffsetDacMeas[selectedCcCurrentRangeIdx][channelIndexes[i]].value;
+        calibCcCurrentOffsetCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setGateVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag){
@@ -971,26 +906,21 @@ ErrorCodes_t MessageDispatcher::setGateVoltages(std::vector<uint16_t> boardIndex
 
     } else if (!areAllTheVectorElementsLessThan(boardIndexes, totalBoardsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < boardIndexes.size(); i++){
-            gateVoltages[i].convertValue(gateVoltageRange.prefix);
-            gateVoltages[i].value = gateVoltageCoders[boardIndexes[i]]->encode(gateVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            selectedGateVoltageVector[boardIndexes[i]] = gateVoltages[i];
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-
-        if (!areAllTheVectorElementsInRange(gateVoltages, gateVoltageRange.getMin(), gateVoltageRange.getMax())) {
-            return WarningValueClipped;
-
-        } else {
-            return Success;
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < boardIndexes.size(); i++){
+        gateVoltages[i].convertValue(gateVoltageRange.prefix);
+        gateVoltages[i].value = gateVoltageCoders[boardIndexes[i]]->encode(gateVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedGateVoltageVector[boardIndexes[i]] = gateVoltages[i];
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+
+    if (!areAllTheVectorElementsInRange(gateVoltages, gateVoltageRange.getMin(), gateVoltageRange.getMax())) {
+        return WarningValueClipped;
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setSourceVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag){
@@ -999,25 +929,21 @@ ErrorCodes_t MessageDispatcher::setSourceVoltages(std::vector<uint16_t> boardInd
 
     } else if (!areAllTheVectorElementsLessThan(boardIndexes, totalBoardsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < boardIndexes.size(); i++){
-            sourceVoltages[i].convertValue(sourceVoltageRange.prefix);
-            sourceVoltages[i].value = sourceVoltageCoders[boardIndexes[i]]->encode(sourceVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            selectedSourceVoltageVector[boardIndexes[i]] = sourceVoltages[i];
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-
-        if (!areAllTheVectorElementsInRange(sourceVoltages, sourceVoltageRange.getMin(), sourceVoltageRange.getMax())) {
-            return WarningValueClipped;
-
-        } else {
-            return Success;
-        }
     }
+    for(uint32_t i = 0; i < boardIndexes.size(); i++){
+        sourceVoltages[i].convertValue(sourceVoltageRange.prefix);
+        sourceVoltages[i].value = sourceVoltageCoders[boardIndexes[i]]->encode(sourceVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedSourceVoltageVector[boardIndexes[i]] = sourceVoltages[i];
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+
+    if (!areAllTheVectorElementsInRange(sourceVoltages, sourceVoltageRange.getMin(), sourceVoltageRange.getMax())) {
+        return WarningValueClipped;
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) {
@@ -1026,21 +952,19 @@ ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool
 
     } else if (currentRangeIdx >= vcCurrentRangesNum) {
         return ErrorValueOutOfRange;
-
-    } else {
-        vcCurrentRangeCoder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        selectedVcCurrentRangeIdx = currentRangeIdx;
-        currentRange = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
-        currentResolution = currentRange.step;
-
-        this->updateCalibVcCurrentGain(allChannelIndexes, false);
-        this->updateCalibVcCurrentOffset(allChannelIndexes, false);
-
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    vcCurrentRangeCoder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    selectedVcCurrentRangeIdx = currentRangeIdx;
+    currentRange = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
+    currentResolution = currentRange.step;
+
+    this->updateCalibVcCurrentGain(allChannelIndexes, false);
+    this->updateCalibVcCurrentOffset(allChannelIndexes, false);
+
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) {
@@ -1049,28 +973,26 @@ ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool
 
     } else if (voltageRangeIdx >= vcVoltageRangesNum) {
         return ErrorValueOutOfRange;
+    }
+    vcVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    selectedVcVoltageRangeIdx = voltageRangeIdx;
+    voltageRange = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
+    voltageResolution = voltageRange.step;
 
-    } else {
-        vcVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        selectedVcVoltageRangeIdx = voltageRangeIdx;
-        voltageRange = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
-        voltageResolution = voltageRange.step;
+    this->updateCalibVcVoltageGain(allChannelIndexes, false);
+    this->updateCalibVcVoltageOffset(allChannelIndexes, false);
+    this->updateVoltageHoldTuner(false);
 
-        this->updateCalibVcVoltageGain(allChannelIndexes, false);
-        this->updateCalibVcVoltageOffset(allChannelIndexes, false);
-        this->updateVoltageHoldTuner(false);
-
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        /*! Most of the times the liquid junction (aka digital offset compensation) will be performed by the same DAC that appliese the voltage sitmulus
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    /*! Most of the times the liquid junction (aka digital offset compensation) will be performed by the same DAC that appliese the voltage sitmulus
             Voltage clamp, so by default the same range is selected for the liquid junction
             When this isnot the case the boolean variable below is set properly by the corresponding derived class of the messagedispatcher */
-        if (liquidJunctionSameRangeAsVcDac) {
-            this->setLiquidJunctionRange(voltageRangeIdx);
-        }
-        return Success;
+    if (liquidJunctionSameRangeAsVcDac) {
+        this->setLiquidJunctionRange(voltageRangeIdx);
     }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) {
@@ -1079,22 +1001,20 @@ ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t currentRangeIdx, bool
 
     } else if (currentRangeIdx >= ccCurrentRangesNum) {
         return ErrorValueOutOfRange;
-
-    } else {
-        ccCurrentRangeCoder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        selectedCcCurrentRangeIdx = currentRangeIdx;
-        currentRange = ccCurrentRangesArray[selectedCcCurrentRangeIdx];
-        currentResolution = currentRange.step;
-
-        this->updateCalibCcCurrentGain(allChannelIndexes, false);
-        this->updateCalibCcCurrentOffset(allChannelIndexes, false);
-        this->updateCurrentHoldTuner(false);
-
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    ccCurrentRangeCoder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    selectedCcCurrentRangeIdx = currentRangeIdx;
+    currentRange = ccCurrentRangesArray[selectedCcCurrentRangeIdx];
+    currentResolution = currentRange.step;
+
+    this->updateCalibCcCurrentGain(allChannelIndexes, false);
+    this->updateCalibCcCurrentOffset(allChannelIndexes, false);
+    this->updateCurrentHoldTuner(false);
+
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) {
@@ -1103,36 +1023,32 @@ ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool
 
     } else if (voltageRangeIdx >= ccVoltageRangesNum) {
         return ErrorValueOutOfRange;
-
-    } else {
-        ccVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        selectedCcVoltageRangeIdx = voltageRangeIdx;
-        voltageRange = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
-        voltageResolution = voltageRange.step;
-
-        this->updateCalibCcVoltageGain(allChannelIndexes, false);
-        this->updateCalibCcVoltageOffset(allChannelIndexes, false);
-
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    ccVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    selectedCcVoltageRangeIdx = voltageRangeIdx;
+    voltageRange = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
+    voltageResolution = voltageRange.step;
+
+    this->updateCalibCcVoltageGain(allChannelIndexes, false);
+    this->updateCalibCcVoltageOffset(allChannelIndexes, false);
+
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setLiquidJunctionRange(uint16_t idx) {
     if (idx >= liquidJunctionRangesNum) {
         return ErrorValueOutOfRange;
-
-    } else {
-        selectedLiquidJunctionRangeIdx = idx;
-        liquidJunctionRange = liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx];
-        liquidJunctionResolution = liquidJunctionRange.step;
-
-        this->setLiquidJunctionVoltage(allChannelIndexes, selectedLiquidJunctionVector, true);
-
-        return Success;
     }
+    selectedLiquidJunctionRangeIdx = idx;
+    liquidJunctionRange = liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx];
+    liquidJunctionResolution = liquidJunctionRange.step;
+
+    this->setLiquidJunctionVoltage(allChannelIndexes, selectedLiquidJunctionVector, true);
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
@@ -1141,27 +1057,25 @@ ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t> 
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            uint16_t chIdx = channelIndexes[i];
-            digitalOffsetCompensationCoders[chIdx]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
-            if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
-                liquidJunctionStates[chIdx] = LiquidJunctionStarting;
-
-            } else if (!onValues[i]) {
-                liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
-            }
-        }
-
-        anyLiquidJuctionActive = true;
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        uint16_t chIdx = channelIndexes[i];
+        digitalOffsetCompensationCoders[chIdx]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
+        if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
+            liquidJunctionStates[chIdx] = LiquidJunctionStarting;
+
+        } else if (!onValues[i]) {
+            liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
+        }
+    }
+
+    anyLiquidJuctionActive = true;
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::expandTraces(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {
@@ -1177,15 +1091,13 @@ ErrorCodes_t MessageDispatcher::setVoltageStimulusLpf(uint16_t filterIdx, bool a
 
     } else if (filterIdx >= vcVoltageFiltersNum) {
         return ErrorValueOutOfRange;
-
-    } else {
-        vcVoltageFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        selectedVcVoltageFilterIdx = filterIdx;
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    vcVoltageFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    selectedVcVoltageFilterIdx = filterIdx;
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn){
@@ -1194,15 +1106,13 @@ ErrorCodes_t MessageDispatcher::setCurrentStimulusLpf(uint16_t filterIdx, bool a
 
     } else if (filterIdx >= ccCurrentFiltersNum) {
         return ErrorValueOutOfRange;
-
-    } else {
-        ccCurrentFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        selectedCcCurrentFilterIdx = filterIdx;
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    ccCurrentFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    selectedCcCurrentFilterIdx = filterIdx;
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
@@ -1211,18 +1121,16 @@ ErrorCodes_t MessageDispatcher::enableStimulus(std::vector<uint16_t> channelInde
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-            enableStimulusCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            channelModels[channelIndexes[i]]->setInStimActive(onValues[i]);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        enableStimulusCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        channelModels[channelIndexes[i]]->setInStimActive(onValues[i]);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::turnChannelsOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
@@ -1231,18 +1139,16 @@ ErrorCodes_t MessageDispatcher::turnChannelsOn(std::vector<uint16_t> channelInde
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-           turnChannelsOnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-           channelModels[channelIndexes[i]]->setOn(onValues[i]);
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        turnChannelsOnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        channelModels[channelIndexes[i]]->setOn(onValues[i]);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::turnCalSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
@@ -1251,64 +1157,62 @@ ErrorCodes_t MessageDispatcher::turnCalSwOn(std::vector<uint16_t> channelIndexes
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-           calSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        calSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::turnVcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
     if (vcSwCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
+
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-           vcSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        vcSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::turnCcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
     if (ccSwCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
+
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-           ccSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        ccSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
     if (vcCcSelCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
+
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-           vcCcSelCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        vcCcSelCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
@@ -1317,74 +1221,66 @@ ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t> channelIn
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        for(uint32_t i = 0; i < channelIndexes.size(); i++){
-           ccStimEnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+        ccStimEnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setClampingModality(uint32_t idx, bool applyFlag) {
     if (idx >= clampingModalitiesNum) {
         return ErrorValueOutOfRange;
-
-    } else {
-        selectedClampingModalityIdx = idx;
-        selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];
-        if (clampingModeCoder != nullptr) {
-            clampingModeCoder->encode(selectedClampingModalityIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-
-        switch (selectedClampingModality) {
-        case VOLTAGE_CLAMP:
-            rawDataFilterVoltageFlag = false;
-            rawDataFilterCurrentFlag = true;
-            break;
-
-        case ZERO_CURRENT_CLAMP:
-        case CURRENT_CLAMP:
-            rawDataFilterVoltageFlag = true;
-            rawDataFilterCurrentFlag = false;
-            break;
-
-        case DYNAMIC_CLAMP:
-            rawDataFilterVoltageFlag = false;
-            rawDataFilterCurrentFlag = false;
-            break;
-        }
-
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    selectedClampingModalityIdx = idx;
+    selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];
+    if (clampingModeCoder != nullptr) {
+        clampingModeCoder->encode(selectedClampingModalityIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    switch (selectedClampingModality) {
+    case VOLTAGE_CLAMP:
+        rawDataFilterVoltageFlag = false;
+        rawDataFilterCurrentFlag = true;
+        break;
+
+    case ZERO_CURRENT_CLAMP:
+    case CURRENT_CLAMP:
+        rawDataFilterVoltageFlag = true;
+        rawDataFilterCurrentFlag = false;
+        break;
+
+    case DYNAMIC_CLAMP:
+        rawDataFilterVoltageFlag = false;
+        rawDataFilterCurrentFlag = false;
+        break;
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode, bool applyFlag) {
     auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
     if (iter == clampingModalitiesArray.end()) {
         return ErrorValueOutOfRange;
-
-    } else {
-        return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag);
     }
+    return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag);
 }
 
 ErrorCodes_t MessageDispatcher::setSourceForVoltageChannel(uint16_t source, bool applyFlag){
     if (sourceForVoltageChannelCoder == nullptr) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        sourceForVoltageChannelCoder->encode(source, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        selectedSourceForVoltageChannelIdx = source;
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
+    }
+    sourceForVoltageChannelCoder->encode(source, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    selectedSourceForVoltageChannelIdx = source;
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }
@@ -1392,12 +1288,11 @@ ErrorCodes_t MessageDispatcher::setSourceForVoltageChannel(uint16_t source, bool
 ErrorCodes_t MessageDispatcher::setSourceForCurrentChannel(uint16_t source, bool applyFlag){
     if (sourceForCurrentChannelCoder == nullptr) {
         return ErrorFeatureNotImplemented;
-    } else {
-        sourceForCurrentChannelCoder->encode(source, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        selectedSourceForCurrentChannelIdx = source;
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
+    }
+    sourceForCurrentChannelCoder->encode(source, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    selectedSourceForCurrentChannelIdx = source;
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }
@@ -1425,26 +1320,25 @@ ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool a
 
     } else if (samplingRateIdx >= samplingRatesNum) {
         return ErrorValueOutOfRange;
-
-    } else {
-        samplingRateCoder->encode(samplingRateIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        selectedSamplingRateIdx = samplingRateIdx;
-        samplingRate = realSamplingRatesArray[selectedSamplingRateIdx];
-        integrationStep = integrationStepArray[selectedSamplingRateIdx];
-        this->setAdcFilter();
-        this->computeRawDataFilterCoefficients();
-        if (applyFlagIn) {
-            this->stackOutgoingMessage(txStatus);
-        }
-        return Success;
     }
+    samplingRateCoder->encode(samplingRateIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    selectedSamplingRateIdx = samplingRateIdx;
+    samplingRate = realSamplingRatesArray[selectedSamplingRateIdx];
+    integrationStep = integrationStepArray[selectedSamplingRateIdx];
+    this->setAdcFilter();
+    this->computeRawDataFilterCoefficients();
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratio) {
     if (ratio == 0) {
         return ErrorValueOutOfRange;
+    }
 
-    } else if (ratio == 1) {
+    if (ratio == 1) {
         downsamplingFlag = false;
 
     } else {
@@ -1536,123 +1430,115 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t protId, uin
 
     } else if (itemsNum >= protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(vRest)) { /*! \todo FCON sommare i valori sommati con l'holder o altri meccanismi */
         return ErrorValueOutOfRange;
-
-    } else {
-        selectedProtocolItemsNum = itemsNum;
-        UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
-        protocolIdCoder->encode(protId, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolItemsNumberCoder->encode(itemsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolSweepsNumberCoder->encode(sweepsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        vRest.convertValue(voltagePrefix);
-        voltageProtocolRestCoders[selectedVcVoltageRangeIdx]->encode(vRest.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-
-        return Success;
     }
+    selectedProtocolItemsNum = itemsNum;
+    UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
+    protocolIdCoder->encode(protId, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemsNumberCoder->encode(itemsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolSweepsNumberCoder->encode(sweepsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    vRest.convertValue(voltagePrefix);
+    voltageProtocolRestCoders[selectedVcVoltageRangeIdx]->encode(vRest.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
     if (!voltageProtocolStepImplemented) {
-            return ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
 
     } else if (itemIdx >= protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0) || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0Step) ||
                !positiveProtocolTimeRange.includes(t0) || !protocolTimeRange.includes(t0Step)) {
-           return ErrorValueOutOfRange;
-
-    } else {
-        UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
-        UnitPfx_t timePrefix = protocolTimeRange.prefix;
-        protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        if (!protocolStimHalfCoders.empty()) {
-            protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-        protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        v0.convertValue(voltagePrefix);
-        voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        v0Step.convertValue(voltagePrefix);
-        voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        t0.convertValue(timePrefix);
-        protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        t0Step.convertValue(timePrefix);
-        protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        return Success;
+        return ErrorValueOutOfRange;
     }
+    UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
+    UnitPfx_t timePrefix = protocolTimeRange.prefix;
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (!protocolStimHalfCoders.empty()) {
+        protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    v0.convertValue(voltagePrefix);
+    voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    v0Step.convertValue(voltagePrefix);
+    voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    t0.convertValue(timePrefix);
+    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    t0Step.convertValue(timePrefix);
+    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
     if (!voltageProtocolRampImplemented) {
-            return ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
 
     } else if (itemIdx >= protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0) || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0Step) ||
                !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(vFinal) || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(vFinalStep) ||
                !positiveProtocolTimeRange.includes(t0) || !protocolTimeRange.includes(t0Step)) {
-           return ErrorValueOutOfRange;
-
-    } else {
-        UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
-        UnitPfx_t timePrefix = protocolTimeRange.prefix;
-        protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        if (!protocolStimHalfCoders.empty()) {
-            protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-        protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        v0.convertValue(voltagePrefix);
-        voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        v0Step.convertValue(voltagePrefix);
-        voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        vFinal.convertValue(voltagePrefix);
-        voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vFinal.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        vFinalStep.convertValue(voltagePrefix);
-        voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(vFinalStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        t0.convertValue(timePrefix);
-        protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        t0Step.convertValue(timePrefix);
-        protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        return Success;
+        return ErrorValueOutOfRange;
     }
+    UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
+    UnitPfx_t timePrefix = protocolTimeRange.prefix;
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (!protocolStimHalfCoders.empty()) {
+        protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    v0.convertValue(voltagePrefix);
+    voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    v0Step.convertValue(voltagePrefix);
+    voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    vFinal.convertValue(voltagePrefix);
+    voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vFinal.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    vFinalStep.convertValue(voltagePrefix);
+    voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(vFinalStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    t0.convertValue(timePrefix);
+    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    t0Step.convertValue(timePrefix);
+    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step, bool vHalfFlag) {
     if (!voltageProtocolSinImplemented) {
-            return ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
 
     } else if (itemIdx >= protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0) || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0Step) ||
                !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(vAmp) || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(vAmpStep) ||
                !positiveProtocolFrequencyRange.includes(f0) || !protocolFrequencyRange.includes(f0Step)) {
-           return ErrorValueOutOfRange;
-
-    } else {
-        UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
-        UnitPfx_t freqPrefix = protocolFrequencyRange.prefix;
-        protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        if (!protocolStimHalfCoders.empty()) {
-            protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-        protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        v0.convertValue(voltagePrefix);
-        voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        v0Step.convertValue(voltagePrefix);
-        voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        vAmp.convertValue(voltagePrefix);
-        voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vAmp.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        vAmpStep.convertValue(voltagePrefix);
-        voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(vAmpStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        f0.convertValue(freqPrefix);
-        protocolFrequency0Coders[itemIdx]->encode(f0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        f0Step.convertValue(freqPrefix);
-        protocolFrequency0StepCoders[itemIdx]->encode(f0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        return Success;
+        return ErrorValueOutOfRange;
     }
+    UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
+    UnitPfx_t freqPrefix = protocolFrequencyRange.prefix;
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (!protocolStimHalfCoders.empty()) {
+        protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    v0.convertValue(voltagePrefix);
+    voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    v0Step.convertValue(voltagePrefix);
+    voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    vAmp.convertValue(voltagePrefix);
+    voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vAmp.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    vAmpStep.convertValue(voltagePrefix);
+    voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(vAmpStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    f0.convertValue(freqPrefix);
+    protocolFrequency0Coders[itemIdx]->encode(f0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    f0Step.convertValue(freqPrefix);
+    protocolFrequency0StepCoders[itemIdx]->encode(f0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest) {
@@ -1661,18 +1547,16 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolStructure(uint16_t protId, uin
 
     } else if (itemsNum >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iRest)) { /*! \todo FCON sommare i valori sommati con l'holder o altri meccanismi */
         return ErrorValueOutOfRange;
-
-    } else {
-        selectedProtocolItemsNum = itemsNum;
-        UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
-        protocolIdCoder->encode(protId, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolItemsNumberCoder->encode(itemsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolSweepsNumberCoder->encode(sweepsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        iRest.convertValue(currentPrefix);
-        currentProtocolRestCoders[selectedCcCurrentRangeIdx]->encode(iRest.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-
-        return Success;
     }
+    selectedProtocolItemsNum = itemsNum;
+    UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
+    protocolIdCoder->encode(protId, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemsNumberCoder->encode(itemsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolSweepsNumberCoder->encode(sweepsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    iRest.convertValue(currentPrefix);
+    currentProtocolRestCoders[selectedCcCurrentRangeIdx]->encode(iRest.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag) {
@@ -1682,66 +1566,62 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t itemIdx, uint16_
     } else if (itemIdx >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0Step) ||
                !positiveProtocolTimeRange.includes(t0) || !protocolTimeRange.includes(t0Step)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
-        UnitPfx_t timePrefix = protocolTimeRange.prefix;
-        protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        if (!protocolStimHalfCoders.empty()) {
-            protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-        protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        i0.convertValue(currentPrefix);
-        currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        i0Step.convertValue(currentPrefix);
-        currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        t0.convertValue(timePrefix);
-        protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        t0Step.convertValue(timePrefix);
-        protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        return Success;
     }
+    UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
+    UnitPfx_t timePrefix = protocolTimeRange.prefix;
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (!protocolStimHalfCoders.empty()) {
+        protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    i0.convertValue(currentPrefix);
+    currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    i0Step.convertValue(currentPrefix);
+    currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    t0.convertValue(timePrefix);
+    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    t0Step.convertValue(timePrefix);
+    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag) {
     if (!currentProtocolRampImplemented) {
-            return ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
 
     } else if (itemIdx >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0Step) ||
                !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iFinal) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iFinalStep) ||
                !positiveProtocolTimeRange.includes(t0) || !protocolTimeRange.includes(t0Step)) {
-           return ErrorValueOutOfRange;
-
-    } else {
-        UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
-        UnitPfx_t timePrefix = protocolTimeRange.prefix;
-        protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        if (!protocolStimHalfCoders.empty()) {
-            protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-        protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        i0.convertValue(currentPrefix);
-        currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        i0Step.convertValue(currentPrefix);
-        currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        iFinal.convertValue(currentPrefix);
-        currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iFinal.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        iFinalStep.convertValue(currentPrefix);
-        currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(iFinalStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        t0.convertValue(timePrefix);
-        protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        t0Step.convertValue(timePrefix);
-        protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        return Success;
+        return ErrorValueOutOfRange;
     }
+    UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
+    UnitPfx_t timePrefix = protocolTimeRange.prefix;
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (!protocolStimHalfCoders.empty()) {
+        protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    i0.convertValue(currentPrefix);
+    currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    i0Step.convertValue(currentPrefix);
+    currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    iFinal.convertValue(currentPrefix);
+    currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iFinal.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    iFinalStep.convertValue(currentPrefix);
+    currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(iFinalStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    t0.convertValue(timePrefix);
+    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    t0Step.convertValue(timePrefix);
+    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag) {
@@ -1751,33 +1631,30 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t
                !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iAmp) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iAmpStep) ||
                !positiveProtocolFrequencyRange.includes(f0) || !protocolFrequencyRange.includes(f0Step)) {
         return ErrorValueOutOfRange;
-
-
-    } else {
-        UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
-        UnitPfx_t freqPrefix = protocolFrequencyRange.prefix;
-        protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        if (!protocolStimHalfCoders.empty()) {
-            protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
-        protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        i0.convertValue(currentPrefix);
-        currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        i0Step.convertValue(currentPrefix);
-        currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        iAmp.convertValue(currentPrefix);
-        currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iAmp.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        iAmpStep.convertValue(currentPrefix);
-        currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(iAmpStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        f0.convertValue(freqPrefix);
-        protocolFrequency0Coders[itemIdx]->encode(f0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        f0Step.convertValue(freqPrefix);
-        protocolFrequency0StepCoders[itemIdx]->encode(f0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        return Success;
     }
+    UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
+    UnitPfx_t freqPrefix = protocolFrequencyRange.prefix;
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (!protocolStimHalfCoders.empty()) {
+        protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    i0.convertValue(currentPrefix);
+    currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    i0Step.convertValue(currentPrefix);
+    currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    iAmp.convertValue(currentPrefix);
+    currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iAmp.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    iAmpStep.convertValue(currentPrefix);
+    currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(iAmpStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    f0.convertValue(freqPrefix);
+    protocolFrequency0Coders[itemIdx]->encode(f0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    f0Step.convertValue(freqPrefix);
+    protocolFrequency0StepCoders[itemIdx]->encode(f0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::startProtocol() {
@@ -1789,6 +1666,7 @@ ErrorCodes_t MessageDispatcher::startProtocol() {
 /*****************\
  *  State Array  *
 \*****************/
+
 ErrorCodes_t MessageDispatcher::setStateArrayStructure(int numberOfStates, int initialState){
     if (numberOfStatesCoder == nullptr ) {
         return ErrorFeatureNotImplemented;
@@ -2151,7 +2029,7 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * d
             break;
 
         case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
-//            not really managed, ignore it
+            //            not really managed, ignore it
             if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
                 lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus;
                 /*! This message cannot be merged, leave anyway */
@@ -2239,142 +2117,114 @@ ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector<uint16_t> 
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else {
-        voltages.resize(channelIndexes.size());
-        for (auto channel : channelIndexes) {
-            voltages[channel] = selectedLiquidJunctionVector[channel];
-        }
-        return Success;
     }
+    voltages.resize(channelIndexes.size());
+    for (auto channel : channelIndexes) {
+        voltages[channel] = selectedLiquidJunctionVector[channel];
+    }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures){
     if (vHoldTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else{
-        voltageHoldTunerFeatures = vHoldRange;
-        return Success;
     }
+    voltageHoldTunerFeatures = vHoldRange;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &voltageHalfTunerFeatures){
     if (vHalfTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else{
-        voltageHalfTunerFeatures = vHalfRange;
-        return Success;
     }
+    voltageHalfTunerFeatures = vHalfRange;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures){
     if (cHoldTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else{
-        currentHoldTunerFeatures = cHoldRange;
-        return Success;
     }
+    currentHoldTunerFeatures = cHoldRange;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &currentHalfTunerFeatures){
     if (cHalfTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else{
-        currentHalfTunerFeatures = cHalfRange;
-        return Success;
     }
+    currentHalfTunerFeatures = cHalfRange;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges) {
     if (liquidJunctionVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else{
-        ranges = liquidJunctionRangesArray;
-        return Success;
     }
+    ranges = liquidJunctionRangesArray;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures){
     if (calibVcCurrentGainCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
-
-    } else{
-        calibVcCurrentGainFeatures = calibVcCurrentGainRange;
-        return Success;
     }
+    calibVcCurrentGainFeatures = calibVcCurrentGainRange;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures){
     if (calibVcCurrentOffsetCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
-
-    } else{
-        calibVcCurrentOffsetFeatures = calibVcCurrentOffsetRanges;
-        return Success;
     }
+    calibVcCurrentOffsetFeatures = calibVcCurrentOffsetRanges;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures){
     if (calibCcVoltageGainCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
-
-    } else{
-        calibCcVoltageGainFeatures = calibCcVoltageGainRange;
-        return Success;
     }
+    calibCcVoltageGainFeatures = calibCcVoltageGainRange;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures){
     if (calibCcVoltageOffsetCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
-
-    } else{
-        calibCcVoltageOffsetFeatures = calibCcVoltageOffsetRanges;
-        return Success;
     }
+    calibCcVoltageOffsetFeatures = calibCcVoltageOffsetRanges;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::hasGateVoltages() {
     if (gateVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        return Success;
     }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::hasSourceVoltages() {
     if (sourceVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        return Success;
     }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getGateVoltagesFeatures(RangedMeasurement_t &gateVoltagesFeatures){
     if (gateVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else{
-        gateVoltagesFeatures = gateVoltageRange;
-        return Success;
     }
+    gateVoltagesFeatures = gateVoltageRange;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getSourceVoltagesFeatures(RangedMeasurement_t &sourceVoltagesFeatures){
     if (sourceVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else{
-        sourceVoltagesFeatures = sourceVoltageRange;
-        return Success;
     }
+    sourceVoltagesFeatures = sourceVoltageRange;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &currentChannelNumberFeatures){
@@ -2408,198 +2258,162 @@ ErrorCodes_t MessageDispatcher::getBoardsNumberFeatures(int &boardsNumberFeature
 ErrorCodes_t MessageDispatcher::getClampingModalitiesFeatures(std::vector <ClampingModality_t> &clampingModalitiesFeatures) {
     if (clampingModalitiesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        clampingModalitiesFeatures = clampingModalitiesArray;
-        return Success;
     }
+    clampingModalitiesFeatures = clampingModalitiesArray;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getClampingModality(ClampingModality_t &clampingModality) {
     if (clampingModalitiesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        clampingModality = (ClampingModality_t)selectedClampingModality;
-        return Success;
     }
+    clampingModality = (ClampingModality_t)selectedClampingModality;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getClampingModalityIdx(uint32_t &idx) {
     if (clampingModalitiesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        idx = selectedClampingModalityIdx;
-        return Success;
     }
+    idx = selectedClampingModalityIdx;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultVcCurrRangeIdx) {
     if (vcCurrentRangesArray.empty()){
         return ErrorFeatureNotImplemented;
-    } else {
-        currentRanges = vcCurrentRangesArray;
-        defaultVcCurrRangeIdx = defaultVcCurrentRangeIdx;
-        return Success;
     }
+    currentRanges = vcCurrentRangesArray;
+    defaultVcCurrRangeIdx = defaultVcCurrentRangeIdx;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
     if(vcVoltageRangesArray.empty()){
         return ErrorFeatureNotImplemented;
-    } else {
-        voltageRanges = vcVoltageRangesArray;
-        return Success;
     }
+    voltageRanges = vcVoltageRangesArray;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
     if(ccCurrentRangesArray.empty()){
         return ErrorFeatureNotImplemented;
-    } else {
-        currentRanges = ccCurrentRangesArray;
-        return Success;
     }
+    currentRanges = ccCurrentRangesArray;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
     if(ccVoltageRangesArray.empty()){
         return ErrorFeatureNotImplemented;
-    } else {
-        voltageRanges = ccVoltageRangesArray;
-        return Success;
     }
+    voltageRanges = ccVoltageRangesArray;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVCCurrentRange(RangedMeasurement_t &range) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        range = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
-        return Success;
     }
+    range = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVCVoltageRange(RangedMeasurement_t &range) {
     if (vcVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        range = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
-        return Success;
     }
+    range = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getLiquidJunctionRange(RangedMeasurement_t &range) {
     if (liquidJunctionRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        range = liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx];
-        return Success;
     }
+    range = liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCCurrentRange(RangedMeasurement_t &range) {
     if (ccCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        range = ccCurrentRangesArray[selectedVcCurrentRangeIdx];
-        return Success;
     }
+    range = ccCurrentRangesArray[selectedCcCurrentRangeIdx];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCVoltageRange(RangedMeasurement_t &range) {
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        range = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
-        return Success;
     }
+    range = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVCCurrentRangeIdx(uint32_t &idx) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        idx = selectedVcCurrentRangeIdx;
-        return Success;
     }
+    idx = selectedVcCurrentRangeIdx;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVCVoltageRangeIdx(uint32_t &idx) {
     if (vcVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        idx = selectedVcVoltageRangeIdx;
-        return Success;
     }
+    idx = selectedVcVoltageRangeIdx;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCCurrentRangeIdx(uint32_t &idx) {
     if (ccCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        idx = selectedVcCurrentRangeIdx;
-        return Success;
     }
+    idx = selectedCcCurrentRangeIdx;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(uint32_t &idx) {
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        idx = selectedCcVoltageRangeIdx;
-        return Success;
     }
+    idx = selectedCcVoltageRangeIdx;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates) {
     if(samplingRatesArray.empty()){
         return ErrorFeatureNotImplemented;
-
-    } else {
-        samplingRates = samplingRatesArray;
-        return Success;
     }
+    samplingRates = samplingRatesArray;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getSamplingRate(Measurement_t &samplingRate) {
     if(samplingRatesArray.empty()){
         return ErrorFeatureNotImplemented;
-
-    } else {
-        samplingRate = this->samplingRate;
-        return Success;
     }
+    samplingRate = this->samplingRate;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getSamplingRateIdx(uint32_t &idx) {
     if(samplingRatesArray.empty()){
         return ErrorFeatureNotImplemented;
-
-    } else {
-        idx = selectedSamplingRateIdx;
-        return Success;
     }
+    idx = selectedSamplingRateIdx;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates) {
     if(realSamplingRatesArray.empty()){
         return ErrorFeatureNotImplemented;
-
-    } else {
-        realSamplingRates = realSamplingRatesArray;
-        return Success;
     }
+    realSamplingRates = realSamplingRatesArray;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getMaxDownsamplingRatioFeature(uint32_t &ratio) {
@@ -2615,148 +2429,118 @@ ErrorCodes_t MessageDispatcher::getDownsamplingRatio(uint32_t &ratio) {
 ErrorCodes_t MessageDispatcher::getVCVoltageFilters(std::vector <Measurement_t> &filters){
     if (vcVoltageFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        filters = vcVoltageFiltersArray;
-        return Success;
     }
+    filters = vcVoltageFiltersArray;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVCCurrentFilters(std::vector <Measurement_t> &filters){
     if (vcCurrentFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        filters = vcCurrentFiltersArray;
-        return Success;
     }
+    filters = vcCurrentFiltersArray;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCVoltageFilters(std::vector <Measurement_t> &filters){
     if (ccVoltageFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        filters = ccVoltageFiltersArray;
-        return Success;
     }
+    filters = ccVoltageFiltersArray;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCCurrentFilters(std::vector <Measurement_t> &filters){
     if (ccCurrentFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        filters = ccCurrentFiltersArray;
-        return Success;
     }
+    filters = ccCurrentFiltersArray;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVCVoltageFilter(Measurement_t &filter) {
     if (vcVoltageFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        filter = vcVoltageFiltersArray[selectedVcVoltageFilterIdx];
-        return Success;
     }
+    filter = vcVoltageFiltersArray[selectedVcVoltageFilterIdx];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVCCurrentFilter(Measurement_t &filter) {
     if (vcCurrentFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        filter = vcCurrentFiltersArray[selectedVcCurrentFilterIdx];
-        return Success;
     }
+    filter = vcCurrentFiltersArray[selectedVcCurrentFilterIdx];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCVoltageFilter(Measurement_t &filter) {
     if (ccVoltageFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        filter = ccVoltageFiltersArray[selectedCcVoltageFilterIdx];
-        return Success;
     }
+    filter = ccVoltageFiltersArray[selectedCcVoltageFilterIdx];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCCurrentFilter(Measurement_t &filter) {
     if (ccCurrentFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        filter = ccCurrentFiltersArray[selectedCcCurrentFilterIdx];
-        return Success;
     }
+    filter = ccCurrentFiltersArray[selectedCcCurrentFilterIdx];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVCVoltageFilterIdx(uint32_t &idx) {
     if (vcVoltageFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        idx = selectedVcVoltageFilterIdx;
-        return Success;
     }
+    idx = selectedVcVoltageFilterIdx;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVCCurrentFilterIdx(uint32_t &idx) {
     if (vcCurrentFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        idx = selectedVcCurrentFilterIdx;
-        return Success;
     }
+    idx = selectedVcCurrentFilterIdx;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCVoltageFilterIdx(uint32_t &idx) {
     if (ccVoltageFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        idx = selectedCcVoltageFilterIdx;
-        return Success;
     }
+    idx = selectedCcVoltageFilterIdx;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCCCurrentFilterIdx(uint32_t &idx) {
     if (ccCurrentFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        idx = selectedCcCurrentFilterIdx;
-        return Success;
     }
+    idx = selectedCcCurrentFilterIdx;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::hasChannelSwitches() {
     if (turnChannelsOnCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        return Success;
     }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::hasStimulusSwitches() {
     if (enableStimulusCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        return Success;
     }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::hasOffsetCompensation() {
     if (liquidJunctionVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        return Success;
     }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCalibParams(CalibrationParams_t &calibParams){
@@ -2817,21 +2601,18 @@ ErrorCodes_t MessageDispatcher::getCalibMappingFilePath(std::string &path){
 ErrorCodes_t MessageDispatcher::getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range) {
     if (vHoldRange.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        range = vHoldRange[rangeIdx];
-        return Success;
     }
+    range = vHoldRange[rangeIdx];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCurrentProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range) {
     if (cHoldRange.empty()) {
         return ErrorFeatureNotImplemented;
 
-    } else {
-        range = cHoldRange[rangeIdx];
-        return Success;
     }
+    range = cHoldRange[rangeIdx];
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getTimeProtocolRangeFeature(RangedMeasurement_t &range) {
@@ -2847,57 +2628,45 @@ ErrorCodes_t MessageDispatcher::getFrequencyProtocolRangeFeature(RangedMeasureme
 ErrorCodes_t MessageDispatcher::getMaxProtocolItemsFeature(uint32_t &num) {
     if (protocolMaxItemsNum < 1) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        num = protocolMaxItemsNum;
-        return Success;
     }
+    num = protocolMaxItemsNum;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::hasProtocols() {
     if (protocolMaxItemsNum < 1) {
         return ErrorFeatureNotImplemented;
-
-    } else {
-        return Success;
     }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::hasProtocolStepFeature() {
-    if (voltageProtocolStepImplemented || currentProtocolStepImplemented) {
-        return Success;
-
-    } else {
+    if (!(voltageProtocolStepImplemented || currentProtocolStepImplemented)) {
         return ErrorFeatureNotImplemented;
     }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::hasProtocolRampFeature() {
-    if (voltageProtocolRampImplemented || currentProtocolRampImplemented) {
-        return Success;
-
-    } else {
+    if (!(voltageProtocolRampImplemented || currentProtocolRampImplemented)) {
         return ErrorFeatureNotImplemented;
     }
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::hasProtocolSinFeature() {
-    if (voltageProtocolSinImplemented || currentProtocolSinImplemented) {
-        return Success;
-
-    } else {
+    if (!(voltageProtocolSinImplemented || currentProtocolSinImplemented)) {
         return ErrorFeatureNotImplemented;
     }
+    return Success;
 }
-
 
 ErrorCodes_t MessageDispatcher::getCalibData(CalibrationData_t &calibData){
     if(calibrationData.vcCalibResArray.empty()){
         return ErrorFeatureNotImplemented;
-    } else {
-        calibData = calibrationData;
-        return Success;
     }
+    calibData = calibrationData;
+    return Success;
 }
 
 /*********************\
@@ -3015,7 +2784,7 @@ void MessageDispatcher::computeLiquidJunction() {
     std::unique_lock <std::mutex> ljMutexLock (ljMutex);
     ljMutexLock.unlock();
 
-//    std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+    //    std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> voltages;
@@ -3048,20 +2817,20 @@ void MessageDispatcher::computeLiquidJunction() {
 
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                     fprintf(ljFid,
-                           "%d: starting. "
-                           "Liq jun %s, "
-                           "conving %d, "
-                           "convd %d, "
-                           "possat %d, "
-                           "negsat %d, "
-                           "opencirc %d\n",
-                           channelIdx,
-                           selectedLiquidJunctionVector[channelIdx].label().c_str(),
-                           liquidJunctionConvergingCount[channelIdx],
-                           liquidJunctionConvergedCount[channelIdx],
-                           liquidJunctionPositiveSaturationCount[channelIdx],
-                           liquidJunctionNegativeSaturationCount[channelIdx],
-                           liquidJunctionOpenCircuitCount[channelIdx]);
+                            "%d: starting. "
+                            "Liq jun %s, "
+                            "conving %d, "
+                            "convd %d, "
+                            "possat %d, "
+                            "negsat %d, "
+                            "opencirc %d\n",
+                            channelIdx,
+                            selectedLiquidJunctionVector[channelIdx].label().c_str(),
+                            liquidJunctionConvergingCount[channelIdx],
+                            liquidJunctionConvergedCount[channelIdx],
+                            liquidJunctionPositiveSaturationCount[channelIdx],
+                            liquidJunctionNegativeSaturationCount[channelIdx],
+                            liquidJunctionOpenCircuitCount[channelIdx]);
                     fflush(ljFid);
 #endif
                     break;
@@ -3093,24 +2862,24 @@ void MessageDispatcher::computeLiquidJunction() {
 
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                     fprintf(ljFid,
-                           "%d: first. "
-                           "Curr est %f, "
-                           "DV %f, "
-                           "Liq jun %s, "
-                           "conving %d, "
-                           "convd %d, "
-                           "possat %d, "
-                           "negsat %d, "
-                           "opencirc %d\n",
-                           channelIdx,
-                           liquidJunctionCurrentEstimates[channelIdx],
-                           liquidJunctionDeltaVoltages[channelIdx],
-                           selectedLiquidJunctionVector[channelIdx].label().c_str(),
-                           liquidJunctionConvergingCount[channelIdx],
-                           liquidJunctionConvergedCount[channelIdx],
-                           liquidJunctionPositiveSaturationCount[channelIdx],
-                           liquidJunctionNegativeSaturationCount[channelIdx],
-                           liquidJunctionOpenCircuitCount[channelIdx]);
+                            "%d: first. "
+                            "Curr est %f, "
+                            "DV %f, "
+                            "Liq jun %s, "
+                            "conving %d, "
+                            "convd %d, "
+                            "possat %d, "
+                            "negsat %d, "
+                            "opencirc %d\n",
+                            channelIdx,
+                            liquidJunctionCurrentEstimates[channelIdx],
+                            liquidJunctionDeltaVoltages[channelIdx],
+                            selectedLiquidJunctionVector[channelIdx].label().c_str(),
+                            liquidJunctionConvergingCount[channelIdx],
+                            liquidJunctionConvergedCount[channelIdx],
+                            liquidJunctionPositiveSaturationCount[channelIdx],
+                            liquidJunctionNegativeSaturationCount[channelIdx],
+                            liquidJunctionOpenCircuitCount[channelIdx]);
                     fflush(ljFid);
 #endif
                     break;
@@ -3216,26 +2985,26 @@ void MessageDispatcher::computeLiquidJunction() {
 
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                     fprintf(ljFid,
-                           "%d: converge. "
-                           "DI %f, "
-                           "Curr est %f, "
-                           "DV %f, "
-                           "Liq jun %s, "
-                           "conving %d, "
-                           "convd %d, "
-                           "possat %d, "
-                           "negsat %d, "
-                           "opencirc %d\n",
-                           channelIdx,
-                           liquidJunctionDeltaCurrents[channelIdx],
-                           liquidJunctionCurrentEstimates[channelIdx],
-                           liquidJunctionDeltaVoltages[channelIdx],
-                           selectedLiquidJunctionVector[channelIdx].label().c_str(),
-                           liquidJunctionConvergingCount[channelIdx],
-                           liquidJunctionConvergedCount[channelIdx],
-                           liquidJunctionPositiveSaturationCount[channelIdx],
-                           liquidJunctionNegativeSaturationCount[channelIdx],
-                           liquidJunctionOpenCircuitCount[channelIdx]);
+                            "%d: converge. "
+                            "DI %f, "
+                            "Curr est %f, "
+                            "DV %f, "
+                            "Liq jun %s, "
+                            "conving %d, "
+                            "convd %d, "
+                            "possat %d, "
+                            "negsat %d, "
+                            "opencirc %d\n",
+                            channelIdx,
+                            liquidJunctionDeltaCurrents[channelIdx],
+                            liquidJunctionCurrentEstimates[channelIdx],
+                            liquidJunctionDeltaVoltages[channelIdx],
+                            selectedLiquidJunctionVector[channelIdx].label().c_str(),
+                            liquidJunctionConvergingCount[channelIdx],
+                            liquidJunctionConvergedCount[channelIdx],
+                            liquidJunctionPositiveSaturationCount[channelIdx],
+                            liquidJunctionNegativeSaturationCount[channelIdx],
+                            liquidJunctionOpenCircuitCount[channelIdx]);
                     fflush(ljFid);
 #endif
 
@@ -3258,8 +3027,8 @@ void MessageDispatcher::computeLiquidJunction() {
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                     fprintf(ljFid,
-                           "%d: success.",
-                           channelIdx);
+                            "%d: success.",
+                            channelIdx);
                     fflush(ljFid);
 #endif
                     break;
@@ -3271,8 +3040,8 @@ void MessageDispatcher::computeLiquidJunction() {
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                     fprintf(ljFid,
-                           "%d: open circuit.",
-                           channelIdx);
+                            "%d: open circuit.",
+                            channelIdx);
                     fflush(ljFid);
 #endif
                     break;
@@ -3282,8 +3051,8 @@ void MessageDispatcher::computeLiquidJunction() {
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                     fprintf(ljFid,
-                           "%d: too many steps.",
-                           channelIdx);
+                            "%d: too many steps.",
+                            channelIdx);
                     fflush(ljFid);
 #endif
                     break;
@@ -3295,8 +3064,8 @@ void MessageDispatcher::computeLiquidJunction() {
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                     fprintf(ljFid,
-                           "%d: saturation.",
-                           channelIdx);
+                            "%d: saturation.",
+                            channelIdx);
                     fflush(ljFid);
 #endif
                     break;
@@ -3356,8 +3125,8 @@ void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rx
     uint32_t rxDataWords = rxWordLengths[rxMessageType];
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
-            fprintf(rxProcFid, "Store data frame: %x\n", rxMessageType);
-            fflush(rxProcFid);
+    fprintf(rxProcFid, "Store data frame: %x\n", rxMessageType);
+    fflush(rxProcFid);
 #endif
 
     rxMsgBuffer[rxMsgBufferWriteOffset].typeId = rxMsgTypeId;
@@ -3370,9 +3139,9 @@ void MessageDispatcher::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rx
         uint32_t rxDataBufferWriteIdx = 0;
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
-            fprintf(rxProcFid, "rxDataWords: %d\n", rxDataWords);
-            fprintf(rxProcFid, "packetsNum: %d\n", packetsNum);
-            fflush(rxProcFid);
+        fprintf(rxProcFid, "rxDataWords: %d\n", rxDataWords);
+        fprintf(rxProcFid, "packetsNum: %d\n", packetsNum);
+        fflush(rxProcFid);
 #endif
 
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
