@@ -1,7 +1,7 @@
-#include "messagedispatcher_384fakepatchclamp.h"
+#include "emcr384nanoporesfake.h"
 
-MessageDispatcher_384FakePatchClamp::MessageDispatcher_384FakePatchClamp(std::string id) :
-    MessageDispatcher_384PatchClamp_V04(id) {
+Emcr384FakeNanopores::Emcr384FakeNanopores(std::string id) :
+    Emcr384NanoPores_V01(id) {
 
     waitingTimeBeforeReadingData = 0;
     motherboardBootTime_s = 0;
@@ -25,33 +25,37 @@ MessageDispatcher_384FakePatchClamp::MessageDispatcher_384FakePatchClamp(std::st
     integrationStepArray[SamplingRate6kHz].unit = "s";
 }
 
-MessageDispatcher_384FakePatchClamp::~MessageDispatcher_384FakePatchClamp() {
+Emcr384FakeNanopores::~Emcr384FakeNanopores() {
 
 }
 
-ErrorCodes_t MessageDispatcher_384FakePatchClamp::connect(std::string fwPath) {
+ErrorCodes_t Emcr384FakeNanopores::connect(std::string fwPath) {
     this->initializeBuffers();
     this->fillBuffer();
+    startTime = std::chrono::steady_clock::now();
 
     return MessageDispatcher::connect(fwPath);
 }
 
-ErrorCodes_t MessageDispatcher_384FakePatchClamp::disconnect() {
+ErrorCodes_t Emcr384FakeNanopores::disconnect() {
     MessageDispatcher::disconnect();
     return this->deinitializeBuffers();
 }
 
-bool MessageDispatcher_384FakePatchClamp::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
+bool Emcr384FakeNanopores::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
     return true;
 }
 
-uint32_t MessageDispatcher_384FakePatchClamp::readDataFromDevice() {
-#ifdef DEBUG_MAX_SPEED
-    uint32_t bytesRead = OKY_RX_TRANSFER_SIZE; /*!< Bytes read during last transfer from Opal Kelly */
-#else
-    /*! Declare variables to manage buffers indexing */
+uint32_t Emcr384FakeNanopores::readDataFromDevice() {
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
-
+#ifdef DEBUG_MAX_SPEED
+    currentTime = std::chrono::steady_clock::now();
+    long long duration = (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count());
+    if (duration > (1000.0*(double)OKY_RX_TRANSFER_SIZE)/generatedByteRate) {
+        startTime = currentTime;
+        bytesRead = OKY_RX_TRANSFER_SIZE;
+    }
+#else
     /*! No data to receive, just sleep */
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -80,12 +84,21 @@ uint32_t MessageDispatcher_384FakePatchClamp::readDataFromDevice() {
         syntheticData += 1;
         bytesRead += (totalChannelsNum+3)*RX_WORD_SIZE;
     }
+
+//    totalBytesWritten += bytesRead;
+//    long long duration = (std::chrono::duration_cast <std::chrono::milliseconds> (std::chrono::steady_clock::now()-startPrintfTime).count());
+//    if (duration > 1000) {
+//        printf("%lld kB/s\n", totalBytesWritten/duration);
+//        fflush(stdout);
+//        totalBytesWritten = 0;
+//        startPrintfTime = std::chrono::steady_clock::now();
+//    }
 #endif
 
     return bytesRead;
 }
 
-ErrorCodes_t MessageDispatcher_384FakePatchClamp::fillBuffer() {
+ErrorCodes_t Emcr384FakeNanopores::fillBuffer() {
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
 

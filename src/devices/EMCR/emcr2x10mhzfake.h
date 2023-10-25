@@ -1,12 +1,12 @@
-#ifndef MESSAGEDISPATCHER_384FAKEPATCHCLAMP_H
-#define MESSAGEDISPATCHER_384FAKEPATCHCLAMP_H
+#ifndef EMCR2X10MHZFAKE_H
+#define EMCR2X10MHZFAKE_H
 
-#include "messagedispatcher_384patchclamp_V04.h"
+#include "emcr2x10mhz.h"
 
-class MessageDispatcher_384FakePatchClamp: public MessageDispatcher_384PatchClamp_V04 {
+class Emcr2x10MHzFake : public Emcr2x10MHz_PCBV01_V02 {
 public:
-    MessageDispatcher_384FakePatchClamp(std::string id);
-    virtual ~MessageDispatcher_384FakePatchClamp();
+    Emcr2x10MHzFake(std::string id);
+    virtual ~Emcr2x10MHzFake();
 
     virtual ErrorCodes_t connect(std::string fwPath) override;
     virtual ErrorCodes_t disconnect() override;
@@ -14,7 +14,7 @@ public:
 protected:
 
     enum SamplingRates {
-        SamplingRate6kHz,
+        SamplingRate2MHz,
         SamplingRatesNum
     };
 
@@ -31,4 +31,4 @@ private:
     uint16_t syntheticData = 0;
 };
 
-#endif // MESSAGEDISPATCHER_384FAKEPATCHCLAMP_H
+#endif // EMCR2X10MHZFAKE_H

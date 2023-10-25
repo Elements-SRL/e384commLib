@@ -1,12 +1,12 @@
-#ifndef MESSAGEDISPATCHER_4x10MHZ_H
-#define MESSAGEDISPATCHER_4x10MHZ_H
+#ifndef EMCR2X10MHZ_H
+#define EMCR2X10MHZ_H
 
-#include "messagedispatcher_opalkelly.h"
+#include "emcropalkellydevice.h"
 
-class MessageDispatcher_4x10MHz_PCBV01_V02 : public MessageDispatcher_OpalKelly {
+class Emcr2x10MHz_PCBV01_V01 : public EmcrOpalKellyDevice {
 public:
-    MessageDispatcher_4x10MHz_PCBV01_V02(std::string di);
-    virtual ~MessageDispatcher_4x10MHz_PCBV01_V02();
+    Emcr2x10MHz_PCBV01_V01(std::string di);
+    virtual ~Emcr2x10MHz_PCBV01_V01();
 
 protected:
     enum ClampingModalities {
@@ -25,7 +25,6 @@ protected:
 
     enum VCVoltageRanges {
         VCVoltageRange1000mV,
-        VCVoltageRange20000mV,
         VCVoltageRangesNum
     };
 
@@ -44,7 +43,7 @@ protected:
     enum VCVoltageFilters {
         VCVoltageFilter10kHz,
         VCVoltageFilter1_5kHz,
-        VCVoltageFilter3Hz,
+        VCVoltageFilter30Hz,
         VCVoltageFiltersNum
     };
 
@@ -78,10 +77,16 @@ protected:
     BoolArrayCoder * writeDacSpiCoder = nullptr;
 };
 
-class MessageDispatcher_4x10MHz_PCBV01_V03 : public MessageDispatcher_OpalKelly {
+class Emcr2x10MHz_PCBV02_V01 : public Emcr2x10MHz_PCBV01_V01 {
 public:
-    MessageDispatcher_4x10MHz_PCBV01_V03(std::string di);
-    virtual ~MessageDispatcher_4x10MHz_PCBV01_V03();
+    Emcr2x10MHz_PCBV02_V01(std::string di);
+    virtual ~Emcr2x10MHz_PCBV02_V01();
+};
+
+class Emcr2x10MHz_PCBV01_V02 : public EmcrOpalKellyDevice {
+public:
+    Emcr2x10MHz_PCBV01_V02(std::string di);
+    virtual ~Emcr2x10MHz_PCBV01_V02();
 
 protected:
     enum ClampingModalities {
@@ -100,7 +105,6 @@ protected:
 
     enum VCVoltageRanges {
         VCVoltageRange1000mV,
-        VCVoltageRange20000mV,
         VCVoltageRangesNum
     };
 
@@ -119,7 +123,7 @@ protected:
     enum VCVoltageFilters {
         VCVoltageFilter10kHz,
         VCVoltageFilter1_5kHz,
-        VCVoltageFilter3Hz,
+        VCVoltageFilter30Hz,
         VCVoltageFiltersNum
     };
 
@@ -153,4 +157,10 @@ protected:
     BoolArrayCoder * writeDacSpiCoder = nullptr;
 };
 
-#endif // MESSAGEDISPATCHER_4x10MHZ_H
+class Emcr2x10MHz_PCBV02_V02 : public Emcr2x10MHz_PCBV01_V02 {
+public:
+    Emcr2x10MHz_PCBV02_V02(std::string di);
+    virtual ~Emcr2x10MHz_PCBV02_V02();
+};
+
+#endif // EMCR2X10MHZ_H

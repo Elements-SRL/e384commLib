@@ -1,7 +1,7 @@
-#include "messagedispatcher_384nanopores_sr7p5khz_v01.h"
+#include "emcr384nanopores_sr7p5khz_v01.h"
 
-MessageDispatcher_384NanoPores_SR7p5kHz_V01::MessageDispatcher_384NanoPores_SR7p5kHz_V01(std::string di):
-    MessageDispatcher_384NanoPores_V01(di) {
+Emcr384NanoPores_SR7p5kHz_V01::Emcr384NanoPores_SR7p5kHz_V01(std::string di):
+    Emcr384NanoPores_V01(di) {
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
@@ -84,7 +84,7 @@ MessageDispatcher_384NanoPores_SR7p5kHz_V01::MessageDispatcher_384NanoPores_SR7p
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 }
 
-MessageDispatcher_384NanoPores_SR7p5kHz_V01::~MessageDispatcher_384NanoPores_SR7p5kHz_V01() {
+Emcr384NanoPores_SR7p5kHz_V01::~Emcr384NanoPores_SR7p5kHz_V01() {
 
 }
 

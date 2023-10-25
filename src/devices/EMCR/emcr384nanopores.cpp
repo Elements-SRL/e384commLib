@@ -1,7 +1,7 @@
-#include "messagedispatcher_384nanopores.h"
+#include "emcr384nanopores.h"
 
-MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::string di) :
-    MessageDispatcher_OpalKelly(di) {
+Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
+    EmcrOpalKellyDevice(di) {
 
     deviceName = "384NanoPores";
 
@@ -762,11 +762,11 @@ MessageDispatcher_384NanoPores_V01::MessageDispatcher_384NanoPores_V01(std::stri
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-MessageDispatcher_384NanoPores_V01::~MessageDispatcher_384NanoPores_V01() {
+Emcr384NanoPores_V01::~Emcr384NanoPores_V01() {
 
 }
 
-void MessageDispatcher_384NanoPores_V01::initializeHW() {
+void Emcr384NanoPores_V01::initializeHW() {
     this->resetFpga(true, true);
     this->resetFpga(false, false);
 

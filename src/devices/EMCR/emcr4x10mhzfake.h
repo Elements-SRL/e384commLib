@@ -1,12 +1,12 @@
-#ifndef MESSAGEDISPATCHER_2X10MHZFAKE_H
-#define MESSAGEDISPATCHER_2X10MHZFAKE_H
+#ifndef EMCR4X10MHZFAKE_H
+#define EMCR4X10MHZFAKE_H
 
-#include "messagedispatcher_2x10mhz.h"
+#include "emcr4x10mhz.h"
 
-class MessageDispatcher_2x10MHzFake : public MessageDispatcher_2x10MHz_PCBV01_V02 {
+class Emcr4x10MHzFake : public Emcr4x10MHz_PCBV01_V02 {
 public:
-    MessageDispatcher_2x10MHzFake(std::string id);
-    virtual ~MessageDispatcher_2x10MHzFake();
+    Emcr4x10MHzFake(std::string id);
+    virtual ~Emcr4x10MHzFake();
 
     virtual ErrorCodes_t connect(std::string fwPath) override;
     virtual ErrorCodes_t disconnect() override;
@@ -14,7 +14,7 @@ public:
 protected:
 
     enum SamplingRates {
-        SamplingRate2MHz,
+        SamplingRate1MHz,
         SamplingRatesNum
     };
 
@@ -31,4 +31,4 @@ private:
     uint16_t syntheticData = 0;
 };
 
-#endif // MESSAGEDISPATCHER_2X10MHZFAKE_H
+#endif // EMCR4X10MHZFAKE_H

@@ -1,7 +1,7 @@
-#include "messagedispatcher_2x10mhz.h"
+#include "emcr2x10mhz.h"
 
-MessageDispatcher_2x10MHz_PCBV01_V01::MessageDispatcher_2x10MHz_PCBV01_V01(std::string di) :
-    MessageDispatcher_OpalKelly(di) {
+Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
+    EmcrOpalKellyDevice(di) {
 
     deviceName = "2x10MHz";
 
@@ -649,11 +649,11 @@ MessageDispatcher_2x10MHz_PCBV01_V01::MessageDispatcher_2x10MHz_PCBV01_V01(std::
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-MessageDispatcher_2x10MHz_PCBV01_V01::~MessageDispatcher_2x10MHz_PCBV01_V01() {
+Emcr2x10MHz_PCBV01_V01::~Emcr2x10MHz_PCBV01_V01() {
 
 }
 
-void MessageDispatcher_2x10MHz_PCBV01_V01::initializeHW() {
+void Emcr2x10MHz_PCBV01_V01::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -688,18 +688,18 @@ void MessageDispatcher_2x10MHz_PCBV01_V01::initializeHW() {
     this->stackOutgoingMessage(txStatus);
 }
 
-MessageDispatcher_2x10MHz_PCBV02_V01::MessageDispatcher_2x10MHz_PCBV02_V01(std::string di) :
-    MessageDispatcher_2x10MHz_PCBV01_V01(di) {
+Emcr2x10MHz_PCBV02_V01::Emcr2x10MHz_PCBV02_V01(std::string di) :
+    Emcr2x10MHz_PCBV01_V01(di) {
 
     fwName = "2x10MHz_V08.bit";
 }
 
-MessageDispatcher_2x10MHz_PCBV02_V01::~MessageDispatcher_2x10MHz_PCBV02_V01() {
+Emcr2x10MHz_PCBV02_V01::~Emcr2x10MHz_PCBV02_V01() {
 
 }
 
-MessageDispatcher_2x10MHz_PCBV01_V02::MessageDispatcher_2x10MHz_PCBV01_V02(std::string di) :
-    MessageDispatcher_OpalKelly(di) {
+Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
+    EmcrOpalKellyDevice(di) {
 
     deviceName = "2x10MHz";
 
@@ -1364,11 +1364,11 @@ MessageDispatcher_2x10MHz_PCBV01_V02::MessageDispatcher_2x10MHz_PCBV01_V02(std::
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-MessageDispatcher_2x10MHz_PCBV01_V02::~MessageDispatcher_2x10MHz_PCBV01_V02() {
+Emcr2x10MHz_PCBV01_V02::~Emcr2x10MHz_PCBV01_V02() {
 
 }
 
-void MessageDispatcher_2x10MHz_PCBV01_V02::initializeHW() {
+void Emcr2x10MHz_PCBV01_V02::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -1403,12 +1403,12 @@ void MessageDispatcher_2x10MHz_PCBV01_V02::initializeHW() {
     this->stackOutgoingMessage(txStatus);
 }
 
-MessageDispatcher_2x10MHz_PCBV02_V02::MessageDispatcher_2x10MHz_PCBV02_V02(std::string di) :
-    MessageDispatcher_2x10MHz_PCBV01_V02(di) {
+Emcr2x10MHz_PCBV02_V02::Emcr2x10MHz_PCBV02_V02(std::string di) :
+    Emcr2x10MHz_PCBV01_V02(di) {
 
     fwName = "2x10MHz_V10.bit";
 }
 
-MessageDispatcher_2x10MHz_PCBV02_V02::~MessageDispatcher_2x10MHz_PCBV02_V02() {
+Emcr2x10MHz_PCBV02_V02::~Emcr2x10MHz_PCBV02_V02() {
 
 }

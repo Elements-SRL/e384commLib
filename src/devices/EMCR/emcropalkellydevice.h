@@ -1,5 +1,5 @@
-#ifndef MESSAGEDISPATCHER_OPALKELLY_H
-#define MESSAGEDISPATCHER_OPALKELLY_H
+#ifndef EMCROPALKELLYDEVICE_H
+#define EMCROPALKELLYDEVICE_H
 
 #define OKY_RX_PIPE_ADDR 0xA0
 #define OKY_RX_BUFFER_SIZE 0x1000000 /*!< Number of bytes. Always use a power of 2 for efficient circular buffer management through index masking */
@@ -18,10 +18,10 @@
 
 #include "messagedispatcher.h"
 
-class MessageDispatcher_OpalKelly : public MessageDispatcher {
+class EmcrOpalKellyDevice : public MessageDispatcher {
 public:
-    MessageDispatcher_OpalKelly(std::string deviceId);
-    virtual ~MessageDispatcher_OpalKelly();
+    EmcrOpalKellyDevice(std::string deviceId);
+    virtual ~EmcrOpalKellyDevice();
 
     virtual ErrorCodes_t connect(std::string fwPath) override;
     virtual ErrorCodes_t disconnect() override;
@@ -68,4 +68,4 @@ protected:
     uint32_t txMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be processed */
 };
 
-#endif // MESSAGEDISPATCHER_OPALKELLY_H
+#endif // EMCROPALKELLYDEVICE_H

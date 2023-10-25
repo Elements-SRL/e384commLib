@@ -1,7 +1,7 @@
-#include "messagedispatcher_4x10mhz.h"
+#include "emcr4x10mhz.h"
 
-MessageDispatcher_4x10MHz_PCBV01_V02::MessageDispatcher_4x10MHz_PCBV01_V02(std::string di) :
-    MessageDispatcher_OpalKelly(di) {
+Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
+    EmcrOpalKellyDevice(di) {
 
     deviceName = "4x10MHz";
 
@@ -761,11 +761,11 @@ MessageDispatcher_4x10MHz_PCBV01_V02::MessageDispatcher_4x10MHz_PCBV01_V02(std::
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-MessageDispatcher_4x10MHz_PCBV01_V02::~MessageDispatcher_4x10MHz_PCBV01_V02() {
+Emcr4x10MHz_PCBV01_V02::~Emcr4x10MHz_PCBV01_V02() {
 
 }
 
-void MessageDispatcher_4x10MHz_PCBV01_V02::initializeHW() {
+void Emcr4x10MHz_PCBV01_V02::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -800,8 +800,8 @@ void MessageDispatcher_4x10MHz_PCBV01_V02::initializeHW() {
     this->stackOutgoingMessage(txStatus);
 }
 
-MessageDispatcher_4x10MHz_PCBV01_V03::MessageDispatcher_4x10MHz_PCBV01_V03(std::string di) :
-    MessageDispatcher_OpalKelly(di) {
+Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
+    EmcrOpalKellyDevice(di) {
 
     deviceName = "4x10MHz";
 
@@ -1593,11 +1593,11 @@ MessageDispatcher_4x10MHz_PCBV01_V03::MessageDispatcher_4x10MHz_PCBV01_V03(std::
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-MessageDispatcher_4x10MHz_PCBV01_V03::~MessageDispatcher_4x10MHz_PCBV01_V03() {
+Emcr4x10MHz_PCBV01_V03::~Emcr4x10MHz_PCBV01_V03() {
 
 }
 
-void MessageDispatcher_4x10MHz_PCBV01_V03::initializeHW() {
+void Emcr4x10MHz_PCBV01_V03::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);

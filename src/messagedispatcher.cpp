@@ -9,17 +9,17 @@
 
 #include "okFrontPanelDLL.h"
 
-#include "messagedispatcher_384nanopores.h"
-#include "messagedispatcher_384nanopores_sr7p5khz_v01.h"
-#include "messagedispatcher_384patchclamp.h"
-#include "messagedispatcher_4x10mhz.h"
-#include "messagedispatcher_2x10mhz.h"
+#include "emcr384nanopores.h"
+#include "emcr384nanopores_sr7p5khz_v01.h"
+#include "emcr384patchclamp.h"
+#include "emcr4x10mhz.h"
+#include "emcr2x10mhz.h"
 #ifdef DEBUG
 /*! Fake device that generates synthetic data */
-#include "messagedispatcher_384fakenanopores.h"
-#include "messagedispatcher_384fakepatchclamp.h"
-#include "messagedispatcher_4x10mhzfake.h"
-#include "messagedispatcher_2x10mhzfake.h"
+#include "emcr384nanoporesfake.h"
+#include "emcr384patchclampfake.h"
+#include "emcr4x10mhzfake.h"
+#include "emcr2x10mhzfake.h"
 #endif
 #include "calibrationmanager.h"
 #include "utils.h"
@@ -150,44 +150,44 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
 
     switch (deviceType) {
     case Device384Nanopores:
-        messageDispatcher = new MessageDispatcher_384NanoPores_V01(deviceId);
+        messageDispatcher = new Emcr384NanoPores_V01(deviceId);
         break;
 
     case Device384Nanopores_SR7p5kHz:
-        messageDispatcher = new MessageDispatcher_384NanoPores_SR7p5kHz_V01(deviceId);
+        messageDispatcher = new Emcr384NanoPores_SR7p5kHz_V01(deviceId);
         break;
 
     case Device384PatchClamp:
-        messageDispatcher = new MessageDispatcher_384PatchClamp_V01(deviceId);
+        messageDispatcher = new Emcr384PatchClamp_V01(deviceId);
         break;
 
     case Device2x10MHz_PCBV01:
-        messageDispatcher = new MessageDispatcher_2x10MHz_PCBV01_V02(deviceId);
+        messageDispatcher = new Emcr2x10MHz_PCBV01_V02(deviceId);
         break;
 
     case Device2x10MHz_PCBV02:
-        messageDispatcher = new MessageDispatcher_2x10MHz_PCBV02_V02(deviceId);
+        messageDispatcher = new Emcr2x10MHz_PCBV02_V02(deviceId);
         break;
 
     case Device4x10MHz_PCBV01:
-        messageDispatcher = new MessageDispatcher_4x10MHz_PCBV01_V03(deviceId);
+        messageDispatcher = new Emcr4x10MHz_PCBV01_V03(deviceId);
         break;
 
 #ifdef DEBUG
     case Device384Fake:
-        messageDispatcher = new MessageDispatcher_384FakeNanopores(deviceId);
+        messageDispatcher = new Emcr384FakeNanopores(deviceId);
         break;
 
     case Device384FakePatchClamp:
-        messageDispatcher = new MessageDispatcher_384FakePatchClamp(deviceId);
+        messageDispatcher = new Emcr384FakePatchClamp(deviceId);
         break;
 
     case Device4x10MHzFake:
-        messageDispatcher = new MessageDispatcher_4x10MHzFake(deviceId);
+        messageDispatcher = new Emcr4x10MHzFake(deviceId);
         break;
 
     case Device2x10MHzFake:
-        messageDispatcher = new MessageDispatcher_2x10MHzFake(deviceId);
+        messageDispatcher = new Emcr2x10MHzFake(deviceId);
         break;
 #endif
 

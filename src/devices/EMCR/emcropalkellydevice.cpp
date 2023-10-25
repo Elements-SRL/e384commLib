@@ -1,18 +1,17 @@
-#include "messagedispatcher_opalkelly.h"
+#include "emcropalkellydevice.h"
 #include "utils.h"
 
-MessageDispatcher_OpalKelly::MessageDispatcher_OpalKelly(std::string deviceId) :
+EmcrOpalKellyDevice::EmcrOpalKellyDevice(std::string deviceId) :
     MessageDispatcher(deviceId) {
 
     rxRawBufferMask = OKY_RX_BUFFER_MASK;
+}
+
+EmcrOpalKellyDevice::~EmcrOpalKellyDevice() {
 
 }
 
-MessageDispatcher_OpalKelly::~MessageDispatcher_OpalKelly() {
-
-}
-
-ErrorCodes_t MessageDispatcher_OpalKelly::connect(std::string fwPath) {
+ErrorCodes_t EmcrOpalKellyDevice::connect(std::string fwPath) {
     if (connected) {
         return ErrorDeviceAlreadyConnected;
     }
@@ -59,7 +58,7 @@ ErrorCodes_t MessageDispatcher_OpalKelly::connect(std::string fwPath) {
     }
 }
 
-ErrorCodes_t MessageDispatcher_OpalKelly::disconnect() {
+ErrorCodes_t EmcrOpalKellyDevice::disconnect() {
     if (!connected) {
         return ErrorDeviceNotConnected;
     }
@@ -72,7 +71,7 @@ ErrorCodes_t MessageDispatcher_OpalKelly::disconnect() {
     return Success;
 }
 
-void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
+void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
     regs.reserve(txMaxRegs);
 
     std::unique_lock <std::mutex> txMutexLock (txMutex);
@@ -143,7 +142,7 @@ void MessageDispatcher_OpalKelly::handleCommunicationWithDevice() {
     }
 }
 
-void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
+void EmcrOpalKellyDevice::sendCommandsToDevice() {
     int writeTries = 0;
 
     bool notSentTxData;
@@ -186,7 +185,7 @@ void MessageDispatcher_OpalKelly::sendCommandsToDevice() {
     }
 }
 
-bool MessageDispatcher_OpalKelly::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
+bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
     if (dev.WriteRegisters(regs) == okCFrontPanel::NoError) {
         switch (type) {
         case TxTriggerParameteresUpdated:
@@ -208,7 +207,7 @@ bool MessageDispatcher_OpalKelly::writeRegistersAndActivateTriggers(TxTriggerTyp
     }
 }
 
-uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
+uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead; /*!< Bytes read during last transfer from Opal Kelly */
 
@@ -266,7 +265,7 @@ uint32_t MessageDispatcher_OpalKelly::readDataFromDevice() {
     return bytesRead;
 }
 
-void MessageDispatcher_OpalKelly::parseDataFromDevice() {
+void EmcrOpalKellyDevice::parseDataFromDevice() {
     RxParsePhase_t rxParsePhase = RxParseLookForHeader;
 
     rxRawBufferReadOffset = 0;
@@ -436,7 +435,7 @@ void MessageDispatcher_OpalKelly::parseDataFromDevice() {
     }
 }
 
-ErrorCodes_t MessageDispatcher_OpalKelly::initializeBuffers() {
+ErrorCodes_t EmcrOpalKellyDevice::initializeBuffers() {
     rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_BUFFER_SIZE];
     if (rxRawBuffer != nullptr) {
         rxRawBuffer16 = (uint16_t *)rxRawBuffer;
@@ -447,7 +446,7 @@ ErrorCodes_t MessageDispatcher_OpalKelly::initializeBuffers() {
     }
 }
 
-ErrorCodes_t MessageDispatcher_OpalKelly::deinitializeBuffers() {
+ErrorCodes_t EmcrOpalKellyDevice::deinitializeBuffers() {
     if (rxRawBuffer != nullptr) {
         delete [] rxRawBuffer;
         rxRawBuffer = nullptr;

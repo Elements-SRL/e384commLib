@@ -1,7 +1,7 @@
-#include "messagedispatcher_4x10mhzfake.h"
+#include "emcr4x10mhzfake.h"
 
-MessageDispatcher_4x10MHzFake::MessageDispatcher_4x10MHzFake(std::string id) :
-    MessageDispatcher_4x10MHz_PCBV01_V02(id) {
+Emcr4x10MHzFake::Emcr4x10MHzFake(std::string id) :
+    Emcr4x10MHz_PCBV01_V02(id) {
 
     waitingTimeBeforeReadingData = 0;
 
@@ -24,27 +24,27 @@ MessageDispatcher_4x10MHzFake::MessageDispatcher_4x10MHzFake(std::string id) :
     integrationStepArray[SamplingRate1MHz].unit = "s";
 }
 
-MessageDispatcher_4x10MHzFake::~MessageDispatcher_4x10MHzFake() {
+Emcr4x10MHzFake::~Emcr4x10MHzFake() {
 
 }
 
-ErrorCodes_t MessageDispatcher_4x10MHzFake::connect(std::string fwPath) {
+ErrorCodes_t Emcr4x10MHzFake::connect(std::string fwPath) {
     this->initializeBuffers();
     this->fillBuffer();
 
     return MessageDispatcher::connect(fwPath);
 }
 
-ErrorCodes_t MessageDispatcher_4x10MHzFake::disconnect() {
+ErrorCodes_t Emcr4x10MHzFake::disconnect() {
     MessageDispatcher::disconnect();
     return this->deinitializeBuffers();
 }
 
-bool MessageDispatcher_4x10MHzFake::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
+bool Emcr4x10MHzFake::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
     return true;
 }
 
-uint32_t MessageDispatcher_4x10MHzFake::readDataFromDevice() {
+uint32_t Emcr4x10MHzFake::readDataFromDevice() {
 #ifdef DEBUG_MAX_SPEED
     uint32_t bytesRead = OKY_RX_TRANSFER_SIZE; /*!< Bytes read during last transfer from Opal Kelly */
 #else
@@ -95,7 +95,7 @@ uint32_t MessageDispatcher_4x10MHzFake::readDataFromDevice() {
     return bytesRead;
 }
 
-ErrorCodes_t MessageDispatcher_4x10MHzFake::fillBuffer() {
+ErrorCodes_t Emcr4x10MHzFake::fillBuffer() {
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
 

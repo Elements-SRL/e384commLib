@@ -1,14 +1,12 @@
-#ifndef MESSAGEDISPATCHER_384PATCHCLAMP_V04_H
-#define MESSAGEDISPATCHER_384PATCHCLAMP_V04_H
+#ifndef EMCR384PATCHCLAMP_V04_H
+#define EMCR384PATCHCLAMP_V04_H
 
-#include "messagedispatcher_opalkelly.h"
+#include "emcropalkellydevice.h"
 
-//#define E384PATCH_ADDITIONAL_SR_FLAG
-
-class MessageDispatcher_384PatchClamp_V04 : public MessageDispatcher_OpalKelly {
+class Emcr384PatchClamp_V04 : public EmcrOpalKellyDevice {
 public:
-    MessageDispatcher_384PatchClamp_V04(std::string di);
-    virtual ~MessageDispatcher_384PatchClamp_V04();
+    Emcr384PatchClamp_V04(std::string di);
+    virtual ~Emcr384PatchClamp_V04();
 
     virtual ErrorCodes_t hasCompFeature(uint16_t feature) override;
     virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) override;
@@ -168,4 +166,4 @@ protected:
     virtual ErrorCodes_t getResistancePredictionGainControl(CompensationControl_t &control) override;
 };
 
-#endif // MESSAGEDISPATCHER_384PATCHCLAMP_V04_H
+#endif // EMCR384PATCHCLAMP_V04_H

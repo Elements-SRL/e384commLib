@@ -1,12 +1,12 @@
-#ifndef MESSAGEDISPATCHER_384FAKENANOPORES_H
-#define MESSAGEDISPATCHER_384FAKENANOPORES_H
+#ifndef EMCR384NANOPORESFAKE_H
+#define EMCR384NANOPORESFAKE_H
 
-#include "messagedispatcher_384nanopores.h"
+#include "emcr384nanopores.h"
 
-class MessageDispatcher_384FakeNanopores : public MessageDispatcher_384NanoPores_V01 {
+class Emcr384FakeNanopores : public Emcr384NanoPores_V01 {
 public:
-    MessageDispatcher_384FakeNanopores(std::string id);
-    virtual ~MessageDispatcher_384FakeNanopores();
+    Emcr384FakeNanopores(std::string id);
+    virtual ~Emcr384FakeNanopores();
 
     virtual ErrorCodes_t connect(std::string fwPath) override;
     virtual ErrorCodes_t disconnect() override;
@@ -36,4 +36,4 @@ private:
     uint32_t totalBytesWritten = 0;
 };
 
-#endif // MESSAGEDISPATCHER_384FAKENANOPORES_H
+#endif // EMCR384NANOPORESFAKE_H

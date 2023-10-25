@@ -7,7 +7,6 @@
 #include <mutex>
 #include <thread>
 #include <condition_variable>
-#include <unordered_map>
 #include <cmath>
 
 #include "e384commlib_errorcodes.h"

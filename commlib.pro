@@ -20,6 +20,7 @@ CONFIG(release, debug|release) {
 }
 
 DEFINES += E384NPR_ADDITIONAL_SR_FLAG
+#DEFINES += E384PATCH_ADDITIONAL_SR_FLAG
 #DEFINES += DISABLE_IIR
 
 TEMPLATE = lib
@@ -64,13 +65,14 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 SOURCES += \
     src/commandcoder.cpp \
     src/messagedispatcher.cpp \
-    src/messagedispatcher_opalkelly.cpp \
-    src/devices/messagedispatcher_384nanopores.cpp \
-    src/devices/messagedispatcher_384nanopores_sr7p5khz_v01.cpp \
-    src/devices/messagedispatcher_384patchclamp.cpp \
-    src/devices/messagedispatcher_384patchclamp_V04.cpp \
-    src/devices/messagedispatcher_2x10mhz.cpp \
-    src/devices/messagedispatcher_4x10mhz.cpp \
+    src/devices/EMCR/emcrdevice.cpp \
+    src/devices/EMCR/emcropalkellydevice.cpp \
+    src/devices/EMCR/emcr384nanopores.cpp \
+    src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.cpp \
+    src/devices/EMCR/emcr384patchclamp.cpp \
+    src/devices/EMCR/emcr384patchclamp_V04.cpp \
+    src/devices/EMCR/emcr2x10mhz.cpp \
+    src/devices/EMCR/emcr4x10mhz.cpp \
     src/model/boardmodel.cpp \
     src/model/channelmodel.cpp \
     src/calibration/calibrationmanager.cpp
@@ -81,13 +83,14 @@ HEADERS += \
     src/e384commlib_errorcodes.h \
     src/commandcoder.h \
     src/messagedispatcher.h \
-    src/messagedispatcher_opalkelly.h \
-    src/devices/messagedispatcher_384nanopores.h \
-    src/devices/messagedispatcher_384nanopores_sr7p5khz_v01.h \
-    src/devices/messagedispatcher_384patchclamp.h \
-    src/devices/messagedispatcher_384patchclamp_V04.h \
-    src/devices/messagedispatcher_2x10mhz.h \
-    src/devices/messagedispatcher_4x10mhz.h \
+    src/devices/EMCR/emcrdevice.h \
+    src/devices/EMCR/emcropalkellydevice.h \
+    src/devices/EMCR/emcr384nanopores.h \
+    src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.h \
+    src/devices/EMCR/emcr384patchclamp.h \
+    src/devices/EMCR/emcr384patchclamp_V04.h \
+    src/devices/EMCR/emcr2x10mhz.h \
+    src/devices/EMCR/emcr4x10mhz.h \
     src/model/boardmodel.h \
     src/model/channelmodel.h \
     src/calibration/calibrationmanager.h \
@@ -95,25 +98,27 @@ HEADERS += \
 
 contains(DEFINES, DEBUG) {
     SOURCES += \
-    src/devices/messagedispatcher_384fakenanopores.cpp \
-        src/devices/messagedispatcher_384fakepatchclamp.cpp \
-        src/devices/messagedispatcher_4x10mhzfake.cpp \
-        src/devices/messagedispatcher_2x10mhzfake.cpp
+    src/devices/EMCR/emcr384nanoporesfake.cpp \
+    src/devices/EMCR/emcr384patchclampfake.cpp \
+    src/devices/EMCR/emcr2x10mhzfake.cpp \
+    src/devices/EMCR/emcr4x10mhzfake.cpp
     HEADERS += \
-    src/devices/messagedispatcher_384fakenanopores.h \
-        src/devices/messagedispatcher_384fakepatchclamp.h \
-        src/devices/messagedispatcher_4x10mhzfake.h \
-        src/devices/messagedispatcher_2x10mhzfake.h
+    src/devices/EMCR/emcr384nanoporesfake.h \
+    src/devices/EMCR/emcr384patchclampfake.h \
+    src/devices/EMCR/emcr2x10mhzfake.h \
+    src/devices/EMCR/emcr4x10mhzfake.h
 }
 
 INCLUDEPATH += \
     ./src \
     ./src/devices \
+    ./src/devices/EMCR \
     ./src/model \
     ./src/calibration
 DEPENDPATH += \
     ./src \
     ./src/devices \
+    ./src/devices/EMCR \
     ./src/model \
     ./src/calibration
 

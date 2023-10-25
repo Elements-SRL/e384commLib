@@ -1,12 +1,12 @@
-#ifndef MESSAGEDISPATCHER_384NANOPORES_H
-#define MESSAGEDISPATCHER_384NANOPORES_H
+#ifndef EMCR384NANOPORES_H
+#define EMCR384NANOPORES_H
 
-#include "messagedispatcher_opalkelly.h"
+#include "emcropalkellydevice.h"
 
-class MessageDispatcher_384NanoPores_V01 : public MessageDispatcher_OpalKelly {
+class Emcr384NanoPores_V01 : public EmcrOpalKellyDevice {
 public:
-    MessageDispatcher_384NanoPores_V01(std::string di);
-    virtual ~MessageDispatcher_384NanoPores_V01();
+    Emcr384NanoPores_V01(std::string di);
+    virtual ~Emcr384NanoPores_V01();
 
 protected:
 
@@ -84,4 +84,4 @@ protected:
     virtual void initializeHW() override;
 };
 
-#endif // MESSAGEDISPATCHER_384NANOPORES_H
+#endif // EMCR384NANOPORES_H
