@@ -107,8 +107,8 @@ public:
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
-    ErrorCodes_t disconnectDevice();
-    ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag);
+    virtual ErrorCodes_t disconnectDevice();
+    virtual ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag);
 
     virtual ErrorCodes_t connect(std::string fwPath);
     virtual ErrorCodes_t disconnect();
@@ -376,7 +376,6 @@ public:
     virtual ErrorCodes_t getBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
 
 protected:
-    // Check Device->PC table in protocol
     typedef enum RxMessageTypes {
         RxMessageDataLoad,
         RxMessageCurrentDataLoad,
@@ -399,45 +398,6 @@ protected:
         LiquidJunctionTerminate,
         LiquidJunctionStatesNum
     } LiquidJunctionState_t;
-
-    /************\
-     *  Fields  *
-    \************/
-
-    std::vector <double> membraneCapValueInjCapacitance;
-    std::vector <std::vector<std::string>> compensationOptionStrings;
-
-    bool anyLiquidJuctionActive = false;
-
-    std::vector <LiquidJunctionState_t> liquidJunctionStates;
-    std::vector <int64_t> liquidJunctionCurrentSums;
-    std::vector <double> liquidJunctionCurrentEstimates;
-    int64_t liquidJunctionCurrentEstimatesNum;
-    std::vector <Measurement_t> liquidJunctionVoltagesBackup;
-    std::vector <double> liquidJunctionDeltaVoltages;
-    std::vector <double> liquidJunctionDeltaCurrents;
-    std::vector <double> liquidJunctionSmallestCurrentChange;
-    std::vector <uint16_t> liquidJunctionConvergingCount;
-    std::vector <uint16_t> liquidJunctionConvergedCount;
-    std::vector <uint16_t> liquidJunctionPositiveSaturationCount;
-    std::vector <uint16_t> liquidJunctionNegativeSaturationCount;
-    std::vector <uint16_t> liquidJunctionOpenCircuitCount;
-
-    std::vector<std::vector<double>> compValueMatrix;
-    std::vector<bool> compCfastEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<bool> compCslowEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<bool> compRsCorrEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<bool> compRsPredEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<bool> compCcCfastEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    bool areVcCompsEnabled = false;
-    bool areCcCompsEnabled = false;
-
-    ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
-    CalibrationParams_t calibrationParams;
-    std::vector<std::string> calibrationFileNames;
-    std::vector<std::vector<bool>> calibrationFilesOkFlags;
-    std::string calibrationMappingFileDir;
-    std::string calibrationMappingFilePath;
 
     /*************\
      *  Methods  *
@@ -481,9 +441,9 @@ protected:
 
     void flushBoardList();
 
-    /****************\
-     *  Parameters  *
-    \****************/
+    /************\
+     *  Fields  *
+    \************/
 
     uint16_t rxSyncWord;
 
@@ -522,11 +482,6 @@ protected:
     RangedMeasurement_t positiveProtocolTimeRange;
     RangedMeasurement_t protocolFrequencyRange;
     RangedMeasurement_t positiveProtocolFrequencyRange;
-
-    std::vector<uint16_t> rxWordOffsets;
-    std::vector<uint16_t> rxWordLengths;
-
-    std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
 
     std::vector <CommandCoder*> coders;
 
@@ -761,9 +716,40 @@ protected:
     /*! Default paramter values in USER domain*/
     std::vector <double> defaultUserDomainParams;
 
-    /***************\
-     *  Variables  *
-    \***************/
+    std::vector <double> membraneCapValueInjCapacitance;
+    std::vector <std::vector<std::string>> compensationOptionStrings;
+
+    bool anyLiquidJuctionActive = false;
+
+    std::vector <LiquidJunctionState_t> liquidJunctionStates;
+    std::vector <int64_t> liquidJunctionCurrentSums;
+    std::vector <double> liquidJunctionCurrentEstimates;
+    int64_t liquidJunctionCurrentEstimatesNum;
+    std::vector <Measurement_t> liquidJunctionVoltagesBackup;
+    std::vector <double> liquidJunctionDeltaVoltages;
+    std::vector <double> liquidJunctionDeltaCurrents;
+    std::vector <double> liquidJunctionSmallestCurrentChange;
+    std::vector <uint16_t> liquidJunctionConvergingCount;
+    std::vector <uint16_t> liquidJunctionConvergedCount;
+    std::vector <uint16_t> liquidJunctionPositiveSaturationCount;
+    std::vector <uint16_t> liquidJunctionNegativeSaturationCount;
+    std::vector <uint16_t> liquidJunctionOpenCircuitCount;
+
+    std::vector<std::vector<double>> compValueMatrix;
+    std::vector<bool> compCfastEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<bool> compCslowEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<bool> compRsCorrEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<bool> compRsPredEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<bool> compCcCfastEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    bool areVcCompsEnabled = false;
+    bool areCcCompsEnabled = false;
+
+    ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
+    CalibrationParams_t calibrationParams;
+    std::vector<std::string> calibrationFileNames;
+    std::vector<std::vector<bool>> calibrationFilesOkFlags;
+    std::string calibrationMappingFileDir;
+    std::string calibrationMappingFilePath;
 
     std::string deviceId;
     std::string deviceName;

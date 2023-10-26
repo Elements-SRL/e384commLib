@@ -2,7 +2,7 @@
 #include "utils.h"
 
 EmcrOpalKellyDevice::EmcrOpalKellyDevice(std::string deviceId) :
-    MessageDispatcher(deviceId) {
+    EmcrDevice(deviceId) {
 
     rxRawBufferMask = OKY_RX_BUFFER_MASK;
 }

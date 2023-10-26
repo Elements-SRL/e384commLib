@@ -16,9 +16,9 @@
 
 #include "okFrontPanelDLL.h"
 
-#include "messagedispatcher.h"
+#include "emcrdevice.h"
 
-class EmcrOpalKellyDevice : public MessageDispatcher {
+class EmcrOpalKellyDevice : public EmcrDevice {
 public:
     EmcrOpalKellyDevice(std::string deviceId);
     virtual ~EmcrOpalKellyDevice();
