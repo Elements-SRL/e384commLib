@@ -185,6 +185,7 @@ typedef enum DeviceTypes {
     Device384Nanopores,         /*!< 384 channels device for nanopores experiments */
     Device384Nanopores_SR7p5kHz,/*!< 384 channels device for nanopores experiments */
     Device384PatchClamp,        /*!< Nanion's Syncropatch */
+    Device384PatchClamp_V04,    /*!< Nanion's Syncropatch */
     Device2x10MHz_PCBV01,       /*!< 2 channels 10MHz nanopore reader */
     Device2x10MHz_PCBV02,       /*!< 2 channels 10MHz nanopore reader */
     Device4x10MHz_PCBV01,       /*!< 4 channels 10MHz nanopore reader */

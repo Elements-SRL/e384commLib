@@ -12,6 +12,7 @@
 #include "messagedispatcher_384nanopores.h"
 #include "messagedispatcher_384nanopores_sr7p5khz_v01.h"
 #include "messagedispatcher_384patchclamp.h"
+#include "messagedispatcher_384patchclamp_V04.h"
 #include "messagedispatcher_4x10mhz.h"
 #include "messagedispatcher_2x10mhz.h"
 #ifdef DEBUG
@@ -29,7 +30,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000108T", Device384Nanopores_SR7p5kHz},
     {"22510013B4", Device384Nanopores},
     {"23190014UX", Device384Nanopores},
-    {"2210001076", Device384PatchClamp},
+    {"2210001076", Device384PatchClamp_V04},
     {"221000106B", Device384PatchClamp},
     {"221000106C", Device384PatchClamp},
     {"23210014UF", Device384PatchClamp},
@@ -160,6 +161,10 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
 
     case Device384PatchClamp:
         messageDispatcher = new MessageDispatcher_384PatchClamp_V01(deviceId);
+        break;
+
+    case Device384PatchClamp_V04:
+        messageDispatcher = new MessageDispatcher_384PatchClamp_V04(deviceId);
         break;
 
     case Device2x10MHz_PCBV01:
