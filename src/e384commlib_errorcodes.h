@@ -31,6 +31,7 @@ typedef enum ErrorCodes {
     ErrorNoDeviceFound =                    ErrorGroupDeviceDetection +     0x00000001, /*!< Error returned when no devices are detected. */
     ErrorListDeviceFailed =                 ErrorGroupDeviceDetection +     0x00000002, /*!< Error returned when device detection fails.
                                                                                          *   This error may be due to problems with FTDI driver installation too. */
+    ErrorDeviceNotFound =                   ErrorGroupDeviceDetection +     0x00000003, /*!< Error returned when the required device for connection is not found. */
 
     ErrorEepromAlreadyConnected =           ErrorGroupEepromCommunication + 0x00000001, /*!< Error returned when trying to connect to a device eeprom which is already connected. */
     ErrorEepromConnectionFailed =           ErrorGroupEepromCommunication + 0x00000002, /*!< Error returned when connection to a device eeprom fails. */

@@ -23,8 +23,11 @@ public:
     EmcrOpalKellyDevice(std::string deviceId);
     virtual ~EmcrOpalKellyDevice();
 
-    virtual ErrorCodes_t connect(std::string fwPath) override;
-    virtual ErrorCodes_t disconnect() override;
+    static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
+    static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
+    static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
+    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
+    ErrorCodes_t disconnectDevice() override;
 
 protected:
     typedef enum {
@@ -36,6 +39,10 @@ protected:
     /*************\
      *  Methods  *
     \*************/
+
+    static uint32_t getDeviceIndex(std::string serial);
+    static std::string getDeviceSerial(uint32_t index);
+    static bool getDeviceCount(int &numDevs);
 
     virtual void handleCommunicationWithDevice() override;
     virtual void sendCommandsToDevice() override;

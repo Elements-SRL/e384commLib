@@ -74,13 +74,6 @@
  */
 #define E384CL_ARGVOID void
 
-/*! \def E384CL_DATA_ARRAY_SIZE
- * \brief Size of data array.
- * When calling method readData data corresponding to at most #E384CL_DATA_ARRAY_SIZE samples is returned.
- * When calling method readData provide an array of float with at least #E384CL_DATA_ARRAY_SIZE items.
- */
-#define E384CL_DATA_ARRAY_SIZE (65536)
-
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
 namespace e384CommLib {
 #endif
@@ -200,7 +193,7 @@ typedef enum DeviceTypes {
 } DeviceTypes_t;
 
 /*! \def E384CL_OUT_STRUCT_DATA_LEN
- * \brief Max size of double precision numbers returned by method e384CommLib::getNextMessage.
+ * \brief Max size of unsigned int 16 numbers returned by method e384CommLib::getNextMessage.
  */
 #define E384CL_OUT_STRUCT_DATA_LEN 0x100000
 

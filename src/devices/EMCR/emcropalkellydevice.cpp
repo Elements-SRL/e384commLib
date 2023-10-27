@@ -1,6 +1,46 @@
 #include "emcropalkellydevice.h"
 #include "utils.h"
 
+#include "okFrontPanelDLL.h"
+
+#include "emcr384nanopores.h"
+#include "emcr384nanopores_sr7p5khz_v01.h"
+#include "emcr384patchclamp.h"
+#include "emcr384patchclamp_V04.h"
+#include "emcr4x10mhz.h"
+#include "emcr2x10mhz.h"
+#ifdef DEBUG
+/*! Fake device that generates synthetic data */
+#include "emcr384nanoporesfake.h"
+#include "emcr384patchclampfake.h"
+#include "emcr4x10mhzfake.h"
+#include "emcr2x10mhzfake.h"
+#endif
+
+static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
+    {"221000107S", Device384Nanopores_SR7p5kHz},
+    {"221000108T", Device384Nanopores_SR7p5kHz},
+    {"22510013B4", Device384Nanopores},
+    {"23190014UX", Device384Nanopores},
+    {"2210001076", Device384PatchClamp_V04},
+    {"221000106B", Device384PatchClamp},
+    {"221000106C", Device384PatchClamp},
+    {"23210014UF", Device384PatchClamp},
+    {"22370012CI", Device4x10MHz_PCBV01},
+    {"22370012CB", Device2x10MHz_PCBV02},
+    {"224800131L", Device2x10MHz_PCBV02},
+    {"224800130Y", Device2x10MHz_PCBV02},
+    {"224800130X", Device4x10MHz_PCBV01},
+    {"233600165Q", Device2x10MHz_PCBV02},
+    {"233600161X", Device2x10MHz_PCBV02}
+    #ifdef DEBUG
+    ,{"FAKE_Nanopores", Device384Fake},
+    {"FAKE_PATCH_CLAMP", Device384FakePatchClamp},
+    {"FAKE_4x10MHz", Device4x10MHzFake},
+    {"FAKE_2x10MHz", Device2x10MHzFake}
+    #endif
+}; /*! \todo FCON queste info dovrebbero risiedere nel DB */
+
 EmcrOpalKellyDevice::EmcrOpalKellyDevice(std::string deviceId) :
     EmcrDevice(deviceId) {
 
@@ -8,67 +48,189 @@ EmcrOpalKellyDevice::EmcrOpalKellyDevice(std::string deviceId) :
 }
 
 EmcrOpalKellyDevice::~EmcrOpalKellyDevice() {
-
+    this->disconnectDevice();
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::connect(std::string fwPath) {
-    if (connected) {
-        return ErrorDeviceAlreadyConnected;
+ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
+        std::vector <std::string> &deviceIds) {
+    /*! Gets number of devices */
+    int numDevs;
+    bool devCountOk = getDeviceCount(numDevs);
+    if (!devCountOk) {
+        return ErrorListDeviceFailed;
+
+#ifndef DEBUG
+    } else if (numDevs == 0) {
+        deviceIds.clear();
+        return ErrorNoDeviceFound;
+#endif
     }
 
-#ifdef DEBUG_TX_DATA_PRINT
-    createDebugFile(txFid, "e384CommLib_tx");
+    deviceIds.clear();
+
+    /*! Lists all serial numbers */
+    for (int i = 0; i < numDevs; i++) {
+        deviceIds.push_back(getDeviceSerial(i));
+    }
+
+#ifdef DEBUG
+    numDevs++;
+    deviceIds.push_back("FAKE_Nanopores");
+    numDevs++;
+    deviceIds.push_back("FAKE_PATCH_CLAMP");
+    numDevs++;
+    deviceIds.push_back("FAKE_4x10MHz");
+    numDevs++;
+    deviceIds.push_back("FAKE_2x10MHz");
 #endif
 
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    createDebugFile(rxRawFid, "e384CommLib_rxRaw");
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-    createDebugFile(rxFid, "e384CommLib_rx");
-#endif
-
-    okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
-
-    if (error != okCFrontPanel::NoError) {
-        return ErrorDeviceConnectionFailed;
-    }
-
-    if (fwPath != "") {
-        error = dev.ConfigureFPGA(fwPath + fwName);
-
-    } else {
-        error = dev.ConfigureFPGA(fwName);
-    }
-
-    if (error != okCFrontPanel::NoError) {
-        return ErrorDeviceFwLoadingFailed;
-    }
-
-    ErrorCodes_t err = this->initializeBuffers();
-    if (err != Success) {
-        return err;
-
-    } else {
-        return MessageDispatcher::connect(fwPath);
-    }
-}
-
-ErrorCodes_t EmcrOpalKellyDevice::disconnect() {
-    if (!connected) {
-        return ErrorDeviceNotConnected;
-    }
-
-    MessageDispatcher::disconnect();
-
-    this->deinitializeBuffers();
-
-    dev.Close();
     return Success;
+}
+
+ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
+    if (deviceIdMapping.count(deviceId) == 0) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    type = deviceIdMapping[deviceId];
+    return Success;
+}
+
+ErrorCodes_t EmcrOpalKellyDevice::isDeviceSerialDetected(std::string deviceId) {
+    ErrorCodes_t ret = Success;
+    std::vector <std::string> deviceIds;
+    ret = detectDevices(deviceIds);
+
+    if (ret != Success) {
+        return ret;
+    }
+
+    uint32_t deviceIdx = distance(deviceIds.begin(), find(deviceIds.begin(), deviceIds.end(), deviceId));
+
+    if (deviceIdx == deviceIds.size()) {
+        return ErrorDeviceNotFound;
+    }
+    return ret;
+}
+
+ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
+    ErrorCodes_t ret = Success;
+
+    DeviceTypes_t deviceType;
+    ret = MessageDispatcher::getDeviceType(deviceId, deviceType);
+    if (ret != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    messageDispatcher = nullptr;
+
+    switch (deviceType) {
+    case Device384Nanopores:
+        messageDispatcher = new Emcr384NanoPores_V01(deviceId);
+        break;
+
+    case Device384Nanopores_SR7p5kHz:
+        messageDispatcher = new Emcr384NanoPores_SR7p5kHz_V01(deviceId);
+        break;
+
+    case Device384PatchClamp:
+        messageDispatcher = new Emcr384PatchClamp_V01(deviceId);
+        break;
+
+    case Device384PatchClamp_V04:
+        messageDispatcher = new Emcr384PatchClamp_V04(deviceId);
+        break;
+
+    case Device2x10MHz_PCBV01:
+        messageDispatcher = new Emcr2x10MHz_PCBV01_V02(deviceId);
+        break;
+
+    case Device2x10MHz_PCBV02:
+        messageDispatcher = new Emcr2x10MHz_PCBV02_V02(deviceId);
+        break;
+
+    case Device4x10MHz_PCBV01:
+        messageDispatcher = new Emcr4x10MHz_PCBV01_V03(deviceId);
+        break;
+
+#ifdef DEBUG
+    case Device384Fake:
+        messageDispatcher = new Emcr384FakeNanopores(deviceId);
+        break;
+
+    case Device384FakePatchClamp:
+        messageDispatcher = new Emcr384FakePatchClamp(deviceId);
+        break;
+
+    case Device4x10MHzFake:
+        messageDispatcher = new Emcr4x10MHzFake(deviceId);
+        break;
+
+    case Device2x10MHzFake:
+        messageDispatcher = new Emcr2x10MHzFake(deviceId);
+        break;
+#endif
+
+    default:
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->connect(fwPath);
+
+        if (ret != Success) {
+            messageDispatcher->disconnect();
+            delete messageDispatcher;
+            messageDispatcher = nullptr;
+        }
+    }
+
+    return ret;
+}
+
+ErrorCodes_t EmcrOpalKellyDevice::disconnectDevice() {
+    return this->disconnect();
+}
+
+uint32_t EmcrOpalKellyDevice::getDeviceIndex(std::string serial) {
+    /*! Gets number of devices */
+    int numDevs;
+    bool devCountOk = getDeviceCount(numDevs);
+    if (!devCountOk) {
+        return 0;
+
+    } else if (numDevs == 0) {
+        return 0;
+    }
+
+    for (int index = 0; index < numDevs; index++) {
+        std::string deviceId = getDeviceSerial(index);
+        if (deviceId == serial) {
+            return index;
+        }
+    }
+    return 0;
+}
+
+std::string EmcrOpalKellyDevice::getDeviceSerial(uint32_t index) {
+    std::string serial;
+    int numDevs;
+    getDeviceCount(numDevs);
+    if (index < numDevs) {
+        okCFrontPanel okDev;
+        okDev.GetDeviceCount();
+        serial = okDev.GetDeviceListSerial(index);
+        return serial;
+
+    } else {
+        return "";
+    }
+}
+
+bool EmcrOpalKellyDevice::getDeviceCount(int &numDevs) {
+    okCFrontPanel okDev;
+    numDevs = okDev.GetDeviceCount();
+    return true;
 }
 
 void EmcrOpalKellyDevice::handleCommunicationWithDevice() {

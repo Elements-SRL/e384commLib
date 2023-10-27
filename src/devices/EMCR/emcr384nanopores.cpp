@@ -33,8 +33,6 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
     rxWordLengths[RxMessageStatus] = 1;
 
-    maxOutputPacketsNum = E384CL_DATA_ARRAY_SIZE/totalChannelsNum;
-
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
