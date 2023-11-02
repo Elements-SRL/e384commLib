@@ -249,8 +249,8 @@ public:
     ErrorCodes_t getRxDataBufferSize(uint32_t &size);
     ErrorCodes_t allocateRxDataBuffer(int16_t * &data);
     ErrorCodes_t deallocateRxDataBuffer(int16_t * &data);
-    ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data);
-    ErrorCodes_t purgeData();
+    virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data);
+    virtual ErrorCodes_t purgeData();
     ErrorCodes_t convertVoltageValue(int16_t intValue, double &fltValue);
     ErrorCodes_t convertCurrentValue(int16_t intValue, double &fltValue);
     ErrorCodes_t convertVoltageValues(int16_t * intValue, double * fltValue, int valuesNum);
@@ -258,19 +258,20 @@ public:
 
     ErrorCodes_t getLiquidJunctionVoltages(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> &voltages);
 
-    ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
-    ErrorCodes_t getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &voltageHalfTunerFeatures);
-    ErrorCodes_t getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures);
-    ErrorCodes_t getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &currentHalfTunerFeatures);
-    ErrorCodes_t getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges);
-    ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);
-    ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
-    ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
-    ErrorCodes_t getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures);
-    ErrorCodes_t hasGateVoltages();
-    ErrorCodes_t hasSourceVoltages();
-    ErrorCodes_t getGateVoltagesFeatures(RangedMeasurement_t &gateVoltagesFeatures);
-    ErrorCodes_t getSourceVoltagesFeatures(RangedMeasurement_t &sourceVoltagesFeatures);
+    virtual ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
+    virtual ErrorCodes_t getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &voltageHalfTunerFeatures);
+    virtual ErrorCodes_t getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures);
+    virtual ErrorCodes_t getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &currentHalfTunerFeatures);
+    virtual ErrorCodes_t getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges);
+    virtual ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);
+    virtual ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
+    virtual ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
+    virtual ErrorCodes_t getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures);
+    virtual ErrorCodes_t hasGateVoltages();
+    virtual ErrorCodes_t hasSourceVoltages();
+    virtual ErrorCodes_t getGateVoltagesFeatures(RangedMeasurement_t &gateVoltagesFeatures);
+    virtual ErrorCodes_t getSourceVoltagesFeatures(RangedMeasurement_t &sourceVoltagesFeatures);
+
     ErrorCodes_t getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &currentChannelNumberFeatures);
     ErrorCodes_t getChannelNumberFeatures(int &voltageChannelNumberFeatures, int &currentChannelNumberFeatures);
     ErrorCodes_t getAvailableChannelsSourcesFeatures(ChannelSources_t &voltageSourcesIdxs, ChannelSources_t &currentSourcesIdxs);
@@ -318,9 +319,9 @@ public:
     ErrorCodes_t getCCVoltageFilterIdx(uint32_t &idx);
     ErrorCodes_t getCCCurrentFilterIdx(uint32_t &idx);
 
-    ErrorCodes_t hasChannelSwitches();
-    ErrorCodes_t hasStimulusSwitches();
-    ErrorCodes_t hasOffsetCompensation();
+    virtual ErrorCodes_t hasChannelSwitches();
+    virtual ErrorCodes_t hasStimulusSwitches();
+    virtual ErrorCodes_t hasOffsetCompensation();
 
     ErrorCodes_t getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
     ErrorCodes_t getCurrentProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
@@ -332,7 +333,7 @@ public:
     ErrorCodes_t hasProtocolStepFeature();
     ErrorCodes_t hasProtocolRampFeature();
     ErrorCodes_t hasProtocolSinFeature();
-    bool isStateArrayAvailable();
+    virtual ErrorCodes_t isStateArrayAvailable();
 
     virtual ErrorCodes_t getCalibData(CalibrationData_t &calibData);
     virtual ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams);
@@ -427,10 +428,6 @@ protected:
     /************\
      *  Fields  *
     \************/
-
-    uint16_t rxSyncWord;
-
-    unsigned int packetsPerFrame = 1;
 
     uint16_t voltageChannelsNum = 1;
     uint16_t currentChannelsNum = 1;
@@ -533,24 +530,6 @@ protected:
 
     std::vector<Measurement_t> selectedLiquidJunctionVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
 
-    // Calibration DAC coders and ranges
-    RangedMeasurement_t calibCcCurrentGainRange;
-
-    std::vector <RangedMeasurement_t> calibCcCurrentOffsetRanges;
-
-    RangedMeasurement_t calibVcVoltageGainRange;
-
-    std::vector <RangedMeasurement_t> calibVcVoltageOffsetRanges;
-
-    // Calibration ADC coders and ranges
-    RangedMeasurement_t calibVcCurrentGainRange;
-
-    std::vector <RangedMeasurement_t> calibVcCurrentOffsetRanges;
-
-    RangedMeasurement_t calibCcVoltageGainRange;
-
-    std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
-
     RangedMeasurement_t gateVoltageRange;
     std::vector<Measurement_t> selectedGateVoltageVector;
 
@@ -560,8 +539,6 @@ protected:
     uint16_t selectedSourceForCurrentChannelIdx;
 
     std::vector <RangedMeasurement_t> vcLeakCalibRange;
-
-    CalibrationData_t calibrationData;
 
     /*! Compensation options*/
     std::vector <uint16_t> selectedRsCorrBws;
@@ -626,31 +603,7 @@ protected:
     std::vector <BoardModel *> boardModels;
     std::vector <ChannelModel *> channelModels;
 
-    /*! Read data buffer management */
-    uint16_t rxMaxWords;
-    uint32_t maxInputDataLoadSize;
-
     uint16_t selectedSamplingRateIdx;
-
-    /*! Read data buffer management */
-    uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */
-    uint16_t * rxRawBuffer16 = nullptr; /*!< Raw incoming data from the device */
-    uint32_t rxRawBufferReadOffset = 0; /*!< Device Rx buffer offset position in which data are collected by the outputDataBuffer */
-    uint32_t rxRawBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
-    uint32_t maxRxRawBytesRead = 0;
-    uint32_t rxRawBytesAvailable = 0;
-    uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
-    uint32_t rxRawBufferMask;
-    MsgResume_t * rxMsgBuffer; /*!< Buffer of pre-digested messages that contains message's high level info */
-    uint32_t rxMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be written */
-    uint32_t rxMsgBufferReadLength = 0; /*!< Lenght of the part of the buffer to be processed */
-    uint32_t rxMsgBufferWriteOffset = 0;
-    uint32_t rxDataBufferWriteOffset = 0;
-    std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */
-
-    uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
-
-    uint16_t * rxDataBuffer; /*!< Buffer of pre-digested messages that contains message's data */
 
     double currentResolution = 1.0;
     double voltageResolution = 1.0;
@@ -703,23 +656,13 @@ protected:
      *  Multi-thread synchronization variables  *
     \********************************************/
 
-    std::thread deviceCommunicationThread;
-    std::thread rxConsumerThread;
-    std::thread liquidJunctionThread;
-
-    mutable std::mutex rxRawMutex;
-    std::condition_variable rxRawBufferNotEmpty;
-    std::condition_variable rxRawBufferNotFull;
-
-    mutable std::mutex rxMsgMutex;
-    std::condition_variable rxMsgBufferNotEmpty;
-    std::condition_variable rxMsgBufferNotFull;
-
+    /*! \todo FCON non mi piace sta roba qui, dovrebbe stare inemcrdevice.h, però lo usa la procedura per la liquid junction */
     mutable std::mutex txMutex;
     std::condition_variable txMsgBufferNotEmpty;
     std::condition_variable txMsgBufferNotFull;
 
     mutable std::mutex ljMutex;
+    bool liquidJunctionControlPending = false;
 
 #ifdef DEBUG_TX_DATA_PRINT
     FILE * txFid = nullptr;

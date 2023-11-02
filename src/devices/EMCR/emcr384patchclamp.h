@@ -156,7 +156,7 @@ protected:
     virtual std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams) override;
     virtual std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc) override;
     virtual ErrorCodes_t asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams) override;
-    virtual double computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow) override;
+    virtual double computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow);
 
     virtual ErrorCodes_t getPipetteCapacitanceControl(CompensationControl_t &control) override;
     virtual ErrorCodes_t getCCPipetteCapacitanceControl(CompensationControl_t &control) override;

@@ -120,9 +120,7 @@ ErrorCodes_t MessageDispatcher::initializeDevice() {
         this->setGateVoltages(boardIndexes, selectedGateVoltageVector, false);
         this->setSourceVoltages(boardIndexes, selectedSourceVoltageVector, false);
         this->digitalOffsetCompensation(allChannelIndexes, allFalse, false);
-        if (calibrationData.vcCalibResArray.size() > 0) {
-            this->turnCalSwOn(allChannelIndexes, allFalse, false);
-        }
+        this->turnCalSwOn(allChannelIndexes, allFalse, false);
 
         if (vcCurrentRangesNum > 0) {
             this->updateCalibVcCurrentGain(allChannelIndexes, false);
@@ -537,308 +535,11 @@ ErrorCodes_t MessageDispatcher::deallocateRxDataBuffer(int16_t * &data) {
 }
 
 ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
-    ErrorCodes_t ret = Success;
-    double xFlt;
-
-    std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
-    if (rxMsgBufferReadLength <= 0) {
-        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(3));
-        if (rxMsgBufferReadLength <= 0) {
-            return ErrorNoDataAvailable;
-        }
-    }
-    uint32_t maxMsgRead = rxMsgBufferReadLength;
-    rxMutexLock.unlock();
-
-    if (!parsingFlag) {
-        return ErrorDeviceNotConnected;
-    }
-
-    uint32_t msgReadCount = 0;
-
-    rxOutput.dataLen = 0; /*! Initialize data length in case more messages are merged */
-    lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdInvalid;
-
-    uint32_t dataOffset;
-    uint32_t samplesNum;
-    uint32_t sampleIdx;
-    uint32_t timeSamplesNum;
-    int16_t rawFloat;
-    uint32_t dataWritten;
-    bool exitLoop = false;
-    bool messageReadFlag = false;
-
-    while (msgReadCount < maxMsgRead) {
-        dataOffset = rxMsgBuffer[rxMsgBufferReadOffset].startDataPtr;
-        sampleIdx = 0;
-        switch (rxMsgBuffer[rxMsgBufferReadOffset].typeId) {
-        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
-            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
-                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
-                rxOutput.dataLen = 0;
-                rxOutput.protocolId = rxDataBuffer[dataOffset];
-                rxOutput.protocolItemIdx = rxDataBuffer[(dataOffset+1) & RX_DATA_BUFFER_MASK];
-                rxOutput.protocolRepsIdx = rxDataBuffer[(dataOffset+2) & RX_DATA_BUFFER_MASK];
-                rxOutput.protocolSweepIdx = rxDataBuffer[(dataOffset+3) & RX_DATA_BUFFER_MASK];
-
-                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader;
-
-                /*! This message cannot be merged, but stay in the loop in case there are more to read */
-                exitLoop = false;
-                messageReadFlag = true;
-
-            } else if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader) {
-                /*! If there are more of this kind in a sequence ignore subsequent ones */
-                exitLoop = false;
-                messageReadFlag = true;
-
-            } else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-            break;
-
-        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData):
-            samplesNum = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
-            dataWritten = rxOutput.dataLen;
-            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid ||
-                    (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData && dataWritten+samplesNum < E384CL_OUT_STRUCT_DATA_LEN)) {
-                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid)
-                    OR if we are merging successive acquisition data messages that do not overflow the available memory */
-
-                std::unique_lock <std::mutex> ljMutexLock (ljMutex);
-                if (downsamplingFlag) {
-                    timeSamplesNum = samplesNum/totalChannelsNum;
-                    uint32_t downsamplingCount = 0;
-                    for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-                        if (++downsamplingOffset >= selectedDownsamplingRatio) {
-                            downsamplingOffset = 0;
-                            downsamplingCount++;
-                            for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
-#ifdef FILTER_CLIP_NEEDED
-                                xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
-                                data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-#else
-                                data[dataWritten+sampleIdx++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
-#endif
-                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                            }
-
-                            for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
-#ifdef FILTER_CLIP_NEEDED
-                                xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                                data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-#else
-                                data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
-#endif
-                                if (anyLiquidJuctionActive) {
-                                    liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
-                                }
-                                sampleIdx++;
-                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                            }
-                            liquidJunctionCurrentEstimatesNum++;
-
-                        } else {
-                            for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
-                                xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
-                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                            }
-
-                            for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
-                                xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                                if (anyLiquidJuctionActive) {
-                                    liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)round(xFlt);
-                                }
-                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                            }
-                            liquidJunctionCurrentEstimatesNum++;
-                        }
-
-                        if (iirOff < 1) {
-                            iirOff = IIR_ORD;
-
-                        } else {
-                            iirOff--;
-                        }
-                    }
-
-                    rxOutput.dataLen += downsamplingCount*totalChannelsNum;
-
-                } else if (rawDataFilterActiveFlag) {
-                    rxOutput.dataLen += samplesNum;
-                    timeSamplesNum = samplesNum/totalChannelsNum;
-                    for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            rawFloat = (int16_t)rxDataBuffer[dataOffset];
-#ifdef FILTER_CLIP_NEEDED
-                            xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
-                            data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-#else
-                            data[dataWritten+sampleIdx++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
-#endif
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
-
-                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                            rawFloat = (int16_t)rxDataBuffer[dataOffset];
-#ifdef FILTER_CLIP_NEEDED
-                            xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                            data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-#else
-                            data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
-#endif
-                            if (anyLiquidJuctionActive) {
-                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
-                            }
-                            sampleIdx++;
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
-                        liquidJunctionCurrentEstimatesNum++;
-
-                        if (iirOff < 1) {
-                            iirOff = IIR_ORD;
-
-                        } else {
-                            iirOff--;
-                        }
-                    }
-
-                } else {
-                    rxOutput.dataLen += samplesNum;
-                    timeSamplesNum = samplesNum/totalChannelsNum;
-                    for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
-
-                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                            data[dataWritten+sampleIdx] = rxDataBuffer[dataOffset];
-                            if (anyLiquidJuctionActive) {
-                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
-                            }
-                            sampleIdx++;
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
-                        if (anyLiquidJuctionActive) {
-                            liquidJunctionCurrentEstimatesNum++;
-                        }
-                    }
-                }
-
-                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData;
-
-                /*! This message can be merged, stay in the loop in case there are more to read */
-                exitLoop = false;
-                messageReadFlag = true;
-
-            } else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-            break;
-
-        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail):
-            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
-                /*! Evaluate only if it's the first repetition */
-                rxOutput.dataLen = 0;
-                rxOutput.protocolId = rxDataBuffer[dataOffset];
-
-                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail;
-
-                /*! This message cannot be merged, but stay in the loop in case there are more to read */
-                exitLoop = false;
-                messageReadFlag = true;
-
-            } else if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail) {
-                /*! If there are more of this kind in a sequence ignore subsequent ones */
-                exitLoop = false;
-                messageReadFlag = true;
-
-            } else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-
-            break;
-
-        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
-            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
-                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation;
-
-                /*! This message cannot be merged, leave anyway */
-                exitLoop = true;
-                messageReadFlag = true;
-
-            } else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-
-            break;
-
-        case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
-            //            not really managed, ignore it
-            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
-                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus;
-                /*! This message cannot be merged, leave anyway */
-                exitLoop = true;
-                messageReadFlag = true;
-
-            } else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-
-            break;
-
-        default:
-            lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdInvalid;
-
-            /*! Leave and look for following messages */
-            exitLoop = true;
-            messageReadFlag = true;
-            break;
-        }
-        rxOutput.msgTypeId = lastParsedMsgType;
-        if (messageReadFlag) {
-            msgReadCount++;
-            rxMsgBufferReadOffset = (rxMsgBufferReadOffset+1) & RX_MSG_BUFFER_MASK;
-        }
-
-        if (exitLoop) {
-            break;
-        }
-    }
-
-    rxMutexLock.lock();
-    rxMsgBufferReadLength -= msgReadCount;
-    rxMutexLock.unlock();
-    rxMsgBufferNotFull.notify_all();
-
-    return ret;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::purgeData() {
-    ErrorCodes_t ret = Success;
-
-    std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
-    rxMsgBufferReadOffset = (rxMsgBufferReadOffset+rxMsgBufferReadLength) & RX_MSG_BUFFER_MASK;
-    rxMsgBufferReadLength = 0;
-    rxMutexLock.unlock();
-    rxMsgBufferNotFull.notify_all();
-
-    return ret;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::convertVoltageValue(int16_t intValue, double &fltValue) {
@@ -884,105 +585,55 @@ ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector<uint16_t> 
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures){
-    if (vHoldTunerCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    voltageHoldTunerFeatures = vHoldRange;
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &voltageHalfTunerFeatures){
-    if (vHalfTunerCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    voltageHalfTunerFeatures = vHalfRange;
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures){
-    if (cHoldTunerCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    currentHoldTunerFeatures = cHoldRange;
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &currentHalfTunerFeatures){
-    if (cHalfTunerCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    currentHalfTunerFeatures = cHalfRange;
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges) {
-    if (liquidJunctionVoltageCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    ranges = liquidJunctionRangesArray;
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures){
-    if (calibVcCurrentGainCoders.size() == 0) {
-        return ErrorFeatureNotImplemented;
-    }
-    calibVcCurrentGainFeatures = calibVcCurrentGainRange;
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures){
-    if (calibVcCurrentOffsetCoders.size() == 0) {
-        return ErrorFeatureNotImplemented;
-    }
-    calibVcCurrentOffsetFeatures = calibVcCurrentOffsetRanges;
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures){
-    if (calibCcVoltageGainCoders.size() == 0) {
-        return ErrorFeatureNotImplemented;
-    }
-    calibCcVoltageGainFeatures = calibCcVoltageGainRange;
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures){
-    if (calibCcVoltageOffsetCoders.size() == 0) {
-        return ErrorFeatureNotImplemented;
-    }
-    calibCcVoltageOffsetFeatures = calibCcVoltageOffsetRanges;
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::hasGateVoltages() {
-    if (gateVoltageCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::hasSourceVoltages() {
-    if (sourceVoltageCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getGateVoltagesFeatures(RangedMeasurement_t &gateVoltagesFeatures){
-    if (gateVoltageCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    gateVoltagesFeatures = gateVoltageRange;
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getSourceVoltagesFeatures(RangedMeasurement_t &sourceVoltagesFeatures){
-    if (sourceVoltageCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    sourceVoltagesFeatures = sourceVoltageRange;
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &currentChannelNumberFeatures){
@@ -1281,24 +932,19 @@ ErrorCodes_t MessageDispatcher::getCCCurrentFilterIdx(uint32_t &idx) {
 }
 
 ErrorCodes_t MessageDispatcher::hasChannelSwitches() {
-    if (turnChannelsOnCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::hasStimulusSwitches() {
-    if (enableStimulusCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    return Success;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::hasOffsetCompensation() {
-    if (liquidJunctionVoltageCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    return Success;
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getCalibData(CalibrationData_t &calibData){
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getCalibParams(CalibrationParams_t &calibParams) {
@@ -1384,19 +1030,8 @@ ErrorCodes_t MessageDispatcher::hasProtocolSinFeature() {
     return Success;
 }
 
-bool MessageDispatcher::isStateArrayAvailable() {
-    if (numberOfStatesCoder == nullptr){
-        return false;
-    }
-    return true;
-}
-
-ErrorCodes_t MessageDispatcher::getCalibData(CalibrationData_t &calibData){
-    if(calibrationData.vcCalibResArray.empty()){
-        return ErrorFeatureNotImplemented;
-    }
-    calibData = calibrationData;
-    return Success;
+ErrorCodes_t MessageDispatcher::isStateArrayAvailable() {
+    return ErrorFeatureNotImplemented;
 }
 
 /*********************\
@@ -1700,10 +1335,12 @@ void MessageDispatcher::computeLiquidJunction() {
             }
             ljMutexLock.unlock();
 
+            liquidJunctionControlPending = true;
             this->setLiquidJunctionVoltage(channelIndexes, voltages, true);
 
+            /*! This is to ensure that the voltage command has been submitted to the FPGA */
             std::unique_lock <std::mutex> txMutexLock (txMutex);
-            while (txMsgBufferReadLength > 0 && !stopConnectionFlag) {
+            while (liquidJunctionControlPending && !stopConnectionFlag) {
                 txMsgBufferNotFull.wait_for(txMutexLock, std::chrono::milliseconds(100));
             }
             txMutexLock.unlock();

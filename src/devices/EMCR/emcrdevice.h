@@ -103,6 +103,28 @@ public:
      *  Rx methods  *
     \****************/
 
+    ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data) override;
+    ErrorCodes_t purgeData() override;
+
+    ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures) override;
+    ErrorCodes_t getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &voltageHalfTunerFeatures) override;
+    ErrorCodes_t getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures) override;
+    ErrorCodes_t getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &currentHalfTunerFeatures) override;
+    ErrorCodes_t getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges) override;
+    ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures) override;
+    ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures) override;
+    ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures) override;
+    ErrorCodes_t getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures) override;
+    ErrorCodes_t hasGateVoltages() override;
+    ErrorCodes_t hasSourceVoltages() override;
+    ErrorCodes_t getGateVoltagesFeatures(RangedMeasurement_t &gateVoltagesFeatures) override;
+    ErrorCodes_t getSourceVoltagesFeatures(RangedMeasurement_t &sourceVoltagesFeatures) override;
+
+    ErrorCodes_t hasChannelSwitches() override;
+    ErrorCodes_t hasStimulusSwitches() override;
+    ErrorCodes_t hasOffsetCompensation() override;
+    ErrorCodes_t isStateArrayAvailable() override;
+
     ErrorCodes_t getCalibData(CalibrationData_t &calibData) override;
     ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams) override;
     ErrorCodes_t getCalibFileNames(std::vector<std::string> &calibFileNames) override;
@@ -138,6 +160,31 @@ protected:
      *  Fields  *
     \************/
 
+    uint16_t rxSyncWord;
+    unsigned int packetsPerFrame = 1;
+
+    /*! Read data buffer management */
+    uint16_t rxMaxWords;
+    uint32_t maxInputDataLoadSize;
+    uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */
+    uint16_t * rxRawBuffer16 = nullptr; /*!< Raw incoming data from the device */
+    uint32_t rxRawBufferReadOffset = 0; /*!< Device Rx buffer offset position in which data are collected by the outputDataBuffer */
+    uint32_t rxRawBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
+    uint32_t maxRxRawBytesRead = 0;
+    uint32_t rxRawBytesAvailable = 0;
+    uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
+    uint32_t rxRawBufferMask;
+    MsgResume_t * rxMsgBuffer; /*!< Buffer of pre-digested messages that contains message's high level info */
+    uint32_t rxMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be written */
+    uint32_t rxMsgBufferReadLength = 0; /*!< Lenght of the part of the buffer to be processed */
+    uint32_t rxMsgBufferWriteOffset = 0;
+    uint32_t rxDataBufferWriteOffset = 0;
+    std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */
+
+    uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
+
+    uint16_t * rxDataBuffer; /*!< Buffer of pre-digested messages that contains message's data */
+
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */
     std::vector <uint16_t> txMsgOffsetWord; /*!< Buffer of offset word in txMsgBuffer */
@@ -156,6 +203,21 @@ protected:
     std::vector<uint16_t> rxWordLengths;
 
     std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
+
+    CalibrationData_t calibrationData;
+    // Calibration DAC coders and ranges
+    RangedMeasurement_t calibCcCurrentGainRange;
+    std::vector <RangedMeasurement_t> calibCcCurrentOffsetRanges;
+
+    RangedMeasurement_t calibVcVoltageGainRange;
+    std::vector <RangedMeasurement_t> calibVcVoltageOffsetRanges;
+
+    // Calibration ADC coders and ranges
+    RangedMeasurement_t calibVcCurrentGainRange;
+    std::vector <RangedMeasurement_t> calibVcCurrentOffsetRanges;
+
+    RangedMeasurement_t calibCcVoltageGainRange;
+    std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
 
     ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
     CalibrationParams_t calibrationParams;
@@ -284,6 +346,21 @@ protected:
     std::vector <BoolCoder*> pipetteCapCcEnCompensationCoders;
     std::vector <MultiCoder*> pipetteCapCcValCompensationMultiCoders;
 
+    /********************************************\
+     *  Multi-thread synchronization variables  *
+    \********************************************/
+
+    std::thread deviceCommunicationThread;
+    std::thread rxConsumerThread;
+    std::thread liquidJunctionThread;
+
+    mutable std::mutex rxRawMutex;
+    std::condition_variable rxRawBufferNotEmpty;
+    std::condition_variable rxRawBufferNotFull;
+
+    mutable std::mutex rxMsgMutex;
+    std::condition_variable rxMsgBufferNotEmpty;
+    std::condition_variable rxMsgBufferNotFull;
 };
 
 #endif // EMCRDEVICE_H
