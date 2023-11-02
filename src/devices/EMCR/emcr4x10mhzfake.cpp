@@ -32,11 +32,11 @@ ErrorCodes_t Emcr4x10MHzFake::connect(std::string fwPath) {
     this->initializeBuffers();
     this->fillBuffer();
 
-    return MessageDispatcher::connect(fwPath);
+    return EmcrDevice::connect(fwPath);
 }
 
 ErrorCodes_t Emcr4x10MHzFake::disconnect() {
-    MessageDispatcher::disconnect();
+    EmcrDevice::disconnect();
     return this->deinitializeBuffers();
 }
 

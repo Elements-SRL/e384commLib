@@ -34,11 +34,11 @@ ErrorCodes_t Emcr384FakeNanopores::connect(std::string fwPath) {
     this->fillBuffer();
     startTime = std::chrono::steady_clock::now();
 
-    return MessageDispatcher::connect(fwPath);
+    return EmcrDevice::connect(fwPath);
 }
 
 ErrorCodes_t Emcr384FakeNanopores::disconnect() {
-    MessageDispatcher::disconnect();
+    EmcrDevice::disconnect();
     return this->deinitializeBuffers();
 }
 

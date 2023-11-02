@@ -224,11 +224,11 @@ ErrorCodes_t MessageDispatcher::resetLiquidJunctionVoltage(std::vector<uint16_t>
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t EmcrDevice::setGateVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setGateVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t EmcrDevice::setSourceVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setSourceVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag){
     return ErrorFeatureNotImplemented;
 }
 

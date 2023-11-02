@@ -33,11 +33,11 @@ ErrorCodes_t Emcr384FakePatchClamp::connect(std::string fwPath) {
     this->initializeBuffers();
     this->fillBuffer();
 
-    return MessageDispatcher::connect(fwPath);
+    return EmcrDevice::connect(fwPath);
 }
 
 ErrorCodes_t Emcr384FakePatchClamp::disconnect() {
-    MessageDispatcher::disconnect();
+    EmcrDevice::disconnect();
     return this->deinitializeBuffers();
 }
 
