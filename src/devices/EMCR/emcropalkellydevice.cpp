@@ -193,6 +193,61 @@ ErrorCodes_t EmcrOpalKellyDevice::disconnectDevice() {
     return this->disconnect();
 }
 
+ErrorCodes_t EmcrOpalKellyDevice::connect(std::string fwPath) {
+    if (connected) {
+        return ErrorDeviceAlreadyConnected;
+    }
+
+#ifdef DEBUG_TX_DATA_PRINT
+    createDebugFile(txFid, "e384CommLib_tx");
+#endif
+
+#ifdef DEBUG_RX_RAW_DATA_PRINT
+    createDebugFile(rxRawFid, "e384CommLib_rxRaw");
+#endif
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+    createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
+#endif
+
+#ifdef DEBUG_RX_DATA_PRINT
+    createDebugFile(rxFid, "e384CommLib_rx");
+#endif
+
+    okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
+
+    if (error != okCFrontPanel::NoError) {
+        return ErrorDeviceConnectionFailed;
+    }
+
+    error = dev.ConfigureFPGA(fwPath + fwName);
+
+    if (error != okCFrontPanel::NoError) {
+        return ErrorDeviceFwLoadingFailed;
+    }
+
+    ErrorCodes_t err = this->initializeBuffers();
+    if (err != Success) {
+        return err;
+
+    } else {
+        return EmcrDevice::connect(fwPath);
+    }
+}
+
+ErrorCodes_t EmcrOpalKellyDevice::disconnect() {
+    if (!connected) {
+        return ErrorDeviceNotConnected;
+    }
+
+    EmcrDevice::disconnect();
+
+    this->deinitializeBuffers();
+
+    dev.Close();
+    return Success;
+}
+
 uint32_t EmcrOpalKellyDevice::getDeviceIndex(std::string serial) {
     /*! Gets number of devices */
     int numDevs;

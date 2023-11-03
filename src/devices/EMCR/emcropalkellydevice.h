@@ -29,6 +29,9 @@ public:
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
     ErrorCodes_t disconnectDevice() override;
 
+    virtual ErrorCodes_t connect(std::string fwPath) override;
+    virtual ErrorCodes_t disconnect() override;
+
 protected:
     typedef enum {
         RxParseLookForHeader,
