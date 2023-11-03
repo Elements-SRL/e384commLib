@@ -141,7 +141,7 @@ protected:
     ErrorCodes_t init();
     ErrorCodes_t deinit();
 
-    virtual ErrorCodes_t initializeCalibration() override;
+    virtual void initializeCalibration() override;
 
     virtual void handleCommunicationWithDevice() = 0;
     virtual uint32_t readDataFromDevice() = 0;

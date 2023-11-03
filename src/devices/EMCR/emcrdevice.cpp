@@ -1926,7 +1926,7 @@ ErrorCodes_t EmcrDevice::deinit() {
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::initializeCalibration() {
+void EmcrDevice::initializeCalibration() {
     CalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum);
 
     calibrationParams = calibrationManager.getCalibrationParams(calibrationLoadingError);

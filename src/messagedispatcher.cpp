@@ -1367,11 +1367,11 @@ void MessageDispatcher::computeLiquidJunction() {
     }
 }
 
-ErrorCodes_t MessageDispatcher::initializeCalibration() {
-    return ErrorFeatureNotImplemented;
+void MessageDispatcher::initializeCalibration() {
+
 }
 
-ErrorCodes_t MessageDispatcher::initializeLiquidJunction() {
+void MessageDispatcher::initializeLiquidJunction() {
     liquidJunctionCurrentEstimatesNum = 0;
     liquidJunctionStates.resize(currentChannelsNum);
     std::fill(liquidJunctionStates.begin(), liquidJunctionStates.end(), LiquidJunctionIdle);

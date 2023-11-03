@@ -407,8 +407,8 @@ protected:
     void computeLiquidJunction();
     virtual void sendCommandsToDevice() = 0;
     virtual void initializeHW() = 0;
-    virtual ErrorCodes_t initializeCalibration();
-    ErrorCodes_t initializeLiquidJunction();
+    virtual void initializeCalibration();
+    void initializeLiquidJunction();
 
     bool checkProtocolValidity(std::string &message);
 
