@@ -1,7 +1,7 @@
 #include "emcr4x10mhzfake.h"
 
 Emcr4x10MHzFake::Emcr4x10MHzFake(std::string id) :
-    Emcr4x10MHz_PCBV01_V02(id) {
+    Emcr4x10MHz_PCBV01_V03(id) {
 
     waitingTimeBeforeReadingData = 0;
 
