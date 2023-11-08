@@ -322,6 +322,7 @@ public:
     virtual ErrorCodes_t hasChannelSwitches();
     virtual ErrorCodes_t hasStimulusSwitches();
     virtual ErrorCodes_t hasOffsetCompensation();
+    virtual ErrorCodes_t hasStimulusHalf();
 
     ErrorCodes_t getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);
     ErrorCodes_t getCurrentProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range);

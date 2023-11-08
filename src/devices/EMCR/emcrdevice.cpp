@@ -1771,6 +1771,13 @@ ErrorCodes_t EmcrDevice::hasOffsetCompensation() {
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::hasStimulusHalf() {
+    if (vHalfTunerCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    return Success;
+}
+
 ErrorCodes_t EmcrDevice::isStateArrayAvailable() {
     if (numberOfStatesCoder == nullptr) {
         return ErrorFeatureNotImplemented;

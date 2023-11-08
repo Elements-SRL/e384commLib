@@ -943,6 +943,10 @@ ErrorCodes_t MessageDispatcher::hasOffsetCompensation() {
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::hasStimulusHalf() {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::getCalibData(CalibrationData_t &calibData){
     return ErrorFeatureNotImplemented;
 }
