@@ -1627,3 +1627,10 @@ void Emcr4x10MHz_PCBV01_V03::initializeHW() {
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 }
+
+Emcr4x10MHz_PCBV03_V05::Emcr4x10MHz_PCBV03_V05(std::string di):
+Emcr4x10MHz_PCBV01_V03(di) {
+    fwName = "4x10MHz_V05.bit";
+}
+
+Emcr4x10MHz_PCBV03_V05::~Emcr4x10MHz_PCBV03_V05(){}

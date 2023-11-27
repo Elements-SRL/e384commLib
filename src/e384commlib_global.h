@@ -182,6 +182,7 @@ typedef enum DeviceTypes {
     Device2x10MHz_PCBV01,       /*!< 2 channels 10MHz nanopore reader */
     Device2x10MHz_PCBV02,       /*!< 2 channels 10MHz nanopore reader */
     Device4x10MHz_PCBV01,       /*!< 4 channels 10MHz nanopore reader */
+    Device4x10MHz_PCBV03,       /*!< 4 channels 10MHz nanopore reader */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
     Device384FakePatchClamp,    /*!< Fake patch clamp device */
