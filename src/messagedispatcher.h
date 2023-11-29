@@ -121,7 +121,9 @@ public:
     ErrorCodes_t setChannelSelected(uint16_t chIdx, bool newState);
     ErrorCodes_t setBoardSelected(uint16_t brdIdx, bool newState);
     ErrorCodes_t setRowSelected(uint16_t rowIdx, bool newState);
+    ErrorCodes_t getChannelsOnRow(uint16_t rowIdx, std::vector<ChannelModel *> &channels);
     ErrorCodes_t setAllChannelsSelected(bool newState);
+    ErrorCodes_t getChannelsOnBoard(uint16_t boardIdx, std::vector <ChannelModel *> &channels);
 
     /****************\
      *  Tx methods  *
