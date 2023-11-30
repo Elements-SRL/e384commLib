@@ -63,6 +63,7 @@ protected:
         SamplingRate25kHz,
         SamplingRate50kHz,
         SamplingRate100kHz,
+        SamplingRate200kHz,
 #endif
         SamplingRatesNum
     };

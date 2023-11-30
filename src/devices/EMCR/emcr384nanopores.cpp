@@ -31,7 +31,7 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     rxWordLengths[RxMessageDataTail] = 1;
 
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
-    rxWordLengths[RxMessageStatus] = 1;
+    rxWordLengths[RxMessageStatus] = 2;
 
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
@@ -154,6 +154,9 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     samplingRatesArray[SamplingRate100kHz].value = 100.0;
     samplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
     samplingRatesArray[SamplingRate100kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate200kHz].value = 200.0;
+    samplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate200kHz].unit = "Hz";
 #endif
     defaultSamplingRateIdx = SamplingRate6_25kHz;
 
@@ -174,6 +177,9 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     realSamplingRatesArray[SamplingRate100kHz].value = 100.0;
     realSamplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate100kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate200kHz].value = 200.0;
+    realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
 #endif
 
     integrationStepArray.resize(samplingRatesNum);
@@ -193,6 +199,9 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     integrationStepArray[SamplingRate100kHz].value = 1.0/100.0;
     integrationStepArray[SamplingRate100kHz].prefix = UnitPfxMilli;
     integrationStepArray[SamplingRate100kHz].unit = "s";
+    integrationStepArray[SamplingRate200kHz].value = 1.0/200.0;
+    integrationStepArray[SamplingRate200kHz].prefix = UnitPfxMilli;
+    integrationStepArray[SamplingRate200kHz].unit = "s";
 #endif
 
     // mapping ADC Voltage Clamp
@@ -202,7 +211,8 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
         ,{SamplingRate12_5kHz, VCCurrentFilter20kHz},
         {SamplingRate25kHz, VCCurrentFilter20kHz},
         {SamplingRate50kHz, VCCurrentFilter100kHz},
-        {SamplingRate100kHz, VCCurrentFilter100kHz}
+        {SamplingRate100kHz, VCCurrentFilter100kHz},
+        {SamplingRate200kHz, VCCurrentFilter100kHz}
     #endif
     };
 
