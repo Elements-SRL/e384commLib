@@ -1757,12 +1757,6 @@ Emcr384PatchClamp_V04::~Emcr384PatchClamp_V04() {
 void Emcr384PatchClamp_V04::initializeHW() {
     this->resetFpga(true, true);
     this->resetFpga(false, false);
-
-    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
-
-    this->resetAsic(true, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    this->resetAsic(false, true);
 }
 
 ErrorCodes_t Emcr384PatchClamp_V04::hasCompFeature(uint16_t feature) {

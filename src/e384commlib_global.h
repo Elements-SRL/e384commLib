@@ -110,50 +110,49 @@ typedef enum MsgGroup {
  */
 typedef enum MsgTypeId {
     /*! Communication messages */
-    MsgTypeIdAck =                      MsgGroupCommunication+0x0001, /*!< Acknoledge. \note These messages are implicitly handled by the library. */
-    MsgTypeIdNack =                     MsgGroupCommunication+0x0002, /*!< Not acknoledge. \note These messages are implicitly handled by the library. */
-    MsgTypeIdPing =                     MsgGroupCommunication+0x0003, /*!< Ping. \note These messages are implicitly handled by the library. */
-    MsgTypeIdAbort =                    MsgGroupCommunication+0x0004, /*!< Message used to force the device to stop doing anything and sending data. \note Sometimes these messages are implicitly used by the library. */
+    MsgTypeIdAck =                              MsgGroupCommunication+0x0001, /*!< Acknoledge. \note These messages are implicitly handled by the library. */
+    MsgTypeIdNack =                             MsgGroupCommunication+0x0002, /*!< Not acknoledge. \note These messages are implicitly handled by the library. */
+    MsgTypeIdPing =                             MsgGroupCommunication+0x0003, /*!< Ping. \note These messages are implicitly handled by the library. */
+    MsgTypeIdAbort =                            MsgGroupCommunication+0x0004, /*!< Message used to force the device to stop doing anything and sending data. \note Sometimes these messages are implicitly used by the library. */
 
     /*! Acquisition configuration messages */
-    MsgTypeIdSamplingRate =             MsgGroupAcquisitionConfiguration+0x0001, /*!< Message used to set the sampling rate. */
-    MsgTypeIdFilterRatio =              MsgGroupAcquisitionConfiguration+0x0002, /*!< Message used to set the ratio between the sampling rate and the bandwidth. */
-    MsgTypeIdUpsampling =               MsgGroupAcquisitionConfiguration+0x0003, /*!< Message used to set an hardware upsampling ratio. \note This option increases the sampling rate but not the bandwidth. */
+    MsgTypeIdSamplingRate =                     MsgGroupAcquisitionConfiguration+0x0001, /*!< Message used to set the sampling rate. */
 
     /*! Hardware configuration messages */
-    MsgTypeIdSwitchCtrl =               MsgGroupHwConfiguration+0x0001, /*!< Message used to control the device internal circuitry. */
-    MsgTypeIdRegistersCtrl =            MsgGroupHwConfiguration+0x0002, /*!< Message used to control the device internal registers. */
-    MsgTypeIdFpgaReset =                MsgGroupHwConfiguration+0x0003, /*!< Message used to reset the FPGA */
+    MsgTypeIdSwitchCtrl =                       MsgGroupHwConfiguration+0x0001, /*!< Message used to control the device internal circuitry. */
+    MsgTypeIdRegistersCtrl =                    MsgGroupHwConfiguration+0x0002, /*!< Message used to control the device internal registers. */
+    MsgTypeIdFpgaReset =                        MsgGroupHwConfiguration+0x0003, /*!< Message used to reset the FPGA */
 
     /*! Voltage trials messages */
-    MsgTypeIdVoltageProtocolStruct =    MsgGroupVoltageTrials+0x0001, /*!< Message used to describe the struct of a voltage protocol. \note The composition of voltage protocol messages is implicitly handled by the library. */
-    MsgTypeIdVoltageStepTimeStep =      MsgGroupVoltageTrials+0x0002, /*!< Message used to apply a protocol item with step voltage and step time. */
-    MsgTypeIdVoltageRamp =              MsgGroupVoltageTrials+0x0003, /*!< Message used to apply a protocol item with a voltage ramp. */
-    MsgTypeIdVoltageSin =               MsgGroupVoltageTrials+0x0004, /*!< Message used to apply a protocol item with a voltage sinusoidal wave. */
-    MsgTypeIdStartProtocol =            MsgGroupVoltageTrials+0x0005, /*!< Message used to start a protocol. */
+    MsgTypeIdVoltageProtocolStruct =            MsgGroupVoltageTrials+0x0001, /*!< Message used to describe the struct of a voltage protocol. \note The composition of voltage protocol messages is implicitly handled by the library. */
+    MsgTypeIdVoltageStepTimeStep =              MsgGroupVoltageTrials+0x0002, /*!< Message used to apply a protocol item with step voltage and step time. */
+    MsgTypeIdVoltageRamp =                      MsgGroupVoltageTrials+0x0003, /*!< Message used to apply a protocol item with a voltage ramp. */
+    MsgTypeIdVoltageSin =                       MsgGroupVoltageTrials+0x0004, /*!< Message used to apply a protocol item with a voltage sinusoidal wave. */
+    MsgTypeIdStartProtocol =                    MsgGroupVoltageTrials+0x0005, /*!< Message used to start a protocol. */
 
     /*! Current trials messages */
-    MsgTypeIdCurrentProtocolStruct =    MsgGroupCurrentTrials+0x0001, /*!< Message used to describe the struct of a current protocol. \note The composition of voltage protocol messages is implicitly handled by the library. */
-    MsgTypeIdCurrentStepTimeStep =      MsgGroupCurrentTrials+0x0002, /*!< Message used to apply a protocol item with step current and step time. */
-    MsgTypeIdCurrentRamp =              MsgGroupCurrentTrials+0x0003, /*!< Message used to apply a protocol item with a current ramp. */
-    MsgTypeIdCurrentSin =               MsgGroupCurrentTrials+0x0004, /*!< Message used to apply a protocol item with a current sinusoidal wave. */
+    MsgTypeIdCurrentProtocolStruct =            MsgGroupCurrentTrials+0x0001, /*!< Message used to describe the struct of a current protocol. \note The composition of voltage protocol messages is implicitly handled by the library. */
+    MsgTypeIdCurrentStepTimeStep =              MsgGroupCurrentTrials+0x0002, /*!< Message used to apply a protocol item with step current and step time. */
+    MsgTypeIdCurrentRamp =                      MsgGroupCurrentTrials+0x0003, /*!< Message used to apply a protocol item with a current ramp. */
+    MsgTypeIdCurrentSin =                       MsgGroupCurrentTrials+0x0004, /*!< Message used to apply a protocol item with a current sinusoidal wave. */
 
     /*! Acquired data messages */
-    MsgTypeIdAcquisitionHeader =        MsgGroupAcquiredData+0x0001, /*!< Message used to the data messages that will follow. */
-    MsgTypeIdAcquisitionData =          MsgGroupAcquiredData+0x0002, /*!< Message containing current and voltage data. */
-    MsgTypeIdAcquisitionTail =          MsgGroupAcquiredData+0x0003, /*!< Message that notifies the end of data stream. */
-    MsgTypeIdAcquisitionSaturation =    MsgGroupAcquiredData+0x0004, /*!< Message that notifies the saturation of the front-end. */
+    MsgTypeIdAcquisitionHeader =                MsgGroupAcquiredData+0x0001, /*!< Message used to the data messages that will follow. */
+    MsgTypeIdAcquisitionData =                  MsgGroupAcquiredData+0x0002, /*!< Message containing current and voltage data. */
+    MsgTypeIdAcquisitionTail =                  MsgGroupAcquiredData+0x0003, /*!< Message that notifies the end of data stream. */
+    MsgTypeIdAcquisitionSaturation =            MsgGroupAcquiredData+0x0004, /*!< Message that notifies the saturation of the front-end. */
 
     /*! Features messages */
-    MsgTypeIdDigitalOffsetComp =        MsgGroupFeatures+0x0001, /*!< Message used to apply the digital offset compensation. */
-    MsgTypeIdDigitalOffsetCompInquiry = MsgGroupFeatures+0x0002, /*!< Message used to request the liquid junction potential following the digital offset compensation. */
-    MsgTypeIdZap =                      MsgGroupFeatures+0x0003, /*!< Message used to generate a cell breaking zap. */
-    MsgTypeIdDigitalTriggerOutput =     MsgGroupFeatures+0x0004, /*!< Message used to configure the digital trigger output. */
-    MsgTypeIdLockIn =                   MsgGroupFeatures+0x0005, /*!< Message used to enter lock in mode for impendance estimation. */
-    MsgTypeIdInvalid =                  MsgGroupFeatures+0x03FF, /*!< Invalid message used only for initiliazation purposes. */
+    MsgTypeIdDigitalOffsetComp =                MsgGroupFeatures+0x0001, /*!< Message used to apply the digital offset compensation. */
+    MsgTypeIdDigitalOffsetCompInquiry =         MsgGroupFeatures+0x0002, /*!< Message used to request the liquid junction potential following the digital offset compensation. */
+    MsgTypeIdZap =                              MsgGroupFeatures+0x0003, /*!< Message used to generate a cell breaking zap. */
+    MsgTypeIdDigitalTriggerOutput =             MsgGroupFeatures+0x0004, /*!< Message used to configure the digital trigger output. */
+    MsgTypeIdLockIn =                           MsgGroupFeatures+0x0005, /*!< Message used to enter lock in mode for impendance estimation. */
+    MsgTypeIdDigitalRepetitiveTriggerOutput =   MsgGroupFeatures+0x0006, /*!< Message used to configure the digital repetitive trigger output. */
+    MsgTypeIdInvalid =                          MsgGroupFeatures+0x03FF, /*!< Invalid message used only for initiliazation purposes. */
 
     /*! Device status message*/
-    MsgTypeIdDeviceStatus =             MsgGroupDeviceStatus+0x0001, /*!< Message containing the device status. */
+    MsgTypeIdDeviceStatus =                     MsgGroupDeviceStatus+0x0001, /*!< Message containing the device status. */
 
 } MsgTypeId_t;
 
@@ -175,6 +174,7 @@ typedef enum{
  * \brief Enumerates the device types that can be handled by e384CommLib.
  */
 typedef enum DeviceTypes {
+    /*! EMCR devices */
     Device384Nanopores,         /*!< 384 channels device for nanopores experiments */
     Device384Nanopores_SR7p5kHz,/*!< 384 channels device for nanopores experiments */
     Device384PatchClamp,        /*!< Nanion's Syncropatch */
@@ -182,6 +182,42 @@ typedef enum DeviceTypes {
     Device2x10MHz_PCBV01,       /*!< 2 channels 10MHz nanopore reader */
     Device2x10MHz_PCBV02,       /*!< 2 channels 10MHz nanopore reader */
     Device4x10MHz_PCBV01,       /*!< 4 channels 10MHz nanopore reader */
+    /*! EZ patch devices */
+    DeviceEPatchEL03D_V04,                  /*!< ePatch device with EL03D chip: digital repetitive trigger output. */
+    DeviceEPatchEL03D_V03,                  /*!< ePatch device with EL03D chip: increased maximum amount of digital trigger output events. */
+    DeviceEPatchEL03D_V02,                  /*!< ePatch device with EL03D chip: digital triggers limited to 21 */
+    DeviceEPatchEL03D_V01,                  /*!< ePatch device with EL03D chip: before voltage hold tuner implementation. */
+    DeviceEPatchEL03D_V00,                  /*!< ePatch device with EL03D chip: before digital trigger output implementation. */
+    DeviceEPatchEL03F_4D_PCBV03_V04,        /*!< ePatch device with EL03F and EL04D chips: digital repetitive trigger output. */
+    DeviceEPatchEL03F_4D_PCBV03_V03,        /*!< ePatch device with EL03F and EL04D chips: increased maximum amount of digital trigger output events. */
+    DeviceEPatchEL03F_4D_PCBV03_V02,        /*!< ePatch device with EL03F and EL04D chips: PCB V03 for master/slave configurability. */
+    DeviceEPatchEL03F_4D_PCBV02_V04,        /*!< ePatch device with EL03F and EL04D chips: increased maximum amount of digital trigger output events */
+    DeviceEPatchEL03F_4D_PCBV02_V03,        /*!< ePatch device with EL03F and EL04D chips: increased maximum amount of digital trigger output events */
+    DeviceEPatchEL03F_4D_PCBV02_V02,        /*!< ePatch device with EL03F and EL04D chips: voltage and current hold tuner implementation */
+    DeviceEPatchEL03F_4D_PCBV02_V01,        /*!< ePatch device with EL03F and EL04D chips: added digital trigger output before. */
+    DeviceEPatchEL03F_4D_PCBV02_V00,        /*!< ePatch device with EL03F and EL04D chips. */
+    DeviceEPatchEL04E,                      /*!< ePatch device with EL04E chip. */
+    DeviceEPatchEL03F_4E_PCBV03_V04,        /*!< ePatch device with EL03F and EL04E chips: digital repetitive trigger output. */
+    DeviceEPatchEL03F_4E_PCBV03_V03,        /*!< ePatch device with EL03F and EL04E chips: increased maximum amount of digital trigger output events. */
+    DeviceEPatchEL03F_4E_PCBV03_V02,        /*!< ePatch device with EL03F and EL04E chips: PCB V03 for master/slave configurability. */
+    DeviceEPatchEL03F_4E_PCBV02_V04,        /*!< ePatch device with EL03F and EL04E chips: digital repetitive trigger output. */
+    DeviceEPatchEL03F_4E_PCBV02_V03,        /*!< ePatch device with EL03F and EL04E chips: increased maximum amount of digital trigger output events */
+    DeviceEPatchEL03F_4E_PCBV02_V02,        /*!< ePatch device with EL03F and EL04E chips: voltage and current hold tuner implementation */
+    DeviceEPatchEL03F_4E_PCBV02_V01,        /*!< ePatch device with EL03F and EL04E chips: added digital trigger output before. */
+    DeviceEPatchEL03F_4E_PCBV02_V00,        /*!< ePatch device with EL03F and EL04E chips. */
+    DeviceEPatchEL04F,                      /*!< ePatch device with EL04F chip. */
+    DeviceEPatchEL03F_4F_PCBV01_AnalogOut,  /*!< ePatch device with EL03F and EL04F chips: added analog output. */
+    DeviceEPatchEL03F_4F_PCBV03_V04,        /*!< ePatch device with EL03F and EL04F chips: digital repetitive trigger output. */
+    DeviceEPatchEL03F_4F_PCBV03_V03,        /*!< ePatch device with EL03F and EL04F chips: increased maximum amount of digital trigger output events. */
+    DeviceE4PEL04F,                         /*!< ePatch device with 4 EL04F chips. */
+    DeviceE4PPatchLiner,                    /*!< ePatch device with 4 EL04F chips for Nanion's Patchliner. */
+    DeviceE8PPatchLiner,                    /*!< ePatch device with 8 EL04F chips for Nanion's Patchliner. */
+    DeviceE4PPatchLinerEL07AB,              /*!< ePatch device with 4 EL07AB chips for Nanion's Patchliner. */
+    DeviceE8PPatchLinerEL07AB,              /*!< ePatch device with 8 EL07AB chips for Nanion's Patchliner. */
+    DeviceE8PPatchLinerEL07AB_artix7,       /*!< ePatch device with 8 EL07AB chips for Nanion's Patchliner (FPGA artix7). */
+    DeviceFakePatch,                        /*!< Fake ePatch device resembling EL04F chip. */
+    DeviceFakeP8,                           /*!< Fake patchliner device resembling EL07AB chip. */
+    DeviceEPatchDlp,                        /*!< ePatch device with dlp fpga. */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
     Device384FakePatchClamp,    /*!< Fake patch clamp device */
@@ -203,11 +239,11 @@ typedef enum DeviceTypes {
 typedef struct RxOutput {
     uint16_t msgTypeId = MsgDirectionDeviceToPc+MsgTypeIdInvalid; /*!< Type of message received. */
     uint16_t channelIdx = 0; /*!< For msgTypeId that work channel-wise this field holds the channel index the message refers too, e.g. the compensated channel after digital compensation */
-    uint16_t protocolId = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionHeader this field holds the protocol identifier number */
-    uint16_t protocolItemIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionHeader this field holds the item index of the following data in the current protocol */
-    uint16_t protocolRepsIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionHeader this field holds the iteration of an interal loop of the following data in the current protocol */
-    uint16_t protocolSweepIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionHeader this field holds the sweep index of the following data in the current protocol */
-    uint32_t firstSampleOffset = 0; /*!< When #msgTypeId is MsgDirectionDeviceToEdr + MsgTypeIdAcquisitionData this field holds the data offset wrt the protocol first sample */
+    uint16_t protocolId = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the protocol identifier number */
+    uint16_t protocolItemIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the item index of the following data in the current protocol */
+    uint16_t protocolRepsIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the iteration of an interal loop of the following data in the current protocol */
+    uint16_t protocolSweepIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the sweep index of the following data in the current protocol */
+    uint32_t firstSampleOffset = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionData this field holds the data offset wrt the protocol first sample */
     uint32_t dataLen = 0; /*!< Number of data samples available in field data */
 } RxOutput_t;
 

@@ -766,12 +766,6 @@ void Emcr384NanoPores_V01::initializeHW() {
     this->resetFpga(true, true);
     this->resetFpga(false, false);
 
-    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
-
-    this->resetAsic(true, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    this->resetAsic(false, true);
-
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);

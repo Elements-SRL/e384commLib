@@ -17,6 +17,7 @@
 #include "e384commlib_global_addendum.h"
 #endif
 
+#define SHORT_OFFSET_BINARY (static_cast <double> (0x8000))
 #define SHORT_MAX (static_cast <double> (0x7FFF))
 #define SHORT_MIN (-SHORT_MAX-1.0)
 #define USHORT_MAX (static_cast <double> (0xFFFF))
@@ -66,6 +67,7 @@ using namespace e384CommLib;
 
 typedef struct MsgResume {
     uint16_t typeId;
+    uint16_t heartbeat;
     uint32_t dataLength;
     uint32_t startDataPtr;
 } MsgResume_t;
@@ -211,9 +213,6 @@ public:
     virtual ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag);
     virtual ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag);
 
-    virtual ErrorCodes_t turnResistanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
-    virtual ErrorCodes_t turnLeakConductanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
-    virtual ErrorCodes_t turnBridgeBalanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
     virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
     virtual ErrorCodes_t enableVcCompensations(bool enable);
     virtual ErrorCodes_t enableCcCompensations(bool enable);
@@ -405,14 +404,15 @@ protected:
     \*************/
 
     void computeLiquidJunction();
-    virtual void sendCommandsToDevice() = 0;
     virtual void initializeHW() = 0;
     virtual void initializeCalibration();
     void initializeLiquidJunction();
+    virtual ErrorCodes_t resetHW() = 0;
 
     bool checkProtocolValidity(std::string &message);
 
     void initializeRawDataFilterVariables();
+    void deInitializeRawDataFilterVariables();
     void computeRawDataFilterCoefficients();
     double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
 
@@ -428,6 +428,9 @@ protected:
     /************\
      *  Fields  *
     \************/
+
+    std::string upgradeNotes = "";
+    std::string notificationTag = "UNDEFINED";
 
     uint16_t voltageChannelsNum = 1;
     uint16_t currentChannelsNum = 1;
@@ -445,7 +448,7 @@ protected:
     unsigned int stateWordsNum;
 
     /*! Protocol's parameters */
-    unsigned int protocolMaxItemsNum;
+    unsigned int protocolMaxItemsNum = 0;
     unsigned int protocolWordOffset;
     unsigned int protocolItemsWordsNum;
     double protocolFpgaClockFrequencyHz = 10.0e6;
@@ -463,56 +466,58 @@ protected:
     RangedMeasurement_t protocolFrequencyRange;
     RangedMeasurement_t positiveProtocolFrequencyRange;
 
-    uint32_t clampingModalitiesNum;
+    uint16_t selectedProtocolItemsNum = 0;
+
+    uint32_t clampingModalitiesNum = 0;
     uint32_t selectedClampingModalityIdx = 0;
     uint32_t selectedClampingModality = VOLTAGE_CLAMP;
     std::vector <ClampingModality_t> clampingModalitiesArray;
-    uint16_t defaultClampingModalityIdx;
+    uint16_t defaultClampingModalityIdx = 0;
 
-    uint32_t vcCurrentRangesNum;
+    uint32_t vcCurrentRangesNum = 0;
     uint32_t selectedVcCurrentRangeIdx = 0;
     std::vector <RangedMeasurement_t> vcCurrentRangesArray;
-    uint16_t defaultVcCurrentRangeIdx;
+    uint16_t defaultVcCurrentRangeIdx = 0;
 
-    uint32_t vcVoltageRangesNum;
+    uint32_t vcVoltageRangesNum = 0;
     uint32_t selectedVcVoltageRangeIdx = 0;
     std::vector <RangedMeasurement_t> vcVoltageRangesArray;
-    uint16_t defaultVcVoltageRangeIdx;
+    uint16_t defaultVcVoltageRangeIdx = 0;
 
-    uint32_t liquidJunctionRangesNum;
+    uint32_t liquidJunctionRangesNum = 0;
     uint32_t selectedLiquidJunctionRangeIdx = 0;
     std::vector <RangedMeasurement_t> liquidJunctionRangesArray;
-    uint16_t defaultLiquidJunctionRangeIdx;
+    uint16_t defaultLiquidJunctionRangeIdx = 0;
 
-    uint32_t ccCurrentRangesNum;
+    uint32_t ccCurrentRangesNum = 0;
     uint32_t selectedCcCurrentRangeIdx = 0;
     std::vector <RangedMeasurement_t> ccCurrentRangesArray;
-    uint16_t defaultCcCurrentRangeIdx;
+    uint16_t defaultCcCurrentRangeIdx = 0;
 
-    uint32_t ccVoltageRangesNum;
+    uint32_t ccVoltageRangesNum = 0;
     uint32_t selectedCcVoltageRangeIdx = 0;
     std::vector <RangedMeasurement_t> ccVoltageRangesArray;
-    uint16_t defaultCcVoltageRangeIdx;
+    uint16_t defaultCcVoltageRangeIdx = 0;
 
-    uint32_t vcCurrentFiltersNum;
+    uint32_t vcCurrentFiltersNum = 0;
     uint32_t selectedVcCurrentFilterIdx = 0;
     std::vector <Measurement_t> vcCurrentFiltersArray;
-    uint16_t defaultVcCurrentFilterIdx;
+    uint16_t defaultVcCurrentFilterIdx = 0;
 
-    uint32_t vcVoltageFiltersNum;
+    uint32_t vcVoltageFiltersNum = 0;
     uint32_t selectedVcVoltageFilterIdx = 0;
     std::vector <Measurement_t> vcVoltageFiltersArray;
-    uint16_t defaultVcVoltageFilterIdx;
+    uint16_t defaultVcVoltageFilterIdx = 0;
 
-    uint32_t ccCurrentFiltersNum;
+    uint32_t ccCurrentFiltersNum = 0;
     uint32_t selectedCcCurrentFilterIdx = 0;
     std::vector <Measurement_t> ccCurrentFiltersArray;
-    uint16_t defaultCcCurrentFilterIdx;
+    uint16_t defaultCcCurrentFilterIdx = 0;
 
-    uint32_t ccVoltageFiltersNum;
+    uint32_t ccVoltageFiltersNum = 0;
     uint32_t selectedCcVoltageFilterIdx = 0;
     std::vector <Measurement_t> ccVoltageFiltersArray;
-    uint16_t defaultCcVoltageFilterIdx;
+    uint16_t defaultCcVoltageFilterIdx = 0;
 
     uint32_t samplingRatesNum;
     std::vector <Measurement_t> samplingRatesArray;
@@ -622,9 +627,6 @@ protected:
     Measurement_t integrationStep = {5.0, UnitPfxMicro, "s"};
 
     std::vector <uint16_t> allChannelIndexes;
-
-    /*! Protocols variables */
-    uint16_t selectedProtocolItemsNum = 0;
 
     /***********************\
      *  Filters variables  *

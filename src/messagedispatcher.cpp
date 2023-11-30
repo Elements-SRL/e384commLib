@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include "emcropalkellydevice.h"
+#include "ezpatchftdidevice.h"
 #include "utils.h"
 
 /********************************************************************************************\
@@ -47,12 +48,11 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     ret = retTemp; /*! Set the first return anyway, so even if all methods return an error the return is set here.
                        Afterwards update only on a Success */
 
-    /*! \todo FCON Aggiungere il metodo della e4gcommlib basato su FTDI quando inclusa */
-//    retTemp = MessageDispatcher_OpalKelly::detectDevices(deviceIdsTemp);
-//    if (retTemp == Success) {
-//        deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
-//        ret = retTemp;
-//    }
+    retTemp = EZPatchFtdiDevice::detectDevices(deviceIdsTemp);
+    if (retTemp == Success) {
+        deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
+        ret = retTemp;
+    }
     return ret;
 }
 
@@ -67,11 +67,10 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
         return EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher, fwPath);
     }
 
-    /*! \todo FCON Aggiungere il metodo della e4gcommlib basato su FTDI quando inclusa */
-//    ret = MessageDispatcher_OpalKelly::isDeviceSerialDetected(deviceId);
-//    if (ret == Success) {
-//        return MessageDispatcher_OpalKelly::connectDevice(deviceId, modelPath, commBoardIdx, modelsNum, messageDispatcher);
-//    }
+    ret = EZPatchFtdiDevice::isDeviceSerialDetected(deviceId);
+    if (ret == Success) {
+        return EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher, fwPath);
+    }
 }
 
 /****************\
@@ -1409,6 +1408,24 @@ bool MessageDispatcher::checkProtocolValidity(std::string &) {
 }
 
 void MessageDispatcher::initializeRawDataFilterVariables() {
+    if (iirX != nullptr) {
+        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
+            delete [] iirX[channelIdx];
+        }
+        delete [] iirX;
+        iirX = nullptr;
+    }
+
+    if (iirY != nullptr) {
+        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
+            delete [] iirY[channelIdx];
+        }
+        delete [] iirY;
+        iirY = nullptr;
+    }
+}
+
+void MessageDispatcher::deInitializeRawDataFilterVariables() {
     iirX = new double * [totalChannelsNum];
     iirY = new double * [totalChannelsNum];
     for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
@@ -1660,18 +1677,6 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
 
     iirY[channelIdx][iirOff] = y;
     return y;
-}
-
-ErrorCodes_t MessageDispatcher::turnResistanceCompensationOn(std::vector<uint16_t>,std::vector<bool>, bool){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::turnLeakConductanceCompensationOn(std::vector<uint16_t>,std::vector<bool>, bool){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::turnBridgeBalanceCompensationOn(std::vector<uint16_t>,std::vector<bool>, bool){
-    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t>, uint16_t, std::vector<bool>, bool){

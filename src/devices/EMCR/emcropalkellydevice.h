@@ -48,7 +48,7 @@ protected:
     static bool getDeviceCount(int &numDevs);
 
     virtual void handleCommunicationWithDevice() override;
-    virtual void sendCommandsToDevice() override;
+    void sendCommandsToDevice();
     virtual bool writeRegistersAndActivateTriggers(TxTriggerType_t type);
     virtual uint32_t readDataFromDevice() override;
     virtual void parseDataFromDevice() override;
@@ -69,8 +69,6 @@ protected:
     \***************/
 
     int waitingTimeBeforeReadingData = 1;
-    int motherboardBootTime_s = 1;
-    int fwSize_B = 1000;
 
     okTRegisterEntries regs;
 

@@ -142,6 +142,7 @@ protected:
     ErrorCodes_t deinit();
 
     virtual void initializeCalibration() override;
+    virtual ErrorCodes_t resetHW() override;
 
     virtual void handleCommunicationWithDevice() = 0;
     virtual uint32_t readDataFromDevice() = 0;
@@ -162,6 +163,9 @@ protected:
 
     uint16_t rxSyncWord;
     unsigned int packetsPerFrame = 1;
+
+    int motherboardBootTime_s = 1;
+    int fwSize_B = 1000;
 
     /*! Read data buffer management */
     uint16_t rxMaxWords;

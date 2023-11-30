@@ -118,7 +118,7 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
     ErrorCodes_t ret = Success;
 
     DeviceTypes_t deviceType;
-    ret = MessageDispatcher::getDeviceType(deviceId, deviceType);
+    ret = EmcrOpalKellyDevice::getDeviceType(deviceId, deviceType);
     if (ret != Success) {
         return ErrorDeviceTypeNotRecognized;
     }
@@ -659,13 +659,12 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
 ErrorCodes_t EmcrOpalKellyDevice::initializeBuffers() {
     rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_BUFFER_SIZE];
-    if (rxRawBuffer != nullptr) {
-        rxRawBuffer16 = (uint16_t *)rxRawBuffer;
-        return Success;
-
-    } else {
+    if (rxRawBuffer == nullptr) {
         return ErrorMemoryInitialization;
     }
+
+    rxRawBuffer16 = (uint16_t *)rxRawBuffer;
+    return Success;
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::deinitializeBuffers() {
