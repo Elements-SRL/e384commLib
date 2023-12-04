@@ -3,6 +3,7 @@
 Emcr384NanoPores_SR7p5kHz_V01::Emcr384NanoPores_SR7p5kHz_V01(std::string di):
     Emcr384NanoPores_V01(di) {
 
+    rxWordLengths[RxMessageStatus] = 1;
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
