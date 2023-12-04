@@ -124,8 +124,67 @@ PYBIND11_MODULE(e384CommLibPython, m) {
     m.def("setCCCurrentRange",[](uint16_t currentRangeIdx){
         return md->setCCCurrentRange(currentRangeIdx, true);
     });
-
-
+    m.def("ccAdcGainConfigurationSetup",[](std::vector<uint16_t> channelIndexes){
+        std::vector<bool> offValues;
+        std::vector<bool> onValues;
+        for(auto v: channelIndexes) {
+            offValues.push_back(false);
+            onValues.push_back(true);
+        }
+        md->turnCalSwOn(channelIndexes, onValues, true);
+        md->turnVcSwOn(channelIndexes, onValues, true);
+        md->turnCcSwOn(channelIndexes, onValues, true);
+        md->enableCcStimulus(channelIndexes, offValues, true);
+        md->turnVcCcSelOn(channelIndexes, offValues, true);
+        md->setSourceForVoltageChannel(1, true);
+        md->setSourceForCurrentChannel(0, true);
+        return Success;
+    });
+    m.def("setCcConfiguration",[](){
+        std::vector<ChannelModel *> ch_models;
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> offValues;
+        std::vector<bool> onValues;
+        md->getChannels(ch_models);
+        for (auto &ch: ch_models){
+            channelIndexes.push_back(ch->getId());
+            offValues.push_back(false);
+            onValues.push_back(true);
+        }
+        md->turnCurrentReaderOn(false, false);
+        md->turnVoltageReaderOn(true, false);
+        md->setDebugBit(0, 7, true);
+        md->turnCalSwOn(channelIndexes, onValues, true);
+        md->turnVcSwOn(channelIndexes, onValues, true);
+        md->turnCcSwOn(channelIndexes, onValues, true);
+        md->enableCcStimulus(channelIndexes, offValues, true);
+        md->turnVcCcSelOn(channelIndexes, offValues, true);
+        md->setSourceForVoltageChannel(1, true);
+        md->setSourceForCurrentChannel(0, true);
+        return Success;
+    });
+    m.def("setVcConfiguration",[](){
+        std::vector<ChannelModel *> ch_models;
+        std::vector<uint16_t> channelIndexes;
+        std::vector<bool> offValues;
+        std::vector<bool> onValues;
+        md->getChannels(ch_models);
+        for (auto &ch: ch_models){
+            channelIndexes.push_back(ch->getId());
+            offValues.push_back(false);
+            onValues.push_back(true);
+        }
+        md->turnVoltageReaderOn(false, false);
+        md->turnCurrentReaderOn(true, false);
+        md->turnCalSwOn(channelIndexes,  onValues, true);
+        md->turnVcSwOn(channelIndexes,  onValues, true);
+        md->turnCcSwOn(channelIndexes, offValues, true);
+        md->enableCcStimulus(channelIndexes, offValues, true);
+        md->turnVcCcSelOn(channelIndexes, onValues, true);
+        md->setSourceForVoltageChannel(0, true);
+        md->setSourceForCurrentChannel(0, true);
+        return Success;
+    });
     m.def("getBufferedVoltagesAndCurrents", [](){
         RxOutput_t rxOutput;
         ErrorCodes_t err = md->getNextMessage(rxOutput, data);
