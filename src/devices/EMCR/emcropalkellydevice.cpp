@@ -22,6 +22,8 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000108T", Device384Nanopores_SR7p5kHz},
     {"22510013B4", Device384Nanopores},
     {"23190014UX", Device384Nanopores},
+    {"23210014U9", Device384Nanopores},
+    {"23210014UP", Device384Nanopores},
     {"2210001076", Device384PatchClamp_V04},
     {"221000106B", Device384PatchClamp},
     {"221000106C", Device384PatchClamp},
@@ -29,10 +31,10 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"22370012CI", Device4x10MHz_PCBV01},
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
-    {"224800130Y", Device2x10MHz_PCBV02},
     {"224800130X", Device4x10MHz_PCBV01},
     {"233600165Q", Device2x10MHz_PCBV02},
-    {"233600161X", Device2x10MHz_PCBV02},
+    {"233600161X", Device4x10MHz_PCBV03},
+    {"224800130Y", Device4x10MHz_PCBV03},
     {"2336001642", Device2x10MHz_PCBV02}
     #ifdef DEBUG
     ,{"FAKE_Nanopores", Device384Fake},
@@ -92,7 +94,6 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceType
     if (deviceIdMapping.count(deviceId) == 0) {
         return ErrorDeviceTypeNotRecognized;
     }
-
     type = deviceIdMapping[deviceId];
     return Success;
 }
@@ -152,6 +153,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device4x10MHz_PCBV01:
         messageDispatcher = new Emcr4x10MHz_PCBV01_V03(deviceId);
+        break;
+
+    case Device4x10MHz_PCBV03:
+        messageDispatcher = new Emcr4x10MHz_PCBV03_V05(deviceId);
         break;
 
 #ifdef DEBUG

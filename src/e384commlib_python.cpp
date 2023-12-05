@@ -27,12 +27,12 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return std::make_tuple(err, deviceIds);
     }, "Detect plugged in devices");
 
-    m.def("connectDevice",[](std::string deviceName){
+    m.def("connectDevice",[](std::string deviceName, std::string fwFolder){
         ErrorCodes_t ret = md->allocateRxDataBuffer(data);
         if (ret != Success) {
             return ret;
         }
-        ret = MessageDispatcher::connectDevice(deviceName, md);
+        ret = MessageDispatcher::connectDevice(deviceName, md, fwFolder);
         if (ret != Success) {
             return ret;
         }
@@ -52,6 +52,22 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         std::vector <Measurement_t> samplingRates;
         ErrorCodes_t err = md->getSamplingRatesFeatures(samplingRates);
         return  std::make_tuple(err, samplingRates);
+    }, "Get the current sampling rate of the device");
+    m.def("resetAsic",[](bool status){
+        return md->resetAsic(status, true);
+    }, "Return weather or not the device has channel switches");
+    m.def("hasChannelSwitches",[](){
+        return md->hasChannelSwitches();
+    }, "Return weather or not the device has channel switches");
+
+    m.def("turnChannelsOn",[](std::vector<uint16_t> channelIndexes, std::vector<bool> onValues){
+        return md->turnChannelsOn(channelIndexes, onValues, true);
+    }, "Return weather or not the device has channel switches");
+
+    m.def("getSamplingRate",[](){
+        Measurement_t samplingRate;
+        ErrorCodes_t err = md->getSamplingRate(samplingRate);
+        return  std::make_tuple(err, samplingRate);
     }, "Get all the sampling rate the device can handle");
 
     m.def("setSamplingRate",[](int si){

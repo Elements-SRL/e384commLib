@@ -123,6 +123,7 @@ public:
     ErrorCodes_t hasChannelSwitches() override;
     ErrorCodes_t hasStimulusSwitches() override;
     ErrorCodes_t hasOffsetCompensation() override;
+    ErrorCodes_t hasStimulusHalf() override;
     ErrorCodes_t isStateArrayAvailable() override;
 
     ErrorCodes_t getCalibData(CalibrationData_t &calibData) override;

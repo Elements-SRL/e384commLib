@@ -162,12 +162,30 @@ ErrorCodes_t MessageDispatcher::setBoardSelected(uint16_t brdIdx, bool newState)
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::getChannelsOnBoard(uint16_t boardIdx, std::vector <ChannelModel *>  & channels) {
+    if (boardIdx >= totalBoardsNum) {
+        return ErrorValueOutOfRange;
+    }
+    channels = boardModels[boardIdx]->getChannelsOnBoard();
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::setRowSelected(uint16_t rowIdx, bool newState) {
     if (rowIdx >= channelsPerBoard) {
         return ErrorValueOutOfRange;
     }
     for (auto brd : boardModels) {
         brd->getChannelsOnBoard()[rowIdx]->setSelected(newState);
+    }
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getChannelsOnRow(uint16_t rowIdx, std::vector<ChannelModel *> &channels) {
+    if (rowIdx >= channelsPerBoard) {
+        return ErrorValueOutOfRange;
+    }
+    for (auto brd : boardModels) {
+        channels.push_back(brd->getChannelsOnBoard()[rowIdx]);
     }
     return Success;
 }
@@ -939,6 +957,10 @@ ErrorCodes_t MessageDispatcher::hasStimulusSwitches() {
 }
 
 ErrorCodes_t MessageDispatcher::hasOffsetCompensation() {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::hasStimulusHalf() {
     return ErrorFeatureNotImplemented;
 }
 
