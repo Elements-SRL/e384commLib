@@ -96,36 +96,6 @@ ErrorCodes_t EZPatchDevice::connect(std::string fwPath) {
 
     stopConnectionFlag = false;
 
-#ifdef DEBUG_TX_DATA_PRINT
-    if (txFid == nullptr) {
-        createDebugFile(txFid, "e384CommLib_tx");
-    }
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    if (rxRawFid == nullptr) {
-        createDebugFile(rxRawFid, "e384CommLib_rxRaw");
-    }
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    if (rxProcFid == nullptr) {
-        createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
-    }
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-    if (rxFid == nullptr) {
-        createDebugFile(rxFid, "e384CommLib_rx");
-    }
-#endif
-
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-    if (ljFid == nullptr) {
-        createDebugFile(ljFid, "e384CommLib_lj");
-    }
-#endif
-
     rxThread = std::thread(&EZPatchDevice::readAndParseMessages, this);
     txThread = std::thread(&EZPatchDevice::unwrapAndSendMessages, this);
 
@@ -2629,7 +2599,7 @@ ErrorCodes_t EZPatchDevice::deinit() {
     return Success;
 }
 
-void initializeHW() {
+void EZPatchDevice::initializeHW() {
     /*! Nothing to be done */
 }
 

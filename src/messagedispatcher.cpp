@@ -1430,6 +1430,19 @@ bool MessageDispatcher::checkProtocolValidity(std::string &) {
 }
 
 void MessageDispatcher::initializeRawDataFilterVariables() {
+    iirX = new double * [totalChannelsNum];
+    iirY = new double * [totalChannelsNum];
+    for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
+        iirX[channelIdx] = new double[IIR_ORD+1];
+        iirY[channelIdx] = new double[IIR_ORD+1];
+        for (int tapIdx = 0; tapIdx < IIR_ORD+1; tapIdx++) {
+            iirX[channelIdx][tapIdx] = 0.0;
+            iirY[channelIdx][tapIdx] = 0.0;
+        }
+    }
+}
+
+void MessageDispatcher::deInitializeRawDataFilterVariables() {
     if (iirX != nullptr) {
         for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
             delete [] iirX[channelIdx];
@@ -1444,19 +1457,6 @@ void MessageDispatcher::initializeRawDataFilterVariables() {
         }
         delete [] iirY;
         iirY = nullptr;
-    }
-}
-
-void MessageDispatcher::deInitializeRawDataFilterVariables() {
-    iirX = new double * [totalChannelsNum];
-    iirY = new double * [totalChannelsNum];
-    for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
-        iirX[channelIdx] = new double[IIR_ORD+1];
-        iirY[channelIdx] = new double[IIR_ORD+1];
-        for (int tapIdx = 0; tapIdx < IIR_ORD+1; tapIdx++) {
-            iirX[channelIdx][tapIdx] = 0.0;
-            iirY[channelIdx][tapIdx] = 0.0;
-        }
     }
 }
 

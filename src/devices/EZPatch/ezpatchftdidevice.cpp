@@ -409,6 +409,36 @@ ErrorCodes_t EZPatchFtdiDevice::connect(std::string fwPath) {
 
     ErrorCodes_t ret;
 
+#ifdef DEBUG_TX_DATA_PRINT
+    if (txFid == nullptr) {
+        createDebugFile(txFid, "e384CommLib_tx");
+    }
+#endif
+
+#ifdef DEBUG_RX_RAW_DATA_PRINT
+    if (rxRawFid == nullptr) {
+        createDebugFile(rxRawFid, "e384CommLib_rxRaw");
+    }
+#endif
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+    if (rxProcFid == nullptr) {
+        createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
+    }
+#endif
+
+#ifdef DEBUG_RX_DATA_PRINT
+    if (rxFid == nullptr) {
+        createDebugFile(rxFid, "e384CommLib_rx");
+    }
+#endif
+
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+    if (ljFid == nullptr) {
+        createDebugFile(ljFid, "e384CommLib_lj");
+    }
+#endif
+
     this->loadFpgaFw();
 
     /*! Initialize the ftdi Rx handle */

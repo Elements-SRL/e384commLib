@@ -1,4 +1,5 @@
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
+include($$(FTD2XX_PATH)includeftd2xx.pri)
 
 DEFINES += E384COMMLIB_STATIC
 

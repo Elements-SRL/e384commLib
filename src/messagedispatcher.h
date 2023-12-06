@@ -652,8 +652,8 @@ protected:
     double iirINum[IIR_ORD+1];
     double iirIDen[IIR_ORD+1];
 
-    double ** iirX;
-    double ** iirY;
+    double ** iirX = nullptr;
+    double ** iirY = nullptr;
 
     uint16_t iirOff = 0;
 
