@@ -1509,7 +1509,7 @@ ErrorCodes_t EZPatchDevice::setDigitalRepetitiveTriggerOutput(uint16_t triggersN
 
         if (deltaPeriod.value < -0.5*positiveProtocolTimeRange.step) { /*! Loose condition for checking if the number is negative: due to rounding it can be negative and very small when it should be zero */
             infinite = false;
-            triggersNum = std::min(triggersNum, (uint16_t)floor((period.value-duration.value)/deltaPeriod.value));
+            triggersNum = fmin(triggersNum, (uint16_t)floor((period.value-duration.value)/deltaPeriod.value));
         }
 
         uint16_t dataLength = 10;

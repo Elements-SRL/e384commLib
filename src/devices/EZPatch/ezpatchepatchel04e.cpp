@@ -899,30 +899,30 @@ bool EZPatchePatchEL04E::checkCompensationsValues() {
 
     if (ret) {
         if (voltageCompensationsFlag[compensationsSettingChannel]) {
-            double rs = std::max(accessResistance[compensationsSettingChannel], accessResistanceControl.step);
-            double rc = std::max(resistanceCorrectionPercentage[compensationsSettingChannel], resistanceCorrectionPercentageControl.step);
-            double rp = std::max(resistancePredictionPercentage[compensationsSettingChannel], resistancePredictionPercentageControl.step);
+            double rs = fmax(accessResistance[compensationsSettingChannel], accessResistanceControl.step);
+            double rc = fmax(resistanceCorrectionPercentage[compensationsSettingChannel], resistanceCorrectionPercentageControl.step);
+            double rp = fmax(resistancePredictionPercentage[compensationsSettingChannel], resistancePredictionPercentageControl.step);
 
             /*! pipetteCapacitanceControl.compensable doesn't depend on other controls */
 
             double d1 = maxMembraneCapacitance;
             double d2 = maxMembraneTau/rs;
             double d3 = maxResistancePredictionTau*maxResistancePredictionPercentage*resistancePredictionGain[compensationsSettingChannel]/(rs*rp);
-            membraneCapacitanceControl.compensable = std::min(std::min(d1, d2), d3);
+            membraneCapacitanceControl.compensable = fmin(fmin(d1, d2), d3);
 
             d1 = accessResistanceControl.max;
             d2 = maxMembraneTau/membraneCapacitance[compensationsSettingChannel];
             d3 = maxResistanceCorrection*maxResistanceCorrectionPercentage/rc;
             double d4 = maxResistancePredictionTau*maxResistancePredictionPercentage*resistancePredictionGain[compensationsSettingChannel]/(membraneCapacitance[compensationsSettingChannel]*rp);
-            accessResistanceControl.compensable = std::min(std::min(std::min(d1, d2), d3), d4);
+            accessResistanceControl.compensable = fmin(fmin(fmin(d1, d2), d3), d4);
 
             d1 = resistanceCorrectionPercentageControl.max;
             d2 = maxResistanceCorrection*maxResistanceCorrectionPercentage/rs;
-            resistanceCorrectionPercentageControl.compensable = std::min(d1, d2);
+            resistanceCorrectionPercentageControl.compensable = fmin(d1, d2);
 
             d1 = resistancePredictionPercentageControl.max;
             d2 = maxResistancePredictionTau*maxResistancePredictionPercentage*resistancePredictionGain[compensationsSettingChannel]/(membraneCapacitance[compensationsSettingChannel]*rs);
-            resistancePredictionPercentageControl.compensable = std::min(d1, d2);
+            resistancePredictionPercentageControl.compensable = fmin(d1, d2);
         }
 
         if (currentCompensationsFlag[compensationsSettingChannel]) {
