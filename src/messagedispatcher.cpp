@@ -480,11 +480,11 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setStateArrayStructure(int numberOfStates, int initialState){
+ErrorCodes_t MessageDispatcher::setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag){
+ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag) {
     return ErrorFeatureNotImplemented;
 }
 

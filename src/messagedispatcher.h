@@ -211,7 +211,7 @@ public:
     virtual ErrorCodes_t setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag);
     virtual ErrorCodes_t setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag);
 
-    virtual ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState);
+    virtual ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime);
     virtual ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag);
     virtual ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag);
 
@@ -449,6 +449,7 @@ protected:
     unsigned int stateMaxNum;
     unsigned int stateWordOffset;
     unsigned int stateWordsNum;
+    RangedMeasurement_t stateArrayReactionTimeRange = {0.0, 1.0, 1.0, UnitPfxNone, "s"};
 
     /*! Protocol's parameters */
     unsigned int protocolMaxItemsNum = 0;

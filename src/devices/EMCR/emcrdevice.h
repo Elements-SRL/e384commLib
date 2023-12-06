@@ -95,7 +95,7 @@ public:
     ErrorCodes_t setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag) override;
     ErrorCodes_t setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag) override;
 
-    ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState) override;
+    ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime) override;
     ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag) override;
     ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag) override;
 
@@ -286,18 +286,19 @@ protected:
 
     BoolCoder * numberOfStatesCoder = nullptr;
     BoolCoder * initialStateCoder = nullptr;
-    std::vector<BoolCoder*> enableStateArrayChannelsCoder;
+    FloatCoder * stateArrayReactionTimeCoder = nullptr;
+    std::vector <BoolCoder *> enableStateArrayChannelsCoder;
 
-    std::vector<std::vector<DoubleCoder *>> appliedVoltageCoders;
+    std::vector <std::vector <DoubleCoder *>> appliedVoltageCoders;
 
-    std::vector<BoolArrayCoder *> stateTimeoutFlagCoders;
-    std::vector<BoolArrayCoder *> stateTriggerFlagCoders;
-    std::vector<BoolArrayCoder *> stateTriggerDeltaFlagCoders;
-    std::vector<DoubleCoder *> stateTimeoutValueCoders;
-    std::vector<BoolCoder *> stateTimeoutNextStateCoders;
-    std::vector<std::vector<DoubleCoder *>> stateMinTriggerCurrentCoders;
-    std::vector<std::vector<DoubleCoder *>> stateMaxTriggerCurrentCoders;
-    std::vector<BoolCoder *> stateTriggerNextStateCoders;
+    std::vector <BoolArrayCoder *> stateTimeoutFlagCoders;
+    std::vector <BoolArrayCoder *> stateTriggerFlagCoders;
+    std::vector <BoolArrayCoder *> stateTriggerDeltaFlagCoders;
+    std::vector <DoubleCoder *> stateTimeoutValueCoders;
+    std::vector <BoolCoder *> stateTimeoutNextStateCoders;
+    std::vector <std::vector <DoubleCoder *>> stateMinTriggerCurrentCoders;
+    std::vector <std::vector <DoubleCoder *>> stateMaxTriggerCurrentCoders;
+    std::vector <BoolCoder *> stateTriggerNextStateCoders;
 
     DoubleCoder * stimRestCoder = nullptr;
 

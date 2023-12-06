@@ -153,10 +153,16 @@ protected:
     BoolArrayCoder * writeDacSpiCoder = nullptr;
 };
 
-class Emcr4x10MHz_PCBV03_V05: public Emcr4x10MHz_PCBV01_V03{
+class Emcr4x10MHz_PCBV03_V03: public Emcr4x10MHz_PCBV01_V03 {
 public:
-    Emcr4x10MHz_PCBV03_V05(std::string di);
-    virtual ~Emcr4x10MHz_PCBV03_V05();
+    Emcr4x10MHz_PCBV03_V03(std::string di);
+    virtual ~Emcr4x10MHz_PCBV03_V03();
+};
+
+class Emcr4x10MHz_PCBV03_V04: public Emcr4x10MHz_PCBV03_V03 {
+public:
+    Emcr4x10MHz_PCBV03_V04(std::string di);
+    virtual ~Emcr4x10MHz_PCBV03_V04();
 };
 
 #endif // EMCR4x10MHZ_H

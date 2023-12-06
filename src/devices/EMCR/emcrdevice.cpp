@@ -1290,7 +1290,7 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextIt
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialState){
+ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime) {
     if (numberOfStatesCoder == nullptr ) {
         return ErrorFeatureNotImplemented;
     }
@@ -1299,6 +1299,10 @@ ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialS
     }
     numberOfStatesCoder->encode(numberOfStates, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     initialStateCoder->encode(initialState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (stateArrayReactionTimeCoder != nullptr) {
+        reactionTime.convertValue(stateArrayReactionTimeRange.prefix);
+        stateArrayReactionTimeCoder->encode(reactionTime.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
     return Success;
 }
 

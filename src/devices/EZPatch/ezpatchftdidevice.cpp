@@ -1,4 +1,5 @@
 #include "ezpatchftdidevice.h"
+#include "utils.h"
 
 #include "libMPSSE_spi.h"
 

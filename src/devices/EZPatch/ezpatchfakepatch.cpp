@@ -1,4 +1,5 @@
 #include "ezpatchfakepatch.h"
+#include "utils.h"
 
 #include <thread>
 #include <ctime>

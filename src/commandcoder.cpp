@@ -227,34 +227,53 @@ double DoubleSignAbsCoder::encode(double value, std::vector <uint16_t> &encoding
     }
 }
 
-//---------------MULTICODER-----------------------------//
+FloatCoder::FloatCoder(CoderConfig_t config) :
+    CommandCoder(config.initialWord, config.initialBit, 32),
+    config(config) {
+
+}
+
+FloatCoder::~FloatCoder() {
+
+}
+
+double FloatCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
+    float fltValue = (float)value;
+    uint32_t uintValue = *(uint32_t *)(&fltValue);
+    this->encodeUint(uintValue, encodingWords, startingWord, endingWord);
+    return (double)fltValue;
+}
+
 MultiCoder::MultiCoder(MultiCoderConfig_t multiConfig) :
     CommandCoder(0, 0, 0),
     multiConfig(multiConfig) {
 
 }
 
-double MultiCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord){
+MultiCoder::~MultiCoder() {
+
+}
+
+double MultiCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
     bool done = false;
     double ret;
     int i;
-    for(i = 0; i<multiConfig.thresholdVector.size(); i++){
+    for (i = 0; i < multiConfig.thresholdVector.size(); i++) {
         /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-        if (value<multiConfig.thresholdVector[i] && !done){
+        if (value < multiConfig.thresholdVector[i] && !done) {
             multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
             ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);
             done = true;
         }
     }
-    if (!done){
+    if (!done) {
         multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
         ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);
         done = true;
     }
     return ret;
-
 }
 
-void MultiCoder::getMultiConfig(MultiCoderConfig_t &myMultiConfig){
-    myMultiConfig = this->multiConfig;
+void MultiCoder::getMultiConfig(MultiCoderConfig_t &multiConfig) {
+    multiConfig = this->multiConfig;
 }
