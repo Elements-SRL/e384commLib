@@ -59,9 +59,6 @@ public:
      *  Connection methods  *
     \************************/
 
-    virtual ErrorCodes_t connect(std::string fwPath) override;
-    virtual ErrorCodes_t disconnect() override;
-
     virtual ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag) override;
     static ErrorCodes_t getDeviceType(DeviceTuple_t tuple, DeviceTypes_t &type);
 
@@ -249,10 +246,16 @@ protected:
      *  Methods  *
     \*************/
 
-    ErrorCodes_t init();
-    virtual void initializeHW() override;
-    ErrorCodes_t resetHW() override;
-    ErrorCodes_t deinit();
+    virtual ErrorCodes_t initializeMemory() override;
+    virtual void initializeVariables() override;
+    virtual ErrorCodes_t deviceConfiguration() override;
+    virtual void createCommunicationThreads() override;
+    virtual ErrorCodes_t initializeHW() override;
+
+    virtual void deinitializeMemory() override;
+    virtual void deinitializeVariables() override;
+
+    void joinCommunicationThreads() override;
 
     void initializeLsbNoise(bool nullValues = true);
     virtual void initializeCompensations();
@@ -441,16 +444,9 @@ protected:
      *  Variables  *
     \***************/
 
-    std::string deviceId;
-    std::string deviceName;
-
     FpgaLoadType_t fpgaLoadType = FpgaFwLoadAutomatic;
     FT_HANDLE * ftdiRxHandle = nullptr;
     FT_HANDLE * ftdiTxHandle = nullptr;
-
-    bool connected = false;
-    bool threadsStarted = false;
-    bool stopConnectionFlag = false;
 
     bool parsingFlag = false;
 

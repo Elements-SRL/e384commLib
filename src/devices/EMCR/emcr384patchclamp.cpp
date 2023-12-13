@@ -1702,9 +1702,9 @@ Emcr384PatchClamp_V01::~Emcr384PatchClamp_V01() {
 
 }
 
-void Emcr384PatchClamp_V01::initializeHW() {
-    this->resetFpga(true, true);
-    this->resetFpga(false, false);
+ErrorCodes_t Emcr384PatchClamp_V01::initializeHW() {
+    /*! Nothing to be done */
+    return EmcrDevice::initializeHW();
 }
 
 ErrorCodes_t Emcr384PatchClamp_V01::hasCompFeature(uint16_t feature) {

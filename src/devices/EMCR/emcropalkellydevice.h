@@ -29,9 +29,6 @@ public:
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
     ErrorCodes_t disconnectDevice() override;
 
-    virtual ErrorCodes_t connect(std::string fwPath) override;
-    virtual ErrorCodes_t disconnect() override;
-
 protected:
     typedef enum {
         RxParseLookForHeader,
@@ -47,14 +44,17 @@ protected:
     static std::string getDeviceSerial(uint32_t index);
     static bool getDeviceCount(int &numDevs);
 
+    virtual ErrorCodes_t startCommunication(std::string fwPath) override;
+    virtual ErrorCodes_t stopCommunication() override;
+
     virtual void handleCommunicationWithDevice() override;
     void sendCommandsToDevice();
     virtual bool writeRegistersAndActivateTriggers(TxTriggerType_t type);
     virtual uint32_t readDataFromDevice() override;
     virtual void parseDataFromDevice() override;
 
-    ErrorCodes_t initializeBuffers();
-    ErrorCodes_t deinitializeBuffers();
+    virtual ErrorCodes_t initializeMemory() override;
+    virtual void deinitializeMemory() override;
 
     /****************\
      *  Parameters  *

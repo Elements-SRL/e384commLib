@@ -58,101 +58,23 @@ EZPatchFakePatch::~EZPatchFakePatch() {
  *  Connection methods  *
 \************************/
 
-ErrorCodes_t EZPatchFakePatch::connect(std::string fwPath) {
-    if (connected) {
-        return ErrorDeviceAlreadyConnected;
-    }
-
-    connected = true;
-
-    this->init();
-
-    stopConnectionFlag = false;
-
-#ifdef DEBUG_TX_DATA_PRINT
-    if (txFid == nullptr) {
-        createDebugFile(txFid, "e384CommLib_tx");
-    }
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    if (rxRawFid == nullptr) {
-        createDebugFile(rxRawFid, "e384CommLib_rxRaw");
-    }
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    if (rxProcFid == nullptr) {
-        createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
-    }
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-    if (rxFid == nullptr) {
-        createDebugFile(rxFid, "e384CommLib_rx");
-    }
-#endif
-
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-    if (ljFid == nullptr) {
-        createDebugFile(ljFid, "e384CommLib_lj");
-    }
-#endif
-
+void EZPatchFakePatch::createCommunicationThreads() {
     rxThread = std::thread(&EZPatchFakePatch::readAndParseMessagesForGenerator, this);
     txThread = std::thread(&EZPatchFakePatch::unwrapAndSendMessagesForGenerator, this);
     gnThread = std::thread(&EZPatchFakePatch::generateData, this);
     satThread = std::thread(&EZPatchFakePatch::saturationFromGenerator, this);
 
     threadsStarted = true;
-
-    return Success;
 }
 
-ErrorCodes_t EZPatchFakePatch::disconnect() {
-    if (!connected) {
-        return ErrorDeviceNotConnected;
-    }
+void EZPatchFakePatch::joinCommunicationThreads() {
+    if (threadsStarted) {
+        rxThread.join();
+        txThread.join();
+        gnThread.join();
+        satThread.join();
 
-    if (!stopConnectionFlag) {
-        stopConnectionFlag = true;
-
-        if (threadsStarted) {
-            rxThread.join();
-            txThread.join();
-            gnThread.join();
-            satThread.join();
-        }
-
-        this->deinit();
-        this->flushBoardList();
-
-#ifdef DEBUG_TX_DATA_PRINT
-        fclose(txFid);
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-        fclose(rxRawFid);
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-        fclose(rxProcFid);
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-        fclose(rxFid);
-#endif
-
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-        fclose(ljFid);
-#endif
-
-        connected = false;
-
-        return Success;
-
-    } else {
-        return ErrorDeviceNotConnected;
+        threadsStarted = false;
     }
 }
 

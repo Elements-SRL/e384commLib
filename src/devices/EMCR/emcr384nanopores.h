@@ -82,7 +82,7 @@ protected:
     BoolArrayCoder * minus24VCoder = nullptr;
     BoolArrayCoder * plus24VCoder = nullptr;
     
-    virtual void initializeHW() override;
+    virtual ErrorCodes_t initializeHW() override;
 };
 
 #endif // EMCR384NANOPORES_H

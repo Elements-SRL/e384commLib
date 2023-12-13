@@ -12,12 +12,8 @@ public:
     EZPatchFakeP8(std::string di);
     ~EZPatchFakeP8();
 
-    /************************\
-     *  Connection methods  *
-    \************************/
-
-    ErrorCodes_t connect(std::string fwPath) override;
-    ErrorCodes_t disconnect() override;
+    virtual void createCommunicationThreads() override;
+    virtual void joinCommunicationThreads() override;
 
     /*******************************\
      *  Rx methods from generator  *

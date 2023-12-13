@@ -28,16 +28,19 @@ Emcr2x10MHzFake::~Emcr2x10MHzFake() {
 
 }
 
-ErrorCodes_t Emcr2x10MHzFake::connect(std::string fwPath) {
-    this->initializeBuffers();
-    this->fillBuffer();
-
-    return EmcrDevice::connect(fwPath);
+ErrorCodes_t Emcr2x10MHzFake::startCommunication(std::string fwPath) {
+    /*! Nothing to be done */
+    return Success;
 }
 
-ErrorCodes_t Emcr2x10MHzFake::disconnect() {
-    EmcrDevice::disconnect();
-    return this->deinitializeBuffers();
+void Emcr2x10MHzFake::initializeVariables() {
+    EmcrDevice::initializeVariables();
+    this->fillBuffer();
+}
+
+ErrorCodes_t Emcr2x10MHzFake::stopCommunication() {
+    /*! Nothing to be done */
+    return Success;
 }
 
 bool Emcr2x10MHzFake::writeRegistersAndActivateTriggers(TxTriggerType_t type) {

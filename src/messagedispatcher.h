@@ -108,17 +108,14 @@ public:
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
+    ErrorCodes_t initialize(std::string fwPath);
+    void deinitialize();
     virtual ErrorCodes_t disconnectDevice() = 0;
     virtual ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag) = 0;
-
-    virtual ErrorCodes_t connect(std::string fwPath) = 0;
-    virtual ErrorCodes_t disconnect() = 0;
 
     /***************************\
      *  Configuration methods  *
     \***************************/
-
-    ErrorCodes_t initializeDevice();
 
     ErrorCodes_t setChannelSelected(uint16_t chIdx, bool newState);
     ErrorCodes_t setBoardSelected(uint16_t brdIdx, bool newState);
@@ -406,11 +403,24 @@ protected:
      *  Methods  *
     \*************/
 
+    void createDebugFiles();
+    virtual ErrorCodes_t startCommunication(std::string fwPath) = 0;
+    virtual ErrorCodes_t initializeMemory() = 0;
+    virtual void initializeVariables();
+    virtual ErrorCodes_t deviceConfiguration();
+    virtual void createCommunicationThreads() = 0;
+    virtual ErrorCodes_t initializeHW() = 0;
+
+    virtual ErrorCodes_t stopCommunication() = 0;
+    virtual void deinitializeMemory() = 0;
+    virtual void deinitializeVariables();
+
+    void closeDebugFiles();
+    virtual void joinCommunicationThreads() = 0;
+
     void computeLiquidJunction();
-    virtual void initializeHW() = 0;
     virtual void initializeCalibration();
     void initializeLiquidJunction();
-    virtual ErrorCodes_t resetHW() = 0;
 
     bool checkProtocolValidity(std::string &message);
 
@@ -604,7 +614,6 @@ protected:
     std::string deviceId;
     std::string deviceName;
 
-    bool connected = false;
     bool threadsStarted = false;
     bool stopConnectionFlag = false;
     bool parsingFlag = false;

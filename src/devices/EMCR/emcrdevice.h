@@ -9,13 +9,6 @@ public:
     EmcrDevice(std::string deviceId);
     virtual ~EmcrDevice();
 
-    /************************\
-     *  Connection methods  *
-    \************************/
-
-    virtual ErrorCodes_t connect(std::string fwPath) override;
-    virtual ErrorCodes_t disconnect() override;
-
     ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag) override;
 
     /****************\
@@ -139,11 +132,18 @@ protected:
      *  Methods  *
     \*************/
 
-    ErrorCodes_t init();
-    ErrorCodes_t deinit();
+    virtual ErrorCodes_t initializeMemory() override;
+    virtual void initializeVariables() override;
+    virtual ErrorCodes_t deviceConfiguration() override;
+    virtual void createCommunicationThreads() override;
+    virtual ErrorCodes_t initializeHW() override;
+
+    virtual void deinitializeMemory() override;
+    virtual void deinitializeVariables() override;
+
+    virtual void joinCommunicationThreads() override;
 
     virtual void initializeCalibration() override;
-    virtual ErrorCodes_t resetHW() override;
 
     virtual void handleCommunicationWithDevice() = 0;
     virtual uint32_t readDataFromDevice() = 0;

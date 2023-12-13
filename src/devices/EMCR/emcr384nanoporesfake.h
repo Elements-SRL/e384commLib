@@ -8,11 +8,7 @@ public:
     Emcr384FakeNanopores(std::string id);
     virtual ~Emcr384FakeNanopores();
 
-    virtual ErrorCodes_t connect(std::string fwPath) override;
-    virtual ErrorCodes_t disconnect() override;
-
 protected:
-
     enum SamplingRates {
         SamplingRate6kHz,
         SamplingRatesNum
@@ -21,6 +17,11 @@ protected:
     /*************\
      *  Methods  *
     \*************/
+
+    virtual ErrorCodes_t startCommunication(std::string fwPath) override;
+    virtual void initializeVariables() override;
+
+    virtual ErrorCodes_t stopCommunication() override;
 
     virtual bool writeRegistersAndActivateTriggers(TxTriggerType_t type) override;
     virtual uint32_t readDataFromDevice() override;

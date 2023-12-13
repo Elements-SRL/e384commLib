@@ -31,72 +31,7 @@ EmcrDevice::~EmcrDevice() {
     }
 }
 
-ErrorCodes_t EmcrDevice::connect(std::string fwPath) {
-    if (connected) {
-        return ErrorDeviceAlreadyConnected;
-    }
-
-    connected = true;
-
-    this->init();
-
-    stopConnectionFlag = false;
-
-    deviceCommunicationThread = std::thread(&EmcrDevice::handleCommunicationWithDevice, this);
-    rxConsumerThread = std::thread(&EmcrDevice::parseDataFromDevice, this);
-    liquidJunctionThread = std::thread(&EmcrDevice::computeLiquidJunction, this);
-
-    threadsStarted = true;
-
-    return this->resetHW();
-}
-
-ErrorCodes_t EmcrDevice::disconnect() {
-    if (!connected || stopConnectionFlag) {
-        return ErrorDeviceNotConnected;
-    }
-
-    stopConnectionFlag = true;
-
-    if (threadsStarted) {
-        deviceCommunicationThread.join();
-        rxConsumerThread.join();
-        liquidJunctionThread.join();
-    }
-
-    this->deinit();
-    this->flushBoardList();
-
-#ifdef DEBUG_TX_DATA_PRINT
-    fclose(txFid);
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    fclose(rxRawFid);
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    fclose(rxProcFid);
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-    fclose(rxFid);
-#endif
-
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-    fclose(ljFid);
-#endif
-
-    connected = false;
-
-    return Success;
-}
-
 ErrorCodes_t EmcrDevice::enableRxMessageType(MsgTypeId_t messageType, bool flag) {
-    if (!connected) {
-        return ErrorDeviceNotConnected;
-    }
-
     uint16_t uType = (uint16_t)messageType;
 
     if (uType < MsgDirectionDeviceToPc) {
@@ -1838,22 +1773,26 @@ ErrorCodes_t EmcrDevice::getCalibMappingFilePath(std::string &path){
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::init() {
+/*********************\
+ *  Private methods  *
+\*********************/
+
+ErrorCodes_t EmcrDevice::initializeMemory() {
     rxMsgBuffer = new (std::nothrow) MsgResume_t[RX_MSG_BUFFER_SIZE];
     if (rxMsgBuffer == nullptr) {
-        this->deinit();
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
     rxDataBuffer = new (std::nothrow) uint16_t[RX_DATA_BUFFER_SIZE+1]; /*!< The last item is a copy of the first one, it is used to safely read 2 consecutive 16bit words at a time to form a 32bit word */
     if (rxDataBuffer == nullptr) {
-        this->deinit();
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
     txMsgBuffer = new (std::nothrow) std::vector <uint16_t>[TX_MSG_BUFFER_SIZE];
     if (txMsgBuffer == nullptr) {
-        this->deinit();
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
@@ -1861,21 +1800,48 @@ ErrorCodes_t EmcrDevice::init() {
     txMsgLength.resize(TX_MSG_BUFFER_SIZE);
     txMsgTrigger.resize(TX_MSG_BUFFER_SIZE);
 
-    /*! Allocate memory for raw data filters */
-    this->initializeRawDataFilterVariables();
-
     /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
     voltageDataValues.resize(voltageChannelsNum);
     std::fill(voltageDataValues.begin(), voltageDataValues.end(), 0);
 
-    /*! Initialize device */
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    this->initializeDevice();
-
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::deinit() {
+void EmcrDevice::initializeVariables() {
+    MessageDispatcher::initializeVariables();
+    this->initializeCalibration();
+}
+
+ErrorCodes_t EmcrDevice::deviceConfiguration() {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    ErrorCodes_t ret = MessageDispatcher::deviceConfiguration();
+    return ret;
+}
+
+void EmcrDevice::createCommunicationThreads() {
+    deviceCommunicationThread = std::thread(&EmcrDevice::handleCommunicationWithDevice, this);
+    rxConsumerThread = std::thread(&EmcrDevice::parseDataFromDevice, this);
+    liquidJunctionThread = std::thread(&EmcrDevice::computeLiquidJunction, this);
+
+    threadsStarted = true;
+}
+
+ErrorCodes_t EmcrDevice::initializeHW() {
+    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
+
+    this->resetFpga(true, true);
+    this->resetFpga(false, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    this->resetAsic(true, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    this->resetAsic(false, true);
+
+    this->sendCommands();
+    return Success;
+}
+
+void EmcrDevice::deinitializeMemory() {
     if (rxMsgBuffer != nullptr) {
         delete [] rxMsgBuffer;
         rxMsgBuffer = nullptr;
@@ -1890,10 +1856,21 @@ ErrorCodes_t EmcrDevice::deinit() {
         delete [] txMsgBuffer;
         txMsgBuffer = nullptr;
     }
+}
 
-    this->deInitializeRawDataFilterVariables();
+void EmcrDevice::deinitializeVariables() {
+    /*! Nothing to be done */
+    MessageDispatcher::deinitializeVariables();
+}
 
-    return Success;
+void EmcrDevice::joinCommunicationThreads() {
+    if (threadsStarted) {
+        deviceCommunicationThread.join();
+        rxConsumerThread.join();
+        liquidJunctionThread.join();
+
+        threadsStarted = false;
+    }
 }
 
 void EmcrDevice::initializeCalibration() {
@@ -1904,15 +1881,6 @@ void EmcrDevice::initializeCalibration() {
     calibrationFilesOkFlags = calibrationManager.getCalibrationFilesOkFlags();
     calibrationMappingFileDir = calibrationManager.getMappingFileDir();
     calibrationMappingFilePath = calibrationManager.getMappingFilePath();
-}
-
-ErrorCodes_t EmcrDevice::resetHW() {
-    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
-
-    this->resetAsic(true, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    this->resetAsic(false, true);
-    return Success;
 }
 
 void EmcrDevice::forceOutMessage() {

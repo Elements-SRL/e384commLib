@@ -117,6 +117,9 @@ ErrorCodes_t EmcrOpalKellyDevice::isDeviceSerialDetected(std::string deviceId) {
 
 ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     ErrorCodes_t ret = Success;
+    if (messageDispatcher != nullptr) {
+        return ErrorDeviceAlreadyConnected;
+    }
 
     DeviceTypes_t deviceType;
     ret = EmcrOpalKellyDevice::getDeviceType(deviceId, deviceType);
@@ -182,10 +185,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
     }
 
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->connect(fwPath);
+        ret = messageDispatcher->initialize(fwPath);
 
         if (ret != Success) {
-            messageDispatcher->disconnect();
+            messageDispatcher->deinitialize();
             delete messageDispatcher;
             messageDispatcher = nullptr;
         }
@@ -195,75 +198,7 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::disconnectDevice() {
-    return this->disconnect();
-}
-
-ErrorCodes_t EmcrOpalKellyDevice::connect(std::string fwPath) {
-    if (connected) {
-        return ErrorDeviceAlreadyConnected;
-    }
-
-#ifdef DEBUG_TX_DATA_PRINT
-    if (txFid == nullptr) {
-        createDebugFile(txFid, "e384CommLib_tx");
-    }
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    if (rxRawFid == nullptr) {
-        createDebugFile(rxRawFid, "e384CommLib_rxRaw");
-    }
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    if (rxProcFid == nullptr) {
-        createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
-    }
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-    if (rxFid == nullptr) {
-        createDebugFile(rxFid, "e384CommLib_rx");
-    }
-#endif
-
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-    if (ljFid == nullptr) {
-        createDebugFile(ljFid, "e384CommLib_lj");
-    }
-#endif
-
-    okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
-
-    if (error != okCFrontPanel::NoError) {
-        return ErrorDeviceConnectionFailed;
-    }
-
-    error = dev.ConfigureFPGA(fwPath + fwName);
-
-    if (error != okCFrontPanel::NoError) {
-        return ErrorDeviceFwLoadingFailed;
-    }
-
-    ErrorCodes_t err = this->initializeBuffers();
-    if (err != Success) {
-        return err;
-
-    } else {
-        return EmcrDevice::connect(fwPath);
-    }
-}
-
-ErrorCodes_t EmcrOpalKellyDevice::disconnect() {
-    if (!connected) {
-        return ErrorDeviceNotConnected;
-    }
-
-    EmcrDevice::disconnect();
-
-    this->deinitializeBuffers();
-
-    dev.Close();
+    this->deinitialize();
     return Success;
 }
 
@@ -306,6 +241,26 @@ bool EmcrOpalKellyDevice::getDeviceCount(int &numDevs) {
     okCFrontPanel okDev;
     numDevs = okDev.GetDeviceCount();
     return true;
+}
+
+ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
+    okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
+
+    if (error != okCFrontPanel::NoError) {
+        return ErrorDeviceConnectionFailed;
+    }
+
+    error = dev.ConfigureFPGA(fwPath + fwName);
+
+    if (error != okCFrontPanel::NoError) {
+        return ErrorDeviceFwLoadingFailed;
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrOpalKellyDevice::stopCommunication() {
+    dev.Close();
+    return Success;
 }
 
 void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
@@ -676,22 +631,23 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
     }
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::initializeBuffers() {
+ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {
     rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_BUFFER_SIZE];
     if (rxRawBuffer == nullptr) {
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
-    return Success;
+    return EmcrDevice::initializeMemory();
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::deinitializeBuffers() {
+void EmcrOpalKellyDevice::deinitializeMemory() {
     if (rxRawBuffer != nullptr) {
         delete [] rxRawBuffer;
         rxRawBuffer = nullptr;
     }
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
-    return Success;
+    EmcrDevice::deinitializeMemory();
 }

@@ -772,12 +772,7 @@ Emcr384NanoPores_V01::~Emcr384NanoPores_V01() {
 
 }
 
-void Emcr384NanoPores_V01::initializeHW() {
-    this->resetFpga(true, true);
-    this->resetFpga(false, false);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
+ErrorCodes_t Emcr384NanoPores_V01::initializeHW() {
     minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stackOutgoingMessage(txStatus);
 
@@ -785,4 +780,6 @@ void Emcr384NanoPores_V01::initializeHW() {
 
     plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stackOutgoingMessage(txStatus);
+
+    return EmcrDevice::initializeHW();
 }

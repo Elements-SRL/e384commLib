@@ -81,79 +81,7 @@ EZPatchDevice::~EZPatchDevice() {
     delete [] lsbNoiseArray;
 }
 
-/************************\
- *  Connection methods  *
-\************************/
-
-ErrorCodes_t EZPatchDevice::connect(std::string fwPath) {
-    if (connected) {
-        return ErrorDeviceAlreadyConnected;
-    }
-
-    connected = true;
-
-    this->init();
-
-    stopConnectionFlag = false;
-
-    rxThread = std::thread(&EZPatchDevice::readAndParseMessages, this);
-    txThread = std::thread(&EZPatchDevice::unwrapAndSendMessages, this);
-
-    threadsStarted = true;
-
-    return this->resetHW();
-}
-
-ErrorCodes_t EZPatchDevice::disconnect() {
-    if (!connected) {
-        return ErrorDeviceNotConnected;
-    }
-
-    if (!stopConnectionFlag) {
-        stopConnectionFlag = true;
-
-        if (threadsStarted) {
-            rxThread.join();
-            txThread.join();
-        }
-
-        this->deinit();
-        this->flushBoardList();
-
-#ifdef DEBUG_TX_DATA_PRINT
-        fclose(txFid);
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-        fclose(rxRawFid);
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-        fclose(rxProcFid);
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-        fclose(rxFid);
-#endif
-
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-        fclose(ljFid);
-#endif
-
-        connected = false;
-
-        return Success;
-
-    } else {
-        return ErrorDeviceNotConnected;
-    }
-}
-
 ErrorCodes_t EZPatchDevice::enableRxMessageType(MsgTypeId_t messageType, bool flag) {
-    if (!connected) {
-        return ErrorDeviceNotConnected;
-    }
-
     uint16_t uType = (uint16_t)messageType;
 
     if (uType < MsgDirectionDeviceToPc) {
@@ -2516,16 +2444,16 @@ ErrorCodes_t EZPatchDevice::getBridgeBalanceResistanceControl(CompensationContro
  *  Private methods  *
 \*********************/
 
-ErrorCodes_t EZPatchDevice::init() {
+ErrorCodes_t EZPatchDevice::initializeMemory() {
     rxMsgBuffer = new (std::nothrow) MsgResume_t[EZP_RX_MSG_BUFFER_SIZE];
     if (rxMsgBuffer == nullptr) {
-        this->deinit();
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
     rxDataBuffer = new (std::nothrow) uint16_t[EZP_RX_DATA_BUFFER_SIZE+1]; /*!< The last item is a copy of the first one, it is used to safely read 2 consecutive 16bit words at a time to form a 32bit word */
     if (rxDataBuffer == nullptr) {
-        this->deinit();
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 #ifdef CHECK_DATA_PACKET_LENGTH
@@ -2534,76 +2462,52 @@ ErrorCodes_t EZPatchDevice::init() {
 
     txMsgBuffer = new (std::nothrow) MsgResume_t[EZP_TX_MSG_BUFFER_SIZE];
     if (txMsgBuffer == nullptr) {
-        this->deinit();
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
     txDataBuffer = new (std::nothrow) uint16_t[EZP_TX_DATA_BUFFER_SIZE+1]; /*!< The last item is a copy of the first one, it is used to safely read 2 consecutive 16bit words at a time to form a 32bit word */
     if (txDataBuffer == nullptr) {
-        this->deinit();
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
     lsbNoiseArray = new (std::nothrow) double[EZP_LSB_NOISE_ARRAY_SIZE];
     if (lsbNoiseArray == nullptr) {
-        this->deinit();
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
+    return Success;
+}
+
+void EZPatchDevice::initializeVariables() {
+    MessageDispatcher::initializeVariables();
     /*! Calculate the LSB noise std::vector */
     this->initializeLsbNoise();
 
     /*! Allocate memory for compensations */
     this->initializeCompensations();
+}
 
-    /*! Allocate memory for raw data filters */
-    this->initializeRawDataFilterVariables();
-
-    /*! Initialize device */
+ErrorCodes_t EZPatchDevice::deviceConfiguration() {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    this->initializeDevice();
+    ErrorCodes_t ret = MessageDispatcher::deviceConfiguration();
+    if (ret != Success) {
+        return ret;
+    }
 
-    /*! Some constant switches are better set before the FPGA reset */
-    this->setConstantSwitches();
-
-    return Success;
+    return this->setConstantSwitches();
 }
 
-ErrorCodes_t EZPatchDevice::deinit() {
-    if (rxMsgBuffer != nullptr) {
-        delete [] rxMsgBuffer;
-        rxMsgBuffer = nullptr;
-    }
+void EZPatchDevice::createCommunicationThreads() {
+    rxThread = std::thread(&EZPatchDevice::readAndParseMessages, this);
+    txThread = std::thread(&EZPatchDevice::unwrapAndSendMessages, this);
 
-    if (rxDataBuffer != nullptr) {
-        delete [] rxDataBuffer;
-        rxDataBuffer = nullptr;
-    }
-
-    if (txMsgBuffer != nullptr) {
-        delete [] txMsgBuffer;
-        txMsgBuffer = nullptr;
-    }
-
-    if (txDataBuffer != nullptr) {
-        delete [] txDataBuffer;
-        txDataBuffer = nullptr;
-    }
-
-    if (lsbNoiseArray != nullptr) {
-        delete [] lsbNoiseArray;
-        lsbNoiseArray = nullptr;
-    }
-
-    this->deInitializeRawDataFilterVariables();
-    return Success;
+    threadsStarted = true;
 }
 
-void EZPatchDevice::initializeHW() {
-    /*! Nothing to be done */
-}
-
-ErrorCodes_t EZPatchDevice::resetHW() {
+ErrorCodes_t EZPatchDevice::initializeHW() {
     RxOutput_t rxOutput;
     ErrorCodes_t ret = ErrorUnknown;
     rxOutput.msgTypeId = MsgDirectionDeviceToPc+MsgTypeIdInvalid;
@@ -2667,6 +2571,47 @@ ErrorCodes_t EZPatchDevice::resetHW() {
     }
 
     return ret;
+}
+
+void EZPatchDevice::deinitializeMemory() {
+    if (rxMsgBuffer != nullptr) {
+        delete [] rxMsgBuffer;
+        rxMsgBuffer = nullptr;
+    }
+
+    if (rxDataBuffer != nullptr) {
+        delete [] rxDataBuffer;
+        rxDataBuffer = nullptr;
+    }
+
+    if (txMsgBuffer != nullptr) {
+        delete [] txMsgBuffer;
+        txMsgBuffer = nullptr;
+    }
+
+    if (txDataBuffer != nullptr) {
+        delete [] txDataBuffer;
+        txDataBuffer = nullptr;
+    }
+
+    if (lsbNoiseArray != nullptr) {
+        delete [] lsbNoiseArray;
+        lsbNoiseArray = nullptr;
+    }
+}
+
+void EZPatchDevice::deinitializeVariables() {
+    /*! Nothing to be done */
+    MessageDispatcher::deinitializeVariables();
+}
+
+void EZPatchDevice::joinCommunicationThreads() {
+    if (threadsStarted) {
+        rxThread.join();
+        txThread.join();
+
+        threadsStarted = false;
+    }
 }
 
 void EZPatchDevice::initializeLsbNoise(bool nullValues) {

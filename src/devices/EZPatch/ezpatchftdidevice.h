@@ -33,9 +33,6 @@ public:
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
     ErrorCodes_t disconnectDevice() override;
 
-    virtual ErrorCodes_t connect(std::string fwPath) override;
-    virtual ErrorCodes_t disconnect() override;
-
 protected:
     typedef enum {
         RxParseLookForHeader,
@@ -51,6 +48,9 @@ protected:
     static std::string getDeviceSerial(uint32_t index, bool excludeLetter);
     static bool getDeviceCount(DWORD &numDevs);
 
+    virtual ErrorCodes_t startCommunication(std::string fwPath) override;
+    virtual ErrorCodes_t stopCommunication() override;
+
     virtual void readAndParseMessages() override;
     virtual void unwrapAndSendMessages() override;
     void wrapOutgoingMessage(uint16_t msgTypeId, std::vector <uint16_t> &txDataMessage, uint16_t dataLen) override;
@@ -58,8 +58,8 @@ protected:
     uint16_t rxCrc16Ccitt(uint32_t offset, uint16_t len, uint16_t crc);
     uint16_t txCrc16Ccitt(uint32_t offset, uint16_t len, uint16_t crc);
 
-    ErrorCodes_t initializeBuffers();
-    ErrorCodes_t deinitializeBuffers();
+    virtual ErrorCodes_t initializeMemory() override;
+    virtual void deinitializeMemory() override;
 
     ErrorCodes_t loadFpgaFw();
     ErrorCodes_t initFtdiChannel(FT_HANDLE * handle, char channel);

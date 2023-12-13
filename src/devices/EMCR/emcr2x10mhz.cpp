@@ -651,7 +651,7 @@ Emcr2x10MHz_PCBV01_V01::~Emcr2x10MHz_PCBV01_V01() {
 
 }
 
-void Emcr2x10MHz_PCBV01_V01::initializeHW() {
+ErrorCodes_t Emcr2x10MHz_PCBV01_V01::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -664,18 +664,6 @@ void Emcr2x10MHz_PCBV01_V01::initializeHW() {
     /*! After a short while the 10MHz clock starts */
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    /*! Reset FPGA to initialize state machines */
-    fpgaResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    this->stackOutgoingMessage(txStatus);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    fpgaResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    this->stackOutgoingMessage(txStatus);
-
-    /*! Wait for the initialization */
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -684,6 +672,8 @@ void Emcr2x10MHz_PCBV01_V01::initializeHW() {
 
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
+
+    return EmcrDevice::initializeHW();
 }
 
 Emcr2x10MHz_PCBV02_V01::Emcr2x10MHz_PCBV02_V01(std::string di) :
@@ -1364,7 +1354,7 @@ Emcr2x10MHz_PCBV01_V02::~Emcr2x10MHz_PCBV01_V02() {
 
 }
 
-void Emcr2x10MHz_PCBV01_V02::initializeHW() {
+ErrorCodes_t Emcr2x10MHz_PCBV01_V02::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -1377,18 +1367,6 @@ void Emcr2x10MHz_PCBV01_V02::initializeHW() {
     /*! After a short while the 10MHz clock starts */
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    /*! Reset FPGA to initialize state machines */
-    fpgaResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    this->stackOutgoingMessage(txStatus);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    fpgaResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    this->stackOutgoingMessage(txStatus);
-
-    /*! Wait for the initialization */
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -1397,6 +1375,8 @@ void Emcr2x10MHz_PCBV01_V02::initializeHW() {
 
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
+
+    return EmcrDevice::initializeHW();
 }
 
 Emcr2x10MHz_PCBV02_V02::Emcr2x10MHz_PCBV02_V02(std::string di) :

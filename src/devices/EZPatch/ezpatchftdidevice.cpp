@@ -230,289 +230,177 @@ ErrorCodes_t EZPatchFtdiDevice::isDeviceSerialDetected(std::string deviceId) {
 
 ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     ErrorCodes_t ret = Success;
-    if (messageDispatcher == nullptr) {
-        DeviceTypes_t deviceType;
-
-        ret = EZPatchFtdiDevice::getDeviceType(deviceId, deviceType);
-        if (ret != Success) {
-            return ErrorDeviceTypeNotRecognized;
-        }
-
-        switch (deviceType) {
-        case DeviceEPatchEL03D_V04:
-            messageDispatcher = new EZPatchePatchEL03D_V04(deviceId);
-            break;
-
-        case DeviceEPatchEL03D_V03:
-            messageDispatcher = new EZPatchePatchEL03D_V03(deviceId);
-            break;
-
-        case DeviceEPatchEL03D_V02:
-            messageDispatcher = new EZPatchePatchEL03D_V02(deviceId);
-            break;
-
-        case DeviceEPatchEL03D_V01:
-            messageDispatcher = new EZPatchePatchEL03D_V01(deviceId);
-            break;
-
-        case DeviceEPatchEL03D_V00:
-            messageDispatcher = new EZPatchePatchEL03D_V00(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4D_PCBV03_V04:
-            messageDispatcher = new EZPatchePatchEL03F_4D_PCBV03_V04(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4D_PCBV03_V03:
-            messageDispatcher = new EZPatchePatchEL03F_4D_PCBV03_V03(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4D_PCBV03_V02:
-            messageDispatcher = new EZPatchePatchEL03F_4D_PCBV03_V02(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4D_PCBV02_V04:
-            messageDispatcher = new EZPatchePatchEL03F_4D_PCBV02_V04(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4D_PCBV02_V03:
-            messageDispatcher = new EZPatchePatchEL03F_4D_PCBV02_V03(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4D_PCBV02_V02:
-            messageDispatcher = new EZPatchePatchEL03F_4D_PCBV02_V02(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4D_PCBV02_V01:
-            messageDispatcher = new EZPatchePatchEL03F_4D_PCBV02_V01(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4D_PCBV02_V00:
-            messageDispatcher = new EZPatchePatchEL03F_4D_PCBV02_V00(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4E_PCBV03_V04:
-            messageDispatcher = new EZPatchePatchEL03F_4E_PCBV03_V04(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4E_PCBV03_V03:
-            messageDispatcher = new EZPatchePatchEL03F_4E_PCBV03_V03(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4E_PCBV03_V02:
-            messageDispatcher = new EZPatchePatchEL03F_4E_PCBV03_V02(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4E_PCBV02_V04:
-            messageDispatcher = new EZPatchePatchEL03F_4E_PCBV02_V04(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4E_PCBV02_V03:
-            messageDispatcher = new EZPatchePatchEL03F_4E_PCBV02_V03(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4E_PCBV02_V02:
-            messageDispatcher = new EZPatchePatchEL03F_4E_PCBV02_V02(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4E_PCBV02_V01:
-            messageDispatcher = new EZPatchePatchEL03F_4E_PCBV02_V01(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4E_PCBV02_V00:
-            messageDispatcher = new EZPatchePatchEL03F_4E_PCBV02_V00(deviceId);
-            break;
-
-        case DeviceEPatchEL04E:
-            messageDispatcher = new EZPatchePatchEL04E(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4F_PCBV01_AnalogOut:
-            messageDispatcher = new EZPatchePatchEL03F_4F_PCBV01_AnalogOut_V01(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4F_PCBV03_V04:
-            messageDispatcher = new EZPatchePatchEL03F_4F_PCBV03_V04(deviceId);
-            break;
-
-        case DeviceEPatchEL03F_4F_PCBV03_V03:
-            messageDispatcher = new EZPatchePatchEL03F_4F_PCBV03_V03(deviceId);
-            break;
-
-        case DeviceEPatchEL04F:
-            messageDispatcher = new EZPatchePatchEL04F(deviceId);
-            break;
-
-        case DeviceE4PEL04F:
-            messageDispatcher = new EZPatche4PEL04F(deviceId);
-            break;
-
-        case DeviceE4PPatchLiner:
-            messageDispatcher = new EZPatche4PPatchliner(deviceId);
-            break;
-
-        case DeviceE8PPatchLiner:
-            messageDispatcher = new EZPatche8PPatchliner(deviceId);
-            break;
-
-        case DeviceE4PPatchLinerEL07AB:
-            messageDispatcher = new EZPatche4PPatchliner_el07ab(deviceId);
-            break;
-
-        case DeviceE8PPatchLinerEL07AB:
-            messageDispatcher = new EZPatche8PPatchliner_el07ab(deviceId);
-            break;
-
-        case DeviceE8PPatchLinerEL07AB_artix7:
-            messageDispatcher = new EZPatche8PPatchliner_el07ab_artix7(deviceId);
-            break;
-
-        case DeviceFakePatch:
-            messageDispatcher = new EZPatchFakePatch(deviceId);
-            break;
-
-        case DeviceFakeP8:
-            messageDispatcher = new EZPatchFakeP8(deviceId);
-            break;
-
-        case DeviceEPatchDlp:
-            messageDispatcher = new EZPatchePatchDlp(deviceId);
-            break;
-
-        default:
-            return ErrorDeviceTypeNotRecognized;
-        }
-
-        if (messageDispatcher != nullptr) {
-            ret = messageDispatcher->connect(fwPath);
-
-            if (ret != Success) {
-                messageDispatcher->disconnect();
-                delete messageDispatcher;
-                messageDispatcher = nullptr;
-            }
-        }
-
-    } else {
-        ret = ErrorDeviceAlreadyConnected;
+    if (messageDispatcher != nullptr) {
+        return ErrorDeviceAlreadyConnected;
     }
+
+    DeviceTypes_t deviceType;
+
+    ret = EZPatchFtdiDevice::getDeviceType(deviceId, deviceType);
+    if (ret != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    switch (deviceType) {
+    case DeviceEPatchEL03D_V04:
+        messageDispatcher = new EZPatchePatchEL03D_V04(deviceId);
+        break;
+
+    case DeviceEPatchEL03D_V03:
+        messageDispatcher = new EZPatchePatchEL03D_V03(deviceId);
+        break;
+
+    case DeviceEPatchEL03D_V02:
+        messageDispatcher = new EZPatchePatchEL03D_V02(deviceId);
+        break;
+
+    case DeviceEPatchEL03D_V01:
+        messageDispatcher = new EZPatchePatchEL03D_V01(deviceId);
+        break;
+
+    case DeviceEPatchEL03D_V00:
+        messageDispatcher = new EZPatchePatchEL03D_V00(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4D_PCBV03_V04:
+        messageDispatcher = new EZPatchePatchEL03F_4D_PCBV03_V04(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4D_PCBV03_V03:
+        messageDispatcher = new EZPatchePatchEL03F_4D_PCBV03_V03(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4D_PCBV03_V02:
+        messageDispatcher = new EZPatchePatchEL03F_4D_PCBV03_V02(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4D_PCBV02_V04:
+        messageDispatcher = new EZPatchePatchEL03F_4D_PCBV02_V04(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4D_PCBV02_V03:
+        messageDispatcher = new EZPatchePatchEL03F_4D_PCBV02_V03(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4D_PCBV02_V02:
+        messageDispatcher = new EZPatchePatchEL03F_4D_PCBV02_V02(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4D_PCBV02_V01:
+        messageDispatcher = new EZPatchePatchEL03F_4D_PCBV02_V01(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4D_PCBV02_V00:
+        messageDispatcher = new EZPatchePatchEL03F_4D_PCBV02_V00(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4E_PCBV03_V04:
+        messageDispatcher = new EZPatchePatchEL03F_4E_PCBV03_V04(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4E_PCBV03_V03:
+        messageDispatcher = new EZPatchePatchEL03F_4E_PCBV03_V03(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4E_PCBV03_V02:
+        messageDispatcher = new EZPatchePatchEL03F_4E_PCBV03_V02(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4E_PCBV02_V04:
+        messageDispatcher = new EZPatchePatchEL03F_4E_PCBV02_V04(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4E_PCBV02_V03:
+        messageDispatcher = new EZPatchePatchEL03F_4E_PCBV02_V03(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4E_PCBV02_V02:
+        messageDispatcher = new EZPatchePatchEL03F_4E_PCBV02_V02(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4E_PCBV02_V01:
+        messageDispatcher = new EZPatchePatchEL03F_4E_PCBV02_V01(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4E_PCBV02_V00:
+        messageDispatcher = new EZPatchePatchEL03F_4E_PCBV02_V00(deviceId);
+        break;
+
+    case DeviceEPatchEL04E:
+        messageDispatcher = new EZPatchePatchEL04E(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4F_PCBV01_AnalogOut:
+        messageDispatcher = new EZPatchePatchEL03F_4F_PCBV01_AnalogOut_V01(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4F_PCBV03_V04:
+        messageDispatcher = new EZPatchePatchEL03F_4F_PCBV03_V04(deviceId);
+        break;
+
+    case DeviceEPatchEL03F_4F_PCBV03_V03:
+        messageDispatcher = new EZPatchePatchEL03F_4F_PCBV03_V03(deviceId);
+        break;
+
+    case DeviceEPatchEL04F:
+        messageDispatcher = new EZPatchePatchEL04F(deviceId);
+        break;
+
+    case DeviceE4PEL04F:
+        messageDispatcher = new EZPatche4PEL04F(deviceId);
+        break;
+
+    case DeviceE4PPatchLiner:
+        messageDispatcher = new EZPatche4PPatchliner(deviceId);
+        break;
+
+    case DeviceE8PPatchLiner:
+        messageDispatcher = new EZPatche8PPatchliner(deviceId);
+        break;
+
+    case DeviceE4PPatchLinerEL07AB:
+        messageDispatcher = new EZPatche4PPatchliner_el07ab(deviceId);
+        break;
+
+    case DeviceE8PPatchLinerEL07AB:
+        messageDispatcher = new EZPatche8PPatchliner_el07ab(deviceId);
+        break;
+
+    case DeviceE8PPatchLinerEL07AB_artix7:
+        messageDispatcher = new EZPatche8PPatchliner_el07ab_artix7(deviceId);
+        break;
+
+    case DeviceFakePatch:
+        messageDispatcher = new EZPatchFakePatch(deviceId);
+        break;
+
+    case DeviceFakeP8:
+        messageDispatcher = new EZPatchFakeP8(deviceId);
+        break;
+
+    case DeviceEPatchDlp:
+        messageDispatcher = new EZPatchePatchDlp(deviceId);
+        break;
+
+    default:
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    if (messageDispatcher != nullptr) {
+        ret = messageDispatcher->initialize(fwPath);
+
+        if (ret != Success) {
+            messageDispatcher->deinitialize();
+            delete messageDispatcher;
+            messageDispatcher = nullptr;
+        }
+    }
+
     return ret;
 }
 
 ErrorCodes_t EZPatchFtdiDevice::disconnectDevice() {
-    return this->disconnect();
-}
-
-ErrorCodes_t EZPatchFtdiDevice::connect(std::string fwPath) {
-    if (connected) {
-        return ErrorDeviceAlreadyConnected;
-    }
-
-    ErrorCodes_t ret;
-
-#ifdef DEBUG_TX_DATA_PRINT
-    if (txFid == nullptr) {
-        createDebugFile(txFid, "e384CommLib_tx");
-    }
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    if (rxRawFid == nullptr) {
-        createDebugFile(rxRawFid, "e384CommLib_rxRaw");
-    }
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    if (rxProcFid == nullptr) {
-        createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
-    }
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-    if (rxFid == nullptr) {
-        createDebugFile(rxFid, "e384CommLib_rx");
-    }
-#endif
-
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-    if (ljFid == nullptr) {
-        createDebugFile(ljFid, "e384CommLib_lj");
-    }
-#endif
-
-    this->loadFpgaFw();
-
-    /*! Initialize the ftdi Rx handle */
-    ftdiRxHandle = new FT_HANDLE;
-
-    ret = this->initFtdiChannel(ftdiRxHandle, rxChannel);
-    if (ret != Success) {
-        return ret;
-    }
-
-    if (rxChannel == txChannel) {
-        ftdiTxHandle = ftdiRxHandle;
-
-    } else {
-        /*! Initialize the ftdi Tx handle */
-        ftdiTxHandle = new FT_HANDLE;
-
-        ret = this->initFtdiChannel(ftdiTxHandle, txChannel);
-        if (ret != Success) {
-            return ret;
-        }
-    }
-
-    if (ret != Success) {
-        return ret;
-    }
-
-    ret = this->initializeBuffers();
-    if (ret != Success) {
-        return ret;
-
-    } else {
-        return EZPatchDevice::connect(fwPath);
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchFtdiDevice::disconnect() {
-    if (!connected) {
-        return ErrorDeviceNotConnected;
-    }
-
-    EZPatchDevice::disconnect();
-
-    this->deinitializeBuffers();
-
-    FT_STATUS ftRet;
-    ftRet = FT_Close(* ftdiRxHandle);
-    if (ftRet != FT_OK) {
-        return ErrorDeviceDisconnectionFailed;
-    }
-
-    if (rxChannel != txChannel) {
-        FT_STATUS ftRet;
-        ftRet = FT_Close(* ftdiTxHandle);
-        if (ftRet != FT_OK) {
-            return ErrorDeviceDisconnectionFailed;
-        }
-    }
-
-    if (ftdiRxHandle != nullptr) {
-        delete ftdiRxHandle;
-        ftdiRxHandle = nullptr;
-        if (txChannel == rxChannel) {
-            ftdiTxHandle = nullptr;
-        }
-    }
-
-    if (ftdiTxHandle != nullptr) {
-        delete ftdiTxHandle;
-        ftdiTxHandle = nullptr;
-    }
-
+    this->deinitialize();
     return Success;
 }
 
@@ -564,6 +452,62 @@ bool EZPatchFtdiDevice::getDeviceCount(DWORD &numDevs) {
     } else {
         return false;
     }
+}
+
+ErrorCodes_t EZPatchFtdiDevice::startCommunication(std::string fwPath) {
+    ErrorCodes_t ret = this->loadFpgaFw();
+    if (ret != Success) {
+        return ret;
+    }
+
+    /*! Initialize the ftdi Rx handle */
+    ftdiRxHandle = new FT_HANDLE;
+
+    ret = this->initFtdiChannel(ftdiRxHandle, rxChannel);
+    if (ret != Success) {
+        return ret;
+    }
+
+    if (rxChannel == txChannel) {
+        ftdiTxHandle = ftdiRxHandle;
+        return ret;
+
+    }
+    /*! Initialize the ftdi Tx handle */
+    ftdiTxHandle = new FT_HANDLE;
+
+    return this->initFtdiChannel(ftdiTxHandle, txChannel);
+}
+
+ErrorCodes_t EZPatchFtdiDevice::stopCommunication() {
+    FT_STATUS ftRet;
+    ftRet = FT_Close(* ftdiRxHandle);
+    if (ftRet != FT_OK) {
+        return ErrorDeviceDisconnectionFailed;
+    }
+
+    if (rxChannel != txChannel) {
+        FT_STATUS ftRet;
+        ftRet = FT_Close(* ftdiTxHandle);
+        if (ftRet != FT_OK) {
+            return ErrorDeviceDisconnectionFailed;
+        }
+    }
+
+    if (ftdiRxHandle != nullptr) {
+        delete ftdiRxHandle;
+        ftdiRxHandle = nullptr;
+        if (txChannel == rxChannel) {
+            ftdiTxHandle = nullptr;
+        }
+    }
+
+    if (ftdiTxHandle != nullptr) {
+        delete ftdiTxHandle;
+        ftdiTxHandle = nullptr;
+    }
+
+    return Success;
 }
 
 void EZPatchFtdiDevice::readAndParseMessages() {
@@ -1200,23 +1144,22 @@ uint16_t EZPatchFtdiDevice::txCrc16Ccitt(uint32_t offset, uint16_t len, uint16_t
     return crc;
 }
 
-ErrorCodes_t EZPatchFtdiDevice::initializeBuffers() {
+ErrorCodes_t EZPatchFtdiDevice::initializeMemory() {
     rxRawBuffer = new uint8_t[FTD_RX_RAW_BUFFER_SIZE+1]; /*!< The last item is a copy of the first one, it is used to safely read 2 consecutive bytes at a time to form a 16bit word */
     if (rxRawBuffer == nullptr) {
-        this->deinitializeBuffers();
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
     txRawBuffer = new uint8_t[FTD_TX_RAW_BUFFER_SIZE];
     if (rxRawBuffer == nullptr) {
-        this->deinitializeBuffers();
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
-
-    return Success;
+    return EZPatchDevice::initializeMemory();
 }
 
-ErrorCodes_t EZPatchFtdiDevice::deinitializeBuffers() {
+void EZPatchFtdiDevice::deinitializeMemory() {
     if (rxRawBuffer != nullptr) {
         delete [] rxRawBuffer;
         rxRawBuffer = nullptr;
@@ -1226,7 +1169,8 @@ ErrorCodes_t EZPatchFtdiDevice::deinitializeBuffers() {
         delete [] txRawBuffer;
         txRawBuffer = nullptr;
     }
-    return Success;
+
+    EZPatchDevice::deinitializeMemory();
 }
 
 ErrorCodes_t EZPatchFtdiDevice::loadFpgaFw() {

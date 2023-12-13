@@ -71,7 +71,7 @@ protected:
         CalibResNum
     };
 
-    virtual void initializeHW() override;
+    virtual ErrorCodes_t initializeHW() override;
 
     BoolArrayCoder * dcmResetCoder = nullptr;
     BoolArrayCoder * writeAdcSpiCoder = nullptr;
@@ -146,7 +146,7 @@ protected:
         CalibResNum
     };
 
-    virtual void initializeHW() override;
+    virtual ErrorCodes_t initializeHW() override;
 
     BoolArrayCoder * dcmResetCoder = nullptr;
     BoolArrayCoder * writeAdcSpiCoder = nullptr;
