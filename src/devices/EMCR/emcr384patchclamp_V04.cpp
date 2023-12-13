@@ -10,7 +10,7 @@ Emcr384PatchClamp_V04::Emcr384PatchClamp_V04(std::string di) :
 
     fwSize_B = 5105684;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
-    waitingTimeBeforeReadingData = 10; //s
+    waitingTimeBeforeReadingData = 2; //s
 
     rxSyncWord = 0x5aa5;
 

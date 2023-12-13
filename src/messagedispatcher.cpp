@@ -62,6 +62,7 @@ ErrorCodes_t MessageDispatcher::getDeviceType(std::string deviceId, DeviceTypes_
 }
 
 ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
+    messageDispatcher = nullptr;
     ErrorCodes_t ret = EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId);
     if (ret == Success) {
         return EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher, fwPath);
