@@ -638,6 +638,7 @@ protected:
 
     Measurement_t samplingRate = {200.0, UnitPfxKilo, "Hz"};
     Measurement_t integrationStep = {5.0, UnitPfxMicro, "s"};
+    Measurement_t stateArrayReactionTime = {0.0, UnitPfxMicro, "s"};
 
     std::vector <uint16_t> allChannelIndexes;
 

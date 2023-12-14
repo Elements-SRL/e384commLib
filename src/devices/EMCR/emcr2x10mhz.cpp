@@ -664,6 +664,11 @@ ErrorCodes_t Emcr2x10MHz_PCBV01_V01::initializeHW() {
     /*! After a short while the 10MHz clock starts */
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+    this->resetFpga(true, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    this->resetFpga(false, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -673,7 +678,7 @@ ErrorCodes_t Emcr2x10MHz_PCBV01_V01::initializeHW() {
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    return EmcrDevice::initializeHW();
+    return Success;
 }
 
 Emcr2x10MHz_PCBV02_V01::Emcr2x10MHz_PCBV02_V01(std::string di) :
@@ -1367,6 +1372,11 @@ ErrorCodes_t Emcr2x10MHz_PCBV01_V02::initializeHW() {
     /*! After a short while the 10MHz clock starts */
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+    this->resetFpga(true, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    this->resetFpga(false, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -1376,7 +1386,7 @@ ErrorCodes_t Emcr2x10MHz_PCBV01_V02::initializeHW() {
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    return EmcrDevice::initializeHW();
+    return Success;
 }
 
 Emcr2x10MHz_PCBV02_V02::Emcr2x10MHz_PCBV02_V02(std::string di) :

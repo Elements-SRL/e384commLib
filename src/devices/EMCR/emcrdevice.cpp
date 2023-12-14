@@ -962,6 +962,9 @@ ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFla
     integrationStep = integrationStepArray[selectedSamplingRateIdx];
     this->setAdcFilter();
     this->computeRawDataFilterCoefficients();
+    if (stateArrayMovingAverageLengthCoder != nullptr) {
+        stateArrayMovingAverageLengthCoder->encode(stateArrayReactionTime.getNoPrefixValue()*samplingRate.getNoPrefixValue(), txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
     if (applyFlagIn) {
         this->stackOutgoingMessage(txStatus);
     }
@@ -1234,9 +1237,9 @@ ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialS
     }
     numberOfStatesCoder->encode(numberOfStates, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     initialStateCoder->encode(initialState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    if (stateArrayReactionTimeCoder != nullptr) {
-        reactionTime.convertValue(stateArrayReactionTimeRange.prefix);
-        stateArrayReactionTimeCoder->encode(reactionTime.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (stateArrayMovingAverageLengthCoder != nullptr) {
+        stateArrayReactionTime = reactionTime;
+        stateArrayMovingAverageLengthCoder->encode(reactionTime.getNoPrefixValue()*samplingRate.getNoPrefixValue(), txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
     return Success;
 }
@@ -1824,21 +1827,6 @@ void EmcrDevice::createCommunicationThreads() {
     liquidJunctionThread = std::thread(&EmcrDevice::computeLiquidJunction, this);
 
     threadsStarted = true;
-}
-
-ErrorCodes_t EmcrDevice::initializeHW() {
-    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
-
-    this->resetFpga(true, true);
-    this->resetFpga(false, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    this->resetAsic(true, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    this->resetAsic(false, true);
-
-    this->sendCommands();
-    return Success;
 }
 
 void EmcrDevice::deinitializeMemory() {

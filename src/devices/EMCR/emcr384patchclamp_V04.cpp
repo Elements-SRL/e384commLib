@@ -1755,8 +1755,17 @@ Emcr384PatchClamp_V04::~Emcr384PatchClamp_V04() {
 }
 
 ErrorCodes_t Emcr384PatchClamp_V04::initializeHW() {
-    /*! Nothing to be done */
-    return EmcrDevice::initializeHW();
+    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
+
+    this->resetFpga(true, true);
+    this->resetFpga(false, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    this->resetAsic(true, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    this->resetAsic(false, true);
+
+    return Success;
 }
 
 ErrorCodes_t Emcr384PatchClamp_V04::hasCompFeature(uint16_t feature) {

@@ -776,6 +776,11 @@ ErrorCodes_t Emcr4x10MHz_PCBV01_V02::initializeHW() {
     /*! After a short while the 10MHz clock starts */
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+    this->resetFpga(true, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    this->resetFpga(false, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -785,7 +790,7 @@ ErrorCodes_t Emcr4x10MHz_PCBV01_V02::initializeHW() {
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    return EmcrDevice::initializeHW();
+    return Success;
 }
 
 Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
@@ -1596,6 +1601,11 @@ ErrorCodes_t Emcr4x10MHz_PCBV01_V03::initializeHW() {
     /*! After a short while the 10MHz clock starts */
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+    this->resetFpga(true, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    this->resetFpga(false, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -1605,7 +1615,7 @@ ErrorCodes_t Emcr4x10MHz_PCBV01_V03::initializeHW() {
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    return EmcrDevice::initializeHW();
+    return Success;
 }
 
 Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
@@ -1638,21 +1648,14 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     /*! Input controls */
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
-    FloatCoder::CoderConfig_t floatConfig;
 
-    floatConfig.initialWord = 280;
-    floatConfig.initialBit = 0;
-    stateArrayReactionTimeCoder = new FloatCoder(floatConfig);
-
-    boolConfig.initialWord = 3;
-    boolConfig.bitsNum = 1;
-
-    enableStateArrayChannelsCoder.resize(currentChannelsNum);
-    for(int chNum = 0; chNum < currentChannelsNum; chNum++){
-        boolConfig.initialBit = chNum;
-        enableStateArrayChannelsCoder[chNum] = new BoolArrayCoder(boolConfig);
-        coders.push_back(enableStateArrayChannelsCoder[chNum]);
-    }
+    doubleConfig.initialWord = 280;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.minValue = 0.0;
+    doubleConfig.maxValue = 267.0;
+    doubleConfig.resolution = 1.0;
+    stateArrayMovingAverageLengthCoder = new DoubleOffsetBinaryCoder(doubleConfig);
 
     appliedVoltageCoders.resize(VCVoltageRangesNum);
     for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){

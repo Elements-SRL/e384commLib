@@ -136,7 +136,6 @@ protected:
     virtual void initializeVariables() override;
     virtual ErrorCodes_t deviceConfiguration() override;
     virtual void createCommunicationThreads() override;
-    virtual ErrorCodes_t initializeHW() override;
 
     virtual void deinitializeMemory() override;
     virtual void deinitializeVariables() override;
@@ -179,7 +178,7 @@ protected:
     uint32_t rxRawBytesAvailable = 0;
     uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
     uint32_t rxRawBufferMask;
-    MsgResume_t * rxMsgBuffer; /*!< Buffer of pre-digested messages that contains message's high level info */
+    MsgResume_t * rxMsgBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's high level info */
     uint32_t rxMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be written */
     uint32_t rxMsgBufferReadLength = 0; /*!< Lenght of the part of the buffer to be processed */
     uint32_t rxMsgBufferWriteOffset = 0;
@@ -188,10 +187,10 @@ protected:
 
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
 
-    uint16_t * rxDataBuffer; /*!< Buffer of pre-digested messages that contains message's data */
+    uint16_t * rxDataBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's data */
 
     /*! Write data buffer management */
-    std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */
+    std::vector <uint16_t> * txMsgBuffer = nullptr; /*!< Buffer of arrays of bytes to communicate to the device */
     std::vector <uint16_t> txMsgOffsetWord; /*!< Buffer of offset word in txMsgBuffer */
     std::vector <uint16_t> txMsgLength; /*!< Buffer of txMsgBuffer length */
     std::vector <TxTriggerType_t> txMsgTrigger; /*!< Buffer of trigger types */
@@ -286,7 +285,7 @@ protected:
 
     BoolCoder * numberOfStatesCoder = nullptr;
     BoolCoder * initialStateCoder = nullptr;
-    FloatCoder * stateArrayReactionTimeCoder = nullptr;
+    DoubleCoder * stateArrayMovingAverageLengthCoder = nullptr;
     std::vector <BoolCoder *> enableStateArrayChannelsCoder;
 
     std::vector <std::vector <DoubleCoder *>> appliedVoltageCoders;
