@@ -161,6 +161,11 @@ class Emcr2x10MHz_PCBV02_V02 : public Emcr2x10MHz_PCBV01_V02 {
 public:
     Emcr2x10MHz_PCBV02_V02(std::string di);
     virtual ~Emcr2x10MHz_PCBV02_V02();
+
+protected:
+    enum VCVoltageFilters {
+        VCVoltageFiltersNum = 0
+    };
 };
 
 #endif // EMCR2X10MHZ_H

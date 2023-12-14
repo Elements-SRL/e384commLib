@@ -853,12 +853,27 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
     case VOLTAGE_CLAMP:
         rawDataFilterVoltageFlag = false;
         rawDataFilterCurrentFlag = true;
+
+        /*! Restore liquid junction and remove it from the voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+            liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][i]->encode(selectedLiquidJunctionVector[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            ccLiquidJunctionVector[i] = 0;
+        }
+
         break;
 
     case ZERO_CURRENT_CLAMP:
     case CURRENT_CLAMP:
         rawDataFilterVoltageFlag = true;
         rawDataFilterCurrentFlag = false;
+
+        /*! Remove liquid junction and subtract it from voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+            liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][i]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
+            ccLiquidJunctionVector[i] = selectedLiquidJunctionVector[i].value;
+        }
+
         break;
 
     case DYNAMIC_CLAMP:
@@ -1351,7 +1366,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                             downsamplingOffset = 0;
                             downsamplingCount++;
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
 #ifdef FILTER_CLIP_NEEDED
                                 xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                                 data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
@@ -1379,7 +1394,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
                         } else {
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
                                 xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
@@ -1410,7 +1425,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                     timeSamplesNum = samplesNum/totalChannelsNum;
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                            rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
 #ifdef FILTER_CLIP_NEEDED
                             xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                             data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
@@ -1449,7 +1464,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                     timeSamplesNum = samplesNum/totalChannelsNum;
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
+                            data[dataWritten+sampleIdx++] = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
 

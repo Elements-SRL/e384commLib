@@ -1393,6 +1393,19 @@ Emcr2x10MHz_PCBV02_V02::Emcr2x10MHz_PCBV02_V02(std::string di) :
     Emcr2x10MHz_PCBV01_V02(di) {
 
     fwName = "2x10MHz_V10.bit";
+
+    /*! Voltage filters */
+    /*! VC */
+    vcVoltageFiltersNum = VCVoltageFiltersNum;
+    vcVoltageFiltersArray.resize(vcVoltageFiltersNum);
+    defaultVcVoltageFilterIdx = 0;
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Voltage filter VC */
+    vcVoltageFilterCoder = nullptr;
 }
 
 Emcr2x10MHz_PCBV02_V02::~Emcr2x10MHz_PCBV02_V02() {

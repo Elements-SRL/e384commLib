@@ -548,6 +548,7 @@ protected:
     std::vector<Measurement_t> selectedCurrentHalfVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
 
     std::vector<Measurement_t> selectedLiquidJunctionVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<int16_t> ccLiquidJunctionVector;
 
     RangedMeasurement_t gateVoltageRange;
     std::vector<Measurement_t> selectedGateVoltageVector;

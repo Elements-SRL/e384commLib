@@ -1622,6 +1622,33 @@ Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
     Emcr4x10MHz_PCBV01_V03(di) {
     fwName = "4x10MHz_V05.bit";
 
+    /*! Voltage filters */
+    /*! VC */
+    vcVoltageFiltersNum = VCVoltageFiltersNum;
+    vcVoltageFiltersArray.resize(vcVoltageFiltersNum);
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].value = 16.0;
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].value = 1.6;
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].unit = "Hz";
+    defaultVcVoltageFilterIdx = VCVoltageFilter10kHz;
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Input controls */
+    BoolCoder::CoderConfig_t boolConfig;
+
+    /*! Voltage filter VC */
+    boolConfig.initialWord = 11;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 8;
+    vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x00); // 16kHz on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x55); // 1.6kHz on all channels
+    coders.push_back(vcVoltageFilterCoder);
 }
 
 Emcr4x10MHz_PCBV03_V03::~Emcr4x10MHz_PCBV03_V03() {

@@ -1519,6 +1519,9 @@ void MessageDispatcher::initializeLiquidJunction() {
     liquidJunctionRange = liquidJunctionRangesArray[defaultLiquidJunctionRangeIdx];
     selectedLiquidJunctionVector.resize(currentChannelsNum);
     fill(selectedLiquidJunctionVector.begin(), selectedLiquidJunctionVector.end(), 0.0*liquidJunctionRange.getMax());
+
+    ccLiquidJunctionVector.resize(currentChannelsNum);
+    fill(ccLiquidJunctionVector.begin(), ccLiquidJunctionVector.end(), 0);
 }
 
 bool MessageDispatcher::checkProtocolValidity(std::string &) {
