@@ -862,10 +862,13 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
         }
 
         this->enableCcCompensations(false);
-        this->turnCurrentStimulusOn(false, false);
-        this->turnVoltageReaderOn(false, false);
         this->turnCurrentReaderOn(true, false);
         this->turnVoltageStimulusOn(true, false);
+        this->turnCurrentStimulusOn(false, false);
+        this->turnVoltageReaderOn(false, false);
+        this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
+        this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
+        /*! \todo FCON Ripristinare range di corrente precedente */
         this->enableVcCompensations(true);
 
         this->setSourceForVoltageChannel(0, false);
@@ -885,10 +888,13 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
         }
 
         this->enableVcCompensations(false);
-        this->turnVoltageStimulusOn(false, false);
-        this->turnCurrentReaderOn(false, false);
+        /*! \todo FCON Settare anche il range di corrente più alto */
         this->turnVoltageReaderOn(true, false);
         this->turnCurrentStimulusOn(false, false);
+        this->turnVoltageStimulusOn(false, false);
+        this->turnCurrentReaderOn(false, false);
+        this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
         this->enableCcCompensations(true);
 
         this->setSourceForVoltageChannel(1, false);
@@ -908,10 +914,13 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
         }
 
         this->enableVcCompensations(false);
-        this->turnVoltageStimulusOn(false, false);
-        this->turnCurrentReaderOn(false, false);
+        /*! \todo FCON Settare anche il range di corrente più alto */
         this->turnVoltageReaderOn(true, false);
         this->turnCurrentStimulusOn(true, false);
+        this->turnVoltageStimulusOn(false, false);
+        this->turnCurrentReaderOn(false, false);
+        this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
         this->enableCcCompensations(true);
 
         this->setSourceForVoltageChannel(1, false);
