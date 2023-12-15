@@ -1095,14 +1095,14 @@ ErrorCodes_t EZPatche4PPatchliner::getNextMessage(RxOutput_t &rxOutput, int16_t 
                         /*! \todo FCON questo doppio ciclo va modificato per raccogliere i dati di impedenza in modalità lock-in */
                         for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                             rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(channelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+(voltageOffsetCorrection+voltageTunerCorrection)/voltageResolution, iirVNum, iirVDen);
+                            this->applyRawDataFilter(channelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+(voltageOffsetCorrection+voltageTunerCorrection[channelIdx])/voltageResolution, iirVNum, iirVDen);
                             xFlt = iirY[channelIdx][iirOff];
                             data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
                             lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
 
                             rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(channelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+currentTunerCorrection/currentResolution, iirINum, iirIDen);
+                            this->applyRawDataFilter(channelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+currentTunerCorrection[channelIdx]/currentResolution, iirINum, iirIDen);
                             xFlt = iirY[channelIdx+voltageChannelsNum][iirOff];
                             data[dataWritten+sampleIdx+voltageChannelsNum] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
@@ -1238,22 +1238,24 @@ ErrorCodes_t EZPatche4PPatchliner::getLeakConductanceControl(CompensationControl
 }
 
 void EZPatche4PPatchliner::selectChannelsResolutions() {
-    if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
-        currentTunerCorrection = 0.0;
-        rawDataFilterCurrentFlag = true;
+    for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
+            currentTunerCorrection[channelIdx] = 0.0;
+            rawDataFilterCurrentFlag = true;
 
-    } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
-        currentTunerCorrection = currentTuner.value;
-        rawDataFilterCurrentFlag = false;
-    }
+        } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
+            currentTunerCorrection[channelIdx] = currentTuner[channelIdx].value;
+            rawDataFilterCurrentFlag = false;
+        }
 
-    if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
-        voltageTunerCorrection = voltageTuner.value;
-        rawDataFilterVoltageFlag = false;
+        if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
+            voltageTunerCorrection[channelIdx] = voltageTuner[channelIdx].value;
+            rawDataFilterVoltageFlag = false;
 
-    } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
-        voltageTunerCorrection = 0.0;
-        rawDataFilterVoltageFlag = true;
+        } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
+            voltageTunerCorrection[channelIdx] = 0.0;
+            rawDataFilterVoltageFlag = true;
+        }
     }
 
     this->selectVoltageOffsetResolution();

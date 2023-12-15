@@ -548,10 +548,6 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
     /*! Rx data length variables */
     uint16_t rxDataWords = 0;
-#ifdef CHECK_DATA_PACKET_LENGTH
-    uint16_t rxDataWordsRemoved = 0;
-    uint16_t rxDataWordsAdded = 0;
-#endif
     uint16_t rxDataBytes = 0;
 
     /*! Rx message crc variables */
@@ -789,27 +785,11 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
                                 } else {
 
-#ifdef CHECK_DATA_PACKET_LENGTH
-                                    rxDataWords = * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*(rxDataWords-1))&FTD_RX_RAW_BUFFER_MASK)))+rxDataWordsAdded;
-                                    rxDataWordsRemoved = (rxDataWords-2) % totalChannelsNum;
-                                    rxDataWords -= rxDataWordsRemoved;
-#else
                                     rxDataWords = * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*(rxDataWords-1))&FTD_RX_RAW_BUFFER_MASK)));
-#endif
 
 #ifdef DEBUGPRINT
-#ifdef CHECK_DATA_PACKET_LENGTH
-                                    fprintf(rxFid,
-                                            "vlen:\t0x%04x\n"
-                                            "vlen+:\t0x%04x\n"
-                                            "vlen-:\t0x%04x\n",
-                                            rxDataWords,
-                                            rxDataWordsAdded,
-                                            rxDataWordsRemoved);
-#else
                                     fprintf(rxFid, "vlen:\t0x%04x\n",
                                             rxDataWords);
-#endif
 #endif
                                 }
                             }
@@ -832,17 +812,6 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                                 rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1)&EZP_RX_MSG_BUFFER_MASK;
                             }
 
-#ifdef CHECK_DATA_PACKET_LENGTH
-                            /*! It seems to work better if we just forget about the additional data */
-//                            if (rxMsgTypeId == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData) {
-//                                for (rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWordsAdded; rxDataBufferWriteIdx++) {
-//                                    rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)&EZP_RX_DATA_BUFFER_MASK] = movedWords[rxDataBufferWriteIdx];
-//                                }
-//                                rxDataBufferWriteOffset = (rxDataBufferWriteOffset+rxDataWordsAdded)&EZP_RX_DATA_BUFFER_MASK;
-//                                rxDataWordsAdded = 0;
-//                            }
-#endif
-
                             for (rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
                                 rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)&EZP_RX_DATA_BUFFER_MASK] = * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*rxDataBufferWriteIdx)&FTD_RX_RAW_BUFFER_MASK)));
 #ifdef DEBUGPRINT
@@ -853,15 +822,6 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                                 }
 #endif
                             }
-
-#ifdef CHECK_DATA_PACKET_LENGTH
-//                            if (rxMsgTypeId == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData) {
-//                                for (rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWordsRemoved; rxDataBufferWriteIdx++) {
-//                                    movedWords[rxDataBufferWriteIdx] = * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*rxDataBufferWriteIdx)&FTD_RX_RAW_BUFFER_MASK)));;
-//                                }
-//                                rxDataWordsAdded = rxDataWordsRemoved; /*!< Remember to add these values with the next packet */
-//                            }
-#endif
 
 #ifdef DEBUGPRINT
                             if (rxEnabledTypesMap[rxMsgTypeId]) {

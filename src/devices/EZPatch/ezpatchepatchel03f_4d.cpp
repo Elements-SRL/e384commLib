@@ -713,22 +713,24 @@ ErrorCodes_t EZPatchePatchEL03F_4D_PCBV03_V04::setResistancePredictionOptions(ui
 }
 
 void EZPatchePatchEL03F_4D_PCBV03_V04::selectChannelsResolutions() {
-    if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
-        currentTunerCorrection = 0.0;
-        rawDataFilterCurrentFlag = true;
+    for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
+            currentTunerCorrection[channelIdx] = 0.0;
+            rawDataFilterCurrentFlag = true;
 
-    } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
-        currentTunerCorrection = currentTuner.value;
-        rawDataFilterCurrentFlag = false;
-    }
+        } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
+            currentTunerCorrection[channelIdx] = currentTuner[channelIdx].value;
+            rawDataFilterCurrentFlag = false;
+        }
 
-    if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
-        voltageTunerCorrection = voltageTuner.value;
-        rawDataFilterVoltageFlag = false;
+        if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
+            voltageTunerCorrection[channelIdx] = voltageTuner[channelIdx].value;
+            rawDataFilterVoltageFlag = false;
 
-    } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
-        voltageTunerCorrection = 0.0;
-        rawDataFilterVoltageFlag = true;
+        } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
+            voltageTunerCorrection[channelIdx] = 0.0;
+            rawDataFilterVoltageFlag = true;
+        }
     }
 
     this->selectVoltageOffsetResolution();

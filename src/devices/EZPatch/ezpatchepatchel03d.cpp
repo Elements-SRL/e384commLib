@@ -507,8 +507,10 @@ ErrorCodes_t EZPatchePatchEL03D_V04::setVCCurrentRange(uint16_t currentRangeIdx,
 }
 
 void EZPatchePatchEL03D_V04::selectChannelsResolutions() {
-    currentTunerCorrection = 0.0;
-    voltageTunerCorrection = voltageTuner.value;
+    for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        currentTunerCorrection[channelIdx] = 0.0;
+        voltageTunerCorrection[channelIdx] = voltageTuner[channelIdx].value;
+    }
     rawDataFilterVoltageFlag = false;
     rawDataFilterCurrentFlag = true;
     this->selectVoltageOffsetResolution();

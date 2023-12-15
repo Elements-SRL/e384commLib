@@ -666,13 +666,13 @@ ErrorCodes_t turnMembraneCompensationOn(
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t turnAccessResistanceCompensationOn(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool * onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t turnAccessResistanceCompensationOn(
+//        E384CL_ARGIN uint16_t * channelIndexesIn,
+//        E384CL_ARGIN bool * onValuesIn,
+//        E384CL_ARGIN bool applyFlagIn,
+//        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off access resistance correction for each channel.
  *
@@ -714,13 +714,13 @@ ErrorCodes_t turnAccessResistancePredictionOn(
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t turnLeakConductanceCompensationOn(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool * onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t turnLeakConductanceCompensationOn(
+//        E384CL_ARGIN uint16_t * channelIndexesIn,
+//        E384CL_ARGIN bool * onValuesIn,
+//        E384CL_ARGIN bool applyFlagIn,
+//        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off bridge balance compensation for each channel.
  *
@@ -730,13 +730,13 @@ ErrorCodes_t turnLeakConductanceCompensationOn(
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t turnBridgeBalanceCompensationOn(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool * onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t turnBridgeBalanceCompensationOn(
+//        E384CL_ARGIN uint16_t * channelIndexesIn,
+//        E384CL_ARGIN bool * onValuesIn,
+//        E384CL_ARGIN bool applyFlagIn,
+//        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set options for pipette compensation (voltage clamp) for each channel.
  *

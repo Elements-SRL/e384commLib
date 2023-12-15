@@ -69,7 +69,15 @@ public:
     ErrorCodes_t ack(uint16_t heartbeat);
     ErrorCodes_t nack(uint16_t heartbeat);
     ErrorCodes_t ping();
-    ErrorCodes_t abort();
+
+    ErrorCodes_t resetAsic(bool resetFlag, bool applyFlag) override;
+    virtual ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn) override;
+    virtual ErrorCodes_t resetFpga();
+
+    ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn) override;
+    ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn) override;
+    ErrorCodes_t setVoltageHoldTuner(uint16_t channelIdx, Measurement_t voltage);
+    ErrorCodes_t setCurrentHoldTuner(uint16_t channelIdx, Measurement_t current);
 
     ErrorCodes_t turnVoltageStimulusOn(bool on, bool applyFlag) override;
     ErrorCodes_t turnCurrentStimulusOn(bool on, bool applyFlag) override;
@@ -78,10 +86,7 @@ public:
     ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag) override;
     ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag) override;
     virtual ErrorCodes_t setChannelsSources(int16_t voltageSourcesIdxs, int16_t currentSourcesIdxs);
-    ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn) override;
-    ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn) override;
-    ErrorCodes_t setVoltageHoldTuner(uint16_t channelIdx, Measurement_t voltage);
-    ErrorCodes_t setCurrentHoldTuner(uint16_t channelIdx, Measurement_t current);
+
     ErrorCodes_t turnOnLsbNoise(bool flag);
     virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) override;
     virtual ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) override;
@@ -160,9 +165,7 @@ public:
     ErrorCodes_t currSin(Measurement_t i0, Measurement_t iAmp, Measurement_t freq,
                          uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps);
 
-    ErrorCodes_t resetChip(bool reset);
     ErrorCodes_t resetDigitalOffsetCompensation(bool reset);
-    virtual ErrorCodes_t resetFpga();
 
     ErrorCodes_t getSwitchesStatus(std::vector <uint16_t> &words, std::vector <std::vector <std::string>> &names);
     ErrorCodes_t singleSwitchDebug(uint16_t word, uint16_t bit, bool flag);
@@ -471,9 +474,6 @@ protected:
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
 
     uint16_t * rxDataBuffer; /*!< Buffer of pre-digested messages that contains message's data */
-#ifdef CHECK_DATA_PACKET_LENGTH
-    uint16_t * movedWords; /*!< Buffer of words to move over to next data packet in case of packets misalignment */
-#endif
 
     uint32_t rxDataMessageMaxLen = 1; /*!< Max payload length */
 
@@ -491,11 +491,11 @@ protected:
     double voltageOffsetCorrected = 0.0; /*!< Value currently corrected in applied voltages by the device (expressed in the unit of the liquid junction control) */
     double voltageOffsetCorrection = 0.0; /*!< Value to be used to correct the measured voltage values (expressed in the unit of current voltage range) */
 
-    Measurement_t voltageTuner = {0.0, UnitPfxNone, "V"};
-    Measurement_t currentTuner = {0.0, UnitPfxNone, "A"};
+    std::vector <Measurement_t> voltageTuner;
+    std::vector <Measurement_t> currentTuner;
 
-    double voltageTunerCorrection = 0.0; /*!< Value to be used to correct the measured voltage values (expressed in the unit of current voltage range) */
-    double currentTunerCorrection = 0.0; /*!< Value to be used to correct the measured current values (expressed in the unit of current current range) */
+    std::vector <double> voltageTunerCorrection; /*!< Value to be used to correct the measured voltage values (expressed in the unit of current voltage range) */
+    std::vector <double> currentTunerCorrection; /*!< Value to be used to correct the measured current values (expressed in the unit of current current range) */
 
     Measurement_t samplingRate;
 

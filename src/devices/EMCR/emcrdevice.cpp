@@ -1,6 +1,10 @@
 #include "emcrdevice.h"
 #include "calibrationmanager.h"
 
+/*****************\
+ *  Ctor / Dtor  *
+\*****************/
+
 EmcrDevice::EmcrDevice(std::string deviceId) :
     MessageDispatcher(deviceId) {
 
@@ -43,6 +47,10 @@ ErrorCodes_t EmcrDevice::enableRxMessageType(MsgTypeId_t messageType, bool flag)
 
     return Success;
 }
+
+/****************\
+ *  Tx methods  *
+\****************/
 
 ErrorCodes_t EmcrDevice::sendCommands() {
     this->forceOutMessage();

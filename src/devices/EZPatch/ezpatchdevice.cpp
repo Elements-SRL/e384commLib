@@ -1,12 +1,6 @@
 #include "ezpatchdevice.h"
 
-#include <iostream>
-#include <sstream>
-#include <ctime>
-#include <thread>
-#include <math.h>
 #include <random>
-#include <algorithm>
 
 /*****************\
  *  Ctor / Dtor  *
@@ -69,16 +63,7 @@ EZPatchDevice::EZPatchDevice(std::string deviceId) :
 }
 
 EZPatchDevice::~EZPatchDevice() {
-    delete [] rxMsgBuffer;
-    delete [] rxDataBuffer;
-#ifdef CHECK_DATA_PACKET_LENGTH
-    delete [] movedWords;
-#endif
 
-    delete [] txMsgBuffer;
-    delete [] txDataBuffer;
-
-    delete [] lsbNoiseArray;
 }
 
 ErrorCodes_t EZPatchDevice::enableRxMessageType(MsgTypeId_t messageType, bool flag) {
@@ -130,13 +115,171 @@ ErrorCodes_t EZPatchDevice::ping() {
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::abort() {
-    /*! \todo FCON non implementato in FW */
-    return ErrorCommandNotImplemented;
-//    uint16_t dataLength = 0;
-//    std::vector <uint16_t> txDataMessage(dataLength);
+ErrorCodes_t EZPatchDevice::resetAsic(bool resetFlag, bool applyFlag) {
+    ErrorCodes_t ret;
+    uint16_t dataLength = switchesStatusLength;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    this->switches2DataMessage(txDataMessage);
 
-//    return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdAbort, txDataMessage, dataLength);
+    unsigned int resetIdx = ResetIndexChip;
+
+    if (resetFlag) {
+        txDataMessage[resetWord[resetIdx]] |= resetByte[resetIdx];
+
+    } else {
+        txDataMessage[resetWord[resetIdx]] &= ~resetByte[resetIdx];
+    }
+
+    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+    if (ret == Success) {
+        this->dataMessage2Switches(txDataMessage);
+    }
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::resetFpga(bool resetFlag, bool applyFlagIn) {
+    if (resetFlag) {
+        return this->resetFpga();
+    }
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::resetFpga() {
+    ErrorCodes_t ret;
+    uint16_t dataLength = 0;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdFpgaReset, txDataMessage, dataLength);
+    voltageOffsetCorrected = 0.0;
+    this->selectVoltageOffsetResolution();
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn) {
+    ErrorCodes_t ret = Success;
+    for (unsigned int idx; idx < channelIndexes.size(); idx++) {
+        if (ret == Success) {
+            ret = this->setVoltageHoldTuner(channelIndexes[idx], voltages[idx]);
+        }
+    }
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn) {
+    ErrorCodes_t ret = Success;
+    for (unsigned int idx; idx < channelIndexes.size(); idx++) {
+        if (ret == Success) {
+            ret = this->setCurrentHoldTuner(channelIndexes[idx], currents[idx]);
+        }
+    }
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(uint16_t channelIdx, Measurement_t voltage) {
+    ErrorCodes_t ret;
+
+    if (channelIdx < currentChannelsNum) {
+        voltageTuner[channelIdx] = voltage;
+        voltageTuner[channelIdx].convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
+
+        uint16_t dataLength = 4;
+        std::vector <uint16_t> txDataMessage(dataLength);
+        this->int322uint16((int32_t)round(voltageTuner[channelIdx].value/vHoldRange[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+        txDataMessage[3] = txDataMessage[1];
+        txDataMessage[1] = txDataMessage[0];
+        txDataMessage[0] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
+        txDataMessage[2] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
+
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+
+        if (ret == Success) {
+            voltageTuner[channelIdx].convertValue(voltageRange.prefix);
+            voltageTunerCorrection[channelIdx] = voltageTuner[channelIdx].value;
+        }
+
+    } else if (channelIdx == currentChannelsNum) {
+        uint16_t dataLength = 4*currentChannelsNum;
+        std::vector <uint16_t> txDataMessage(dataLength);
+        for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            voltageTuner[channelIdx] = voltage;
+            voltageTuner[channelIdx].convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
+            this->int322uint16((int32_t)round(voltageTuner[channelIdx].value/vHoldRange[selectedVcVoltageRangeIdx].step), txDataMessage, channelIdx*4);
+            txDataMessage[3+channelIdx*4] = txDataMessage[1+channelIdx*4];
+            txDataMessage[1+channelIdx*4] = txDataMessage[0+channelIdx*4];
+        }
+
+        for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            txDataMessage[0+channelIdx*4] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
+            txDataMessage[2+channelIdx*4] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
+        }
+
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+
+        if (ret == Success) {
+            for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                voltageTuner[channelIdx].convertValue(voltageRange.prefix);
+                voltageTunerCorrection[channelIdx] = voltageTuner[channelIdx].value;
+            }
+        }
+
+    } else {
+        ret = ErrorValueOutOfRange;
+    }
+
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(uint16_t channelIdx, Measurement_t current) {
+    ErrorCodes_t ret;
+
+    if (channelIdx < voltageChannelsNum) {
+        currentTuner[channelIdx] = current;
+        currentTuner[channelIdx].convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
+
+        uint16_t dataLength = 4;
+        std::vector <uint16_t> txDataMessage(dataLength);
+        this->int322uint16((int32_t)round(currentTuner[channelIdx].value/cHoldRange[selectedCcCurrentRangeIdx].step), txDataMessage, 0);
+        txDataMessage[3] = txDataMessage[1];
+        txDataMessage[1] = txDataMessage[0];
+        txDataMessage[0] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
+        txDataMessage[2] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
+
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+
+        if (ret == Success) {
+            currentTuner[channelIdx].convertValue(currentRange.prefix);
+            currentTunerCorrection[channelIdx] = currentTuner[channelIdx].value;
+        }
+
+    } else if (channelIdx == voltageChannelsNum) {
+        uint16_t dataLength = 4*voltageChannelsNum;
+        std::vector <uint16_t> txDataMessage(dataLength);
+        for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
+            currentTuner[channelIdx] = current;
+            currentTuner[channelIdx].convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
+            this->int322uint16((int32_t)round(currentTuner[channelIdx].value/cHoldRange[selectedCcCurrentRangeIdx].step), txDataMessage, channelIdx*4);
+            txDataMessage[3+channelIdx*4] = txDataMessage[1+channelIdx*4];
+            txDataMessage[1+channelIdx*4] = txDataMessage[0+channelIdx*4];
+        }
+
+        for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
+            txDataMessage[0+channelIdx*4] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
+            txDataMessage[2+channelIdx*4] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
+        }
+
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+
+        if (ret == Success) {
+            for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
+                currentTuner[channelIdx].convertValue(currentRange.prefix);
+                currentTunerCorrection[channelIdx] = currentTuner[channelIdx].value;
+            }
+        }
+
+    } else {
+        ret = ErrorValueOutOfRange;
+    }
+
+    return ret;
 }
 
 ErrorCodes_t EZPatchDevice::turnVoltageStimulusOn(bool on, bool applyFlag) {
@@ -386,136 +529,6 @@ ErrorCodes_t EZPatchDevice::setChannelsSources(int16_t voltageSourcesIdx, int16_
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn) {
-    ErrorCodes_t ret = Success;
-    for (unsigned int idx; idx < channelIndexes.size(); idx++) {
-        if (ret == Success) {
-            ret = this->setVoltageHoldTuner(channelIndexes[idx], voltages[idx]);
-        }
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn) {
-    ErrorCodes_t ret = Success;
-    for (unsigned int idx; idx < channelIndexes.size(); idx++) {
-        if (ret == Success) {
-            ret = this->setCurrentHoldTuner(channelIndexes[idx], currents[idx]);
-        }
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(uint16_t channelIdx, Measurement_t voltage) {
-    ErrorCodes_t ret;
-
-    if (channelIdx < currentChannelsNum) {
-        voltageTuner = voltage;
-        voltageTuner.convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
-
-        uint16_t dataLength = 4;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        this->int322uint16((int32_t)round(voltageTuner.value/vHoldRange[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
-        txDataMessage[3] = txDataMessage[1];
-        txDataMessage[1] = txDataMessage[0];
-        txDataMessage[0] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
-        txDataMessage[2] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-
-        if (ret == Success) {
-            /*! \todo FCON qui bisognerebbe avere un array di valori e settare solo quello corrispondente */
-            voltageTuner.convertValue(voltageRange.prefix);
-            voltageTunerCorrection = voltageTuner.value;
-        }
-
-    } else if (channelIdx == currentChannelsNum) {
-        voltageTuner = voltage;
-        voltageTuner.convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
-
-        uint16_t dataLength = 4*currentChannelsNum;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            this->int322uint16((int32_t)round(voltageTuner.value/vHoldRange[selectedVcVoltageRangeIdx].step), txDataMessage, channelIdx*4);
-            txDataMessage[3+channelIdx*4] = txDataMessage[1+channelIdx*4];
-            txDataMessage[1+channelIdx*4] = txDataMessage[0+channelIdx*4];
-        }
-
-        for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            txDataMessage[0+channelIdx*4] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
-            txDataMessage[2+channelIdx*4] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
-        }
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-
-        if (ret == Success) {
-            /*! \todo FCON qui bisognerebbe avere un array di valori e settare solo quello corrispondente */
-            voltageTuner.convertValue(voltageRange.prefix);
-            voltageTunerCorrection = voltageTuner.value;
-        }
-
-    } else {
-        ret = ErrorValueOutOfRange;
-    }
-
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(uint16_t channelIdx, Measurement_t current) {
-    ErrorCodes_t ret;
-
-    if (channelIdx < voltageChannelsNum) {
-        currentTuner = current;
-        currentTuner.convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
-
-        uint16_t dataLength = 4;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        this->int322uint16((int32_t)round(currentTuner.value/cHoldRange[selectedCcCurrentRangeIdx].step), txDataMessage, 0);
-        txDataMessage[3] = txDataMessage[1];
-        txDataMessage[1] = txDataMessage[0];
-        txDataMessage[0] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
-        txDataMessage[2] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-
-        if (ret == Success) {
-            /*! \todo FCON qui bisognerebbe avere un array di valori e settare solo quello corrispondente */
-            currentTuner.convertValue(currentRange.prefix);
-            currentTunerCorrection = currentTuner.value;
-        }
-
-    } else if (channelIdx == voltageChannelsNum) {
-        currentTuner = current;
-        currentTuner.convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
-
-        uint16_t dataLength = 4*voltageChannelsNum;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-            this->int322uint16((int32_t)round(currentTuner.value/cHoldRange[selectedCcCurrentRangeIdx].step), txDataMessage, channelIdx*4);
-            txDataMessage[3+channelIdx*4] = txDataMessage[1+channelIdx*4];
-            txDataMessage[1+channelIdx*4] = txDataMessage[0+channelIdx*4];
-        }
-
-        for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-            txDataMessage[0+channelIdx*4] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
-            txDataMessage[2+channelIdx*4] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
-        }
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-
-        if (ret == Success) {
-            /*! \todo FCON qui bisognerebbe avere un array di valori e settare solo quello corrispondente */
-            currentTuner.convertValue(currentRange.prefix);
-            currentTunerCorrection = currentTuner.value;
-        }
-
-    } else {
-        ret = ErrorValueOutOfRange;
-    }
-
-    return ret;
-}
-
 ErrorCodes_t EZPatchDevice::turnOnLsbNoise(bool flag) {
     this->initializeLsbNoise(!flag);
     return Success;
@@ -672,9 +685,9 @@ ErrorCodes_t EZPatchDevice::setSamplingRate(uint16_t samplingRateIdx, bool apply
         ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSamplingRate, txDataMessage, dataLength);
 
         /*! Make a chip reset to force resynchronization of chip states. This is important when the clock changes (SR slow to SR fast or vice versa) */
-        this->resetChip(true);
+        this->resetAsic(true, true);
         std::this_thread::sleep_for(std::chrono::milliseconds(resetDuration));
-        this->resetChip(false);
+        this->resetAsic(false, true);
 
         samplingRate = realSamplingRatesArray[samplingRateIdx];
         integrationStep = integrationStepArray[selectedSamplingRateIdx];
@@ -1761,28 +1774,6 @@ ErrorCodes_t EZPatchDevice::currSin(Measurement_t i0, Measurement_t iAmp, Measur
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::resetChip(bool reset) {
-    ErrorCodes_t ret;
-    uint16_t dataLength = switchesStatusLength;
-    std::vector <uint16_t> txDataMessage(dataLength);
-    this->switches2DataMessage(txDataMessage);
-
-    unsigned int resetIdx = ResetIndexChip;
-
-    if (reset) {
-        txDataMessage[resetWord[resetIdx]] |= resetByte[resetIdx];
-
-    } else {
-        txDataMessage[resetWord[resetIdx]] &= ~resetByte[resetIdx];
-    }
-
-    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
-    if (ret == Success) {
-        this->dataMessage2Switches(txDataMessage);
-    }
-    return ret;
-}
-
 ErrorCodes_t EZPatchDevice::resetDigitalOffsetCompensation(bool reset) {
     ErrorCodes_t ret;
     uint16_t dataLength = switchesStatusLength;
@@ -1802,16 +1793,6 @@ ErrorCodes_t EZPatchDevice::resetDigitalOffsetCompensation(bool reset) {
     if (ret == Success) {
         this->dataMessage2Switches(txDataMessage);
     }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::resetFpga() {
-    ErrorCodes_t ret;
-    uint16_t dataLength = 0;
-    std::vector <uint16_t> txDataMessage(dataLength);
-    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdFpgaReset, txDataMessage, dataLength);
-    voltageOffsetCorrected = 0.0;
-    this->selectVoltageOffsetResolution();
     return ret;
 }
 
@@ -2039,7 +2020,7 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                         /*! \todo FCON questo doppio ciclo va modificato per raccogliere i dati di impedenza in modalità lock-in */
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
                             rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(voltageChannelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+(voltageOffsetCorrection+voltageTunerCorrection)/voltageResolution, iirVNum, iirVDen);
+                            this->applyRawDataFilter(voltageChannelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+(voltageOffsetCorrection+voltageTunerCorrection[voltageChannelIdx])/voltageResolution, iirVNum, iirVDen);
                             xFlt = iirY[voltageChannelIdx][iirOff];
                             data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
@@ -2048,7 +2029,7 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
 
                         for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
                             rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+currentTunerCorrection/currentResolution, iirINum, iirIDen);
+                            this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+currentTunerCorrection[currentChannelIdx]/currentResolution, iirINum, iirIDen);
                             xFlt = iirY[currentChannelIdx+voltageChannelsNum][iirOff];
                             data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
@@ -2456,9 +2437,6 @@ ErrorCodes_t EZPatchDevice::initializeMemory() {
         this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
-#ifdef CHECK_DATA_PACKET_LENGTH
-    movedWords = new uint16_t[1024];
-#endif
 
     txMsgBuffer = new (std::nothrow) MsgResume_t[EZP_TX_MSG_BUFFER_SIZE];
     if (txMsgBuffer == nullptr) {
@@ -2477,6 +2455,16 @@ ErrorCodes_t EZPatchDevice::initializeMemory() {
         this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
+
+    /*! Allocate memory for holding values to correct readout from device */
+    voltageTuner.resize(currentChannelsNum);
+    std::fill(voltageTuner.begin(), voltageTuner.end(), Measurement_t({0.0, UnitPfxNone, "V"}));
+    currentTuner.resize(voltageChannelsNum);
+    std::fill(currentTuner.begin(), currentTuner.end(), Measurement_t({0.0, UnitPfxNone, "A"}));
+    voltageTunerCorrection.resize(currentChannelsNum);
+    std::fill(voltageTunerCorrection.begin(), voltageTunerCorrection.end(), 0.0);
+    currentTunerCorrection.resize(voltageChannelsNum);
+    std::fill(currentTunerCorrection.begin(), currentTunerCorrection.end(), 0.0);
 
     return Success;
 }
@@ -2553,14 +2541,14 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
 #endif
     }
 
-    ret = this->resetChip(true);
+    ret = this->resetAsic(true, true);
     if (ret != Success) {
         return ErrorConnectionChipResetFailed;
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(resetDuration));
 
-    ret = this->resetChip(false);
+    ret = this->resetAsic(false, true);
     if (ret != Success) {
         return ErrorConnectionChipResetFailed;
     }

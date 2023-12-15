@@ -602,20 +602,20 @@ ErrorCodes_t turnMembraneCompensationOn(
     return messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompCslow, onValues, applyFlagIn);
 }
 
-ErrorCodes_t turnAccessResistanceCompensationOn(
-        uint16_t * channelIndexesIn,
-        bool * onValuesIn,
-        bool applyFlagIn,
-        int vectorLengthIn) {
-    if (messageDispatcher == nullptr) {
-        return ErrorDeviceNotConnected;
-    }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-    return messageDispatcher->turnResistanceCompensationOn(channelIndexes, onValues, applyFlagIn);
-}
+//ErrorCodes_t turnAccessResistanceCompensationOn(
+//        uint16_t * channelIndexesIn,
+//        bool * onValuesIn,
+//        bool applyFlagIn,
+//        int vectorLengthIn) {
+//    if (messageDispatcher == nullptr) {
+//        return ErrorDeviceNotConnected;
+//    }
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<bool> onValues;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+//    return messageDispatcher->turnResistanceCompensationOn(channelIndexes, onValues, applyFlagIn);
+//}
 
 ErrorCodes_t turnAccessResistanceCorrectionOn(
         uint16_t * channelIndexesIn,
@@ -647,35 +647,35 @@ ErrorCodes_t turnAccessResistancePredictionOn(
     return messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompRsPred, onValues, applyFlagIn);
 }
 
-ErrorCodes_t turnLeakConductanceCompensationOn(
-        uint16_t * channelIndexesIn,
-        bool * onValuesIn,
-        bool applyFlagIn,
-        int vectorLengthIn) {
-    if (messageDispatcher == nullptr) {
-        return ErrorDeviceNotConnected;
-    }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-    return messageDispatcher->turnLeakConductanceCompensationOn(channelIndexes, onValues, applyFlagIn);
-}
+//ErrorCodes_t turnLeakConductanceCompensationOn(
+//        uint16_t * channelIndexesIn,
+//        bool * onValuesIn,
+//        bool applyFlagIn,
+//        int vectorLengthIn) {
+//    if (messageDispatcher == nullptr) {
+//        return ErrorDeviceNotConnected;
+//    }
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<bool> onValues;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+//    return messageDispatcher->turnLeakConductanceCompensationOn(channelIndexes, onValues, applyFlagIn);
+//}
 
-ErrorCodes_t turnBridgeBalanceCompensationOn(
-        uint16_t * channelIndexesIn,
-        bool * onValuesIn,
-        bool applyFlagIn,
-        int vectorLengthIn) {
-    if (messageDispatcher == nullptr) {
-        return ErrorDeviceNotConnected;
-    }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
-    return messageDispatcher->turnBridgeBalanceCompensationOn(channelIndexes, onValues, applyFlagIn);
-}
+//ErrorCodes_t turnBridgeBalanceCompensationOn(
+//        uint16_t * channelIndexesIn,
+//        bool * onValuesIn,
+//        bool applyFlagIn,
+//        int vectorLengthIn) {
+//    if (messageDispatcher == nullptr) {
+//        return ErrorDeviceNotConnected;
+//    }
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<bool> onValues;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+//    return messageDispatcher->turnBridgeBalanceCompensationOn(channelIndexes, onValues, applyFlagIn);
+//}
 
 ErrorCodes_t setPipetteCompensationOptions(
         uint16_t * channelIndexesIn,

@@ -225,22 +225,24 @@ ErrorCodes_t EZPatchFakeP8::resetFpga() {
 
 void EZPatchFakeP8::selectChannelsResolutions() {
     EZPatche8PPatchliner_el07ab::selectChannelsResolutions();
-    if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
-        genCurrentNorm = 1.0/genVcCurrentRange.step;
-        currentTunerCorrection = 0.0;
+    for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
+            genCurrentNorm = 1.0/genVcCurrentRange.step;
+            currentTunerCorrection[channelIdx] = 0.0;
 
-    } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
-        genCurrentNorm = 1.0/genCcCurrentRange.step;
-        currentTunerCorrection = currentTuner.value;
-    }
+        } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
+            genCurrentNorm = 1.0/genCcCurrentRange.step;
+            currentTunerCorrection[channelIdx] = currentTuner[channelIdx].value;
+        }
 
-    if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
-        genVoltageNorm = 1.0/genVcVoltageRange.step;
-        voltageTunerCorrection = voltageTuner.value;
+        if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
+            genVoltageNorm = 1.0/genVcVoltageRange.step;
+            voltageTunerCorrection[channelIdx] = voltageTuner[channelIdx].value;
 
-    } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
-        genVoltageNorm = 1.0/genCcVoltageRange.step;
-        voltageTunerCorrection = 0.0;
+        } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
+            genVoltageNorm = 1.0/genCcVoltageRange.step;
+            voltageTunerCorrection[channelIdx] = 0.0;
+        }
     }
 }
 

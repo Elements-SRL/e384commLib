@@ -356,18 +356,18 @@ typedef struct CharCompensationControl {
 
 #include "lv_prolog.h"
 typedef struct {
-    int32	cnt;                    /* number of measurements that follow */
-    CharMeasurement_t	item[1];	/* cnt measurements */
+    int32	cnt;                            /* number of measurements that follow */
+    CharMeasurement_t	item[1];            /* cnt measurements */
 } LMeas, *LMeasPtr, **LMeasHandle;
 
 typedef struct {
-    int32	cnt;            /* number of vector of measurements that follow */
-    LMeasHandle	item[1];	/* cnt vector of measurements */
+    int32	cnt;                            /* number of vector of measurements that follow */
+    LMeasHandle	item[1];                    /* cnt vector of measurements */
 } LVecMeas, *LVecMeasPtr, **LVecMeasHandle;
 
 typedef struct {
-    int32	cnt;                        /* number of ranged measurements that follow */
-    CharRangedMeasurement_t	item[1];	/* cnt ranged measurements */
+    int32	cnt;                            /* number of ranged measurements that follow */
+    CharRangedMeasurement_t	item[1];        /* cnt ranged measurements */
 } LRange, *LRangePtr, **LRangeHandle;
 
 typedef struct {
