@@ -2175,7 +2175,6 @@ ErrorCodes_t Emcr384PatchClamp_V01::turnVoltageReaderOn(bool onValueIn, bool app
     }
 
     if (onValueIn){
-        this->setClampingModality(CURRENT_CLAMP, false);
         this->turnCcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheFalseIneed, false);
         this->updateCalibCcVoltageGain(allChannelIndexes, false);
@@ -2183,7 +2182,6 @@ ErrorCodes_t Emcr384PatchClamp_V01::turnVoltageReaderOn(bool onValueIn, bool app
         this->setAdcFilter();
 
     } else {
-        this->setClampingModality(VOLTAGE_CLAMP, false);
         this->turnCcSwOn(allChannelIndexes, allTheFalseIneed, applyFlagIn);
     }
 
@@ -2200,7 +2198,6 @@ ErrorCodes_t Emcr384PatchClamp_V01::turnCurrentReaderOn(bool onValueIn, bool app
     }
 
     if(onValueIn){
-        this->setClampingModality(VOLTAGE_CLAMP, false);
         this->turnVcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheTrueIneed, false);
         this->updateCalibVcCurrentGain(allChannelIndexes, false);
@@ -2208,7 +2205,6 @@ ErrorCodes_t Emcr384PatchClamp_V01::turnCurrentReaderOn(bool onValueIn, bool app
         this->setAdcFilter();
 
     }else{
-        this->setClampingModality(CURRENT_CLAMP, false);
         this->turnVcSwOn(allChannelIndexes, allTheFalseIneed, applyFlagIn);
     }
 

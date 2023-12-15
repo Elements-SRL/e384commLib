@@ -840,6 +840,7 @@ ErrorCodes_t EmcrDevice::enableCcStimulus(std::vector<uint16_t> channelIndexes, 
 }
 
 ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
+    /*! \todo FCON questo potrbbe sparire se è chiamato solo dal suo overload */
     if (idx >= clampingModalitiesNum) {
         return ErrorValueOutOfRange;
     }
@@ -860,9 +861,41 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
             ccLiquidJunctionVector[i] = 0;
         }
 
+        this->enableCcCompensations(false);
+        this->turnCurrentStimulusOn(false, false);
+        this->turnVoltageReaderOn(false, false);
+        this->turnCurrentReaderOn(true, false);
+        this->turnVoltageStimulusOn(true, false);
+        this->enableVcCompensations(true);
+
+        this->setSourceForVoltageChannel(0, false);
+        this->setSourceForCurrentChannel(0, false);
+
         break;
 
     case ZERO_CURRENT_CLAMP:
+        rawDataFilterVoltageFlag = true;
+        rawDataFilterCurrentFlag = false;
+
+        /*! Remove liquid junction and subtract it from voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+            liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][i]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
+            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+        }
+
+        this->enableVcCompensations(false);
+        this->turnVoltageStimulusOn(false, false);
+        this->turnCurrentReaderOn(false, false);
+        this->turnVoltageReaderOn(true, false);
+        this->turnCurrentStimulusOn(false, false);
+        this->enableCcCompensations(true);
+
+        this->setSourceForVoltageChannel(1, false);
+        this->setSourceForCurrentChannel(1, false);
+
+        break;
+
     case CURRENT_CLAMP:
         rawDataFilterVoltageFlag = true;
         rawDataFilterCurrentFlag = false;
@@ -871,8 +904,18 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
         for (uint32_t i = 0; i < currentChannelsNum; i++) {
             liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][i]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
-            ccLiquidJunctionVector[i] = selectedLiquidJunctionVector[i].value;
+            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
         }
+
+        this->enableVcCompensations(false);
+        this->turnVoltageStimulusOn(false, false);
+        this->turnCurrentReaderOn(false, false);
+        this->turnVoltageReaderOn(true, false);
+        this->turnCurrentStimulusOn(true, false);
+        this->enableCcCompensations(true);
+
+        this->setSourceForVoltageChannel(1, false);
+        this->setSourceForCurrentChannel(1, false);
 
         break;
 
