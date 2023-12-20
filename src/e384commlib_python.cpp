@@ -110,7 +110,6 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return md->setCalibCcCurrentGain(channelIndexes, gains, true);
     });
 
-
     m.def("setVCVoltageRange",[](uint16_t voltageRangeIdx){
         return md->setVCVoltageRange(voltageRangeIdx, true);
     });
@@ -141,49 +140,11 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return Success;
     });
     m.def("setCcConfiguration",[](){
-        std::vector<ChannelModel *> ch_models;
-        std::vector<uint16_t> channelIndexes;
-        std::vector<bool> offValues;
-        std::vector<bool> onValues;
-        md->getChannels(ch_models);
-        for (auto &ch: ch_models){
-            channelIndexes.push_back(ch->getId());
-            offValues.push_back(false);
-            onValues.push_back(true);
-        }
-        md->turnCurrentReaderOn(false, false);
-        md->turnVoltageReaderOn(true, false);
-        md->setDebugBit(0, 7, true);
-        md->turnCalSwOn(channelIndexes, onValues, true);
-        md->turnVcSwOn(channelIndexes, onValues, true);
-        md->turnCcSwOn(channelIndexes, onValues, true);
-        md->enableCcStimulus(channelIndexes, offValues, true);
-        md->turnVcCcSelOn(channelIndexes, offValues, true);
-        md->setSourceForVoltageChannel(1, true);
-        md->setSourceForCurrentChannel(0, true);
-        return Success;
+        return md->setClampingModality(ClampingModality_t::CURRENT_CLAMP, true);
+
     });
     m.def("setVcConfiguration",[](){
-        std::vector<ChannelModel *> ch_models;
-        std::vector<uint16_t> channelIndexes;
-        std::vector<bool> offValues;
-        std::vector<bool> onValues;
-        md->getChannels(ch_models);
-        for (auto &ch: ch_models){
-            channelIndexes.push_back(ch->getId());
-            offValues.push_back(false);
-            onValues.push_back(true);
-        }
-        md->turnVoltageReaderOn(false, false);
-        md->turnCurrentReaderOn(true, false);
-        md->turnCalSwOn(channelIndexes,  onValues, true);
-        md->turnVcSwOn(channelIndexes,  onValues, true);
-        md->turnCcSwOn(channelIndexes, offValues, true);
-        md->enableCcStimulus(channelIndexes, offValues, true);
-        md->turnVcCcSelOn(channelIndexes, onValues, true);
-        md->setSourceForVoltageChannel(0, true);
-        md->setSourceForCurrentChannel(0, true);
-        return Success;
+        return md->setClampingModality(ClampingModality_t::VOLTAGE_CLAMP, true);
     });
     m.def("getBufferedVoltagesAndCurrents", [](){
         RxOutput_t rxOutput;
@@ -254,10 +215,35 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return md->setDebugWord(wordOffset, wordValue);
     });
 
+    m.def("getClampingModality",[](){
+        ClampingModality_t c;
+        auto err = md->getClampingModality(c);
+        return std::make_tuple(err, c);
+    });
+
+    m.def("getVCVoltageRange",[](){
+        RangedMeasurement_t voltageRange;
+        ErrorCodes_t res = md->getVCVoltageRange(voltageRange);
+        return std::make_tuple(res, voltageRange);
+    });
+
+    m.def("getCCVoltageRange",[](){
+        RangedMeasurement_t voltageRange;
+        ErrorCodes_t res = md->getCCVoltageRange(voltageRange);
+        return std::make_tuple(res, voltageRange);
+    });
+
+    py::enum_<ClampingModality_t>(m, "ClampingModality")
+            .value("VoltageClamp",      ClampingModality_t::VOLTAGE_CLAMP)
+            .value("CurrentClamp",      ClampingModality_t::CURRENT_CLAMP)
+            .value("DynamicClamp",      ClampingModality_t::DYNAMIC_CLAMP)
+            .value("ZeroCurrentClamp",  ClampingModality_t::ZERO_CURRENT_CLAMP)
+            .export_values();
+
 //    todo completare gli error codes
     py::enum_<ErrorCodes_t>(m, "ErrorCodes")
             .value("Success",                           Success)
-            .value("ErrorNoDataAvailable",             ErrorNoDataAvailable)
+            .value("ErrorNoDataAvailable",              ErrorNoDataAvailable)
             .value("ErrorNoDeviceFound",                ErrorNoDeviceFound)
             .value("ErrorListDeviceFailed",             ErrorListDeviceFailed)
             .value("ErrorEepromAlreadyConnected",       ErrorEepromAlreadyConnected)
