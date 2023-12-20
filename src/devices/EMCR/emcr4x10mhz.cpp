@@ -269,7 +269,7 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
 
     /*! Calib VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
-    calibVcCurrentGainRange.min = 0;//SHORT_MIN * calibVcCurrentGainRange.step;
+    calibVcCurrentGainRange.min = 0;
     calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.prefix = UnitPfxNone;
     calibVcCurrentGainRange.unit = "";
@@ -279,7 +279,7 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
 
     /*! Calib VC voltage gain */
     calibVcVoltageGainRange.step = 1.0/1024.0;
-    calibVcVoltageGainRange.min = 0;//SHORT_MIN * calibVcVoltageGainRange.step;
+    calibVcVoltageGainRange.min = 0;
     calibVcVoltageGainRange.max = SHORT_MAX * calibVcVoltageGainRange.step;
     calibVcVoltageGainRange.prefix = UnitPfxNone;
     calibVcVoltageGainRange.unit = "";
