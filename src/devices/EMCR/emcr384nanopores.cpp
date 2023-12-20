@@ -7,9 +7,9 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
 
     fwName = "384NanoPores_V02.bit";
 
-    fwSize_B = 4725200;
+    fwSize_B = 5500000;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
-    waitingTimeBeforeReadingData = 10; //s
+    waitingTimeBeforeReadingData = 2; //s
 
     rxSyncWord = 0x5aa5;
 
@@ -772,18 +772,7 @@ Emcr384NanoPores_V01::~Emcr384NanoPores_V01() {
 
 }
 
-void Emcr384NanoPores_V01::initializeHW() {
-    this->resetFpga(true, true);
-    this->resetFpga(false, false);
-
-    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
-
-    this->resetAsic(true, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    this->resetAsic(false, true);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
+ErrorCodes_t Emcr384NanoPores_V01::initializeHW() {
     minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stackOutgoingMessage(txStatus);
 
@@ -791,4 +780,16 @@ void Emcr384NanoPores_V01::initializeHW() {
 
     plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stackOutgoingMessage(txStatus);
+
+    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
+
+    this->resetFpga(true, true);
+    this->resetFpga(false, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    this->resetAsic(true, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    this->resetAsic(false, true);
+
+    return Success;
 }

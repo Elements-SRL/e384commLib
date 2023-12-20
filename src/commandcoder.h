@@ -129,19 +129,35 @@ public:
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
 };
 
-//---------------MULTICODER-----------------------------//
-class MultiCoder : public CommandCoder{
+class FloatCoder : public CommandCoder {
 public:
-    typedef struct MultiCoderConfig {
-        BoolArrayCoder* boolCoder;
-        std::vector<DoubleCoder*> doubleCoderVector;
-        std::vector<double> thresholdVector;
-    } MultiCoderConfig_t;
+    typedef struct {
+        uint16_t initialWord;
+        uint16_t initialBit;
+    } CoderConfig_t;
 
-    MultiCoder (MultiCoderConfig_t multiConfig);
+    FloatCoder(CoderConfig_t config);
+    virtual ~FloatCoder();
 
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord);
-    void getMultiConfig(MultiCoderConfig_t &myMultiConfig);
+
+protected:
+    CoderConfig_t config;
+};
+
+class MultiCoder : public CommandCoder {
+public:
+    typedef struct MultiCoderConfig {
+        BoolArrayCoder * boolCoder;
+        std::vector <DoubleCoder *> doubleCoderVector;
+        std::vector <double> thresholdVector;
+    } MultiCoderConfig_t;
+
+    MultiCoder(MultiCoderConfig_t multiConfig);
+    virtual ~MultiCoder();
+
+    double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord);
+    void getMultiConfig(MultiCoderConfig_t &multiConfig);
 
 private:
     MultiCoderConfig_t multiConfig;

@@ -9,13 +9,6 @@ public:
     EmcrDevice(std::string deviceId);
     virtual ~EmcrDevice();
 
-    /************************\
-     *  Connection methods  *
-    \************************/
-
-    virtual ErrorCodes_t connect(std::string fwPath) override;
-    virtual ErrorCodes_t disconnect() override;
-
     ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag) override;
 
     /****************\
@@ -95,7 +88,7 @@ public:
     ErrorCodes_t setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag) override;
     ErrorCodes_t setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag) override;
 
-    ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState) override;
+    ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime) override;
     ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag) override;
     ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag) override;
 
@@ -139,8 +132,15 @@ protected:
      *  Methods  *
     \*************/
 
-    ErrorCodes_t init();
-    ErrorCodes_t deinit();
+    virtual ErrorCodes_t initializeMemory() override;
+    virtual void initializeVariables() override;
+    virtual ErrorCodes_t deviceConfiguration() override;
+    virtual void createCommunicationThreads() override;
+
+    virtual void deinitializeMemory() override;
+    virtual void deinitializeVariables() override;
+
+    virtual void joinCommunicationThreads() override;
 
     virtual void initializeCalibration() override;
 
@@ -164,6 +164,9 @@ protected:
     uint16_t rxSyncWord;
     unsigned int packetsPerFrame = 1;
 
+    int motherboardBootTime_s = 1;
+    int fwSize_B = 1000;
+
     /*! Read data buffer management */
     uint16_t rxMaxWords;
     uint32_t maxInputDataLoadSize;
@@ -175,7 +178,7 @@ protected:
     uint32_t rxRawBytesAvailable = 0;
     uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
     uint32_t rxRawBufferMask;
-    MsgResume_t * rxMsgBuffer; /*!< Buffer of pre-digested messages that contains message's high level info */
+    MsgResume_t * rxMsgBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's high level info */
     uint32_t rxMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be written */
     uint32_t rxMsgBufferReadLength = 0; /*!< Lenght of the part of the buffer to be processed */
     uint32_t rxMsgBufferWriteOffset = 0;
@@ -184,10 +187,10 @@ protected:
 
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
 
-    uint16_t * rxDataBuffer; /*!< Buffer of pre-digested messages that contains message's data */
+    uint16_t * rxDataBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's data */
 
     /*! Write data buffer management */
-    std::vector <uint16_t> * txMsgBuffer; /*!< Buffer of arrays of bytes to communicate to the device */
+    std::vector <uint16_t> * txMsgBuffer = nullptr; /*!< Buffer of arrays of bytes to communicate to the device */
     std::vector <uint16_t> txMsgOffsetWord; /*!< Buffer of offset word in txMsgBuffer */
     std::vector <uint16_t> txMsgLength; /*!< Buffer of txMsgBuffer length */
     std::vector <TxTriggerType_t> txMsgTrigger; /*!< Buffer of trigger types */
@@ -282,18 +285,19 @@ protected:
 
     BoolCoder * numberOfStatesCoder = nullptr;
     BoolCoder * initialStateCoder = nullptr;
-    std::vector<BoolCoder*> enableStateArrayChannelsCoder;
+    DoubleCoder * stateArrayMovingAverageLengthCoder = nullptr;
+    std::vector <BoolCoder *> enableStateArrayChannelsCoder;
 
-    std::vector<std::vector<DoubleCoder *>> appliedVoltageCoders;
+    std::vector <std::vector <DoubleCoder *>> appliedVoltageCoders;
 
-    std::vector<BoolArrayCoder *> stateTimeoutFlagCoders;
-    std::vector<BoolArrayCoder *> stateTriggerFlagCoders;
-    std::vector<BoolArrayCoder *> stateTriggerDeltaFlagCoders;
-    std::vector<DoubleCoder *> stateTimeoutValueCoders;
-    std::vector<BoolCoder *> stateTimeoutNextStateCoders;
-    std::vector<std::vector<DoubleCoder *>> stateMinTriggerCurrentCoders;
-    std::vector<std::vector<DoubleCoder *>> stateMaxTriggerCurrentCoders;
-    std::vector<BoolCoder *> stateTriggerNextStateCoders;
+    std::vector <BoolArrayCoder *> stateTimeoutFlagCoders;
+    std::vector <BoolArrayCoder *> stateTriggerFlagCoders;
+    std::vector <BoolArrayCoder *> stateTriggerDeltaFlagCoders;
+    std::vector <DoubleCoder *> stateTimeoutValueCoders;
+    std::vector <BoolCoder *> stateTimeoutNextStateCoders;
+    std::vector <std::vector <DoubleCoder *>> stateMinTriggerCurrentCoders;
+    std::vector <std::vector <DoubleCoder *>> stateMaxTriggerCurrentCoders;
+    std::vector <BoolCoder *> stateTriggerNextStateCoders;
 
     DoubleCoder * stimRestCoder = nullptr;
 

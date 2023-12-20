@@ -17,9 +17,9 @@ static std::vector<std::vector<double>> currentDataOut;
 PYBIND11_MODULE(e384CommLibPython, m) {
     m.doc() = "Typical order of calls\n"
               "detectDevices();\n"
-              "connect();\n"
+              "connectDevice();\n"
               "<use the device>\n"
-              "disconnect();";
+              "disconnectDevice();";
 
     m.def("detectDevices", []() {
         std::vector <std::string> deviceIds;

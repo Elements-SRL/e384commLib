@@ -1,0 +1,110 @@
+#ifndef FTDIEEPROM_H
+#define FTDIEEPROM_H
+
+#include <string>
+#include <vector>
+
+#include "e384commlib_errorcodes.h"
+
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
+using namespace e384CommLib;
+#endif
+
+#define NOMINMAX
+#ifdef _WIN32 /*! _WIN32 isolates both 32 and 64 bit windows systems, _WIN64 isolates only 64 */
+#include <windows.h>
+#include "ftd2xx_win.h"
+
+#else /*! Same FTDI header file name also for linux and macOS */
+/*! libftdi must be properly set in system folders (/usr/local/lib ... ecc) */
+#include "ftd2xx.h"
+#endif
+
+#define EEPROM_ENCRYPTION_KEY_LENGTH 8
+
+typedef enum {
+    FtdiEepromId56,
+    FtdiEepromIdDemo
+} FtdiEepromId_t;
+
+typedef enum {
+    DeviceVersionEpatch = 7,
+    DeviceVersionE4p = 10,
+    DeviceVersionDemo = 0xFD,
+    DeviceVersionPrototype = 0xFE,
+    DeviceVersionUndefined = 0xFF
+} DeviceVersion_t;
+
+typedef enum {
+    /*! Subversions used for ver = 7 */
+    DeviceSubversionEl03D = 1,
+    DeviceSubversionEl03F_4D_PCBV02 = 2,
+    DeviceSubversionEl03F_4E_PCBV02 = 3,
+    DeviceSubversionEl04F = 4,
+    DeviceSubversionEl03F_4D_PCBV03 = 5,
+    DeviceSubversionEl03F_4E_PCBV03 = 6,
+    DeviceSubversionEl03F_4F_PCBV03 = 8,
+    DeviceSubversionEl03F_4F_PCBV01_AnalogOut = 9,
+
+    /*! Subversions used for ver = 10 */
+    DeviceSubversionEl04Fx4 = 1,
+    DeviceSubversionEl04Fx4PatchLiner = 2,
+    DeviceSubversionEl04Fx8PatchLiner = 3,
+    DeviceSubversionEl07ABx4PatchLiner = 5,
+    DeviceSubversionEl07ABx8PatchLiner = 6,
+    DeviceSubversionEl07ABx8PatchLiner_artix7 = 8,
+
+    /*! Subversions used for ver = FD */
+    DeviceSubversionDemo = 1,
+    DeviceSubversionDemox8 = 2,
+
+    /*! Subversions used for ver = FE */
+    DeviceSubversionProtoEl03F_4D = 7,
+    DeviceSubversionProtoEl04E = 9,
+    DeviceSubversionProtoEl03F_4E = 10,
+
+    /*! Subversions used for ver = 0xFF */
+    DeviceSubversionUndefined = 0xFF
+} DeviceSubversion_t ;
+
+typedef struct DeviceTuple {
+    DeviceVersion_t version = DeviceVersionUndefined;
+    DeviceSubversion_t subversion = DeviceSubversionUndefined;
+    uint32_t fwVersion = 0;
+} DeviceTuple_t;
+
+inline bool operator == (const DeviceTuple_t &a, const DeviceTuple_t &b) {
+    return ((a.version == b.version) && (a.subversion == b.subversion) && (a.fwVersion == b.fwVersion));
+}
+
+inline bool operator != (const DeviceTuple_t &a, const DeviceTuple_t &b) {
+    return !(a == b);
+}
+
+class FtdiEeprom {
+public:
+    FtdiEeprom(std::string deviceId);
+    virtual ~FtdiEeprom();
+
+    static FtdiEepromId_t getFtdiEepromId(std::string deviceId);
+    virtual ErrorCodes_t openConnection(char channel = 'A');
+    virtual ErrorCodes_t closeConnection();
+    DeviceTuple_t getDeviceTuple();
+    ErrorCodes_t readEepromWord(DWORD address, LPWORD result);
+
+protected:
+    std::string deviceId;
+    char communicationChannel;
+    std::string communicationSerial;
+    uint16_t encryptionKey[EEPROM_ENCRYPTION_KEY_LENGTH];
+    DeviceTuple_t deviceTuple;
+    bool connectionOpened = false;
+    FT_HANDLE handler;
+
+    void calculateEncryptionKey();
+
+    virtual ErrorCodes_t loadData() = 0;
+    virtual ErrorCodes_t loadDeviceTuple() = 0;
+};
+
+#endif // FTDIEEPROM_H

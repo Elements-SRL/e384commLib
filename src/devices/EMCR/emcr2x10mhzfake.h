@@ -8,9 +8,6 @@ public:
     Emcr2x10MHzFake(std::string id);
     virtual ~Emcr2x10MHzFake();
 
-    virtual ErrorCodes_t connect(std::string fwPath) override;
-    virtual ErrorCodes_t disconnect() override;
-
 protected:
 
     enum SamplingRates {
@@ -21,6 +18,11 @@ protected:
     /*************\
      *  Methods  *
     \*************/
+
+    virtual ErrorCodes_t startCommunication(std::string fwPath) override;
+    virtual void initializeVariables() override;
+
+    virtual ErrorCodes_t stopCommunication() override;
 
     virtual bool writeRegistersAndActivateTriggers(TxTriggerType_t type) override;
     virtual uint32_t readDataFromDevice() override;

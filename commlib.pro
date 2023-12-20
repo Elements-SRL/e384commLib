@@ -16,6 +16,7 @@ CONFIG(debug, debug|release) {
 CONFIG(release, debug|release) {
     TARGET = e384commlib
     DEFINES += DEBUG
+#    DEFINES += DEBUG_TX_DATA_PRINT
 #    DEFINES += DEBUG_MAX_SPEED
 }
 
@@ -73,6 +74,22 @@ SOURCES += \
     src/devices/EMCR/emcr384patchclamp_V04.cpp \
     src/devices/EMCR/emcr2x10mhz.cpp \
     src/devices/EMCR/emcr4x10mhz.cpp \
+    src/devices/EZPatch/ezpatchdevice.cpp \
+    src/devices/EZPatch/ezpatchftdidevice.cpp \
+    src/devices/EZPatch/ftdieeprom.cpp \
+    src/devices/EZPatch/ftdieeprom56.cpp \
+    src/devices/EZPatch/ftdieepromdemo.cpp \
+    src/devices/EZPatch/ezpatchepatchel03d.cpp \
+    src/devices/EZPatch/ezpatchepatchel03f_4d.cpp \
+    src/devices/EZPatch/ezpatchepatchel04e.cpp \
+    src/devices/EZPatch/ezpatchepatchel04f.cpp \
+    src/devices/EZPatch/ezpatchepatchel03f_4e.cpp \
+    src/devices/EZPatch/ezpatchepatchel03f_4f.cpp \
+    src/devices/EZPatch/ezpatche4pel04f.cpp \
+    src/devices/EZPatch/ezpatche4ppatchliner.cpp \
+    src/devices/EZPatch/ezpatche8ppatchliner.cpp \
+    src/devices/EZPatch/ezpatche4ppatchliner_el07ab.cpp \
+    src/devices/EZPatch/ezpatche8ppatchliner_el07ab.cpp \
     src/model/boardmodel.cpp \
     src/model/channelmodel.cpp \
     src/calibration/calibrationmanager.cpp
@@ -91,6 +108,22 @@ HEADERS += \
     src/devices/EMCR/emcr384patchclamp_V04.h \
     src/devices/EMCR/emcr2x10mhz.h \
     src/devices/EMCR/emcr4x10mhz.h \
+    src/devices/EZPatch/ezpatchdevice.h \
+    src/devices/EZPatch/ezpatchftdidevice.h \
+    src/devices/EZPatch/ftdieeprom.h \
+    src/devices/EZPatch/ftdieeprom56.h \
+    src/devices/EZPatch/ftdieepromdemo.h \
+    src/devices/EZPatch/ezpatchepatchel03d.h \
+    src/devices/EZPatch/ezpatchepatchel03f_4d.h \
+    src/devices/EZPatch/ezpatchepatchel04e.h \
+    src/devices/EZPatch/ezpatchepatchel04f.h \
+    src/devices/EZPatch/ezpatchepatchel03f_4e.h \
+    src/devices/EZPatch/ezpatchepatchel03f_4f.h \
+    src/devices/EZPatch/ezpatche4pel04f.h \
+    src/devices/EZPatch/ezpatche4ppatchliner.h \
+    src/devices/EZPatch/ezpatche8ppatchliner.h \
+    src/devices/EZPatch/ezpatche4ppatchliner_el07ab.h \
+    src/devices/EZPatch/ezpatche8ppatchliner_el07ab.h \
     src/model/boardmodel.h \
     src/model/channelmodel.h \
     src/calibration/calibrationmanager.h \
@@ -101,25 +134,32 @@ contains(DEFINES, DEBUG) {
     src/devices/EMCR/emcr384nanoporesfake.cpp \
     src/devices/EMCR/emcr384patchclampfake.cpp \
     src/devices/EMCR/emcr2x10mhzfake.cpp \
-    src/devices/EMCR/emcr4x10mhzfake.cpp
+    src/devices/EMCR/emcr4x10mhzfake.cpp \
+    src/devices/EZPatch/ezpatchfakepatch.cpp \
+    src/devices/EZPatch/ezpatchfakep8.cpp
     HEADERS += \
     src/devices/EMCR/emcr384nanoporesfake.h \
     src/devices/EMCR/emcr384patchclampfake.h \
     src/devices/EMCR/emcr2x10mhzfake.h \
-    src/devices/EMCR/emcr4x10mhzfake.h
+    src/devices/EMCR/emcr4x10mhzfake.h \
+    src/devices/EZPatch/ezpatchfakepatch.h \
+    src/devices/EZPatch/ezpatchfakep8.h
 }
 
 INCLUDEPATH += \
     ./src \
     ./src/devices \
     ./src/devices/EMCR \
+    ./src/devices/EZPatch \
     ./src/model \
     ./src/calibration
 DEPENDPATH += \
     ./src \
     ./src/devices \
     ./src/devices/EMCR \
+    ./src/devices/EZPatch \
     ./src/model \
     ./src/calibration
 
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
+include($$(FTD2XX_PATH)includeftd2xx.pri)

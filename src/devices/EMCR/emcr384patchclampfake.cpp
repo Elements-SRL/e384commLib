@@ -29,16 +29,19 @@ Emcr384FakePatchClamp::~Emcr384FakePatchClamp() {
 
 }
 
-ErrorCodes_t Emcr384FakePatchClamp::connect(std::string fwPath) {
-    this->initializeBuffers();
-    this->fillBuffer();
-
-    return EmcrDevice::connect(fwPath);
+ErrorCodes_t Emcr384FakePatchClamp::startCommunication(std::string fwPath) {
+    /*! Nothing to be done */
+    return Success;
 }
 
-ErrorCodes_t Emcr384FakePatchClamp::disconnect() {
-    EmcrDevice::disconnect();
-    return this->deinitializeBuffers();
+void Emcr384FakePatchClamp::initializeVariables() {
+    EmcrDevice::initializeVariables();
+    this->fillBuffer();
+}
+
+ErrorCodes_t Emcr384FakePatchClamp::stopCommunication() {
+    /*! Nothing to be done */
+    return Success;
 }
 
 bool Emcr384FakePatchClamp::writeRegistersAndActivateTriggers(TxTriggerType_t type) {

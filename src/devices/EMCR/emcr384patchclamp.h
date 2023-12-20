@@ -151,7 +151,7 @@ protected:
         CompensationRsCorrBwNum
     };
 
-    virtual void initializeHW() override;
+    virtual ErrorCodes_t initializeHW() override;
 
     virtual std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams) override;
     virtual std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc) override;

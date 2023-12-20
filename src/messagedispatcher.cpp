@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include "emcropalkellydevice.h"
+#include "ezpatchftdidevice.h"
 #include "utils.h"
 
 /********************************************************************************************\
@@ -47,12 +48,11 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     ret = retTemp; /*! Set the first return anyway, so even if all methods return an error the return is set here.
                        Afterwards update only on a Success */
 
-    /*! \todo FCON Aggiungere il metodo della e4gcommlib basato su FTDI quando inclusa */
-//    retTemp = MessageDispatcher_OpalKelly::detectDevices(deviceIdsTemp);
-//    if (retTemp == Success) {
-//        deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
-//        ret = retTemp;
-//    }
+    retTemp = EZPatchFtdiDevice::detectDevices(deviceIdsTemp);
+    if (retTemp == Success) {
+        deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
+        ret = retTemp;
+    }
     return ret;
 }
 
@@ -62,88 +62,58 @@ ErrorCodes_t MessageDispatcher::getDeviceType(std::string deviceId, DeviceTypes_
 }
 
 ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
+    messageDispatcher = nullptr;
     ErrorCodes_t ret = EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId);
     if (ret == Success) {
         return EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher, fwPath);
     }
 
-    /*! \todo FCON Aggiungere il metodo della e4gcommlib basato su FTDI quando inclusa */
-//    ret = MessageDispatcher_OpalKelly::isDeviceSerialDetected(deviceId);
-//    if (ret == Success) {
-//        return MessageDispatcher_OpalKelly::connectDevice(deviceId, modelPath, commBoardIdx, modelsNum, messageDispatcher);
-//    }
+    ret = EZPatchFtdiDevice::isDeviceSerialDetected(deviceId);
+    if (ret == Success) {
+        return EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher, fwPath);
+    }
+}
+
+ErrorCodes_t MessageDispatcher::initialize(std::string fwPath) {
+    this->createDebugFiles();
+
+    ErrorCodes_t ret = this->startCommunication(fwPath);
+    if (ret != Success) {
+        return ret;
+    }
+
+    ret = this->initializeMemory();
+    if (ret != Success) {
+        return ret;
+    }
+
+    this->initializeVariables();
+
+    this->deviceConfiguration();
+    if (ret != Success) {
+        return ret;
+    }
+
+    stopConnectionFlag = false;
+    this->createCommunicationThreads();
+
+    return this->initializeHW();
+}
+
+void MessageDispatcher::deinitialize() {
+    stopConnectionFlag = true;
+    this->joinCommunicationThreads();
+
+    this->deinitializeVariables();
+
+    this->deinitializeMemory();
+
+    this->closeDebugFiles();
 }
 
 /****************\
  *  Tx methods  *
 \****************/
-
-ErrorCodes_t MessageDispatcher::initializeDevice() {
-    channelsPerBoard = currentChannelsNum/totalBoardsNum;
-
-    this->fillChannelList(totalBoardsNum, currentChannelsNum/totalBoardsNum);
-
-    this->initializeHW();
-
-    this->initializeCalibration();
-
-    this->initializeLiquidJunction();
-
-    /*! Some default values*/
-    std::vector <bool> allTrue(currentChannelsNum, true);
-    std::vector <bool> allFalse(currentChannelsNum, false);
-
-    allChannelIndexes.resize(currentChannelsNum);
-    for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
-        allChannelIndexes[idx] = idx;
-    }
-
-    std::vector <uint16_t> boardIndexes(totalBoardsNum);
-    for (uint16_t idx = 0; idx < totalBoardsNum; idx++) {
-        boardIndexes[idx] = idx;
-    }
-
-    if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
-        /*! Initialization in voltage clamp */
-        this->setClampingModality(VOLTAGE_CLAMP, false);
-        this->enableCcCompensations(false);
-        this->enableVcCompensations(true);
-        this->enableStimulus(allChannelIndexes, allTrue, false);
-        this->turnChannelsOn(allChannelIndexes, allTrue, false);
-        this->turnCurrentReaderOn(true, false);
-        this->setVoltageHoldTuner(allChannelIndexes, selectedVoltageHoldVector, false);
-        this->setLiquidJunctionVoltage(allChannelIndexes, selectedLiquidJunctionVector, false);
-        this->setSamplingRate(defaultSamplingRateIdx, false);
-        this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
-        this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
-        this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
-        this->setGateVoltages(boardIndexes, selectedGateVoltageVector, false);
-        this->setSourceVoltages(boardIndexes, selectedSourceVoltageVector, false);
-        this->digitalOffsetCompensation(allChannelIndexes, allFalse, false);
-        this->turnCalSwOn(allChannelIndexes, allFalse, false);
-
-        if (vcCurrentRangesNum > 0) {
-            this->updateCalibVcCurrentGain(allChannelIndexes, false);
-            this->updateCalibVcCurrentOffset(allChannelIndexes, false);
-        }
-
-        if (vcVoltageRangesNum > 0) {
-            this->updateCalibVcVoltageGain(allChannelIndexes, false);
-            this->updateCalibVcVoltageOffset(allChannelIndexes, false);
-        }
-
-    } else {
-        /*! Initialization in current clamp */
-        /*! \todo FCON ... Noone deafults in current clamp, why bother? */
-    }
-
-    /*! Make sure that at the beginning all the constant values tha might not be written later on are sent to the FPGA */
-    this->sendCommands();
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    return Success;
-}
 
 ErrorCodes_t MessageDispatcher::setChannelSelected(uint16_t chIdx, bool newState) {
     if (chIdx >= currentChannelsNum) {
@@ -481,11 +451,11 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setStateArrayStructure(int numberOfStates, int initialState){
+ErrorCodes_t MessageDispatcher::setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag){
+ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -1060,6 +1030,132 @@ ErrorCodes_t MessageDispatcher::isStateArrayAvailable() {
  *  Private methods  *
 \*********************/
 
+void MessageDispatcher::createDebugFiles() {
+#ifdef DEBUG_TX_DATA_PRINT
+    if (txFid == nullptr) {
+        createDebugFile(txFid, "e384CommLib_tx");
+    }
+#endif
+
+#ifdef DEBUG_RX_RAW_DATA_PRINT
+    if (rxRawFid == nullptr) {
+        createDebugFile(rxRawFid, "e384CommLib_rxRaw");
+    }
+#endif
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+    if (rxProcFid == nullptr) {
+        createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
+    }
+#endif
+
+#ifdef DEBUG_RX_DATA_PRINT
+    if (rxFid == nullptr) {
+        createDebugFile(rxFid, "e384CommLib_rx");
+    }
+#endif
+
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+    if (ljFid == nullptr) {
+        createDebugFile(ljFid, "e384CommLib_lj");
+    }
+#endif
+}
+
+void MessageDispatcher::initializeVariables() {
+    channelsPerBoard = currentChannelsNum/totalBoardsNum;
+    this->fillChannelList(totalBoardsNum, currentChannelsNum/totalBoardsNum);
+
+    /*! Allocate memory for raw data filters */
+    this->initializeRawDataFilterVariables();
+
+    this->initializeLiquidJunction();
+}
+
+ErrorCodes_t MessageDispatcher::deviceConfiguration() {
+    /*! Some default values*/
+    std::vector <bool> allTrue(currentChannelsNum, true);
+    std::vector <bool> allFalse(currentChannelsNum, false);
+
+    allChannelIndexes.resize(currentChannelsNum);
+    for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
+        allChannelIndexes[idx] = idx;
+    }
+
+    std::vector <uint16_t> boardIndexes(totalBoardsNum);
+    for (uint16_t idx = 0; idx < totalBoardsNum; idx++) {
+        boardIndexes[idx] = idx;
+    }
+
+    if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
+        /*! Initialization in voltage clamp */
+        this->setClampingModality(VOLTAGE_CLAMP, false);
+        this->enableCcCompensations(false);
+        this->enableVcCompensations(true);
+        this->enableStimulus(allChannelIndexes, allTrue, false);
+        this->turnChannelsOn(allChannelIndexes, allTrue, false);
+        this->turnCurrentReaderOn(true, false);
+        this->setVoltageHoldTuner(allChannelIndexes, selectedVoltageHoldVector, false);
+        this->setLiquidJunctionVoltage(allChannelIndexes, selectedLiquidJunctionVector, false);
+        this->setSamplingRate(defaultSamplingRateIdx, false);
+        this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
+        this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
+        this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
+        this->setGateVoltages(boardIndexes, selectedGateVoltageVector, false);
+        this->setSourceVoltages(boardIndexes, selectedSourceVoltageVector, false);
+        this->digitalOffsetCompensation(allChannelIndexes, allFalse, false);
+        this->turnCalSwOn(allChannelIndexes, allFalse, false);
+
+        if (vcCurrentRangesNum > 0) {
+            this->updateCalibVcCurrentGain(allChannelIndexes, false);
+            this->updateCalibVcCurrentOffset(allChannelIndexes, false);
+        }
+
+        if (vcVoltageRangesNum > 0) {
+            this->updateCalibVcVoltageGain(allChannelIndexes, false);
+            this->updateCalibVcVoltageOffset(allChannelIndexes, false);
+        }
+
+    } else {
+        /*! Initialization in current clamp */
+        /*! \todo FCON ... Noone deafults in current clamp, why bother? */
+    }
+
+    /*! Make sure that at the beginning all the constant values tha might not be written later on are sent to the FPGA */
+    this->sendCommands();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    return Success;
+}
+
+void MessageDispatcher::deinitializeVariables() {
+    this->deInitializeRawDataFilterVariables();
+    this->flushBoardList();
+}
+
+void MessageDispatcher::closeDebugFiles() {
+#ifdef DEBUG_TX_DATA_PRINT
+    fclose(txFid);
+#endif
+
+#ifdef DEBUG_RX_RAW_DATA_PRINT
+    fclose(rxRawFid);
+#endif
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+    fclose(rxProcFid);
+#endif
+
+#ifdef DEBUG_RX_DATA_PRINT
+    fclose(rxFid);
+#endif
+
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
+    fclose(ljFid);
+#endif
+}
+
 void MessageDispatcher::computeLiquidJunction() {
     std::unique_lock <std::mutex> ljMutexLock (ljMutex);
     ljMutexLock.unlock();
@@ -1423,6 +1519,9 @@ void MessageDispatcher::initializeLiquidJunction() {
     liquidJunctionRange = liquidJunctionRangesArray[defaultLiquidJunctionRangeIdx];
     selectedLiquidJunctionVector.resize(currentChannelsNum);
     fill(selectedLiquidJunctionVector.begin(), selectedLiquidJunctionVector.end(), 0.0*liquidJunctionRange.getMax());
+
+    ccLiquidJunctionVector.resize(currentChannelsNum);
+    fill(ccLiquidJunctionVector.begin(), ccLiquidJunctionVector.end(), 0);
 }
 
 bool MessageDispatcher::checkProtocolValidity(std::string &) {
@@ -1440,6 +1539,24 @@ void MessageDispatcher::initializeRawDataFilterVariables() {
             iirX[channelIdx][tapIdx] = 0.0;
             iirY[channelIdx][tapIdx] = 0.0;
         }
+    }
+}
+
+void MessageDispatcher::deInitializeRawDataFilterVariables() {
+    if (iirX != nullptr) {
+        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
+            delete [] iirX[channelIdx];
+        }
+        delete [] iirX;
+        iirX = nullptr;
+    }
+
+    if (iirY != nullptr) {
+        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
+            delete [] iirY[channelIdx];
+        }
+        delete [] iirY;
+        iirY = nullptr;
     }
 }
 
@@ -1682,18 +1799,6 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
 
     iirY[channelIdx][iirOff] = y;
     return y;
-}
-
-ErrorCodes_t MessageDispatcher::turnResistanceCompensationOn(std::vector<uint16_t>,std::vector<bool>, bool){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::turnLeakConductanceCompensationOn(std::vector<uint16_t>,std::vector<bool>, bool){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::turnBridgeBalanceCompensationOn(std::vector<uint16_t>,std::vector<bool>, bool){
-    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t>, uint16_t, std::vector<bool>, bool){

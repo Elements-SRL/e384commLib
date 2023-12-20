@@ -28,19 +28,22 @@ Emcr4x10MHzFake::~Emcr4x10MHzFake() {
 
 }
 
-ErrorCodes_t Emcr4x10MHzFake::connect(std::string fwPath) {
-    this->initializeBuffers();
+ErrorCodes_t Emcr4x10MHzFake::startCommunication(std::string fwPath) {
+    /*! Nothing to be done */
+    return Success;
+}
+
+void Emcr4x10MHzFake::initializeVariables() {
+    EmcrDevice::initializeVariables();
     this->fillBuffer();
-
-    return EmcrDevice::connect(fwPath);
 }
 
-ErrorCodes_t Emcr4x10MHzFake::disconnect() {
-    EmcrDevice::disconnect();
-    return this->deinitializeBuffers();
+ErrorCodes_t Emcr4x10MHzFake::stopCommunication() {
+    /*! Nothing to be done */
+    return Success;
 }
 
-bool Emcr4x10MHzFake::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
+bool Emcr4x10MHzFake::writeRegistersAndActivateTriggers(TxTriggerType_t) {
     return true;
 }
 

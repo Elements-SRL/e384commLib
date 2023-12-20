@@ -763,7 +763,7 @@ Emcr4x10MHz_PCBV01_V02::~Emcr4x10MHz_PCBV01_V02() {
 
 }
 
-void Emcr4x10MHz_PCBV01_V02::initializeHW() {
+ErrorCodes_t Emcr4x10MHz_PCBV01_V02::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -776,16 +776,9 @@ void Emcr4x10MHz_PCBV01_V02::initializeHW() {
     /*! After a short while the 10MHz clock starts */
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    /*! Reset FPGA to initialize state machines */
-    fpgaResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    this->stackOutgoingMessage(txStatus);
-
+    this->resetFpga(true, true);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    fpgaResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    this->stackOutgoingMessage(txStatus);
-
-    /*! Wait for the initialization */
+    this->resetFpga(false, true);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -796,6 +789,8 @@ void Emcr4x10MHz_PCBV01_V02::initializeHW() {
 
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
+
+    return Success;
 }
 
 Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
@@ -1511,7 +1506,7 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
 
     stateTriggerNextStateCoders.resize(stateMaxNum);
 
-    for(int stateIdx = 0; stateIdx < stateMaxNum; stateIdx++){
+    for (unsigned int stateIdx = 0; stateIdx < stateMaxNum; stateIdx++) {
         doubleConfig.initialWord = stateWordOffset;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
@@ -1593,7 +1588,7 @@ Emcr4x10MHz_PCBV01_V03::~Emcr4x10MHz_PCBV01_V03() {
 
 }
 
-void Emcr4x10MHz_PCBV01_V03::initializeHW() {
+ErrorCodes_t Emcr4x10MHz_PCBV01_V03::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -1606,16 +1601,9 @@ void Emcr4x10MHz_PCBV01_V03::initializeHW() {
     /*! After a short while the 10MHz clock starts */
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    /*! Reset FPGA to initialize state machines */
-    fpgaResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    this->stackOutgoingMessage(txStatus);
-
+    this->resetFpga(true, true);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    fpgaResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    this->stackOutgoingMessage(txStatus);
-
-    /*! Wait for the initialization */
+    this->resetFpga(false, true);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1626,11 +1614,174 @@ void Emcr4x10MHz_PCBV01_V03::initializeHW() {
 
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
+
+    return Success;
 }
 
-Emcr4x10MHz_PCBV03_V05::Emcr4x10MHz_PCBV03_V05(std::string di):
-Emcr4x10MHz_PCBV01_V03(di) {
+Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
+    Emcr4x10MHz_PCBV01_V03(di) {
     fwName = "4x10MHz_V05.bit";
+
+    /*! Voltage filters */
+    /*! VC */
+    vcVoltageFiltersNum = VCVoltageFiltersNum;
+    vcVoltageFiltersArray.resize(vcVoltageFiltersNum);
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].value = 16.0;
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].value = 1.6;
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].unit = "Hz";
+    defaultVcVoltageFilterIdx = VCVoltageFilter10kHz;
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Input controls */
+    BoolCoder::CoderConfig_t boolConfig;
+
+    /*! Voltage filter VC */
+    boolConfig.initialWord = 11;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 8;
+    vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x00); // 16kHz on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x55); // 1.6kHz on all channels
+    coders.push_back(vcVoltageFilterCoder);
 }
 
-Emcr4x10MHz_PCBV03_V05::~Emcr4x10MHz_PCBV03_V05(){}
+Emcr4x10MHz_PCBV03_V03::~Emcr4x10MHz_PCBV03_V03() {
+
+}
+
+Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
+    Emcr4x10MHz_PCBV03_V03(di) {
+    fwName = "4x10MHz_V06.bit";
+
+    txDataWords = 442; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
+    txModifiedStartingWord = txDataWords;
+    txModifiedEndingWord = 0;
+    txMaxWords = txDataWords;
+    txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
+
+    stateWordOffset = 282;
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Input controls */
+    BoolCoder::CoderConfig_t boolConfig;
+    DoubleCoder::CoderConfig_t doubleConfig;
+
+    doubleConfig.initialWord = 280;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.minValue = 0.0;
+    doubleConfig.maxValue = 267.0;
+    doubleConfig.resolution = 1.0;
+    stateArrayMovingAverageLengthCoder = new DoubleOffsetBinaryCoder(doubleConfig);
+
+    appliedVoltageCoders.resize(VCVoltageRangesNum);
+    for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
+        appliedVoltageCoders[rangeIdx].resize(stateMaxNum);
+    }
+
+    stateTimeoutFlagCoders.resize(stateMaxNum);
+    stateTriggerFlagCoders.resize(stateMaxNum);
+    stateTriggerDeltaFlagCoders.resize(stateMaxNum);
+
+    stateTimeoutValueCoders.resize(stateMaxNum);
+    stateTimeoutNextStateCoders.resize(stateMaxNum);
+    stateMinTriggerCurrentCoders.resize(VCCurrentRangesNum);
+    stateMaxTriggerCurrentCoders.resize(VCCurrentRangesNum);
+    for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+        stateMinTriggerCurrentCoders[rangeIdx].resize(stateMaxNum);
+        stateMaxTriggerCurrentCoders[rangeIdx].resize(stateMaxNum);
+    }
+
+    stateTriggerNextStateCoders.resize(stateMaxNum);
+
+    for (unsigned int stateIdx = 0; stateIdx < stateMaxNum; stateIdx++) {
+        doubleConfig.initialWord = stateWordOffset;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
+            doubleConfig.resolution = -vHoldRange[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
+            doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
+            doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
+            appliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(appliedVoltageCoders[rangeIdx][stateIdx]);
+        }
+
+        boolConfig.initialWord = stateWordOffset + 1;
+        boolConfig.bitsNum = 1;
+        boolConfig.initialBit = 0;
+        stateTimeoutFlagCoders[stateIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(stateTimeoutFlagCoders[stateIdx]);
+
+        boolConfig.initialBit = 1;
+        stateTriggerFlagCoders[stateIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(stateTriggerFlagCoders[stateIdx]);
+
+        boolConfig.initialBit = 2;
+        stateTriggerDeltaFlagCoders[stateIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(stateTriggerDeltaFlagCoders[stateIdx]);
+
+        doubleConfig.initialWord = stateWordOffset+2;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 32;
+        doubleConfig.resolution = 1/(10.08e6);
+        doubleConfig.minValue = 0;
+        doubleConfig.maxValue = (4.2950e+09 - 1)*doubleConfig.resolution;
+        stateTimeoutValueCoders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(stateTimeoutValueCoders[stateIdx]);
+
+        boolConfig.initialWord = stateWordOffset+4;
+        boolConfig.initialBit = 0;
+        boolConfig.bitsNum = 16;
+        stateTimeoutNextStateCoders[stateIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(stateTimeoutNextStateCoders[stateIdx]);
+
+        doubleConfig.initialWord = stateWordOffset+5;
+        doubleConfig.initialBit = 0;
+        for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+            doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
+            doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
+            doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
+            stateMinTriggerCurrentCoders[rangeIdx][stateIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(stateMinTriggerCurrentCoders[rangeIdx][stateIdx]);
+        }
+
+        doubleConfig.initialWord = stateWordOffset+6;
+        doubleConfig.initialBit = 0;
+        for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+            doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
+            doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
+            doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
+            stateMaxTriggerCurrentCoders[rangeIdx][stateIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(stateMaxTriggerCurrentCoders[rangeIdx][stateIdx]);
+        }
+
+        boolConfig.initialWord = stateWordOffset+7;
+        boolConfig.initialBit = 0;
+        boolConfig.bitsNum = 16;
+        stateTriggerNextStateCoders[stateIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(stateTriggerNextStateCoders[stateIdx]);
+
+        stateWordOffset = stateWordOffset + stateWordsNum;
+    }
+
+    /*! Default status */
+    txStatus.resize(txDataWords);
+    fill(txStatus.begin(), txStatus.end(), 0x0000);
+    txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus[2] = 0x0001; /*! one voltage frame every current frame */
+    // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
+}
+
+Emcr4x10MHz_PCBV03_V04::~Emcr4x10MHz_PCBV03_V04() {
+
+}

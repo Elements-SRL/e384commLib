@@ -117,9 +117,12 @@ ErrorCodes_t EmcrOpalKellyDevice::isDeviceSerialDetected(std::string deviceId) {
 
 ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     ErrorCodes_t ret = Success;
+    if (messageDispatcher != nullptr) {
+        return ErrorDeviceAlreadyConnected;
+    }
 
     DeviceTypes_t deviceType;
-    ret = MessageDispatcher::getDeviceType(deviceId, deviceType);
+    ret = EmcrOpalKellyDevice::getDeviceType(deviceId, deviceType);
     if (ret != Success) {
         return ErrorDeviceTypeNotRecognized;
     }
@@ -156,7 +159,7 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         break;
 
     case Device4x10MHz_PCBV03:
-        messageDispatcher = new Emcr4x10MHz_PCBV03_V05(deviceId);
+        messageDispatcher = new Emcr4x10MHz_PCBV03_V04(deviceId);
         break;
 
 #ifdef DEBUG
@@ -182,10 +185,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
     }
 
     if (messageDispatcher != nullptr) {
-        ret = messageDispatcher->connect(fwPath);
+        ret = messageDispatcher->initialize(fwPath);
 
         if (ret != Success) {
-            messageDispatcher->disconnect();
+            messageDispatcher->deinitialize();
             delete messageDispatcher;
             messageDispatcher = nullptr;
         }
@@ -195,61 +198,7 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::disconnectDevice() {
-    return this->disconnect();
-}
-
-ErrorCodes_t EmcrOpalKellyDevice::connect(std::string fwPath) {
-    if (connected) {
-        return ErrorDeviceAlreadyConnected;
-    }
-
-#ifdef DEBUG_TX_DATA_PRINT
-    createDebugFile(txFid, "e384CommLib_tx");
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    createDebugFile(rxRawFid, "e384CommLib_rxRaw");
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-    createDebugFile(rxFid, "e384CommLib_rx");
-#endif
-
-    okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
-
-    if (error != okCFrontPanel::NoError) {
-        return ErrorDeviceConnectionFailed;
-    }
-
-    error = dev.ConfigureFPGA(fwPath + fwName);
-
-    if (error != okCFrontPanel::NoError) {
-        return ErrorDeviceFwLoadingFailed;
-    }
-
-    ErrorCodes_t err = this->initializeBuffers();
-    if (err != Success) {
-        return err;
-
-    } else {
-        return EmcrDevice::connect(fwPath);
-    }
-}
-
-ErrorCodes_t EmcrOpalKellyDevice::disconnect() {
-    if (!connected) {
-        return ErrorDeviceNotConnected;
-    }
-
-    EmcrDevice::disconnect();
-
-    this->deinitializeBuffers();
-
-    dev.Close();
+    this->deinitialize();
     return Success;
 }
 
@@ -294,6 +243,26 @@ bool EmcrOpalKellyDevice::getDeviceCount(int &numDevs) {
     return true;
 }
 
+ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
+    okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
+
+    if (error != okCFrontPanel::NoError) {
+        return ErrorDeviceConnectionFailed;
+    }
+
+    error = dev.ConfigureFPGA(fwPath + fwName);
+
+    if (error != okCFrontPanel::NoError) {
+        return ErrorDeviceFwLoadingFailed;
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrOpalKellyDevice::stopCommunication() {
+    dev.Close();
+    return Success;
+}
+
 void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
     regs.reserve(txMaxRegs);
 
@@ -316,23 +285,18 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         \***********************/
 
         txMutexLock.lock();
-        if (txMsgBufferReadLength > 0) {
+        while (txMsgBufferReadLength > 0) {
             anyOperationPerformed = true;
-            txMutexLock.unlock();
-
             this->sendCommandsToDevice();
-
-            txMutexLock.lock();
             txMsgBufferReadLength--;
             if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
                 /*! \todo FCON let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
                 liquidJunctionControlPending = false;
             }
-            txMutexLock.unlock();
+        }
+        txMutexLock.unlock();
+        if (anyOperationPerformed) {
             txMsgBufferNotFull.notify_all();
-
-        } else {
-            txMutexLock.unlock();
         }
 
         /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
@@ -420,10 +384,14 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
             break;
 
         case TxTriggerStartProtocol:
+            dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
             dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
             break;
 
         case TxTriggerStartStateArray:
+            dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
             dev.ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
             break;
         }
@@ -662,23 +630,23 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
     }
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::initializeBuffers() {
+ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {
     rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_BUFFER_SIZE];
-    if (rxRawBuffer != nullptr) {
-        rxRawBuffer16 = (uint16_t *)rxRawBuffer;
-        return Success;
-
-    } else {
+    if (rxRawBuffer == nullptr) {
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
+
+    rxRawBuffer16 = (uint16_t *)rxRawBuffer;
+    return EmcrDevice::initializeMemory();
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::deinitializeBuffers() {
+void EmcrOpalKellyDevice::deinitializeMemory() {
     if (rxRawBuffer != nullptr) {
         delete [] rxRawBuffer;
         rxRawBuffer = nullptr;
     }
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
-    return Success;
+    EmcrDevice::deinitializeMemory();
 }

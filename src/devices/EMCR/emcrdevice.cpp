@@ -31,86 +31,7 @@ EmcrDevice::~EmcrDevice() {
     }
 }
 
-ErrorCodes_t EmcrDevice::connect(std::string fwPath) {
-    if (connected) {
-        return ErrorDeviceAlreadyConnected;
-    }
-
-    connected = true;
-
-    this->init();
-
-    stopConnectionFlag = false;
-
-#ifdef DEBUG_TX_DATA_PRINT
-    if (txFid == nullptr) {
-        createDebugFile(txFid, "e384CommLib_tx");
-    }
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    if (rxRawFid == nullptr) {
-        createDebugFile(rxRawFid, "e384CommLib_rxRaw");
-    }
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    if (rxProcFid == nullptr) {
-        createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
-    }
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-    if (rxFid == nullptr) {
-        createDebugFile(rxFid, "e384CommLib_rx");
-    }
-#endif
-
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-    if (ljFid == nullptr) {
-        createDebugFile(ljFid, "e384CommLib_lj");
-    }
-#endif
-
-    /*! Initialize device */
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    this->initializeDevice();
-
-    deviceCommunicationThread = std::thread(&EmcrDevice::handleCommunicationWithDevice, this);
-    rxConsumerThread = std::thread(&EmcrDevice::parseDataFromDevice, this);
-    liquidJunctionThread = std::thread(&EmcrDevice::computeLiquidJunction, this);
-
-    threadsStarted = true;
-
-    return Success;
-}
-
-ErrorCodes_t EmcrDevice::disconnect() {
-    if (!connected || stopConnectionFlag) {
-        return ErrorDeviceNotConnected;
-    }
-
-    stopConnectionFlag = true;
-
-    if (threadsStarted) {
-        deviceCommunicationThread.join();
-        rxConsumerThread.join();
-        liquidJunctionThread.join();
-    }
-
-    this->deinit();
-    this->flushBoardList();
-
-    connected = false;
-
-    return Success;
-}
-
 ErrorCodes_t EmcrDevice::enableRxMessageType(MsgTypeId_t messageType, bool flag) {
-    if (!connected) {
-        return ErrorDeviceNotConnected;
-    }
-
     uint16_t uType = (uint16_t)messageType;
 
     if (uType < MsgDirectionDeviceToPc) {
@@ -919,6 +840,7 @@ ErrorCodes_t EmcrDevice::enableCcStimulus(std::vector<uint16_t> channelIndexes, 
 }
 
 ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
+    /*! \todo FCON questo potrbbe sparire se è chiamato solo dal suo overload */
     if (idx >= clampingModalitiesNum) {
         return ErrorValueOutOfRange;
     }
@@ -932,12 +854,78 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
     case VOLTAGE_CLAMP:
         rawDataFilterVoltageFlag = false;
         rawDataFilterCurrentFlag = true;
+
+        /*! Restore liquid junction and remove it from the voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+            liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][i]->encode(selectedLiquidJunctionVector[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            ccLiquidJunctionVector[i] = 0;
+        }
+
+        this->enableCcCompensations(false);
+        this->turnCurrentReaderOn(true, false);
+        this->turnVoltageStimulusOn(true, false);
+        this->turnCurrentStimulusOn(false, false);
+        this->turnVoltageReaderOn(false, false);
+        this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
+        this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
+        /*! \todo FCON Ripristinare range di corrente precedente */
+        this->enableVcCompensations(true);
+
+        this->setSourceForVoltageChannel(0, false);
+        this->setSourceForCurrentChannel(0, false);
+
         break;
 
     case ZERO_CURRENT_CLAMP:
+        rawDataFilterVoltageFlag = true;
+        rawDataFilterCurrentFlag = false;
+
+        /*! Remove liquid junction and subtract it from voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+            liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][i]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
+            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+        }
+
+        this->enableVcCompensations(false);
+        /*! \todo FCON Settare anche il range di corrente più alto */
+        this->turnVoltageReaderOn(true, false);
+        this->turnCurrentStimulusOn(false, false);
+        this->turnVoltageStimulusOn(false, false);
+        this->turnCurrentReaderOn(false, false);
+        this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+        this->enableCcCompensations(true);
+
+        this->setSourceForVoltageChannel(1, false);
+        this->setSourceForCurrentChannel(1, false);
+
+        break;
+
     case CURRENT_CLAMP:
         rawDataFilterVoltageFlag = true;
         rawDataFilterCurrentFlag = false;
+
+        /*! Remove liquid junction and subtract it from voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+            liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][i]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
+            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+        }
+
+        this->enableVcCompensations(false);
+        /*! \todo FCON Settare anche il range di corrente più alto */
+        this->turnVoltageReaderOn(true, false);
+        this->turnCurrentStimulusOn(true, false);
+        this->turnVoltageStimulusOn(false, false);
+        this->turnCurrentReaderOn(false, false);
+        this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+        this->enableCcCompensations(true);
+
+        this->setSourceForVoltageChannel(1, false);
+        this->setSourceForCurrentChannel(1, false);
+
         break;
 
     case DYNAMIC_CLAMP:
@@ -1041,6 +1029,9 @@ ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFla
     integrationStep = integrationStepArray[selectedSamplingRateIdx];
     this->setAdcFilter();
     this->computeRawDataFilterCoefficients();
+    if (stateArrayMovingAverageLengthCoder != nullptr) {
+        stateArrayMovingAverageLengthCoder->encode(stateArrayReactionTime.getNoPrefixValue()*samplingRate.getNoPrefixValue(), txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
     if (applyFlagIn) {
         this->stackOutgoingMessage(txStatus);
     }
@@ -1304,7 +1295,7 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextIt
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialState){
+ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime) {
     if (numberOfStatesCoder == nullptr ) {
         return ErrorFeatureNotImplemented;
     }
@@ -1313,6 +1304,10 @@ ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialS
     }
     numberOfStatesCoder->encode(numberOfStates, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     initialStateCoder->encode(initialState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (stateArrayMovingAverageLengthCoder != nullptr) {
+        stateArrayReactionTime = reactionTime;
+        stateArrayMovingAverageLengthCoder->encode(reactionTime.getNoPrefixValue()*samplingRate.getNoPrefixValue(), txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
     return Success;
 }
 
@@ -1423,7 +1418,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                             downsamplingOffset = 0;
                             downsamplingCount++;
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
 #ifdef FILTER_CLIP_NEEDED
                                 xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                                 data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
@@ -1451,7 +1446,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
                         } else {
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
                                 xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
@@ -1482,7 +1477,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                     timeSamplesNum = samplesNum/totalChannelsNum;
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            rawFloat = (int16_t)rxDataBuffer[dataOffset];
+                            rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
 #ifdef FILTER_CLIP_NEEDED
                             xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                             data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
@@ -1521,7 +1516,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                     timeSamplesNum = samplesNum/totalChannelsNum;
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            data[dataWritten+sampleIdx++] = rxDataBuffer[dataOffset];
+                            data[dataWritten+sampleIdx++] = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
 
@@ -1848,28 +1843,32 @@ ErrorCodes_t EmcrDevice::getCalibMappingFilePath(std::string &path){
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::init() {
+/*********************\
+ *  Private methods  *
+\*********************/
+
+ErrorCodes_t EmcrDevice::initializeMemory() {
     rxMsgBuffer = new (std::nothrow) MsgResume_t[RX_MSG_BUFFER_SIZE];
     if (rxMsgBuffer == nullptr) {
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
     rxDataBuffer = new (std::nothrow) uint16_t[RX_DATA_BUFFER_SIZE+1]; /*!< The last item is a copy of the first one, it is used to safely read 2 consecutive 16bit words at a time to form a 32bit word */
     if (rxDataBuffer == nullptr) {
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
     txMsgBuffer = new (std::nothrow) std::vector <uint16_t>[TX_MSG_BUFFER_SIZE];
     if (txMsgBuffer == nullptr) {
+        this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
 
     txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
     txMsgLength.resize(TX_MSG_BUFFER_SIZE);
     txMsgTrigger.resize(TX_MSG_BUFFER_SIZE);
-
-    /*! Allocate memory for raw data filters */
-    this->initializeRawDataFilterVariables();
 
     /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
     voltageDataValues.resize(voltageChannelsNum);
@@ -1878,7 +1877,26 @@ ErrorCodes_t EmcrDevice::init() {
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::deinit() {
+void EmcrDevice::initializeVariables() {
+    MessageDispatcher::initializeVariables();
+    this->initializeCalibration();
+}
+
+ErrorCodes_t EmcrDevice::deviceConfiguration() {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    ErrorCodes_t ret = MessageDispatcher::deviceConfiguration();
+    return ret;
+}
+
+void EmcrDevice::createCommunicationThreads() {
+    deviceCommunicationThread = std::thread(&EmcrDevice::handleCommunicationWithDevice, this);
+    rxConsumerThread = std::thread(&EmcrDevice::parseDataFromDevice, this);
+    liquidJunctionThread = std::thread(&EmcrDevice::computeLiquidJunction, this);
+
+    threadsStarted = true;
+}
+
+void EmcrDevice::deinitializeMemory() {
     if (rxMsgBuffer != nullptr) {
         delete [] rxMsgBuffer;
         rxMsgBuffer = nullptr;
@@ -1893,44 +1911,21 @@ ErrorCodes_t EmcrDevice::deinit() {
         delete [] txMsgBuffer;
         txMsgBuffer = nullptr;
     }
+}
 
-    if (iirX != nullptr) {
-        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
-            delete [] iirX[channelIdx];
-        }
-        delete [] iirX;
-        iirX = nullptr;
+void EmcrDevice::deinitializeVariables() {
+    /*! Nothing to be done */
+    MessageDispatcher::deinitializeVariables();
+}
+
+void EmcrDevice::joinCommunicationThreads() {
+    if (threadsStarted) {
+        deviceCommunicationThread.join();
+        rxConsumerThread.join();
+        liquidJunctionThread.join();
+
+        threadsStarted = false;
     }
-
-    if (iirY != nullptr) {
-        for (unsigned int channelIdx = 0; channelIdx < totalChannelsNum; channelIdx++) {
-            delete [] iirY[channelIdx];
-        }
-        delete [] iirY;
-        iirY = nullptr;
-    }
-
-#ifdef DEBUG_TX_DATA_PRINT
-    fclose(txFid);
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    fclose(rxRawFid);
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    fclose(rxProcFid);
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
-    fclose(rxFid);
-#endif
-
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-    fclose(ljFid);
-#endif
-
-    return Success;
 }
 
 void EmcrDevice::initializeCalibration() {

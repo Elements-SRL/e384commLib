@@ -29,20 +29,23 @@ Emcr384FakeNanopores::~Emcr384FakeNanopores() {
 
 }
 
-ErrorCodes_t Emcr384FakeNanopores::connect(std::string fwPath) {
-    this->initializeBuffers();
+ErrorCodes_t Emcr384FakeNanopores::startCommunication(std::string fwPath) {
+    /*! Nothing to be done */
+    return Success;
+}
+
+void Emcr384FakeNanopores::initializeVariables() {
+    EmcrDevice::initializeVariables();
     this->fillBuffer();
     startTime = std::chrono::steady_clock::now();
-
-    return EmcrDevice::connect(fwPath);
 }
 
-ErrorCodes_t Emcr384FakeNanopores::disconnect() {
-    EmcrDevice::disconnect();
-    return this->deinitializeBuffers();
+ErrorCodes_t Emcr384FakeNanopores::stopCommunication() {
+    /*! Nothing to be done */
+    return Success;
 }
 
-bool Emcr384FakeNanopores::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
+bool Emcr384FakeNanopores::writeRegistersAndActivateTriggers(TxTriggerType_t) {
     return true;
 }
 

@@ -29,20 +29,6 @@ static void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, 
 template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t * o);
 template<typename I_t, typename O_t> void input2NumericVector(I_t * v, O_t &o, int inputLength);
 
-/*****************\
- *  Ctor / Dtor  *
-\*****************/
-
-ErrorCodes_t init() {
-    /*! \todo FCON sicuri non ci sia da fare nulla? */
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t deinit() {
-    /*! \todo FCON sicuri non ci sia da fare nulla? */
-    return ErrorFeatureNotImplemented;
-}
-
 /************************\
  *  Connection methods  *
 \************************/

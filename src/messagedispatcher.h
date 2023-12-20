@@ -17,6 +17,7 @@
 #include "e384commlib_global_addendum.h"
 #endif
 
+#define SHORT_OFFSET_BINARY (static_cast <double> (0x8000))
 #define SHORT_MAX (static_cast <double> (0x7FFF))
 #define SHORT_MIN (-SHORT_MAX-1.0)
 #define USHORT_MAX (static_cast <double> (0xFFFF))
@@ -66,6 +67,7 @@ using namespace e384CommLib;
 
 typedef struct MsgResume {
     uint16_t typeId;
+    uint16_t heartbeat;
     uint32_t dataLength;
     uint32_t startDataPtr;
 } MsgResume_t;
@@ -106,17 +108,14 @@ public:
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
+    ErrorCodes_t initialize(std::string fwPath);
+    void deinitialize();
     virtual ErrorCodes_t disconnectDevice() = 0;
     virtual ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag) = 0;
-
-    virtual ErrorCodes_t connect(std::string fwPath) = 0;
-    virtual ErrorCodes_t disconnect() = 0;
 
     /***************************\
      *  Configuration methods  *
     \***************************/
-
-    ErrorCodes_t initializeDevice();
 
     ErrorCodes_t setChannelSelected(uint16_t chIdx, bool newState);
     ErrorCodes_t setBoardSelected(uint16_t brdIdx, bool newState);
@@ -209,13 +208,10 @@ public:
     virtual ErrorCodes_t setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag);
     virtual ErrorCodes_t setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag);
 
-    virtual ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState);
+    virtual ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime);
     virtual ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag);
     virtual ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag);
 
-    virtual ErrorCodes_t turnResistanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
-    virtual ErrorCodes_t turnLeakConductanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
-    virtual ErrorCodes_t turnBridgeBalanceCompensationOn(std::vector<uint16_t> channelIndexes,std::vector<bool> onValues, bool applyFlagIn);
     virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
     virtual ErrorCodes_t enableVcCompensations(bool enable);
     virtual ErrorCodes_t enableCcCompensations(bool enable);
@@ -407,15 +403,29 @@ protected:
      *  Methods  *
     \*************/
 
+    void createDebugFiles();
+    virtual ErrorCodes_t startCommunication(std::string fwPath) = 0;
+    virtual ErrorCodes_t initializeMemory() = 0;
+    virtual void initializeVariables();
+    virtual ErrorCodes_t deviceConfiguration();
+    virtual void createCommunicationThreads() = 0;
+    virtual ErrorCodes_t initializeHW() = 0;
+
+    virtual ErrorCodes_t stopCommunication() = 0;
+    virtual void deinitializeMemory() = 0;
+    virtual void deinitializeVariables();
+
+    void closeDebugFiles();
+    virtual void joinCommunicationThreads() = 0;
+
     void computeLiquidJunction();
-    virtual void sendCommandsToDevice() = 0;
-    virtual void initializeHW() = 0;
     virtual void initializeCalibration();
     void initializeLiquidJunction();
 
     bool checkProtocolValidity(std::string &message);
 
     void initializeRawDataFilterVariables();
+    void deInitializeRawDataFilterVariables();
     void computeRawDataFilterCoefficients();
     double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
 
@@ -432,6 +442,9 @@ protected:
      *  Fields  *
     \************/
 
+    std::string upgradeNotes = "";
+    std::string notificationTag = "UNDEFINED";
+
     uint16_t voltageChannelsNum = 1;
     uint16_t currentChannelsNum = 1;
     uint16_t totalChannelsNum = voltageChannelsNum+currentChannelsNum;
@@ -446,9 +459,10 @@ protected:
     unsigned int stateMaxNum;
     unsigned int stateWordOffset;
     unsigned int stateWordsNum;
+    RangedMeasurement_t stateArrayReactionTimeRange = {0.0, 1.0, 1.0, UnitPfxNone, "s"};
 
     /*! Protocol's parameters */
-    unsigned int protocolMaxItemsNum;
+    unsigned int protocolMaxItemsNum = 0;
     unsigned int protocolWordOffset;
     unsigned int protocolItemsWordsNum;
     double protocolFpgaClockFrequencyHz = 10.0e6;
@@ -466,56 +480,58 @@ protected:
     RangedMeasurement_t protocolFrequencyRange;
     RangedMeasurement_t positiveProtocolFrequencyRange;
 
-    uint32_t clampingModalitiesNum;
+    uint16_t selectedProtocolItemsNum = 0;
+
+    uint32_t clampingModalitiesNum = 0;
     uint32_t selectedClampingModalityIdx = 0;
     uint32_t selectedClampingModality = VOLTAGE_CLAMP;
     std::vector <ClampingModality_t> clampingModalitiesArray;
-    uint16_t defaultClampingModalityIdx;
+    uint16_t defaultClampingModalityIdx = 0;
 
-    uint32_t vcCurrentRangesNum;
+    uint32_t vcCurrentRangesNum = 0;
     uint32_t selectedVcCurrentRangeIdx = 0;
     std::vector <RangedMeasurement_t> vcCurrentRangesArray;
-    uint16_t defaultVcCurrentRangeIdx;
+    uint16_t defaultVcCurrentRangeIdx = 0;
 
-    uint32_t vcVoltageRangesNum;
+    uint32_t vcVoltageRangesNum = 0;
     uint32_t selectedVcVoltageRangeIdx = 0;
     std::vector <RangedMeasurement_t> vcVoltageRangesArray;
-    uint16_t defaultVcVoltageRangeIdx;
+    uint16_t defaultVcVoltageRangeIdx = 0;
 
-    uint32_t liquidJunctionRangesNum;
+    uint32_t liquidJunctionRangesNum = 0;
     uint32_t selectedLiquidJunctionRangeIdx = 0;
     std::vector <RangedMeasurement_t> liquidJunctionRangesArray;
-    uint16_t defaultLiquidJunctionRangeIdx;
+    uint16_t defaultLiquidJunctionRangeIdx = 0;
 
-    uint32_t ccCurrentRangesNum;
+    uint32_t ccCurrentRangesNum = 0;
     uint32_t selectedCcCurrentRangeIdx = 0;
     std::vector <RangedMeasurement_t> ccCurrentRangesArray;
-    uint16_t defaultCcCurrentRangeIdx;
+    uint16_t defaultCcCurrentRangeIdx = 0;
 
-    uint32_t ccVoltageRangesNum;
+    uint32_t ccVoltageRangesNum = 0;
     uint32_t selectedCcVoltageRangeIdx = 0;
     std::vector <RangedMeasurement_t> ccVoltageRangesArray;
-    uint16_t defaultCcVoltageRangeIdx;
+    uint16_t defaultCcVoltageRangeIdx = 0;
 
-    uint32_t vcCurrentFiltersNum;
+    uint32_t vcCurrentFiltersNum = 0;
     uint32_t selectedVcCurrentFilterIdx = 0;
     std::vector <Measurement_t> vcCurrentFiltersArray;
-    uint16_t defaultVcCurrentFilterIdx;
+    uint16_t defaultVcCurrentFilterIdx = 0;
 
-    uint32_t vcVoltageFiltersNum;
+    uint32_t vcVoltageFiltersNum = 0;
     uint32_t selectedVcVoltageFilterIdx = 0;
     std::vector <Measurement_t> vcVoltageFiltersArray;
-    uint16_t defaultVcVoltageFilterIdx;
+    uint16_t defaultVcVoltageFilterIdx = 0;
 
-    uint32_t ccCurrentFiltersNum;
+    uint32_t ccCurrentFiltersNum = 0;
     uint32_t selectedCcCurrentFilterIdx = 0;
     std::vector <Measurement_t> ccCurrentFiltersArray;
-    uint16_t defaultCcCurrentFilterIdx;
+    uint16_t defaultCcCurrentFilterIdx = 0;
 
-    uint32_t ccVoltageFiltersNum;
+    uint32_t ccVoltageFiltersNum = 0;
     uint32_t selectedCcVoltageFilterIdx = 0;
     std::vector <Measurement_t> ccVoltageFiltersArray;
-    uint16_t defaultCcVoltageFilterIdx;
+    uint16_t defaultCcVoltageFilterIdx = 0;
 
     uint32_t samplingRatesNum;
     std::vector <Measurement_t> samplingRatesArray;
@@ -532,6 +548,7 @@ protected:
     std::vector<Measurement_t> selectedCurrentHalfVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
 
     std::vector<Measurement_t> selectedLiquidJunctionVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<int16_t> ccLiquidJunctionVector;
 
     RangedMeasurement_t gateVoltageRange;
     std::vector<Measurement_t> selectedGateVoltageVector;
@@ -598,7 +615,6 @@ protected:
     std::string deviceId;
     std::string deviceName;
 
-    bool connected = false;
     bool threadsStarted = false;
     bool stopConnectionFlag = false;
     bool parsingFlag = false;
@@ -623,11 +639,9 @@ protected:
 
     Measurement_t samplingRate = {200.0, UnitPfxKilo, "Hz"};
     Measurement_t integrationStep = {5.0, UnitPfxMicro, "s"};
+    Measurement_t stateArrayReactionTime = {0.0, UnitPfxMicro, "s"};
 
     std::vector <uint16_t> allChannelIndexes;
-
-    /*! Protocols variables */
-    uint16_t selectedProtocolItemsNum = 0;
 
     /***********************\
      *  Filters variables  *
@@ -650,8 +664,8 @@ protected:
     double iirINum[IIR_ORD+1];
     double iirIDen[IIR_ORD+1];
 
-    double ** iirX;
-    double ** iirY;
+    double ** iirX = nullptr;
+    double ** iirY = nullptr;
 
     uint16_t iirOff = 0;
 
