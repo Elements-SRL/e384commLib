@@ -293,9 +293,11 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
                 /*! \todo FCON let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
                 liquidJunctionControlPending = false;
             }
-            txMsgBufferNotFull.notify_all();
         }
         txMutexLock.unlock();
+        if (anyOperationPerformed) {
+            txMsgBufferNotFull.notify_all();
+        }
 
         /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
         if (waitingTimeForReadingPassed) {
