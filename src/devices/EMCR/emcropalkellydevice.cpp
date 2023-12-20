@@ -287,19 +287,13 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         txMutexLock.lock();
         while (txMsgBufferReadLength > 0) {
             anyOperationPerformed = true;
-//            txMutexLock.unlock();
-
             this->sendCommandsToDevice();
-
-//            txMutexLock.lock();
             txMsgBufferReadLength--;
             if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
                 /*! \todo FCON let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
                 liquidJunctionControlPending = false;
             }
-//            txMutexLock.unlock();
             txMsgBufferNotFull.notify_all();
-
         }
         txMutexLock.unlock();
 
