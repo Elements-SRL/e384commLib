@@ -285,24 +285,23 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         \***********************/
 
         txMutexLock.lock();
-        if (txMsgBufferReadLength > 0) {
+        while (txMsgBufferReadLength > 0) {
             anyOperationPerformed = true;
-            txMutexLock.unlock();
+//            txMutexLock.unlock();
 
             this->sendCommandsToDevice();
 
-            txMutexLock.lock();
+//            txMutexLock.lock();
             txMsgBufferReadLength--;
             if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
                 /*! \todo FCON let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
                 liquidJunctionControlPending = false;
             }
-            txMutexLock.unlock();
+//            txMutexLock.unlock();
             txMsgBufferNotFull.notify_all();
 
-        } else {
-            txMutexLock.unlock();
         }
+        txMutexLock.unlock();
 
         /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
         if (waitingTimeForReadingPassed) {
