@@ -246,6 +246,14 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return std::make_tuple(res, vNum, cNum);
     }, "Get the number of voltage and current channels");
 
+    m.def("setDebugBit",[](uint16_t wordOffset, uint16_t bitOffset){
+        return md->setDebugBit(wordOffset, bitOffset, true);
+    });
+
+    m.def("setDebugWord",[](uint16_t wordOffset, uint16_t wordValue){
+        return md->setDebugWord(wordOffset, wordValue);
+    });
+
 //    todo completare gli error codes
     py::enum_<ErrorCodes_t>(m, "ErrorCodes")
             .value("Success",                           Success)
