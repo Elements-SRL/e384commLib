@@ -110,7 +110,6 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return md->setCalibCcCurrentGain(channelIndexes, gains, true);
     });
 
-
     m.def("setVCVoltageRange",[](uint16_t voltageRangeIdx){
         return md->setVCVoltageRange(voltageRangeIdx, true);
     });
@@ -124,8 +123,29 @@ PYBIND11_MODULE(e384CommLibPython, m) {
     m.def("setCCCurrentRange",[](uint16_t currentRangeIdx){
         return md->setCCCurrentRange(currentRangeIdx, true);
     });
+    m.def("ccAdcGainConfigurationSetup",[](std::vector<uint16_t> channelIndexes){
+        std::vector<bool> offValues;
+        std::vector<bool> onValues;
+        for(auto v: channelIndexes) {
+            offValues.push_back(false);
+            onValues.push_back(true);
+        }
+        md->turnCalSwOn(channelIndexes, onValues, true);
+        md->turnVcSwOn(channelIndexes, onValues, true);
+        md->turnCcSwOn(channelIndexes, onValues, true);
+        md->enableCcStimulus(channelIndexes, offValues, true);
+        md->turnVcCcSelOn(channelIndexes, offValues, true);
+        md->setSourceForVoltageChannel(1, true);
+        md->setSourceForCurrentChannel(0, true);
+        return Success;
+    });
+    m.def("setCcConfiguration",[](){
+        return md->setClampingModality(ClampingModality_t::CURRENT_CLAMP, true);
 
-
+    });
+    m.def("setVcConfiguration",[](){
+        return md->setClampingModality(ClampingModality_t::VOLTAGE_CLAMP, true);
+    });
     m.def("getBufferedVoltagesAndCurrents", [](){
         RxOutput_t rxOutput;
         ErrorCodes_t err = md->getNextMessage(rxOutput, data);
@@ -187,10 +207,43 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return std::make_tuple(res, vNum, cNum);
     }, "Get the number of voltage and current channels");
 
+    m.def("setDebugBit",[](uint16_t wordOffset, uint16_t bitOffset){
+        return md->setDebugBit(wordOffset, bitOffset, true);
+    });
+
+    m.def("setDebugWord",[](uint16_t wordOffset, uint16_t wordValue){
+        return md->setDebugWord(wordOffset, wordValue);
+    });
+
+    m.def("getClampingModality",[](){
+        ClampingModality_t c;
+        auto err = md->getClampingModality(c);
+        return std::make_tuple(err, c);
+    });
+
+    m.def("getVCVoltageRange",[](){
+        RangedMeasurement_t voltageRange;
+        ErrorCodes_t res = md->getVCVoltageRange(voltageRange);
+        return std::make_tuple(res, voltageRange);
+    });
+
+    m.def("getCCVoltageRange",[](){
+        RangedMeasurement_t voltageRange;
+        ErrorCodes_t res = md->getCCVoltageRange(voltageRange);
+        return std::make_tuple(res, voltageRange);
+    });
+
+    py::enum_<ClampingModality_t>(m, "ClampingModality")
+            .value("VoltageClamp",      ClampingModality_t::VOLTAGE_CLAMP)
+            .value("CurrentClamp",      ClampingModality_t::CURRENT_CLAMP)
+            .value("DynamicClamp",      ClampingModality_t::DYNAMIC_CLAMP)
+            .value("ZeroCurrentClamp",  ClampingModality_t::ZERO_CURRENT_CLAMP)
+            .export_values();
+
 //    todo completare gli error codes
     py::enum_<ErrorCodes_t>(m, "ErrorCodes")
             .value("Success",                           Success)
-            .value("ErrorNoDataAvailable",             ErrorNoDataAvailable)
+            .value("ErrorNoDataAvailable",              ErrorNoDataAvailable)
             .value("ErrorNoDeviceFound",                ErrorNoDeviceFound)
             .value("ErrorListDeviceFailed",             ErrorListDeviceFailed)
             .value("ErrorEepromAlreadyConnected",       ErrorEepromAlreadyConnected)
