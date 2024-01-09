@@ -713,7 +713,7 @@ typedef struct RangedMeasurement {
      *
      * \return Measurement_t equivalent to the max value of the range.
      */
-    Measurement_t getMax(E384CL_ARGVOID) {
+    Measurement_t getMax(E384CL_ARGVOID) const {
         Measurement_t extreme;
         extreme.value = max;
         extreme.prefix = prefix;
@@ -725,7 +725,7 @@ typedef struct RangedMeasurement {
      *
      * \return Measurement_t equivalent to the min value of the range.
      */
-    Measurement_t getMin(E384CL_ARGVOID) {
+    Measurement_t getMin(E384CL_ARGVOID) const {
         Measurement_t extreme;
         extreme.value = min;
         extreme.prefix = prefix;
@@ -737,7 +737,7 @@ typedef struct RangedMeasurement {
      *
      * \return Measurement_t equivalent to the x-th step of the range.
      */
-    Measurement_t getXth(E384CL_ARGIN uint32_t x) {
+    Measurement_t getXth(E384CL_ARGIN uint32_t x) const {
         Measurement_t xth;
         xth.value = min+step*static_cast <double> (x);
         xth.prefix = prefix;
@@ -786,6 +786,46 @@ inline bool operator == (const RangedMeasurement_t &a, const RangedMeasurement_t
 */
 inline bool operator != (const RangedMeasurement_t &a, const RangedMeasurement_t &b) {
     return !(a == b);
+}
+
+/*! \brief Overloaded inequality check for #RangedMeasurement_t.
+ *
+ * \param a [in] First item of the comparison.
+ * \param b [in] Second item of the comparison.
+ * \return true if \p a.getMax() is smaller than \p b.getMax() after they have been converted to have the same prefix. \note Returns false if \p a and \p b have different units.
+*/
+inline bool operator < (const RangedMeasurement_t &a, const RangedMeasurement_t &b) {
+    return a.getMax() < b.getMax();
+}
+
+/*! \brief Overloaded inequality check for #RangedMeasurement_t.
+ *
+ * \param a [in] First item of the comparison.
+ * \param b [in] Second item of the comparison.
+ * \return true if \p a.getMax() is smaller than or equal to \p b.getMax() after they have been converted to have the same prefix. \note Returns false if \p a and \p b have different units.
+*/
+inline bool operator <= (const RangedMeasurement_t &a, const RangedMeasurement_t &b) {
+    return a.getMax() <= b.getMax();
+}
+
+/*! \brief Overloaded inequality check for #RangedMeasurement_t.
+ *
+ * \param a [in] First item of the comparison.
+ * \param b [in] Second item of the comparison.
+ * \return true if \p a.getMax() is greater than \p b.getMax() after they have been converted to have the same prefix. \note Returns false if \p a and \p b have different units.
+*/
+inline bool operator > (const RangedMeasurement_t &a, const RangedMeasurement_t &b) {
+    return a.getMax() > b.getMax();
+}
+
+/*! \brief Overloaded inequality check for #RangedMeasurement_t.
+ *
+ * \param a [in] First item of the comparison.
+ * \param b [in] Second item of the comparison.
+ * \return true if \p a.getMax() is greater than or equal to \p b.getMax() after they have been converted to have the same prefix. \note Returns false if \p a and \p b have different units.
+*/
+inline bool operator >= (const RangedMeasurement_t &a, const RangedMeasurement_t &b) {
+    return a.getMax() >= b.getMax();
 }
 
 /*! \struct CompensationControl_t

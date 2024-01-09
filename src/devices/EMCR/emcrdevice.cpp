@@ -848,11 +848,11 @@ ErrorCodes_t EmcrDevice::enableCcStimulus(std::vector<uint16_t> channelIndexes, 
 }
 
 ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
-    /*! \todo FCON questo potrbbe sparire se è chiamato solo dal suo overload */
     if (idx >= clampingModalitiesNum) {
         return ErrorValueOutOfRange;
     }
     selectedClampingModalityIdx = idx;
+    previousClampingModality = selectedClampingModality;
     selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];
     if (clampingModeCoder != nullptr) {
         clampingModeCoder->encode(selectedClampingModalityIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -871,12 +871,17 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
 
         this->enableCcCompensations(false);
         this->turnCurrentReaderOn(true, false);
-        this->turnVoltageStimulusOn(true, false);
+        this->turnVoltageStimulusOn(true, true);
+        /*! Apply on previous command to turn the voltage clamp on first */
         this->turnCurrentStimulusOn(false, false);
         this->turnVoltageReaderOn(false, false);
-        this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
+        if (previousClampingModality == VOLTAGE_CLAMP) {
+            this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
+
+        } else {
+            this->setVCCurrentRange(storedVcCurrentRangeIdx, false);
+        }
         this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
-        /*! \todo FCON Ripristinare range di corrente precedente */
         this->enableVcCompensations(true);
 
         this->setSourceForVoltageChannel(0, false);
@@ -895,10 +900,18 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
         }
 
-        this->enableVcCompensations(false);
-        /*! \todo FCON Settare anche il range di corrente più alto */
+        if (previousClampingModality == VOLTAGE_CLAMP) {
+            this->enableVcCompensations(false);
+            storedVcCurrentRangeIdx = selectedVcCurrentRangeIdx;
+            RangedMeasurement_t range;
+            uint32_t idx;
+            this->getMaxVCCurrentRange(range, idx);
+            this->setVCCurrentRange(idx, true);
+            /*! Apply on previous command to set the lowest input impedance first */
+        }
         this->turnVoltageReaderOn(true, false);
-        this->turnCurrentStimulusOn(false, false);
+        this->turnCurrentStimulusOn(false, true);
+        /*! Apply on previous command to turn the current clamp on then */
         this->turnVoltageStimulusOn(false, false);
         this->turnCurrentReaderOn(false, false);
         this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
@@ -921,10 +934,18 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
         }
 
-        this->enableVcCompensations(false);
-        /*! \todo FCON Settare anche il range di corrente più alto */
+        if (previousClampingModality == VOLTAGE_CLAMP) {
+            this->enableVcCompensations(false);
+            storedVcCurrentRangeIdx = selectedVcCurrentRangeIdx;
+            RangedMeasurement_t range;
+            uint32_t idx;
+            this->getMaxVCCurrentRange(range, idx);
+            this->setVCCurrentRange(idx, true);
+            /*! Apply on previous command to set the lowest input impedance first */
+        }
         this->turnVoltageReaderOn(true, false);
-        this->turnCurrentStimulusOn(true, false);
+        this->turnCurrentStimulusOn(true, true);
+        /*! Apply on previous command to turn the current clamp on then */
         this->turnVoltageStimulusOn(false, false);
         this->turnCurrentReaderOn(false, false);
         this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);

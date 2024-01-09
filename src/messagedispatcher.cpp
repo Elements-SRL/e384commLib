@@ -781,6 +781,78 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(uint32_t &idx) {
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::getMaxVCCurrentRange(RangedMeasurement_t &range, uint32_t &idx) {
+    if (vcCurrentRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    idx = std::distance(vcCurrentRangesArray.begin(), std::max_element(vcCurrentRangesArray.begin(), vcCurrentRangesArray.end()));
+    range = vcCurrentRangesArray[idx];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getMinVCCurrentRange(RangedMeasurement_t &range, uint32_t &idx) {
+    if (vcCurrentRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    idx = std::distance(vcCurrentRangesArray.begin(), std::min_element(vcCurrentRangesArray.begin(), vcCurrentRangesArray.end()));
+    range = vcCurrentRangesArray[idx];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getMaxVCVoltageRange(RangedMeasurement_t &range, uint32_t &idx) {
+    if (vcVoltageRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    idx = std::distance(vcVoltageRangesArray.begin(), std::max_element(vcVoltageRangesArray.begin(), vcVoltageRangesArray.end()));
+    range = vcVoltageRangesArray[idx];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getMinVCVoltageRange(RangedMeasurement_t &range, uint32_t &idx) {
+    if (vcVoltageRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    idx = std::distance(vcVoltageRangesArray.begin(), std::min_element(vcVoltageRangesArray.begin(), vcVoltageRangesArray.end()));
+    range = vcVoltageRangesArray[idx];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getMaxCCCurrentRange(RangedMeasurement_t &range, uint32_t &idx) {
+    if (ccCurrentRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    idx = std::distance(ccCurrentRangesArray.begin(), std::max_element(ccCurrentRangesArray.begin(), ccCurrentRangesArray.end()));
+    range = ccCurrentRangesArray[idx];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getMinCCCurrentRange(RangedMeasurement_t &range, uint32_t &idx) {
+    if (ccCurrentRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    idx = std::distance(ccCurrentRangesArray.begin(), std::min_element(ccCurrentRangesArray.begin(), ccCurrentRangesArray.end()));
+    range = ccCurrentRangesArray[idx];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getMaxCCVoltageRange(RangedMeasurement_t &range, uint32_t &idx) {
+    if (ccVoltageRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    idx = std::distance(ccVoltageRangesArray.begin(), std::max_element(ccVoltageRangesArray.begin(), ccVoltageRangesArray.end()));
+    range = ccVoltageRangesArray[idx];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getMinCCVoltageRange(RangedMeasurement_t &range, uint32_t &idx) {
+    if (ccVoltageRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    idx = std::distance(ccVoltageRangesArray.begin(), std::min_element(ccVoltageRangesArray.begin(), ccVoltageRangesArray.end()));
+    range = ccVoltageRangesArray[idx];
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates) {
     if(samplingRatesArray.empty()){
         return ErrorFeatureNotImplemented;

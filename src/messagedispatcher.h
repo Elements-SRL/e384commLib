@@ -295,6 +295,15 @@ public:
     ErrorCodes_t getCCCurrentRangeIdx(uint32_t &idx);
     ErrorCodes_t getCCVoltageRangeIdx(uint32_t &idx);
 
+    ErrorCodes_t getMaxVCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMinVCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMaxVCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMinVCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMaxCCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMinCCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMaxCCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMinCCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+
     ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates);
     ErrorCodes_t getSamplingRate(Measurement_t &samplingRate);
     ErrorCodes_t getSamplingRateIdx(uint32_t &idx);
@@ -485,11 +494,13 @@ protected:
     uint32_t clampingModalitiesNum = 0;
     uint32_t selectedClampingModalityIdx = 0;
     uint32_t selectedClampingModality = VOLTAGE_CLAMP;
+    uint32_t previousClampingModality = VOLTAGE_CLAMP;
     std::vector <ClampingModality_t> clampingModalitiesArray;
     uint16_t defaultClampingModalityIdx = 0;
 
     uint32_t vcCurrentRangesNum = 0;
     uint32_t selectedVcCurrentRangeIdx = 0;
+    uint32_t storedVcCurrentRangeIdx = 0;
     std::vector <RangedMeasurement_t> vcCurrentRangesArray;
     uint16_t defaultVcCurrentRangeIdx = 0;
 
