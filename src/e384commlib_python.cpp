@@ -82,6 +82,9 @@ PYBIND11_MODULE(e384CommLibPython, m) {
     m.def("setVoltageHoldTuner",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
         return md->setVoltageHoldTuner(channelIndexes, voltages, applyFlag);
     });
+    m.def("setCurrentHoldTuner",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
+        return md->setCurrentHoldTuner(channelIndexes, currents, applyFlag);
+    });
 //    Voltage Clamp Calibration
     m.def("setCalibVcVoltageOffsets",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages){
         return md->setCalibVcVoltageOffset(channelIndexes, voltages, true);
@@ -130,7 +133,7 @@ PYBIND11_MODULE(e384CommLibPython, m) {
             offValues.push_back(false);
             onValues.push_back(true);
         }
-        md->turnCalSwOn(channelIndexes, onValues, true);
+        md->turnCalSwOn(channelIndexes, offValues, true);
         md->turnVcSwOn(channelIndexes, onValues, true);
         md->turnCcSwOn(channelIndexes, onValues, true);
         md->enableCcStimulus(channelIndexes, offValues, true);
@@ -221,18 +224,55 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return std::make_tuple(err, c);
     });
 
-    m.def("getVCVoltageRange",[](){
+    m.def("getVoltageRange",[](){
         RangedMeasurement_t voltageRange;
-        ErrorCodes_t res = md->getVCVoltageRange(voltageRange);
-        return std::make_tuple(res, voltageRange);
+        md->getVoltageRange(voltageRange);
+        return voltageRange;
     });
 
-    m.def("getCCVoltageRange",[](){
-        RangedMeasurement_t voltageRange;
-        ErrorCodes_t res = md->getCCVoltageRange(voltageRange);
-        return std::make_tuple(res, voltageRange);
+    m.def("getCurrentRange",[](){
+        RangedMeasurement_t currentRange;
+        md->getCurrentRange(currentRange);
+        return currentRange;
     });
 
+    m.def("enableCcStimulus",[](std::vector<uint16_t> channelIndexes, bool status){
+        std::vector<bool> onValues;
+        for(auto i: channelIndexes){
+           onValues.push_back(status);
+        }
+        return md->enableCcStimulus(channelIndexes, onValues, true);
+    });
+
+    m.def("enableStimulus",[](std::vector<uint16_t> channelIndexes, bool status){
+        std::vector<bool> onValues;
+        for(auto i: channelIndexes){
+           onValues.push_back(status);
+        }
+        return md->enableStimulus(channelIndexes, onValues, true);
+    });
+
+    m.def("turnCalSwOn",[](std::vector<uint16_t> channelIndexes, bool status){
+        std::vector<bool> onValues;
+        for(auto i: channelIndexes){
+           onValues.push_back(status);
+        }
+        return md->turnCalSwOn(channelIndexes, onValues, true);
+    });
+
+    m.def("hasCalsSw",[](){
+        return md->hasCalSw() == ErrorCodes::Success;
+    });
+
+    m.def("turnInSwOn",[](std::vector<uint16_t> channelIndexes, bool status){
+        std::vector<bool> onValues;
+        for(auto i: channelIndexes){
+           onValues.push_back(status);
+        }
+        return md->turnChannelsOn(channelIndexes, onValues, true);
+    });
+
+    /*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
     py::enum_<ClampingModality_t>(m, "ClampingModality")
             .value("VoltageClamp",      ClampingModality_t::VOLTAGE_CLAMP)
             .value("CurrentClamp",      ClampingModality_t::CURRENT_CLAMP)

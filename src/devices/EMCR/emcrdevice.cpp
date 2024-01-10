@@ -775,6 +775,13 @@ ErrorCodes_t EmcrDevice::turnCalSwOn(std::vector<uint16_t> channelIndexes, std::
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::hasCalSw() {
+    if (calSwCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    return Success;
+}
+
 ErrorCodes_t EmcrDevice::turnVcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
     if (vcSwCoders.empty()) {
         return ErrorFeatureNotImplemented;

@@ -332,6 +332,10 @@ ErrorCodes_t MessageDispatcher::turnVcSwOn(std::vector<uint16_t> channelIndexes,
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::hasCalSw(){
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::turnCcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
     return ErrorFeatureNotImplemented;
 }
@@ -778,6 +782,16 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(uint32_t &idx) {
         return ErrorFeatureNotImplemented;
     }
     idx = selectedCcVoltageRangeIdx;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getVoltageRange(RangedMeasurement_t &range) {
+    range = voltageRange;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCurrentRange(RangedMeasurement_t &range) {
+    range = currentRange;
     return Success;
 }
 
