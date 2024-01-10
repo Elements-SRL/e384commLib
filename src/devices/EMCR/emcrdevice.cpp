@@ -212,11 +212,11 @@ ErrorCodes_t EmcrDevice::setLiquidJunctionVoltage(std::vector<uint16_t> channelI
     } else if (selectedClampingModality != VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
     }
-    for(uint32_t i = 0; i < channelIndexes.size(); i++){
-        voltages[i].convertValue(liquidJunctionRange.prefix);
-        voltages[i].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         selectedLiquidJunctionVector[channelIndexes[i]] = voltages[i];
-        channelModels[channelIndexes[i]]->setLiquidJunctionVoltage(voltages[i]);
+        this->updateLiquidJunctionVoltage(channelIndexes[i], false);
+        channelModels[channelIndexes[i]]->setLiquidJunctionVoltage(selectedLiquidJunctionVector[channelIndexes[i]]);
     }
 
     if (applyFlag) {
@@ -225,14 +225,47 @@ ErrorCodes_t EmcrDevice::setLiquidJunctionVoltage(std::vector<uint16_t> channelI
 
     if (!areAllTheVectorElementsInRange(voltages, liquidJunctionRange.getMin(), liquidJunctionRange.getMax())) {
         return WarningValueClipped;
-
     }
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool applyFlag) {
+    if (liquidJunctionVoltageCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (channelIdx >= currentChannelsNum) {
+        return ErrorValueOutOfRange;
+    }
+
+    if (selectedClampingModality == VOLTAGE_CLAMP) {
+        if (compRsCorrEnable.empty()) {
+            selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
+            selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
+        } else if (compRsCorrEnable[channelIdx]) {
+            calibrationParams.allOffsetRsCorrMeas[selectedVcCurrentRangeIdx][channelIdx].convertValue(liquidJunctionRange.prefix);
+            selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
+            selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value+calibrationParams.allOffsetRsCorrMeas[selectedVcCurrentRangeIdx][channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord)-calibrationParams.allOffsetRsCorrMeas[selectedVcCurrentRangeIdx][channelIdx].value;
+
+        } else {
+            selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
+            selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+
+    } else {
+        liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+
     return Success;
 }
 
 ErrorCodes_t EmcrDevice::resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlagIn) {
     std::vector<Measurement_t> voltages(channelIndexes.size(), {0.0, liquidJunctionRange.prefix, "V"});
-    return setLiquidJunctionVoltage(channelIndexes, voltages, applyFlagIn);
+    return this->setLiquidJunctionVoltage(channelIndexes, voltages, applyFlagIn);
 }
 
 ErrorCodes_t EmcrDevice::setGateVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag){
@@ -610,6 +643,9 @@ ErrorCodes_t EmcrDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool applyF
 
     this->updateCalibVcCurrentGain(allChannelIndexes, false);
     this->updateCalibVcCurrentOffset(allChannelIndexes, false);
+    for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        this->updateLiquidJunctionVoltage(channelIdx, false);
+    }
 
     if (applyFlagIn) {
         this->stackOutgoingMessage(txStatus);
@@ -865,11 +901,11 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
 
         /*! Restore liquid junction and remove it from the voltage reading */
         for (uint32_t i = 0; i < currentChannelsNum; i++) {
-            liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][i]->encode(selectedLiquidJunctionVector[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            this->updateLiquidJunctionVoltage(i, false);
             ccLiquidJunctionVector[i] = 0;
         }
 
-        this->enableCcCompensations(false);
+        this->enableCcCompensations(false, false);
         this->turnCurrentReaderOn(true, false);
         this->turnVoltageStimulusOn(true, true);
         /*! Apply on previous command to turn the voltage clamp on first */
@@ -882,7 +918,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
             this->setVCCurrentRange(storedVcCurrentRangeIdx, false);
         }
         this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
-        this->enableVcCompensations(true);
+        this->enableVcCompensations(true, false);
 
         this->setSourceForVoltageChannel(0, false);
         this->setSourceForCurrentChannel(0, false);
@@ -895,13 +931,13 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
 
         /*! Remove liquid junction and subtract it from voltage reading */
         for (uint32_t i = 0; i < currentChannelsNum; i++) {
-            liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][i]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            this->updateLiquidJunctionVoltage(i, false);
             selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
         }
 
         if (previousClampingModality == VOLTAGE_CLAMP) {
-            this->enableVcCompensations(false);
+            this->enableVcCompensations(false, false);
             storedVcCurrentRangeIdx = selectedVcCurrentRangeIdx;
             RangedMeasurement_t range;
             uint32_t idx;
@@ -916,7 +952,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
         this->turnCurrentReaderOn(false, false);
         this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
         this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
-        this->enableCcCompensations(true);
+        this->enableCcCompensations(true, false);
 
         this->setSourceForVoltageChannel(1, false);
         this->setSourceForCurrentChannel(1, false);
@@ -929,13 +965,13 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
 
         /*! Remove liquid junction and subtract it from voltage reading */
         for (uint32_t i = 0; i < currentChannelsNum; i++) {
-            liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][i]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            this->updateLiquidJunctionVoltage(i, false);
             selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
         }
 
         if (previousClampingModality == VOLTAGE_CLAMP) {
-            this->enableVcCompensations(false);
+            this->enableVcCompensations(false, false);
             storedVcCurrentRangeIdx = selectedVcCurrentRangeIdx;
             RangedMeasurement_t range;
             uint32_t idx;
@@ -950,7 +986,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
         this->turnCurrentReaderOn(false, false);
         this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
         this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
-        this->enableCcCompensations(true);
+        this->enableCcCompensations(true, false);
 
         this->setSourceForVoltageChannel(1, false);
         this->setSourceForCurrentChannel(1, false);

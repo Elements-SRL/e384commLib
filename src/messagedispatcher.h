@@ -213,8 +213,8 @@ public:
     virtual ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag);
 
     virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
-    virtual ErrorCodes_t enableVcCompensations(bool enable);
-    virtual ErrorCodes_t enableCcCompensations(bool enable);
+    virtual ErrorCodes_t enableVcCompensations(bool enable, bool applyFlagIn);
+    virtual ErrorCodes_t enableCcCompensations(bool enable, bool applyFlagIn);
     virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
     virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn);
     virtual ErrorCodes_t setLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);

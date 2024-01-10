@@ -1162,8 +1162,8 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
     if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
         /*! Initialization in voltage clamp */
         this->setClampingModality(VOLTAGE_CLAMP, false);
-        this->enableCcCompensations(false);
-        this->enableVcCompensations(true);
+        this->enableCcCompensations(false, false);
+        this->enableVcCompensations(true, false);
         this->enableStimulus(allChannelIndexes, allTrue, false);
         this->turnChannelsOn(allChannelIndexes, allTrue, false);
         this->turnCurrentReaderOn(true, false);
@@ -1877,11 +1877,11 @@ ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t>, uint16
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::enableVcCompensations(bool){
+ErrorCodes_t MessageDispatcher::enableVcCompensations(bool, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::enableCcCompensations(bool){
+ErrorCodes_t MessageDispatcher::enableCcCompensations(bool, bool){
     return ErrorFeatureNotImplemented;
 }
 

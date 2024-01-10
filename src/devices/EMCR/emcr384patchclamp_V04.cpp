@@ -1794,7 +1794,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_CpVc];
             }
         }
-    break;
+        break;
 
     case U_Cm:
         if(membraneCapEnCompensationCoders.size() == 0){
@@ -1805,7 +1805,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_Cm];
             }
         }
-    break;
+        break;
 
     case U_Rs:
         if(membraneCapTauValCompensationMultiCoders.size() == 0){
@@ -1816,7 +1816,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_Rs];
             }
         }
-    break;
+        break;
 
     case U_RsCp:
         if(rsCorrValCompensationCoders.size() == 0){
@@ -1827,7 +1827,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_RsCp];
             }
         }
-    break;
+        break;
     case U_RsPg:
         if(rsPredEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
@@ -1837,7 +1837,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_RsPg];
             }
         }
-    break;
+        break;
     case U_CpCc:
         if(rsPredEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
@@ -1847,14 +1847,16 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_CpCc];
             }
         }
-    break;
+        break;
+
+    default:
+        return ErrorFeatureNotImplemented;
     }
     return Success;
 }
 
 ErrorCodes_t Emcr384PatchClamp_V04::getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray){
-    switch(type)
-    {
+    switch(type) {
     case CompRsCorr:
         if(rsCorrBwArray.size()==0){
             return ErrorFeatureNotImplemented;
@@ -1866,7 +1868,10 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompOptionsFeatures(CompensationTypes typ
             return Success;
         }
 
-    break;
+        break;
+
+    default:
+        return ErrorFeatureNotImplemented;
     }
 }
 
@@ -1884,7 +1889,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompensationEnables(std::vector<uint16_t>
         for(int i = 0; i<channelIndexes.size(); i++){
             onValues[i] = compCfastEnable[channelIndexes[i]];
         }
-    break;
+        break;
 
     case CompCslow:
         if(membraneCapEnCompensationCoders.size() == 0 ){
@@ -1893,7 +1898,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompensationEnables(std::vector<uint16_t>
         for(int i = 0; i<channelIndexes.size(); i++){
             onValues[i] = compCslowEnable[channelIndexes[i]];
         }
-    break;
+        break;
 
     case CompRsCorr:
         if(rsCorrEnCompensationCoders.size() == 0){
@@ -1902,7 +1907,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompensationEnables(std::vector<uint16_t>
         for(int i = 0; i<channelIndexes.size(); i++){
             onValues[i] = compRsCorrEnable[channelIndexes[i]];
         }
-    break;
+        break;
 
     case CompRsPred:
         if(rsPredEnCompensationCoders.size() == 0){
@@ -1911,7 +1916,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompensationEnables(std::vector<uint16_t>
         for(int i = 0; i<channelIndexes.size(); i++){
             onValues[i] = compRsPredEnable[channelIndexes[i]] = onValues[i];
         }
-    break;
+        break;
 
     case CompCcCfast:
         if(pipetteCapCcEnCompensationCoders.size() == 0){
@@ -1920,14 +1925,19 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompensationEnables(std::vector<uint16_t>
         for(int i = 0; i<channelIndexes.size(); i++){
             onValues[i] = compCcCfastEnable[channelIndexes[i]];
         }
-    break;
+        break;
+
+    default:
+        return ErrorFeatureNotImplemented;
     }
 
-return Success;
+    return Success;
 }
 
 ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
+#ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
+#endif
     switch(compTypeToEnable){
     case CompCfast:
         if(pipetteCapEnCompensationCoders.size() == 0){
@@ -1980,6 +1990,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> cha
             compRsCorrEnable[channelIndexes[i]] = onValues[i];
             rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingRsCp(onValues[i]);
+            this->updateLiquidJunctionVoltage(channelIndexes[i], false);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
@@ -2024,6 +2035,9 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> cha
 
         }
         break;
+
+    default:
+        return ErrorFeatureNotImplemented;
     }
 
 #ifdef DEBUG_TX_DATA_PRINT
@@ -2039,7 +2053,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> cha
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V04::enableVcCompensations(bool enable){
+ErrorCodes_t Emcr384PatchClamp_V04::enableVcCompensations(bool enable, bool applyFlagIn){
     areVcCompsEnabled = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
@@ -2047,8 +2061,12 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableVcCompensations(bool enable){
         membraneCapEnCompensationCoders[i]->encode(areVcCompsEnabled && compCslowEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
         rsCorrEnCompensationCoders[i]->encode(areVcCompsEnabled && compRsCorrEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
         rsPredEnCompensationCoders[i]->encode(areVcCompsEnabled && compRsPredEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        this->updateLiquidJunctionVoltage(i, false);
     }
 
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
 #ifdef DEBUG_TX_DATA_PRINT
     std::fprintf(txFid, "Vc comps enabled %d\n", enable);
     std::fflush(txFid);
@@ -2057,13 +2075,16 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableVcCompensations(bool enable){
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V04::enableCcCompensations(bool enable){
+ErrorCodes_t Emcr384PatchClamp_V04::enableCcCompensations(bool enable, bool applyFlagIn){
     areCcCompsEnabled = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
         pipetteCapCcEnCompensationCoders[i]->encode(areCcCompsEnabled && compCcCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
+    if (applyFlagIn) {
+        this->stackOutgoingMessage(txStatus);
+    }
 #ifdef DEBUG_TX_DATA_PRINT
     std::fprintf(txFid, "Cc comps enabled %d\n", enable);
     std::fflush(txFid);

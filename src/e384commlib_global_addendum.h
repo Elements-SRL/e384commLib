@@ -899,6 +899,7 @@ typedef struct CalibrationParams {
     std::vector<std::vector<Measurement_t>> allOffsetAdcMeas;
     std::vector<std::vector<Measurement_t>> allGainDacMeas;
     std::vector<std::vector<Measurement_t>> allOffsetDacMeas;
+    std::vector<std::vector<Measurement_t>> allOffsetRsCorrMeas;
     std::vector<std::vector<Measurement_t>> ccAllGainAdcMeas;
     std::vector<std::vector<Measurement_t>> ccAllOffsetAdcMeas;
     std::vector<std::vector<Measurement_t>> ccAllGainDacMeas;
