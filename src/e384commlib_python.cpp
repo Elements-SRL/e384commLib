@@ -274,10 +274,10 @@ PYBIND11_MODULE(e384CommLibPython, m) {
 
     /*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
     py::enum_<ClampingModality_t>(m, "ClampingModality")
-            .value("VoltageClamp",      ClampingModality_t::VOLTAGE_CLAMP)
-            .value("CurrentClamp",      ClampingModality_t::CURRENT_CLAMP)
-            .value("DynamicClamp",      ClampingModality_t::DYNAMIC_CLAMP)
-            .value("ZeroCurrentClamp",  ClampingModality_t::ZERO_CURRENT_CLAMP)
+            .value("VOLTAGE_CLAMP",      ClampingModality_t::VOLTAGE_CLAMP)
+            .value("CURRENT_CLAMP",      ClampingModality_t::CURRENT_CLAMP)
+            .value("DYNAMIC_CLAMP",      ClampingModality_t::DYNAMIC_CLAMP)
+            .value("ZERO_CURRENT_CLAMP",  ClampingModality_t::ZERO_CURRENT_CLAMP)
             .export_values();
 
 //    todo completare gli error codes
