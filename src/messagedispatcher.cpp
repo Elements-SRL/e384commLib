@@ -180,11 +180,11 @@ ErrorCodes_t MessageDispatcher::startStateArray() {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::resetAsic(bool resetFlag, bool applyFlagIn) {
+ErrorCodes_t MessageDispatcher::resetAsic(bool resetFlag, bool applyFlag) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::resetFpga(bool resetFlag, bool applyFlagIn) {
+ErrorCodes_t MessageDispatcher::resetFpga(bool resetFlag, bool applyFlag) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -208,7 +208,7 @@ ErrorCodes_t MessageDispatcher::setLiquidJunctionVoltage(std::vector<uint16_t> c
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlagIn) {
+ErrorCodes_t MessageDispatcher::resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlag) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -288,19 +288,19 @@ ErrorCodes_t MessageDispatcher::updateCalibCcCurrentOffset(std::vector<uint16_t>
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) {
+ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) {
+ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) {
+ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) {
+ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -308,11 +308,11 @@ ErrorCodes_t MessageDispatcher::setLiquidJunctionRange(uint16_t idx) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn) {
+ErrorCodes_t MessageDispatcher::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn) {
+ErrorCodes_t MessageDispatcher::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlag) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -375,7 +375,7 @@ ErrorCodes_t MessageDispatcher::setAdcFilter() {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn) {
+ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
     return ErrorFeatureNotImplemented;
 }
 

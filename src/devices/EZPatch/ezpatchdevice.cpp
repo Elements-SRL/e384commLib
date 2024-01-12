@@ -137,7 +137,7 @@ ErrorCodes_t EZPatchDevice::resetAsic(bool resetFlag, bool applyFlag) {
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::resetFpga(bool resetFlag, bool applyFlagIn) {
+ErrorCodes_t EZPatchDevice::resetFpga(bool resetFlag, bool applyFlag) {
     if (resetFlag) {
         return this->resetFpga();
     }
@@ -154,7 +154,7 @@ ErrorCodes_t EZPatchDevice::resetFpga() {
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn) {
+ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag) {
     ErrorCodes_t ret = Success;
     for (unsigned int idx; idx < channelIndexes.size(); idx++) {
         if (ret == Success) {
@@ -164,7 +164,7 @@ ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(std::vector<uint16_t> channelInd
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn) {
+ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag) {
     ErrorCodes_t ret = Success;
     for (unsigned int idx; idx < channelIndexes.size(); idx++) {
         if (ret == Success) {

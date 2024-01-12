@@ -71,11 +71,11 @@ public:
     ErrorCodes_t ping();
 
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlag) override;
-    virtual ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn) override;
+    virtual ErrorCodes_t resetFpga(bool resetFlag, bool applyFlag) override;
     virtual ErrorCodes_t resetFpga();
 
-    ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn) override;
-    ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn) override;
+    ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag) override;
+    ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag) override;
     ErrorCodes_t setVoltageHoldTuner(uint16_t channelIdx, Measurement_t voltage);
     ErrorCodes_t setCurrentHoldTuner(uint16_t channelIdx, Measurement_t current);
 
@@ -88,11 +88,11 @@ public:
     virtual ErrorCodes_t setChannelsSources(int16_t voltageSourcesIdxs, int16_t currentSourcesIdxs);
 
     ErrorCodes_t turnOnLsbNoise(bool flag);
-    virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) override;
-    virtual ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) override;
-    ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) override;
-    ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) override;
-    virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn) override;
+    virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
+    virtual ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
+    ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
+    ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
+    virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
     virtual ErrorCodes_t digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
     virtual ErrorCodes_t digitalOffsetCompensation(uint16_t channelIdx);

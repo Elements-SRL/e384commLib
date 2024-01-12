@@ -1934,7 +1934,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::getCompensationEnables(std::vector<uint16_t>
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
@@ -2047,13 +2047,13 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> cha
     std::fflush(txFid);
 #endif
 
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V04::enableVcCompensations(bool enable, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V04::enableVcCompensations(bool enable, bool applyFlag){
     areVcCompsEnabled = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
@@ -2064,7 +2064,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableVcCompensations(bool enable, bool appl
         this->updateLiquidJunctionVoltage(i, false);
     }
 
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
 #ifdef DEBUG_TX_DATA_PRINT
@@ -2075,14 +2075,14 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableVcCompensations(bool enable, bool appl
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V04::enableCcCompensations(bool enable, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V04::enableCcCompensations(bool enable, bool applyFlag){
     areCcCompsEnabled = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
         pipetteCapCcEnCompensationCoders[i]->encode(areCcCompsEnabled && compCcCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
 #ifdef DEBUG_TX_DATA_PRINT
@@ -2092,7 +2092,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableCcCompensations(bool enable, bool appl
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V04::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V04::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag){
     std::string debugString = "";
     // make local copy of the user domain param vectors
     std::vector<std::vector<double>> localCompValueSubMatrix;
@@ -2207,13 +2207,13 @@ ErrorCodes_t Emcr384PatchClamp_V04::setCompValues(std::vector<uint16_t> channelI
     //end for
     }
     // stack outgoing message
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V04::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V04::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlag){
     std::string debugString = "";
     switch(type)
     {
@@ -2229,7 +2229,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::setCompOptions(std::vector<uint16_t> channel
                 rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             }
 
-            if (applyFlagIn) {
+            if (applyFlag) {
                 this->stackOutgoingMessage(txStatus);
             }
             return Success;
@@ -2238,7 +2238,7 @@ ErrorCodes_t Emcr384PatchClamp_V04::setCompOptions(std::vector<uint16_t> channel
     }
 }
 
-ErrorCodes_t Emcr384PatchClamp_V04::turnVoltageReaderOn(bool onValueIn, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V04::turnVoltageReaderOn(bool onValueIn, bool applyFlag){
     std::vector<bool> allTheTrueIneed;
     std::vector<bool> allTheFalseIneed;
 
@@ -2251,17 +2251,17 @@ ErrorCodes_t Emcr384PatchClamp_V04::turnVoltageReaderOn(bool onValueIn, bool app
         this->turnCcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheFalseIneed, false);
         this->updateCalibCcVoltageGain(allChannelIndexes, false);
-        this->updateCalibCcVoltageOffset(allChannelIndexes, applyFlagIn);
+        this->updateCalibCcVoltageOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
 
     } else {
-        this->turnCcSwOn(allChannelIndexes, allTheFalseIneed, applyFlagIn);
+        this->turnCcSwOn(allChannelIndexes, allTheFalseIneed, applyFlag);
     }
 
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V04::turnCurrentReaderOn(bool onValueIn, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V04::turnCurrentReaderOn(bool onValueIn, bool applyFlag){
     std::vector<bool> allTheTrueIneed;
     std::vector<bool> allTheFalseIneed;
 
@@ -2274,11 +2274,11 @@ ErrorCodes_t Emcr384PatchClamp_V04::turnCurrentReaderOn(bool onValueIn, bool app
         this->turnVcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheTrueIneed, false);
         this->updateCalibVcCurrentGain(allChannelIndexes, false);
-        this->updateCalibVcCurrentOffset(allChannelIndexes, applyFlagIn);
+        this->updateCalibVcCurrentOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
 
     }else{
-        this->turnVcSwOn(allChannelIndexes, allTheFalseIneed, applyFlagIn);
+        this->turnVcSwOn(allChannelIndexes, allTheFalseIneed, applyFlag);
     }
 
     return Success;

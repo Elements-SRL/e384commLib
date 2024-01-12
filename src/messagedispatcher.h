@@ -132,14 +132,14 @@ public:
     virtual ErrorCodes_t startProtocol();
     virtual ErrorCodes_t startStateArray();
 
-    virtual ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true);
-    virtual ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn = true);
-    virtual ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
-    virtual ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn);
-    virtual ErrorCodes_t setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
-    virtual ErrorCodes_t setCurrentHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn);
-    virtual ErrorCodes_t setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
-    virtual ErrorCodes_t resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlagIn);
+    virtual ErrorCodes_t resetAsic(bool resetFlag, bool applyFlag = true);
+    virtual ErrorCodes_t resetFpga(bool resetFlag, bool applyFlag = true);
+    virtual ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag);
+    virtual ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag);
+    virtual ErrorCodes_t setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag);
+    virtual ErrorCodes_t setCurrentHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag);
+    virtual ErrorCodes_t setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag);
+    virtual ErrorCodes_t resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlag);
     virtual ErrorCodes_t setGateVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
     virtual ErrorCodes_t setSourceVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag);
 
@@ -161,14 +161,14 @@ public:
     virtual ErrorCodes_t setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
     virtual ErrorCodes_t updateCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
-    virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
-    virtual ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
-    virtual ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
-    virtual ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
+    virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag);
+    virtual ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag);
+    virtual ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag);
+    virtual ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag);
     virtual ErrorCodes_t setLiquidJunctionRange(uint16_t idx);
 
-    virtual ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
-    virtual ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
+    virtual ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag);
+    virtual ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlag);
 
     virtual ErrorCodes_t enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
     virtual ErrorCodes_t turnChannelsOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
@@ -187,14 +187,14 @@ public:
     ErrorCodes_t expandTraces(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
 
     virtual ErrorCodes_t setAdcFilter();
-    virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn);
+    virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag);
     ErrorCodes_t setDownsamplingRatio(uint32_t ratio);
 
     virtual ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
     virtual ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
 
-    virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
-    virtual ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
+    virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlag);
+    virtual ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlag);
     virtual ErrorCodes_t turnVoltageStimulusOn(bool onValue, bool applyFlag);
     virtual ErrorCodes_t turnCurrentStimulusOn(bool onValue, bool applyFlag);
 
@@ -212,26 +212,26 @@ public:
     virtual ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag);
     virtual ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag);
 
-    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
-    virtual ErrorCodes_t enableVcCompensations(bool enable, bool applyFlagIn);
-    virtual ErrorCodes_t enableCcCompensations(bool enable, bool applyFlagIn);
-    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
-    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn);
-    virtual ErrorCodes_t setLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
-    virtual ErrorCodes_t setBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
+    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag);
+    virtual ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag);
+    virtual ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag);
+    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag);
+    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlag);
+    virtual ErrorCodes_t setLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlag);
+    virtual ErrorCodes_t setBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlag);
     
-    virtual ErrorCodes_t setPipetteCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setMembraneCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setResistanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setResistancePredictionOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setCCPipetteCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setLeakConductanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setBridgeBalanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
+    virtual ErrorCodes_t setPipetteCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlag);
+    virtual ErrorCodes_t setMembraneCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlag);
+    virtual ErrorCodes_t setResistanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlag);
+    virtual ErrorCodes_t setResistancePredictionOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlag);
+    virtual ErrorCodes_t setCCPipetteCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlag);
+    virtual ErrorCodes_t setLeakConductanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlag);
+    virtual ErrorCodes_t setBridgeBalanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlag);
 
-    virtual ErrorCodes_t setResistanceCorrectionLag(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
-    virtual ErrorCodes_t setResistancePredictionPercentage(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
-    virtual ErrorCodes_t setResistancePredictionBandwidthGain(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
-    virtual ErrorCodes_t setResistancePredictionTau(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
+    virtual ErrorCodes_t setResistanceCorrectionLag(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlag);
+    virtual ErrorCodes_t setResistancePredictionPercentage(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlag);
+    virtual ErrorCodes_t setResistancePredictionBandwidthGain(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlag);
+    virtual ErrorCodes_t setResistancePredictionTau(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlag);
 
     /****************\
      *  Rx methods  *

@@ -19,15 +19,15 @@ public:
     ErrorCodes_t startProtocol() override;
     ErrorCodes_t startStateArray() override;
 
-    ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true) override;
-    ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn = true) override;
-    ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn) override;
-    ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn) override;
-    ErrorCodes_t setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn) override;
-    ErrorCodes_t setCurrentHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn) override;
-    ErrorCodes_t setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn) override;
+    ErrorCodes_t resetAsic(bool resetFlag, bool applyFlag = true) override;
+    ErrorCodes_t resetFpga(bool resetFlag, bool applyFlag = true) override;
+    ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag) override;
+    ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag) override;
+    ErrorCodes_t setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag) override;
+    ErrorCodes_t setCurrentHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag) override;
+    ErrorCodes_t setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag) override;
     ErrorCodes_t updateLiquidJunctionVoltage(uint16_t channelIdx, bool applyFlag);
-    ErrorCodes_t resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlagIn) override;
+    ErrorCodes_t resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
     ErrorCodes_t setGateVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag) override;
     ErrorCodes_t setSourceVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag) override;
 
@@ -49,14 +49,14 @@ public:
     ErrorCodes_t setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag) override;
     ErrorCodes_t updateCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
 
-    ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) override;
-    ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) override;
-    ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) override;
-    ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) override;
+    ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
+    ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
+    ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
+    ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
     ErrorCodes_t setLiquidJunctionRange(uint16_t idx) override;
 
-    ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn) override;
-    ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn) override;
+    ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag) override;
+    ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlag) override;
 
     ErrorCodes_t enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
     ErrorCodes_t turnChannelsOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
@@ -74,7 +74,7 @@ public:
     ErrorCodes_t digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
 
     ErrorCodes_t setAdcFilter() override;
-    ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn) override;
+    ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
     ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) override;
     ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue) override;

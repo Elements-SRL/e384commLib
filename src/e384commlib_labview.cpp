@@ -23,7 +23,7 @@ static void compensationControl2Output(CompensationControl_t c, CharCompensation
 static void calibrationParams2Output(CalibrationParams_t p, CharCalibrationParams_t &o);
 static void vectorString2Output(std::vector <std::string> v, LStrHandle o);
 static void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o);
-static void vectorVectorMeasurement2Output(std::vector <std::vector <Measurement_t>> v, LVecMeasHandle * o);
+static void matrixMeasurement2Output(std::vector <std::vector <Measurement_t>> v, LVecMeasHandle * o);
 static void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeHandle * o);
 
 template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t * o);
@@ -546,7 +546,7 @@ ErrorCodes_t turnVoltageCompensationsOn(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    return messageDispatcher->enableVcCompensations(onValue);
+    return messageDispatcher->enableVcCompensations(onValue, true);
 }
 
 ErrorCodes_t turnCurrentCompensationsOn(
@@ -554,7 +554,7 @@ ErrorCodes_t turnCurrentCompensationsOn(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    return messageDispatcher->enableCcCompensations(onValue);
+    return messageDispatcher->enableCcCompensations(onValue, true);
 }
 
 ErrorCodes_t turnPipetteCompensationOn(
@@ -2158,14 +2158,15 @@ void compensationControl2Output(CompensationControl_t c, CharCompensationControl
 }
 
 void calibrationParams2Output(CalibrationParams_t p, CharCalibrationParams_t &o) {
-    vectorVectorMeasurement2Output(p.allGainAdcMeas, &o.allGainAdcMeas);
-    vectorVectorMeasurement2Output(p.allGainDacMeas, &o.allGainDacMeas);
-    vectorVectorMeasurement2Output(p.allOffsetAdcMeas, &o.allOffsetAdcMeas);
-    vectorVectorMeasurement2Output(p.allOffsetDacMeas, &o.allOffsetDacMeas);
-    vectorVectorMeasurement2Output(p.ccAllGainAdcMeas, &o.ccAllGainAdcMeas);
-    vectorVectorMeasurement2Output(p.ccAllGainDacMeas, &o.ccAllGainDacMeas);
-    vectorVectorMeasurement2Output(p.ccAllOffsetAdcMeas, &o.ccAllOffsetAdcMeas);
-    vectorVectorMeasurement2Output(p.ccAllOffsetDacMeas, &o.ccAllOffsetDacMeas);
+    matrixMeasurement2Output(p.allGainAdcMeas, &o.allGainAdcMeas);
+    matrixMeasurement2Output(p.allGainDacMeas, &o.allGainDacMeas);
+    matrixMeasurement2Output(p.allOffsetAdcMeas, &o.allOffsetAdcMeas);
+    matrixMeasurement2Output(p.allOffsetDacMeas, &o.allOffsetDacMeas);
+    matrixMeasurement2Output(p.allOffsetRsCorrMeas, &o.allOffsetRsCorrMeas);
+    matrixMeasurement2Output(p.ccAllGainAdcMeas, &o.ccAllGainAdcMeas);
+    matrixMeasurement2Output(p.ccAllGainDacMeas, &o.ccAllGainDacMeas);
+    matrixMeasurement2Output(p.ccAllOffsetAdcMeas, &o.ccAllOffsetAdcMeas);
+    matrixMeasurement2Output(p.ccAllOffsetDacMeas, &o.ccAllOffsetDacMeas);
 }
 
 void vectorString2Output(std::vector <std::string> v, LStrHandle o) {
@@ -2189,16 +2190,19 @@ void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o) {
     }
 }
 
-void vectorVectorMeasurement2Output(std::vector <std::vector <Measurement_t>> m, LVecMeasHandle * o) {
+void matrixMeasurement2Output(std::vector <std::vector <Measurement_t>> v2, LVecMeasHandle * o) {
     int offset = 0;
-    MgErr err = DSSetHSzClr(* o, Offset(LVecMeas, item)+sizeof(CharMeasurement_t)*m.size());
+    MgErr err = DSSetHSzClr(* o, Offset(LVecMeas, item)+sizeof(CharMeasurement_t)*v2.size()*v2[0].size());
     if (!err) {
-        for (auto v : m) {
-            LMeasHandle * vec = LVecItem(** o, offset);
-            vectorMeasurement2Output(v, vec);
-            offset++;
+        for (auto v : v2) {
+            for (auto m : v) {
+                CharMeasurement_t * meas = LVecItem(** o, offset);
+                measurement2Output(m, * meas);
+                offset++;
+            }
         }
-        LVecLen(** o) = m.size();
+        LMatS1(** o) = v2.size();
+        LMatS2(** o) = v2[0].size();
     }
 }
 

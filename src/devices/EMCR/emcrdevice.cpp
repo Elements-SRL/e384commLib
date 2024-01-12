@@ -70,23 +70,23 @@ ErrorCodes_t EmcrDevice::startStateArray() {
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::resetAsic(bool resetFlag, bool applyFlagIn) {
+ErrorCodes_t EmcrDevice::resetAsic(bool resetFlag, bool applyFlag) {
     if (asicResetCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
     asicResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::resetFpga(bool resetFlag, bool applyFlagIn) {
+ErrorCodes_t EmcrDevice::resetFpga(bool resetFlag, bool applyFlag) {
     if (fpgaResetCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
     fpgaResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
@@ -263,9 +263,9 @@ ErrorCodes_t EmcrDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool a
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlagIn) {
+ErrorCodes_t EmcrDevice::resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlag) {
     std::vector<Measurement_t> voltages(channelIndexes.size(), {0.0, liquidJunctionRange.prefix, "V"});
-    return this->setLiquidJunctionVoltage(channelIndexes, voltages, applyFlagIn);
+    return this->setLiquidJunctionVoltage(channelIndexes, voltages, applyFlag);
 }
 
 ErrorCodes_t EmcrDevice::setGateVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag){
@@ -629,7 +629,7 @@ ErrorCodes_t EmcrDevice::updateCalibCcCurrentOffset(std::vector<uint16_t> channe
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) {
+ErrorCodes_t EmcrDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {
     if (vcCurrentRangeCoder == nullptr) {
         return ErrorFeatureNotImplemented;
 
@@ -647,13 +647,13 @@ ErrorCodes_t EmcrDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool applyF
         this->updateLiquidJunctionVoltage(channelIdx, false);
     }
 
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) {
+ErrorCodes_t EmcrDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) {
     if (vcVoltageRangeCoder == nullptr) {
         return ErrorFeatureNotImplemented;
 
@@ -669,7 +669,7 @@ ErrorCodes_t EmcrDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyF
     this->updateCalibVcVoltageOffset(allChannelIndexes, false);
     this->updateVoltageHoldTuner(false);
 
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     /*! Most of the times the liquid junction (aka digital offset compensation) will be performed by the same DAC that appliese the voltage sitmulus
@@ -681,7 +681,7 @@ ErrorCodes_t EmcrDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyF
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn) {
+ErrorCodes_t EmcrDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {
     if (ccCurrentRangeCoder == nullptr) {
         return ErrorFeatureNotImplemented;
 
@@ -697,13 +697,13 @@ ErrorCodes_t EmcrDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool applyF
     this->updateCalibCcCurrentOffset(allChannelIndexes, false);
     this->updateCurrentHoldTuner(false);
 
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn) {
+ErrorCodes_t EmcrDevice::setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) {
     if (ccVoltageRangeCoder == nullptr) {
         return ErrorFeatureNotImplemented;
 
@@ -718,7 +718,7 @@ ErrorCodes_t EmcrDevice::setCCVoltageRange(uint16_t voltageRangeIdx, bool applyF
     this->updateCalibCcVoltageGain(allChannelIndexes, false);
     this->updateCalibCcVoltageOffset(allChannelIndexes, false);
 
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
@@ -737,7 +737,7 @@ ErrorCodes_t EmcrDevice::setLiquidJunctionRange(uint16_t idx) {
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn){
+ErrorCodes_t EmcrDevice::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag){
     if (vcVoltageFilterCoder == nullptr) {
         return ErrorFeatureNotImplemented;
 
@@ -746,13 +746,13 @@ ErrorCodes_t EmcrDevice::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFla
     }
     vcVoltageFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     selectedVcVoltageFilterIdx = filterIdx;
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn){
+ErrorCodes_t EmcrDevice::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlag){
     if (ccCurrentFilterCoder == nullptr) {
         return ErrorFeatureNotImplemented;
 
@@ -761,7 +761,7 @@ ErrorCodes_t EmcrDevice::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFla
     }
     ccCurrentFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     selectedCcCurrentFilterIdx = filterIdx;
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
@@ -1081,7 +1081,7 @@ ErrorCodes_t EmcrDevice::setAdcFilter() {
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn) {
+ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
     if (samplingRateCoder == nullptr) {
         return ErrorFeatureNotImplemented;
 
@@ -1097,7 +1097,7 @@ ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFla
     if (stateArrayMovingAverageLengthCoder != nullptr) {
         stateArrayMovingAverageLengthCoder->encode(stateArrayReactionTime.getNoPrefixValue()*samplingRate.getNoPrefixValue(), txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;

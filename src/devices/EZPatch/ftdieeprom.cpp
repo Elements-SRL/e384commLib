@@ -1,6 +1,8 @@
 #include "ftdieeprom.h"
 
+#ifndef E384COMMLIB_LABVIEW_WRAPPER
 using namespace e384CommLib;
+#endif
 
 FtdiEeprom::FtdiEeprom(std::string deviceId) :
     deviceId(deviceId) {
