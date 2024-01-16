@@ -198,7 +198,7 @@ void CalibrationManager::loadDefaultParams() {
     calibrationParams.allOffsetRsCorrMeas.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
         calibrationParams.allOffsetRsCorrMeas[rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.allOffsetRsCorrMeas[rangeIdx].begin(), calibrationParams.allOffsetDacMeas[rangeIdx].end(), zeroV);
+        std::fill(calibrationParams.allOffsetRsCorrMeas[rangeIdx].begin(), calibrationParams.allOffsetRsCorrMeas[rangeIdx].end(), zeroV);
     }
 
     calibrationParams.ccAllGainAdcMeas.resize(ccVoltageRangesNum);
