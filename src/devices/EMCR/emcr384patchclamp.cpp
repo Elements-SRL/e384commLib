@@ -446,13 +446,11 @@ Emcr384PatchClamp_V01::Emcr384PatchClamp_V01(std::string di) :
 
     vHoldRange.resize(VCVoltageRangesNum);
     vHoldRange[VCVoltageRange500mV] = vcVoltageRangesArray[VCVoltageRange500mV];
-    selectedVoltageHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
+    defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
 
     cHoldRange.resize(CCCurrentRangesNum);
     cHoldRange[CCCurrentRange8nA] = ccCurrentRangesArray[CCCurrentRange8nA];
-    selectedCurrentHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultCurrentHoldTuner = {0.0, cHoldRange[CCCurrentRange8nA].prefix, cHoldRange[CCCurrentRange8nA].unit};
+    defaultCurrentHoldTuner = {0.0, cHoldRange[CCCurrentRange8nA].prefix, cHoldRange[CCCurrentRange8nA].unit};
 
     /*! VC leak calibration (shunt resistance)*/
     vcLeakCalibRange.resize(VCCurrentRangesNum);
@@ -689,9 +687,6 @@ Emcr384PatchClamp_V01::Emcr384PatchClamp_V01(std::string di) :
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
-
-    fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
-    fill(selectedCurrentHoldVector.begin(), selectedCurrentHoldVector.end(), defaultCurrentHoldTuner);
 
     // Initialization of the USER compensation domain with standard parameters
     for(int i = 0; i < currentChannelsNum; i++){

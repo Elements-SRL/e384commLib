@@ -255,8 +255,7 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     vHoldRange[VCVoltageRange500mV].step = 1.0;
     vHoldRange[VCVoltageRange500mV].prefix = UnitPfxMilli;
     vHoldRange[VCVoltageRange500mV].unit = "V";
-    selectedVoltageHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
+    defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
 
     /*! VC leak calibration (shunt resistance)*/
     vcLeakCalibRange.resize(VCCurrentRangesNum);
@@ -323,7 +322,6 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
-    fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
     fill(selectedGateVoltageVector.begin(), selectedGateVoltageVector.end(), defaultGateVoltage);
     fill(selectedSourceVoltageVector.begin(), selectedSourceVoltageVector.end(), defaultSourceVoltage);
 

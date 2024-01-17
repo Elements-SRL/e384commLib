@@ -491,9 +491,6 @@ protected:
     double voltageOffsetCorrected = 0.0; /*!< Value currently corrected in applied voltages by the device (expressed in the unit of the liquid junction control) */
     double voltageOffsetCorrection = 0.0; /*!< Value to be used to correct the measured voltage values (expressed in the unit of current voltage range) */
 
-    std::vector <Measurement_t> voltageTuner;
-    std::vector <Measurement_t> currentTuner;
-
     std::vector <double> voltageTunerCorrection; /*!< Value to be used to correct the measured voltage values (expressed in the unit of current voltage range) */
     std::vector <double> currentTunerCorrection; /*!< Value to be used to correct the measured current values (expressed in the unit of current current range) */
 

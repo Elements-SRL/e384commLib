@@ -363,7 +363,7 @@ typedef struct {
 
 typedef struct {
     int32 cnt[2];                           /* size of matrix of measurements that follow */
-    CharMeasurement_t	item[1];            /* cnt vector of measurements */
+    CharMeasurement_t item[1];              /* cnt vector of measurements */
 } LVecMeas, *LVecMeasPtr, **LVecMeasHandle;
 
 typedef struct {

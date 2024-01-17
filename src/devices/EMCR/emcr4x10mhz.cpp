@@ -264,8 +264,7 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     vHoldRange[VCVoltageRange20000mV].step = 1.28125;
     vHoldRange[VCVoltageRange20000mV].prefix = UnitPfxMilli;
     vHoldRange[VCVoltageRange20000mV].unit = "V";
-    selectedVoltageHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
+    defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
 
     /*! Calib VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
@@ -300,8 +299,6 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
-
-    fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
 
     /**********\
      * Coders *
@@ -1057,8 +1054,7 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     vHoldRange[VCVoltageRange20000mV].step = 1.28125;
     vHoldRange[VCVoltageRange20000mV].prefix = UnitPfxMilli;
     vHoldRange[VCVoltageRange20000mV].unit = "V";
-    selectedVoltageHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
+    defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
 
     /*! Calib VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
@@ -1093,8 +1089,6 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
-
-    fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
 
     /**********\
      * Coders *

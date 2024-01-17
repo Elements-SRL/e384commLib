@@ -1229,12 +1229,12 @@ void EZPatche4PEL04F::selectChannelsResolutions() {
             rawDataFilterCurrentFlag = true;
 
         } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
-            currentTunerCorrection[channelIdx] = currentTuner[channelIdx].value;
+            currentTunerCorrection[channelIdx] = selectedCurrentHoldVector[channelIdx].value;
             rawDataFilterCurrentFlag = false;
         }
 
         if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
-            voltageTunerCorrection[channelIdx] = voltageTuner[channelIdx].value;
+            voltageTunerCorrection[channelIdx] = selectedVoltageHoldVector[channelIdx].value;
             rawDataFilterVoltageFlag = false;
 
         } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {

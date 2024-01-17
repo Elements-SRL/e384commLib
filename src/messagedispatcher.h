@@ -549,23 +549,28 @@ protected:
     std::vector <Measurement_t> realSamplingRatesArray;
     std::vector <Measurement_t> integrationStepArray;
     unsigned int defaultSamplingRateIdx = 0;
-    std::unordered_map<uint16_t, uint16_t> sr2LpfVcCurrentMap;
-    std::unordered_map<uint16_t, uint16_t> sr2LpfCcVoltageMap;
-    std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
+    std::unordered_map <uint16_t, uint16_t> sr2LpfVcCurrentMap;
+    std::unordered_map <uint16_t, uint16_t> sr2LpfCcVoltageMap;
+    std::unordered_map <uint16_t, uint16_t> vcCurrRange2CalibResMap;
 
-    std::vector<Measurement_t> selectedVoltageHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<Measurement_t> selectedCurrentHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<Measurement_t> selectedVoltageHalfVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<Measurement_t> selectedCurrentHalfVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector <Measurement_t> selectedVoltageHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector <Measurement_t> selectedCurrentHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector <Measurement_t> selectedVoltageHalfVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector <Measurement_t> selectedCurrentHalfVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
 
-    std::vector<Measurement_t> selectedLiquidJunctionVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<int16_t> ccLiquidJunctionVector;
+    Measurement_t defaultVoltageHoldTuner = {0.0, UnitPfxNone, "V"};
+    Measurement_t defaultCurrentHoldTuner = {0.0, UnitPfxNone, "A"};
+    Measurement_t defaultVoltageHalfTuner = {0.0, UnitPfxNone, "V"};
+    Measurement_t defaultCurrentHalfTuner = {0.0, UnitPfxNone, "A"};
+
+    std::vector <Measurement_t> selectedLiquidJunctionVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector <int16_t> ccLiquidJunctionVector;
 
     RangedMeasurement_t gateVoltageRange;
-    std::vector<Measurement_t> selectedGateVoltageVector;
+    std::vector <Measurement_t> selectedGateVoltageVector;
 
     RangedMeasurement_t sourceVoltageRange;
-    std::vector<Measurement_t> selectedSourceVoltageVector;
+    std::vector <Measurement_t> selectedSourceVoltageVector;
     uint16_t selectedSourceForVoltageChannelIdx;
     uint16_t selectedSourceForCurrentChannelIdx;
 

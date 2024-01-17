@@ -719,12 +719,12 @@ void EZPatchePatchEL03F_4D_PCBV03_V04::selectChannelsResolutions() {
             rawDataFilterCurrentFlag = true;
 
         } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
-            currentTunerCorrection[channelIdx] = currentTuner[channelIdx].value;
+            currentTunerCorrection[channelIdx] = selectedCurrentHoldVector[channelIdx].value;
             rawDataFilterCurrentFlag = false;
         }
 
         if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
-            voltageTunerCorrection[channelIdx] = voltageTuner[channelIdx].value;
+            voltageTunerCorrection[channelIdx] = selectedVoltageHoldVector[channelIdx].value;
             rawDataFilterVoltageFlag = false;
 
         } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {

@@ -103,7 +103,7 @@ ErrorCodes_t EmcrDevice::setVoltageHoldTuner(std::vector<uint16_t> channelIndexe
         return ErrorWrongClampModality;
     }
 
-    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         voltages[i].convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
         voltages[i].value = vHoldTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         selectedVoltageHoldVector[channelIndexes[i]] = voltages[i];
@@ -1934,6 +1934,18 @@ ErrorCodes_t EmcrDevice::initializeMemory() {
     txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
     txMsgLength.resize(TX_MSG_BUFFER_SIZE);
     txMsgTrigger.resize(TX_MSG_BUFFER_SIZE);
+
+    selectedVoltageHoldVector.resize(currentChannelsNum);
+    fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
+
+    selectedCurrentHoldVector.resize(currentChannelsNum);
+    fill(selectedCurrentHoldVector.begin(), selectedCurrentHoldVector.end(), defaultCurrentHoldTuner);
+
+    selectedVoltageHalfVector.resize(currentChannelsNum);
+    fill(selectedVoltageHalfVector.begin(), selectedVoltageHalfVector.end(), defaultVoltageHalfTuner);
+
+    selectedCurrentHalfVector.resize(currentChannelsNum);
+    fill(selectedCurrentHalfVector.begin(), selectedCurrentHalfVector.end(), defaultCurrentHalfTuner);
 
     /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
     voltageDataValues.resize(voltageChannelsNum);

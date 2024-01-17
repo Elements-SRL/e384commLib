@@ -232,12 +232,12 @@ void EZPatchFakeP8::selectChannelsResolutions() {
 
         } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
             genCurrentNorm = 1.0/genCcCurrentRange.step;
-            currentTunerCorrection[channelIdx] = currentTuner[channelIdx].value;
+            currentTunerCorrection[channelIdx] = selectedCurrentHoldVector[channelIdx].value;
         }
 
         if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
             genVoltageNorm = 1.0/genVcVoltageRange.step;
-            voltageTunerCorrection[channelIdx] = voltageTuner[channelIdx].value;
+            voltageTunerCorrection[channelIdx] = selectedVoltageHoldVector[channelIdx].value;
 
         } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
             genVoltageNorm = 1.0/genCcVoltageRange.step;

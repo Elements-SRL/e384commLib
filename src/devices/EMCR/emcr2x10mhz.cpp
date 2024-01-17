@@ -250,8 +250,7 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
     vHoldRange[VCVoltageRange1000mV].step = 0.0625;
     vHoldRange[VCVoltageRange1000mV].prefix = UnitPfxMilli;
     vHoldRange[VCVoltageRange1000mV].unit = "V";
-    selectedVoltageHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
+    defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
 
     /*! Calib VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
@@ -286,8 +285,6 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
-
-    fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
 
     /**********\
      * Coders *
@@ -941,8 +938,7 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
     vHoldRange[VCVoltageRange1000mV].step = 0.0625;
     vHoldRange[VCVoltageRange1000mV].prefix = UnitPfxMilli;
     vHoldRange[VCVoltageRange1000mV].unit = "V";
-    selectedVoltageHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
+    defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
 
     /*! Calib VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
@@ -977,8 +973,6 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
-
-    fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
 
     /**********\
      * Coders *
