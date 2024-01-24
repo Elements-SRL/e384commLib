@@ -683,6 +683,18 @@ EZPatchePatchEL03F_4D_PCBV03_V04::EZPatchePatchEL03F_4D_PCBV03_V04(std::string d
     ccReaderSwitchesNum = CCReaderSwitchesNum;
     ccReaderSwitchesLut.resize(ccReaderSwitchesNum);
 
+    /*! Protocols parameters */
+    protocolFpgaClockFrequencyHz = 10.0e3;
+
+    protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
+    protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
+    protocolTimeRange.max = LINT32_MAX*protocolTimeRange.step;
+    protocolTimeRange.prefix = UnitPfxMilli;
+    protocolTimeRange.unit = "s";
+
+    positiveProtocolTimeRange = protocolTimeRange;
+    positiveProtocolTimeRange.min = 0.0;
+
     protocolMaxItemsNum = 15;
 
     maxDigitalTriggerOutputEvents = 83;

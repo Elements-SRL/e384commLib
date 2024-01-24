@@ -854,7 +854,7 @@ ErrorCodes_t MessageDispatcher::getMinCCVoltageRange(RangedMeasurement_t &range,
 }
 
 ErrorCodes_t MessageDispatcher::getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates) {
-    if(samplingRatesArray.empty()){
+    if (samplingRatesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     samplingRates = samplingRatesArray;
@@ -862,7 +862,7 @@ ErrorCodes_t MessageDispatcher::getSamplingRatesFeatures(std::vector <Measuremen
 }
 
 ErrorCodes_t MessageDispatcher::getSamplingRate(Measurement_t &samplingRate) {
-    if(samplingRatesArray.empty()){
+    if (samplingRatesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     samplingRate = this->samplingRate;
@@ -870,7 +870,7 @@ ErrorCodes_t MessageDispatcher::getSamplingRate(Measurement_t &samplingRate) {
 }
 
 ErrorCodes_t MessageDispatcher::getSamplingRateIdx(uint32_t &idx) {
-    if (samplingRatesArray.empty()){
+    if (samplingRatesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     idx = selectedSamplingRateIdx;

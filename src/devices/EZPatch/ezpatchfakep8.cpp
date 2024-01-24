@@ -45,6 +45,18 @@ EZPatchFakeP8::EZPatchFakeP8(std::string di) :
     integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate20kHz].unit = "s";
 
+    /*! Protocols parameters */
+    protocolFpgaClockFrequencyHz = 10.0e3;
+
+    protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
+    protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
+    protocolTimeRange.max = LINT32_MAX*protocolTimeRange.step;
+    protocolTimeRange.prefix = UnitPfxMilli;
+    protocolTimeRange.unit = "s";
+
+    positiveProtocolTimeRange = protocolTimeRange;
+    positiveProtocolTimeRange.min = 0.0;
+
     protocolMaxItemsNum = 1e6;
 
     voltageProtocolStepImplemented = true;

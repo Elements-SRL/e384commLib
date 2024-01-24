@@ -498,8 +498,6 @@ protected:
     std::vector <double> voltageTunerCorrection; /*!< Value to be used to correct the measured voltage values (expressed in the unit of current voltage range) */
     std::vector <double> currentTunerCorrection; /*!< Value to be used to correct the measured current values (expressed in the unit of current current range) */
 
-    Measurement_t samplingRate;
-
     double stepsOnLastSweep;
     uint16_t protocolItemsNum;
     uint16_t protocolItemIndex;
