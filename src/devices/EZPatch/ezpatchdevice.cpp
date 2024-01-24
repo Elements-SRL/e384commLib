@@ -472,6 +472,130 @@ ErrorCodes_t EZPatchDevice::turnCurrentReaderOn(bool on, bool applyFlag) {
     return ret;
 }
 
+ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag) {
+    if (idx >= clampingModalitiesNum) {
+        return ErrorValueOutOfRange;
+    }
+    selectedClampingModalityIdx = idx;
+    previousClampingModality = selectedClampingModality;
+    selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];
+
+    switch (selectedClampingModality) {
+    case VOLTAGE_CLAMP:
+        rawDataFilterVoltageFlag = false;
+        rawDataFilterCurrentFlag = true;
+
+        /*! Restore liquid junction and remove it from the voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+//            this->updateLiquidJunctionVoltage(i, false);
+            ccLiquidJunctionVector[i] = 0;
+        }
+
+        this->enableCcCompensations(false, false);
+        this->turnCurrentReaderOn(true, false);
+        this->turnVoltageStimulusOn(true, true);
+        /*! Apply on previous command to turn the voltage clamp on first */
+        this->turnCurrentStimulusOn(false, false);
+        this->turnVoltageReaderOn(false, false);
+        if (previousClampingModality == VOLTAGE_CLAMP) {
+            this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
+
+        } else {
+            this->setVCCurrentRange(storedVcCurrentRangeIdx, false);
+        }
+        this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
+        this->enableVcCompensations(true, false);
+
+        this->setSourceForVoltageChannel(0, false);
+        this->setSourceForCurrentChannel(0, false);
+
+        break;
+
+    case ZERO_CURRENT_CLAMP:
+        rawDataFilterVoltageFlag = true;
+        rawDataFilterCurrentFlag = false;
+
+        /*! Remove liquid junction and subtract it from voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+//            this->updateLiquidJunctionVoltage(i, false);
+            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
+            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+        }
+
+        if (previousClampingModality == VOLTAGE_CLAMP) {
+            this->enableVcCompensations(false, false);
+            storedVcCurrentRangeIdx = selectedVcCurrentRangeIdx;
+            RangedMeasurement_t range;
+            uint32_t idx;
+            this->getMaxVCCurrentRange(range, idx);
+            this->setVCCurrentRange(idx, true);
+            /*! Apply on previous command to set the lowest input impedance first */
+        }
+        this->turnVoltageReaderOn(true, false);
+        this->turnCurrentStimulusOn(false, true);
+        /*! Apply on previous command to turn the current clamp on then */
+        this->turnVoltageStimulusOn(false, false);
+        this->turnCurrentReaderOn(false, false);
+        this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+        this->enableCcCompensations(true, false);
+
+        this->setSourceForVoltageChannel(1, false);
+        this->setSourceForCurrentChannel(1, false);
+
+        break;
+
+    case CURRENT_CLAMP:
+        rawDataFilterVoltageFlag = true;
+        rawDataFilterCurrentFlag = false;
+
+        /*! Remove liquid junction and subtract it from voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+//            this->updateLiquidJunctionVoltage(i, false);
+            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
+            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+        }
+
+        if (previousClampingModality == VOLTAGE_CLAMP) {
+            this->enableVcCompensations(false, false);
+            storedVcCurrentRangeIdx = selectedVcCurrentRangeIdx;
+            RangedMeasurement_t range;
+            uint32_t idx;
+            this->getMaxVCCurrentRange(range, idx);
+            this->setVCCurrentRange(idx, true);
+            /*! Apply on previous command to set the lowest input impedance first */
+        }
+        this->turnVoltageReaderOn(true, false);
+        this->turnCurrentStimulusOn(true, true);
+        /*! Apply on previous command to turn the current clamp on then */
+        this->turnVoltageStimulusOn(false, false);
+        this->turnCurrentReaderOn(false, false);
+        this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+        this->enableCcCompensations(true, false);
+
+        this->setSourceForVoltageChannel(1, false);
+        this->setSourceForCurrentChannel(1, false);
+
+        break;
+
+    case DYNAMIC_CLAMP:
+        rawDataFilterVoltageFlag = false;
+        rawDataFilterCurrentFlag = false;
+        break;
+    }
+
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::setClampingModality(ClampingModality_t mode, bool applyFlag) {
+    auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
+    if (iter == clampingModalitiesArray.end()) {
+        return ErrorValueOutOfRange;
+    }
+    return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag);
+}
+
 ErrorCodes_t EZPatchDevice::setSourceForVoltageChannel(uint16_t source, bool applyFlag) {
     ErrorCodes_t ret;
     if ((ret = this->setChannelsSources((int16_t)source, selectedSourceForCurrentChannelIdx)) != Success) {

@@ -13,6 +13,13 @@ public:
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
 protected:
+    enum ClampingModalities {
+        VoltageClamp,
+        ZeroCurrentClamp,
+        CurrentClamp,
+        ClampingModalitiesNum
+    };
+
     enum VCCurrentRanges {
         VCCurrentRange10nA,
         VCCurrentRange40nALbw,

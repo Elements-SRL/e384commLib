@@ -6,10 +6,12 @@ EZPatche4PPatchliner_el07ab::EZPatche4PPatchliner_el07ab(std::string di) :
     deviceName = "e8PPatchliner";
 
     /*! Clamping modalities */
-    clampingModalitiesArray.resize(3);
-    clampingModalitiesArray[0] = VOLTAGE_CLAMP;
-    clampingModalitiesArray[1] = ZERO_CURRENT_CLAMP;
-    clampingModalitiesArray[2] = CURRENT_CLAMP;
+    clampingModalitiesNum = ClampingModalitiesNum;
+    clampingModalitiesArray.resize(clampingModalitiesNum);
+    clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
+    clampingModalitiesArray[ZeroCurrentClamp] = ClampingModality_t::ZERO_CURRENT_CLAMP;
+    clampingModalitiesArray[CurrentClamp] = ClampingModality_t::CURRENT_CLAMP;
+    defaultClampingModalityIdx = VoltageClamp;
 
     /*! Current ranges */
     /*! VC */

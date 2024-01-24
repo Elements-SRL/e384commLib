@@ -13,6 +13,13 @@ public:
     ErrorCodes_t getLeakConductanceControl(CompensationControl_t &control) override;
 
 protected:
+    enum ClampingModalities {
+        VoltageClamp,
+        ZeroCurrentClamp,
+        CurrentClamp,
+        ClampingModalitiesNum
+    };
+
     enum VCCurrentRanges {
         VCCurrentRange300pA,
         VCCurrentRange3nA,

@@ -22,7 +22,7 @@
 #define EZP_RX_MIN_DATA_PACKET_LEN 3
 #define EZP_RX_MIN_DATA_PACKET_VALID_LEN (EZP_RX_MIN_DATA_PACKET_LEN-1)
 
-#define EZP_TX_MSG_BUFFER_SIZE 0x100 /*! \todo FCON valutare che questo numero sia adeguato */ // 256
+#define EZP_TX_MSG_BUFFER_SIZE 0x1000 /*! \todo FCON valutare che questo numero sia adeguato */ // 4096
 #define EZP_TX_MSG_BUFFER_MASK (EZP_TX_MSG_BUFFER_SIZE-1)
 #define EZP_TX_DATA_BUFFER_SIZE 0x10000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~65k
 #define EZP_TX_DATA_BUFFER_MASK (EZP_TX_DATA_BUFFER_SIZE-1)
@@ -76,6 +76,9 @@ public:
     ErrorCodes_t turnCurrentStimulusOn(bool on, bool applyFlag) override;
     ErrorCodes_t turnVoltageReaderOn(bool on, bool applyFlag) override;
     ErrorCodes_t turnCurrentReaderOn(bool on, bool applyFlag) override;
+
+    ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag) override;
+    ErrorCodes_t setClampingModality(ClampingModality_t mode, bool applyFlag) override;
     ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag) override;
     ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag) override;
     virtual ErrorCodes_t setChannelsSources(int16_t voltageSourcesIdxs, int16_t currentSourcesIdxs);
@@ -470,24 +473,24 @@ protected:
     double * lsbNoiseArray;
     uint32_t lsbNoiseIdx = 0;
 
-    uint8_t * rxRawBuffer; /*!< Raw incoming data from the device */
+    uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */
 
-    MsgResume_t * rxMsgBuffer; /*!< Buffer of pre-digested messages that contains message's high level info */
+    MsgResume_t * rxMsgBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's high level info */
     uint32_t rxMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be written */
     uint32_t rxMsgBufferReadLength = 0; /*!< Lenght of the part of the buffer to be processed */
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
 
-    uint16_t * rxDataBuffer; /*!< Buffer of pre-digested messages that contains message's data */
+    uint16_t * rxDataBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's data */
 
     uint32_t rxDataMessageMaxLen = 1; /*!< Max payload length */
 
-    uint8_t * txRawBuffer; /*!< Raw outgoing data to the device */
+    uint8_t * txRawBuffer = nullptr; /*!< Raw outgoing data to the device */
 
-    MsgResume_t * txMsgBuffer; /*!< Buffer of pre-digested messages that contains message's high level info */
+    MsgResume_t * txMsgBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's high level info */
     uint32_t txMsgBufferWriteOffset = 0; /*!< Offset of the part of buffer to be written */
     uint32_t txMsgBufferReadLength = 0; /*!< Lenght of the part of the buffer to be processed */
 
-    uint16_t * txDataBuffer; /*!< Buffer of pre-digested messages that contains message's data */
+    uint16_t * txDataBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's data */
     uint32_t txDataBufferWriteOffset = 0; /*!< Offset of the part of buffer to be written */
 
     uint16_t txDataMessageMaxLen = 1; /*!< Max payload length */

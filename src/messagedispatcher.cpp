@@ -1162,11 +1162,8 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
     if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
         /*! Initialization in voltage clamp */
         this->setClampingModality(VOLTAGE_CLAMP, false);
-        this->enableCcCompensations(false, false);
-        this->enableVcCompensations(true, false);
         this->enableStimulus(allChannelIndexes, allTrue, false);
         this->turnChannelsOn(allChannelIndexes, allTrue, false);
-        this->turnCurrentReaderOn(true, false);
         this->setVoltageHoldTuner(allChannelIndexes, selectedVoltageHoldVector, false);
         this->setLiquidJunctionVoltage(allChannelIndexes, selectedLiquidJunctionVector, false);
         this->setSamplingRate(defaultSamplingRateIdx, false);

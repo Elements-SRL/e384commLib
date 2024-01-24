@@ -9,8 +9,10 @@ EZPatchePatchEL03D_V04::EZPatchePatchEL03D_V04(std::string di) :
     deviceName = "ePatchEl03D";
 
     /*! Clamping modalities */
-    clampingModalitiesArray.resize(1);
-    clampingModalitiesArray[0] = VOLTAGE_CLAMP;
+    clampingModalitiesNum = ClampingModalitiesNum;
+    clampingModalitiesArray.resize(clampingModalitiesNum);
+    clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
+    defaultClampingModalityIdx = VoltageClamp;
 
     /*! Current ranges */
     /*! VC */

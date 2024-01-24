@@ -13,6 +13,11 @@ public:
     virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
 
 protected:
+    enum ClampingModalities {
+        VoltageClamp,
+        ClampingModalitiesNum
+    };
+
     enum VCCurrentRanges {
         VCCurrentRange200pA,
         VCCurrentRange2nA,

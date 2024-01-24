@@ -11,6 +11,13 @@ public:
     ErrorCodes_t setResistancePredictionOptions(uint16_t optionIdx) override;
 
 protected:
+    enum ClampingModalities {
+        VoltageClamp,
+        ZeroCurrentClamp,
+        CurrentClamp,
+        ClampingModalitiesNum
+    };
+
     enum VCCurrentRanges {
         VCCurrentRange200pA,
         VCCurrentRange2nA,
