@@ -244,13 +244,7 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
     calibrationData.canInputsBeOpened = false;
     calibrationData.adcCalibratedInOffsetBinary = false;
 
-    vHoldRange.resize(VCVoltageRangesNum);
-    vHoldRange[VCVoltageRange1000mV].min = -1000.0;
-    vHoldRange[VCVoltageRange1000mV].max = 1000.0;
-    vHoldRange[VCVoltageRange1000mV].step = 0.0625;
-    vHoldRange[VCVoltageRange1000mV].prefix = UnitPfxMilli;
-    vHoldRange[VCVoltageRange1000mV].unit = "V";
-    defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
+    defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange1000mV].prefix, vcVoltageRangesArray[VCVoltageRange1000mV].unit};
 
     /*! Calib VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
@@ -415,7 +409,7 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
     voltageProtocolRestCoders.resize(VCVoltageRangesNum);
 
     for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         voltageProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -436,7 +430,7 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
         voltageProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
         voltageProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
 
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
 
@@ -558,7 +552,7 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
 
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 258;
-        doubleConfig.resolution = vHoldRange[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
         doubleConfig.minValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
@@ -932,13 +926,7 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
     calibrationData.canInputsBeOpened = false;
     calibrationData.adcCalibratedInOffsetBinary = false;
 
-    vHoldRange.resize(VCVoltageRangesNum);
-    vHoldRange[VCVoltageRange1000mV].min = -1000.0;
-    vHoldRange[VCVoltageRange1000mV].max = 1000.0;
-    vHoldRange[VCVoltageRange1000mV].step = 0.0625;
-    vHoldRange[VCVoltageRange1000mV].prefix = UnitPfxMilli;
-    vHoldRange[VCVoltageRange1000mV].unit = "V";
-    defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange1000mV].prefix, vHoldRange[VCVoltageRange1000mV].unit};
+    defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange1000mV].prefix, vcVoltageRangesArray[VCVoltageRange1000mV].unit};
 
     /*! Calib VC current gain */
     calibVcCurrentGainRange.step = 1.0/1024.0;
@@ -1103,7 +1091,7 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
     voltageProtocolRestCoders.resize(VCVoltageRangesNum);
 
     for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         voltageProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -1124,7 +1112,7 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
         voltageProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
         voltageProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
 
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
 
@@ -1246,7 +1234,7 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
 
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 258;
-        doubleConfig.resolution = vHoldRange[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
         doubleConfig.minValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);

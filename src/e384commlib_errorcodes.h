@@ -72,6 +72,7 @@ typedef enum ErrorCodes {
     WarningValueClipped =                   ErrorGroupDeviceCommands +      0x8000000B, /*!< Warning returned when trying to set a value that is out of range for the current device,
                                                                                              but differently from the ErrorValueOutOfRange, the command is still applied but clipped,
                                                                                          *   e.g. a voltage offset bigger then the DAC range. */
+    ErrorCompensationNotEnabled =           ErrorGroupDeviceCommands +      0x0000000C, /*!< Error returned when trying setting a compensation that is not enabled */
 
     ErrorFeatureNotImplemented =            ErrorGroupDeviceFeatures +      0x00000000, /*!< Error returned when trying to use a feature that is not implemented for the current device. */
     ErrorUpgradesNotAvailable =             ErrorGroupDeviceFeatures +      0x00000001, /*!< Error returned when there are no upgrades available for the current device. */
@@ -88,7 +89,6 @@ typedef enum ErrorCodes {
     ErrorCalibrationSoftwareBug =           ErrorGroupCalibration +         0x00000005, /*!< Error returned when there's a bug in the calibration loading procedure */
     ErrorCalibrationNotLoadedYet =          ErrorGroupCalibration +         0x00000006, /*!< Error returned when calibration were not loaded yet */
     ErrorCalibrationMappingWrongNumbering = ErrorGroupCalibration +         0x00000007, /*!< Error returned when boards numbering in mapping file is wrong */
-    ErrorThisCompensationNotEnabled =       ErrorGroupCalibration +         0x00000008, /*!< Error returned when trying setting a compensation that is not enabled */
 
     ErrorUnknown =                                                          0xFFFFFFFF  /*!< Undefined error. */
 } ErrorCodes_t;

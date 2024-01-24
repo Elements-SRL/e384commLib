@@ -136,11 +136,6 @@ EZPatchFtdiDevice::EZPatchFtdiDevice(std::string deviceId) :
     txSyncWord[1] = 0x5A;
 
     txCrcInitialValue = (((uint16_t)txSyncWord[1]) << 8)+(uint16_t)txSyncWord[0];
-
-    /*! This will never change so it makes sense to initialize it here */
-    for (uint32_t idx = 0; idx < FTD_TX_SYNC_WORD_SIZE; idx++) {
-        txRawBuffer[idx] = txSyncWord[idx];
-    }
 }
 
 EZPatchFtdiDevice::~EZPatchFtdiDevice() {
@@ -1115,6 +1110,11 @@ ErrorCodes_t EZPatchFtdiDevice::initializeMemory() {
     if (rxRawBuffer == nullptr) {
         this->deinitializeMemory();
         return ErrorMemoryInitialization;
+    }
+
+    /*! This will never change so it makes sense to initialize it here */
+    for (uint32_t idx = 0; idx < FTD_TX_SYNC_WORD_SIZE; idx++) {
+        txRawBuffer[idx] = txSyncWord[idx];
     }
     return EZPatchDevice::initializeMemory();
 }

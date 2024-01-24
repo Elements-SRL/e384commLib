@@ -12,13 +12,6 @@
 #include "ftdieeprom56.h"
 #include "ftdieepromdemo.h"
 
-//#define SHORT_OFFSET_BINARY (static_cast <double> (0x8000))
-//#define SHORT_MAX (static_cast <double> (0x7FFF))
-//#define USHORT_MAX (static_cast <double> (0xFFFF))
-//#define UINT13_MAX (static_cast <double> (0x1FFF))
-//#define INT13_MAX (static_cast <double> (0x0FFF))
-//#define INT18_MAX (static_cast <double> (0x1FFFF))
-
 #define EZP_LSB_NOISE_ARRAY_SIZE 0x40000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~250k
 #define EZP_LSB_NOISE_ARRAY_MASK (EZP_LSB_NOISE_ARRAY_SIZE-1) // 0b11...1 for all bits of the array indexes
 
@@ -74,8 +67,8 @@ public:
     virtual ErrorCodes_t resetFpga(bool resetFlag, bool applyFlag) override;
     virtual ErrorCodes_t resetFpga();
 
-    ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag) override;
-    ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag) override;
+    ErrorCodes_t setVoltageHoldTuner(std::vector <uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag) override;
+    ErrorCodes_t setCurrentHoldTuner(std::vector <uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag) override;
     ErrorCodes_t setVoltageHoldTuner(uint16_t channelIdx, Measurement_t voltage);
     ErrorCodes_t setCurrentHoldTuner(uint16_t channelIdx, Measurement_t current);
 
@@ -94,7 +87,7 @@ public:
     ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
     virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
-    virtual ErrorCodes_t digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
+    virtual ErrorCodes_t digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     virtual ErrorCodes_t digitalOffsetCompensation(uint16_t channelIdx);
     ErrorCodes_t digitalOffsetCompensationOverride(uint16_t channelIdx, Measurement value);
     ErrorCodes_t digitalOffsetCompensationInquiry(uint16_t channelIdx);
@@ -103,16 +96,17 @@ public:
     ErrorCodes_t zap(Measurement_t duration, uint16_t channelIdx);
     ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag) override;
     ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlag) override;
-    ErrorCodes_t enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
+    ErrorCodes_t enableStimulus(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     ErrorCodes_t enableStimulus(uint16_t channelIdx, bool on);
     ErrorCodes_t turnLedOn(uint16_t ledIndex, bool on);
     ErrorCodes_t setAnalogOut(bool on);
     ErrorCodes_t setSlave(bool on);
     ErrorCodes_t setConstantSwitches();
 
-    ErrorCodes_t setCompensationsChannel(uint16_t channelIdx); /*! \todo FCON sono arrivato qui */
-    ErrorCodes_t turnVoltageCompensationsOn(bool on);
-    ErrorCodes_t turnCurrentCompensationsOn(bool on);
+    ErrorCodes_t setCompensationsChannel(uint16_t channelIdx);
+    ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
+    ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag) override;
+    ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag) override;
     ErrorCodes_t turnPipetteCompensationOn(bool on);
     ErrorCodes_t turnCCPipetteCompensationOn(bool on);
     ErrorCodes_t turnMembraneCompensationOn(bool on);
@@ -122,6 +116,7 @@ public:
     ErrorCodes_t turnLeakConductanceCompensationOn(bool on);
     ErrorCodes_t turnBridgeBalanceCompensationOn(bool on);
 
+    ErrorCodes_t setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes type, std::vector <uint16_t> options, bool applyFlag) override;
     ErrorCodes_t setPipetteCompensationOptions(uint16_t optionIdx);
     ErrorCodes_t setCCPipetteCompensationOptions(uint16_t optionIdx);
     ErrorCodes_t setMembraneCompensationOptions(uint16_t optionIdx);
@@ -131,6 +126,7 @@ public:
     ErrorCodes_t setLeakConductanceCompensationOptions(uint16_t optionIdx);
     ErrorCodes_t setBridgeBalanceCompensationOptions(uint16_t optionIdx);
 
+    ErrorCodes_t setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector <double> newParamValues, bool applyFlag) override;
     ErrorCodes_t setPipetteCapacitance(Measurement_t capacitance);
     ErrorCodes_t setCCPipetteCapacitance(Measurement_t capacitance);
     ErrorCodes_t setMembraneCapacitance(Measurement_t capacitance);
@@ -142,28 +138,34 @@ public:
     ErrorCodes_t setResistancePredictionBandwidthGain(Measurement_t gain);
     ErrorCodes_t setResistancePredictionTau(Measurement_t tau);
     virtual ErrorCodes_t setLeakConductance(Measurement_t conductance);
-    ErrorCodes_t setBridgeBalanceResistance(Measurement_t resistance);
+    ErrorCodes_t setBridgeBalanceResistance(Measurement_t resistance); /*! \todo FCON sono arrivato qui */
 
     ErrorCodes_t setDigitalTriggerOutput(uint16_t triggerIdx, bool terminator, bool polarity, uint16_t triggerId, Measurement_t delay);
     ErrorCodes_t setDigitalRepetitiveTriggerOutput(uint16_t triggersNum, bool valid, bool infinite, uint16_t triggerId,
                                                    Measurement_t delay, Measurement_t duration, Measurement_t period, Measurement_t deltaPeriod);
 
-    ErrorCodes_t setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest);
+    ErrorCodes_t setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest) override;
     ErrorCodes_t voltStepTimeStep(Measurement_t v0, Measurement_t vStep, Measurement_t t0, Measurement_t tStep,
                                   uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps);
     ErrorCodes_t voltRamp(Measurement_t v0, Measurement_t vFinal, Measurement_t t,
                           uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps);
     ErrorCodes_t voltSin(Measurement_t v0, Measurement_t vAmp, Measurement_t freq,
                          uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps);
-    ErrorCodes_t startProtocol();
+    ErrorCodes_t setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) override;
+    ErrorCodes_t setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) override;
+    ErrorCodes_t setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step, bool vHalfFlag) override;
+    ErrorCodes_t startProtocol() override;
 
-    ErrorCodes_t setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest);
+    ErrorCodes_t setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest) override;
     ErrorCodes_t currStepTimeStep(Measurement_t i0, Measurement_t iStep, Measurement_t t0, Measurement_t tStep,
                                   uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps);
     ErrorCodes_t currRamp(Measurement_t i0, Measurement_t iFinal, Measurement_t t,
                           uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps);
     ErrorCodes_t currSin(Measurement_t i0, Measurement_t iAmp, Measurement_t freq,
                          uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps);
+    ErrorCodes_t setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) override;
+    ErrorCodes_t setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool iHalfFlag) override;
+    ErrorCodes_t setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool iHalfFlag) override;
 
     ErrorCodes_t resetDigitalOffsetCompensation(bool reset);
 
@@ -181,7 +183,9 @@ public:
     virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data) override; /*!< overidden by eP4 device because it needs a custom data interleaving */
 
     ErrorCodes_t hasVoltageHoldTuner();
+    ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageRanges) override;
     ErrorCodes_t hasCurrentHoldTuner();
+    ErrorCodes_t getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentRanges) override;
 
     ErrorCodes_t getMaxOutputTriggers(unsigned int &maxTriggersNum);
     ErrorCodes_t getOutputTriggersNum(unsigned int &triggersNum);
@@ -203,28 +207,28 @@ public:
     virtual ErrorCodes_t hasLeakConductanceCompensation();
     virtual ErrorCodes_t hasBridgeBalanceCompensation();
 
-    virtual ErrorCodes_t getPipetteCompensationOptions(std::vector <std::string> &options);
-    virtual ErrorCodes_t getCCPipetteCompensationOptions(std::vector <std::string> &options);
-    virtual ErrorCodes_t getMembraneCompensationOptions(std::vector <std::string> &options);
-    virtual ErrorCodes_t getResistanceCompensationOptions(std::vector <std::string> &options);
-    virtual ErrorCodes_t getResistanceCorrectionOptions(std::vector <std::string> &options);
-    virtual ErrorCodes_t getResistancePredictionOptions(std::vector <std::string> &options);
-    virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> &options);
-    virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> &options);
+    virtual ErrorCodes_t getPipetteCompensationOptions(std::vector <std::string> &options) override;
+    virtual ErrorCodes_t getCCPipetteCompensationOptions(std::vector <std::string> &options) override;
+    virtual ErrorCodes_t getMembraneCompensationOptions(std::vector <std::string> &options) override;
+    virtual ErrorCodes_t getResistanceCompensationOptions(std::vector <std::string> &options) override;
+    virtual ErrorCodes_t getResistanceCorrectionOptions(std::vector <std::string> &options) override;
+    virtual ErrorCodes_t getResistancePredictionOptions(std::vector <std::string> &options) override;
+    virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> &options) override;
+    virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> &options) override;
 
     ErrorCodes_t getLiquidJunctionControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getPipetteCapacitanceControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getCCPipetteCapacitanceControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getMembraneCapacitanceControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getAccessResistanceControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getResistanceCorrectionPercentageControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getResistanceCorrectionLagControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getResistancePredictionGainControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getResistancePredictionPercentageControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getResistancePredictionBandwidthGainControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getResistancePredictionTauControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getLeakConductanceControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getBridgeBalanceResistanceControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getPipetteCapacitanceControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getCCPipetteCapacitanceControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getMembraneCapacitanceControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getAccessResistanceControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getResistanceCorrectionPercentageControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getResistanceCorrectionLagControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getResistancePredictionGainControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getResistancePredictionPercentageControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getResistancePredictionBandwidthGainControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getResistancePredictionTauControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getLeakConductanceControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getBridgeBalanceResistanceControl(CompensationControl_t &control) override;
 
 protected:
     typedef enum {
@@ -295,7 +299,7 @@ protected:
     virtual bool checkCompensationsValues() = 0;
     virtual bool fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) = 0;
     virtual void updateWrittenCompesantionValues(std::vector <uint16_t> &txDataMessage) = 0;
-    ErrorCodes_t turnCompensationsOn(std::vector <bool> &flag, bool on);
+    ErrorCodes_t turnCompensationsOn(bool &flag, bool on);
     ErrorCodes_t turnCompensationOn(std::vector <bool> &flag, bool on);
     virtual ErrorCodes_t setCompensationsOptions();
     ErrorCodes_t setCompensationValue(double &param, CompensationControl_t &control, Measurement_t newValue);
@@ -512,8 +516,6 @@ protected:
     std::vector <bool> compensationsSwitchesEnableSignArray; /*! true means that enabling the compensation closes a switch (write a 1) */
 
     std::vector <bool> compensationsEnabledArray[CompensationsNum]; /*! Compensations actually enabled on device */
-    bool vcCompensationsActivated = false;
-    bool ccCompensationsActivated = false;
 
     std::vector <double> pipetteCapacitance;
     std::vector <double> ccPipetteCapacitance;
@@ -527,17 +529,6 @@ protected:
     std::vector <double> resistancePredictionTau;
     std::vector <double> leakConductance;
     std::vector <double> bridgeBalanceResistance;
-
-    std::vector <bool> voltageCompensationsFlag;
-    std::vector <bool> currentCompensationsFlag;
-    std::vector <bool> pipetteCompensationFlag;
-    std::vector <bool> ccPipetteCompensationFlag;
-    std::vector <bool> membraneCompensationFlag;
-    std::vector <bool> resistanceCompensationFlag;
-    std::vector <bool> resistanceCorrectionFlag;
-    std::vector <bool> resistancePredictionFlag;
-    std::vector <bool> leakConductanceCompensationFlag;
-    std::vector <bool> bridgeBalanceCompensationFlag;
 
     bool pipetteCompensationImplemented = false;
     bool ccPipetteCompensationImplemented = false;

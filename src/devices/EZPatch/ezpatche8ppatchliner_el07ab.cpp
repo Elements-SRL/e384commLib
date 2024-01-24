@@ -198,6 +198,26 @@ EZPatche8PPatchliner_el07ab::EZPatche8PPatchliner_el07ab(std::string di) :
     realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
 
+    integrationStepArray.resize(samplingRatesNum);
+    integrationStepArray[SamplingRate6_25kHz].value = 160.0;
+    integrationStepArray[SamplingRate6_25kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate6_25kHz].unit = "s";
+    integrationStepArray[SamplingRate12_5kHz].value = 80.0;
+    integrationStepArray[SamplingRate12_5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate12_5kHz].unit = "s";
+    integrationStepArray[SamplingRate25kHz].value = 40.0;
+    integrationStepArray[SamplingRate25kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate25kHz].unit = "s";;
+    integrationStepArray[SamplingRate50kHz].value = 20.0;
+    integrationStepArray[SamplingRate50kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate50kHz].unit = "s";
+    integrationStepArray[SamplingRate100kHz].value = 10.0;
+    integrationStepArray[SamplingRate100kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate100kHz].unit = "s";
+    integrationStepArray[SamplingRate200kHz].value = 5.0;
+    integrationStepArray[SamplingRate200kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate200kHz].unit = "s";
+
     samplingRatesSwitchesLut.resize(samplingRatesNum);
 
     samplingRatesSwitchesNum = SamplingRatesSwitchesNum;
@@ -1234,8 +1254,8 @@ void EZPatche8PPatchliner_el07ab::initializeCompensations() {
 
 bool EZPatche8PPatchliner_el07ab::checkCompensationsValues() {
     bool ret = true;
-    if (voltageCompensationsFlag[compensationsSettingChannel]) {
-        if (pipetteCompensationFlag[compensationsSettingChannel] && membraneCompensationFlag[compensationsSettingChannel]) {
+    if (vcCompensationsActivated) {
+        if (compCfastEnable[compensationsSettingChannel] && compCslowEnable[compensationsSettingChannel]) {
             if (membraneCapacitance[compensationsSettingChannel] > maxMembraneCapacitance3) {
                 additionalPipetteCapacitanceFromMembrane = membraneInjCapacitance4;
 
@@ -1253,13 +1273,13 @@ bool EZPatche8PPatchliner_el07ab::checkCompensationsValues() {
             additionalPipetteCapacitanceFromMembrane = 0.0;
         }
 
-        if (pipetteCompensationFlag[compensationsSettingChannel]){
+        if (compCfastEnable[compensationsSettingChannel]){
             ret &= (pipetteCapacitance[compensationsSettingChannel]+additionalPipetteCapacitanceFromMembrane > (minPipetteCapacitance-0.5*pipetteCapacitanceStep) &&
                     pipetteCapacitance[compensationsSettingChannel]+additionalPipetteCapacitanceFromMembrane < (maxPipetteCapacitance+0.5*pipetteCapacitanceStep));
         }
 
         double membraneTau;
-        if (membraneCompensationFlag[compensationsSettingChannel]) {
+        if (compCslowEnable[compensationsSettingChannel]) {
             ret &= (membraneCapacitance[compensationsSettingChannel] > (minMembraneCapacitance-0.5*membraneCapacitanceStep) &&
                     membraneCapacitance[compensationsSettingChannel] < (maxMembraneCapacitance+0.5*membraneCapacitanceStep));
             membraneTau = membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel];
@@ -1269,12 +1289,12 @@ bool EZPatche8PPatchliner_el07ab::checkCompensationsValues() {
             membraneTau = 0.0;
         }
 
-        if (resistanceCorrectionFlag[compensationsSettingChannel]) {
+        if (compRsCorrEnable[compensationsSettingChannel]) {
             double resistanceCorrected = accessResistance[compensationsSettingChannel]*resistanceCorrectionPercentage[compensationsSettingChannel]/maxResistanceCorrectionPercentage; /*! Missing the minimum check because for this device this is handled when building the packet */
             ret &= (resistanceCorrected < (0.001*minResistanceCorrection+1.001*maxResistanceCorrection)); /*! Missing the minimum check because for this device this is handled when building the packet */
         }
 
-        if (resistancePredictionFlag[compensationsSettingChannel]) {
+        if (compRsPredEnable[compensationsSettingChannel]) {
             ret &= (resistancePredictionGain[compensationsSettingChannel] > (minResistancePredictionGain-0.5*resistancePredictionGainStep) &&
                     resistancePredictionGain[compensationsSettingChannel] < (maxResistancePredictionGain+0.5*resistancePredictionGainStep));
             double resistancePredictedTau = membraneTau/resistancePredictionGain[compensationsSettingChannel];
@@ -1282,12 +1302,12 @@ bool EZPatche8PPatchliner_el07ab::checkCompensationsValues() {
         }
     }
 
-    if (currentCompensationsFlag[compensationsSettingChannel]) {
+    if (ccCompensationsActivated) {
         ret &= (ccPipetteCapacitance[compensationsSettingChannel] > (minCcPipetteCapacitance-0.5*ccPipetteCapacitanceStep) &&
                 ccPipetteCapacitance[compensationsSettingChannel] < (maxCcPipetteCapacitance+0.5*ccPipetteCapacitanceStep));
     }
 
-    if (voltageCompensationsFlag[compensationsSettingChannel]) {
+    if (vcCompensationsActivated) {
         double rs = fmax(accessResistance[compensationsSettingChannel], accessResistanceControl.step);
         double rc = fmax(resistanceCorrectionPercentage[compensationsSettingChannel], resistanceCorrectionPercentageControl.step);
         double rp = fmax(resistancePredictionPercentage[compensationsSettingChannel], resistancePredictionPercentageControl.step);
@@ -1296,13 +1316,13 @@ bool EZPatche8PPatchliner_el07ab::checkCompensationsValues() {
 
         double d1 = maxMembraneCapacitance;
         double d2 = maxMembraneTau/rs;
-        double d3 = (resistancePredictionFlag[compensationsSettingChannel] ? maxResistancePredictionTau*resistancePredictionGain[compensationsSettingChannel]/(rs*rp) : std::numeric_limits <double>::max());
+        double d3 = (compRsPredEnable[compensationsSettingChannel] ? maxResistancePredictionTau*resistancePredictionGain[compensationsSettingChannel]/(rs*rp) : std::numeric_limits <double>::max());
         membraneCapacitanceControl.compensable = fmin(fmin(d1, d2), d3);
 
         d1 = accessResistanceControl.max;
         d2 = maxMembraneTau/membraneCapacitance[compensationsSettingChannel];
         d3 = maxResistanceCorrection*maxResistanceCorrectionPercentage/rc;
-        double d4 = (resistancePredictionFlag[compensationsSettingChannel] ? maxResistancePredictionTau*resistancePredictionGain[compensationsSettingChannel]/(membraneCapacitance[compensationsSettingChannel]*rp) : std::numeric_limits <double>::max());
+        double d4 = (compRsPredEnable[compensationsSettingChannel] ? maxResistancePredictionTau*resistancePredictionGain[compensationsSettingChannel]/(membraneCapacitance[compensationsSettingChannel]*rp) : std::numeric_limits <double>::max());
         accessResistanceControl.compensable = fmin(fmin(fmin(d1, d2), d3), d4);
 
         d1 = resistanceCorrectionPercentageControl.max;
@@ -1310,7 +1330,7 @@ bool EZPatche8PPatchliner_el07ab::checkCompensationsValues() {
         resistanceCorrectionPercentageControl.compensable = fmin(d1, d2);
     }
 
-    if (currentCompensationsFlag[compensationsSettingChannel]) {
+    if (ccCompensationsActivated) {
         /*! ccPipetteCapacitanceControl.compensable doesn't depend on other controls */
     }
 
@@ -1468,26 +1488,26 @@ bool EZPatche8PPatchliner_el07ab::fillCompensationsRegistersTxData(std::vector <
         ccPipetteRange = 0x0000;
     }
 
-    if (voltageCompensationsFlag[compensationsSettingChannel]) {
+    if (vcCompensationsActivated) {
         txDataMessage[0] = CompensationsRegisterVCCFastGain+compensationsSettingChannel*coreSpecificRegistersNum;
-        txDataMessage[1] = ((voltageCompensationsFlag[compensationsSettingChannel] & pipetteCompensationFlag[compensationsSettingChannel]) ? pipetteRange | (uint16_t)round(pipetteValue) : 0);
+        txDataMessage[1] = ((vcCompensationsActivated & compCfastEnable[compensationsSettingChannel]) ? pipetteRange | (uint16_t)round(pipetteValue) : 0);
 
-    } else if (currentCompensationsFlag[compensationsSettingChannel]) {
+    } else if (ccCompensationsActivated) {
         txDataMessage[0] = CompensationsRegisterCCCFastGain+compensationsSettingChannel*coreSpecificRegistersNum;
-        txDataMessage[1] = ((currentCompensationsFlag[compensationsSettingChannel] & ccPipetteCompensationFlag[compensationsSettingChannel]) ? ccPipetteRange | (uint16_t)round(ccPipetteValue) : 0);
+        txDataMessage[1] = ((ccCompensationsActivated & compCcCfastEnable[compensationsSettingChannel]) ? ccPipetteRange | (uint16_t)round(ccPipetteValue) : 0);
     }
     txDataMessage[2] = CompensationsRegisterVCCSlowGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[3] = ((voltageCompensationsFlag[compensationsSettingChannel] & membraneCompensationFlag[compensationsSettingChannel]) ? membraneRange | (uint16_t)round(membraneValue) : 0);
+    txDataMessage[3] = ((vcCompensationsActivated & compCslowEnable[compensationsSettingChannel]) ? membraneRange | (uint16_t)round(membraneValue) : 0);
     txDataMessage[4] = CompensationsRegisterVCCslowTau+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[5] = ((voltageCompensationsFlag[compensationsSettingChannel] & membraneCompensationFlag[compensationsSettingChannel]) ? membraneTauRange | (uint16_t)round(membraneTauValue) : 0);
+    txDataMessage[5] = ((vcCompensationsActivated & compCslowEnable[compensationsSettingChannel]) ? membraneTauRange | (uint16_t)round(membraneTauValue) : 0);
     txDataMessage[6] = CompensationsRegisterVCRCorrGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[7] = ((voltageCompensationsFlag[compensationsSettingChannel] & resistanceCorrectionFlag[compensationsSettingChannel]) ? (uint16_t)round((correctedResistance-minResistanceCorrection)/resistanceCorrectionStep) : 0);
+    txDataMessage[7] = ((vcCompensationsActivated & compRsCorrEnable[compensationsSettingChannel]) ? (uint16_t)round((correctedResistance-minResistanceCorrection)/resistanceCorrectionStep) : 0);
     txDataMessage[8] = CompensationsRegisterVCRPredGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[9] = ((voltageCompensationsFlag[compensationsSettingChannel] & resistancePredictionFlag[compensationsSettingChannel]) ? (uint16_t)round((resistancePredictionGain[compensationsSettingChannel]-minResistancePredictionGain)/resistancePredictionGainStep) : 0);
+    txDataMessage[9] = ((vcCompensationsActivated & compRsPredEnable[compensationsSettingChannel]) ? (uint16_t)round((resistancePredictionGain[compensationsSettingChannel]-minResistancePredictionGain)/resistancePredictionGainStep) : 0);
     txDataMessage[10] = CompensationsRegisterVCRPredTau+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[11] = ((voltageCompensationsFlag[compensationsSettingChannel] & resistancePredictionFlag[compensationsSettingChannel]) ? (uint16_t)round((membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel]-minResistancePredictionTau)/resistancePredictionGain[compensationsSettingChannel]/resistancePredictionTauStep) : 0);
+    txDataMessage[11] = ((vcCompensationsActivated & compRsPredEnable[compensationsSettingChannel]) ? (uint16_t)round((membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel]-minResistancePredictionTau)/resistancePredictionGain[compensationsSettingChannel]/resistancePredictionTauStep) : 0);
 
-    if (voltageCompensationsFlag[compensationsSettingChannel]) {
+    if (vcCompensationsActivated) {
         if (txDataMessage[1] != pipetteCapacitanceRegValue[compensationsSettingChannel] ||
                 txDataMessage[3] != membraneCapacitanceRegValue[compensationsSettingChannel] ||
                 txDataMessage[5] != membraneTauRegValue[compensationsSettingChannel] ||
@@ -1497,7 +1517,7 @@ bool EZPatche8PPatchliner_el07ab::fillCompensationsRegistersTxData(std::vector <
             anythingChanged = true;
         }
 
-    } else if (currentCompensationsFlag[compensationsSettingChannel]) {
+    } else if (ccCompensationsActivated) {
         if (txDataMessage[1] != ccPipetteCapacitanceRegValue[compensationsSettingChannel] ||
                 txDataMessage[3] != membraneCapacitanceRegValue[compensationsSettingChannel] ||
                 txDataMessage[5] != membraneTauRegValue[compensationsSettingChannel] ||
@@ -1511,10 +1531,10 @@ bool EZPatche8PPatchliner_el07ab::fillCompensationsRegistersTxData(std::vector <
 }
 
 void EZPatche8PPatchliner_el07ab::updateWrittenCompesantionValues(std::vector <uint16_t> &txDataMessage) {
-    if (voltageCompensationsFlag[compensationsSettingChannel]) {
+    if (vcCompensationsActivated) {
         pipetteCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[1];
 
-    } else if (currentCompensationsFlag[compensationsSettingChannel]) {
+    } else if (ccCompensationsActivated) {
         ccPipetteCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[1];
     }
     membraneCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[3];

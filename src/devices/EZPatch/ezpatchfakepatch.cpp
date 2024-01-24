@@ -31,6 +31,20 @@ EZPatchFakePatch::EZPatchFakePatch(std::string di) :
     realSamplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate20kHz].unit = "Hz";
 
+    integrationStepArray.resize(samplingRatesNum);
+    integrationStepArray[SamplingRate1_25kHz].value = 800.0;
+    integrationStepArray[SamplingRate1_25kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate1_25kHz].unit = "s";
+    integrationStepArray[SamplingRate5kHz].value = 200.0;
+    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate5kHz].unit = "s";
+    integrationStepArray[SamplingRate10kHz].value = 100.0;
+    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate10kHz].unit = "s";
+    integrationStepArray[SamplingRate20kHz].value = 50.0;
+    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate20kHz].unit = "s";
+
     protocolMaxItemsNum = 1e6;
 
     voltageProtocolStepImplemented = true;

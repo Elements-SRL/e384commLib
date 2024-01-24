@@ -249,13 +249,7 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     calibrationData.canInputsBeOpened = true;
     calibrationData.adcCalibratedInOffsetBinary = true;
 
-    vHoldRange.resize(VCVoltageRangesNum);
-    vHoldRange[VCVoltageRange500mV].min = -500.0;
-    vHoldRange[VCVoltageRange500mV].max = 500.0;
-    vHoldRange[VCVoltageRange500mV].step = 1.0;
-    vHoldRange[VCVoltageRange500mV].prefix = UnitPfxMilli;
-    vHoldRange[VCVoltageRange500mV].unit = "V";
-    defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
+    defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
 
     /*! VC leak calibration (shunt resistance)*/
     vcLeakCalibRange.resize(VCCurrentRangesNum);
@@ -460,7 +454,7 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     voltageProtocolRestCoders.resize(VCVoltageRangesNum);
 
     for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         voltageProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -481,7 +475,7 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
         voltageProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
         voltageProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
 
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
 
@@ -517,7 +511,7 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
         currentProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
         currentProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
 
-        doubleConfig.resolution = cHoldRange[rangeIdx].step;
+        doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
 
@@ -612,9 +606,9 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     vHoldTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 328;
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
-        doubleConfig.minValue = vHoldRange[rangeIdx].min;
-        doubleConfig.maxValue = vHoldRange[rangeIdx].max;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
+        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);

@@ -444,19 +444,11 @@ Emcr384PatchClamp_V04::Emcr384PatchClamp_V04(std::string di) :
     calibrationData.ccCalibResForCcAdcOffsetArray.resize(CCVoltageRangesNum);
     calibrationData.ccCalibResForCcAdcOffsetArray[CCVoltageRange1000mV] = {120.0, UnitPfxKilo, "Ohm"};
 
-    vHoldRange.resize(VCVoltageRangesNum);
-    vHoldRange[VCVoltageRange500mV] = vcVoltageRangesArray[VCVoltageRange500mV];
-    defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
+    defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
+    defaultCurrentHoldTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
 
-    cHoldRange.resize(CCCurrentRangesNum);
-    cHoldRange[CCCurrentRange8nA] = ccCurrentRangesArray[CCCurrentRange8nA];
-    defaultCurrentHoldTuner = {0.0, cHoldRange[CCCurrentRange8nA].prefix, cHoldRange[CCCurrentRange8nA].unit};
-
-    vHalfRange = vHoldRange;
-    defaultVoltageHalfTuner = {0.0, vHalfRange[VCVoltageRange500mV].prefix, vHalfRange[VCVoltageRange500mV].unit};
-
-    cHalfRange = cHoldRange;
-    defaultCurrentHalfTuner = {0.0, cHalfRange[CCCurrentRange8nA].prefix, cHalfRange[CCCurrentRange8nA].unit};
+    defaultVoltageHalfTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
+    defaultCurrentHalfTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
 
     /*! VC leak calibration (shunt resistance)*/
     vcLeakCalibRange.resize(VCCurrentRangesNum);
@@ -990,7 +982,7 @@ Emcr384PatchClamp_V04::Emcr384PatchClamp_V04(std::string di) :
     voltageProtocolRestCoders.resize(VCVoltageRangesNum);
 
     for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         voltageProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -1003,7 +995,7 @@ Emcr384PatchClamp_V04::Emcr384PatchClamp_V04(std::string di) :
     currentProtocolRestCoders.resize(CCCurrentRangesNum);
 
     for (unsigned int rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
-        doubleConfig.resolution = cHoldRange[rangeIdx].step;
+        doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         currentProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -1024,7 +1016,7 @@ Emcr384PatchClamp_V04::Emcr384PatchClamp_V04(std::string di) :
         voltageProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
         voltageProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
 
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
 
@@ -1060,7 +1052,7 @@ Emcr384PatchClamp_V04::Emcr384PatchClamp_V04(std::string di) :
         currentProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
         currentProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
 
-        doubleConfig.resolution = cHoldRange[rangeIdx].step;
+        doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
 
@@ -1165,9 +1157,9 @@ Emcr384PatchClamp_V04::Emcr384PatchClamp_V04(std::string di) :
     vHoldTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 448;
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
-        doubleConfig.minValue = vHoldRange[rangeIdx].min;
-        doubleConfig.maxValue = vHoldRange[rangeIdx].max;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
+        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -1182,9 +1174,9 @@ Emcr384PatchClamp_V04::Emcr384PatchClamp_V04(std::string di) :
     cHoldTunerCoders.resize(CCCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < CCCurrentRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 448;
-        doubleConfig.resolution = cHoldRange[rangeIdx].step;
-        doubleConfig.minValue = cHoldRange[rangeIdx].min;
-        doubleConfig.maxValue = cHoldRange[rangeIdx].max;
+        doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
+        doubleConfig.minValue = ccCurrentRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = ccCurrentRangesArray[rangeIdx].max;
         cHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             cHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -1199,9 +1191,9 @@ Emcr384PatchClamp_V04::Emcr384PatchClamp_V04(std::string di) :
     vHalfTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 832;
-        doubleConfig.resolution = vHalfRange[rangeIdx].step;
-        doubleConfig.minValue = vHalfRange[rangeIdx].min;
-        doubleConfig.maxValue = vHalfRange[rangeIdx].max;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
+        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
         vHalfTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             vHalfTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -1216,9 +1208,9 @@ Emcr384PatchClamp_V04::Emcr384PatchClamp_V04(std::string di) :
     cHalfTunerCoders.resize(CCCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < CCCurrentRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 832;
-        doubleConfig.resolution = cHalfRange[rangeIdx].step;
-        doubleConfig.minValue = cHalfRange[rangeIdx].min;
-        doubleConfig.maxValue = cHalfRange[rangeIdx].max;
+        doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
+        doubleConfig.minValue = ccCurrentRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = ccCurrentRangesArray[rangeIdx].max;
         cHalfTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             cHalfTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -1935,8 +1927,8 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> cha
     case CompCfast:
         if(pipetteCapEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
-        } else if (!areVcCompsEnabled) {
-            return ErrorThisCompensationNotEnabled;
+        } else if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
         }
 #ifdef DEBUG_TX_DATA_PRINT
         debugString += "enable cfast: ";
@@ -1954,8 +1946,8 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> cha
     case CompCslow:
         if(membraneCapEnCompensationCoders.size() == 0 ){
             return ErrorFeatureNotImplemented;
-        } else if (!areVcCompsEnabled) {
-            return ErrorThisCompensationNotEnabled;
+        } else if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
         }
 #ifdef DEBUG_TX_DATA_PRINT
         debugString += "enable cslow: ";
@@ -1973,8 +1965,8 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> cha
     case CompRsCorr:
         if(rsCorrEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
-        } else if (!areVcCompsEnabled) {
-            return ErrorThisCompensationNotEnabled;
+        } else if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
         }
 #ifdef DEBUG_TX_DATA_PRINT
         debugString += "enable rscorr: ";
@@ -1993,8 +1985,8 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> cha
     case CompRsPred:
         if(rsPredEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
-        }else if (!areVcCompsEnabled) {
-            return ErrorThisCompensationNotEnabled;
+        }else if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
         }
 #ifdef DEBUG_TX_DATA_PRINT
         debugString += "enable rspred: ";
@@ -2012,8 +2004,8 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> cha
     case CompCcCfast:
         if(pipetteCapCcEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
-        } else if (!areCcCompsEnabled) {
-            return ErrorThisCompensationNotEnabled;
+        } else if (!ccCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
         }
 #ifdef DEBUG_TX_DATA_PRINT
         debugString += "enable cccfast: ";
@@ -2047,13 +2039,13 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableCompensation(std::vector<uint16_t> cha
 }
 
 ErrorCodes_t Emcr384PatchClamp_V04::enableVcCompensations(bool enable, bool applyFlag){
-    areVcCompsEnabled = enable;
+    vcCompensationsActivated = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
-        pipetteCapEnCompensationCoders[i]->encode(areVcCompsEnabled && compCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        membraneCapEnCompensationCoders[i]->encode(areVcCompsEnabled && compCslowEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsCorrEnCompensationCoders[i]->encode(areVcCompsEnabled && compRsCorrEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsPredEnCompensationCoders[i]->encode(areVcCompsEnabled && compRsPredEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        membraneCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compCslowEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        rsCorrEnCompensationCoders[i]->encode(vcCompensationsActivated && compRsCorrEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        rsPredEnCompensationCoders[i]->encode(vcCompensationsActivated && compRsPredEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
         this->updateLiquidJunctionVoltage(i, false);
     }
 
@@ -2069,10 +2061,10 @@ ErrorCodes_t Emcr384PatchClamp_V04::enableVcCompensations(bool enable, bool appl
 }
 
 ErrorCodes_t Emcr384PatchClamp_V04::enableCcCompensations(bool enable, bool applyFlag){
-    areCcCompsEnabled = enable;
+    ccCompensationsActivated = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
-        pipetteCapCcEnCompensationCoders[i]->encode(areCcCompsEnabled && compCcCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapCcEnCompensationCoders[i]->encode(ccCompensationsActivated && compCcCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
     if (applyFlag) {

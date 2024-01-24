@@ -21,6 +21,7 @@ public:
 
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlag = true) override;
     ErrorCodes_t resetFpga(bool resetFlag, bool applyFlag = true) override;
+
     ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag) override;
     ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag) override;
     ErrorCodes_t setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag) override;
