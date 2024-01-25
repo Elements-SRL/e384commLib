@@ -462,7 +462,7 @@ void EZPatchFakeP8::unwrapAndSendMessagesForGenerator() {
             break;
         }
 
-#ifdef DEBUGPRINT
+#ifdef DEBUG_TX_DATA_PRINT
         currentPrintfTime = std::chrono::steady_clock::now();
         fprintf(txFid,
                 "%d us\n"

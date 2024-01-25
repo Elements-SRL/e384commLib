@@ -2909,7 +2909,7 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
             ret = this->getNextMessage(rxOutput, datain);
             this->deallocateRxDataBuffer(datain);
 
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
             fprintf(rxFid,
                     "fpga reset\n"
                     "try %d: %s\n\n",
@@ -2923,7 +2923,7 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
 
         ret = this->ping();
 
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
         fprintf(rxFid,
                 "ping\n"
                 "try %d: %s\n\n",
@@ -3121,10 +3121,7 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
 
             } else {
                 resendTry++;
-#ifdef RX_PACKETS_FLOW_PRINT
-                cout << "resend" << endl;
-#endif
-#ifdef DEBUGPRINT
+#ifdef DEBUG_TX_DATA_PRINT
                 fprintf(txFid, "resend\n\n");
                 fflush(txFid);
 #endif
