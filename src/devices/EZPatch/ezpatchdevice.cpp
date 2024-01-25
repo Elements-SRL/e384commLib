@@ -3104,7 +3104,7 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
         this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
         ret = Success;
 
-    } else {
+    } else if (threadsStarted) {
         std::unique_lock <std::mutex> ackLock(txAckMutex);
         txAckReceived = false;
         int resendTry = 0;
@@ -3132,6 +3132,11 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
             txWaitingOnAcks--;
         }
         ackLock.unlock();
+
+    } else {
+        this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
+        this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
+        ret = Success;
     }
     return ret;
 }

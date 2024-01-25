@@ -481,7 +481,7 @@ void EZPatchFakeP8::unwrapAndSendMessagesForGenerator() {
             fprintf(txFid,
                     "data%d:\t0x%04x\n",
                     txDataBufferReadIdx,
-                    txDataBuffer[(txDataBufferReadOffset+txDataBufferReadIdx)&FTD_TX_DATA_BUFFER_MASK]);
+                    txDataBuffer[(txDataBufferReadOffset+txDataBufferReadIdx)&EZP_TX_DATA_BUFFER_MASK]);
         }
 
 //        txComputedCrc = txCrc16Ccitt(FTD_TX_SYNC_WORD_SIZE+FTD_TX_HB_TY_LN_SIZE+FTD_TX_CRC_WORD_SIZE, txDataBytes, txComputedCrc);

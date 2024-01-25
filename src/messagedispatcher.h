@@ -683,6 +683,12 @@ protected:
     mutable std::mutex ljMutex;
     bool liquidJunctionControlPending = false;
 
+
+#if defined(DEBUG_TX_DATA_PRINT) || defined(DEBUG_RX_DATA_PRINT)
+    std::chrono::steady_clock::time_point startPrintfTime;
+    std::chrono::steady_clock::time_point currentPrintfTime;
+#endif
+
 #ifdef DEBUG_TX_DATA_PRINT
     FILE * txFid = nullptr;
 #endif
