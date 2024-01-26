@@ -67,8 +67,12 @@ public:
     virtual ErrorCodes_t resetFpga(bool resetFlag, bool applyFlag) override;
     virtual ErrorCodes_t resetFpga();
 
-    ErrorCodes_t setVoltageHoldTuner(std::vector <uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag) override;
-    ErrorCodes_t setCurrentHoldTuner(std::vector <uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag) override;
+    ErrorCodes_t setLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) override;
+    ErrorCodes_t setLiquidJunctionVoltage(uint16_t channelIdx, Measurement_t voltage);
+    ErrorCodes_t updateLiquidJunctionVoltage(uint16_t channelIdx, bool applyFlag);
+
+    ErrorCodes_t setVoltageHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) override;
+    ErrorCodes_t setCurrentHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag) override;
     ErrorCodes_t setVoltageHoldTuner(uint16_t channelIdx, Measurement_t voltage);
     ErrorCodes_t setCurrentHoldTuner(uint16_t channelIdx, Measurement_t current);
 
@@ -200,6 +204,7 @@ public:
     ErrorCodes_t getLedsColors(std::vector <uint32_t> &ledsColors);
     ErrorCodes_t hasAnalogOut();
     ErrorCodes_t hasSlaveModality();
+    ErrorCodes_t hasOffsetCompensation() override;
 
     virtual ErrorCodes_t hasPipetteCompensation();
     virtual ErrorCodes_t hasCCPipetteCompensation();

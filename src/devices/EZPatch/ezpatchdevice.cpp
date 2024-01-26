@@ -154,9 +154,57 @@ ErrorCodes_t EZPatchDevice::resetFpga() {
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::setLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) {
     ErrorCodes_t ret = Success;
-    for (unsigned int idx; idx < channelIndexes.size(); idx++) {
+    for (unsigned int idx = 0; idx < channelIndexes.size(); idx++) {
+        if (ret == Success) {
+            ret = this->setLiquidJunctionVoltage(channelIndexes[idx], voltages[idx]);
+        }
+    }
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setLiquidJunctionVoltage(uint16_t channelIdx, Measurement_t voltage) {
+    if (!voltageHoldTunerImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+
+    if (channelIdx >= currentChannelsNum) {
+        return ErrorValueOutOfRange;
+    }
+
+    selectedLiquidJunctionVector[channelIdx] = voltage;
+    if (this->updateLiquidJunctionVoltage(channelIdx, true) == Success) {
+        channelModels[channelIdx]->setLiquidJunctionVoltage(selectedLiquidJunctionVector[channelIdx]); /*! \todo FCON Qui andrebbe controllato chi fallisce */
+    }
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool applyFlag) {
+    if (channelIdx >= currentChannelsNum) {
+        return ErrorValueOutOfRange;
+    }
+
+    /*! \todo FCON, ogni canale inviato da solo, si potrebbe fare di meglio */
+    ErrorCodes_t ret;
+    selectedLiquidJunctionVector[channelIdx].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
+
+    uint16_t dataLength = 4;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+    txDataMessage[3] = txDataMessage[1];
+    txDataMessage[1] = txDataMessage[0];
+    txDataMessage[0] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
+    txDataMessage[2] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
+
+    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) {
+    ErrorCodes_t ret = Success;
+    for (unsigned int idx = 0; idx < channelIndexes.size(); idx++) {
         if (ret == Success) {
             ret = this->setVoltageHoldTuner(channelIndexes[idx], voltages[idx]);
         }
@@ -164,9 +212,9 @@ ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(std::vector<uint16_t> channelInd
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag) {
     ErrorCodes_t ret = Success;
-    for (unsigned int idx; idx < channelIndexes.size(); idx++) {
+    for (unsigned int idx = 0; idx < channelIndexes.size(); idx++) {
         if (ret == Success) {
             ret = this->setCurrentHoldTuner(channelIndexes[idx], currents[idx]);
         }
@@ -183,7 +231,7 @@ ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(uint16_t channelIdx, Measurement
 
         uint16_t dataLength = 4;
         std::vector <uint16_t> txDataMessage(dataLength);
-        this->int322uint16((int32_t)round(selectedVoltageHoldVector[channelIdx].value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+        this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
         txDataMessage[3] = txDataMessage[1];
         txDataMessage[1] = txDataMessage[0];
         txDataMessage[0] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
@@ -192,7 +240,6 @@ ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(uint16_t channelIdx, Measurement
         ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
 
         if (ret == Success) {
-            selectedVoltageHoldVector[channelIdx].convertValue(voltageRange.prefix);
             voltageTunerCorrection[channelIdx] = selectedVoltageHoldVector[channelIdx].value;
         }
 
@@ -202,7 +249,7 @@ ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(uint16_t channelIdx, Measurement
         for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             selectedVoltageHoldVector[channelIdx] = voltage;
             selectedVoltageHoldVector[channelIdx].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
-            this->int322uint16((int32_t)round(selectedVoltageHoldVector[channelIdx].value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, channelIdx*4);
+            this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, channelIdx*4);
             txDataMessage[3+channelIdx*4] = txDataMessage[1+channelIdx*4];
             txDataMessage[1+channelIdx*4] = txDataMessage[0+channelIdx*4];
         }
@@ -216,7 +263,6 @@ ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(uint16_t channelIdx, Measurement
 
         if (ret == Success) {
             for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                selectedVoltageHoldVector[channelIdx].convertValue(voltageRange.prefix);
                 voltageTunerCorrection[channelIdx] = selectedVoltageHoldVector[channelIdx].value;
             }
         }
@@ -246,7 +292,6 @@ ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(uint16_t channelIdx, Measurement
         ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
 
         if (ret == Success) {
-            selectedCurrentHoldVector[channelIdx].convertValue(currentRange.prefix);
             currentTunerCorrection[channelIdx] = selectedCurrentHoldVector[channelIdx].value;
         }
 
@@ -270,7 +315,6 @@ ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(uint16_t channelIdx, Measurement
 
         if (ret == Success) {
             for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-                selectedCurrentHoldVector[channelIdx].convertValue(currentRange.prefix);
                 currentTunerCorrection[channelIdx] = selectedCurrentHoldVector[channelIdx].value;
             }
         }
@@ -2462,16 +2506,14 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
 }
 
 ErrorCodes_t EZPatchDevice::hasVoltageHoldTuner() {
-    if (voltageHoldTunerImplemented) {
-        return Success;
-
-    } else {
+    if (!voltageHoldTunerImplemented) {
         return ErrorFeatureNotImplemented;
     }
+    return Success;
 }
 
 ErrorCodes_t EZPatchDevice::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageRanges) {
-    if (!this->hasVoltageHoldTuner()) {
+    if (!voltageHoldTunerImplemented) {
         return ErrorFeatureNotImplemented;
     }
     voltageRanges = vcVoltageRangesArray;
@@ -2479,16 +2521,14 @@ ErrorCodes_t EZPatchDevice::getVoltageHoldTunerFeatures(std::vector <RangedMeasu
 }
 
 ErrorCodes_t EZPatchDevice::hasCurrentHoldTuner() {
-    if (currentHoldTunerImplemented) {
-        return Success;
-
-    } else {
+    if (!currentHoldTunerImplemented) {
         return ErrorFeatureNotImplemented;
     }
+    return Success;
 }
 
 ErrorCodes_t EZPatchDevice::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentRanges) {
-    if (!this->hasCurrentHoldTuner()) {
+    if (!currentHoldTunerImplemented) {
         return ErrorFeatureNotImplemented;
     }
     currentRanges = ccCurrentRangesArray;
@@ -2539,12 +2579,17 @@ ErrorCodes_t EZPatchDevice::hasAnalogOut() {
 }
 
 ErrorCodes_t EZPatchDevice::hasSlaveModality() {
-    if (slaveImplementedFlag) {
-        return Success;
-
-    } else {
+    if (!slaveImplementedFlag) {
         return ErrorFeatureNotImplemented;
     }
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::hasOffsetCompensation() {
+    if (!voltageHoldTunerImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    return Success;
 }
 
 ErrorCodes_t EZPatchDevice::hasPipetteCompensation() {
