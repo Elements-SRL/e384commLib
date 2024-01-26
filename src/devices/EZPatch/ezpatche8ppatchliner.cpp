@@ -1253,7 +1253,15 @@ ErrorCodes_t EZPatche8PPatchliner::getNextMessage(RxOutput_t &rxOutput, int16_t 
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
                             lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
 
+                            if (anyLiquidJuctionActive) {
+                                liquidJunctionCurrentSums[channelIdx] += (int64_t)data[dataWritten+sampleIdx+voltageChannelsNum];
+                            }
+
                             sampleIdx++;
+                        }
+
+                        if (anyLiquidJuctionActive) {
+                            liquidJunctionCurrentEstimatesNum++;
                         }
                         sampleIdx += currentChannelsNum;
 
