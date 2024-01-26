@@ -871,13 +871,13 @@ ErrorCodes_t EZPatchDevice::setSamplingRate(uint16_t samplingRateIdx, bool apply
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
 //    if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
 //        return ErrorValueOutOfRange;
 //    }
-    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
-        this->enableStimulus(chIdx, !onValues[i]);
+//        this->enableStimulus(chIdx, !onValues[i]); /*! \todo FCON qui servirebbe qualcosa che disabilita i protocolli e fa però funzionare la vhold. Ancora meglio sarebbe un comando dedicato per la digital offset compensation */
         channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
@@ -2446,9 +2446,17 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                             rawFloat = * (rxDataBuffer+dataOffset);
                             this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+currentTunerCorrection[currentChannelIdx]/currentResolution, iirINum, iirIDen);
                             xFlt = iirY[currentChannelIdx+voltageChannelsNum][iirOff];
-                            data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                            data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
                             lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
+                            if (anyLiquidJuctionActive) {
+                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
+                            }
+                            sampleIdx++;
+                        }
+
+                        if (anyLiquidJuctionActive) {
+                            liquidJunctionCurrentEstimatesNum++;
                         }
 
                         if (iirOff < 1) {
@@ -2532,6 +2540,14 @@ ErrorCodes_t EZPatchDevice::getCurrentHoldTunerFeatures(std::vector <RangedMeasu
         return ErrorFeatureNotImplemented;
     }
     currentRanges = ccCurrentRangesArray;
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges) {
+    if (!voltageHoldTunerImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    ranges = vcVoltageRangesArray;
     return Success;
 }
 
@@ -2928,6 +2944,7 @@ ErrorCodes_t EZPatchDevice::deviceConfiguration() {
 void EZPatchDevice::createCommunicationThreads() {
     rxThread = std::thread(&EZPatchDevice::readAndParseMessages, this);
     txThread = std::thread(&EZPatchDevice::unwrapAndSendMessages, this);
+    liquidJunctionThread = std::thread(&EZPatchDevice::computeLiquidJunction, this);
 
     threadsStarted = true;
 }
@@ -3034,6 +3051,7 @@ void EZPatchDevice::joinCommunicationThreads() {
     if (threadsStarted) {
         rxThread.join();
         txThread.join();
+        liquidJunctionThread.join();
 
         threadsStarted = false;
     }

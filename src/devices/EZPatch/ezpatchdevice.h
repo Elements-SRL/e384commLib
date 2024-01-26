@@ -193,6 +193,7 @@ public:
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageRanges) override;
     ErrorCodes_t hasCurrentHoldTuner();
     ErrorCodes_t getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentRanges) override;
+    ErrorCodes_t getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges) override;
 
     ErrorCodes_t getMaxOutputTriggers(unsigned int &maxTriggersNum);
     ErrorCodes_t getOutputTriggersNum(unsigned int &triggersNum);

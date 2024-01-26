@@ -1030,6 +1030,10 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
 
         txMutexLock.lock();
         txMsgBufferReadLength--;
+        if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
+            /*! \todo FCON let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
+            liquidJunctionControlPending = false;
+        }
         txMsgBufferNotFull.notify_all();
         txMutexLock.unlock();
     }

@@ -1032,14 +1032,14 @@ ErrorCodes_t EmcrDevice::setSourceForCurrentChannel(uint16_t source, bool applyF
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t EmcrDevice::digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
     if (digitalOffsetCompensationCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
     } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
-    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
         digitalOffsetCompensationCoders[chIdx]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
         channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
@@ -1502,7 +1502,9 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                                 sampleIdx++;
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
-                            liquidJunctionCurrentEstimatesNum++;
+                            if (anyLiquidJuctionActive) {
+                                liquidJunctionCurrentEstimatesNum++;
+                            }
 
                         } else {
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
@@ -1519,7 +1521,9 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                                 }
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
-                            liquidJunctionCurrentEstimatesNum++;
+                            if (anyLiquidJuctionActive) {
+                                liquidJunctionCurrentEstimatesNum++;
+                            }
                         }
 
                         if (iirOff < 1) {
@@ -1561,7 +1565,9 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                             sampleIdx++;
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
-                        liquidJunctionCurrentEstimatesNum++;
+                        if (anyLiquidJuctionActive) {
+                            liquidJunctionCurrentEstimatesNum++;
+                        }
 
                         if (iirOff < 1) {
                             iirOff = IIR_ORD;

@@ -1133,6 +1133,10 @@ void MessageDispatcher::createDebugFiles() {
         createDebugFile(ljFid, "e384CommLib_lj");
     }
 #endif
+
+#if defined(DEBUG_TX_DATA_PRINT) || defined(DEBUG_RX_DATA_PRINT)
+    startPrintfTime = std::chrono::steady_clock::now();
+#endif
 }
 
 void MessageDispatcher::initializeVariables() {
@@ -1527,11 +1531,13 @@ void MessageDispatcher::computeLiquidJunction() {
             this->setLiquidJunctionVoltage(channelIndexes, voltages, true);
 
             /*! This is to ensure that the voltage command has been submitted to the FPGA */
-            std::unique_lock <std::mutex> txMutexLock (txMutex);
-            while (liquidJunctionControlPending && !stopConnectionFlag) {
-                txMsgBufferNotFull.wait_for(txMutexLock, std::chrono::milliseconds(100));
+            if (!channelIndexes.empty()) {
+                std::unique_lock <std::mutex> txMutexLock (txMutex);
+                while (liquidJunctionControlPending && !stopConnectionFlag) {
+                    txMsgBufferNotFull.wait_for(txMutexLock, std::chrono::milliseconds(100));
+                }
+                txMutexLock.unlock();
             }
-            txMutexLock.unlock();
 
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
         } else {

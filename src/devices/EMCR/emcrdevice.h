@@ -358,7 +358,6 @@ protected:
 
     std::thread deviceCommunicationThread;
     std::thread rxConsumerThread;
-    std::thread liquidJunctionThread;
 
     mutable std::mutex rxRawMutex;
     std::condition_variable rxRawBufferNotEmpty;
