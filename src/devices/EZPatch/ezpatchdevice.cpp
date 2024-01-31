@@ -539,6 +539,9 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag) {
     if (idx >= clampingModalitiesNum) {
         return ErrorValueOutOfRange;
     }
+
+    this->stopProtocol();
+
     selectedClampingModalityIdx = idx;
     previousClampingModality = selectedClampingModality;
     selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];

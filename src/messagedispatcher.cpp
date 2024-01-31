@@ -185,6 +185,7 @@ ErrorCodes_t MessageDispatcher::stopProtocol() {
         this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest);
         this->setCurrentProtocolStep(0, 1, 0, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {10.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
     }
+    return this->startProtocol();
 }
 
 ErrorCodes_t MessageDispatcher::startStateArray() {
