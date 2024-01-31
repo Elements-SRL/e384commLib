@@ -176,6 +176,17 @@ ErrorCodes_t MessageDispatcher::startProtocol() {
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::stopProtocol() {
+    if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+        this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest);
+        this->setVoltageProtocolStep(0, 1, 0, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {10.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+
+    } else {
+        this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest);
+        this->setCurrentProtocolStep(0, 1, 0, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {10.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+    }
+}
+
 ErrorCodes_t MessageDispatcher::startStateArray() {
     return ErrorFeatureNotImplemented;
 }
@@ -563,7 +574,7 @@ ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector<uint16_t> 
     if (selectedLiquidJunctionVector.empty()) {
         return ErrorFeatureNotImplemented;
 
-    } else if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     voltages.resize(channelIndexes.size());

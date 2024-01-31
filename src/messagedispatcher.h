@@ -130,6 +130,7 @@ public:
 
     virtual ErrorCodes_t sendCommands();
     virtual ErrorCodes_t startProtocol();
+    ErrorCodes_t stopProtocol();
     virtual ErrorCodes_t startStateArray();
 
     virtual ErrorCodes_t resetAsic(bool resetFlag, bool applyFlag = true);
@@ -477,6 +478,9 @@ protected:
     RangedMeasurement_t positiveProtocolFrequencyRange;
 
     uint16_t selectedProtocolItemsNum = 0;
+    uint16_t selectedProtocolId = 0;
+    Measurement_t selectedProtocolVrest = {0.0, UnitPfxNone, "V"};
+    Measurement_t selectedProtocolIrest = {0.0, UnitPfxNone, "A"};
 
     uint32_t clampingModalitiesNum = 0;
     uint32_t selectedClampingModalityIdx = 0;

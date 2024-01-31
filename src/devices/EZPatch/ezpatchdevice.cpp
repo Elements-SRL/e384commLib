@@ -2,6 +2,8 @@
 
 #include <random>
 
+#include "utils.h"
+
 /*****************\
  *  Ctor / Dtor  *
 \*****************/
@@ -191,7 +193,12 @@ ErrorCodes_t EZPatchDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, boo
 
     uint16_t dataLength = 4;
     std::vector <uint16_t> txDataMessage(dataLength);
-    this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+    if (channelModels[channelIdx]->isCompensatingLiquidJunction()) {
+        this->int322uint16((int32_t)round((selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+
+    } else {
+        this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+    }
     txDataMessage[3] = txDataMessage[1];
     txDataMessage[1] = txDataMessage[0];
     txDataMessage[0] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
@@ -231,7 +238,13 @@ ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(uint16_t channelIdx, Measurement
 
         uint16_t dataLength = 4;
         std::vector <uint16_t> txDataMessage(dataLength);
-        this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+        if (channelModels[channelIdx]->isCompensatingLiquidJunction()) {
+            this->int322uint16((int32_t)round((selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+
+        } else {
+            this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+        }
+
         txDataMessage[3] = txDataMessage[1];
         txDataMessage[1] = txDataMessage[0];
         txDataMessage[0] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
@@ -249,7 +262,13 @@ ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(uint16_t channelIdx, Measurement
         for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             selectedVoltageHoldVector[channelIdx] = voltage;
             selectedVoltageHoldVector[channelIdx].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
-            this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, channelIdx*4);
+
+            if (channelModels[channelIdx]->isCompensatingLiquidJunction()) {
+                this->int322uint16((int32_t)round((selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+
+            } else {
+                this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+            }
             txDataMessage[3+channelIdx*4] = txDataMessage[1+channelIdx*4];
             txDataMessage[1+channelIdx*4] = txDataMessage[0+channelIdx*4];
         }
@@ -872,12 +891,12 @@ ErrorCodes_t EZPatchDevice::setSamplingRate(uint16_t samplingRateIdx, bool apply
 }
 
 ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
-//    if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
-//        return ErrorValueOutOfRange;
-//    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    this->stopProtocol();
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
-//        this->enableStimulus(chIdx, !onValues[i]); /*! \todo FCON qui servirebbe qualcosa che disabilita i protocolli e fa però funzionare la vhold. Ancora meglio sarebbe un comando dedicato per la digital offset compensation */
         channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
@@ -1103,7 +1122,7 @@ ErrorCodes_t EZPatchDevice::setCurrentStimulusLpf(uint16_t filterIdx, bool apply
 }
 
 ErrorCodes_t EZPatchDevice::enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
-//    if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+//    if (!allLessThan(channelIndexes, currentChannelsNum)) {
 //        return ErrorValueOutOfRange;
 //    }
     for(uint32_t i = 0; i < channelIndexes.size(); i++){
@@ -1864,29 +1883,27 @@ ErrorCodes_t EZPatchDevice::setDigitalRepetitiveTriggerOutput(uint16_t triggersN
 }
 
 ErrorCodes_t EZPatchDevice::setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest) {
-    ErrorCodes_t ret;
-
-    if (itemsNum <= protocolMaxItemsNum) {
-        vRest.convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
-
-        uint16_t dataLength = 5;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        txDataMessage[0] = protId;
-        txDataMessage[1] = itemsNum;
-        txDataMessage[2] = sweepsNum;
-        this->int322uint16((int32_t)round(vRest.value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 3);
-
-        stepsOnLastSweep = (double)(sweepsNum-1);
-        protocolItemsNum = itemsNum;
-        protocolItemIndex = 0;
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdVoltageProtocolStruct, txDataMessage, dataLength);
-
-    } else {
-        ret = ErrorValueOutOfRange;
+    if (itemsNum > protocolMaxItemsNum) {
+        return ErrorValueOutOfRange;
     }
 
-    return ret;
+    selectedProtocolId = protId;
+    selectedProtocolItemsNum = itemsNum;
+    selectedProtocolVrest = vRest;
+    vRest.convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
+
+    uint16_t dataLength = 5;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    txDataMessage[0] = protId;
+    txDataMessage[1] = itemsNum;
+    txDataMessage[2] = sweepsNum;
+    this->int322uint16((int32_t)round(vRest.value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 3);
+
+    stepsOnLastSweep = (double)(sweepsNum-1);
+    protocolItemsNum = itemsNum;
+    protocolItemIndex = 0;
+
+    return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdVoltageProtocolStruct, txDataMessage, dataLength);
 }
 
 ErrorCodes_t EZPatchDevice::voltStepTimeStep(Measurement_t v0, Measurement_t vStep, Measurement_t t0, Measurement_t tStep,
@@ -2035,29 +2052,28 @@ ErrorCodes_t EZPatchDevice::startProtocol() {
 }
 
 ErrorCodes_t EZPatchDevice::setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest) {
-    ErrorCodes_t ret;
-
-    if (itemsNum <= protocolMaxItemsNum) {
-        iRest.convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
-
-        uint16_t dataLength = 5;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        txDataMessage[0] = protId;
-        txDataMessage[1] = itemsNum;
-        txDataMessage[2] = sweepsNum;
-        this->int322uint16((int32_t)round(iRest.value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 3);
-
-        stepsOnLastSweep = (double)(sweepsNum-1);
-        protocolItemsNum = itemsNum;
-        protocolItemIndex = 0;
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdCurrentProtocolStruct, txDataMessage, dataLength);
-
-    } else {
-        ret = ErrorValueOutOfRange;
+    if (itemsNum > protocolMaxItemsNum) {
+        return ErrorValueOutOfRange;
     }
 
-    return ret;
+    selectedProtocolId = protId;
+    selectedProtocolItemsNum = itemsNum;
+    selectedProtocolIrest = iRest;
+
+    iRest.convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
+
+    uint16_t dataLength = 5;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    txDataMessage[0] = protId;
+    txDataMessage[1] = itemsNum;
+    txDataMessage[2] = sweepsNum;
+    this->int322uint16((int32_t)round(iRest.value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 3);
+
+    stepsOnLastSweep = (double)(sweepsNum-1);
+    protocolItemsNum = itemsNum;
+    protocolItemIndex = 0;
+
+    return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdCurrentProtocolStruct, txDataMessage, dataLength);
 }
 
 ErrorCodes_t EZPatchDevice::currStepTimeStep(Measurement_t i0, Measurement_t iStep, Measurement_t t0, Measurement_t tStep,
