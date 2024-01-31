@@ -16,12 +16,12 @@ static void input2String(LStrHandle i, std::string &s);
 static void input2Measurement(CharMeasurement_t i, Measurement_t &m);
 static void input2VectorMeasurement(LMeasHandle i, std::vector <Measurement_t> &m);
 
-static void string2Output(std::string s, LStrHandle o);
+static void string2Output(std::string s, LStrHandle * o);
 static void measurement2Output(Measurement_t m, CharMeasurement_t &o);
 static void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o);
 static void compensationControl2Output(CompensationControl_t c, CharCompensationControl_t &o);
 static void calibrationParams2Output(CalibrationParams_t p, CharCalibrationParams_t &o);
-static void vectorString2Output(std::vector <std::string> v, LStrHandle o);
+static void vectorString2Output(std::vector <std::string> v, LStrHandle * o);
 static void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o);
 static void matrixMeasurement2Output(std::vector <std::vector <Measurement_t>> v, LVecMeasHandle * o);
 static void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeHandle * o);
@@ -34,7 +34,8 @@ template<typename I_t, typename O_t> void input2NumericVector(I_t * v, O_t &o, i
 \************************/
 
 ErrorCodes_t detectDevices(
-        LStrHandle deviceIdsOut) {
+        LStrHandle * deviceIdsOut) {
+
     std::vector <std::string> deviceIds;
 
     MessageDispatcher::detectDevices(deviceIds);
@@ -689,7 +690,7 @@ ErrorCodes_t setPipetteCompensationOptions(
     std::vector<uint16_t> optionIndexes;
     input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
-    return messageDispatcher->setPipetteCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
+    return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompCfast, optionIndexes, applyFlagIn);
 }
 
 ErrorCodes_t setCCPipetteCompensationOptions(
@@ -704,7 +705,7 @@ ErrorCodes_t setCCPipetteCompensationOptions(
     std::vector<uint16_t> optionIndexes;
     input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
-    return messageDispatcher->setCCPipetteCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
+    return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompCcCfast, optionIndexes, applyFlagIn);
 }
 
 ErrorCodes_t setMembraneCompensationOptions(
@@ -719,7 +720,7 @@ ErrorCodes_t setMembraneCompensationOptions(
     std::vector<uint16_t> optionIndexes;
     input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
-    return messageDispatcher->setMembraneCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
+    return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompCslow, optionIndexes, applyFlagIn);
 }
 
 ErrorCodes_t setAccessResistanceCompensationOptions(
@@ -730,11 +731,12 @@ ErrorCodes_t setAccessResistanceCompensationOptions(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<uint16_t> optionIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
-    return messageDispatcher->setResistanceCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
+    return ErrorFeatureNotImplemented; /*! \todo FCON compesnazione ancora non disponibile */
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<uint16_t> optionIndexes;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+//    return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompCfast, optionIndexes, applyFlagIn);
 }
 
 ErrorCodes_t setAccessResistanceCorrectionOptions(
@@ -764,7 +766,7 @@ ErrorCodes_t setAccessResistancePredictionOptions(
     std::vector<uint16_t> optionIndexes;
     input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
-    return messageDispatcher->setResistancePredictionOptions(channelIndexes, optionIndexes, applyFlagIn);
+    return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompRsPred, optionIndexes, applyFlagIn);
 }
 
 ErrorCodes_t setLeakConductanceCompensationOptions(
@@ -775,11 +777,12 @@ ErrorCodes_t setLeakConductanceCompensationOptions(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<uint16_t> optionIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
-    return messageDispatcher->setLeakConductanceCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
+    return ErrorFeatureNotImplemented; /*! \todo FCON compesnazione ancora non disponibile */
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<uint16_t> optionIndexes;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+//    return messageDispatcher->setLeakConductanceCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
 }
 
 ErrorCodes_t setBridgeBalanceCompensationOptions(
@@ -790,11 +793,13 @@ ErrorCodes_t setBridgeBalanceCompensationOptions(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<uint16_t> optionIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
-    return messageDispatcher->setBridgeBalanceCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
+
+    return ErrorFeatureNotImplemented; /*! \todo FCON compesnazione ancora non disponibile */
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<uint16_t> optionIndexes;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+//    return messageDispatcher->setBridgeBalanceCompensationOptions(channelIndexes, optionIndexes, applyFlagIn);
 }
 
 ErrorCodes_t setPipetteCapacitance(
@@ -885,12 +890,13 @@ ErrorCodes_t setAccessResistanceCorrectionLag(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    return ErrorFeatureNotImplemented; /*! \todo FCON compesnazione ancora non disponibile */
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<double> channelValues;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-    return messageDispatcher->setResistanceCorrectionLag(channelIndexes, channelValues, applyFlagIn);
+//    return messageDispatcher->setResistanceCorrectionLag(channelIndexes, channelValues, applyFlagIn);
 }
 
 ErrorCodes_t setAccessResistancePredictionGain(
@@ -917,12 +923,13 @@ ErrorCodes_t setAccessResistancePredictionPercentage(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    return ErrorFeatureNotImplemented; /*! \todo FCON compesnazione ancora non disponibile */
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<double> channelValues;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-    return messageDispatcher->setResistancePredictionPercentage(channelIndexes, channelValues, applyFlagIn);
+//    return messageDispatcher->setResistancePredictionPercentage(channelIndexes, channelValues, applyFlagIn);
 }
 
 ErrorCodes_t setAccessResistancePredictionBandwidthGain(
@@ -933,12 +940,13 @@ ErrorCodes_t setAccessResistancePredictionBandwidthGain(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    return ErrorFeatureNotImplemented; /*! \todo FCON compesnazione ancora non disponibile */
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<double> channelValues;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-    return messageDispatcher->setResistancePredictionBandwidthGain(channelIndexes, channelValues, applyFlagIn);
+//    return messageDispatcher->setResistancePredictionBandwidthGain(channelIndexes, channelValues, applyFlagIn);
 }
 
 ErrorCodes_t setAccessResistancePredictionTau(
@@ -949,12 +957,13 @@ ErrorCodes_t setAccessResistancePredictionTau(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    return ErrorFeatureNotImplemented; /*! \todo FCON compesnazione ancora non disponibile */
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<double> channelValues;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-    return messageDispatcher->setResistancePredictionTau(channelIndexes, channelValues, applyFlagIn);
+//    return messageDispatcher->setResistancePredictionTau(channelIndexes, channelValues, applyFlagIn);
 }
 
 ErrorCodes_t setLeakConductance(
@@ -965,12 +974,13 @@ ErrorCodes_t setLeakConductance(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    return ErrorFeatureNotImplemented; /*! \todo FCON compesnazione ancora non disponibile */
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<double> channelValues;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-    return messageDispatcher->setLeakConductance(channelIndexes, channelValues, applyFlagIn);
+//    return messageDispatcher->setLeakConductance(channelIndexes, channelValues, applyFlagIn);
 }
 
 ErrorCodes_t setBridgeBalanceResistance(
@@ -981,12 +991,13 @@ ErrorCodes_t setBridgeBalanceResistance(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    return ErrorFeatureNotImplemented; /*! \todo FCON compesnazione ancora non disponibile */
+//    std::vector<uint16_t> channelIndexes;
+//    std::vector<double> channelValues;
+//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+//    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
 
-    return messageDispatcher->setBridgeBalanceResistance(channelIndexes, channelValues, applyFlagIn);
+//    return messageDispatcher->setBridgeBalanceResistance(channelIndexes, channelValues, applyFlagIn);
 }
 
 ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
@@ -1518,7 +1529,8 @@ ErrorCodes_t hasProtocolSin() {
 }
 
 ErrorCodes_t getVoltageStimulusLpfs(
-        LStrHandle filterOptionsOut) {
+        LStrHandle * filterOptionsOut) {
+
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1533,7 +1545,8 @@ ErrorCodes_t getVoltageStimulusLpfs(
 }
 
 ErrorCodes_t getCurrentStimulusLpfs(
-        LStrHandle filterOptionsOut) {
+        LStrHandle * filterOptionsOut) {
+
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1548,7 +1561,8 @@ ErrorCodes_t getCurrentStimulusLpfs(
 }
 
 ErrorCodes_t getPipetteCompensationOptions(
-        LStrHandle optionsOut) {
+        LStrHandle * optionsOut) {
+
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1559,7 +1573,8 @@ ErrorCodes_t getPipetteCompensationOptions(
 }
 
 ErrorCodes_t getCCPipetteCompensationOptions(
-        LStrHandle optionsOut) {
+        LStrHandle * optionsOut) {
+
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1570,7 +1585,8 @@ ErrorCodes_t getCCPipetteCompensationOptions(
 }
 
 ErrorCodes_t getMembraneCompensationOptions(
-        LStrHandle optionsOut) {
+        LStrHandle * optionsOut) {
+
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1581,7 +1597,8 @@ ErrorCodes_t getMembraneCompensationOptions(
 }
 
 ErrorCodes_t getAccessResistanceCompensationOptions(
-        LStrHandle optionsOut) {
+        LStrHandle * optionsOut) {
+
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1592,7 +1609,8 @@ ErrorCodes_t getAccessResistanceCompensationOptions(
 }
 
 ErrorCodes_t getAccessResistanceCorrectionOptions(
-        LStrHandle optionsOut) {
+        LStrHandle * optionsOut) {
+
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1603,7 +1621,8 @@ ErrorCodes_t getAccessResistanceCorrectionOptions(
 }
 
 ErrorCodes_t getAccessResistancePredictionOptions(
-        LStrHandle optionsOut) {
+        LStrHandle * optionsOut) {
+
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1614,7 +1633,8 @@ ErrorCodes_t getAccessResistancePredictionOptions(
 }
 
 ErrorCodes_t getLeakConductanceCompensationOptions(
-        LStrHandle optionsOut) {
+        LStrHandle * optionsOut) {
+
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1625,7 +1645,8 @@ ErrorCodes_t getLeakConductanceCompensationOptions(
 }
 
 ErrorCodes_t getBridgeBalanceCompensationOptions(
-        LStrHandle optionsOut) {
+        LStrHandle * optionsOut) {
+
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -2084,6 +2105,19 @@ ErrorCodes_t getCalibParams(
     return ret;
 }
 
+ErrorCodes_t getCalibParamsTest(
+        LVecMeasHandle * allGainAdcMeas) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+    CalibrationParams_t calibParams;
+    ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
+    matrixMeasurement2Output(calibParams.allGainAdcMeas, allGainAdcMeas);
+    return ret;
+}
+
 ErrorCodes_t setDebugBit(
         E384CL_ARGIN uint16_t wordOffset,
         E384CL_ARGIN uint16_t bitOffset,
@@ -2121,18 +2155,18 @@ void input2VectorMeasurement(LMeasHandle i, std::vector <Measurement_t> &m) {
     }
 }
 
-void string2Output(std::string s, LStrHandle o) {
-    MgErr err = NumericArrayResize(uB, 1, (UHandle *)&o, s.length());
+void string2Output(std::string s, LStrHandle * o) {
+    MgErr err = NumericArrayResize(uB, 1, (UHandle *)o, s.length());
     if (!err) {
-        MoveBlock(s.c_str(), LStrBuf(* o), s.length());
-        LStrLen(* o) = s.length();
+        MoveBlock(s.c_str(), LStrBuf(** o), s.length());
+        LStrLen(** o) = s.length();
     }
 }
 
 void measurement2Output(Measurement_t m, CharMeasurement_t &o) {
     o.value = m.value;
     o.prefix = m.prefix;
-    string2Output(m.unit, o.unit);
+    string2Output(m.unit, &o.unit);
 }
 
 void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o) {
@@ -2140,7 +2174,7 @@ void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o)
     o.max = r.max;
     o.step = r.step;
     o.prefix = r.prefix;
-    string2Output(r.unit, o.unit);
+    string2Output(r.unit, &o.unit);
 }
 
 void compensationControl2Output(CompensationControl_t c, CharCompensationControl_t &o) {
@@ -2153,8 +2187,8 @@ void compensationControl2Output(CompensationControl_t c, CharCompensationControl
     o.decimals = c.decimals;
     o.value = c.value;
     o.prefix = c.prefix;
-    string2Output(c.unit, o.unit);
-    string2Output(c.name, o.name);
+    string2Output(c.unit, &o.unit);
+    string2Output(c.name, &o.name);
 }
 
 void calibrationParams2Output(CalibrationParams_t p, CharCalibrationParams_t &o) {
@@ -2169,7 +2203,7 @@ void calibrationParams2Output(CalibrationParams_t p, CharCalibrationParams_t &o)
     matrixMeasurement2Output(p.ccAllOffsetDacMeas, &o.ccAllOffsetDacMeas);
 }
 
-void vectorString2Output(std::vector <std::string> v, LStrHandle o) {
+void vectorString2Output(std::vector <std::string> v, LStrHandle * o) {
     std::string a;
     for (auto s : v) {
         a += s + ",";

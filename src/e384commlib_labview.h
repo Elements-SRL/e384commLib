@@ -20,7 +20,7 @@ class MessageDispatcher;
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t detectDevices(
-        E384CL_ARGOUT LStrHandle deviceIds);
+        E384CL_ARGOUT LStrHandle * deviceIds);
 
 /*! \brief Connects to a specific device
  * Calling this method if a device is already connected will return an error code.
@@ -1632,7 +1632,7 @@ ErrorCodes_t hasProtocolSin(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVoltageStimulusLpfs(
-        E384CL_ARGOUT LStrHandle filterOptions);
+        E384CL_ARGOUT LStrHandle *  filterOptions);
 
 /*! \brief Get the available options for the current stimulus low pass filter.
  *
@@ -1642,7 +1642,7 @@ ErrorCodes_t getVoltageStimulusLpfs(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCurrentStimulusLpfs(
-        E384CL_ARGOUT LStrHandle filterOptions);
+        E384CL_ARGOUT LStrHandle *  filterOptions);
 
 /*! \brief Get options for the pipette compensation.
  *
@@ -1652,7 +1652,7 @@ ErrorCodes_t getCurrentStimulusLpfs(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getPipetteCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the pipette compensation for current clamp.
  *
@@ -1662,7 +1662,7 @@ ErrorCodes_t getPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCPipetteCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the membrane compensation.
  *
@@ -1672,7 +1672,7 @@ ErrorCodes_t getCCPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getMembraneCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the access resistance compensation.
  * \note Resistance compensation includes resistance correction and prediction.
@@ -1683,7 +1683,7 @@ ErrorCodes_t getMembraneCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the access resistance correction.
  *
@@ -1693,7 +1693,7 @@ ErrorCodes_t getAccessResistanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCorrectionOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the access resistance prediction.
  *
@@ -1703,7 +1703,7 @@ ErrorCodes_t getAccessResistanceCorrectionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the leak conductance compensation.
  *
@@ -1713,7 +1713,7 @@ ErrorCodes_t getAccessResistancePredictionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLeakConductanceCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the bridge balance compensation.
  *
@@ -1723,7 +1723,7 @@ ErrorCodes_t getLeakConductanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get the specifications of the control for the pipette capacitance.
  *
@@ -2040,13 +2040,18 @@ ErrorCodes_t getBridgeBalanceResistance(
 
 /*! \brief Gets all the calibration parameters.
  *
- * \param calibrationParams [out] structure containing all the calibration paramameters.
+ * \param calibrationParams [out] structure containing all the calibration parameters.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCalibParams(
-        E384CL_ARGIN CharCalibrationParams_t &calibrationParams);
+        E384CL_ARGOUT CharCalibrationParams_t &calibrationParams);
+
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCalibParamsTest(
+        E384CL_ARGOUT LVecMeasHandle * allGainAdcMeas);
 
 /*! \brief Set a debug bit
  *

@@ -476,7 +476,7 @@ protected:
 
     int32_t txWaitingOnAcks = 0;
 
-    double * lsbNoiseArray;
+    double * lsbNoiseArray = nullptr;
     uint32_t lsbNoiseIdx = 0;
 
     uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */

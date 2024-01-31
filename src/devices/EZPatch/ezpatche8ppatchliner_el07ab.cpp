@@ -1212,6 +1212,21 @@ ErrorCodes_t EZPatche8PPatchliner_el07ab::setSamplingRate(uint16_t samplingRateI
     return ret;
 }
 
+ErrorCodes_t EZPatche8PPatchliner_el07ab::hasCompFeature(uint16_t feature) {
+    switch (feature) {
+    case U_CpVc:
+    case U_Cm:
+    case U_Rs:
+    case U_RsCp:
+    case U_RsPg:
+    case U_CpCc:
+        return Success;
+
+    default:
+        return ErrorFeatureNotImplemented;
+    }
+}
+
 void EZPatche8PPatchliner_el07ab::selectChannelsResolutions() {
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {

@@ -531,7 +531,7 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag) {
 
         /*! Restore liquid junction and remove it from the voltage reading */
         for (uint32_t i = 0; i < currentChannelsNum; i++) {
-//            this->updateLiquidJunctionVoltage(i, false);
+            this->updateLiquidJunctionVoltage(i, false);
             ccLiquidJunctionVector[i] = 0;
         }
 
@@ -561,7 +561,7 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag) {
 
         /*! Remove liquid junction and subtract it from voltage reading */
         for (uint32_t i = 0; i < currentChannelsNum; i++) {
-//            this->updateLiquidJunctionVoltage(i, false);
+            this->updateLiquidJunctionVoltage(i, false);
             selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
         }
@@ -595,7 +595,7 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag) {
 
         /*! Remove liquid junction and subtract it from voltage reading */
         for (uint32_t i = 0; i < currentChannelsNum; i++) {
-//            this->updateLiquidJunctionVoltage(i, false);
+            this->updateLiquidJunctionVoltage(i, false);
             selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
         }
@@ -1299,7 +1299,7 @@ ErrorCodes_t EZPatchDevice::enableCompensation(std::vector <uint16_t> channelInd
             compensationsSettingChannel = channelIndexes[i];
             this->turnResistanceCorrectionOn(onValues[i]);
             channelModels[compensationsSettingChannel]->setCompensatingRsCp(onValues[i]);
-//            this->updateLiquidJunctionVoltage(compensationsSettingChannel, false);
+            this->updateLiquidJunctionVoltage(compensationsSettingChannel, false);
         }
         break;
 
@@ -3199,6 +3199,7 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
     } else {
         this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
         this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
+        txWaitingOnAcks--;
         ret = Success;
     }
     return ret;
