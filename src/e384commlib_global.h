@@ -376,22 +376,6 @@ typedef struct {
     CharCompensationControl_t item[1];      /* cnt compensation control */
 } LComp, *LCompPtr, **LCompHandle;
 
-/*! \struct CharCalibrationParams_t
- * \brief Structure used to return calibration values.
- * \note All fields are vectors of vectors because the first vector indexes ranges, while the second range indexes channels
- */
-typedef struct CharCalibrationParams {
-    LVecMeasHandle allGainAdcMeas;
-    LVecMeasHandle allOffsetAdcMeas;
-    LVecMeasHandle allGainDacMeas;
-    LVecMeasHandle allOffsetDacMeas;
-    LVecMeasHandle allOffsetRsCorrMeas;
-    LVecMeasHandle ccAllGainAdcMeas;
-    LVecMeasHandle ccAllOffsetAdcMeas;
-    LVecMeasHandle ccAllGainDacMeas;
-    LVecMeasHandle ccAllOffsetDacMeas;
-} CharCalibrationParams_t;
-
 #define LVecBuf(sp)	(&((sp))->item[0])                          /* pointer to first item of vector */
 #define LVecItem(sp, n)	((&((sp))->item[n]))                    /* pointer to n-th item of vector */
 #define LVecLen(sp)	(((sp))->cnt)                               /* # of items in vector */

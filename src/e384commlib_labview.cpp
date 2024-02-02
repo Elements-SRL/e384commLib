@@ -20,7 +20,6 @@ static void string2Output(std::string s, LStrHandle * o);
 static void measurement2Output(Measurement_t m, CharMeasurement_t &o);
 static void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o);
 static void compensationControl2Output(CompensationControl_t c, CharCompensationControl_t &o);
-static void calibrationParams2Output(CalibrationParams_t p, CharCalibrationParams_t &o);
 static void vectorString2Output(std::vector <std::string> v, LStrHandle * o);
 static void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o);
 static void matrixMeasurement2Output(std::vector <std::vector <Measurement_t>> v, LVecMeasHandle * o);
@@ -2093,20 +2092,21 @@ ErrorCodes_t getBridgeBalanceResistance(
     return ret;
 }
 
-ErrorCodes_t getCalibParams(
-        CharCalibrationParams_t &calibrationParamsOut) {
+ErrorCodes_t getVcAdcGainCalibration(
+        LVecMeasHandle * meas) {
 
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
+
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    calibrationParams2Output(calibParams, calibrationParamsOut);
+    matrixMeasurement2Output(calibParams.allGainAdcMeas, meas);
     return ret;
 }
 
-ErrorCodes_t getCalibParamsTest(
-        LVecMeasHandle * allGainAdcMeas) {
+ErrorCodes_t getVcAdcOffsetCalibration(
+        LVecMeasHandle * meas) {
 
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
@@ -2114,7 +2114,98 @@ ErrorCodes_t getCalibParamsTest(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.allGainAdcMeas, allGainAdcMeas);
+    matrixMeasurement2Output(calibParams.allOffsetAdcMeas, meas);
+    return ret;
+}
+
+ErrorCodes_t getVcDacGainCalibration(
+        LVecMeasHandle * meas) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+    CalibrationParams_t calibParams;
+    ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
+    matrixMeasurement2Output(calibParams.allGainDacMeas, meas);
+    return ret;
+}
+
+ErrorCodes_t getVcDacOffsetCalibration(
+        LVecMeasHandle * meas) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+    CalibrationParams_t calibParams;
+    ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
+    matrixMeasurement2Output(calibParams.allOffsetDacMeas, meas);
+    return ret;
+}
+
+ErrorCodes_t getCcAdcGainCalibration(
+        LVecMeasHandle * meas) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+    CalibrationParams_t calibParams;
+    ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
+    matrixMeasurement2Output(calibParams.ccAllGainAdcMeas, meas);
+    return ret;
+}
+
+ErrorCodes_t getCcAdcOffsetCalibration(
+        LVecMeasHandle * meas) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+    CalibrationParams_t calibParams;
+    ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
+    matrixMeasurement2Output(calibParams.ccAllOffsetAdcMeas, meas);
+    return ret;
+}
+
+ErrorCodes_t getCcDacGainCalibration(
+        LVecMeasHandle * meas) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+    CalibrationParams_t calibParams;
+    ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
+    matrixMeasurement2Output(calibParams.ccAllGainDacMeas, meas);
+    return ret;
+}
+
+ErrorCodes_t getCcDacOffsetCalibration(
+        LVecMeasHandle * meas) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+    CalibrationParams_t calibParams;
+    ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
+    matrixMeasurement2Output(calibParams.ccAllOffsetDacMeas, meas);
+    return ret;
+}
+
+ErrorCodes_t getRsCorrDacOffsetCalibration(
+        LVecMeasHandle * meas) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+    CalibrationParams_t calibParams;
+    ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
+    matrixMeasurement2Output(calibParams.allOffsetRsCorrMeas, meas);
     return ret;
 }
 
@@ -2191,18 +2282,6 @@ void compensationControl2Output(CompensationControl_t c, CharCompensationControl
     string2Output(c.name, &o.name);
 }
 
-void calibrationParams2Output(CalibrationParams_t p, CharCalibrationParams_t &o) {
-    matrixMeasurement2Output(p.allGainAdcMeas, &o.allGainAdcMeas);
-    matrixMeasurement2Output(p.allGainDacMeas, &o.allGainDacMeas);
-    matrixMeasurement2Output(p.allOffsetAdcMeas, &o.allOffsetAdcMeas);
-    matrixMeasurement2Output(p.allOffsetDacMeas, &o.allOffsetDacMeas);
-    matrixMeasurement2Output(p.allOffsetRsCorrMeas, &o.allOffsetRsCorrMeas);
-    matrixMeasurement2Output(p.ccAllGainAdcMeas, &o.ccAllGainAdcMeas);
-    matrixMeasurement2Output(p.ccAllGainDacMeas, &o.ccAllGainDacMeas);
-    matrixMeasurement2Output(p.ccAllOffsetAdcMeas, &o.ccAllOffsetAdcMeas);
-    matrixMeasurement2Output(p.ccAllOffsetDacMeas, &o.ccAllOffsetDacMeas);
-}
-
 void vectorString2Output(std::vector <std::string> v, LStrHandle * o) {
     std::string a;
     for (auto s : v) {
@@ -2213,7 +2292,13 @@ void vectorString2Output(std::vector <std::string> v, LStrHandle * o) {
 
 void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o) {
     int offset = 0;
-    MgErr err = DSSetHSzClr(* o, Offset(LMeas, item)+sizeof(CharMeasurement_t)*v.size());
+    MgErr err = 0;
+    if (o == nullptr) {
+        * o = (LMeasHandle)DSNewHClr(Offset(LMeas, item)+sizeof(CharMeasurement_t)*v.size());
+
+    } else {
+        err = DSSetHSzClr(* o, Offset(LMeas, item)+sizeof(CharMeasurement_t)*v.size());
+    }
     if (!err) {
         for (auto m : v) {
             CharMeasurement_t * meas = LVecItem(** o, offset);
@@ -2226,7 +2311,13 @@ void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o) {
 
 void matrixMeasurement2Output(std::vector <std::vector <Measurement_t>> v2, LVecMeasHandle * o) {
     int offset = 0;
-    MgErr err = DSSetHSzClr(* o, Offset(LVecMeas, item)+sizeof(CharMeasurement_t)*v2.size()*v2[0].size());
+    MgErr err = 0;
+    if (o == nullptr) {
+        * o = (LVecMeasHandle)DSNewHClr(Offset(LVecMeas, item)+sizeof(CharMeasurement_t)*v2.size()*v2[0].size());
+
+    } else {
+        err = DSSetHSzClr(* o, Offset(LVecMeas, item)+sizeof(CharMeasurement_t)*v2.size()*v2[0].size());
+    }
     if (!err) {
         for (auto v : v2) {
             for (auto m : v) {
@@ -2242,7 +2333,13 @@ void matrixMeasurement2Output(std::vector <std::vector <Measurement_t>> v2, LVec
 
 void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeHandle * o) {
     int offset = 0;
-    MgErr err = DSSetHSzClr(* o, Offset(LRange, item)+sizeof(CharRangedMeasurement_t)*v.size());
+    MgErr err = 0;
+    if (o == nullptr) {
+        * o = (LRangeHandle)DSNewHClr(Offset(LRange, item)+sizeof(CharRangedMeasurement_t)*v.size());
+
+    } else {
+        err = DSSetHSzClr(* o, Offset(LRange, item)+sizeof(CharRangedMeasurement_t)*v.size());
+    }
     if (!err) {
         for (auto r : v) {
             CharRangedMeasurement_t * range = LVecItem(** o, offset);

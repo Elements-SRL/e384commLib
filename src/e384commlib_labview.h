@@ -2038,20 +2038,95 @@ ErrorCodes_t getBridgeBalanceResistance(
         E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
-/*! \brief Gets all the calibration parameters.
+/*! \brief Gets the gain of the voltage clamp current ADC.
  *
- * \param calibrationParams [out] structure containing all the calibration parameters.
+ * \param meas [out] calibration parameters.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getCalibParams(
-        E384CL_ARGOUT CharCalibrationParams_t &calibrationParams);
+ErrorCodes_t getVcAdcGainCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
 
+/*! \brief Gets the offset of the voltage clamp current ADC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getCalibParamsTest(
-        E384CL_ARGOUT LVecMeasHandle * allGainAdcMeas);
+ErrorCodes_t getVcAdcOffsetCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the gain of the voltage clamp voltage DAC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getVcDacGainCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the offset of the voltage clamp voltage DAC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getVcDacOffsetCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the gain of the current clamp voltage ADC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCcAdcGainCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the offset of the current clamp voltage ADC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCcAdcOffsetCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the gain of the current clamp current DAC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCcDacGainCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the offset of the current clamp current DAC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCcDacOffsetCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the offset of the voltage clamp voltage DAC due to Rs correction.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getRsCorrDacOffsetCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
 
 /*! \brief Set a debug bit
  *
