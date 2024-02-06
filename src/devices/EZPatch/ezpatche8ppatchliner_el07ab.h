@@ -12,7 +12,16 @@ public:
 
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
+    ErrorCodes_t hasCompFeature(uint16_t feature) override;
+
 protected:
+    enum ClampingModalities {
+        VoltageClamp,
+        ZeroCurrentClamp,
+        CurrentClamp,
+        ClampingModalitiesNum
+    };
+
     enum VCCurrentRanges {
         VCCurrentRange10nA,
         VCCurrentRange40nALbw,

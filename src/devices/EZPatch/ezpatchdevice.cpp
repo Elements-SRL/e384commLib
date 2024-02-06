@@ -1,12 +1,8 @@
 #include "ezpatchdevice.h"
 
-#include <iostream>
-#include <sstream>
-#include <ctime>
-#include <thread>
-#include <math.h>
 #include <random>
-#include <algorithm>
+
+#include "utils.h"
 
 /*****************\
  *  Ctor / Dtor  *
@@ -69,16 +65,7 @@ EZPatchDevice::EZPatchDevice(std::string deviceId) :
 }
 
 EZPatchDevice::~EZPatchDevice() {
-    delete [] rxMsgBuffer;
-    delete [] rxDataBuffer;
-#ifdef CHECK_DATA_PACKET_LENGTH
-    delete [] movedWords;
-#endif
 
-    delete [] txMsgBuffer;
-    delete [] txDataBuffer;
-
-    delete [] lsbNoiseArray;
 }
 
 ErrorCodes_t EZPatchDevice::enableRxMessageType(MsgTypeId_t messageType, bool flag) {
@@ -130,13 +117,232 @@ ErrorCodes_t EZPatchDevice::ping() {
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::abort() {
-    /*! \todo FCON non implementato in FW */
-    return ErrorCommandNotImplemented;
-//    uint16_t dataLength = 0;
-//    std::vector <uint16_t> txDataMessage(dataLength);
+ErrorCodes_t EZPatchDevice::resetAsic(bool resetFlag, bool applyFlag) {
+    ErrorCodes_t ret;
+    uint16_t dataLength = switchesStatusLength;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    this->switches2DataMessage(txDataMessage);
 
-//    return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdAbort, txDataMessage, dataLength);
+    unsigned int resetIdx = ResetIndexChip;
+
+    if (resetFlag) {
+        txDataMessage[resetWord[resetIdx]] |= resetByte[resetIdx];
+
+    } else {
+        txDataMessage[resetWord[resetIdx]] &= ~resetByte[resetIdx];
+    }
+
+    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+    if (ret == Success) {
+        this->dataMessage2Switches(txDataMessage);
+    }
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::resetFpga(bool resetFlag, bool applyFlag) {
+    if (resetFlag) {
+        return this->resetFpga();
+    }
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::resetFpga() {
+    ErrorCodes_t ret;
+    uint16_t dataLength = 0;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdFpgaReset, txDataMessage, dataLength);
+    voltageOffsetCorrected = 0.0;
+    this->selectVoltageOffsetResolution();
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) {
+    ErrorCodes_t ret = Success;
+    for (unsigned int idx = 0; idx < channelIndexes.size(); idx++) {
+        if (ret == Success) {
+            ret = this->setLiquidJunctionVoltage(channelIndexes[idx], voltages[idx]);
+        }
+    }
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setLiquidJunctionVoltage(uint16_t channelIdx, Measurement_t voltage) {
+    if (!voltageHoldTunerImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+
+    if (channelIdx >= currentChannelsNum) {
+        return ErrorValueOutOfRange;
+    }
+
+    selectedLiquidJunctionVector[channelIdx] = voltage;
+    if (this->updateLiquidJunctionVoltage(channelIdx, true) == Success) {
+        channelModels[channelIdx]->setLiquidJunctionVoltage(selectedLiquidJunctionVector[channelIdx]); /*! \todo FCON Qui andrebbe controllato chi fallisce */
+    }
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool applyFlag) {
+    if (channelIdx >= currentChannelsNum) {
+        return ErrorValueOutOfRange;
+    }
+
+    /*! \todo FCON, ogni canale inviato da solo, si potrebbe fare di meglio */
+    ErrorCodes_t ret;
+    selectedLiquidJunctionVector[channelIdx].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
+
+    uint16_t dataLength = 4;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    if (channelModels[channelIdx]->isCompensatingLiquidJunction()) {
+        this->int322uint16((int32_t)round((selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+
+    } else {
+        this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+    }
+    txDataMessage[3] = txDataMessage[1];
+    txDataMessage[1] = txDataMessage[0];
+    txDataMessage[0] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
+    txDataMessage[2] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
+
+    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) {
+    ErrorCodes_t ret = Success;
+    for (unsigned int idx = 0; idx < channelIndexes.size(); idx++) {
+        if (ret == Success) {
+            ret = this->setVoltageHoldTuner(channelIndexes[idx], voltages[idx]);
+        }
+    }
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag) {
+    ErrorCodes_t ret = Success;
+    for (unsigned int idx = 0; idx < channelIndexes.size(); idx++) {
+        if (ret == Success) {
+            ret = this->setCurrentHoldTuner(channelIndexes[idx], currents[idx]);
+        }
+    }
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(uint16_t channelIdx, Measurement_t voltage) {
+    ErrorCodes_t ret;
+
+    if (channelIdx < currentChannelsNum) {
+        selectedVoltageHoldVector[channelIdx] = voltage;
+        selectedVoltageHoldVector[channelIdx].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
+
+        uint16_t dataLength = 4;
+        std::vector <uint16_t> txDataMessage(dataLength);
+        if (channelModels[channelIdx]->isCompensatingLiquidJunction()) {
+            this->int322uint16((int32_t)round((selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+
+        } else {
+            this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+        }
+
+        txDataMessage[3] = txDataMessage[1];
+        txDataMessage[1] = txDataMessage[0];
+        txDataMessage[0] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
+        txDataMessage[2] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
+
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+
+        if (ret == Success) {
+            voltageTunerCorrection[channelIdx] = selectedVoltageHoldVector[channelIdx].value;
+        }
+
+    } else if (channelIdx == currentChannelsNum) {
+        uint16_t dataLength = 4*currentChannelsNum;
+        std::vector <uint16_t> txDataMessage(dataLength);
+        for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            selectedVoltageHoldVector[channelIdx] = voltage;
+            selectedVoltageHoldVector[channelIdx].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
+
+            if (channelModels[channelIdx]->isCompensatingLiquidJunction()) {
+                this->int322uint16((int32_t)round((selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+
+            } else {
+                this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+            }
+            txDataMessage[3+channelIdx*4] = txDataMessage[1+channelIdx*4];
+            txDataMessage[1+channelIdx*4] = txDataMessage[0+channelIdx*4];
+        }
+
+        for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            txDataMessage[0+channelIdx*4] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
+            txDataMessage[2+channelIdx*4] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
+        }
+
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+
+        if (ret == Success) {
+            for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                voltageTunerCorrection[channelIdx] = selectedVoltageHoldVector[channelIdx].value;
+            }
+        }
+
+    } else {
+        ret = ErrorValueOutOfRange;
+    }
+
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(uint16_t channelIdx, Measurement_t current) {
+    ErrorCodes_t ret;
+
+    if (channelIdx < voltageChannelsNum) {
+        selectedCurrentHoldVector[channelIdx] = current;
+        selectedCurrentHoldVector[channelIdx].convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
+
+        uint16_t dataLength = 4;
+        std::vector <uint16_t> txDataMessage(dataLength);
+        this->int322uint16((int32_t)round(selectedCurrentHoldVector[channelIdx].value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 0);
+        txDataMessage[3] = txDataMessage[1];
+        txDataMessage[1] = txDataMessage[0];
+        txDataMessage[0] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
+        txDataMessage[2] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
+
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+
+        if (ret == Success) {
+            currentTunerCorrection[channelIdx] = selectedCurrentHoldVector[channelIdx].value;
+        }
+
+    } else if (channelIdx == voltageChannelsNum) {
+        uint16_t dataLength = 4*voltageChannelsNum;
+        std::vector <uint16_t> txDataMessage(dataLength);
+        for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
+            selectedCurrentHoldVector[channelIdx] = current;
+            selectedCurrentHoldVector[channelIdx].convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
+            this->int322uint16((int32_t)round(selectedCurrentHoldVector[channelIdx].value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, channelIdx*4);
+            txDataMessage[3+channelIdx*4] = txDataMessage[1+channelIdx*4];
+            txDataMessage[1+channelIdx*4] = txDataMessage[0+channelIdx*4];
+        }
+
+        for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
+            txDataMessage[0+channelIdx*4] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
+            txDataMessage[2+channelIdx*4] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
+        }
+
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+
+        if (ret == Success) {
+            for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
+                currentTunerCorrection[channelIdx] = selectedCurrentHoldVector[channelIdx].value;
+            }
+        }
+
+    } else {
+        ret = ErrorValueOutOfRange;
+    }
+
+    return ret;
 }
 
 ErrorCodes_t EZPatchDevice::turnVoltageStimulusOn(bool on, bool applyFlag) {
@@ -329,6 +535,133 @@ ErrorCodes_t EZPatchDevice::turnCurrentReaderOn(bool on, bool applyFlag) {
     return ret;
 }
 
+ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag) {
+    if (idx >= clampingModalitiesNum) {
+        return ErrorValueOutOfRange;
+    }
+
+    this->stopProtocol();
+
+    selectedClampingModalityIdx = idx;
+    previousClampingModality = selectedClampingModality;
+    selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];
+
+    switch (selectedClampingModality) {
+    case VOLTAGE_CLAMP:
+        rawDataFilterVoltageFlag = false;
+        rawDataFilterCurrentFlag = true;
+
+        /*! Restore liquid junction and remove it from the voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+            this->updateLiquidJunctionVoltage(i, false);
+            ccLiquidJunctionVector[i] = 0;
+        }
+
+        this->enableCcCompensations(false, false);
+        this->turnCurrentReaderOn(true, false);
+        this->turnVoltageStimulusOn(true, true);
+        /*! Apply on previous command to turn the voltage clamp on first */
+        this->turnCurrentStimulusOn(false, false);
+        this->turnVoltageReaderOn(false, false);
+        if (previousClampingModality == VOLTAGE_CLAMP) {
+            this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
+
+        } else {
+            this->setVCCurrentRange(storedVcCurrentRangeIdx, false);
+        }
+        this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
+        this->enableVcCompensations(true, false);
+
+        this->setSourceForVoltageChannel(0, false);
+        this->setSourceForCurrentChannel(0, false);
+
+        break;
+
+    case ZERO_CURRENT_CLAMP:
+        rawDataFilterVoltageFlag = true;
+        rawDataFilterCurrentFlag = false;
+
+        /*! Remove liquid junction and subtract it from voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+            this->updateLiquidJunctionVoltage(i, false);
+            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
+            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+        }
+
+        if (previousClampingModality == VOLTAGE_CLAMP) {
+            this->enableVcCompensations(false, false);
+            storedVcCurrentRangeIdx = selectedVcCurrentRangeIdx;
+            RangedMeasurement_t range;
+            uint32_t idx;
+            this->getMaxVCCurrentRange(range, idx);
+            this->setVCCurrentRange(idx, true);
+            /*! Apply on previous command to set the lowest input impedance first */
+        }
+        this->turnVoltageReaderOn(true, false);
+        this->turnCurrentStimulusOn(false, true);
+        /*! Apply on previous command to turn the current clamp on then */
+        this->turnVoltageStimulusOn(false, false);
+        this->turnCurrentReaderOn(false, false);
+        this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+        this->enableCcCompensations(true, false);
+
+        this->setSourceForVoltageChannel(1, false);
+        this->setSourceForCurrentChannel(1, false);
+
+        break;
+
+    case CURRENT_CLAMP:
+        rawDataFilterVoltageFlag = true;
+        rawDataFilterCurrentFlag = false;
+
+        /*! Remove liquid junction and subtract it from voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+            this->updateLiquidJunctionVoltage(i, false);
+            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
+            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+        }
+
+        if (previousClampingModality == VOLTAGE_CLAMP) {
+            this->enableVcCompensations(false, false);
+            storedVcCurrentRangeIdx = selectedVcCurrentRangeIdx;
+            RangedMeasurement_t range;
+            uint32_t idx;
+            this->getMaxVCCurrentRange(range, idx);
+            this->setVCCurrentRange(idx, true);
+            /*! Apply on previous command to set the lowest input impedance first */
+        }
+        this->turnVoltageReaderOn(true, false);
+        this->turnCurrentStimulusOn(true, true);
+        /*! Apply on previous command to turn the current clamp on then */
+        this->turnVoltageStimulusOn(false, false);
+        this->turnCurrentReaderOn(false, false);
+        this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+        this->enableCcCompensations(true, false);
+
+        this->setSourceForVoltageChannel(1, false);
+        this->setSourceForCurrentChannel(1, false);
+
+        break;
+
+    case DYNAMIC_CLAMP:
+        rawDataFilterVoltageFlag = false;
+        rawDataFilterCurrentFlag = false;
+        break;
+    }
+
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::setClampingModality(ClampingModality_t mode, bool applyFlag) {
+    auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
+    if (iter == clampingModalitiesArray.end()) {
+        return ErrorValueOutOfRange;
+    }
+    return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag);
+}
+
 ErrorCodes_t EZPatchDevice::setSourceForVoltageChannel(uint16_t source, bool applyFlag) {
     ErrorCodes_t ret;
     if ((ret = this->setChannelsSources((int16_t)source, selectedSourceForCurrentChannelIdx)) != Success) {
@@ -381,136 +714,6 @@ ErrorCodes_t EZPatchDevice::setChannelsSources(int16_t voltageSourcesIdx, int16_
         selectedVoltageSourceIdx = voltageSourcesIdx;
         selectedCurrentSourceIdx = currentSourcesIdx;
         this->selectChannelsResolutions();
-    }
-
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn) {
-    ErrorCodes_t ret = Success;
-    for (unsigned int idx; idx < channelIndexes.size(); idx++) {
-        if (ret == Success) {
-            ret = this->setVoltageHoldTuner(channelIndexes[idx], voltages[idx]);
-        }
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn) {
-    ErrorCodes_t ret = Success;
-    for (unsigned int idx; idx < channelIndexes.size(); idx++) {
-        if (ret == Success) {
-            ret = this->setCurrentHoldTuner(channelIndexes[idx], currents[idx]);
-        }
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(uint16_t channelIdx, Measurement_t voltage) {
-    ErrorCodes_t ret;
-
-    if (channelIdx < currentChannelsNum) {
-        voltageTuner = voltage;
-        voltageTuner.convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
-
-        uint16_t dataLength = 4;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        this->int322uint16((int32_t)round(voltageTuner.value/vHoldRange[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
-        txDataMessage[3] = txDataMessage[1];
-        txDataMessage[1] = txDataMessage[0];
-        txDataMessage[0] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
-        txDataMessage[2] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-
-        if (ret == Success) {
-            /*! \todo FCON qui bisognerebbe avere un array di valori e settare solo quello corrispondente */
-            voltageTuner.convertValue(voltageRange.prefix);
-            voltageTunerCorrection = voltageTuner.value;
-        }
-
-    } else if (channelIdx == currentChannelsNum) {
-        voltageTuner = voltage;
-        voltageTuner.convertValue(vHoldRange[selectedVcVoltageRangeIdx].prefix);
-
-        uint16_t dataLength = 4*currentChannelsNum;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            this->int322uint16((int32_t)round(voltageTuner.value/vHoldRange[selectedVcVoltageRangeIdx].step), txDataMessage, channelIdx*4);
-            txDataMessage[3+channelIdx*4] = txDataMessage[1+channelIdx*4];
-            txDataMessage[1+channelIdx*4] = txDataMessage[0+channelIdx*4];
-        }
-
-        for (channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            txDataMessage[0+channelIdx*4] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
-            txDataMessage[2+channelIdx*4] = vcHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
-        }
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-
-        if (ret == Success) {
-            /*! \todo FCON qui bisognerebbe avere un array di valori e settare solo quello corrispondente */
-            voltageTuner.convertValue(voltageRange.prefix);
-            voltageTunerCorrection = voltageTuner.value;
-        }
-
-    } else {
-        ret = ErrorValueOutOfRange;
-    }
-
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(uint16_t channelIdx, Measurement_t current) {
-    ErrorCodes_t ret;
-
-    if (channelIdx < voltageChannelsNum) {
-        currentTuner = current;
-        currentTuner.convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
-
-        uint16_t dataLength = 4;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        this->int322uint16((int32_t)round(currentTuner.value/cHoldRange[selectedCcCurrentRangeIdx].step), txDataMessage, 0);
-        txDataMessage[3] = txDataMessage[1];
-        txDataMessage[1] = txDataMessage[0];
-        txDataMessage[0] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
-        txDataMessage[2] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-
-        if (ret == Success) {
-            /*! \todo FCON qui bisognerebbe avere un array di valori e settare solo quello corrispondente */
-            currentTuner.convertValue(currentRange.prefix);
-            currentTunerCorrection = currentTuner.value;
-        }
-
-    } else if (channelIdx == voltageChannelsNum) {
-        currentTuner = current;
-        currentTuner.convertValue(cHoldRange[selectedCcCurrentRangeIdx].prefix);
-
-        uint16_t dataLength = 4*voltageChannelsNum;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-            this->int322uint16((int32_t)round(currentTuner.value/cHoldRange[selectedCcCurrentRangeIdx].step), txDataMessage, channelIdx*4);
-            txDataMessage[3+channelIdx*4] = txDataMessage[1+channelIdx*4];
-            txDataMessage[1+channelIdx*4] = txDataMessage[0+channelIdx*4];
-        }
-
-        for (channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-            txDataMessage[0+channelIdx*4] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum;
-            txDataMessage[2+channelIdx*4] = ccHoldTunerHwRegisterOffset+channelIdx*coreSpecificRegistersNum+1;
-        }
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-
-        if (ret == Success) {
-            /*! \todo FCON qui bisognerebbe avere un array di valori e settare solo quello corrispondente */
-            currentTuner.convertValue(currentRange.prefix);
-            currentTunerCorrection = currentTuner.value;
-        }
-
-    } else {
-        ret = ErrorValueOutOfRange;
     }
 
     return ret;
@@ -672,10 +875,11 @@ ErrorCodes_t EZPatchDevice::setSamplingRate(uint16_t samplingRateIdx, bool apply
         ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSamplingRate, txDataMessage, dataLength);
 
         /*! Make a chip reset to force resynchronization of chip states. This is important when the clock changes (SR slow to SR fast or vice versa) */
-        this->resetChip(true);
+        this->resetAsic(true, true);
         std::this_thread::sleep_for(std::chrono::milliseconds(resetDuration));
-        this->resetChip(false);
+        this->resetAsic(false, true);
 
+        selectedSamplingRateIdx = samplingRateIdx;
         samplingRate = realSamplingRatesArray[samplingRateIdx];
         integrationStep = integrationStepArray[selectedSamplingRateIdx];
 
@@ -689,13 +893,13 @@ ErrorCodes_t EZPatchDevice::setSamplingRate(uint16_t samplingRateIdx, bool apply
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
-//    if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
-//        return ErrorValueOutOfRange;
-//    }
-    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    this->stopProtocol();
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
-        this->enableStimulus(chIdx, !onValues[i]);
         channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
@@ -921,7 +1125,7 @@ ErrorCodes_t EZPatchDevice::setCurrentStimulusLpf(uint16_t filterIdx, bool apply
 }
 
 ErrorCodes_t EZPatchDevice::enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
-//    if (!areAllTheVectorElementsLessThan(channelIndexes, currentChannelsNum)) {
+//    if (!allLessThan(channelIndexes, currentChannelsNum)) {
 //        return ErrorValueOutOfRange;
 //    }
     for(uint32_t i = 0; i < channelIndexes.size(); i++){
@@ -1069,49 +1273,152 @@ ErrorCodes_t EZPatchDevice::setCompensationsChannel(uint16_t channelIdx) {
     return Success;
 }
 
-ErrorCodes_t EZPatchDevice::turnVoltageCompensationsOn(bool on) {
-    bool flags[6];
-    flags[0] = compensationsEnabledArray[CompensationPipette][compensationsSettingChannel];
-    flags[1] = compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel];
-    flags[2] = compensationsEnabledArray[CompensationResistance][compensationsSettingChannel];
-    flags[3] = compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel];
-    flags[4] = compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel];
-    flags[5] = compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel];
+ErrorCodes_t EZPatchDevice::enableCompensation(std::vector <uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) {
+    int tempCompensationSettingChannel = compensationsSettingChannel;
+    switch (compTypeToEnable) {
+    case CompCfast:
+        if (!pipetteCompensationImplemented) {
+            return ErrorFeatureNotImplemented;
+        }
 
-    compensationsEnabledArray[CompensationPipette][compensationsSettingChannel] = on & pipetteCompensationFlag[compensationsSettingChannel];
-    compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel] = on & membraneCompensationFlag[compensationsSettingChannel];
-    compensationsEnabledArray[CompensationResistance][compensationsSettingChannel] = on & resistanceCompensationFlag[compensationsSettingChannel];
-    compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel] = on & resistanceCorrectionFlag[compensationsSettingChannel];
-    compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel] = on & resistancePredictionFlag[compensationsSettingChannel];
-    compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel] = on & leakConductanceCompensationFlag[compensationsSettingChannel];
+        if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
+        }
 
-    ErrorCodes_t ret = this->turnCompensationsOn(voltageCompensationsFlag, on);
-    if (ret != Success) {
-        compensationsEnabledArray[CompensationPipette][compensationsSettingChannel] = flags[0];
-        compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel] = flags[1];
-        compensationsEnabledArray[CompensationResistance][compensationsSettingChannel] = flags[2];
-        compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel] = flags[3];
-        compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel] = flags[4];
-        compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel] = flags[5];
+        for (int i = 0; i < channelIndexes.size(); i++) {
+            compensationsSettingChannel = channelIndexes[i];
+            this->turnPipetteCompensationOn(onValues[i]);
+            channelModels[compensationsSettingChannel]->setCompensatingCfast(onValues[i]);
+        }
+        break;
+
+    case CompCslow:
+        if (!membraneCompensationImplemented) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
+        }
+
+        for (int i = 0; i < channelIndexes.size(); i++) {
+            compensationsSettingChannel = channelIndexes[i];
+            this->turnMembraneCompensationOn(onValues[i]);
+            channelModels[compensationsSettingChannel]->setCompensatingCslowRs(onValues[i]);
+        }
+        break;
+
+    case CompRsCorr:
+        if (!resistanceCorrectionImplemented) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
+        }
+
+        for (int i = 0; i < channelIndexes.size(); i++) {
+            compensationsSettingChannel = channelIndexes[i];
+            this->turnResistanceCorrectionOn(onValues[i]);
+            channelModels[compensationsSettingChannel]->setCompensatingRsCp(onValues[i]);
+            this->updateLiquidJunctionVoltage(compensationsSettingChannel, false);
+        }
+        break;
+
+    case CompRsPred:
+        if (!resistancePredictionImplemented) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
+        }
+
+        for (int i = 0; i < channelIndexes.size(); i++) {
+            compensationsSettingChannel = channelIndexes[i];
+            this->turnResistancePredictionOn(onValues[i]);
+            channelModels[compensationsSettingChannel]->setCompensatingRsPg(onValues[i]);
+        }
+        break;
+
+    case CompCcCfast:
+        if (!ccPipetteCompensationImplemented) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        if (!ccCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
+        }
+
+        for (int i = 0; i < channelIndexes.size(); i++) {
+            compensationsSettingChannel = channelIndexes[i];
+            this->turnCCPipetteCompensationOn(onValues[i]);
+            channelModels[compensationsSettingChannel]->setCompensatingCcCfast(onValues[i]);
+        }
+        break;
+
+    default:
+        return ErrorFeatureNotImplemented;
     }
-    vcCompensationsActivated = on;
+    compensationsSettingChannel = tempCompensationSettingChannel;
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::enableVcCompensations(bool enable, bool applyFlag) {
+    int tempCompensationSettingChannel = compensationsSettingChannel;
+    bool flags[6];
+    ErrorCodes_t ret = Success;
+
+    for (int compensationsSettingChannel = 0; compensationsSettingChannel < currentChannelsNum; compensationsSettingChannel++) {
+        flags[0] = compensationsEnabledArray[CompensationPipette][compensationsSettingChannel];
+        flags[1] = compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel];
+        flags[2] = compensationsEnabledArray[CompensationResistance][compensationsSettingChannel];
+        flags[3] = compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel];
+        flags[4] = compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel];
+        flags[5] = compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel];
+
+        compensationsEnabledArray[CompensationPipette][compensationsSettingChannel] = enable & compCfastEnable[compensationsSettingChannel];
+        compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel] = enable & compCslowEnable[compensationsSettingChannel];
+        compensationsEnabledArray[CompensationResistance][compensationsSettingChannel] = enable & compRsCompEnable[compensationsSettingChannel];
+        compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel] = enable & compRsCorrEnable[compensationsSettingChannel];
+        compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel] = enable & compRsPredEnable[compensationsSettingChannel];
+        compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel] = enable & compLeakEnable[compensationsSettingChannel];
+
+        ErrorCodes_t tempRet = this->turnCompensationsOn(vcCompensationsActivated, enable);
+        if (tempRet != Success) {
+            ret = tempRet;
+            compensationsEnabledArray[CompensationPipette][compensationsSettingChannel] = flags[0];
+            compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel] = flags[1];
+            compensationsEnabledArray[CompensationResistance][compensationsSettingChannel] = flags[2];
+            compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel] = flags[3];
+            compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel] = flags[4];
+            compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel] = flags[5];
+        }
+    }
+    compensationsSettingChannel = tempCompensationSettingChannel;
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::turnCurrentCompensationsOn(bool on) {
-    bool flags[5];
-    flags[0] = compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel];
-    flags[1] = compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel];
+ErrorCodes_t EZPatchDevice::enableCcCompensations(bool enable, bool applyFlag) {
+    int tempCompensationSettingChannel = compensationsSettingChannel;
+    bool flags[2];
+    ErrorCodes_t ret = Success;
 
-    compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel] = on & ccPipetteCompensationFlag[compensationsSettingChannel];
-    compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel] = on & bridgeBalanceCompensationFlag[compensationsSettingChannel];
+    for (int compensationsSettingChannel = 0; compensationsSettingChannel < currentChannelsNum; compensationsSettingChannel++) {
+        flags[0] = compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel];
+        flags[1] = compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel];
 
-    ErrorCodes_t ret = this->turnCompensationsOn(currentCompensationsFlag, on);
-    if (ret != Success) {
-        compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel] = flags[0];
-        compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel] = flags[1];
+        compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel] = enable & compCcCfastEnable[compensationsSettingChannel];
+        compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel] = enable & compCcBridgeEnable[compensationsSettingChannel];
+
+        ErrorCodes_t tempRet = this->turnCompensationsOn(ccCompensationsActivated, enable);
+        if (tempRet != Success) {
+            ret = tempRet;
+            compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel] = flags[0];
+            compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel] = flags[1];
+        }
     }
-    ccCompensationsActivated = on;
+    compensationsSettingChannel = tempCompensationSettingChannel;
     return ret;
 }
 
@@ -1119,7 +1426,7 @@ ErrorCodes_t EZPatchDevice::turnPipetteCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationPipette][compensationsSettingChannel];
     compensationsEnabledArray[CompensationPipette][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(pipetteCompensationFlag, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compCfastEnable, on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationPipette][compensationsSettingChannel] = flag;
     }
@@ -1130,7 +1437,7 @@ ErrorCodes_t EZPatchDevice::turnCCPipetteCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel];
     compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(ccPipetteCompensationFlag, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compCcCfastEnable, on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel] = flag;
     }
@@ -1141,7 +1448,7 @@ ErrorCodes_t EZPatchDevice::turnMembraneCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel];
     compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(membraneCompensationFlag, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compCslowEnable, on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel] = flag;
     }
@@ -1152,7 +1459,7 @@ ErrorCodes_t EZPatchDevice::turnResistanceCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationResistance][compensationsSettingChannel];
     compensationsEnabledArray[CompensationResistance][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(resistanceCompensationFlag, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compRsCompEnable, on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationResistance][compensationsSettingChannel] = flag;
     }
@@ -1163,7 +1470,7 @@ ErrorCodes_t EZPatchDevice::turnResistanceCorrectionOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel];
     compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(resistanceCorrectionFlag, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compRsCorrEnable, on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel] = flag;
     }
@@ -1174,7 +1481,7 @@ ErrorCodes_t EZPatchDevice::turnResistancePredictionOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel];
     compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(resistancePredictionFlag, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compRsPredEnable, on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel] = flag;
     }
@@ -1185,7 +1492,7 @@ ErrorCodes_t EZPatchDevice::turnLeakConductanceCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel];
     compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(leakConductanceCompensationFlag, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compLeakEnable, on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel] = flag;
     }
@@ -1196,7 +1503,7 @@ ErrorCodes_t EZPatchDevice::turnBridgeBalanceCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel];
     compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(bridgeBalanceCompensationFlag, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compCcBridgeEnable, on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel] = flag;
     }
@@ -1219,6 +1526,125 @@ ErrorCodes_t EZPatchDevice::setPipetteCompensationOptions(uint16_t optionIdx) {
     } else {
         return ErrorValueOutOfRange;
     }
+}
+
+ErrorCodes_t EZPatchDevice::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
+    int tempCompensationSettingChannel = compensationsSettingChannel;
+    for (int i = 0; i < channelIndexes.size(); i++) {
+        int compensationsSettingChannel = channelIndexes[i];
+        switch (paramToUpdate) {
+        case U_CpVc:
+            this->setPipetteCapacitance({newParamValues[i], pipetteCapacitanceControl.prefix, pipetteCapacitanceControl.unit});
+            break;
+
+        case U_Cm:
+            this->setMembraneCapacitance({newParamValues[i], membraneCapacitanceControl.prefix, membraneCapacitanceControl.unit});
+            break;
+
+        case U_Rs:
+            this->setAccessResistance({newParamValues[i], accessResistanceControl.prefix, accessResistanceControl.unit});
+            break;
+
+        case U_RsCp:
+            this->setResistanceCorrectionPercentage({newParamValues[i], resistanceCorrectionPercentageControl.prefix, resistanceCorrectionPercentageControl.unit});
+            break;
+
+        case U_RsPg:
+            this->setResistancePredictionGain({newParamValues[i], resistancePredictionGainControl.prefix, resistancePredictionGainControl.unit});
+            break;
+
+        case U_CpCc:
+            this->setCCPipetteCapacitance({newParamValues[i], ccPipetteCapacitanceControl.prefix, ccPipetteCapacitanceControl.unit});
+            break;
+        }
+    }
+    compensationsSettingChannel = tempCompensationSettingChannel;
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes type, std::vector <uint16_t> options, bool applyFlag) {
+    int tempCompensationSettingChannel = compensationsSettingChannel;
+    switch (type) {
+    case CompCfast:
+        if (!pipetteCompensationImplemented) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
+        }
+
+        for (int i = 0; i < channelIndexes.size(); i++) {
+            compensationsSettingChannel = channelIndexes[i];
+            this->setPipetteCompensationOptions(options[i]);
+        }
+        break;
+
+    case CompCslow:
+        if (!membraneCompensationImplemented) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
+        }
+
+        for (int i = 0; i < channelIndexes.size(); i++) {
+            compensationsSettingChannel = channelIndexes[i];
+            this->setMembraneCompensationOptions(options[i]);
+        }
+        break;
+
+    case CompRsCorr:
+        if (!resistanceCorrectionImplemented) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
+        }
+
+        for (int i = 0; i < channelIndexes.size(); i++) {
+            compensationsSettingChannel = channelIndexes[i];
+            this->setResistanceCorrectionOptions(options[i]);
+        }
+        break;
+
+    case CompRsPred:
+        if (!resistancePredictionImplemented) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
+        }
+
+        for (int i = 0; i < channelIndexes.size(); i++) {
+            compensationsSettingChannel = channelIndexes[i];
+            this->setResistancePredictionOptions(options[i]);
+        }
+        break;
+
+    case CompCcCfast:
+        if (!ccPipetteCompensationImplemented) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        if (!ccCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
+        }
+
+        for (int i = 0; i < channelIndexes.size(); i++) {
+            compensationsSettingChannel = channelIndexes[i];
+            this->setCCPipetteCompensationOptions(options[i]);
+        }
+        break;
+
+    default:
+        return ErrorFeatureNotImplemented;
+    }
+    compensationsSettingChannel = tempCompensationSettingChannel;
+    return Success;
 }
 
 ErrorCodes_t EZPatchDevice::setCCPipetteCompensationOptions(uint16_t optionIdx) {
@@ -1460,29 +1886,27 @@ ErrorCodes_t EZPatchDevice::setDigitalRepetitiveTriggerOutput(uint16_t triggersN
 }
 
 ErrorCodes_t EZPatchDevice::setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest) {
-    ErrorCodes_t ret;
-
-    if (itemsNum <= protocolMaxItemsNum) {
-        vRest.convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
-
-        uint16_t dataLength = 5;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        txDataMessage[0] = protId;
-        txDataMessage[1] = itemsNum;
-        txDataMessage[2] = sweepsNum;
-        this->int322uint16((int32_t)round(vRest.value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 3);
-
-        stepsOnLastSweep = (double)(sweepsNum-1);
-        protocolItemsNum = itemsNum;
-        protocolItemIndex = 0;
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdVoltageProtocolStruct, txDataMessage, dataLength);
-
-    } else {
-        ret = ErrorValueOutOfRange;
+    if (itemsNum > protocolMaxItemsNum) {
+        return ErrorValueOutOfRange;
     }
 
-    return ret;
+    selectedProtocolId = protId;
+    selectedProtocolItemsNum = itemsNum;
+    selectedProtocolVrest = vRest;
+    vRest.convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
+
+    uint16_t dataLength = 5;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    txDataMessage[0] = protId;
+    txDataMessage[1] = itemsNum;
+    txDataMessage[2] = sweepsNum;
+    this->int322uint16((int32_t)round(vRest.value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 3);
+
+    stepsOnLastSweep = (double)(sweepsNum-1);
+    protocolItemsNum = itemsNum;
+    protocolItemIndex = 0;
+
+    return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdVoltageProtocolStruct, txDataMessage, dataLength);
 }
 
 ErrorCodes_t EZPatchDevice::voltStepTimeStep(Measurement_t v0, Measurement_t vStep, Measurement_t t0, Measurement_t tStep,
@@ -1602,6 +2026,18 @@ ErrorCodes_t EZPatchDevice::voltSin(Measurement_t v0, Measurement_t vAmp, Measur
     return ret;
 }
 
+ErrorCodes_t EZPatchDevice::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
+    return this->voltStepTimeStep(v0, v0Step, t0, t0Step, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
+}
+
+ErrorCodes_t EZPatchDevice::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
+    return this->voltRamp(v0, vFinal, t0, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
+}
+
+ErrorCodes_t EZPatchDevice::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step, bool vHalfFlag) {
+    return this->voltSin(v0, vAmp, f0, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
+}
+
 ErrorCodes_t EZPatchDevice::startProtocol() {
     ErrorCodes_t ret;
 
@@ -1619,29 +2055,28 @@ ErrorCodes_t EZPatchDevice::startProtocol() {
 }
 
 ErrorCodes_t EZPatchDevice::setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest) {
-    ErrorCodes_t ret;
-
-    if (itemsNum <= protocolMaxItemsNum) {
-        iRest.convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
-
-        uint16_t dataLength = 5;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        txDataMessage[0] = protId;
-        txDataMessage[1] = itemsNum;
-        txDataMessage[2] = sweepsNum;
-        this->int322uint16((int32_t)round(iRest.value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 3);
-
-        stepsOnLastSweep = (double)(sweepsNum-1);
-        protocolItemsNum = itemsNum;
-        protocolItemIndex = 0;
-
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdCurrentProtocolStruct, txDataMessage, dataLength);
-
-    } else {
-        ret = ErrorValueOutOfRange;
+    if (itemsNum > protocolMaxItemsNum) {
+        return ErrorValueOutOfRange;
     }
 
-    return ret;
+    selectedProtocolId = protId;
+    selectedProtocolItemsNum = itemsNum;
+    selectedProtocolIrest = iRest;
+
+    iRest.convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
+
+    uint16_t dataLength = 5;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    txDataMessage[0] = protId;
+    txDataMessage[1] = itemsNum;
+    txDataMessage[2] = sweepsNum;
+    this->int322uint16((int32_t)round(iRest.value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 3);
+
+    stepsOnLastSweep = (double)(sweepsNum-1);
+    protocolItemsNum = itemsNum;
+    protocolItemIndex = 0;
+
+    return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdCurrentProtocolStruct, txDataMessage, dataLength);
 }
 
 ErrorCodes_t EZPatchDevice::currStepTimeStep(Measurement_t i0, Measurement_t iStep, Measurement_t t0, Measurement_t tStep,
@@ -1761,26 +2196,16 @@ ErrorCodes_t EZPatchDevice::currSin(Measurement_t i0, Measurement_t iAmp, Measur
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::resetChip(bool reset) {
-    ErrorCodes_t ret;
-    uint16_t dataLength = switchesStatusLength;
-    std::vector <uint16_t> txDataMessage(dataLength);
-    this->switches2DataMessage(txDataMessage);
+ErrorCodes_t EZPatchDevice::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step, bool iHalfFlag) {
+    return this->currStepTimeStep(i0, i0Step, t0, t0Step, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
+}
 
-    unsigned int resetIdx = ResetIndexChip;
+ErrorCodes_t EZPatchDevice::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool iHalfFlag) {
+    return this->currRamp(i0, iFinal, t0, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
+}
 
-    if (reset) {
-        txDataMessage[resetWord[resetIdx]] |= resetByte[resetIdx];
-
-    } else {
-        txDataMessage[resetWord[resetIdx]] &= ~resetByte[resetIdx];
-    }
-
-    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
-    if (ret == Success) {
-        this->dataMessage2Switches(txDataMessage);
-    }
-    return ret;
+ErrorCodes_t EZPatchDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool iHalfFlag) {
+    return this->currSin(i0, iAmp, f0, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
 }
 
 ErrorCodes_t EZPatchDevice::resetDigitalOffsetCompensation(bool reset) {
@@ -1802,16 +2227,6 @@ ErrorCodes_t EZPatchDevice::resetDigitalOffsetCompensation(bool reset) {
     if (ret == Success) {
         this->dataMessage2Switches(txDataMessage);
     }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::resetFpga() {
-    ErrorCodes_t ret;
-    uint16_t dataLength = 0;
-    std::vector <uint16_t> txDataMessage(dataLength);
-    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdFpgaReset, txDataMessage, dataLength);
-    voltageOffsetCorrected = 0.0;
-    this->selectVoltageOffsetResolution();
     return ret;
 }
 
@@ -2039,7 +2454,7 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                         /*! \todo FCON questo doppio ciclo va modificato per raccogliere i dati di impedenza in modalità lock-in */
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
                             rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(voltageChannelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+(voltageOffsetCorrection+voltageTunerCorrection)/voltageResolution, iirVNum, iirVDen);
+                            this->applyRawDataFilter(voltageChannelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+(voltageOffsetCorrection+voltageTunerCorrection[voltageChannelIdx])/voltageResolution, iirVNum, iirVDen);
                             xFlt = iirY[voltageChannelIdx][iirOff];
                             data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
@@ -2048,11 +2463,19 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
 
                         for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
                             rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+currentTunerCorrection/currentResolution, iirINum, iirIDen);
+                            this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+currentTunerCorrection[currentChannelIdx]/currentResolution, iirINum, iirIDen);
                             xFlt = iirY[currentChannelIdx+voltageChannelsNum][iirOff];
-                            data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                            data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
                             lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
+                            if (anyLiquidJuctionActive) {
+                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
+                            }
+                            sampleIdx++;
+                        }
+
+                        if (anyLiquidJuctionActive) {
+                            liquidJunctionCurrentEstimatesNum++;
                         }
 
                         if (iirOff < 1) {
@@ -2110,21 +2533,41 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
 }
 
 ErrorCodes_t EZPatchDevice::hasVoltageHoldTuner() {
-    if (voltageHoldTunerImplemented) {
-        return Success;
-
-    } else {
+    if (!voltageHoldTunerImplemented) {
         return ErrorFeatureNotImplemented;
     }
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageRanges) {
+    if (!voltageHoldTunerImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    voltageRanges = vcVoltageRangesArray;
+    return Success;
 }
 
 ErrorCodes_t EZPatchDevice::hasCurrentHoldTuner() {
-    if (currentHoldTunerImplemented) {
-        return Success;
-
-    } else {
+    if (!currentHoldTunerImplemented) {
         return ErrorFeatureNotImplemented;
     }
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentRanges) {
+    if (!currentHoldTunerImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    currentRanges = ccCurrentRangesArray;
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges) {
+    if (!voltageHoldTunerImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    ranges = vcVoltageRangesArray;
+    return Success;
 }
 
 ErrorCodes_t EZPatchDevice::getMaxOutputTriggers(unsigned int &maxTriggersNum) {
@@ -2171,12 +2614,17 @@ ErrorCodes_t EZPatchDevice::hasAnalogOut() {
 }
 
 ErrorCodes_t EZPatchDevice::hasSlaveModality() {
-    if (slaveImplementedFlag) {
-        return Success;
-
-    } else {
+    if (!slaveImplementedFlag) {
         return ErrorFeatureNotImplemented;
     }
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::hasOffsetCompensation() {
+    if (!voltageHoldTunerImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    return Success;
 }
 
 ErrorCodes_t EZPatchDevice::hasPipetteCompensation() {
@@ -2456,9 +2904,6 @@ ErrorCodes_t EZPatchDevice::initializeMemory() {
         this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
-#ifdef CHECK_DATA_PACKET_LENGTH
-    movedWords = new uint16_t[1024];
-#endif
 
     txMsgBuffer = new (std::nothrow) MsgResume_t[EZP_TX_MSG_BUFFER_SIZE];
     if (txMsgBuffer == nullptr) {
@@ -2477,6 +2922,21 @@ ErrorCodes_t EZPatchDevice::initializeMemory() {
         this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
+
+    /*! Allocate memory for holding values to correct readout from device */
+    voltageTunerCorrection.resize(currentChannelsNum);
+    std::fill(voltageTunerCorrection.begin(), voltageTunerCorrection.end(), 0.0);
+    currentTunerCorrection.resize(voltageChannelsNum);
+    std::fill(currentTunerCorrection.begin(), currentTunerCorrection.end(), 0.0);
+
+    selectedVoltageHoldVector.resize(currentChannelsNum);
+    std::fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
+    selectedCurrentHoldVector.resize(currentChannelsNum);
+    std::fill(selectedCurrentHoldVector.begin(), selectedCurrentHoldVector.end(), defaultCurrentHoldTuner);
+    selectedVoltageHalfVector.resize(currentChannelsNum);
+    std::fill(selectedVoltageHalfVector.begin(), selectedVoltageHalfVector.end(), defaultVoltageHalfTuner);
+    selectedCurrentHalfVector.resize(currentChannelsNum);
+    std::fill(selectedCurrentHalfVector.begin(), selectedCurrentHalfVector.end(), defaultCurrentHalfTuner);
 
     return Success;
 }
@@ -2503,6 +2963,7 @@ ErrorCodes_t EZPatchDevice::deviceConfiguration() {
 void EZPatchDevice::createCommunicationThreads() {
     rxThread = std::thread(&EZPatchDevice::readAndParseMessages, this);
     txThread = std::thread(&EZPatchDevice::unwrapAndSendMessages, this);
+    liquidJunctionThread = std::thread(&EZPatchDevice::computeLiquidJunction, this);
 
     threadsStarted = true;
 }
@@ -2529,7 +2990,7 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
             ret = this->getNextMessage(rxOutput, datain);
             this->deallocateRxDataBuffer(datain);
 
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
             fprintf(rxFid,
                     "fpga reset\n"
                     "try %d: %s\n\n",
@@ -2543,7 +3004,7 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
 
         ret = this->ping();
 
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
         fprintf(rxFid,
                 "ping\n"
                 "try %d: %s\n\n",
@@ -2553,14 +3014,14 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
 #endif
     }
 
-    ret = this->resetChip(true);
+    ret = this->resetAsic(true, true);
     if (ret != Success) {
         return ErrorConnectionChipResetFailed;
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(resetDuration));
 
-    ret = this->resetChip(false);
+    ret = this->resetAsic(false, true);
     if (ret != Success) {
         return ErrorConnectionChipResetFailed;
     }
@@ -2609,6 +3070,7 @@ void EZPatchDevice::joinCommunicationThreads() {
     if (threadsStarted) {
         rxThread.join();
         txThread.join();
+        liquidJunctionThread.join();
 
         threadsStarted = false;
     }
@@ -2639,6 +3101,9 @@ void EZPatchDevice::initializeCompensations() {
         }
     }
 
+    vcCompensationsActivated = false;
+    ccCompensationsActivated = false;
+
     pipetteCapacitance.resize(currentChannelsNum);
     ccPipetteCapacitance.resize(currentChannelsNum);
     membraneCapacitance.resize(currentChannelsNum);
@@ -2652,16 +3117,36 @@ void EZPatchDevice::initializeCompensations() {
     leakConductance.resize(currentChannelsNum);
     bridgeBalanceResistance.resize(currentChannelsNum);
 
-    voltageCompensationsFlag.resize(currentChannelsNum);
-    currentCompensationsFlag.resize(currentChannelsNum);
-    pipetteCompensationFlag.resize(currentChannelsNum);
-    ccPipetteCompensationFlag.resize(currentChannelsNum);
-    membraneCompensationFlag.resize(currentChannelsNum);
-    resistanceCompensationFlag.resize(currentChannelsNum);
-    resistanceCorrectionFlag.resize(currentChannelsNum);
-    resistancePredictionFlag.resize(currentChannelsNum);
-    leakConductanceCompensationFlag.resize(currentChannelsNum);
-    bridgeBalanceCompensationFlag.resize(currentChannelsNum);
+    std::fill(pipetteCapacitance.begin(), pipetteCapacitance.end(), 1.0);
+    std::fill(ccPipetteCapacitance.begin(), ccPipetteCapacitance.end(), 1.0);
+    std::fill(membraneCapacitance.begin(), membraneCapacitance.end(), 1.0);
+    std::fill(accessResistance.begin(), accessResistance.end(), 1.0);
+    std::fill(resistanceCorrectionPercentage.begin(), resistanceCorrectionPercentage.end(), 1.0);
+    std::fill(resistanceCorrectionLag.begin(), resistanceCorrectionLag.end(), 1.0);
+    std::fill(resistancePredictionGain.begin(), resistancePredictionGain.end(), 1.0);
+    std::fill(resistancePredictionPercentage.begin(), resistancePredictionPercentage.end(), 1.0);
+    std::fill(resistancePredictionBandwidthGain.begin(), resistancePredictionBandwidthGain.end(), 1.0);
+    std::fill(resistancePredictionTau.begin(), resistancePredictionTau.end(), 1.0);
+    std::fill(pipetteCapacitance.begin(), pipetteCapacitance.end(), 1.0);
+    std::fill(bridgeBalanceResistance.begin(), bridgeBalanceResistance.end(), 1.0);
+
+    compCfastEnable.resize(currentChannelsNum);
+    compCcCfastEnable.resize(currentChannelsNum);
+    compCslowEnable.resize(currentChannelsNum);
+    compRsCompEnable.resize(currentChannelsNum);
+    compRsCorrEnable.resize(currentChannelsNum);
+    compRsPredEnable.resize(currentChannelsNum);
+    compLeakEnable.resize(currentChannelsNum);
+    compCcBridgeEnable.resize(currentChannelsNum);
+
+    std::fill(compCfastEnable.begin(), compCfastEnable.end(), false);
+    std::fill(compCcCfastEnable.begin(), compCcCfastEnable.end(), false);
+    std::fill(compCslowEnable.begin(), compCslowEnable.end(), false);
+    std::fill(compRsCompEnable.begin(), compRsCompEnable.end(), false);
+    std::fill(compRsCorrEnable.begin(), compRsCorrEnable.end(), false);
+    std::fill(compRsPredEnable.begin(), compRsPredEnable.end(), false);
+    std::fill(compLeakEnable.begin(), compLeakEnable.end(), false);
+    std::fill(compCcBridgeEnable.begin(), compCcBridgeEnable.end(), false);
 
     pipetteCompensationOptionReg.resize(currentChannelsNum);
     ccPipetteCompensationOptionReg.resize(currentChannelsNum);
@@ -2672,40 +3157,14 @@ void EZPatchDevice::initializeCompensations() {
     leakConductanceCompensationOptionReg.resize(currentChannelsNum);
     bridgeBalanceCompensationOptionReg.resize(currentChannelsNum);
 
-    for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        pipetteCapacitance[channelIdx] = 1.0;
-        ccPipetteCapacitance[channelIdx] = 1.0;
-        membraneCapacitance[channelIdx] = 1.0;
-        accessResistance[channelIdx] = 1.0;
-        resistanceCorrectionPercentage[channelIdx] = 1.0;
-        resistanceCorrectionLag[channelIdx] = 1.0;
-        resistancePredictionGain[channelIdx] = 1.0;
-        resistancePredictionPercentage[channelIdx] = 1.0;
-        resistancePredictionBandwidthGain[channelIdx] = 1.0;
-        resistancePredictionTau[channelIdx] = 1.0;
-        leakConductance[channelIdx] = 1.0;
-        bridgeBalanceResistance[channelIdx] = 1.0;
-
-        voltageCompensationsFlag[channelIdx] = false;
-        currentCompensationsFlag[channelIdx] = false;
-        pipetteCompensationFlag[channelIdx] = false;
-        ccPipetteCompensationFlag[channelIdx] = false;
-        membraneCompensationFlag[channelIdx] = false;
-        resistanceCompensationFlag[channelIdx] = false;
-        resistanceCorrectionFlag[channelIdx] = false;
-        resistancePredictionFlag[channelIdx] = false;
-        leakConductanceCompensationFlag[channelIdx] = false;
-        bridgeBalanceCompensationFlag[channelIdx] = false;
-
-        pipetteCompensationOptionReg[channelIdx] = 0;
-        ccPipetteCompensationOptionReg[channelIdx] = 0;
-        membraneCompensationOptionReg[channelIdx] = 0;
-        resistanceCompensationOptionReg[channelIdx] = 0;
-        resistanceCorrectionOptionReg[channelIdx] = 0;
-        resistancePredictionOptionReg[channelIdx] = 0;
-        leakConductanceCompensationOptionReg[channelIdx] = 0;
-        bridgeBalanceCompensationOptionReg[channelIdx] = 0;
-    }
+    std::fill(pipetteCompensationOptionReg.begin(), pipetteCompensationOptionReg.end(), 0);
+    std::fill(ccPipetteCompensationOptionReg.begin(), ccPipetteCompensationOptionReg.end(), 0);
+    std::fill(membraneCompensationOptionReg.begin(), membraneCompensationOptionReg.end(), 0);
+    std::fill(resistanceCompensationOptionReg.begin(), resistanceCompensationOptionReg.end(), 0);
+    std::fill(resistanceCorrectionOptionReg.begin(), resistanceCorrectionOptionReg.end(), 0);
+    std::fill(resistancePredictionOptionReg.begin(), resistancePredictionOptionReg.end(), 0);
+    std::fill(leakConductanceCompensationOptionReg.begin(), leakConductanceCompensationOptionReg.end(), 0);
+    std::fill(bridgeBalanceCompensationOptionReg.begin(), bridgeBalanceCompensationOptionReg.end(), 0);
 }
 
 ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::vector <uint16_t> txDataMessage, uint16_t dataLen) {
@@ -2727,7 +3186,7 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
         this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
         ret = Success;
 
-    } else {
+    } else if (threadsStarted) {
         std::unique_lock <std::mutex> ackLock(txAckMutex);
         txAckReceived = false;
         int resendTry = 0;
@@ -2744,10 +3203,7 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
 
             } else {
                 resendTry++;
-#ifdef RX_PACKETS_FLOW_PRINT
-                cout << "resend" << endl;
-#endif
-#ifdef DEBUGPRINT
+#ifdef DEBUG_TX_DATA_PRINT
                 fprintf(txFid, "resend\n\n");
                 fflush(txFid);
 #endif
@@ -2758,6 +3214,12 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
             txWaitingOnAcks--;
         }
         ackLock.unlock();
+
+    } else {
+        this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
+        this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
+        txWaitingOnAcks--;
+        ret = Success;
     }
     return ret;
 }
@@ -2981,14 +3443,14 @@ void EZPatchDevice::updateCompensations() {
     }
 }
 
-ErrorCodes_t EZPatchDevice::turnCompensationsOn(std::vector <bool> &flag, bool on) {
+ErrorCodes_t EZPatchDevice::turnCompensationsOn(bool &flag, bool on) {
     ErrorCodes_t ret;
     uint16_t dataLength = switchesStatusLength;
     std::vector <uint16_t> txDataMessage(dataLength);
     this->switches2DataMessage(txDataMessage);
 
-    bool originalFlag = flag[compensationsSettingChannel];
-    flag[compensationsSettingChannel] = on;
+    bool originalFlag = flag;
+    flag = on;
     this->compensationsFlags2Switches(txDataMessage);
 
     ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
@@ -2997,7 +3459,7 @@ ErrorCodes_t EZPatchDevice::turnCompensationsOn(std::vector <bool> &flag, bool o
         this->updateCompensations();
 
     } else {
-        flag[compensationsSettingChannel] = originalFlag;
+        flag = originalFlag;
     }
     return ret;
 }

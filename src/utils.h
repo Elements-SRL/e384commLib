@@ -8,7 +8,7 @@
 
 #define UTL_SEPARATOR "\\\\"
 
-template<typename I_t> bool areAllTheVectorElementsLessThan(std::vector<I_t> myVector, I_t maxValue){
+template<typename I_t> bool allLessThan(std::vector<I_t> myVector, I_t maxValue){
     if(myVector.empty()){
         return false;
     }
@@ -23,7 +23,7 @@ template<typename I_t> bool areAllTheVectorElementsLessThan(std::vector<I_t> myV
 
 }
 
-template<typename I_t> bool areAllTheVectorElementsLessThanOrEqualTo(std::vector<I_t> myVector, I_t maxValue){
+template<typename I_t> bool allLessThanOrEqualTo(std::vector<I_t> myVector, I_t maxValue){
     if(myVector.empty()){
         return false;
     }
@@ -38,7 +38,7 @@ template<typename I_t> bool areAllTheVectorElementsLessThanOrEqualTo(std::vector
 
 }
 
-template<typename I_t> bool areAllTheVectorElementsGreaterThan(std::vector<I_t> myVector, I_t minValue){
+template<typename I_t> bool allGreaterThan(std::vector<I_t> myVector, I_t minValue){
     if(myVector.empty()){
         return false;
     }
@@ -53,7 +53,7 @@ template<typename I_t> bool areAllTheVectorElementsGreaterThan(std::vector<I_t> 
 
 }
 
-template<typename I_t> bool areAllTheVectorElementsGreaterThanOrEqualTo(std::vector<I_t> myVector, I_t minValue){
+template<typename I_t> bool allGreaterThanOrEqualTo(std::vector<I_t> myVector, I_t minValue){
     if(myVector.empty()){
         return false;
     }
@@ -68,9 +68,9 @@ template<typename I_t> bool areAllTheVectorElementsGreaterThanOrEqualTo(std::vec
 
 }
 
-template<typename I_t> bool areAllTheVectorElementsStrictlyInRange(std::vector<I_t> myVector, I_t minValue, I_t maxValue){
-    if (areAllTheVectorElementsLessThan<I_t>(myVector, maxValue)) {
-        if (areAllTheVectorElementsGreaterThan<I_t>(myVector, minValue)) {
+template<typename I_t> bool allStrictlyInRange(std::vector<I_t> myVector, I_t minValue, I_t maxValue){
+    if (allLessThan<I_t>(myVector, maxValue)) {
+        if (allGreaterThan<I_t>(myVector, minValue)) {
             return true;
 
         } else {
@@ -82,9 +82,9 @@ template<typename I_t> bool areAllTheVectorElementsStrictlyInRange(std::vector<I
     }
 }
 
-template<typename I_t> bool areAllTheVectorElementsInRange(std::vector<I_t> myVector, I_t minValue, I_t maxValue){
-    if (areAllTheVectorElementsLessThanOrEqualTo<I_t>(myVector, maxValue)) {
-        if (areAllTheVectorElementsGreaterThanOrEqualTo<I_t>(myVector, minValue)) {
+template<typename I_t> bool allInRange(std::vector<I_t> myVector, I_t minValue, I_t maxValue){
+    if (allLessThanOrEqualTo<I_t>(myVector, maxValue)) {
+        if (allGreaterThanOrEqualTo<I_t>(myVector, minValue)) {
             return true;
 
         } else {

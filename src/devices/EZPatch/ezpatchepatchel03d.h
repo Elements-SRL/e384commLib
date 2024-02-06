@@ -12,7 +12,14 @@ public:
     ErrorCodes_t setChannelsSources(int16_t voltageSourcesIdxs, int16_t currentSourcesIdxs) override;
     virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
 
+    ErrorCodes_t hasCompFeature(uint16_t feature) override;
+
 protected:
+    enum ClampingModalities {
+        VoltageClamp,
+        ClampingModalitiesNum
+    };
+
     enum VCCurrentRanges {
         VCCurrentRange200pA,
         VCCurrentRange2nA,

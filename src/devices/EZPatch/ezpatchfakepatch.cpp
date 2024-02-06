@@ -31,6 +31,32 @@ EZPatchFakePatch::EZPatchFakePatch(std::string di) :
     realSamplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate20kHz].unit = "Hz";
 
+    integrationStepArray.resize(samplingRatesNum);
+    integrationStepArray[SamplingRate1_25kHz].value = 800.0;
+    integrationStepArray[SamplingRate1_25kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate1_25kHz].unit = "s";
+    integrationStepArray[SamplingRate5kHz].value = 200.0;
+    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate5kHz].unit = "s";
+    integrationStepArray[SamplingRate10kHz].value = 100.0;
+    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate10kHz].unit = "s";
+    integrationStepArray[SamplingRate20kHz].value = 50.0;
+    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate20kHz].unit = "s";
+
+    /*! Protocols parameters */
+    protocolFpgaClockFrequencyHz = 10.0e3;
+
+    protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
+    protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
+    protocolTimeRange.max = LINT32_MAX*protocolTimeRange.step;
+    protocolTimeRange.prefix = UnitPfxMilli;
+    protocolTimeRange.unit = "s";
+
+    positiveProtocolTimeRange = protocolTimeRange;
+    positiveProtocolTimeRange.min = 0.0;
+
     protocolMaxItemsNum = 1e6;
 
     voltageProtocolStepImplemented = true;
@@ -225,22 +251,24 @@ ErrorCodes_t EZPatchFakePatch::resetFpga() {
 
 void EZPatchFakePatch::selectChannelsResolutions() {
     EZPatchePatchEL03F_4F_PCBV03_V03::selectChannelsResolutions();
-    if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
-        genCurrentNorm = 1.0/genVcCurrentRange.step;
-        currentTunerCorrection = 0.0;
+    for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
+            genCurrentNorm = 1.0/genVcCurrentRange.step;
+            currentTunerCorrection[channelIdx] = 0.0;
 
-    } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
-        genCurrentNorm = 1.0/genCcCurrentRange.step;
-        currentTunerCorrection = currentTuner.value;
-    }
+        } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
+            genCurrentNorm = 1.0/genCcCurrentRange.step;
+            currentTunerCorrection[channelIdx] = selectedCurrentHoldVector[channelIdx].value;
+        }
 
-    if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
-        genVoltageNorm = 1.0/genVcVoltageRange.step;
-        voltageTunerCorrection = voltageTuner.value;
+        if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
+            genVoltageNorm = 1.0/genVcVoltageRange.step;
+            voltageTunerCorrection[channelIdx] = selectedVoltageHoldVector[channelIdx].value;
 
-    } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
-        genVoltageNorm = 1.0/genCcVoltageRange.step;
-        voltageTunerCorrection = 0.0;
+        } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
+            genVoltageNorm = 1.0/genCcVoltageRange.step;
+            voltageTunerCorrection[channelIdx] = 0.0;
+        }
     }
 }
 

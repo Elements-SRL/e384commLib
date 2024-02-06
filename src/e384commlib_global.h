@@ -310,6 +310,7 @@ typedef struct ChannelSources {
 } ChannelSources_t;
 
 #ifdef E384COMMLIB_LABVIEW_WRAPPER
+#define _NI_int8_DEFINED_
 #include "extcode.h"
 /*! \typedef CharMeasurement_t
  */
@@ -356,62 +357,37 @@ typedef struct CharCompensationControl {
 
 #include "lv_prolog.h"
 typedef struct {
-    int32	cnt;                    /* number of measurements that follow */
-    CharMeasurement_t	item[1];	/* cnt measurements */
+    int32 cnt;                              /* number of measurements that follow */
+    CharMeasurement_t item[1];              /* cnt measurements */
 } LMeas, *LMeasPtr, **LMeasHandle;
 
 typedef struct {
-    int32	cnt;            /* number of vector of measurements that follow */
-    LMeasHandle	item[1];	/* cnt vector of measurements */
+    int32 cnt[2];                           /* size of matrix of measurements that follow */
+    CharMeasurement_t item[1];              /* cnt vector of measurements */
 } LVecMeas, *LVecMeasPtr, **LVecMeasHandle;
 
 typedef struct {
-    int32	cnt;                        /* number of ranged measurements that follow */
-    CharRangedMeasurement_t	item[1];	/* cnt ranged measurements */
+    int32 cnt;                              /* number of ranged measurements that follow */
+    CharRangedMeasurement_t	item[1];        /* cnt ranged measurements */
 } LRange, *LRangePtr, **LRangeHandle;
 
 typedef struct {
-    int32	cnt;                            /* number of compensation controls that follow */
-    CharCompensationControl_t	item[1];	/* cnt compensation control */
+    int32 cnt;                              /* number of compensation controls that follow */
+    CharCompensationControl_t item[1];      /* cnt compensation control */
 } LComp, *LCompPtr, **LCompHandle;
 
-/*! \struct CharCalibrationParams_t
- * \brief Structure used to return calibration values.
- * \note All fields are vectors of vectors because the first vector indexes ranges, while the second range indexes channels
- */
-typedef struct CharCalibrationParams {
-    LVecMeasHandle allGainAdcMeas;
-    LVecMeasHandle allOffsetAdcMeas;
-    LVecMeasHandle allGainDacMeas;
-    LVecMeasHandle allOffsetDacMeas;
-    LVecMeasHandle ccAllGainAdcMeas;
-    LVecMeasHandle ccAllOffsetAdcMeas;
-    LVecMeasHandle ccAllGainDacMeas;
-    LVecMeasHandle ccAllOffsetDacMeas;
-} CharCalibrationParams_t;
-
-#define LVecBuf(sp)	(&((sp))->item[0])				/* pointer to first item of vector */
-#define LVecItem(sp, n)	((&((sp))->item[n]))		/* pointer to n-th item of vector */
-#define LVecLen(sp)	(((sp))->cnt)					/* # of items in vector */
+#define LVecBuf(sp)	(&((sp))->item[0])                          /* pointer to first item of vector */
+#define LVecItem(sp, n)	((&((sp))->item[n]))                    /* pointer to n-th item of vector */
+#define LVecLen(sp)	(((sp))->cnt)                               /* # of items in vector */
+#define LMatS1(sp) (((sp))->cnt[0])                             /* # of rows in matrix */
+#define LMatS2(sp) (((sp))->cnt[1])                             /* # of cols in matrix */
+#define LMatLen(sp)	(LMatS1(sp)*LMatS2(sp))                     /* # of items in matrix */
+#define LMatItem(sp, m, n) ((&((sp))->item[m+n*LMatS1(sp)]))    /* pointer to n-th item of vector */
 #include "lv_epilog.h"
 #endif
 
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
 } // namespace e384CommLib
-#else
-// typedef LStrHandle E384clString_t;
-// typedef LStrHandle E384clStringVector_t;
-// typedef CharMeasurement_t E384clMeasurement_t;
-// typedef LMeasHandle E384clMeasurementVector_t;
-// typedef CharRangedMeasurement_t E384clRangedMeasurement_t;
-// typedef LRangeHandle E384clRangedMeasurementVector_t;
-// typedef CharCompensationControl_t E384clCompensationControl_t;
-// typedef uint16_t E384clUint16Vector_t;
-// typedef uint32_t E384clUint32Vector_t;
-// typedef double E384clDoubleVector_t;
-// typedef bool E384clBoolVector_t;
-// #define E384CL_OUTPUT_SYMBOL
-// #define E384CL_VECTOR_SYMBOL *
 #endif
 
 #endif // E384COMMLIB_GLOBAL_H
