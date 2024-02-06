@@ -196,7 +196,6 @@ typedef enum DeviceTypes {
     DeviceEPatchEL03F_4D_PCBV02_V03,        /*!< ePatch device with EL03F and EL04D chips: increased maximum amount of digital trigger output events */
     DeviceEPatchEL03F_4D_PCBV02_V02,        /*!< ePatch device with EL03F and EL04D chips: voltage and current hold tuner implementation */
     DeviceEPatchEL03F_4D_PCBV02_V01,        /*!< ePatch device with EL03F and EL04D chips: added digital trigger output before. */
-    DeviceEPatchEL03F_4D_PCBV02_V00,        /*!< ePatch device with EL03F and EL04D chips. */
     DeviceEPatchEL04E,                      /*!< ePatch device with EL04E chip. */
     DeviceEPatchEL03F_4E_PCBV03_V04,        /*!< ePatch device with EL03F and EL04E chips: digital repetitive trigger output. */
     DeviceEPatchEL03F_4E_PCBV03_V03,        /*!< ePatch device with EL03F and EL04E chips: increased maximum amount of digital trigger output events. */
@@ -209,13 +208,15 @@ typedef enum DeviceTypes {
     DeviceEPatchEL04F,                      /*!< ePatch device with EL04F chip. */
     DeviceEPatchEL03F_4F_PCBV01_AnalogOut,  /*!< ePatch device with EL03F and EL04F chips: added analog output. */
     DeviceEPatchEL03F_4F_PCBV03_V04,        /*!< ePatch device with EL03F and EL04F chips: digital repetitive trigger output. */
+    DeviceEPatchEL03F_4F_PCBV02_V04,        /*!< ePatch device with EL03F and EL04F chips: digital repetitive trigger output. */
     DeviceEPatchEL03F_4F_PCBV03_V03,        /*!< ePatch device with EL03F and EL04F chips: increased maximum amount of digital trigger output events. */
     DeviceE4PEL04F,                         /*!< ePatch device with 4 EL04F chips. */
     DeviceE4PPatchLiner,                    /*!< ePatch device with 4 EL04F chips for Nanion's Patchliner. */
     DeviceE8PPatchLiner,                    /*!< ePatch device with 8 EL04F chips for Nanion's Patchliner. */
     DeviceE4PPatchLinerEL07AB,              /*!< ePatch device with 4 EL07AB chips for Nanion's Patchliner. */
     DeviceE8PPatchLinerEL07AB,              /*!< ePatch device with 8 EL07AB chips for Nanion's Patchliner. */
-    DeviceE8PPatchLinerEL07AB_artix7,       /*!< ePatch device with 8 EL07AB chips for Nanion's Patchliner (FPGA artix7). */
+    DeviceE8PPatchLinerEL07AB_artix7_PCBV01,/*!< ePatch device with 8 EL07AB PCB V01 chips for Nanion's Patchliner (FPGA artix7). */
+    DeviceE8PPatchLinerEL07AB_artix7_PCBV02,/*!< ePatch device with 8 EL07AB PCB V02 chips for Nanion's Patchliner (FPGA artix7). */
     DeviceFakePatch,                        /*!< Fake ePatch device resembling EL04F chip. */
     DeviceFakeP8,                           /*!< Fake patchliner device resembling EL07AB chip. */
     DeviceEPatchDlp,                        /*!< ePatch device with dlp fpga. */

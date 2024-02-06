@@ -1581,7 +1581,7 @@ void EZPatche8PPatchliner_el07ab::updateWrittenCompesantionValues(std::vector <u
     predictionTauRegValue[compensationsSettingChannel] = txDataMessage[11];
 }
 
-EZPatche8PPatchliner_el07ab_artix7::EZPatche8PPatchliner_el07ab_artix7(std::string di) :
+EZPatche8PPatchliner_el07ab_artix7_PCBV01::EZPatche8PPatchliner_el07ab_artix7_PCBV01(std::string di) :
     EZPatche8PPatchliner_el07ab(di) {
 
     spiChannel = 'B';
@@ -1591,6 +1591,16 @@ EZPatche8PPatchliner_el07ab_artix7::EZPatche8PPatchliner_el07ab_artix7(std::stri
     fpgaLoadType = FpgaFwLoadPatchlinerArtix7_V01;
 }
 
-EZPatche8PPatchliner_el07ab_artix7::~EZPatche8PPatchliner_el07ab_artix7() {
+EZPatche8PPatchliner_el07ab_artix7_PCBV01::~EZPatche8PPatchliner_el07ab_artix7_PCBV01() {
+
+}
+
+EZPatche8PPatchliner_el07ab_artix7_PCBV02::EZPatche8PPatchliner_el07ab_artix7_PCBV02(std::string di) :
+    EZPatche8PPatchliner_el07ab_artix7_PCBV01(di) {
+
+    fpgaLoadType = FpgaFwLoadAutomatic;
+}
+
+EZPatche8PPatchliner_el07ab_artix7_PCBV02::~EZPatche8PPatchliner_el07ab_artix7_PCBV02() {
 
 }
