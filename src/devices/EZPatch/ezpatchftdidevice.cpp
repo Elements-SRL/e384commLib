@@ -136,11 +136,6 @@ EZPatchFtdiDevice::EZPatchFtdiDevice(std::string deviceId) :
     txSyncWord[1] = 0x5A;
 
     txCrcInitialValue = (((uint16_t)txSyncWord[1]) << 8)+(uint16_t)txSyncWord[0];
-
-    /*! This will never change so it makes sense to initialize it here */
-    for (uint32_t idx = 0; idx < FTD_TX_SYNC_WORD_SIZE; idx++) {
-        txRawBuffer[idx] = txSyncWord[idx];
-    }
 }
 
 EZPatchFtdiDevice::~EZPatchFtdiDevice() {
@@ -548,10 +543,6 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
     /*! Rx data length variables */
     uint16_t rxDataWords = 0;
-#ifdef CHECK_DATA_PACKET_LENGTH
-    uint16_t rxDataWordsRemoved = 0;
-    uint16_t rxDataWordsAdded = 0;
-#endif
     uint16_t rxDataBytes = 0;
 
     /*! Rx message crc variables */
@@ -599,7 +590,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
             continue;
         }
 
-#ifdef RAW_DEBUGPRINT
+#ifdef DEBUG_RX_RAW_DATA_PRINT
         fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(unsigned char), ftdiReadBytes, rawRxFid);
         fflush(rawRxFid);
 #endif
@@ -678,21 +669,15 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                         rxMsgBytes = FTD_RX_SYNC_WORD_SIZE+FTD_RX_HB_TY_LN_SIZE+FTD_RX_CRC_WORD_SIZE+rxDataBytes+FTD_RX_CRC_WORD_SIZE;
 
                         rxParsePhase = RxParseLookForCrc;
-#ifdef RX_PACKETS_FLOW_PRINT
-                        cout << "crc0 right" << endl;
-#endif
 
                     } else {
                         rxParsePhase = RxParseLookForHeader;
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
                         fprintf(rxFid,
                                 "crc0 wrong\n"
                                 "hb: \t0x%04x\n\n",
                                 rxHeartbeat);
                         fflush(rxFid);
-#endif
-#ifdef RX_PACKETS_FLOW_PRINT
-                        cout << "crc0 wrong" << endl;
 #endif
                     }
                 }
@@ -709,17 +694,11 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                     rxCrcOk = (rxReadCrc1 == rxComputedCrc);
 
                     if (rxCrcOk) {
-#ifdef RX_PACKETS_FLOW_PRINT
-                        cout << "crc1 right" << endl;
-#endif
                         if (rxMsgTypeId == MsgDirectionDeviceToPc+MsgTypeIdAck) {
                             txAckMutex.lock();
                             txAckReceived = true;
                             txAckCv.notify_all();
-#ifdef RX_PACKETS_FLOW_PRINT
-                            cout << "ack" << endl;
-#endif
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
                             fprintf(rxFid,
                                     "ack recd\n"
                                     "hb: \t0x%04x\n\n",
@@ -730,10 +709,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
                         } else if (rxMsgTypeId == MsgDirectionDeviceToPc+MsgTypeIdNack) {
                             /*! \todo FCON NACK should not be written but used to manage tx, maybe forcing rewriting? hard to implement */
-#ifdef RX_PACKETS_FLOW_PRINT
-                            cout << "nack" << endl;
-#endif
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
                             fprintf(rxFid,
                                     "nack recd\n"
                                     "hb: \t0x%04x\n\n",
@@ -755,7 +731,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                             rxMsgBuffer[rxMsgBufferWriteOffset].typeId = rxMsgTypeId;
                             rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
 
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
                             if (rxEnabledTypesMap[rxMsgTypeId]) {
                                 currentPrintfTime = std::chrono::steady_clock::now();
                                 fprintf(rxFid,
@@ -778,7 +754,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                                 /*! In MsgTypeIdAcquisitionData the last word of the payload contains the number of valid data samples */
                                 if (rxDataWords < EZP_RX_MIN_DATA_PACKET_LEN) {
                                     rxParsePhase = RxParseLookForHeader;
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
                                     fprintf(rxFid,
                                             "short data packet\n"
                                             "words: \t%d\n\n",
@@ -789,34 +765,18 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
                                 } else {
 
-#ifdef CHECK_DATA_PACKET_LENGTH
-                                    rxDataWords = * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*(rxDataWords-1))&FTD_RX_RAW_BUFFER_MASK)))+rxDataWordsAdded;
-                                    rxDataWordsRemoved = (rxDataWords-2) % totalChannelsNum;
-                                    rxDataWords -= rxDataWordsRemoved;
-#else
                                     rxDataWords = * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*(rxDataWords-1))&FTD_RX_RAW_BUFFER_MASK)));
-#endif
 
-#ifdef DEBUGPRINT
-#ifdef CHECK_DATA_PACKET_LENGTH
-                                    fprintf(rxFid,
-                                            "vlen:\t0x%04x\n"
-                                            "vlen+:\t0x%04x\n"
-                                            "vlen-:\t0x%04x\n",
-                                            rxDataWords,
-                                            rxDataWordsAdded,
-                                            rxDataWordsRemoved);
-#else
+#ifdef DEBUG_RX_DATA_PRINT
                                     fprintf(rxFid, "vlen:\t0x%04x\n",
                                             rxDataWords);
-#endif
 #endif
                                 }
                             }
 
                             if (rxDataWords >= E384CL_OUT_STRUCT_DATA_LEN) {
                                 rxParsePhase = RxParseLookForHeader;
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
                                 fprintf(rxFid,
                                         "long data packet\n"
                                         "words: \t%d\n\n",
@@ -832,20 +792,9 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                                 rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1)&EZP_RX_MSG_BUFFER_MASK;
                             }
 
-#ifdef CHECK_DATA_PACKET_LENGTH
-                            /*! It seems to work better if we just forget about the additional data */
-//                            if (rxMsgTypeId == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData) {
-//                                for (rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWordsAdded; rxDataBufferWriteIdx++) {
-//                                    rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)&EZP_RX_DATA_BUFFER_MASK] = movedWords[rxDataBufferWriteIdx];
-//                                }
-//                                rxDataBufferWriteOffset = (rxDataBufferWriteOffset+rxDataWordsAdded)&EZP_RX_DATA_BUFFER_MASK;
-//                                rxDataWordsAdded = 0;
-//                            }
-#endif
-
                             for (rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
                                 rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)&EZP_RX_DATA_BUFFER_MASK] = * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*rxDataBufferWriteIdx)&FTD_RX_RAW_BUFFER_MASK)));
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
                                 if (rxEnabledTypesMap[rxMsgTypeId]) {
                                     fprintf(rxFid, "data%d:\t0x%04x\n",
                                             rxDataBufferWriteIdx,
@@ -854,16 +803,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 #endif
                             }
 
-#ifdef CHECK_DATA_PACKET_LENGTH
-//                            if (rxMsgTypeId == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData) {
-//                                for (rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWordsRemoved; rxDataBufferWriteIdx++) {
-//                                    movedWords[rxDataBufferWriteIdx] = * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*rxDataBufferWriteIdx)&FTD_RX_RAW_BUFFER_MASK)));;
-//                                }
-//                                rxDataWordsAdded = rxDataWordsRemoved; /*!< Remember to add these values with the next packet */
-//                            }
-#endif
-
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
                             if (rxEnabledTypesMap[rxMsgTypeId]) {
                                 fprintf(rxFid, "crc1:\t0x%04x\n\n",
                                         rxReadCrc1);
@@ -896,7 +836,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
                     } else {
 
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
                         currentPrintfTime = std::chrono::steady_clock::now();
                         fprintf(rxFid,
                                 "%d us\n"
@@ -928,10 +868,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
                         rxRawBufferReadOffset = (rxMsgOffset+FTD_RX_SYNC_WORD_SIZE)&FTD_RX_RAW_BUFFER_MASK;
                         rxRawBufferReadLength += FTD_RX_HB_TY_LN_SIZE;
-#ifdef RX_PACKETS_FLOW_PRINT
-                        cout << "crc1 wrong" << endl;
-#endif
-#ifdef DEBUGPRINT
+#ifdef DEBUG_RX_DATA_PRINT
                         fprintf(rxFid,
                                 "crc1 wrong\n"
                                 "hb: \t0x%04x\n\n",
@@ -1024,7 +961,7 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
         * ((uint16_t *)(txRawBuffer+txRawBufferReadIdx)) = txComputedCrc;
         txRawBufferReadIdx += FTD_TX_WORD_SIZE;
 
-#ifdef DEBUGPRINT
+#ifdef DEBUG_TX_DATA_PRINT
         currentPrintfTime = std::chrono::steady_clock::now();
         fprintf(txFid,
                 "%d us\n"
@@ -1046,7 +983,7 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
             * ((uint16_t *)(txRawBuffer+txRawBufferReadIdx)) = txDataBuffer[(txDataBufferReadOffset+txDataBufferReadIdx)&EZP_TX_DATA_BUFFER_MASK];
             txRawBufferReadIdx += FTD_TX_WORD_SIZE;
 
-#ifdef DEBUGPRINT
+#ifdef DEBUG_TX_DATA_PRINT
             fprintf(txFid,
                     "data%d:\t0x%02x%02x\n",
                     txDataBufferReadIdx,
@@ -1058,7 +995,7 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
         * ((uint16_t *)(txRawBuffer+txRawBufferReadIdx)) = txComputedCrc;
         txRawBufferReadIdx += FTD_TX_WORD_SIZE;
 
-#ifdef DEBUGPRINT
+#ifdef DEBUG_TX_DATA_PRINT
         fprintf(txFid,
                 "crc1:\t0x%02x%02x\n\n",
                 txRawBuffer[txRawBufferReadIdx-1], txRawBuffer[txRawBufferReadIdx-2]);
@@ -1093,6 +1030,10 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
 
         txMutexLock.lock();
         txMsgBufferReadLength--;
+        if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
+            /*! \todo FCON let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
+            liquidJunctionControlPending = false;
+        }
         txMsgBufferNotFull.notify_all();
         txMutexLock.unlock();
     }
@@ -1155,6 +1096,11 @@ ErrorCodes_t EZPatchFtdiDevice::initializeMemory() {
     if (rxRawBuffer == nullptr) {
         this->deinitializeMemory();
         return ErrorMemoryInitialization;
+    }
+
+    /*! This will never change so it makes sense to initialize it here */
+    for (uint32_t idx = 0; idx < FTD_TX_SYNC_WORD_SIZE; idx++) {
+        txRawBuffer[idx] = txSyncWord[idx];
     }
     return EZPatchDevice::initializeMemory();
 }

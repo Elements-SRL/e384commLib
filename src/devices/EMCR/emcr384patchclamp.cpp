@@ -444,15 +444,8 @@ Emcr384PatchClamp_V01::Emcr384PatchClamp_V01(std::string di) :
     calibrationData.ccCalibResForCcAdcOffsetArray.resize(CCVoltageRangesNum);
     calibrationData.ccCalibResForCcAdcOffsetArray[CCVoltageRange1000mV] = {120.0, UnitPfxKilo, "Ohm"};
 
-    vHoldRange.resize(VCVoltageRangesNum);
-    vHoldRange[VCVoltageRange500mV] = vcVoltageRangesArray[VCVoltageRange500mV];
-    selectedVoltageHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultVoltageHoldTuner = {0.0, vHoldRange[VCVoltageRange500mV].prefix, vHoldRange[VCVoltageRange500mV].unit};
-
-    cHoldRange.resize(CCCurrentRangesNum);
-    cHoldRange[CCCurrentRange8nA] = ccCurrentRangesArray[CCCurrentRange8nA];
-    selectedCurrentHoldVector.resize(currentChannelsNum);
-    Measurement_t defaultCurrentHoldTuner = {0.0, cHoldRange[CCCurrentRange8nA].prefix, cHoldRange[CCCurrentRange8nA].unit};
+    defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
+    defaultCurrentHoldTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
 
     /*! VC leak calibration (shunt resistance)*/
     vcLeakCalibRange.resize(VCCurrentRangesNum);
@@ -689,9 +682,6 @@ Emcr384PatchClamp_V01::Emcr384PatchClamp_V01(std::string di) :
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
-
-    fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
-    fill(selectedCurrentHoldVector.begin(), selectedCurrentHoldVector.end(), defaultCurrentHoldTuner);
 
     // Initialization of the USER compensation domain with standard parameters
     for(int i = 0; i < currentChannelsNum; i++){
@@ -989,7 +979,7 @@ Emcr384PatchClamp_V01::Emcr384PatchClamp_V01(std::string di) :
     voltageProtocolRestCoders.resize(VCVoltageRangesNum);
 
     for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         voltageProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -1002,7 +992,7 @@ Emcr384PatchClamp_V01::Emcr384PatchClamp_V01(std::string di) :
     currentProtocolRestCoders.resize(CCCurrentRangesNum);
 
     for (unsigned int rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
-        doubleConfig.resolution = cHoldRange[rangeIdx].step;
+        doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         currentProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -1023,7 +1013,7 @@ Emcr384PatchClamp_V01::Emcr384PatchClamp_V01(std::string di) :
         voltageProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
         voltageProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
 
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
 
@@ -1059,7 +1049,7 @@ Emcr384PatchClamp_V01::Emcr384PatchClamp_V01(std::string di) :
         currentProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
         currentProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
 
-        doubleConfig.resolution = cHoldRange[rangeIdx].step;
+        doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*32768.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
 
@@ -1154,9 +1144,9 @@ Emcr384PatchClamp_V01::Emcr384PatchClamp_V01(std::string di) :
     vHoldTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 448;
-        doubleConfig.resolution = vHoldRange[rangeIdx].step;
-        doubleConfig.minValue = vHoldRange[rangeIdx].min;
-        doubleConfig.maxValue = vHoldRange[rangeIdx].max;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
+        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -1171,9 +1161,9 @@ Emcr384PatchClamp_V01::Emcr384PatchClamp_V01(std::string di) :
     cHoldTunerCoders.resize(CCCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < CCCurrentRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 448;
-        doubleConfig.resolution = cHoldRange[rangeIdx].step;
-        doubleConfig.minValue = cHoldRange[rangeIdx].min;
-        doubleConfig.maxValue = cHoldRange[rangeIdx].max;
+        doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
+        doubleConfig.minValue = ccCurrentRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = ccCurrentRangesArray[rangeIdx].max;
         cHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             cHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
@@ -1742,7 +1732,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_CpVc];
             }
         }
-    break;
+        break;
 
     case U_Cm:
         if(membraneCapEnCompensationCoders.size() == 0){
@@ -1753,7 +1743,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_Cm];
             }
         }
-    break;
+        break;
 
     case U_Rs:
         if(membraneCapTauValCompensationMultiCoders.size() == 0){
@@ -1764,7 +1754,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_Rs];
             }
         }
-    break;
+        break;
 
     case U_RsCp:
         if(rsCorrValCompensationCoders.size() == 0){
@@ -1775,7 +1765,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_RsCp];
             }
         }
-    break;
+        break;
     case U_RsPg:
         if(rsPredEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
@@ -1785,7 +1775,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_RsPg];
             }
         }
-    break;
+        break;
     case U_CpCc:
         if(rsPredEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
@@ -1795,14 +1785,16 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompFeatures(uint16_t paramToExtractFeatu
                 defaultParamValue = defaultUserDomainParams[U_CpCc];
             }
         }
-    break;
+        break;
+
+    default:
+        return ErrorFeatureNotImplemented;
     }
     return Success;
 }
 
 ErrorCodes_t Emcr384PatchClamp_V01::getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray){
-    switch(type)
-    {
+    switch(type) {
     case CompRsCorr:
         if(rsCorrBwArray.size()==0){
             return ErrorFeatureNotImplemented;
@@ -1814,7 +1806,10 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompOptionsFeatures(CompensationTypes typ
             return Success;
         }
 
-    break;
+        break;
+
+    default:
+        return ErrorFeatureNotImplemented;
     }
 }
 
@@ -1832,7 +1827,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompensationEnables(std::vector<uint16_t>
         for(int i = 0; i<channelIndexes.size(); i++){
             onValues[i] = compCfastEnable[channelIndexes[i]];
         }
-    break;
+        break;
 
     case CompCslow:
         if(membraneCapEnCompensationCoders.size() == 0 ){
@@ -1841,7 +1836,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompensationEnables(std::vector<uint16_t>
         for(int i = 0; i<channelIndexes.size(); i++){
             onValues[i] = compCslowEnable[channelIndexes[i]];
         }
-    break;
+        break;
 
     case CompRsCorr:
         if(rsCorrEnCompensationCoders.size() == 0){
@@ -1850,7 +1845,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompensationEnables(std::vector<uint16_t>
         for(int i = 0; i<channelIndexes.size(); i++){
             onValues[i] = compRsCorrEnable[channelIndexes[i]];
         }
-    break;
+        break;
 
     case CompRsPred:
         if(rsPredEnCompensationCoders.size() == 0){
@@ -1859,7 +1854,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompensationEnables(std::vector<uint16_t>
         for(int i = 0; i<channelIndexes.size(); i++){
             onValues[i] = compRsPredEnable[channelIndexes[i]] = onValues[i];
         }
-    break;
+        break;
 
     case CompCcCfast:
         if(pipetteCapCcEnCompensationCoders.size() == 0){
@@ -1868,20 +1863,23 @@ ErrorCodes_t Emcr384PatchClamp_V01::getCompensationEnables(std::vector<uint16_t>
         for(int i = 0; i<channelIndexes.size(); i++){
             onValues[i] = compCcCfastEnable[channelIndexes[i]];
         }
-    break;
+        break;
+
+    default:
+        return ErrorFeatureNotImplemented;
     }
 
-return Success;
+    return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V01::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V01::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
     std::string debugString = "";
     switch(compTypeToEnable){
     case CompCfast:
         if(pipetteCapEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
-        } else if (!areVcCompsEnabled) {
-            return ErrorThisCompensationNotEnabled;
+        } else if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
         }
 #ifdef DEBUG_TX_DATA_PRINT
         debugString += "enable cfast: ";
@@ -1899,8 +1897,8 @@ ErrorCodes_t Emcr384PatchClamp_V01::enableCompensation(std::vector<uint16_t> cha
     case CompCslow:
         if(membraneCapEnCompensationCoders.size() == 0 ){
             return ErrorFeatureNotImplemented;
-        } else if (!areVcCompsEnabled) {
-            return ErrorThisCompensationNotEnabled;
+        } else if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
         }
 #ifdef DEBUG_TX_DATA_PRINT
         debugString += "enable cslow: ";
@@ -1918,8 +1916,8 @@ ErrorCodes_t Emcr384PatchClamp_V01::enableCompensation(std::vector<uint16_t> cha
     case CompRsCorr:
         if(rsCorrEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
-        } else if (!areVcCompsEnabled) {
-            return ErrorThisCompensationNotEnabled;
+        } else if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
         }
 #ifdef DEBUG_TX_DATA_PRINT
         debugString += "enable rscorr: ";
@@ -1928,6 +1926,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::enableCompensation(std::vector<uint16_t> cha
             compRsCorrEnable[channelIndexes[i]] = onValues[i];
             rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingRsCp(onValues[i]);
+            this->updateLiquidJunctionVoltage(channelIndexes[i], false);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
 #endif
@@ -1937,8 +1936,8 @@ ErrorCodes_t Emcr384PatchClamp_V01::enableCompensation(std::vector<uint16_t> cha
     case CompRsPred:
         if(rsPredEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
-        }else if (!areVcCompsEnabled) {
-            return ErrorThisCompensationNotEnabled;
+        }else if (!vcCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
         }
 #ifdef DEBUG_TX_DATA_PRINT
         debugString += "enable rspred: ";
@@ -1956,8 +1955,8 @@ ErrorCodes_t Emcr384PatchClamp_V01::enableCompensation(std::vector<uint16_t> cha
     case CompCcCfast:
         if(pipetteCapCcEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
-        } else if (!areCcCompsEnabled) {
-            return ErrorThisCompensationNotEnabled;
+        } else if (!ccCompensationsActivated) {
+            return ErrorCompensationNotEnabled;
         }
 #ifdef DEBUG_TX_DATA_PRINT
         debugString += "enable cccfast: ";
@@ -1972,6 +1971,9 @@ ErrorCodes_t Emcr384PatchClamp_V01::enableCompensation(std::vector<uint16_t> cha
 
         }
         break;
+
+    default:
+        return ErrorFeatureNotImplemented;
     }
 
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1981,22 +1983,26 @@ ErrorCodes_t Emcr384PatchClamp_V01::enableCompensation(std::vector<uint16_t> cha
     std::fflush(txFid);
 #endif
 
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V01::enableVcCompensations(bool enable){
-    areVcCompsEnabled = enable;
+ErrorCodes_t Emcr384PatchClamp_V01::enableVcCompensations(bool enable, bool applyFlag){
+    vcCompensationsActivated = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
-        pipetteCapEnCompensationCoders[i]->encode(areVcCompsEnabled && compCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        membraneCapEnCompensationCoders[i]->encode(areVcCompsEnabled && compCslowEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsCorrEnCompensationCoders[i]->encode(areVcCompsEnabled && compRsCorrEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsPredEnCompensationCoders[i]->encode(areVcCompsEnabled && compRsPredEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        membraneCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compCslowEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        rsCorrEnCompensationCoders[i]->encode(vcCompensationsActivated && compRsCorrEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        rsPredEnCompensationCoders[i]->encode(vcCompensationsActivated && compRsPredEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        this->updateLiquidJunctionVoltage(i, false);
     }
 
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
 #ifdef DEBUG_TX_DATA_PRINT
     std::fprintf(txFid, "Vc comps enabled %d\n", enable);
     std::fflush(txFid);
@@ -2005,13 +2011,16 @@ ErrorCodes_t Emcr384PatchClamp_V01::enableVcCompensations(bool enable){
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V01::enableCcCompensations(bool enable){
-    areCcCompsEnabled = enable;
+ErrorCodes_t Emcr384PatchClamp_V01::enableCcCompensations(bool enable, bool applyFlag){
+    ccCompensationsActivated = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
-        pipetteCapCcEnCompensationCoders[i]->encode(areCcCompsEnabled && compCcCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapCcEnCompensationCoders[i]->encode(ccCompensationsActivated && compCcCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
 #ifdef DEBUG_TX_DATA_PRINT
     std::fprintf(txFid, "Cc comps enabled %d\n", enable);
     std::fflush(txFid);
@@ -2019,7 +2028,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::enableCcCompensations(bool enable){
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V01::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V01::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag){
     std::string debugString = "";
     // make local copy of the user domain param vectors
     std::vector<std::vector<double>> localCompValueSubMatrix;
@@ -2134,16 +2143,17 @@ ErrorCodes_t Emcr384PatchClamp_V01::setCompValues(std::vector<uint16_t> channelI
     //end for
     }
     // stack outgoing message
-    if (applyFlagIn) {
+    if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V01::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V01::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlag){
+#ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
-    switch(type)
-    {
+#endif
+    switch(type) {
     case CompRsCorr:
         if (rsCorrBwCompensationCoders.size() == 0) {
             return ErrorFeatureNotImplemented;
@@ -2156,7 +2166,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::setCompOptions(std::vector<uint16_t> channel
                 rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             }
 
-            if (applyFlagIn) {
+            if (applyFlag) {
                 this->stackOutgoingMessage(txStatus);
             }
             return Success;
@@ -2165,7 +2175,7 @@ ErrorCodes_t Emcr384PatchClamp_V01::setCompOptions(std::vector<uint16_t> channel
     }
 }
 
-ErrorCodes_t Emcr384PatchClamp_V01::turnVoltageReaderOn(bool onValueIn, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V01::turnVoltageReaderOn(bool onValueIn, bool applyFlag){
     std::vector<bool> allTheTrueIneed;
     std::vector<bool> allTheFalseIneed;
 
@@ -2178,17 +2188,17 @@ ErrorCodes_t Emcr384PatchClamp_V01::turnVoltageReaderOn(bool onValueIn, bool app
         this->turnCcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheFalseIneed, false);
         this->updateCalibCcVoltageGain(allChannelIndexes, false);
-        this->updateCalibCcVoltageOffset(allChannelIndexes, applyFlagIn);
+        this->updateCalibCcVoltageOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
 
     } else {
-        this->turnCcSwOn(allChannelIndexes, allTheFalseIneed, applyFlagIn);
+        this->turnCcSwOn(allChannelIndexes, allTheFalseIneed, applyFlag);
     }
 
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_V01::turnCurrentReaderOn(bool onValueIn, bool applyFlagIn){
+ErrorCodes_t Emcr384PatchClamp_V01::turnCurrentReaderOn(bool onValueIn, bool applyFlag){
     std::vector<bool> allTheTrueIneed;
     std::vector<bool> allTheFalseIneed;
 
@@ -2201,11 +2211,11 @@ ErrorCodes_t Emcr384PatchClamp_V01::turnCurrentReaderOn(bool onValueIn, bool app
         this->turnVcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheTrueIneed, false);
         this->updateCalibVcCurrentGain(allChannelIndexes, false);
-        this->updateCalibVcCurrentOffset(allChannelIndexes, applyFlagIn);
+        this->updateCalibVcCurrentOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
 
     }else{
-        this->turnVcSwOn(allChannelIndexes, allTheFalseIneed, applyFlagIn);
+        this->turnVcSwOn(allChannelIndexes, allTheFalseIneed, applyFlag);
     }
 
     return Success;

@@ -8,11 +8,20 @@ public:
     EZPatchePatchEL04E(std::string di);
     virtual ~EZPatchePatchEL04E();
 
+    ErrorCodes_t hasCompFeature(uint16_t feature) override;
+
     ErrorCodes_t setResistancePredictionOptions(uint16_t optionIdx) override;
     ErrorCodes_t setLeakConductance(Measurement_t conductance) override;
     ErrorCodes_t getLeakConductanceControl(CompensationControl_t &control) override;
 
 protected:
+    enum ClampingModalities {
+        VoltageClamp,
+        ZeroCurrentClamp,
+        CurrentClamp,
+        ClampingModalitiesNum
+    };
+
     enum VCCurrentRanges {
         VCCurrentRange300pA,
         VCCurrentRange3nA,

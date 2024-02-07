@@ -130,16 +130,18 @@ public:
 
     virtual ErrorCodes_t sendCommands();
     virtual ErrorCodes_t startProtocol();
+    ErrorCodes_t stopProtocol();
     virtual ErrorCodes_t startStateArray();
 
-    virtual ErrorCodes_t resetAsic(bool resetFlag, bool applyFlagIn = true);
-    virtual ErrorCodes_t resetFpga(bool resetFlag, bool applyFlagIn = true);
-    virtual ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
-    virtual ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn);
-    virtual ErrorCodes_t setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
-    virtual ErrorCodes_t setCurrentHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlagIn);
-    virtual ErrorCodes_t setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlagIn);
-    virtual ErrorCodes_t resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlagIn);
+    virtual ErrorCodes_t resetAsic(bool resetFlag, bool applyFlag = true);
+    virtual ErrorCodes_t resetFpga(bool resetFlag, bool applyFlag = true);
+
+    virtual ErrorCodes_t setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag);
+    virtual ErrorCodes_t setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag);
+    virtual ErrorCodes_t setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag);
+    virtual ErrorCodes_t setCurrentHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag);
+    virtual ErrorCodes_t setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag);
+    virtual ErrorCodes_t resetLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, bool applyFlag);
     virtual ErrorCodes_t setGateVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag);
     virtual ErrorCodes_t setSourceVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag);
 
@@ -161,14 +163,14 @@ public:
     virtual ErrorCodes_t setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
     virtual ErrorCodes_t updateCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
-    virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
-    virtual ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
-    virtual ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlagIn);
-    virtual ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlagIn);
+    virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag);
+    virtual ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag);
+    virtual ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag);
+    virtual ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag);
     virtual ErrorCodes_t setLiquidJunctionRange(uint16_t idx);
 
-    virtual ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
-    virtual ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlagIn);
+    virtual ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag);
+    virtual ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlag);
 
     virtual ErrorCodes_t enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
     virtual ErrorCodes_t turnChannelsOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
@@ -188,14 +190,14 @@ public:
     ErrorCodes_t expandTraces(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
 
     virtual ErrorCodes_t setAdcFilter();
-    virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlagIn);
+    virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag);
     ErrorCodes_t setDownsamplingRatio(uint32_t ratio);
 
     virtual ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
     virtual ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
 
-    virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlagIn);
-    virtual ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlagIn);
+    virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlag);
+    virtual ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlag);
     virtual ErrorCodes_t turnVoltageStimulusOn(bool onValue, bool applyFlag);
     virtual ErrorCodes_t turnCurrentStimulusOn(bool onValue, bool applyFlag);
 
@@ -213,26 +215,11 @@ public:
     virtual ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag);
     virtual ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag);
 
-    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlagIn);
-    virtual ErrorCodes_t enableVcCompensations(bool enable);
-    virtual ErrorCodes_t enableCcCompensations(bool enable);
-    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlagIn);
-    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlagIn);
-    virtual ErrorCodes_t setLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
-    virtual ErrorCodes_t setBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
-    
-    virtual ErrorCodes_t setPipetteCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setMembraneCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setResistanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setResistancePredictionOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setCCPipetteCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setLeakConductanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-    virtual ErrorCodes_t setBridgeBalanceCompensationOptions(std::vector<uint16_t> channelIndexes, std::vector<uint16_t> optionIndexes, bool applyFlagIn);
-
-    virtual ErrorCodes_t setResistanceCorrectionLag(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
-    virtual ErrorCodes_t setResistancePredictionPercentage(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
-    virtual ErrorCodes_t setResistancePredictionBandwidthGain(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
-    virtual ErrorCodes_t setResistancePredictionTau(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, bool applyFlagIn);
+    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag);
+    virtual ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag);
+    virtual ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag);
+    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag);
+    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlag);
 
     /****************\
      *  Rx methods  *
@@ -301,6 +288,15 @@ public:
     // Get the current range in use (could be any clamping modality)
     ErrorCodes_t getCurrentRange(RangedMeasurement_t &range);
 
+    ErrorCodes_t getMaxVCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMinVCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMaxVCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMinVCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMaxCCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMinCCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMaxCCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+    ErrorCodes_t getMinCCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+
     ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates);
     ErrorCodes_t getSamplingRate(Measurement_t &samplingRate);
     ErrorCodes_t getSamplingRateIdx(uint32_t &idx);
@@ -353,13 +349,14 @@ public:
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix);
     virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues);
 
-    virtual ErrorCodes_t getPipetteCompensationOptions(std::vector <std::string> options);
-    virtual ErrorCodes_t getCCPipetteCompensationOptions(std::vector <std::string> options);
-    virtual ErrorCodes_t getMembraneCompensationOptions(std::vector <std::string> options);
-    virtual ErrorCodes_t getResistanceCompensationOptions(std::vector <std::string> options);
-    virtual ErrorCodes_t getResistancePredictionOptions(std::vector <std::string> options);
-    virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> options);
-    virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> options);
+    virtual ErrorCodes_t getPipetteCompensationOptions(std::vector <std::string> &options);
+    virtual ErrorCodes_t getCCPipetteCompensationOptions(std::vector <std::string> &options);
+    virtual ErrorCodes_t getMembraneCompensationOptions(std::vector <std::string> &options);
+    virtual ErrorCodes_t getResistanceCompensationOptions(std::vector <std::string> &options);
+    virtual ErrorCodes_t getResistanceCorrectionOptions(std::vector <std::string> &options);
+    virtual ErrorCodes_t getResistancePredictionOptions(std::vector <std::string> &options);
+    virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> &options);
+    virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> &options);
 
     virtual ErrorCodes_t getPipetteCapacitanceControl(CompensationControl_t &control);
     virtual ErrorCodes_t getCCPipetteCapacitanceControl(CompensationControl_t &control);
@@ -487,15 +484,20 @@ protected:
     RangedMeasurement_t positiveProtocolFrequencyRange;
 
     uint16_t selectedProtocolItemsNum = 0;
+    uint16_t selectedProtocolId = 0;
+    Measurement_t selectedProtocolVrest = {0.0, UnitPfxNone, "V"};
+    Measurement_t selectedProtocolIrest = {0.0, UnitPfxNone, "A"};
 
     uint32_t clampingModalitiesNum = 0;
     uint32_t selectedClampingModalityIdx = 0;
     uint32_t selectedClampingModality = VOLTAGE_CLAMP;
+    uint32_t previousClampingModality = VOLTAGE_CLAMP;
     std::vector <ClampingModality_t> clampingModalitiesArray;
     uint16_t defaultClampingModalityIdx = 0;
 
     uint32_t vcCurrentRangesNum = 0;
     uint32_t selectedVcCurrentRangeIdx = 0;
+    uint32_t storedVcCurrentRangeIdx = 0;
     std::vector <RangedMeasurement_t> vcCurrentRangesArray;
     uint16_t defaultVcCurrentRangeIdx = 0;
 
@@ -544,23 +546,28 @@ protected:
     std::vector <Measurement_t> realSamplingRatesArray;
     std::vector <Measurement_t> integrationStepArray;
     unsigned int defaultSamplingRateIdx = 0;
-    std::unordered_map<uint16_t, uint16_t> sr2LpfVcCurrentMap;
-    std::unordered_map<uint16_t, uint16_t> sr2LpfCcVoltageMap;
-    std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
+    std::unordered_map <uint16_t, uint16_t> sr2LpfVcCurrentMap;
+    std::unordered_map <uint16_t, uint16_t> sr2LpfCcVoltageMap;
+    std::unordered_map <uint16_t, uint16_t> vcCurrRange2CalibResMap;
 
-    std::vector<Measurement_t> selectedVoltageHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<Measurement_t> selectedCurrentHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<Measurement_t> selectedVoltageHalfVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<Measurement_t> selectedCurrentHalfVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector <Measurement_t> selectedVoltageHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector <Measurement_t> selectedCurrentHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector <Measurement_t> selectedVoltageHalfVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector <Measurement_t> selectedCurrentHalfVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
 
-    std::vector<Measurement_t> selectedLiquidJunctionVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<int16_t> ccLiquidJunctionVector;
+    Measurement_t defaultVoltageHoldTuner = {0.0, UnitPfxNone, "V"};
+    Measurement_t defaultCurrentHoldTuner = {0.0, UnitPfxNone, "A"};
+    Measurement_t defaultVoltageHalfTuner = {0.0, UnitPfxNone, "V"};
+    Measurement_t defaultCurrentHalfTuner = {0.0, UnitPfxNone, "A"};
+
+    std::vector <Measurement_t> selectedLiquidJunctionVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector <int16_t> ccLiquidJunctionVector;
 
     RangedMeasurement_t gateVoltageRange;
-    std::vector<Measurement_t> selectedGateVoltageVector;
+    std::vector <Measurement_t> selectedGateVoltageVector;
 
     RangedMeasurement_t sourceVoltageRange;
-    std::vector<Measurement_t> selectedSourceVoltageVector;
+    std::vector <Measurement_t> selectedSourceVoltageVector;
     uint16_t selectedSourceForVoltageChannelIdx;
     uint16_t selectedSourceForCurrentChannelIdx;
 
@@ -612,11 +619,14 @@ protected:
     std::vector<std::vector<double>> compValueMatrix;
     std::vector<bool> compCfastEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector<bool> compCslowEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<bool> compRsCompEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector<bool> compRsCorrEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector<bool> compRsPredEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    std::vector<bool> compLeakEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector<bool> compCcCfastEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    bool areVcCompsEnabled = false;
-    bool areCcCompsEnabled = false;
+    std::vector<bool> compCcBridgeEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
+    bool vcCompensationsActivated = false;
+    bool ccCompensationsActivated = false;
 
     std::string deviceId;
     std::string deviceName;
@@ -628,7 +638,7 @@ protected:
     std::vector <BoardModel *> boardModels;
     std::vector <ChannelModel *> channelModels;
 
-    uint16_t selectedSamplingRateIdx;
+    uint16_t selectedSamplingRateIdx = 0;
 
     double currentResolution = 1.0;
     double voltageResolution = 1.0;
@@ -638,10 +648,6 @@ protected:
     RangedMeasurement_t voltageRange;
     RangedMeasurement_t currentRange;
     RangedMeasurement_t liquidJunctionRange;
-    std::vector <RangedMeasurement_t> vHoldRange;
-    std::vector <RangedMeasurement_t> vHalfRange;
-    std::vector <RangedMeasurement_t> cHoldRange;
-    std::vector <RangedMeasurement_t> cHalfRange;
 
     Measurement_t samplingRate = {200.0, UnitPfxKilo, "Hz"};
     Measurement_t integrationStep = {5.0, UnitPfxMicro, "s"};
@@ -686,6 +692,13 @@ protected:
 
     mutable std::mutex ljMutex;
     bool liquidJunctionControlPending = false;
+
+    std::thread liquidJunctionThread;
+
+#if defined(DEBUG_TX_DATA_PRINT) || defined(DEBUG_RX_DATA_PRINT)
+    std::chrono::steady_clock::time_point startPrintfTime;
+    std::chrono::steady_clock::time_point currentPrintfTime;
+#endif
 
 #ifdef DEBUG_TX_DATA_PRINT
     FILE * txFid = nullptr;

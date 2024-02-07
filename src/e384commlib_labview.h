@@ -20,7 +20,7 @@ class MessageDispatcher;
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t detectDevices(
-        E384CL_ARGOUT LStrHandle deviceIds);
+        E384CL_ARGOUT LStrHandle * deviceIds);
 
 /*! \brief Connects to a specific device
  * Calling this method if a device is already connected will return an error code.
@@ -666,13 +666,13 @@ ErrorCodes_t turnMembraneCompensationOn(
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t turnAccessResistanceCompensationOn(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool * onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t turnAccessResistanceCompensationOn(
+//        E384CL_ARGIN uint16_t * channelIndexesIn,
+//        E384CL_ARGIN bool * onValuesIn,
+//        E384CL_ARGIN bool applyFlagIn,
+//        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off access resistance correction for each channel.
  *
@@ -714,13 +714,13 @@ ErrorCodes_t turnAccessResistancePredictionOn(
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t turnLeakConductanceCompensationOn(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool * onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t turnLeakConductanceCompensationOn(
+//        E384CL_ARGIN uint16_t * channelIndexesIn,
+//        E384CL_ARGIN bool * onValuesIn,
+//        E384CL_ARGIN bool applyFlagIn,
+//        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off bridge balance compensation for each channel.
  *
@@ -730,13 +730,13 @@ ErrorCodes_t turnLeakConductanceCompensationOn(
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t turnBridgeBalanceCompensationOn(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool * onValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t turnBridgeBalanceCompensationOn(
+//        E384CL_ARGIN uint16_t * channelIndexesIn,
+//        E384CL_ARGIN bool * onValuesIn,
+//        E384CL_ARGIN bool applyFlagIn,
+//        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set options for pipette compensation (voltage clamp) for each channel.
  *
@@ -1632,7 +1632,7 @@ ErrorCodes_t hasProtocolSin(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVoltageStimulusLpfs(
-        E384CL_ARGOUT LStrHandle filterOptions);
+        E384CL_ARGOUT LStrHandle *  filterOptions);
 
 /*! \brief Get the available options for the current stimulus low pass filter.
  *
@@ -1642,7 +1642,7 @@ ErrorCodes_t getVoltageStimulusLpfs(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCurrentStimulusLpfs(
-        E384CL_ARGOUT LStrHandle filterOptions);
+        E384CL_ARGOUT LStrHandle *  filterOptions);
 
 /*! \brief Get options for the pipette compensation.
  *
@@ -1652,7 +1652,7 @@ ErrorCodes_t getCurrentStimulusLpfs(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getPipetteCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the pipette compensation for current clamp.
  *
@@ -1662,7 +1662,7 @@ ErrorCodes_t getPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCPipetteCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the membrane compensation.
  *
@@ -1672,7 +1672,7 @@ ErrorCodes_t getCCPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getMembraneCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the access resistance compensation.
  * \note Resistance compensation includes resistance correction and prediction.
@@ -1683,7 +1683,7 @@ ErrorCodes_t getMembraneCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the access resistance correction.
  *
@@ -1693,7 +1693,7 @@ ErrorCodes_t getAccessResistanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCorrectionOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the access resistance prediction.
  *
@@ -1703,7 +1703,7 @@ ErrorCodes_t getAccessResistanceCorrectionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the leak conductance compensation.
  *
@@ -1713,7 +1713,7 @@ ErrorCodes_t getAccessResistancePredictionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLeakConductanceCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get options for the bridge balance compensation.
  *
@@ -1723,7 +1723,7 @@ ErrorCodes_t getLeakConductanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceCompensationOptions(
-        E384CL_ARGOUT LStrHandle options);
+        E384CL_ARGOUT LStrHandle *  options);
 
 /*! \brief Get the specifications of the control for the pipette capacitance.
  *
@@ -2038,15 +2038,95 @@ ErrorCodes_t getBridgeBalanceResistance(
         E384CL_ARGOUT bool * activeNotActiveOut,
         E384CL_ARGIN  int vectorLengthIn = 0);
 
-/*! \brief Gets all the calibration parameters.
+/*! \brief Gets the gain of the voltage clamp current ADC.
  *
- * \param calibrationParams [out] structure containing all the calibration paramameters.
+ * \param meas [out] calibration parameters.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getCalibParams(
-        E384CL_ARGIN CharCalibrationParams_t &calibrationParams);
+ErrorCodes_t getVcAdcGainCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the offset of the voltage clamp current ADC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getVcAdcOffsetCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the gain of the voltage clamp voltage DAC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getVcDacGainCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the offset of the voltage clamp voltage DAC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getVcDacOffsetCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the gain of the current clamp voltage ADC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCcAdcGainCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the offset of the current clamp voltage ADC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCcAdcOffsetCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the gain of the current clamp current DAC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCcDacGainCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the offset of the current clamp current DAC.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCcDacOffsetCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the offset of the voltage clamp voltage DAC due to Rs correction.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getRsCorrDacOffsetCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
 
 /*! \brief Set a debug bit
  *
