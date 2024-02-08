@@ -27,10 +27,12 @@
 #define EZP_TX_DATA_BUFFER_SIZE 0x10000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~65k
 #define EZP_TX_DATA_BUFFER_MASK (EZP_TX_DATA_BUFFER_SIZE-1)
 
-#define EZP_MAX_RESEND_TRIES 25
+#define EZP_MAX_RESEND_TRIES 5
 #define EZP_MAX_PING_TRIES 5
-#define EZP_MAX_FPGA_RESET_TRIES 10
-#define EZP_MAX_WRITE_TRIES 10
+#define EZP_MAX_FPGA_RESET_TRIES 5
+#define EZP_MAX_WRITE_TRIES 3
+#define EZP_ACK_WAIT_TIME_MS 200
+#define EZP_NO_DATA_WAIT_TIME_MS 200
 
 typedef enum {
     ResetIndexChip,
@@ -81,8 +83,8 @@ public:
     ErrorCodes_t turnVoltageReaderOn(bool on, bool applyFlag) override;
     ErrorCodes_t turnCurrentReaderOn(bool on, bool applyFlag) override;
 
-    ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag) override;
-    ErrorCodes_t setClampingModality(ClampingModality_t mode, bool applyFlag) override;
+    ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag, bool stopProtocolFlag) override;
+    ErrorCodes_t setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag) override;
     ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag) override;
     ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag) override;
     virtual ErrorCodes_t setChannelsSources(int16_t voltageSourcesIdxs, int16_t currentSourcesIdxs);
@@ -262,6 +264,8 @@ protected:
      *  Methods  *
     \*************/
 
+    virtual ErrorCodes_t initialize(std::string fwPath) override;
+    virtual void deinitialize() override;
     virtual ErrorCodes_t initializeMemory() override;
     virtual void initializeVariables() override;
     virtual ErrorCodes_t deviceConfiguration() override;

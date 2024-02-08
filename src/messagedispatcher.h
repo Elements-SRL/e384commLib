@@ -108,8 +108,8 @@ public:
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
-    ErrorCodes_t initialize(std::string fwPath);
-    void deinitialize();
+    virtual ErrorCodes_t initialize(std::string fwPath) = 0;
+    virtual void deinitialize() = 0;
     virtual ErrorCodes_t disconnectDevice() = 0;
     virtual ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag) = 0;
 
@@ -180,8 +180,8 @@ public:
     virtual ErrorCodes_t turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
     virtual ErrorCodes_t enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
-    virtual ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag);
-    virtual ErrorCodes_t setClampingModality(ClampingModality_t mode, bool applyFlag);
+    virtual ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag, bool stopProtocolFlag);
+    virtual ErrorCodes_t setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag);
     virtual ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag);
     virtual ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag);
 

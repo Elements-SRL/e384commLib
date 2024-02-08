@@ -605,8 +605,8 @@ void EZPatchFtdiDevice::readAndParseMessages() {
         }
 
 #ifdef DEBUG_RX_RAW_DATA_PRINT
-        fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(unsigned char), ftdiReadBytes, rawRxFid);
-        fflush(rawRxFid);
+        fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(unsigned char), ftdiReadBytes, rxRawFid);
+        fflush(rxRawFid);
 #endif
         if (rxRawBufferWriteOffset == 0) {
             rxRawBuffer[FTD_RX_RAW_BUFFER_SIZE] = rxRawBuffer[0]; /*!< The last item is a copy of the first one, it used to safely read 2 consecutive bytes at a time to form a 16bit word,

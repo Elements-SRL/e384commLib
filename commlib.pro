@@ -16,6 +16,8 @@ CONFIG(debug, debug|release) {
 CONFIG(release, debug|release) {
     TARGET = e384commlib
     DEFINES += DEBUG
+#    DEFINES += DEBUG_RX_RAW_DATA_PRINT
+#    DEFINES += DEBUG_RX_DATA_PRINT
 #    DEFINES += DEBUG_TX_DATA_PRINT
 #    DEFINES += DEBUG_MAX_SPEED
 }

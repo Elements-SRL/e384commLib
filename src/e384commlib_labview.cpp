@@ -533,11 +533,12 @@ ErrorCodes_t enableCcStimulus(
 
 ErrorCodes_t setClampingModality(
         ClampingModality_t clampingModalityIndex,
-        bool applyFlagIn) {
+        bool applyFlagIn,
+        bool stopProtocolFlag) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    return messageDispatcher->setClampingModality(clampingModalityIndex, applyFlagIn);
+    return messageDispatcher->setClampingModality(clampingModalityIndex, applyFlagIn, stopProtocolFlag);
 }
 
 ErrorCodes_t turnVoltageCompensationsOn(

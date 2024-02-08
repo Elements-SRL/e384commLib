@@ -535,12 +535,14 @@ ErrorCodes_t EZPatchDevice::turnCurrentReaderOn(bool on, bool applyFlag) {
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bool stopProtocolFlag) {
     if (idx >= clampingModalitiesNum) {
         return ErrorValueOutOfRange;
     }
 
-    this->stopProtocol();
+    if (stopProtocolFlag) {
+        this->stopProtocol();
+    }
 
     selectedClampingModalityIdx = idx;
     previousClampingModality = selectedClampingModality;
@@ -654,12 +656,12 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag) {
     return Success;
 }
 
-ErrorCodes_t EZPatchDevice::setClampingModality(ClampingModality_t mode, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag) {
     auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
     if (iter == clampingModalitiesArray.end()) {
         return ErrorValueOutOfRange;
     }
-    return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag);
+    return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag, stopProtocolFlag);
 }
 
 ErrorCodes_t EZPatchDevice::setSourceForVoltageChannel(uint16_t source, bool applyFlag) {
@@ -897,16 +899,20 @@ ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(std::vector <uint16_t> cha
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
-    this->stopProtocol();
+    bool stopProtocolFlag = false;
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
         channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
+            stopProtocolFlag = true;
 
         } else if (!onValues[i]) {
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
         }
+    }
+    if (stopProtocolFlag) {
+        this->stopProtocol();
     }
 
     anyLiquidJuctionActive = true;
@@ -2323,7 +2329,12 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
 
     std::unique_lock <std::mutex> rxMutexLock (rxMutex);
     if (rxMsgBufferReadLength <= 0) {
-        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(1000));
+        std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::time_point currentTime = startTime;
+        while ((std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count()) < EZP_NO_DATA_WAIT_TIME_MS) {
+            rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(EZP_NO_DATA_WAIT_TIME_MS));
+            currentTime = std::chrono::steady_clock::now();
+        }
         if (rxMsgBufferReadLength <= 0) {
             return ErrorNoDataAvailable;
         }
@@ -2892,6 +2903,45 @@ ErrorCodes_t EZPatchDevice::getBridgeBalanceResistanceControl(CompensationContro
  *  Private methods  *
 \*********************/
 
+ErrorCodes_t EZPatchDevice::initialize(std::string fwPath) {
+    this->createDebugFiles();
+
+    ErrorCodes_t ret = this->startCommunication(fwPath);
+    if (ret != Success) {
+        return ret;
+    }
+
+    ret = this->initializeMemory();
+    if (ret != Success) {
+        return ret;
+    }
+
+    stopConnectionFlag = false;
+    this->createCommunicationThreads();
+
+    this->initializeVariables();
+
+    this->deviceConfiguration();
+    if (ret != Success) {
+        return ret;
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    return this->initializeHW();
+}
+
+void EZPatchDevice::deinitialize() {
+    stopConnectionFlag = true;
+    this->joinCommunicationThreads();
+
+    this->deinitializeVariables();
+
+    this->deinitializeMemory();
+
+    this->closeDebugFiles();
+}
+
 ErrorCodes_t EZPatchDevice::initializeMemory() {
     rxMsgBuffer = new (std::nothrow) MsgResume_t[EZP_RX_MSG_BUFFER_SIZE];
     if (rxMsgBuffer == nullptr) {
@@ -2975,30 +3025,32 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
     int pingTries = 0;
     int fpgaResetTries = 0;
 
+    int16_t * datain;
+    this->allocateRxDataBuffer(datain);
+
     while (ret != Success) {
         if (pingTries++ > EZP_MAX_PING_TRIES) {
             return ErrorConnectionPingFailed;
         }
 
         this->resetFpga();
-        while ((rxOutput.msgTypeId != MsgDirectionDeviceToPc+MsgTypeIdFpgaReset) || (ret != Success)) {
-            if (fpgaResetTries++ > EZP_MAX_FPGA_RESET_TRIES) {
-                return ErrorConnectionFpgaResetFailed;
-            }
-            int16_t * datain;
-            this->allocateRxDataBuffer(datain);
+        while (rxOutput.msgTypeId != MsgDirectionDeviceToPc+MsgTypeIdFpgaReset) {
             ret = this->getNextMessage(rxOutput, datain);
-            this->deallocateRxDataBuffer(datain);
+            if (ret == ErrorNoDataAvailable) {
+                if (fpgaResetTries++ > EZP_MAX_FPGA_RESET_TRIES) {
+                    return ErrorConnectionFpgaResetFailed;
+                }
 
 #ifdef DEBUG_RX_DATA_PRINT
-            fprintf(rxFid,
-                    "fpga reset\n"
-                    "try %d: %s\n\n",
-                    fpgaResetTries,
-                    ((rxOutput.msgTypeId == MsgDirectionDeviceToPc+MsgTypeIdFpgaReset) && (ret == Success) ? "success" : "fail"));
-            fflush(rxFid);
+                fprintf(rxFid,
+                        "fpga reset\n"
+                        "try %d: %s\n\n",
+                        fpgaResetTries,
+                        ((rxOutput.msgTypeId == MsgDirectionDeviceToPc+MsgTypeIdFpgaReset) && (ret == Success) ? "success" : "fail"));
+                fflush(rxFid);
 #endif
 
+            }
         }
         fpgaResetTries = 0;
 
@@ -3013,6 +3065,7 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
         fflush(rxFid);
 #endif
     }
+    this->deallocateRxDataBuffer(datain);
 
     ret = this->resetAsic(true, true);
     if (ret != Success) {
@@ -3180,7 +3233,8 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
     if (txExpectAck) {
         txWaitingOnAcks++;
     }
-    uint32_t waitTime = 50;
+    std::chrono::steady_clock::time_point startTime;
+    std::chrono::steady_clock::time_point currentTime;
 
     if (!txExpectAck) {
         this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
@@ -3195,8 +3249,13 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
 
             this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
 
+            startTime = std::chrono::steady_clock::now();
+            currentTime = startTime;
             ackLock.lock();
-            txAckCv.wait_for(ackLock, std::chrono::milliseconds(waitTime));
+            while (!txAckReceived && (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count()) < EZP_ACK_WAIT_TIME_MS) {
+                txAckCv.wait_for(ackLock, std::chrono::milliseconds(EZP_ACK_WAIT_TIME_MS));
+                currentTime = std::chrono::steady_clock::now();
+            }
             if (txAckReceived) {
                 txWaitingOnAcks--;
                 ret = Success;
@@ -3216,7 +3275,6 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
         ackLock.unlock();
 
     } else {
-        this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
         this->wrapOutgoingMessage(msgTypeId, txDataMessage, dataLen);
         txWaitingOnAcks--;
         ret = Success;
