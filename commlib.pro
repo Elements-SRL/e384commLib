@@ -70,10 +70,12 @@ SOURCES += \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
     src/devices/EMCR/emcropalkellydevice.cpp \
+    src/devices/EMCR/emcrudbdevice.cpp \
     src/devices/EMCR/emcr384nanopores.cpp \
     src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.cpp \
     src/devices/EMCR/emcr384patchclamp.cpp \
     src/devices/EMCR/emcr384patchclamp_V04.cpp \
+    src/devices/EMCR/emcr10mhz.cpp \
     src/devices/EMCR/emcr2x10mhz.cpp \
     src/devices/EMCR/emcr4x10mhz.cpp \
     src/devices/EZPatch/ezpatchdevice.cpp \
@@ -104,10 +106,12 @@ HEADERS += \
     src/messagedispatcher.h \
     src/devices/EMCR/emcrdevice.h \
     src/devices/EMCR/emcropalkellydevice.h \
+    src/devices/EMCR/emcrudbdevice.h \
     src/devices/EMCR/emcr384nanopores.h \
     src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.h \
     src/devices/EMCR/emcr384patchclamp.h \
     src/devices/EMCR/emcr384patchclamp_V04.h \
+    src/devices/EMCR/emcr10mhz.h \
     src/devices/EMCR/emcr2x10mhz.h \
     src/devices/EMCR/emcr4x10mhz.h \
     src/devices/EZPatch/ezpatchdevice.h \
@@ -163,5 +167,6 @@ DEPENDPATH += \
     ./src/model \
     ./src/calibration
 
+include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
 include($$(FTD2XX_PATH)includeftd2xx.pri)

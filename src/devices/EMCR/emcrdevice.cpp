@@ -59,9 +59,33 @@ ErrorCodes_t EmcrDevice::sendCommands() {
 }
 
 ErrorCodes_t EmcrDevice::startProtocol() {
-    this->forceOutMessage();
-    this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
+    if (protocolResetCoder == nullptr) {
+        this->forceOutMessage();
+        this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
+
+    } else {
+        protocolResetCoder->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        this->stackOutgoingMessage(txStatus);
+    }
     return Success;
+}
+
+ErrorCodes_t EmcrDevice::stopProtocol() {
+    if (protocolResetCoder == nullptr) {
+        if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+            this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest);
+            this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+
+        } else {
+            this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest);
+            this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+        }
+        return this->startProtocol();
+
+    } else {
+        protocolResetCoder->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        this->stackOutgoingMessage(txStatus);
+    }
 }
 
 ErrorCodes_t EmcrDevice::startStateArray() {
@@ -1856,7 +1880,7 @@ ErrorCodes_t EmcrDevice::isStateArrayAvailable() {
 }
 
 ErrorCodes_t EmcrDevice::getCalibData(CalibrationData_t &calibData){
-    if(calibrationData.vcCalibResArray.empty()){
+    if (calibrationData.vcCalibResArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     calibData = calibrationData;

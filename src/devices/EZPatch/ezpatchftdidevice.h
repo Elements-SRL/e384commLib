@@ -44,7 +44,7 @@ protected:
      *  Methods  *
     \*************/
 
-    static uint32_t getDeviceIndex(std::string serial);
+    static int32_t getDeviceIndex(std::string serial);
     static std::string getDeviceSerial(uint32_t index, bool excludeLetter);
     static bool getDeviceCount(DWORD &numDevs);
 

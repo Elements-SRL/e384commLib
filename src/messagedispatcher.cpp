@@ -140,15 +140,7 @@ ErrorCodes_t MessageDispatcher::startProtocol() {
 }
 
 ErrorCodes_t MessageDispatcher::stopProtocol() {
-    if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-        this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest);
-        this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
-
-    } else {
-        this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest);
-        this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
-    }
-    return this->startProtocol();
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::startStateArray() {

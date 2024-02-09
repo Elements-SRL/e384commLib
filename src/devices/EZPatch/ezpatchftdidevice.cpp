@@ -232,7 +232,6 @@ ErrorCodes_t EZPatchFtdiDevice::isDeviceSerialDetected(std::string deviceId) {
     return ret;
 }
 
-
 ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     ErrorCodes_t ret = Success;
     if (messageDispatcher != nullptr) {
@@ -413,15 +412,15 @@ ErrorCodes_t EZPatchFtdiDevice::disconnectDevice() {
     return Success;
 }
 
-uint32_t EZPatchFtdiDevice::getDeviceIndex(std::string serial) {
+int32_t EZPatchFtdiDevice::getDeviceIndex(std::string serial) {
     /*! Gets number of devices */
     DWORD numDevs;
     bool devCountOk = getDeviceCount(numDevs);
     if (!devCountOk) {
-        return 0;
+        return -1;
 
     } else if (numDevs == 0) {
-        return 0;
+        return -1;
     }
 
     for (int index = 0; index < numDevs; index++) {
@@ -430,7 +429,7 @@ uint32_t EZPatchFtdiDevice::getDeviceIndex(std::string serial) {
             return index;
         }
     }
-    return 0;
+    return -1;
 }
 
 std::string EZPatchFtdiDevice::getDeviceSerial(uint32_t index, bool excludeLetter) {
@@ -1147,7 +1146,11 @@ ErrorCodes_t EZPatchFtdiDevice::loadFpgaFw() {
 
         Init_libMPSSE();
 
-        status = SPI_OpenChannel(getDeviceIndex(spiChannelStr), &spiHandle);
+        int idx = getDeviceIndex(spiChannelStr);
+        if (idx < 0) {
+            return ErrorEepromConnectionFailed;
+        }
+        status = SPI_OpenChannel(idx, &spiHandle);
         if (status != FT_OK) {
             return ErrorEepromConnectionFailed;
         }

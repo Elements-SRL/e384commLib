@@ -25,7 +25,7 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     rxWordOffsets[RxMessageCurrentDataLoad] = rxWordOffsets[RxMessageVoltageDataLoad] + rxWordLengths[RxMessageVoltageDataLoad];
     rxWordLengths[RxMessageCurrentDataLoad] = currentChannelsNum*packetsPerFrame;
 
-    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
+    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageCurrentDataLoad] + rxWordLengths[RxMessageCurrentDataLoad];
     rxWordLengths[RxMessageDataHeader] = 4;
 
     rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
@@ -804,7 +804,7 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     rxWordOffsets[RxMessageCurrentDataLoad] = rxWordOffsets[RxMessageVoltageDataLoad] + rxWordLengths[RxMessageVoltageDataLoad];
     rxWordLengths[RxMessageCurrentDataLoad] = currentChannelsNum*packetsPerFrame;
 
-    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
+    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageCurrentDataLoad] + rxWordLengths[RxMessageCurrentDataLoad];
     rxWordLengths[RxMessageDataHeader] = 4;
 
     rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];

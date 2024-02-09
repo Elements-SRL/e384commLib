@@ -130,7 +130,7 @@ public:
 
     virtual ErrorCodes_t sendCommands();
     virtual ErrorCodes_t startProtocol();
-    ErrorCodes_t stopProtocol();
+    virtual ErrorCodes_t stopProtocol();
     virtual ErrorCodes_t startStateArray();
 
     virtual ErrorCodes_t resetAsic(bool resetFlag, bool applyFlag = true);
