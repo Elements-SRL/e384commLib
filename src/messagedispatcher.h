@@ -375,6 +375,7 @@ public:
 protected:
     typedef enum RxMessageTypes {
         RxMessageDataLoad,
+        RxMessageVoltageThenCurrentDataLoad,
         RxMessageCurrentDataLoad,
         RxMessageVoltageDataLoad,
         RxMessageDataHeader,

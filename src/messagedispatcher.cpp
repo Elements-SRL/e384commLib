@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include "emcropalkellydevice.h"
+#include "emcrudbdevice.h"
 #include "ezpatchftdidevice.h"
 #include "utils.h"
 
@@ -48,6 +49,12 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     ret = retTemp; /*! Set the first return anyway, so even if all methods return an error the return is set here.
                        Afterwards update only on a Success */
 
+    retTemp = EmcrUdbDevice::detectDevices(deviceIdsTemp);
+    if (retTemp == Success) {
+        deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
+        ret = retTemp;
+    }
+
     retTemp = EZPatchFtdiDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
         deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
@@ -63,13 +70,15 @@ ErrorCodes_t MessageDispatcher::getDeviceType(std::string deviceId, DeviceTypes_
 
 ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     messageDispatcher = nullptr;
-    ErrorCodes_t ret = EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId);
-    if (ret == Success) {
+    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
         return EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher, fwPath);
     }
 
-    ret = EZPatchFtdiDevice::isDeviceSerialDetected(deviceId);
-    if (ret == Success) {
+    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return EmcrUdbDevice::connectDevice(deviceId, messageDispatcher, fwPath);
+    }
+
+    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
         return EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher, fwPath);
     }
 }

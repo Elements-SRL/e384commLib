@@ -17,10 +17,10 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
 
     totalBoardsNum = 1;
 
-    rxWordOffsets[RxMessageDataLoad] = 0;
-    rxWordLengths[RxMessageDataLoad] = totalChannelsNum*packetsPerFrame;
+    rxWordOffsets[RxMessageVoltageThenCurrentDataLoad] = 0;
+    rxWordLengths[RxMessageVoltageThenCurrentDataLoad] = totalChannelsNum*packetsPerFrame;
 
-    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
+    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageVoltageThenCurrentDataLoad] + rxWordLengths[RxMessageVoltageThenCurrentDataLoad];
     rxWordLengths[RxMessageDataHeader] = 4;
 
     rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
