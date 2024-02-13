@@ -421,13 +421,15 @@ ErrorCodes_t enableCcStimulus(
  *
  * \param clampingModallityIndex [in] Index of the clamping modality to select.
  * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param stopProtocolFlag [in] true, to automatically stop the currently applied stimulation before changing modality
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setClampingModality(
         E384CL_ARGIN ClampingModality_t clampingModalityIndex,
-        E384CL_ARGIN bool applyFlagIn);
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN bool stopProtocolFlag);
 
 /*! \brief Set a VC current gain on a specific channel.
  *

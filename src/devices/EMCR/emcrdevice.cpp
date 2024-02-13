@@ -885,12 +885,14 @@ ErrorCodes_t EmcrDevice::enableCcStimulus(std::vector<uint16_t> channelIndexes, 
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
+ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool stopProtocolFlag) {
     if (idx >= clampingModalitiesNum) {
         return ErrorValueOutOfRange;
     }
 
-    this->stopProtocol();
+    if (stopProtocolFlag) {
+        this->stopProtocol();
+    }
 
     selectedClampingModalityIdx = idx;
     previousClampingModality = selectedClampingModality;
@@ -1010,15 +1012,15 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag) {
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setClampingModality(ClampingModality_t mode, bool applyFlag) {
+ErrorCodes_t EmcrDevice::setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag) {
     auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
     if (iter == clampingModalitiesArray.end()) {
         return ErrorValueOutOfRange;
     }
-    return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag);
+    return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag, stopProtocolFlag);
 }
 
-ErrorCodes_t EmcrDevice::setSourceForVoltageChannel(uint16_t source, bool applyFlag){
+ErrorCodes_t EmcrDevice::setSourceForVoltageChannel(uint16_t source, bool applyFlag) {
     if (sourceForVoltageChannelCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
@@ -1926,6 +1928,45 @@ ErrorCodes_t EmcrDevice::getCalibMappingFilePath(std::string &path){
 /*********************\
  *  Private methods  *
 \*********************/
+
+ErrorCodes_t EmcrDevice::initialize(std::string fwPath) {
+    this->createDebugFiles();
+
+    ErrorCodes_t ret = this->startCommunication(fwPath);
+    if (ret != Success) {
+        return ret;
+    }
+
+    ret = this->initializeMemory();
+    if (ret != Success) {
+        return ret;
+    }
+
+    this->initializeVariables();
+
+    this->deviceConfiguration();
+    if (ret != Success) {
+        return ret;
+    }
+
+    stopConnectionFlag = false;
+    this->createCommunicationThreads();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    return this->initializeHW();
+}
+
+void EmcrDevice::deinitialize() {
+    stopConnectionFlag = true;
+    this->joinCommunicationThreads();
+
+    this->deinitializeVariables();
+
+    this->deinitializeMemory();
+
+    this->closeDebugFiles();
+}
 
 ErrorCodes_t EmcrDevice::initializeMemory() {
     rxMsgBuffer = new (std::nothrow) MsgResume_t[RX_MSG_BUFFER_SIZE];

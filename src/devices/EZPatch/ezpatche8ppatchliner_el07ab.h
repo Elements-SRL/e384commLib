@@ -364,10 +364,16 @@ protected:
     std::vector <uint16_t> ccPipetteCapacitanceRegValue;
 };
 
-class EZPatche8PPatchliner_el07ab_artix7 : public EZPatche8PPatchliner_el07ab {
+class EZPatche8PPatchliner_el07ab_artix7_PCBV01 : public EZPatche8PPatchliner_el07ab {
 public:
-    EZPatche8PPatchliner_el07ab_artix7(std::string di);
-    virtual ~EZPatche8PPatchliner_el07ab_artix7();
+    EZPatche8PPatchliner_el07ab_artix7_PCBV01(std::string di);
+    virtual ~EZPatche8PPatchliner_el07ab_artix7_PCBV01();
+};
+
+class EZPatche8PPatchliner_el07ab_artix7_PCBV02 : public EZPatche8PPatchliner_el07ab_artix7_PCBV01 {
+public:
+    EZPatche8PPatchliner_el07ab_artix7_PCBV02(std::string di);
+    virtual ~EZPatche8PPatchliner_el07ab_artix7_PCBV02();
 };
 
 #endif // EZPATCHE8PPATCHLINER_EL07AB_H

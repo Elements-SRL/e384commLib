@@ -970,7 +970,12 @@ ErrorCodes_t EZPatche8PPatchliner_el07ab::getNextMessage(RxOutput_t &rxOutput, i
 
     std::unique_lock <std::mutex> rxMutexLock (rxMutex);
     if (rxMsgBufferReadLength <= 0) {
-        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(1000));
+        std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::time_point currentTime = startTime;
+        while ((std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count()) < EZP_NO_DATA_WAIT_TIME_MS) {
+            rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(EZP_NO_DATA_WAIT_TIME_MS));
+            currentTime = std::chrono::steady_clock::now();
+        }
         if (rxMsgBufferReadLength <= 0) {
             return ErrorNoDataAvailable;
         }
@@ -1581,7 +1586,7 @@ void EZPatche8PPatchliner_el07ab::updateWrittenCompesantionValues(std::vector <u
     predictionTauRegValue[compensationsSettingChannel] = txDataMessage[11];
 }
 
-EZPatche8PPatchliner_el07ab_artix7::EZPatche8PPatchliner_el07ab_artix7(std::string di) :
+EZPatche8PPatchliner_el07ab_artix7_PCBV01::EZPatche8PPatchliner_el07ab_artix7_PCBV01(std::string di) :
     EZPatche8PPatchliner_el07ab(di) {
 
     spiChannel = 'B';
@@ -1591,6 +1596,16 @@ EZPatche8PPatchliner_el07ab_artix7::EZPatche8PPatchliner_el07ab_artix7(std::stri
     fpgaLoadType = FpgaFwLoadPatchlinerArtix7_V01;
 }
 
-EZPatche8PPatchliner_el07ab_artix7::~EZPatche8PPatchliner_el07ab_artix7() {
+EZPatche8PPatchliner_el07ab_artix7_PCBV01::~EZPatche8PPatchliner_el07ab_artix7_PCBV01() {
+
+}
+
+EZPatche8PPatchliner_el07ab_artix7_PCBV02::EZPatche8PPatchliner_el07ab_artix7_PCBV02(std::string di) :
+    EZPatche8PPatchliner_el07ab_artix7_PCBV01(di) {
+
+    fpgaLoadType = FpgaFwLoadAutomatic;
+}
+
+EZPatche8PPatchliner_el07ab_artix7_PCBV02::~EZPatche8PPatchliner_el07ab_artix7_PCBV02() {
 
 }

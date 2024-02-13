@@ -38,9 +38,14 @@ public:
     EZPatchePatchEL03F_4E_PCBV02_V01(std::string di);
 };
 
-class EZPatchePatchEL03F_4E_PCBV02_V00 : public EZPatchePatchEL03F_4D_PCBV02_V00 {
+class EZPatchePatchEL03F_4E_PCBV02_V00 : public EZPatchePatchEL03F_4D_PCBV02_V01 {
 public:
     EZPatchePatchEL03F_4E_PCBV02_V00(std::string di);
+    virtual ~EZPatchePatchEL03F_4E_PCBV02_V00();
+
+protected:
+    void selectChannelsResolutions() override;
+    void selectVoltageOffsetResolution() override;
 };
 
 #endif // EZPATCHEPATCHEL03F_4E_H

@@ -74,43 +74,6 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
     }
 }
 
-ErrorCodes_t MessageDispatcher::initialize(std::string fwPath) {
-    this->createDebugFiles();
-
-    ErrorCodes_t ret = this->startCommunication(fwPath);
-    if (ret != Success) {
-        return ret;
-    }
-
-    ret = this->initializeMemory();
-    if (ret != Success) {
-        return ret;
-    }
-
-    this->initializeVariables();
-
-    this->deviceConfiguration();
-    if (ret != Success) {
-        return ret;
-    }
-
-    stopConnectionFlag = false;
-    this->createCommunicationThreads();
-
-    return this->initializeHW();
-}
-
-void MessageDispatcher::deinitialize() {
-    stopConnectionFlag = true;
-    this->joinCommunicationThreads();
-
-    this->deinitializeVariables();
-
-    this->deinitializeMemory();
-
-    this->closeDebugFiles();
-}
-
 /****************\
  *  Tx methods  *
 \****************/
@@ -133,7 +96,7 @@ ErrorCodes_t MessageDispatcher::setBoardSelected(uint16_t brdIdx, bool newState)
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getChannelsOnBoard(uint16_t boardIdx, std::vector <ChannelModel *>  & channels) {
+ErrorCodes_t MessageDispatcher::getChannelsOnBoard(uint16_t boardIdx, std::vector <ChannelModel *> & channels) {
     if (boardIdx >= totalBoardsNum) {
         return ErrorValueOutOfRange;
     }
@@ -179,11 +142,11 @@ ErrorCodes_t MessageDispatcher::startProtocol() {
 ErrorCodes_t MessageDispatcher::stopProtocol() {
     if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
         this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest);
-        this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {100.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+        this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
 
     } else {
         this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest);
-        this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {100.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+        this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
     }
     return this->startProtocol();
 }
@@ -361,11 +324,11 @@ ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t> channelIn
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setClampingModality(uint32_t idx, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setClampingModality(uint32_t idx, bool applyFlag, bool stopProtocolFlag) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -1192,7 +1155,7 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
 
     if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
         /*! Initialization in voltage clamp */
-        this->setClampingModality(VOLTAGE_CLAMP, false);
+        this->setClampingModality(VOLTAGE_CLAMP, false, false);
         this->enableStimulus(allChannelIndexes, allTrue, false);
         this->turnChannelsOn(allChannelIndexes, allTrue, false);
         this->setVoltageHoldTuner(allChannelIndexes, selectedVoltageHoldVector, false);

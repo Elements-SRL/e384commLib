@@ -28,6 +28,7 @@ typedef enum {
 } FtdiEepromId_t;
 
 typedef enum {
+    DeviceVersionTestBoard = 6,
     DeviceVersionEpatch = 7,
     DeviceVersionE4p = 10,
     DeviceVersionDemo = 0xFD,
@@ -36,6 +37,11 @@ typedef enum {
 } DeviceVersion_t;
 
 typedef enum {
+    /*! Subversions used for ver = 6 */
+    DeviceSubversionTestBoardEL04d = 9,
+    DeviceSubversionTestBoardEL04e = 10,
+    DeviceSubversionTestBoardEL04f = 11,
+
     /*! Subversions used for ver = 7 */
     DeviceSubversionEl03D = 1,
     DeviceSubversionEl03F_4D_PCBV02 = 2,
@@ -45,6 +51,7 @@ typedef enum {
     DeviceSubversionEl03F_4E_PCBV03 = 6,
     DeviceSubversionEl03F_4F_PCBV03 = 8,
     DeviceSubversionEl03F_4F_PCBV01_AnalogOut = 9,
+    DeviceSubversionEl03F_4F_PCBV02 = 10,
 
     /*! Subversions used for ver = 10 */
     DeviceSubversionEl04Fx4 = 1,
@@ -52,14 +59,14 @@ typedef enum {
     DeviceSubversionEl04Fx8PatchLiner = 3,
     DeviceSubversionEl07ABx4PatchLiner = 5,
     DeviceSubversionEl07ABx8PatchLiner = 6,
-    DeviceSubversionEl07ABx8PatchLiner_artix7 = 8,
+    DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV01 = 8,
+    DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV02 = 10,
 
     /*! Subversions used for ver = FD */
     DeviceSubversionDemo = 1,
     DeviceSubversionDemox8 = 2,
 
     /*! Subversions used for ver = FE */
-    DeviceSubversionProtoEl03F_4D = 7,
     DeviceSubversionProtoEl04E = 9,
     DeviceSubversionProtoEl03F_4E = 10,
 

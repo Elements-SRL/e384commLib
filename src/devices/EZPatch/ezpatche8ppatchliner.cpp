@@ -1109,7 +1109,12 @@ ErrorCodes_t EZPatche8PPatchliner::getNextMessage(RxOutput_t &rxOutput, int16_t 
 
     std::unique_lock <std::mutex> rxMutexLock (rxMutex);
     if (rxMsgBufferReadLength <= 0) {
-        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(1000));
+        std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::time_point currentTime = startTime;
+        while ((std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count()) < EZP_NO_DATA_WAIT_TIME_MS) {
+            rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(EZP_NO_DATA_WAIT_TIME_MS));
+            currentTime = std::chrono::steady_clock::now();
+        }
         if (rxMsgBufferReadLength <= 0) {
             return ErrorNoDataAvailable;
         }

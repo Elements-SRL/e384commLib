@@ -68,8 +68,8 @@ public:
     ErrorCodes_t turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
     ErrorCodes_t enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
 
-    ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag) override;
-    ErrorCodes_t setClampingModality(ClampingModality_t mode, bool applyFlag) override;
+    ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag, bool stopProtocolFlag) override;
+    ErrorCodes_t setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag) override;
     ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag) override;
     ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag) override;
 
@@ -135,6 +135,8 @@ protected:
      *  Methods  *
     \*************/
 
+    virtual ErrorCodes_t initialize(std::string fwPath) override;
+    virtual void deinitialize() override;
     virtual ErrorCodes_t initializeMemory() override;
     virtual void initializeVariables() override;
     virtual ErrorCodes_t deviceConfiguration() override;

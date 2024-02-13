@@ -13,6 +13,11 @@ public:
     EZPatchePatchEL03F_4F_PCBV03_V04(std::string di);
 };
 
+class EZPatchePatchEL03F_4F_PCBV02_V04 : public EZPatchePatchEL03F_4D_PCBV02_V04 {
+public:
+    EZPatchePatchEL03F_4F_PCBV02_V04(std::string di);
+};
+
 class EZPatchePatchEL03F_4F_PCBV03_V03 : public EZPatchePatchEL03F_4D_PCBV03_V03 {
 public:
     EZPatchePatchEL03F_4F_PCBV03_V03(std::string di);
