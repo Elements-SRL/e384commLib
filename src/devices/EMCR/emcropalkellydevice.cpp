@@ -5,8 +5,9 @@
 
 #include "emcr384nanopores.h"
 #include "emcr384nanopores_sr7p5khz_v01.h"
-#include "emcr384patchclamp.h"
-#include "emcr384patchclamp_V04.h"
+#include "emcr384patchclamp_prot_v01_fw_v02.h"
+#include "emcr384patchclamp_prot_v04_fw_v03.h"
+#include "emcr384patchclamp_prot_v04_fw_v04.h"
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
 #ifdef DEBUG
@@ -21,13 +22,13 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000107S", Device384Nanopores_SR7p5kHz},
     {"221000108T", Device384Nanopores_SR7p5kHz},
     {"22510013B4", Device384Nanopores},
-    {"23190014UX", Device384PatchClamp_V04},
+    {"23190014UX", Device384PatchClamp_prot_v04_fw_v04},
     {"23210014U9", Device384Nanopores},
     {"23210014UP", Device384Nanopores},
-    {"2210001076", Device384PatchClamp_V04},
-    {"221000106B", Device384PatchClamp},
-    {"221000106C", Device384PatchClamp},
-    {"23210014UF", Device384PatchClamp},
+    {"2210001076", Device384PatchClamp_prot_v04_fw_v03},
+    {"221000106B", Device384PatchClamp_prot_v04_fw_v03},
+    {"221000106C", Device384PatchClamp_prot_v01_fw_v02},
+    {"23210014UF", Device384PatchClamp_prot_v01_fw_v02},
     {"22370012CI", Device4x10MHz_PCBV01},
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
@@ -138,12 +139,16 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr384NanoPores_SR7p5kHz_V01(deviceId);
         break;
 
-    case Device384PatchClamp:
-        messageDispatcher = new Emcr384PatchClamp_V01(deviceId);
+    case Device384PatchClamp_prot_v01_fw_v02:
+        messageDispatcher = new Emcr384PatchClamp_prot_v01_fw_v02(deviceId);
         break;
 
-    case Device384PatchClamp_V04:
-        messageDispatcher = new Emcr384PatchClamp_V04(deviceId);
+    case Device384PatchClamp_prot_v04_fw_v03:
+        messageDispatcher = new Emcr384PatchClamp_prot_v04_fw_v03(deviceId);
+        break;
+
+    case Device384PatchClamp_prot_v04_fw_v04:
+        messageDispatcher = new Emcr384PatchClamp_prot_v04_fw_v04(deviceId);
         break;
 
     case Device2x10MHz_PCBV01:

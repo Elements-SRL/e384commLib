@@ -1,7 +1,7 @@
 #include "emcr384patchclampfake.h"
 
 Emcr384FakePatchClamp::Emcr384FakePatchClamp(std::string id) :
-    Emcr384PatchClamp_V04(id) {
+    Emcr384PatchClamp_prot_v04_fw_v04(id) {
 
     waitingTimeBeforeReadingData = 0;
     motherboardBootTime_s = 0;

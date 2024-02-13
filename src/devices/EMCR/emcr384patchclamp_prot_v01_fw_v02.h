@@ -1,12 +1,12 @@
-#ifndef EMCR384PATCHCLAMP_V04_H
-#define EMCR384PATCHCLAMP_V04_H
+#ifndef EMCR384PATCHCLAMP_PROT_V01_FW_V02_H
+#define EMCR384PATCHCLAMP_PROT_V01_FW_V02_H
 
 #include "emcropalkellydevice.h"
 
-class Emcr384PatchClamp_V04 : public EmcrOpalKellyDevice {
+class Emcr384PatchClamp_prot_v01_fw_v02 : public EmcrOpalKellyDevice {
 public:
-    Emcr384PatchClamp_V04(std::string di);
-    virtual ~Emcr384PatchClamp_V04();
+    Emcr384PatchClamp_prot_v01_fw_v02(std::string di);
+    virtual ~Emcr384PatchClamp_prot_v01_fw_v02();
 
     virtual ErrorCodes_t hasCompFeature(uint16_t feature) override;
     virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) override;
@@ -166,4 +166,4 @@ protected:
     virtual ErrorCodes_t getResistancePredictionGainControl(CompensationControl_t &control) override;
 };
 
-#endif // EMCR384PATCHCLAMP_V04_H
+#endif // EMCR384PATCHCLAMP_PROT_V01_FW_V02_H

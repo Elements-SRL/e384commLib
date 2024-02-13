@@ -67,13 +67,14 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
+    src/devices/EMCR/emcr384patchclamp_prot_v01_fw_v02.cpp \
+    src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v03.cpp \
+    src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v04.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
     src/devices/EMCR/emcropalkellydevice.cpp \
     src/devices/EMCR/emcr384nanopores.cpp \
     src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.cpp \
-    src/devices/EMCR/emcr384patchclamp.cpp \
-    src/devices/EMCR/emcr384patchclamp_V04.cpp \
     src/devices/EMCR/emcr2x10mhz.cpp \
     src/devices/EMCR/emcr4x10mhz.cpp \
     src/devices/EZPatch/ezpatchdevice.cpp \
@@ -97,6 +98,9 @@ SOURCES += \
     src/calibration/calibrationmanager.cpp
 
 HEADERS += \
+    src/devices/EMCR/emcr384patchclamp_prot_v01_fw_v02.h \
+    src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v03.h \
+    src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v04.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
@@ -106,8 +110,6 @@ HEADERS += \
     src/devices/EMCR/emcropalkellydevice.h \
     src/devices/EMCR/emcr384nanopores.h \
     src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.h \
-    src/devices/EMCR/emcr384patchclamp.h \
-    src/devices/EMCR/emcr384patchclamp_V04.h \
     src/devices/EMCR/emcr2x10mhz.h \
     src/devices/EMCR/emcr4x10mhz.h \
     src/devices/EZPatch/ezpatchdevice.h \
