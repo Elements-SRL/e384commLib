@@ -143,11 +143,11 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return Success;
     });
     m.def("setCcConfiguration",[](){
-        return md->setClampingModality(ClampingModality_t::CURRENT_CLAMP, true);
+        return md->setClampingModality(ClampingModality_t::CURRENT_CLAMP, true, true);
 
     });
     m.def("setVcConfiguration",[](){
-        return md->setClampingModality(ClampingModality_t::VOLTAGE_CLAMP, true);
+        return md->setClampingModality(ClampingModality_t::VOLTAGE_CLAMP, true, true);
     });
     m.def("getBufferedVoltagesAndCurrents", [](){
         RxOutput_t rxOutput;
