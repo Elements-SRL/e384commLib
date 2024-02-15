@@ -155,31 +155,31 @@ ErrorCodes_t MessageDispatcher::startStateArray() {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::resetAsic(bool resetFlag, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::resetAsic(bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::resetFpga(bool resetFlag, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::resetFpga(bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> currents, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCurrentHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> voltages, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
@@ -188,163 +188,163 @@ ErrorCodes_t MessageDispatcher::resetLiquidJunctionVoltage(std::vector <uint16_t
     return this->setLiquidJunctionVoltage(channelIndexes, voltages, applyFlag);
 }
 
-ErrorCodes_t MessageDispatcher::setGateVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> gateVoltages, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setGateVoltages(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setSourceVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setSourceVoltages(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibParams(CalibrationParams_t calibParams) {
+ErrorCodes_t MessageDispatcher::setCalibParams(CalibrationParams_t) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
+ErrorCodes_t MessageDispatcher::updateCalibVcCurrentGain(std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
+ErrorCodes_t MessageDispatcher::updateCalibVcCurrentOffset(std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
+ErrorCodes_t MessageDispatcher::updateCalibCcVoltageGain(std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
+ErrorCodes_t MessageDispatcher::updateCalibCcVoltageOffset(std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
+ErrorCodes_t MessageDispatcher::updateCalibVcVoltageGain(std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
+ErrorCodes_t MessageDispatcher::updateCalibVcVoltageOffset(std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag){
+ErrorCodes_t MessageDispatcher::updateCalibCcCurrentGain(std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag){
+ErrorCodes_t MessageDispatcher::updateCalibCcCurrentOffset(std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibRShuntConductance(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> conductances, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setCalibRShuntConductance(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibRShuntConductance(std::vector<uint16_t> channelIndexes, bool applyFlag){
+ErrorCodes_t MessageDispatcher::updateCalibRShuntConductance(std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setLiquidJunctionRange(uint16_t idx) {
+ErrorCodes_t MessageDispatcher::setLiquidJunctionRange(uint16_t) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setVoltageStimulusLpf(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setCurrentStimulusLpf(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::enableStimulus(std::vector<uint16_t>, std::vector<bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnChannelsOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::turnChannelsOn(std::vector<uint16_t>, std::vector<bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnCalSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::turnCalSwOn(std::vector<uint16_t>, std::vector<bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnVcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+ErrorCodes_t MessageDispatcher::turnVcSwOn(std::vector<uint16_t>, std::vector<bool>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnCcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+ErrorCodes_t MessageDispatcher::turnCcSwOn(std::vector<uint16_t>, std::vector<bool>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+ErrorCodes_t MessageDispatcher::turnVcCcSelOn(std::vector<uint16_t>, std::vector<bool>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag){
+ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t>, std::vector<bool>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setClampingModality(uint32_t idx, bool applyFlag, bool stopProtocolFlag) {
+ErrorCodes_t MessageDispatcher::setClampingModality(uint32_t, bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag) {
+ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t, bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setSourceForVoltageChannel(uint16_t source, bool applyFlag){
+ErrorCodes_t MessageDispatcher::setSourceForVoltageChannel(uint16_t, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setSourceForCurrentChannel(uint16_t source, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setSourceForCurrentChannel(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t>, std::vector<bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -359,7 +359,7 @@ ErrorCodes_t MessageDispatcher::setAdcFilter() {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -379,11 +379,11 @@ ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratio) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) {
+ErrorCodes_t MessageDispatcher::setDebugBit(uint16_t, uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t wordOffset, uint16_t wordValue) {
+ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t, uint16_t) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -403,47 +403,47 @@ ErrorCodes_t MessageDispatcher::turnCurrentStimulusOn(bool, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest) {
+ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t, uint16_t, uint16_t, Measurement_t) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
+ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
+ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step, bool vHalfFlag) {
+ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest) {
+ErrorCodes_t MessageDispatcher::setCurrentProtocolStructure(uint16_t, uint16_t, uint16_t, Measurement_t) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag) {
+ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag) {
+ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag) {
+ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime) {
+ErrorCodes_t MessageDispatcher::setStateArrayStructure(int, int, Measurement_t) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag) {
+ErrorCodes_t MessageDispatcher::setSateArrayState(int, Measurement_t, bool, double, int, Measurement_t, Measurement_t, int, bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setStateArrayEnabled(int chIdx, bool enabledFlag){
+ErrorCodes_t MessageDispatcher::setStateArrayEnabled(int, bool){
     return ErrorFeatureNotImplemented;
 }
 
@@ -506,7 +506,7 @@ ErrorCodes_t MessageDispatcher::deallocateRxDataBuffer(int16_t * &data) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
+ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &, int16_t *) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -556,39 +556,39 @@ ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector<uint16_t> 
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures){
+ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &voltageHalfTunerFeatures){
+ErrorCodes_t MessageDispatcher::getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures){
+ErrorCodes_t MessageDispatcher::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &currentHalfTunerFeatures){
+ErrorCodes_t MessageDispatcher::getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges) {
+ErrorCodes_t MessageDispatcher::getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures){
+ErrorCodes_t MessageDispatcher::getCalibVcCurrentGainFeatures(RangedMeasurement_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures){
+ErrorCodes_t MessageDispatcher::getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures){
+ErrorCodes_t MessageDispatcher::getCalibCcVoltageGainFeatures(RangedMeasurement_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures){
+ErrorCodes_t MessageDispatcher::getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &){
     return ErrorFeatureNotImplemented;
 }
 
@@ -600,11 +600,11 @@ ErrorCodes_t MessageDispatcher::hasSourceVoltages() {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getGateVoltagesFeatures(RangedMeasurement_t &gateVoltagesFeatures){
+ErrorCodes_t MessageDispatcher::getGateVoltagesFeatures(RangedMeasurement_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getSourceVoltagesFeatures(RangedMeasurement_t &sourceVoltagesFeatures){
+ErrorCodes_t MessageDispatcher::getSourceVoltagesFeatures(RangedMeasurement_t &){
     return ErrorFeatureNotImplemented;
 }
 
@@ -769,7 +769,7 @@ ErrorCodes_t MessageDispatcher::getMaxVCCurrentRange(RangedMeasurement_t &range,
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = std::distance(vcCurrentRangesArray.begin(), std::max_element(vcCurrentRangesArray.begin(), vcCurrentRangesArray.end()));
+    idx = (uint32_t)std::distance(vcCurrentRangesArray.begin(), std::max_element(vcCurrentRangesArray.begin(), vcCurrentRangesArray.end()));
     range = vcCurrentRangesArray[idx];
     return Success;
 }
@@ -778,7 +778,7 @@ ErrorCodes_t MessageDispatcher::getMinVCCurrentRange(RangedMeasurement_t &range,
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = std::distance(vcCurrentRangesArray.begin(), std::min_element(vcCurrentRangesArray.begin(), vcCurrentRangesArray.end()));
+    idx = (uint32_t)std::distance(vcCurrentRangesArray.begin(), std::min_element(vcCurrentRangesArray.begin(), vcCurrentRangesArray.end()));
     range = vcCurrentRangesArray[idx];
     return Success;
 }
@@ -787,7 +787,7 @@ ErrorCodes_t MessageDispatcher::getMaxVCVoltageRange(RangedMeasurement_t &range,
     if (vcVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = std::distance(vcVoltageRangesArray.begin(), std::max_element(vcVoltageRangesArray.begin(), vcVoltageRangesArray.end()));
+    idx = (uint32_t)std::distance(vcVoltageRangesArray.begin(), std::max_element(vcVoltageRangesArray.begin(), vcVoltageRangesArray.end()));
     range = vcVoltageRangesArray[idx];
     return Success;
 }
@@ -796,7 +796,7 @@ ErrorCodes_t MessageDispatcher::getMinVCVoltageRange(RangedMeasurement_t &range,
     if (vcVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = std::distance(vcVoltageRangesArray.begin(), std::min_element(vcVoltageRangesArray.begin(), vcVoltageRangesArray.end()));
+    idx = (uint32_t)std::distance(vcVoltageRangesArray.begin(), std::min_element(vcVoltageRangesArray.begin(), vcVoltageRangesArray.end()));
     range = vcVoltageRangesArray[idx];
     return Success;
 }
@@ -805,7 +805,7 @@ ErrorCodes_t MessageDispatcher::getMaxCCCurrentRange(RangedMeasurement_t &range,
     if (ccCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = std::distance(ccCurrentRangesArray.begin(), std::max_element(ccCurrentRangesArray.begin(), ccCurrentRangesArray.end()));
+    idx = (uint32_t)std::distance(ccCurrentRangesArray.begin(), std::max_element(ccCurrentRangesArray.begin(), ccCurrentRangesArray.end()));
     range = ccCurrentRangesArray[idx];
     return Success;
 }
@@ -814,7 +814,7 @@ ErrorCodes_t MessageDispatcher::getMinCCCurrentRange(RangedMeasurement_t &range,
     if (ccCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = std::distance(ccCurrentRangesArray.begin(), std::min_element(ccCurrentRangesArray.begin(), ccCurrentRangesArray.end()));
+    idx = (uint32_t)std::distance(ccCurrentRangesArray.begin(), std::min_element(ccCurrentRangesArray.begin(), ccCurrentRangesArray.end()));
     range = ccCurrentRangesArray[idx];
     return Success;
 }
@@ -823,7 +823,7 @@ ErrorCodes_t MessageDispatcher::getMaxCCVoltageRange(RangedMeasurement_t &range,
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = std::distance(ccVoltageRangesArray.begin(), std::max_element(ccVoltageRangesArray.begin(), ccVoltageRangesArray.end()));
+    idx = (uint32_t)std::distance(ccVoltageRangesArray.begin(), std::max_element(ccVoltageRangesArray.begin(), ccVoltageRangesArray.end()));
     range = ccVoltageRangesArray[idx];
     return Success;
 }
@@ -832,7 +832,7 @@ ErrorCodes_t MessageDispatcher::getMinCCVoltageRange(RangedMeasurement_t &range,
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = std::distance(ccVoltageRangesArray.begin(), std::min_element(ccVoltageRangesArray.begin(), ccVoltageRangesArray.end()));
+    idx = (uint32_t)std::distance(ccVoltageRangesArray.begin(), std::min_element(ccVoltageRangesArray.begin(), ccVoltageRangesArray.end()));
     range = ccVoltageRangesArray[idx];
     return Success;
 }
@@ -991,27 +991,27 @@ ErrorCodes_t MessageDispatcher::hasStimulusHalf() {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibData(CalibrationData_t &calibData){
+ErrorCodes_t MessageDispatcher::getCalibData(CalibrationData_t &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibParams(CalibrationParams_t &calibParams) {
+ErrorCodes_t MessageDispatcher::getCalibParams(CalibrationParams_t &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibFileNames(std::vector<std::string> &calibFileNames) {
+ErrorCodes_t MessageDispatcher::getCalibFileNames(std::vector<std::string> &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibFilesFlags(std::vector<std::vector <bool>> &calibFilesFlags) {
+ErrorCodes_t MessageDispatcher::getCalibFilesFlags(std::vector<std::vector <bool>> &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibMappingFileDir(std::string &dir) {
+ErrorCodes_t MessageDispatcher::getCalibMappingFileDir(std::string &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibMappingFilePath(std::string &path) {
+ErrorCodes_t MessageDispatcher::getCalibMappingFilePath(std::string &) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -1891,7 +1891,7 @@ ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t, std::vector<RangedMeas
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes ,std::vector <std::string> &){
+ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes, std::vector <std::string> &){
     return ErrorFeatureNotImplemented;
 }
 

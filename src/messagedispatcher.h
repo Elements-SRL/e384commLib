@@ -575,9 +575,9 @@ protected:
     uint16_t defaultRsCorrBwIdx;
 
     /*! Features in ASIC domain, depend on asic*/
-    std::vector <RangedMeasurement> pipetteCapacitanceRange_pF;
-    std::vector <RangedMeasurement> membraneCapValueRange_pF;
-    std::vector <RangedMeasurement> membraneCapTauValueRange_us;
+    std::vector <RangedMeasurement> pipetteCapacitanceRange;
+    std::vector <RangedMeasurement> membraneCapValueRange;
+    std::vector <RangedMeasurement> membraneCapTauValueRange;
     RangedMeasurement_t rsCorrValueRange;
     RangedMeasurement_t rsPredGainRange;
     RangedMeasurement_t rsPredTauRange;
