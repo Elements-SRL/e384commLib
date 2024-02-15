@@ -884,10 +884,10 @@ typedef struct CalibrationData {
     bool canInputsBeOpened;
     bool adcCalibratedInOffsetBinary;
 
-    std::vector<std::vector<Measurement_t>> ccCalibVoltStepsArrays;
-    std::vector<std::vector<Measurement_t>> ccCalibCurrStepsArrays;
-    std::vector<Measurement_t> ccCalibResArray;
-    std::vector<Measurement_t> ccCalibResForCcAdcOffsetArray;
+    std::vector <std::vector <Measurement_t>> ccCalibVoltStepsArrays;
+    std::vector <std::vector <Measurement_t>> ccCalibCurrStepsArrays;
+    std::vector <Measurement_t> ccCalibResArray;
+    std::vector <Measurement_t> ccCalibResForCcAdcOffsetArray;
 } CalibrationData_t;
 
 /*! \struct CalibrationParams_t
@@ -895,15 +895,16 @@ typedef struct CalibrationData {
  * \note All fields are vectors of vectors because the first vector indexes ranges, while the second range indexes channels
  */
 typedef struct CalibrationParams {
-    std::vector<std::vector<Measurement_t>> allGainAdcMeas;
-    std::vector<std::vector<Measurement_t>> allOffsetAdcMeas;
-    std::vector<std::vector<Measurement_t>> allGainDacMeas;
-    std::vector<std::vector<Measurement_t>> allOffsetDacMeas;
-    std::vector<std::vector<Measurement_t>> allOffsetRsCorrMeas;
-    std::vector<std::vector<Measurement_t>> ccAllGainAdcMeas;
-    std::vector<std::vector<Measurement_t>> ccAllOffsetAdcMeas;
-    std::vector<std::vector<Measurement_t>> ccAllGainDacMeas;
-    std::vector<std::vector<Measurement_t>> ccAllOffsetDacMeas;
+    std::vector <std::vector <Measurement_t>> vcGainAdc;
+    std::vector <std::vector <Measurement_t>> vcOffsetAdc;
+    std::vector <std::vector <Measurement_t>> vcGainDac;
+    std::vector <std::vector <Measurement_t>> vcOffsetDac;
+    std::vector <std::vector <Measurement_t>> rsCorrOffsetDac;
+    std::vector <std::vector <Measurement_t>> rShuntConductance;
+    std::vector <std::vector <Measurement_t>> ccGainAdc;
+    std::vector <std::vector <Measurement_t>> ccOffsetAdc;
+    std::vector <std::vector <Measurement_t>> ccGainDac;
+    std::vector <std::vector <Measurement_t>> ccOffsetDac;
 } CalibrationParams_t;
 
 #ifndef E384COMMLIB_LABVIEW_WRAPPER

@@ -1279,7 +1279,7 @@ ErrorCodes_t EZPatchDevice::setCompensationsChannel(uint16_t channelIdx) {
     return Success;
 }
 
-ErrorCodes_t EZPatchDevice::enableCompensation(std::vector <uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag) {
     int tempCompensationSettingChannel = compensationsSettingChannel;
     switch (compTypeToEnable) {
     case CompCfast:

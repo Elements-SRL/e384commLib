@@ -448,27 +448,27 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     defaultCurrentHoldTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
 
     /*! VC leak calibration (shunt resistance)*/
-    vcLeakCalibRange.resize(VCCurrentRangesNum);
-    vcLeakCalibRange[VCCurrentRange10nA].step = (vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step)/4096.0;
-    vcLeakCalibRange[VCCurrentRange10nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step);
-    vcLeakCalibRange[VCCurrentRange10nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange10nA].step;
-    vcLeakCalibRange[VCCurrentRange10nA]. prefix = UnitPfxNone;
-    vcLeakCalibRange[VCCurrentRange10nA].unit = "S";
-    vcLeakCalibRange[VCCurrentRange40nALbw].step = (vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step)/4096.0;
-    vcLeakCalibRange[VCCurrentRange40nALbw].min = -8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step);
-    vcLeakCalibRange[VCCurrentRange40nALbw].max = 8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange40nALbw].step;
-    vcLeakCalibRange[VCCurrentRange40nALbw]. prefix = UnitPfxNone;
-    vcLeakCalibRange[VCCurrentRange40nALbw].unit = "S";
-    vcLeakCalibRange[VCCurrentRange40nAHbw].step = (vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step)/4096.0;
-    vcLeakCalibRange[VCCurrentRange40nAHbw].min = -8.0*(vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step);
-    vcLeakCalibRange[VCCurrentRange40nAHbw].max = 8.0*(vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange40nAHbw].step;
-    vcLeakCalibRange[VCCurrentRange40nAHbw]. prefix = UnitPfxNone;
-    vcLeakCalibRange[VCCurrentRange40nAHbw].unit = "S";
-    vcLeakCalibRange[VCCurrentRange400nA].step = (vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step)/4096.0;
-    vcLeakCalibRange[VCCurrentRange400nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step);
-    vcLeakCalibRange[VCCurrentRange400nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange400nA].step;
-    vcLeakCalibRange[VCCurrentRange400nA]. prefix = UnitPfxNone;
-    vcLeakCalibRange[VCCurrentRange400nA].unit = "S";
+    rRShuntConductanceCalibRange.resize(VCCurrentRangesNum);
+    rRShuntConductanceCalibRange[VCCurrentRange10nA].step = (vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step)/4096.0;
+    rRShuntConductanceCalibRange[VCCurrentRange10nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange10nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange10nA].step;
+    rRShuntConductanceCalibRange[VCCurrentRange10nA]. prefix = UnitPfxNone;
+    rRShuntConductanceCalibRange[VCCurrentRange10nA].unit = "S";
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].step = (vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step)/4096.0;
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].min = -8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].max = 8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange40nALbw].step;
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw]. prefix = UnitPfxNone;
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].unit = "S";
+    rRShuntConductanceCalibRange[VCCurrentRange40nAHbw].step = (vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step)/4096.0;
+    rRShuntConductanceCalibRange[VCCurrentRange40nAHbw].min = -8.0*(vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange40nAHbw].max = 8.0*(vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange40nAHbw].step;
+    rRShuntConductanceCalibRange[VCCurrentRange40nAHbw]. prefix = UnitPfxNone;
+    rRShuntConductanceCalibRange[VCCurrentRange40nAHbw].unit = "S";
+    rRShuntConductanceCalibRange[VCCurrentRange400nA].step = (vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step)/4096.0;
+    rRShuntConductanceCalibRange[VCCurrentRange400nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange400nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange400nA].step;
+    rRShuntConductanceCalibRange[VCCurrentRange400nA]. prefix = UnitPfxNone;
+    rRShuntConductanceCalibRange[VCCurrentRange400nA].unit = "S";
 
     /*! VC voltage calib gain (DAC) */
     calibVcVoltageGainRange.step = 1.0/1024.0;
@@ -1192,16 +1192,16 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! VC leak calibration */
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
-    vcLeakCalibCoders.resize(VCCurrentRangesNum);
+    calibRShuntConductanceCoders.resize(VCCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 832;
-        doubleConfig.resolution = vcLeakCalibRange[rangeIdx].step;
-        doubleConfig.minValue = vcLeakCalibRange[rangeIdx].min;
-        doubleConfig.maxValue = vcLeakCalibRange[rangeIdx].max;
-        vcLeakCalibCoders[rangeIdx].resize(currentChannelsNum);
+        doubleConfig.resolution = rRShuntConductanceCalibRange[rangeIdx].step;
+        doubleConfig.minValue = rRShuntConductanceCalibRange[rangeIdx].min;
+        doubleConfig.maxValue = rRShuntConductanceCalibRange[rangeIdx].max;
+        calibRShuntConductanceCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            vcLeakCalibCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(vcLeakCalibCoders[rangeIdx][channelIdx]);
+            calibRShuntConductanceCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibRShuntConductanceCoders[rangeIdx][channelIdx]);
             doubleConfig.initialWord++;
         }
     }
@@ -1872,7 +1872,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
+ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
     std::string debugString = "";
     switch(compTypeToEnable){
     case CompCfast:

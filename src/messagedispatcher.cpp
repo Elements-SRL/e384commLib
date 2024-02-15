@@ -264,6 +264,14 @@ ErrorCodes_t MessageDispatcher::updateCalibCcCurrentOffset(std::vector<uint16_t>
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::setCalibRShuntConductance(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> conductances, bool applyFlag){
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::updateCalibRShuntConductance(std::vector<uint16_t> channelIndexes, bool applyFlag){
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {
     return ErrorFeatureNotImplemented;
 }
@@ -1855,7 +1863,7 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
     return y;
 }
 
-ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t>, uint16_t, std::vector<bool>, bool){
+ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t>, CompensationTypes, std::vector<bool>, bool){
     return ErrorFeatureNotImplemented;
 }
 

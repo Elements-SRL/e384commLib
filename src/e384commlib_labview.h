@@ -2128,6 +2128,16 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getRsCorrDacOffsetCalibration(
         E384CL_ARGOUT LVecMeasHandle * meas);
 
+/*! \brief Gets the conductance due to the shunt resistance.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getRsShuntConductanceCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
 /*! \brief Set a debug bit
  *
  * \param wordOffset [in] word of the debug bit to be modified.
