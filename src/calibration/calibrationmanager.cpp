@@ -21,7 +21,7 @@ CalibrationManager::CalibrationManager(std::string serialNumber, uint16_t curren
     mappingFileDir = CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR;
     mappingFilePath = mappingFileDir + CAL_MAPPING_FILE_NAME;
 
-    for(int i = 1; i <= boardsNum; i++){
+    for (int i = 1; i <= boardsNum; i++) {
        correctBoardsNumbering.push_back(i);
     }
 
@@ -41,8 +41,8 @@ CalibrationParams_t CalibrationManager::getCalibrationParams(ErrorCodes_t &error
 }
 
 std::vector <std::string> CalibrationManager::getCalibrationFileNames(){
-    std::vector<std::string> calibFileNames;
-    for(int i = 0; i < calibrationFileNames.size(); i++){
+    std::vector <std::string> calibFileNames;
+    for (int i = 0; i < calibrationFileNames.size(); i++) {
         calibFileNames.push_back(calibrationFileNames[i][1]);
     }
     return calibFileNames;
@@ -58,9 +58,8 @@ std::vector <std::vector <bool>> CalibrationManager::getCalibrationFilesOkFlags(
 
 bool CalibrationManager::loadMappingFile() {
     struct stat sb;
-    std::vector<int> actualBoardsNumbering;
-    int aaa = stat(mappingFileDir.c_str(), &sb);
-    if (aaa != 0) {
+    std::vector <int> actualBoardsNumbering;
+    if (stat(mappingFileDir.c_str(), &sb) != 0) {
         status = ErrorCalibrationDirMissing;
         return false;
     }
@@ -73,18 +72,18 @@ bool CalibrationManager::loadMappingFile() {
         }
 
         for (uint16_t idx = 0; idx < boardsNum; idx++) {
-            std::string bbb = calibrationFileNames[idx][0];
-            std::string forseBuona;
-            for (int k= 0; k < bbb.size(); k++){
-                if(bbb[k]== '0' || bbb[k]== '1' || bbb[k]== '2' || bbb[k]== '3' || bbb[k]== '4' || bbb[k]== '5' || bbb[k]== '6' || bbb[k]== '7' || bbb[k]== '8' || bbb[k]== '9'){
-                    forseBuona.push_back(bbb[k]);
+            std::string calibrationFileIndex = calibrationFileNames[idx][0];
+            std::string calibrationFileIndexChecked;
+            for (int k = 0; k < calibrationFileIndex.size(); k++) {
+                if (calibrationFileIndex[k] >= '0' && calibrationFileIndex[k] <= '9') {
+                    calibrationFileIndexChecked.push_back(calibrationFileIndex[k]);
                 }
             }
-            int boardNumber = std::stoi(forseBuona);
+            int boardNumber = std::stoi(calibrationFileIndexChecked);
             actualBoardsNumbering.push_back(boardNumber);
         }
 
-        if(actualBoardsNumbering != correctBoardsNumbering){
+        if (actualBoardsNumbering != correctBoardsNumbering) {
             status = ErrorCalibrationMappingWrongNumbering;
             ret = false;
         }
@@ -306,7 +305,7 @@ void CalibrationManager::loadSetOfDefaultParams(uint32_t boardIdx, uint32_t rang
 bool CalibrationManager::loadSetOfOffsets(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t>> &outOffsets, std::string offsetUnit) {
     bool ret = true;
     std::vector <std::vector <std::string>> strings;
-    strings.resize(2);
+    strings.resize(1);
     strings[0].resize(channelsPerBoard);
     for (uint32_t rangeIdx = 0; rangeIdx < rangesNum && ret; rangeIdx++) {
         this->discardCsvLine(stream); /*! Discard line including range name */
@@ -386,6 +385,7 @@ void CalibrationManager::discardCsvLine(std::fstream &stream) {
     std::string word;
     getline(stream, word);
 }
+
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
 }
 #endif

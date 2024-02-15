@@ -6,8 +6,6 @@
 #include "e384commlib_global.h"
 #include "e384commlib_errorcodes.h"
 
-class MessageDispatcher;
-
 /************************\
  *  Connection methods  *
 \************************/
