@@ -8,8 +8,6 @@ public:
     Emcr384PatchClamp_prot_v04_fw_v04(std::string di);
     virtual ~Emcr384PatchClamp_prot_v04_fw_v04();
 
-    virtual ErrorCodes_t hasCompFeature(uint16_t feature) override;
-    virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) override;
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray) override;
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix) override;
     virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues) override;

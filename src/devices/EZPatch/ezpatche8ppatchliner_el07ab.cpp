@@ -996,7 +996,7 @@ ErrorCodes_t EZPatche8PPatchliner_el07ab::setSamplingRate(uint16_t samplingRateI
     return ret;
 }
 
-ErrorCodes_t EZPatche8PPatchliner_el07ab::hasCompFeature(uint16_t feature) {
+ErrorCodes_t EZPatche8PPatchliner_el07ab::hasCompFeature(CompensationUserParams feature) {
     switch (feature) {
     case U_CpVc:
     case U_Cm:

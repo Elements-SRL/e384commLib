@@ -906,7 +906,7 @@ ErrorCodes_t EZPatchePatchEL04F::setSamplingRate(uint16_t samplingRateIdx, bool 
     return ret;
 }
 
-ErrorCodes_t EZPatchePatchEL04F::hasCompFeature(uint16_t feature) {
+ErrorCodes_t EZPatchePatchEL04F::hasCompFeature(CompensationUserParams feature) {
     switch (feature) {
     case U_CpVc:
     case U_Cm:

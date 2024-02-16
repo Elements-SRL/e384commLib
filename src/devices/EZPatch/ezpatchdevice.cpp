@@ -1534,10 +1534,10 @@ ErrorCodes_t EZPatchDevice::setPipetteCompensationOptions(uint16_t optionIdx) {
     }
 }
 
-ErrorCodes_t EZPatchDevice::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector <double> newParamValues, bool) {
     int tempCompensationSettingChannel = compensationsSettingChannel;
     for (int i = 0; i < channelIndexes.size(); i++) {
-        int compensationsSettingChannel = channelIndexes[i];
+        compensationsSettingChannel = channelIndexes[i];
         switch (paramToUpdate) {
         case U_CpVc:
             this->setPipetteCapacitance({newParamValues[i], pipetteCapacitanceControl.prefix, pipetteCapacitanceControl.unit});
@@ -1568,7 +1568,7 @@ ErrorCodes_t EZPatchDevice::setCompValues(std::vector <uint16_t> channelIndexes,
     return Success;
 }
 
-ErrorCodes_t EZPatchDevice::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes type, std::vector <uint16_t> options, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes type, std::vector <uint16_t> options, bool) {
     int tempCompensationSettingChannel = compensationsSettingChannel;
     switch (type) {
     case CompCfast:
@@ -2781,6 +2781,78 @@ ErrorCodes_t EZPatchDevice::getBridgeBalanceCompensationOptions(std::vector <std
     } else {
         return ErrorFeatureNotImplemented;
     }
+}
+
+ErrorCodes_t EZPatchDevice::getCompFeatures(CompensationUserParams paramToExtractFeatures, std::vector <RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) {
+    switch(paramToExtractFeatures){
+    case U_CpVc:
+        if(pipetteCapEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uCpVcCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_CpVc];
+            }
+        }
+        break;
+
+    case U_Cm:
+        if(membraneCapEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uCmCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_Cm];
+            }
+        }
+        break;
+
+    case U_Rs:
+        if(membraneCapTauValCompensationMultiCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uRsCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_Rs];
+            }
+        }
+        break;
+
+    case U_RsCp:
+        if(rsCorrValCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uRsCpCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_RsCp];
+            }
+        }
+        break;
+    case U_RsPg:
+        if(rsPredEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uRsPgCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_RsPg];
+            }
+        }
+        break;
+    case U_CpCc:
+        if(rsPredEnCompensationCoders.size() == 0){
+            return ErrorFeatureNotImplemented;
+        } else {
+            for(int i = 0; i < currentChannelsNum; i++){
+                compensationFeatures[i] = uCpCcCompensable[i];
+                defaultParamValue = defaultUserDomainParams[U_CpCc];
+            }
+        }
+        break;
+
+    default:
+        return ErrorFeatureNotImplemented;
+    }
+    return Success;
 }
 
 ErrorCodes_t EZPatchDevice::getLiquidJunctionControl(CompensationControl_t &control) {

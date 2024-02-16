@@ -1954,6 +1954,27 @@ ErrorCodes_t EmcrDevice::getCalibMappingFilePath(std::string &path){
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::hasCompFeature(CompensationUserParams feature) {
+    if (compensationControls[feature].empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::getCompFeatures(CompensationUserParams paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
+    if (compensationControls[paramToExtractFeatures].empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+
+    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+        compensationFeatures[chIdx] = compensationControls[paramToExtractFeatures][chIdx].getCompensableRange();
+        defaultParamValue = defaultUserDomainParams[paramToExtractFeatures];
+    }
+
+    return Success;
+}
+
 /*********************\
  *  Private methods  *
 \*********************/

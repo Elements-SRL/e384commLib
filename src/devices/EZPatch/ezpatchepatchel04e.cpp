@@ -800,7 +800,7 @@ EZPatchePatchEL04E::~EZPatchePatchEL04E() {
 
 }
 
-ErrorCodes_t EZPatchePatchEL04E::hasCompFeature(uint16_t feature) {
+ErrorCodes_t EZPatchePatchEL04E::hasCompFeature(CompensationUserParams feature) {
     switch (feature) {
     case U_CpVc:
     case U_Cm:

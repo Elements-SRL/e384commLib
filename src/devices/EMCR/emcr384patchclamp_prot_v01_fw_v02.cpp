@@ -586,11 +586,11 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     /*! FEATURES ASIC DOMAIN Rs prediction GAIN*/
     const double rsPredGainValuesNum = 64.0;
-    rsPredGainRange.step = 1/16.0; // MOhm
-    rsPredGainRange.min = 1 + rsPredGainRange.step; // MOhm
-    rsPredGainRange.max = rsPredGainRange.min + rsPredGainRange.step * (rsPredGainValuesNum -1) ; // MOhm
-    rsPredGainRange.prefix = UnitPfxMega;
-    rsPredGainRange.unit = "Ohm";
+    rsPredGainRange.step = 1.0/16.0;
+    rsPredGainRange.min = 1.0 + rsPredGainRange.step;
+    rsPredGainRange.max = rsPredGainRange.min + rsPredGainRange.step * (rsPredGainValuesNum-1);
+    rsPredGainRange.prefix = UnitPfxNone;
+    rsPredGainRange.unit = "";
 
     /*! FEATURES ASIC DOMAIN Rs prediction TAU*/
     const double rsPredTauValuesNum = 256.0;
@@ -600,24 +600,32 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     rsPredTauRange.prefix = UnitPfxMicro;
     rsPredTauRange.unit = "s";
 
-    /*! FEATURES/COMPENSABLES USER DOMAIN CpVc */
     /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
-    uCpVcCompensable.resize(currentChannelsNum);
+    CompensationControl_t control;
 
-    /*! FEATURES/COMPENSABLES USER DOMAIN Cm*/
-    uCmCompensable.resize(currentChannelsNum);
+    compensationControls[U_CpVc].resize(currentChannelsNum);
+    this->getCCPipetteCapacitanceControl(control);
+    std::fill(compensationControls[U_CpVc].begin(), compensationControls[U_CpVc].end(), control);
 
-    /*! FEATURES/COMPENSABLES USER DOMAIN Rs*/  
-    uRsCompensable.resize(currentChannelsNum);
+    compensationControls[U_Cm].resize(currentChannelsNum);
+    this->getMembraneCapacitanceControl(control);
+    std::fill(compensationControls[U_Cm].begin(), compensationControls[U_Cm].end(), control);
 
-    /*! FEATURES/COMPENSABLES USER DOMAIN RsCp*/
-    uRsCpCompensable.resize(currentChannelsNum);
+    compensationControls[U_Rs].resize(currentChannelsNum);
+    this->getAccessResistanceControl(control);
+    std::fill(compensationControls[U_Rs].begin(), compensationControls[U_Rs].end(), control);
 
-    /*! FEATURES/COMPENSABLES USER DOMAIN RsPg*/
-    uRsPgCompensable.resize(currentChannelsNum);
+    compensationControls[U_RsCp].resize(currentChannelsNum);
+    this->getResistanceCorrectionPercentageControl(control);
+    std::fill(compensationControls[U_RsCp].begin(), compensationControls[U_RsCp].end(), control);
 
-    /*! FEATURES/COMPENSABLES USER DOMAIN CpCc*/
-    uCpCcCompensable.resize(currentChannelsNum);
+    compensationControls[U_RsPg].resize(currentChannelsNum);
+    this->getResistancePredictionGainControl(control);
+    std::fill(compensationControls[U_RsPg].begin(), compensationControls[U_RsPg].end(), control);
+
+    compensationControls[U_CpCc].resize(currentChannelsNum);
+    this->getPipetteCapacitanceControl(control);
+    std::fill(compensationControls[U_CpCc].begin(), compensationControls[U_CpCc].end(), control);
 
     /*! COMPENSATION OPTIONS STRINGS*/
     compensationOptionStrings.resize(CompensationTypesNum);
@@ -1706,93 +1714,6 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::initializeHW() {
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::hasCompFeature(uint16_t feature) {
-    switch (feature) {
-    case U_CpVc:
-    case U_Cm:
-    case U_Rs:
-    case U_RsCp:
-    case U_RsPg:
-    case U_CpCc:
-        return Success;
-
-    default:
-        return ErrorFeatureNotImplemented;
-    }
-}
-
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
-    switch(paramToExtractFeatures){
-    case U_CpVc:
-        if(pipetteCapEnCompensationCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uCpVcCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_CpVc];
-            }
-        }
-        break;
-
-    case U_Cm:
-        if(membraneCapEnCompensationCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uCmCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_Cm];
-            }
-        }
-        break;
-
-    case U_Rs:
-        if(membraneCapTauValCompensationMultiCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uRsCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_Rs];
-            }
-        }
-        break;
-
-    case U_RsCp:
-        if(rsCorrValCompensationCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uRsCpCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_RsCp];
-            }
-        }
-        break;
-    case U_RsPg:
-        if(rsPredEnCompensationCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uRsPgCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_RsPg];
-            }
-        }
-        break;
-    case U_CpCc:
-        if(rsPredEnCompensationCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uCpCcCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_CpCc];
-            }
-        }
-        break;
-
-    default:
-        return ErrorFeatureNotImplemented;
-    }
-    return Success;
-}
-
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray){
     switch(type) {
     case CompRsCorr:
@@ -1873,7 +1794,9 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
+#ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
+#endif
     switch(compTypeToEnable){
     case CompCfast:
         if(pipetteCapEnCompensationCoders.size() == 0){
@@ -2377,14 +2300,14 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
     asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compCslowEnable[chIdx], aaa);
 
     /*! Compensable for U_CpVc*/
-    uCpVcCompensable[chIdx].max = pipetteCapacitanceRange.back().max - asicCmCinj;
+    compensationControls[U_CpVc][chIdx].maxCompensable = pipetteCapacitanceRange.back().max - asicCmCinj;
 
     potentialMins.push_back(pipetteCapacitanceRange.front().min - asicCmCinj);
     potentialMins.push_back(0.0);
-    uCpVcCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    compensationControls[U_CpVc][chIdx].minCompensable = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
 
-    uCpVcCompensable[chIdx].step = pipetteCapacitanceRange.front().step;
+    compensationControls[U_CpVc][chIdx].step = pipetteCapacitanceRange.front().step;
 
     /*! Compensable for U_Cm*/
     // max
@@ -2413,7 +2336,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
         potentialMaxs.push_back(myInfinity);
     }
 
-    uCmCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    compensationControls[U_Cm][chIdx].maxCompensable = *min_element(potentialMaxs.begin(), potentialMaxs.end());
     potentialMaxs.clear();
 
     //min
@@ -2427,18 +2350,18 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
         potentialMins.push_back(0.0);
     }
 
-    uCmCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    compensationControls[U_Cm][chIdx].minCompensable = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
 
     //step
-    uCmCompensable[chIdx].step = membraneCapValueRange.front().step;
+    compensationControls[U_Cm][chIdx].step = membraneCapValueRange.front().step;
 
     /*! Compensable for U_Rs*/
     //max
     if(compCslowEnable[chIdx]){
         potentialMaxs.push_back(membraneCapTauValueRange.back().max/userDomainParams[U_Cm]);
     } else {
-        potentialMaxs.push_back(membraneCapTauValueRange.back().max/uCmCompensable[chIdx].min);
+        potentialMaxs.push_back(membraneCapTauValueRange.back().max/compensationControls[U_Cm][chIdx].minCompensable);
     }
 
     if(compRsCorrEnable[chIdx]){
@@ -2453,14 +2376,14 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
         potentialMaxs.push_back(myInfinity);
     }
 
-    uRsCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    compensationControls[U_Rs][chIdx].maxCompensable = *min_element(potentialMaxs.begin(), potentialMaxs.end());
     potentialMaxs.clear();
 
     //min
     if(compCslowEnable[chIdx]){
         potentialMins.push_back(membraneCapTauValueRange.front().min / userDomainParams[U_Cm]);
     } else {
-        potentialMins.push_back(membraneCapTauValueRange.front().min / uCmCompensable[chIdx].max);
+        potentialMins.push_back(membraneCapTauValueRange.front().min / compensationControls[U_Cm][chIdx].maxCompensable);
     }
 
     if(compRsCorrEnable[chIdx]){
@@ -2475,48 +2398,48 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
         potentialMins.push_back(0);
     }
 
-    uRsCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    compensationControls[U_Rs][chIdx].minCompensable = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
 
     //step
-    uRsCompensable[chIdx].step = 0.1; //MOhm
+    compensationControls[U_Rs][chIdx].step = 0.1; //MOhm
 
     /*! Compensable for U_RsCp*/
     // max
     /*! \todo Pay attention to possible divisions by 0*/
     potentialMaxs.push_back(rsCorrValueRange.max / userDomainParams[U_Rs] * 100.0);
     potentialMaxs.push_back(100.0); //%
-    uRsCpCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    compensationControls[U_RsCp][chIdx].maxCompensable = *min_element(potentialMaxs.begin(), potentialMaxs.end());
     potentialMaxs.clear();
 
     //min
     /*! \todo Pay attention to possible divisions by 0*/
     potentialMins.push_back(0.0); //%
 //    potentialMins.push_back(rsCorrValueRange.min / userDomainParams[U_Rs] * 100.0);
-    uRsCpCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    compensationControls[U_RsCp][chIdx].minCompensable = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
 
-    uRsCpCompensable[chIdx].step = 1.0; //%
+    compensationControls[U_RsCp][chIdx].step = 1.0; //%
 
     /*! Compensable for U_RsPg*/
     //max
     potentialMaxs.push_back(rsPredGainRange.max);
     potentialMaxs.push_back(-1 + userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.min);
-    uRsPgCompensable[chIdx].max = *min_element(potentialMaxs.begin(), potentialMaxs.end());
+    compensationControls[U_RsPg][chIdx].maxCompensable = *min_element(potentialMaxs.begin(), potentialMaxs.end());
     potentialMaxs.clear();
 
     //min
     potentialMins.push_back(rsPredGainRange.min);
     potentialMins.push_back(-1 + userDomainParams[U_Cm] * userDomainParams[U_Rs] / rsPredTauRange.max);
-    uRsPgCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
+    compensationControls[U_RsPg][chIdx].minCompensable = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
 
-    uRsPgCompensable[chIdx].step = rsPredGainRange.step;
+    compensationControls[U_RsPg][chIdx].step = rsPredGainRange.step;
 
     /*! Compensable for U_CpCc*/
-    uCpCcCompensable[chIdx].max = pipetteCapacitanceRange.back().max;
-    uCpCcCompensable[chIdx].min = pipetteCapacitanceRange.front().min;
-    uCpCcCompensable[chIdx].step = pipetteCapacitanceRange.front().step;
+    compensationControls[U_CpCc][chIdx].maxCompensable = pipetteCapacitanceRange.back().max;
+    compensationControls[U_CpCc][chIdx].minCompensable = pipetteCapacitanceRange.front().min;
+    compensationControls[U_CpCc][chIdx].step = pipetteCapacitanceRange.front().step;
 
     return Success;
 }
@@ -2545,45 +2468,48 @@ double Emcr384PatchClamp_prot_v01_fw_v02::computeAsicCmCinj(double cm, bool chan
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getPipetteCapacitanceControl(CompensationControl_t &control) {
     control.implemented = true;
-    control.min = pipetteCapacitanceRange[0].min;
+    control.min = pipetteCapacitanceRange.front().min;
     control.max = pipetteCapacitanceRange.back().max;
-    control.compensable = pipetteCapacitanceRange.back().max;
-    control.step = pipetteCapacitanceRange[0].step;
-    control.steps = static_cast <uint32_t> (round(1.0+(control.max-control.min)/control.step));
-    control.decimals = pipetteCapacitanceRange[0].decimals();
-    control.value = pipetteCapacitanceRange[0].min;
-    control.prefix = pipetteCapacitanceRange[0].prefix;
-    control.unit = pipetteCapacitanceRange[0].unit;
+    control.minCompensable = pipetteCapacitanceRange.front().min;
+    control.maxCompensable = pipetteCapacitanceRange.back().max;
+    control.step = pipetteCapacitanceRange.front().step;
+    control.steps = round(1.0+(control.max-control.min)/control.step);
+    control.decimals = pipetteCapacitanceRange.front().decimals();
+    control.value = pipetteCapacitanceRange.front().min;
+    control.prefix = pipetteCapacitanceRange.front().prefix;
+    control.unit = pipetteCapacitanceRange.front().unit;
     control.name = "Pipette Capacitance";
     return Success;
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCCPipetteCapacitanceControl(CompensationControl_t &control) {
     control.implemented = true;
-    control.min = pipetteCapacitanceRange[0].min;
+    control.min = pipetteCapacitanceRange.front().min;
     control.max = pipetteCapacitanceRange.back().max;
-    control.compensable = pipetteCapacitanceRange.back().max;
-    control.step = pipetteCapacitanceRange[0].step;
-    control.steps = static_cast <uint32_t> (round(1.0+(control.max-control.min)/control.step));
-    control.decimals = pipetteCapacitanceRange[0].decimals();
-    control.value = pipetteCapacitanceRange[0].min;
-    control.prefix = pipetteCapacitanceRange[0].prefix;
-    control.unit = pipetteCapacitanceRange[0].unit;
+    control.minCompensable = pipetteCapacitanceRange.front().min;
+    control.maxCompensable = pipetteCapacitanceRange.back().max;
+    control.step = pipetteCapacitanceRange.front().step;
+    control.steps = round(1.0+(control.max-control.min)/control.step);
+    control.decimals = pipetteCapacitanceRange.front().decimals();
+    control.value = pipetteCapacitanceRange.front().min;
+    control.prefix = pipetteCapacitanceRange.front().prefix;
+    control.unit = pipetteCapacitanceRange.front().unit;
     control.name = "Pipette Capacitance";
     return Success;
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getMembraneCapacitanceControl(CompensationControl_t &control) {
     control.implemented = true;
-    control.min = membraneCapValueRange[0].min;
+    control.min = membraneCapValueRange.front().min;
     control.max = membraneCapValueRange.back().max;
-    control.compensable = membraneCapValueRange.back().max;
-    control.step = membraneCapValueRange[0].step;
-    control.steps = static_cast <uint32_t> (round(1.0+(control.max-control.min)/control.step));
-    control.decimals = membraneCapValueRange[0].decimals();
-    control.value = membraneCapValueRange[0].min;
-    control.prefix = membraneCapValueRange[0].prefix;
-    control.unit = membraneCapValueRange[0].unit;
+    control.minCompensable = membraneCapValueRange.front().min;
+    control.maxCompensable = membraneCapValueRange.back().max;
+    control.step = membraneCapValueRange.front().step;
+    control.steps = round(1.0+(control.max-control.min)/control.step);
+    control.decimals = membraneCapValueRange.front().decimals();
+    control.value = membraneCapValueRange.front().min;
+    control.prefix = membraneCapValueRange.front().prefix;
+    control.unit = membraneCapValueRange.front().unit;
     control.name = "Membrane Capacitance";
     return Success;
 }
@@ -2592,7 +2518,8 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getAccessResistanceControl(Compe
     control.implemented = true;
     control.min = rsCorrValueRange.min;
     control.max = rsCorrValueRange.max;
-    control.compensable = rsCorrValueRange.max;
+    control.minCompensable = rsCorrValueRange.min;
+    control.maxCompensable = rsCorrValueRange.max;
     control.step = rsCorrValueRange.step;
     control.steps = rsCorrValueRange.steps();
     control.decimals = rsCorrValueRange.decimals();
@@ -2607,9 +2534,10 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getResistanceCorrectionPercentag
     control.implemented = true;
     control.min = 1.0;
     control.max = 100.0;
-    control.compensable = 100.0;
+    control.minCompensable = 1.0;
+    control.maxCompensable = 100.0;
     control.step = 1.0;
-    control.steps = static_cast <uint32_t> (round(1.0+(control.max-control.min)/control.step));
+    control.steps = round(1.0+(control.max-control.min)/control.step);
     control.decimals = 1;
     control.value = 1.0;
     control.prefix = UnitPfxNone;
@@ -2622,7 +2550,8 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getResistancePredictionGainContr
     control.implemented = true;
     control.min = rsPredGainRange.min;
     control.max = rsPredGainRange.max;
-    control.compensable = rsPredGainRange.max;
+    control.minCompensable = rsPredGainRange.min;
+    control.maxCompensable = rsPredGainRange.max;
     control.step = rsPredGainRange.step;
     control.steps = rsPredGainRange.steps();
     control.decimals = rsPredGainRange.decimals();

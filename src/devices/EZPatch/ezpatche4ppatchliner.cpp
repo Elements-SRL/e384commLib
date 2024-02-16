@@ -1027,7 +1027,7 @@ ErrorCodes_t EZPatche4PPatchliner::setSamplingRate(uint16_t samplingRateIdx, boo
     return ret;
 }
 
-ErrorCodes_t EZPatche4PPatchliner::hasCompFeature(uint16_t feature) {
+ErrorCodes_t EZPatche4PPatchliner::hasCompFeature(CompensationUserParams feature) {
     switch (feature) {
     case U_CpVc:
     case U_Cm:

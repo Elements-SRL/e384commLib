@@ -88,6 +88,7 @@ public:
         CompRsCorr,     // rseries correction
         CompRsPred,     // rseries prediction
         CompCcCfast,    // pipette current clamp
+        CompBridgeRes,  // bridge balance
         CompensationTypesNum
     };
 
@@ -96,8 +97,14 @@ public:
         U_Cm,       // MembraneCapacitance
         U_Rs,       // SeriesResistance
         U_RsCp,     // SeriesCorrectionPerc
+        U_RsCl,     // SeriesCorrectionLag
         U_RsPg,     // SeriesPredictionGain
+        U_RsPp,     // SeriesPredictionPerc
+        U_RsPb,     // SeriesPredictionBW
+        U_RsPt,     // SeriesPredictionTau
+        U_LkG,      // LeakConductance
         U_CpCc,     // CCPipetteCapacitance
+        U_BrB,      // CCBridgeBlaance
         CompensationUserParamsNum
     };
 
@@ -339,8 +346,8 @@ public:
     virtual ErrorCodes_t getCalibMappingFileDir(std::string &dir);
     virtual ErrorCodes_t getCalibMappingFilePath(std::string &path);
 
-    virtual ErrorCodes_t hasCompFeature(uint16_t feature);
-    virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
+    virtual ErrorCodes_t hasCompFeature(CompensationUserParams feature);
+    virtual ErrorCodes_t getCompFeatures(CompensationUserParams paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray);
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix);
     virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues);
@@ -582,13 +589,20 @@ protected:
     RangedMeasurement_t rsPredGainRange;
     RangedMeasurement_t rsPredTauRange;
 
-    /*! Features in USER domain, depend on the asic parameters*/
-    std::vector <RangedMeasurement> uCpVcCompensable;
-    std::vector <RangedMeasurement> uCmCompensable;
-    std::vector <RangedMeasurement> uRsCompensable;
-    std::vector <RangedMeasurement> uRsCpCompensable;
-    std::vector <RangedMeasurement> uRsPgCompensable;
-    std::vector <RangedMeasurement> uCpCcCompensable;
+    std::vector <CompensationControl_t> compensationControls[CompensationUserParamsNum];
+
+    CompensationControl_t pipetteCapacitanceControl;
+    CompensationControl_t ccPipetteCapacitanceControl;
+    CompensationControl_t membraneCapacitanceControl;
+    CompensationControl_t accessResistanceControl;
+    CompensationControl_t resistanceCorrectionPercentageControl;
+    CompensationControl_t resistanceCorrectionLagControl;
+    CompensationControl_t resistancePredictionGainControl;
+    CompensationControl_t resistancePredictionPercentageControl;
+    CompensationControl_t resistancePredictionBandwidthGainControl;
+    CompensationControl_t resistancePredictionTauControl;
+    CompensationControl_t leakConductanceControl;
+    CompensationControl_t bridgeBalanceResistanceControl;
 
     /*! Default paramter values in USER domain*/
     std::vector <double> defaultUserDomainParams;

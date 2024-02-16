@@ -1012,7 +1012,7 @@ ErrorCodes_t EZPatche4PEL04F::setSamplingRate(uint16_t samplingRateIdx, bool app
     return ret;
 }
 
-ErrorCodes_t EZPatche4PEL04F::hasCompFeature(uint16_t feature) {
+ErrorCodes_t EZPatche4PEL04F::hasCompFeature(CompensationUserParams feature) {
     switch (feature) {
     case U_CpVc:
     case U_Cm:

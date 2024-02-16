@@ -10,7 +10,7 @@ public:
 
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
-    ErrorCodes_t hasCompFeature(uint16_t feature) override;
+    ErrorCodes_t hasCompFeature(CompensationUserParams feature) override;
 
     ErrorCodes_t setResistancePredictionOptions(uint16_t optionIdx) override;
     ErrorCodes_t setLeakConductance(Measurement_t conductance) override;

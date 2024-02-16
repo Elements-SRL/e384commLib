@@ -835,7 +835,8 @@ typedef struct CompensationControl {
     bool implemented = false; /*!< True if the corresponding compensation is implemented by the device. */
     double min = 0.0; /*!< Minimum compensable value. */
     double max = 1.0; /*!< Maximum compensable value globally. */
-    double compensable = 1.0; /*!< Maximum compensable value given also the value of the other compensations. */
+    double minCompensable = 0.0; /*!< Minimum compensable value given also the value of the other compensations. */
+    double maxCompensable = 1.0; /*!< Maximum compensable value given also the value of the other compensations. */
     double steps = 2; /*!< Number of steps between #min and #max. */
     double step = 1.0; /*!< Resolution. */
     int decimals = 0; /*!< Decimals to represent the compensated value. */
@@ -843,6 +844,23 @@ typedef struct CompensationControl {
     UnitPfx_t prefix = UnitPfxNone; /*!< Unit prefix in the range [femto, Peta]. */
     std::string unit = ""; /*!< Unit. \note Can be any string, the library is not aware of real units meaning. */
     std::string name = ""; /*!< Name of the compensation. */
+
+    /*! \brief Returns the range of the control.
+     *
+     * \return Range of the control.
+     */
+    RangedMeasurement_t getRange(E384CL_ARGVOID) {
+        RangedMeasurement_t range = {min, max, step, prefix, unit};
+    }
+
+    /*! \brief Returns the compensable range of the control given also the value of the other compensations.
+     *
+     * \return Compensable range of the control.
+     */
+    RangedMeasurement_t getCompensableRange(E384CL_ARGVOID) {
+        RangedMeasurement_t range = {minCompensable, maxCompensable, step, prefix, unit};
+        return range;
+    }
 
     /*! \brief Returns the string corresponding to the prefix.
      *

@@ -1883,11 +1883,11 @@ ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t>, Compensati
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::hasCompFeature(uint16_t) {
+ErrorCodes_t MessageDispatcher::hasCompFeature(CompensationUserParams) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCompFeatures(uint16_t, std::vector<RangedMeasurement_t> &, double &){
+ErrorCodes_t MessageDispatcher::getCompFeatures(CompensationUserParams, std::vector<RangedMeasurement_t> &, double &){
     return ErrorFeatureNotImplemented;
 }
 

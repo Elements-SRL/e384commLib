@@ -227,6 +227,7 @@ public:
     virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> &options) override;
     virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> &options) override;
 
+    virtual ErrorCodes_t getCompFeatures(CompensationUserParams feature, std::vector <RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) override;
     ErrorCodes_t getLiquidJunctionControl(CompensationControl_t &control);
     virtual ErrorCodes_t getPipetteCapacitanceControl(CompensationControl_t &control) override;
     virtual ErrorCodes_t getCCPipetteCapacitanceControl(CompensationControl_t &control) override;
@@ -594,19 +595,6 @@ protected:
     uint16_t resistancePredictionOptionOffset;
     uint16_t leakConductanceCompensationOptionOffset;
     uint16_t bridgeBalanceCompensationOptionOffset;
-
-    CompensationControl_t pipetteCapacitanceControl;
-    CompensationControl_t ccPipetteCapacitanceControl;
-    CompensationControl_t membraneCapacitanceControl;
-    CompensationControl_t accessResistanceControl;
-    CompensationControl_t resistanceCorrectionPercentageControl;
-    CompensationControl_t resistanceCorrectionLagControl;
-    CompensationControl_t resistancePredictionGainControl;
-    CompensationControl_t resistancePredictionPercentageControl;
-    CompensationControl_t resistancePredictionBandwidthGainControl;
-    CompensationControl_t resistancePredictionTauControl;
-    CompensationControl_t leakConductanceControl;
-    CompensationControl_t bridgeBalanceResistanceControl;
 
     /********************************************\
      *  Multi-thread synchronization variables  *

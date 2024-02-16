@@ -749,7 +749,7 @@ ErrorCodes_t EZPatchePatchEL03F_4D_PCBV03_V04::setResistancePredictionOptions(ui
     }
 }
 
-ErrorCodes_t EZPatchePatchEL03F_4D_PCBV03_V04::hasCompFeature(uint16_t feature) {
+ErrorCodes_t EZPatchePatchEL03F_4D_PCBV03_V04::hasCompFeature(CompensationUserParams feature) {
     switch (feature) {
     case U_CpVc:
     case U_Cm:

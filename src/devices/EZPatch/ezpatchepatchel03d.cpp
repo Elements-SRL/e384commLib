@@ -543,7 +543,7 @@ ErrorCodes_t EZPatchePatchEL03D_V04::setVCCurrentRange(uint16_t currentRangeIdx,
     return ret;
 }
 
-ErrorCodes_t EZPatchePatchEL03D_V04::hasCompFeature(uint16_t feature) {
+ErrorCodes_t EZPatchePatchEL03D_V04::hasCompFeature(CompensationUserParams feature) {
     switch (feature) {
     case U_CpVc:
     case U_Cm:
