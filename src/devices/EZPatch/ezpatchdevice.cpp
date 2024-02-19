@@ -1279,7 +1279,7 @@ ErrorCodes_t EZPatchDevice::setCompensationsChannel(uint16_t channelIdx) {
     return Success;
 }
 
-ErrorCodes_t EZPatchDevice::enableCompensation(std::vector <uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag) {
     int tempCompensationSettingChannel = compensationsSettingChannel;
     switch (compTypeToEnable) {
     case CompCfast:
@@ -2463,31 +2463,32 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
 
                     for (uint16_t idx = 0; idx < timeSamplesNum; idx++) {
                         /*! \todo FCON questo doppio ciclo va modificato per raccogliere i dati di impedenza in modalità lock-in */
-                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                        for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                             rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(voltageChannelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+(voltageOffsetCorrection+voltageTunerCorrection[voltageChannelIdx])/voltageResolution, iirVNum, iirVDen);
-                            xFlt = iirY[voltageChannelIdx][iirOff];
-                            data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-                            dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
-                            lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
-                        }
-
-                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                            rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+currentTunerCorrection[currentChannelIdx]/currentResolution, iirINum, iirIDen);
-                            xFlt = iirY[currentChannelIdx+voltageChannelsNum][iirOff];
+                            this->applyRawDataFilter(channelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+(voltageOffsetCorrection+voltageTunerCorrection[channelIdx])/voltageResolution, iirVNum, iirVDen);
+                            xFlt = iirY[channelIdx][iirOff];
                             data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
                             lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
+
+                            rawFloat = * (rxDataBuffer+dataOffset);
+                            this->applyRawDataFilter(channelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+currentTunerCorrection[channelIdx]/currentResolution, iirINum, iirIDen);
+                            xFlt = iirY[channelIdx+voltageChannelsNum][iirOff];
+                            data[dataWritten+sampleIdx+voltageChannelsNum] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                            dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
+                            lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
+
                             if (anyLiquidJuctionActive) {
-                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
+                                liquidJunctionCurrentSums[channelIdx] += (int64_t)data[dataWritten+sampleIdx+voltageChannelsNum];
                             }
+
                             sampleIdx++;
                         }
 
                         if (anyLiquidJuctionActive) {
                             liquidJunctionCurrentEstimatesNum++;
                         }
+                        sampleIdx += currentChannelsNum;
 
                         if (iirOff < 1) {
                             iirOff = IIR_ORD;

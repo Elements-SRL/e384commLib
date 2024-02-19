@@ -13,7 +13,7 @@ public:
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray) override;
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix) override;
     virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues) override;
-    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
+    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
     virtual ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag) override;
     virtual ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag) override;
     virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag) override;

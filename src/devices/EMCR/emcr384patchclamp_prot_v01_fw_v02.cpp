@@ -448,27 +448,27 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     defaultCurrentHoldTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
 
     /*! VC leak calibration (shunt resistance)*/
-    vcLeakCalibRange.resize(VCCurrentRangesNum);
-    vcLeakCalibRange[VCCurrentRange10nA].step = (vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step)/4096.0;
-    vcLeakCalibRange[VCCurrentRange10nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step);
-    vcLeakCalibRange[VCCurrentRange10nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange10nA].step;
-    vcLeakCalibRange[VCCurrentRange10nA]. prefix = UnitPfxNone;
-    vcLeakCalibRange[VCCurrentRange10nA].unit = "S";
-    vcLeakCalibRange[VCCurrentRange40nALbw].step = (vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step)/4096.0;
-    vcLeakCalibRange[VCCurrentRange40nALbw].min = -8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step);
-    vcLeakCalibRange[VCCurrentRange40nALbw].max = 8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange40nALbw].step;
-    vcLeakCalibRange[VCCurrentRange40nALbw]. prefix = UnitPfxNone;
-    vcLeakCalibRange[VCCurrentRange40nALbw].unit = "S";
-    vcLeakCalibRange[VCCurrentRange40nAHbw].step = (vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step)/4096.0;
-    vcLeakCalibRange[VCCurrentRange40nAHbw].min = -8.0*(vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step);
-    vcLeakCalibRange[VCCurrentRange40nAHbw].max = 8.0*(vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange40nAHbw].step;
-    vcLeakCalibRange[VCCurrentRange40nAHbw]. prefix = UnitPfxNone;
-    vcLeakCalibRange[VCCurrentRange40nAHbw].unit = "S";
-    vcLeakCalibRange[VCCurrentRange400nA].step = (vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step)/4096.0;
-    vcLeakCalibRange[VCCurrentRange400nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step);
-    vcLeakCalibRange[VCCurrentRange400nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange400nA].step;
-    vcLeakCalibRange[VCCurrentRange400nA]. prefix = UnitPfxNone;
-    vcLeakCalibRange[VCCurrentRange400nA].unit = "S";
+    rRShuntConductanceCalibRange.resize(VCCurrentRangesNum);
+    rRShuntConductanceCalibRange[VCCurrentRange10nA].step = (vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step)/4096.0;
+    rRShuntConductanceCalibRange[VCCurrentRange10nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange10nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange10nA].step;
+    rRShuntConductanceCalibRange[VCCurrentRange10nA]. prefix = UnitPfxNone;
+    rRShuntConductanceCalibRange[VCCurrentRange10nA].unit = "S";
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].step = (vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step)/4096.0;
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].min = -8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].max = 8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange40nALbw].step;
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw]. prefix = UnitPfxNone;
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].unit = "S";
+    rRShuntConductanceCalibRange[VCCurrentRange40nAHbw].step = (vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step)/4096.0;
+    rRShuntConductanceCalibRange[VCCurrentRange40nAHbw].min = -8.0*(vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange40nAHbw].max = 8.0*(vcCurrentRangesArray[VCCurrentRange40nAHbw].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange40nAHbw].step;
+    rRShuntConductanceCalibRange[VCCurrentRange40nAHbw]. prefix = UnitPfxNone;
+    rRShuntConductanceCalibRange[VCCurrentRange40nAHbw].unit = "S";
+    rRShuntConductanceCalibRange[VCCurrentRange400nA].step = (vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step)/4096.0;
+    rRShuntConductanceCalibRange[VCCurrentRange400nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange400nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange400nA].step;
+    rRShuntConductanceCalibRange[VCCurrentRange400nA]. prefix = UnitPfxNone;
+    rRShuntConductanceCalibRange[VCCurrentRange400nA].unit = "S";
 
     /*! VC voltage calib gain (DAC) */
     calibVcVoltageGainRange.step = 1.0/1024.0;
@@ -536,13 +536,13 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     std::vector <double> pipetteInjCapacitance = {2.5, 5.0, 10.0, 20.0};
     /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
-    pipetteCapacitanceRange_pF.resize(pipetteCapacitanceRanges);
+    pipetteCapacitanceRange.resize(pipetteCapacitanceRanges);
     for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
-        pipetteCapacitanceRange_pF[idx].step = pipetteVarResistance/pipetteCapacitanceValuesNum/pipetteFixedResistance*pipetteInjCapacitance[idx];
-        pipetteCapacitanceRange_pF[idx].min = pipetteVarResistance/pipetteFixedResistance*pipetteInjCapacitance[idx]+pipetteCapacitanceRange_pF[idx].step;
-        pipetteCapacitanceRange_pF[idx].max = pipetteCapacitanceRange_pF[idx].min+(pipetteCapacitanceValuesNum-1.0)*pipetteCapacitanceRange_pF[idx].step;
-        pipetteCapacitanceRange_pF[idx].prefix = UnitPfxPico;
-        pipetteCapacitanceRange_pF[idx].unit = "F";
+        pipetteCapacitanceRange[idx].step = pipetteVarResistance/pipetteCapacitanceValuesNum/pipetteFixedResistance*pipetteInjCapacitance[idx];
+        pipetteCapacitanceRange[idx].min = pipetteVarResistance/pipetteFixedResistance*pipetteInjCapacitance[idx]+pipetteCapacitanceRange[idx].step;
+        pipetteCapacitanceRange[idx].max = pipetteCapacitanceRange[idx].min+(pipetteCapacitanceValuesNum-1.0)*pipetteCapacitanceRange[idx].step;
+        pipetteCapacitanceRange[idx].prefix = UnitPfxPico;
+        pipetteCapacitanceRange[idx].unit = "F";
     }
 
     /*! FEATURES ASIC DOMAIN Membrane capacitance*/
@@ -552,13 +552,13 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     membraneCapValueInjCapacitance = {5.0, 15.0, 45.0, 135.0};
     /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
-    membraneCapValueRange_pF.resize(membraneCapValueRanges);
+    membraneCapValueRange.resize(membraneCapValueRanges);
     for (int idx = 0; idx < membraneCapValueRanges; idx++) {
-        membraneCapValueRange_pF[idx].step = membraneCapValueResistanceRatio/membraneCapValueValuesNum * membraneCapValueInjCapacitance[idx];
-        membraneCapValueRange_pF[idx].min = (1.0 + membraneCapValueResistanceRatio/membraneCapValueValuesNum) * membraneCapValueInjCapacitance[idx];
-        membraneCapValueRange_pF[idx].max = membraneCapValueRange_pF[idx].min + (membraneCapValueValuesNum - 1.0) * membraneCapValueRange_pF[idx].step;
-        membraneCapValueRange_pF[idx].prefix = UnitPfxPico;
-        membraneCapValueRange_pF[idx].unit = "F";
+        membraneCapValueRange[idx].step = membraneCapValueResistanceRatio/membraneCapValueValuesNum * membraneCapValueInjCapacitance[idx];
+        membraneCapValueRange[idx].min = (1.0 + membraneCapValueResistanceRatio/membraneCapValueValuesNum) * membraneCapValueInjCapacitance[idx];
+        membraneCapValueRange[idx].max = membraneCapValueRange[idx].min + (membraneCapValueValuesNum - 1.0) * membraneCapValueRange[idx].step;
+        membraneCapValueRange[idx].prefix = UnitPfxPico;
+        membraneCapValueRange[idx].unit = "F";
     }
 
     /*! FEATURES ASIC DOMAIN Membrane capacitance TAU*/
@@ -568,13 +568,13 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     std::vector <double> membraneCapTauValueCapacitance = {2.5, 25.0};
     /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
-    membraneCapTauValueRange_us.resize(membraneCapTauValueRanges);
+    membraneCapTauValueRange.resize(membraneCapTauValueRanges);
     for (int idx = 0; idx < membraneCapTauValueRanges; idx++) {
-        membraneCapTauValueRange_us[idx].step = membraneCapTauValueVarResistance_MOhm * membraneCapTauValueCapacitance[idx] / membraneCapTauValueValuesNum;
-        membraneCapTauValueRange_us[idx].min = membraneCapTauValueRange_us[idx].step;
-        membraneCapTauValueRange_us[idx].max = membraneCapTauValueRange_us[idx].min + (membraneCapTauValueValuesNum - 1.0) * membraneCapTauValueRange_us[idx].step;
-        membraneCapTauValueRange_us[idx].prefix = UnitPfxMicro;
-        membraneCapTauValueRange_us[idx].unit = "s";
+        membraneCapTauValueRange[idx].step = membraneCapTauValueVarResistance_MOhm * membraneCapTauValueCapacitance[idx] / membraneCapTauValueValuesNum;
+        membraneCapTauValueRange[idx].min = membraneCapTauValueRange[idx].step;
+        membraneCapTauValueRange[idx].max = membraneCapTauValueRange[idx].min + (membraneCapTauValueValuesNum - 1.0) * membraneCapTauValueRange[idx].step;
+        membraneCapTauValueRange[idx].prefix = UnitPfxMicro;
+        membraneCapTauValueRange[idx].unit = "s";
     }
 
     /*! FEATURES ASIC DOMAIN Rs correction*/
@@ -670,12 +670,12 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     // Default USER DOMAIN compensation parameters
     defaultUserDomainParams.resize(CompensationUserParamsNum);
-    defaultUserDomainParams[U_CpVc] = pipetteCapacitanceRange_pF[0].min;
-    defaultUserDomainParams[U_Cm] = membraneCapValueRange_pF[0].min;
-    defaultUserDomainParams[U_Rs] = membraneCapTauValueRange_us[0].min/membraneCapValueRange_pF[0].min;
+    defaultUserDomainParams[U_CpVc] = pipetteCapacitanceRange[0].min;
+    defaultUserDomainParams[U_Cm] = membraneCapValueRange[0].min;
+    defaultUserDomainParams[U_Rs] = membraneCapTauValueRange[0].min/membraneCapValueRange[0].min;
     defaultUserDomainParams[U_RsCp] = 1.0;
     defaultUserDomainParams[U_RsPg] = rsPredGainRange.min;
-    defaultUserDomainParams[U_CpCc] = pipetteCapacitanceRange_pF[0].min;
+    defaultUserDomainParams[U_CpCc] = pipetteCapacitanceRange[0].min;
 
     // Selected default Idx
     selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
@@ -1192,16 +1192,16 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! VC leak calibration */
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
-    vcLeakCalibCoders.resize(VCCurrentRangesNum);
+    calibRShuntConductanceCoders.resize(VCCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 832;
-        doubleConfig.resolution = vcLeakCalibRange[rangeIdx].step;
-        doubleConfig.minValue = vcLeakCalibRange[rangeIdx].min;
-        doubleConfig.maxValue = vcLeakCalibRange[rangeIdx].max;
-        vcLeakCalibCoders[rangeIdx].resize(currentChannelsNum);
+        doubleConfig.resolution = rRShuntConductanceCalibRange[rangeIdx].step;
+        doubleConfig.minValue = rRShuntConductanceCalibRange[rangeIdx].min;
+        doubleConfig.maxValue = rRShuntConductanceCalibRange[rangeIdx].max;
+        calibRShuntConductanceCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            vcLeakCalibCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(vcLeakCalibCoders[rangeIdx][channelIdx]);
+            calibRShuntConductanceCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibRShuntConductanceCoders[rangeIdx][channelIdx]);
             doubleConfig.initialWord++;
         }
     }
@@ -1369,16 +1369,16 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
         multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
-            doubleConfig.minValue = pipetteCapacitanceRange_pF[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
-            doubleConfig.maxValue = pipetteCapacitanceRange_pF[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
-            doubleConfig.resolution = pipetteCapacitanceRange_pF[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.minValue = pipetteCapacitanceRange[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.maxValue = pipetteCapacitanceRange[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.resolution = pipetteCapacitanceRange[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
 
             multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < pipetteCapacitanceRanges-1) {
                 /*! \todo RECHECK: computed as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceRange_pF[rangeIdx].max + pipetteCapacitanceRange_pF[rangeIdx+1].min);
+                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceRange[rangeIdx].max + pipetteCapacitanceRange[rangeIdx+1].min);
             }
         }
         pipetteCapValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
@@ -1433,16 +1433,16 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
         multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapValueRanges; rangeIdx++) {
-            doubleConfig.minValue = membraneCapValueRange_pF[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
-            doubleConfig.maxValue = membraneCapValueRange_pF[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
-            doubleConfig.resolution = membraneCapValueRange_pF[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.minValue = membraneCapValueRange[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.maxValue = membraneCapValueRange[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.resolution = membraneCapValueRange[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
 
             multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < membraneCapValueRanges-1) {
                 /*! \todo RECHECK: computed as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(membraneCapValueRange_pF[rangeIdx].max + membraneCapValueRange_pF[rangeIdx+1].min);
+                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(membraneCapValueRange[rangeIdx].max + membraneCapValueRange[rangeIdx+1].min);
             }
         }
         membraneCapValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
@@ -1482,16 +1482,16 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
         multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapTauValueRanges; rangeIdx++) {
-            doubleConfig.minValue =  membraneCapTauValueRange_us[rangeIdx].min;
-            doubleConfig.maxValue = membraneCapTauValueRange_us[rangeIdx].max;
-            doubleConfig.resolution = membraneCapTauValueRange_us[rangeIdx].step;
+            doubleConfig.minValue =  membraneCapTauValueRange[rangeIdx].min;
+            doubleConfig.maxValue = membraneCapTauValueRange[rangeIdx].max;
+            doubleConfig.resolution = membraneCapTauValueRange[rangeIdx].step;
 
             multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < membraneCapTauValueRanges-1) {
 //                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapTauValueMax_us[rangeIdx] + membraneCapTauValueStep_us[rangeIdx];
-                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapTauValueRange_us[rangeIdx].max + membraneCapTauValueRange_us[rangeIdx].step;
+                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapTauValueRange[rangeIdx].max + membraneCapTauValueRange[rangeIdx].step;
             }
         }
         membraneCapTauValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
@@ -1645,16 +1645,16 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
         multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
-            doubleConfig.minValue = pipetteCapacitanceRange_pF[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
-            doubleConfig.maxValue = pipetteCapacitanceRange_pF[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
-            doubleConfig.resolution = pipetteCapacitanceRange_pF[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.minValue = pipetteCapacitanceRange[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.maxValue = pipetteCapacitanceRange[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
+            doubleConfig.resolution = pipetteCapacitanceRange[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
 
             multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < pipetteCapacitanceRanges-1) {
                 /*! \todo RECHECK: computed as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceRange_pF[rangeIdx].max + pipetteCapacitanceRange_pF[rangeIdx+1].min);
+                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceRange[rangeIdx].max + pipetteCapacitanceRange[rangeIdx+1].min);
             }
         }
         pipetteCapCcValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
@@ -1872,7 +1872,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
+ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
     std::string debugString = "";
     switch(compTypeToEnable){
     case CompCfast:
@@ -2377,28 +2377,28 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
     asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compCslowEnable[chIdx], aaa);
 
     /*! Compensable for U_CpVc*/
-    uCpVcCompensable[chIdx].max = pipetteCapacitanceRange_pF.back().max - asicCmCinj;
+    uCpVcCompensable[chIdx].max = pipetteCapacitanceRange.back().max - asicCmCinj;
 
-    potentialMins.push_back(pipetteCapacitanceRange_pF.front().min - asicCmCinj);
+    potentialMins.push_back(pipetteCapacitanceRange.front().min - asicCmCinj);
     potentialMins.push_back(0.0);
     uCpVcCompensable[chIdx].min = *max_element(potentialMins.begin(), potentialMins.end());
     potentialMins.clear();
 
-    uCpVcCompensable[chIdx].step = pipetteCapacitanceRange_pF.front().step;
+    uCpVcCompensable[chIdx].step = pipetteCapacitanceRange.front().step;
 
     /*! Compensable for U_Cm*/
     // max
     /*! MPAC: added +1 after discussion with MBEN and FCON*/
-    potentialMaxs.push_back(membraneCapValueRange_pF.back().max);
+    potentialMaxs.push_back(membraneCapValueRange.back().max);
 
-    potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/userDomainParams[U_Rs]);
+    potentialMaxs.push_back(membraneCapTauValueRange.back().max/userDomainParams[U_Rs]);
 
     if(compCfastEnable[chIdx]){
         double zzz1;
         double zzz2;
         for (int i = 0; i < membraneCapValueInjCapacitance.size(); i++){
             zzz1 = membraneCapValueInjCapacitance[i] + userDomainParams[U_CpVc];
-            if(zzz1 <= pipetteCapacitanceRange_pF.back().max){
+            if(zzz1 <= pipetteCapacitanceRange.back().max){
                 zzz2 = zzz1;
             }
         }
@@ -2417,9 +2417,9 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
     potentialMaxs.clear();
 
     //min
-    potentialMins.push_back(membraneCapValueRange_pF.front().min);
+    potentialMins.push_back(membraneCapValueRange.front().min);
 
-    potentialMins.push_back(membraneCapTauValueRange_us.front().min/userDomainParams[U_Rs]);
+    potentialMins.push_back(membraneCapTauValueRange.front().min/userDomainParams[U_Rs]);
 
     if(compRsPredEnable[chIdx]){
         potentialMins.push_back(rsPredTauRange.min*(userDomainParams[U_RsPg]+1)/userDomainParams[U_Rs]);
@@ -2431,14 +2431,14 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
     potentialMins.clear();
 
     //step
-    uCmCompensable[chIdx].step = membraneCapValueRange_pF.front().step;
+    uCmCompensable[chIdx].step = membraneCapValueRange.front().step;
 
     /*! Compensable for U_Rs*/
     //max
     if(compCslowEnable[chIdx]){
-        potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/userDomainParams[U_Cm]);
+        potentialMaxs.push_back(membraneCapTauValueRange.back().max/userDomainParams[U_Cm]);
     } else {
-        potentialMaxs.push_back(membraneCapTauValueRange_us.back().max/uCmCompensable[chIdx].min);
+        potentialMaxs.push_back(membraneCapTauValueRange.back().max/uCmCompensable[chIdx].min);
     }
 
     if(compRsCorrEnable[chIdx]){
@@ -2458,9 +2458,9 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
 
     //min
     if(compCslowEnable[chIdx]){
-        potentialMins.push_back(membraneCapTauValueRange_us.front().min / userDomainParams[U_Cm]);
+        potentialMins.push_back(membraneCapTauValueRange.front().min / userDomainParams[U_Cm]);
     } else {
-        potentialMins.push_back(membraneCapTauValueRange_us.front().min / uCmCompensable[chIdx].max);
+        potentialMins.push_back(membraneCapTauValueRange.front().min / uCmCompensable[chIdx].max);
     }
 
     if(compRsCorrEnable[chIdx]){
@@ -2514,9 +2514,9 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
     uRsPgCompensable[chIdx].step = rsPredGainRange.step;
 
     /*! Compensable for U_CpCc*/
-    uCpCcCompensable[chIdx].max = pipetteCapacitanceRange_pF.back().max;
-    uCpCcCompensable[chIdx].min = pipetteCapacitanceRange_pF.front().min;
-    uCpCcCompensable[chIdx].step = pipetteCapacitanceRange_pF.front().step;
+    uCpCcCompensable[chIdx].max = pipetteCapacitanceRange.back().max;
+    uCpCcCompensable[chIdx].min = pipetteCapacitanceRange.front().min;
+    uCpCcCompensable[chIdx].step = pipetteCapacitanceRange.front().step;
 
     return Success;
 }
@@ -2545,45 +2545,45 @@ double Emcr384PatchClamp_prot_v01_fw_v02::computeAsicCmCinj(double cm, bool chan
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getPipetteCapacitanceControl(CompensationControl_t &control) {
     control.implemented = true;
-    control.min = pipetteCapacitanceRange_pF[0].min;
-    control.max = pipetteCapacitanceRange_pF.back().max;
-    control.compensable = pipetteCapacitanceRange_pF.back().max;
-    control.step = pipetteCapacitanceRange_pF[0].step;
+    control.min = pipetteCapacitanceRange[0].min;
+    control.max = pipetteCapacitanceRange.back().max;
+    control.compensable = pipetteCapacitanceRange.back().max;
+    control.step = pipetteCapacitanceRange[0].step;
     control.steps = static_cast <uint32_t> (round(1.0+(control.max-control.min)/control.step));
-    control.decimals = pipetteCapacitanceRange_pF[0].decimals();
-    control.value = pipetteCapacitanceRange_pF[0].min;
-    control.prefix = pipetteCapacitanceRange_pF[0].prefix;
-    control.unit = pipetteCapacitanceRange_pF[0].unit;
+    control.decimals = pipetteCapacitanceRange[0].decimals();
+    control.value = pipetteCapacitanceRange[0].min;
+    control.prefix = pipetteCapacitanceRange[0].prefix;
+    control.unit = pipetteCapacitanceRange[0].unit;
     control.name = "Pipette Capacitance";
     return Success;
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCCPipetteCapacitanceControl(CompensationControl_t &control) {
     control.implemented = true;
-    control.min = pipetteCapacitanceRange_pF[0].min;
-    control.max = pipetteCapacitanceRange_pF.back().max;
-    control.compensable = pipetteCapacitanceRange_pF.back().max;
-    control.step = pipetteCapacitanceRange_pF[0].step;
+    control.min = pipetteCapacitanceRange[0].min;
+    control.max = pipetteCapacitanceRange.back().max;
+    control.compensable = pipetteCapacitanceRange.back().max;
+    control.step = pipetteCapacitanceRange[0].step;
     control.steps = static_cast <uint32_t> (round(1.0+(control.max-control.min)/control.step));
-    control.decimals = pipetteCapacitanceRange_pF[0].decimals();
-    control.value = pipetteCapacitanceRange_pF[0].min;
-    control.prefix = pipetteCapacitanceRange_pF[0].prefix;
-    control.unit = pipetteCapacitanceRange_pF[0].unit;
+    control.decimals = pipetteCapacitanceRange[0].decimals();
+    control.value = pipetteCapacitanceRange[0].min;
+    control.prefix = pipetteCapacitanceRange[0].prefix;
+    control.unit = pipetteCapacitanceRange[0].unit;
     control.name = "Pipette Capacitance";
     return Success;
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getMembraneCapacitanceControl(CompensationControl_t &control) {
     control.implemented = true;
-    control.min = membraneCapValueRange_pF[0].min;
-    control.max = membraneCapValueRange_pF.back().max;
-    control.compensable = membraneCapValueRange_pF.back().max;
-    control.step = membraneCapValueRange_pF[0].step;
+    control.min = membraneCapValueRange[0].min;
+    control.max = membraneCapValueRange.back().max;
+    control.compensable = membraneCapValueRange.back().max;
+    control.step = membraneCapValueRange[0].step;
     control.steps = static_cast <uint32_t> (round(1.0+(control.max-control.min)/control.step));
-    control.decimals = membraneCapValueRange_pF[0].decimals();
-    control.value = membraneCapValueRange_pF[0].min;
-    control.prefix = membraneCapValueRange_pF[0].prefix;
-    control.unit = membraneCapValueRange_pF[0].unit;
+    control.decimals = membraneCapValueRange[0].decimals();
+    control.value = membraneCapValueRange[0].min;
+    control.prefix = membraneCapValueRange[0].prefix;
+    control.unit = membraneCapValueRange[0].unit;
     control.name = "Membrane Capacitance";
     return Success;
 }

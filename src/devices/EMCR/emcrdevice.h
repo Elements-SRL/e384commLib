@@ -48,6 +48,8 @@ public:
     ErrorCodes_t updateCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
     ErrorCodes_t setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag) override;
     ErrorCodes_t updateCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t setCalibRShuntConductance(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> conductances, bool applyFlag) override;
+    ErrorCodes_t updateCalibRShuntConductance(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
 
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
@@ -272,6 +274,7 @@ protected:
     std::vector <std::vector <DoubleCoder *>> calibVcCurrentOffsetCoders;
     std::vector <DoubleCoder *> calibCcVoltageGainCoders;
     std::vector <std::vector <DoubleCoder *>> calibCcVoltageOffsetCoders;
+    std::vector <std::vector <DoubleCoder *>> calibRShuntConductanceCoders;
     std::vector <DoubleCoder *> gateVoltageCoders;
     std::vector <DoubleCoder *> sourceVoltageCoders;
 
@@ -285,8 +288,6 @@ protected:
     std::vector <BoolCoder *> ccStimEnCoders;
     BoolArrayCoder* sourceForVoltageChannelCoder = nullptr;
     BoolArrayCoder* sourceForCurrentChannelCoder = nullptr;
-
-    std::vector <std::vector <DoubleCoder *>> vcLeakCalibCoders;
 
     BoolCoder * numberOfStatesCoder = nullptr;
     BoolCoder * initialStateCoder = nullptr;
