@@ -2286,7 +2286,7 @@ void compensationControl2Output(CompensationControl_t c, CharCompensationControl
     o.implemented = c.implemented;
     o.min = c.min;
     o.max = c.max;
-    o.compensable = c.compensable;
+    o.maxCompensable = c.maxCompensable;
     o.steps = c.steps;
     o.step = c.step;
     o.decimals = c.decimals;

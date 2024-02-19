@@ -711,7 +711,7 @@ EZPatche8PPatchliner_el07ab::EZPatche8PPatchliner_el07ab(std::string di) :
     liquidJunctionControl.min = minLiquidJunctionRange;
     liquidJunctionControl.value = 0.0;
     liquidJunctionControl.max = maxLiquidJunctionRange;
-    liquidJunctionControl.compensable = maxLiquidJunctionRange;
+    liquidJunctionControl.maxCompensable = maxLiquidJunctionRange;
     liquidJunctionControl.steps = liquidJunctionSteps;
     liquidJunctionControl.step = liquidJunctionStep;
     liquidJunctionControl.decimals = liquidJunctionDecimals;
@@ -719,89 +719,99 @@ EZPatche8PPatchliner_el07ab::EZPatche8PPatchliner_el07ab(std::string di) :
     liquidJunctionControl.unit = liquidJunctionUnit;
     liquidJunctionControl.name = liquidJunctionName;
 
-    pipetteCapacitanceControl.implemented = true;
-    pipetteCapacitanceControl.min = minPipetteCapacitance;
-    pipetteCapacitanceControl.value = minPipetteCapacitance;
-    pipetteCapacitanceControl.max = maxPipetteCapacitance;
-    pipetteCapacitanceControl.compensable = maxPipetteCapacitance;
-    pipetteCapacitanceControl.steps = pipetteCapacitanceSteps;
-    pipetteCapacitanceControl.step = pipetteCapacitanceStep;
-    pipetteCapacitanceControl.decimals = pipetteCapacitanceDecimals;
-    pipetteCapacitanceControl.prefix = pipetteCapacitancePrefix;
-    pipetteCapacitanceControl.unit = pipetteCapacitanceUnit;
-    pipetteCapacitanceControl.name = pipetteCapacitanceName;
+    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
+    CompensationControl_t control;
 
-    membraneCapacitanceControl.implemented = true;
-    membraneCapacitanceControl.min = minMembraneCapacitance;
-    membraneCapacitanceControl.value = minMembraneCapacitance;
-    membraneCapacitanceControl.max = maxMembraneCapacitance;
-    membraneCapacitanceControl.compensable = maxMembraneCapacitance;
-    membraneCapacitanceControl.steps = membraneCapacitanceSteps;
-    membraneCapacitanceControl.step = membraneCapacitanceStep;
-    membraneCapacitanceControl.decimals = membraneCapacitanceDecimals;
-    membraneCapacitanceControl.prefix = membraneCapacitancePrefix;
-    membraneCapacitanceControl.unit = membraneCapacitanceUnit;
-    membraneCapacitanceControl.name = membraneCapacitanceName;
+    control.implemented = true;
+    control.min = minPipetteCapacitance;
+    control.value = minPipetteCapacitance;
+    control.max = maxPipetteCapacitance;
+    control.maxCompensable = maxPipetteCapacitance;
+    control.steps = pipetteCapacitanceSteps;
+    control.step = pipetteCapacitanceStep;
+    control.decimals = pipetteCapacitanceDecimals;
+    control.prefix = pipetteCapacitancePrefix;
+    control.unit = pipetteCapacitanceUnit;
+    control.name = pipetteCapacitanceName;
+    std::fill(compensationControls[U_CpVc].begin(), compensationControls[U_CpVc].end(), control);
 
-    accessResistanceControl.implemented = true;
-    accessResistanceControl.min = 0.0;
-    accessResistanceControl.value = 0.0;
-    accessResistanceControl.max = 100.0;
-    accessResistanceControl.compensable = 100.0;
-    accessResistanceControl.steps = 1001.0;
-    accessResistanceControl.step = 0.1;
-    accessResistanceControl.decimals = 1;
-    accessResistanceControl.prefix = accessResistancePrefix;
-    accessResistanceControl.unit = accessResistanceUnit;
-    accessResistanceControl.name = accessResistanceName;
+    control.implemented = true;
+    control.min = minMembraneCapacitance;
+    control.value = minMembraneCapacitance;
+    control.max = maxMembraneCapacitance;
+    control.maxCompensable = maxMembraneCapacitance;
+    control.steps = membraneCapacitanceSteps;
+    control.step = membraneCapacitanceStep;
+    control.decimals = membraneCapacitanceDecimals;
+    control.prefix = membraneCapacitancePrefix;
+    control.unit = membraneCapacitanceUnit;
+    control.name = membraneCapacitanceName;
+    std::fill(compensationControls[U_Cm].begin(), compensationControls[U_Cm].end(), control);
 
-    resistanceCorrectionPercentageControl.implemented = true;
-    resistanceCorrectionPercentageControl.min = 0.0;
-    resistanceCorrectionPercentageControl.value = 0.0;
-    resistanceCorrectionPercentageControl.max = 100.0;
-    resistanceCorrectionPercentageControl.compensable = 100.0;
-    resistanceCorrectionPercentageControl.steps = 101.0;
-    resistanceCorrectionPercentageControl.step = 1.0;
-    resistanceCorrectionPercentageControl.decimals = 1;
-    resistanceCorrectionPercentageControl.prefix = resistanceCorrectionPercentagePrefix;
-    resistanceCorrectionPercentageControl.unit = resistanceCorrectionPercentageUnit;
-    resistanceCorrectionPercentageControl.name = resistanceCorrectionPercentageName;
+    control.implemented = true;
+    control.min = 0.0;
+    control.value = 0.0;
+    control.max = 100.0;
+    control.maxCompensable = 100.0;
+    control.steps = 1001.0;
+    control.step = 0.1;
+    control.decimals = 1;
+    control.prefix = accessResistancePrefix;
+    control.unit = accessResistanceUnit;
+    control.name = accessResistanceName;
+    std::fill(compensationControls[U_Rs].begin(), compensationControls[U_Rs].end(), control);
 
-    resistancePredictionGainControl.implemented = true;
-    resistancePredictionGainControl.min = minResistancePredictionGain;
-    resistancePredictionGainControl.value = minResistancePredictionGain;
-    resistancePredictionGainControl.max = maxResistancePredictionGain;
-    resistancePredictionGainControl.compensable = maxResistancePredictionGain;
-    resistancePredictionGainControl.steps = resistancePredictionGainSteps;
-    resistancePredictionGainControl.step = resistancePredictionGainStep;
-    resistancePredictionGainControl.decimals = 2;
-    resistancePredictionGainControl.prefix = resistancePredictionGainPrefix;
-    resistancePredictionGainControl.unit = resistancePredictionGainUnit;
-    resistancePredictionGainControl.name = resistancePredictionGainName;
+    control.implemented = true;
+    control.min = 0.0;
+    control.value = 0.0;
+    control.max = 100.0;
+    control.maxCompensable = 100.0;
+    control.steps = 101.0;
+    control.step = 1.0;
+    control.decimals = 1;
+    control.prefix = resistanceCorrectionPercentagePrefix;
+    control.unit = resistanceCorrectionPercentageUnit;
+    control.name = resistanceCorrectionPercentageName;
+    std::fill(compensationControls[U_RsCp].begin(), compensationControls[U_RsCp].end(), control);
 
-    resistancePredictionTauControl.implemented = false;
-    resistancePredictionTauControl.min = minResistancePredictionTau;
-    resistancePredictionTauControl.value = minResistancePredictionTau;
-    resistancePredictionTauControl.max = maxResistancePredictionTau;
-    resistancePredictionTauControl.compensable = maxResistancePredictionTau;
-    resistancePredictionTauControl.steps = resistancePredictionTauSteps;
-    resistancePredictionTauControl.step = resistancePredictionTauStep;
-    resistancePredictionTauControl.decimals = resistancePredictionTauDecimals;
-    resistancePredictionTauControl.prefix = resistancePredictionTauPrefix;
-    resistancePredictionTauControl.unit = resistancePredictionTauUnit;
-    resistancePredictionTauControl.name = resistancePredictionTauName;
+    control.implemented = true;
+    control.min = minResistancePredictionGain;
+    control.value = minResistancePredictionGain;
+    control.max = maxResistancePredictionGain;
+    control.maxCompensable = maxResistancePredictionGain;
+    control.steps = resistancePredictionGainSteps;
+    control.step = resistancePredictionGainStep;
+    control.decimals = 2;
+    control.prefix = resistancePredictionGainPrefix;
+    control.unit = resistancePredictionGainUnit;
+    control.name = resistancePredictionGainName;
+    std::fill(compensationControls[U_RsPg].begin(), compensationControls[U_RsPg].end(), control);
 
-    ccPipetteCapacitanceControl.implemented = true;
-    ccPipetteCapacitanceControl.min = minCcPipetteCapacitance;
-    ccPipetteCapacitanceControl.value = minCcPipetteCapacitance;
-    ccPipetteCapacitanceControl.max = maxCcPipetteCapacitance;
-    ccPipetteCapacitanceControl.compensable = maxCcPipetteCapacitance;
-    ccPipetteCapacitanceControl.steps = ccPipetteCapacitanceSteps;
-    ccPipetteCapacitanceControl.step = ccPipetteCapacitanceStep;
-    ccPipetteCapacitanceControl.decimals = ccPipetteCapacitanceDecimals;
-    ccPipetteCapacitanceControl.prefix = ccPipetteCapacitancePrefix;
-    ccPipetteCapacitanceControl.unit = ccPipetteCapacitanceUnit;
-    ccPipetteCapacitanceControl.name = ccPipetteCapacitanceName;
+    control.implemented = false;
+    control.min = minResistancePredictionTau;
+    control.value = minResistancePredictionTau;
+    control.max = maxResistancePredictionTau;
+    control.maxCompensable = maxResistancePredictionTau;
+    control.steps = resistancePredictionTauSteps;
+    control.step = resistancePredictionTauStep;
+    control.decimals = resistancePredictionTauDecimals;
+    control.prefix = resistancePredictionTauPrefix;
+    control.unit = resistancePredictionTauUnit;
+    control.name = resistancePredictionTauName;
+    std::fill(compensationControls[U_RsPt].begin(), compensationControls[U_RsPt].end(), control);
+
+    control.implemented = true;
+    control.min = minCcPipetteCapacitance;
+    control.value = minCcPipetteCapacitance;
+    control.max = maxCcPipetteCapacitance;
+    control.maxCompensable = maxCcPipetteCapacitance;
+    control.steps = ccPipetteCapacitanceSteps;
+    control.step = ccPipetteCapacitanceStep;
+    control.decimals = ccPipetteCapacitanceDecimals;
+    control.prefix = ccPipetteCapacitancePrefix;
+    control.unit = ccPipetteCapacitanceUnit;
+    control.name = ccPipetteCapacitanceName;
+    std::fill(compensationControls[U_CpCc].begin(), compensationControls[U_CpCc].end(), control);
 
     /*! Zap command */
     zapDurationHwRegisterOffset = 0;
@@ -1077,13 +1087,13 @@ bool EZPatche8PPatchliner_el07ab::checkCompensationsValues() {
     bool ret = true;
     if (vcCompensationsActivated) {
         if (compCfastEnable[compensationsSettingChannel] && compCslowEnable[compensationsSettingChannel]) {
-            if (membraneCapacitance[compensationsSettingChannel] > maxMembraneCapacitance3) {
+            if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance3) {
                 additionalPipetteCapacitanceFromMembrane = membraneInjCapacitance4;
 
-            } else if (membraneCapacitance[compensationsSettingChannel] > maxMembraneCapacitance2) {
+            } else if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance2) {
                 additionalPipetteCapacitanceFromMembrane = membraneInjCapacitance3;
 
-            } else if (membraneCapacitance[compensationsSettingChannel] > maxMembraneCapacitance1) {
+            } else if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance1) {
                 additionalPipetteCapacitanceFromMembrane = membraneInjCapacitance2;
 
             } else {
@@ -1095,15 +1105,15 @@ bool EZPatche8PPatchliner_el07ab::checkCompensationsValues() {
         }
 
         if (compCfastEnable[compensationsSettingChannel]){
-            ret &= (pipetteCapacitance[compensationsSettingChannel]+additionalPipetteCapacitanceFromMembrane > (minPipetteCapacitance-0.5*pipetteCapacitanceStep) &&
-                    pipetteCapacitance[compensationsSettingChannel]+additionalPipetteCapacitanceFromMembrane < (maxPipetteCapacitance+0.5*pipetteCapacitanceStep));
+            ret &= (compensationControls[U_CpVc][compensationsSettingChannel].value+additionalPipetteCapacitanceFromMembrane > (minPipetteCapacitance-0.5*pipetteCapacitanceStep) &&
+                    compensationControls[U_CpVc][compensationsSettingChannel].value+additionalPipetteCapacitanceFromMembrane < (maxPipetteCapacitance+0.5*pipetteCapacitanceStep));
         }
 
         double membraneTau;
         if (compCslowEnable[compensationsSettingChannel]) {
-            ret &= (membraneCapacitance[compensationsSettingChannel] > (minMembraneCapacitance-0.5*membraneCapacitanceStep) &&
-                    membraneCapacitance[compensationsSettingChannel] < (maxMembraneCapacitance+0.5*membraneCapacitanceStep));
-            membraneTau = membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel];
+            ret &= (compensationControls[U_Cm][compensationsSettingChannel].value > (minMembraneCapacitance-0.5*membraneCapacitanceStep) &&
+                    compensationControls[U_Cm][compensationsSettingChannel].value < (maxMembraneCapacitance+0.5*membraneCapacitanceStep));
+            membraneTau = compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value;
             ret &= membraneTau < (maxMembraneTau+0.5*membraneTauStep);
 
         } else {
@@ -1111,48 +1121,48 @@ bool EZPatche8PPatchliner_el07ab::checkCompensationsValues() {
         }
 
         if (compRsCorrEnable[compensationsSettingChannel]) {
-            double resistanceCorrected = accessResistance[compensationsSettingChannel]*resistanceCorrectionPercentage[compensationsSettingChannel]/maxResistanceCorrectionPercentage; /*! Missing the minimum check because for this device this is handled when building the packet */
+            double resistanceCorrected = compensationControls[U_Rs][compensationsSettingChannel].value*compensationControls[U_RsCp][compensationsSettingChannel].value/maxResistanceCorrectionPercentage; /*! Missing the minimum check because for this device this is handled when building the packet */
             ret &= (resistanceCorrected < (0.001*minResistanceCorrection+1.001*maxResistanceCorrection)); /*! Missing the minimum check because for this device this is handled when building the packet */
         }
 
         if (compRsPredEnable[compensationsSettingChannel]) {
-            ret &= (resistancePredictionGain[compensationsSettingChannel] > (minResistancePredictionGain-0.5*resistancePredictionGainStep) &&
-                    resistancePredictionGain[compensationsSettingChannel] < (maxResistancePredictionGain+0.5*resistancePredictionGainStep));
-            double resistancePredictedTau = membraneTau/resistancePredictionGain[compensationsSettingChannel];
+            ret &= (compensationControls[U_RsPg][compensationsSettingChannel].value > (minResistancePredictionGain-0.5*resistancePredictionGainStep) &&
+                    compensationControls[U_RsPg][compensationsSettingChannel].value < (maxResistancePredictionGain+0.5*resistancePredictionGainStep));
+            double resistancePredictedTau = membraneTau/compensationControls[U_RsPg][compensationsSettingChannel].value;
             ret &= resistancePredictedTau < (maxResistancePredictionTau+0.5*resistancePredictionTauStep); /*! Missing the minimum check because for this device this is handled when building the packet */
         }
     }
 
     if (ccCompensationsActivated) {
-        ret &= (ccPipetteCapacitance[compensationsSettingChannel] > (minCcPipetteCapacitance-0.5*ccPipetteCapacitanceStep) &&
-                ccPipetteCapacitance[compensationsSettingChannel] < (maxCcPipetteCapacitance+0.5*ccPipetteCapacitanceStep));
+        ret &= (compensationControls[U_CpCc][compensationsSettingChannel].value > (minCcPipetteCapacitance-0.5*ccPipetteCapacitanceStep) &&
+                compensationControls[U_CpCc][compensationsSettingChannel].value < (maxCcPipetteCapacitance+0.5*ccPipetteCapacitanceStep));
     }
 
     if (vcCompensationsActivated) {
-        double rs = fmax(accessResistance[compensationsSettingChannel], accessResistanceControl.step);
-        double rc = fmax(resistanceCorrectionPercentage[compensationsSettingChannel], resistanceCorrectionPercentageControl.step);
-        double rp = fmax(resistancePredictionPercentage[compensationsSettingChannel], resistancePredictionPercentageControl.step);
+        double rs = fmax(compensationControls[U_Rs][compensationsSettingChannel].value, compensationControls[U_Rs][compensationsSettingChannel].step);
+        double rc = fmax(compensationControls[U_RsCp][compensationsSettingChannel].value, compensationControls[U_RsCp][compensationsSettingChannel].step);
+        double rp = fmax(compensationControls[U_RsPp][compensationsSettingChannel].value, compensationControls[U_RsPp][compensationsSettingChannel].step);
 
-        pipetteCapacitanceControl.compensable = fmax(0.0, maxPipetteCapacitance-additionalPipetteCapacitanceFromMembrane);
+        compensationControls[U_CpVc][compensationsSettingChannel].maxCompensable = fmax(0.0, maxPipetteCapacitance-additionalPipetteCapacitanceFromMembrane);
 
         double d1 = maxMembraneCapacitance;
         double d2 = maxMembraneTau/rs;
-        double d3 = (compRsPredEnable[compensationsSettingChannel] ? maxResistancePredictionTau*resistancePredictionGain[compensationsSettingChannel]/(rs*rp) : std::numeric_limits <double>::max());
-        membraneCapacitanceControl.compensable = fmin(fmin(d1, d2), d3);
+        double d3 = (compRsPredEnable[compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(rs*rp) : std::numeric_limits <double>::max());
+        compensationControls[U_Cm][compensationsSettingChannel].maxCompensable = fmin(fmin(d1, d2), d3);
 
-        d1 = accessResistanceControl.max;
-        d2 = maxMembraneTau/membraneCapacitance[compensationsSettingChannel];
+        d1 = compensationControls[U_Rs][compensationsSettingChannel].max;
+        d2 = maxMembraneTau/compensationControls[U_Cm][compensationsSettingChannel].value;
         d3 = maxResistanceCorrection*maxResistanceCorrectionPercentage/rc;
-        double d4 = (compRsPredEnable[compensationsSettingChannel] ? maxResistancePredictionTau*resistancePredictionGain[compensationsSettingChannel]/(membraneCapacitance[compensationsSettingChannel]*rp) : std::numeric_limits <double>::max());
-        accessResistanceControl.compensable = fmin(fmin(fmin(d1, d2), d3), d4);
+        double d4 = (compRsPredEnable[compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(compensationControls[U_Cm][compensationsSettingChannel].value*rp) : std::numeric_limits <double>::max());
+        compensationControls[U_Rs][compensationsSettingChannel].maxCompensable = fmin(fmin(fmin(d1, d2), d3), d4);
 
-        d1 = resistanceCorrectionPercentageControl.max;
+        d1 = compensationControls[U_RsCp][compensationsSettingChannel].max;
         d2 = maxResistanceCorrection*maxResistanceCorrectionPercentage/rs;
-        resistanceCorrectionPercentageControl.compensable = fmin(d1, d2);
+        compensationControls[U_RsCp][compensationsSettingChannel].maxCompensable = fmin(d1, d2);
     }
 
     if (ccCompensationsActivated) {
-        /*! ccPipetteCapacitanceControl.compensable doesn't depend on other controls */
+        /*! ccPipetteCapacitanceControl.maxCompensable doesn't depend on other controls */
     }
 
     return ret;
@@ -1163,7 +1173,7 @@ bool EZPatche8PPatchliner_el07ab::fillCompensationsRegistersTxData(std::vector <
 
     double pipetteValue;
     uint16_t pipetteRange;
-    double totalPipetteCapacitance = pipetteCapacitance[compensationsSettingChannel]+additionalPipetteCapacitanceFromMembrane;
+    double totalPipetteCapacitance = compensationControls[U_CpVc][compensationsSettingChannel].value+additionalPipetteCapacitanceFromMembrane;
     if (totalPipetteCapacitance > maxPipetteCapacitance3) {
         if (totalPipetteCapacitance < minPipetteCapacitance4) {
             pipetteValue = 0x0000;
@@ -1203,60 +1213,60 @@ bool EZPatche8PPatchliner_el07ab::fillCompensationsRegistersTxData(std::vector <
 
     double membraneValue;
     uint16_t membraneRange;
-    if (membraneCapacitance[compensationsSettingChannel] > maxMembraneCapacitance3) {
-        if (membraneCapacitance[compensationsSettingChannel] < minMembraneCapacitance4) {
+    if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance3) {
+        if (compensationControls[U_Cm][compensationsSettingChannel].value < minMembraneCapacitance4) {
             membraneValue = 0x0000;
 
         } else {
-            membraneValue = (membraneCapacitance[compensationsSettingChannel]-minMembraneCapacitance4)/membraneCapacitanceStep4;
+            membraneValue = (compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance4)/membraneCapacitanceStep4;
         }
         membraneRange = 0x00C0;
 
-    } else if (membraneCapacitance[compensationsSettingChannel] > maxMembraneCapacitance2) {
-        if (membraneCapacitance[compensationsSettingChannel] < minMembraneCapacitance3) {
+    } else if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance2) {
+        if (compensationControls[U_Cm][compensationsSettingChannel].value < minMembraneCapacitance3) {
             membraneValue = 0x0000;
 
         } else {
-            membraneValue = (membraneCapacitance[compensationsSettingChannel]-minMembraneCapacitance3)/membraneCapacitanceStep3;
+            membraneValue = (compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance3)/membraneCapacitanceStep3;
         }
         membraneRange = 0x0080;
 
-    } else if (membraneCapacitance[compensationsSettingChannel] > maxMembraneCapacitance1) {
-        if (membraneCapacitance[compensationsSettingChannel] < minMembraneCapacitance2) {
+    } else if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance1) {
+        if (compensationControls[U_Cm][compensationsSettingChannel].value < minMembraneCapacitance2) {
             membraneValue = 0x0000;
 
         } else {
-            membraneValue = (membraneCapacitance[compensationsSettingChannel]-minMembraneCapacitance2)/membraneCapacitanceStep2;
+            membraneValue = (compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance2)/membraneCapacitanceStep2;
         }
         membraneRange = 0x0040;
 
     } else {
-        if (membraneCapacitance[compensationsSettingChannel] < minMembraneCapacitance1) {
+        if (compensationControls[U_Cm][compensationsSettingChannel].value < minMembraneCapacitance1) {
             membraneValue = 0x0000;
 
         } else {
-            membraneValue = (membraneCapacitance[compensationsSettingChannel]-minMembraneCapacitance1)/membraneCapacitanceStep1;
+            membraneValue = (compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance1)/membraneCapacitanceStep1;
         }
         membraneRange = 0x0000;
     }
 
     double membraneTauValue;
     uint16_t membraneTauRange;
-    if (membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel] > maxMembraneTau1) {
-        if (membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel] < minMembraneTau2) {
+    if (compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value > maxMembraneTau1) {
+        if (compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value < minMembraneTau2) {
             membraneTauValue = 0x0000;
 
         } else {
-            membraneTauValue = (membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel]-minMembraneTau2)/membraneTauStep2;
+            membraneTauValue = (compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value-minMembraneTau2)/membraneTauStep2;
         }
         membraneTauRange = 0x0100;
 
-    } else if (membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel] > minMembraneTau1) {
-        if (membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel] < minMembraneTau1) {
+    } else if (compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value > minMembraneTau1) {
+        if (compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value < minMembraneTau1) {
             membraneTauValue = 0x0000;
 
         } else {
-            membraneTauValue = (membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel]-minMembraneTau1)/membraneTauStep1;
+            membraneTauValue = (compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value-minMembraneTau1)/membraneTauStep1;
         }
         membraneTauRange = 0x0000;
 
@@ -1265,46 +1275,46 @@ bool EZPatche8PPatchliner_el07ab::fillCompensationsRegistersTxData(std::vector <
         membraneTauRange = 0x0000;
     }
 
-    double correctedResistance = resistanceCorrectionPercentage[compensationsSettingChannel]/maxResistanceCorrectionPercentage*accessResistance[compensationsSettingChannel];
+    double correctedResistance = compensationControls[U_RsCp][compensationsSettingChannel].value/maxResistanceCorrectionPercentage*compensationControls[U_Rs][compensationsSettingChannel].value;
     if (correctedResistance < minResistanceCorrection) {
         correctedResistance = minResistanceCorrection;
     }
 
     double ccPipetteValue;
     uint16_t ccPipetteRange;
-    if (ccPipetteCapacitance[compensationsSettingChannel] > maxPipetteCapacitance3) {
-        if (ccPipetteCapacitance[compensationsSettingChannel] < minPipetteCapacitance4) {
+    if (compensationControls[U_CpCc][compensationsSettingChannel].value > maxPipetteCapacitance3) {
+        if (compensationControls[U_CpCc][compensationsSettingChannel].value < minPipetteCapacitance4) {
             ccPipetteValue = 0x0000;
 
         } else {
-            ccPipetteValue = (ccPipetteCapacitance[compensationsSettingChannel]-minPipetteCapacitance4)/pipetteCapacitanceStep4;
+            ccPipetteValue = (compensationControls[U_CpCc][compensationsSettingChannel].value-minPipetteCapacitance4)/pipetteCapacitanceStep4;
         }
         ccPipetteRange = 0x00C0;
 
-    } else if (ccPipetteCapacitance[compensationsSettingChannel] > maxPipetteCapacitance2) {
-        if (ccPipetteCapacitance[compensationsSettingChannel] < minPipetteCapacitance3) {
+    } else if (compensationControls[U_CpCc][compensationsSettingChannel].value > maxPipetteCapacitance2) {
+        if (compensationControls[U_CpCc][compensationsSettingChannel].value < minPipetteCapacitance3) {
             ccPipetteValue = 0x0000;
 
         } else {
-            ccPipetteValue = (ccPipetteCapacitance[compensationsSettingChannel]-minPipetteCapacitance3)/pipetteCapacitanceStep3;
+            ccPipetteValue = (compensationControls[U_CpCc][compensationsSettingChannel].value-minPipetteCapacitance3)/pipetteCapacitanceStep3;
         }
         ccPipetteRange = 0x0080;
 
-    } else if (ccPipetteCapacitance[compensationsSettingChannel] > maxPipetteCapacitance1) {
-        if (ccPipetteCapacitance[compensationsSettingChannel] < minPipetteCapacitance2) {
+    } else if (compensationControls[U_CpCc][compensationsSettingChannel].value > maxPipetteCapacitance1) {
+        if (compensationControls[U_CpCc][compensationsSettingChannel].value < minPipetteCapacitance2) {
             ccPipetteValue = 0x0000;
 
         } else {
-            ccPipetteValue = (ccPipetteCapacitance[compensationsSettingChannel]-minPipetteCapacitance2)/pipetteCapacitanceStep2;
+            ccPipetteValue = (compensationControls[U_CpCc][compensationsSettingChannel].value-minPipetteCapacitance2)/pipetteCapacitanceStep2;
         }
         ccPipetteRange = 0x0040;
 
     } else {
-        if (ccPipetteCapacitance[compensationsSettingChannel] < minPipetteCapacitance1) {
+        if (compensationControls[U_CpCc][compensationsSettingChannel].value < minPipetteCapacitance1) {
             ccPipetteValue = 0x0000;
 
         } else {
-            ccPipetteValue = (ccPipetteCapacitance[compensationsSettingChannel]-minPipetteCapacitance1)/pipetteCapacitanceStep1;
+            ccPipetteValue = (compensationControls[U_CpCc][compensationsSettingChannel].value-minPipetteCapacitance1)/pipetteCapacitanceStep1;
         }
         ccPipetteRange = 0x0000;
     }
@@ -1324,9 +1334,9 @@ bool EZPatche8PPatchliner_el07ab::fillCompensationsRegistersTxData(std::vector <
     txDataMessage[6] = CompensationsRegisterVCRCorrGain+compensationsSettingChannel*coreSpecificRegistersNum;
     txDataMessage[7] = ((vcCompensationsActivated & compRsCorrEnable[compensationsSettingChannel]) ? (uint16_t)round((correctedResistance-minResistanceCorrection)/resistanceCorrectionStep) : 0);
     txDataMessage[8] = CompensationsRegisterVCRPredGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[9] = ((vcCompensationsActivated & compRsPredEnable[compensationsSettingChannel]) ? (uint16_t)round((resistancePredictionGain[compensationsSettingChannel]-minResistancePredictionGain)/resistancePredictionGainStep) : 0);
+    txDataMessage[9] = ((vcCompensationsActivated & compRsPredEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_RsPg][compensationsSettingChannel].value-minResistancePredictionGain)/resistancePredictionGainStep) : 0);
     txDataMessage[10] = CompensationsRegisterVCRPredTau+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[11] = ((vcCompensationsActivated & compRsPredEnable[compensationsSettingChannel]) ? (uint16_t)round((membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel]-minResistancePredictionTau)/resistancePredictionGain[compensationsSettingChannel]/resistancePredictionTauStep) : 0);
+    txDataMessage[11] = ((vcCompensationsActivated & compRsPredEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value-minResistancePredictionTau)/compensationControls[U_RsPg][compensationsSettingChannel].value/resistancePredictionTauStep) : 0);
 
     if (vcCompensationsActivated) {
         if (txDataMessage[1] != pipetteCapacitanceRegValue[compensationsSettingChannel] ||

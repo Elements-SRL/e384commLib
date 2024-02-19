@@ -1883,12 +1883,33 @@ ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t>, Compensati
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::hasCompFeature(CompensationUserParams) {
-    return ErrorFeatureNotImplemented;
+ErrorCodes_t MessageDispatcher::hasCompFeature(CompensationUserParams feature) {
+    if (compensationControls[feature].empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+
+    if (!compensationControls[0][feature].implemented) {
+        return ErrorFeatureNotImplemented;
+    }
+
+    return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCompFeatures(CompensationUserParams, std::vector<RangedMeasurement_t> &, double &){
-    return ErrorFeatureNotImplemented;
+ErrorCodes_t MessageDispatcher::getCompFeatures(CompensationUserParams feature, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
+    if (compensationControls[feature].empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+
+    if (!compensationControls[0][feature].implemented) {
+        return ErrorFeatureNotImplemented;
+    }
+
+    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+        compensationFeatures[chIdx] = compensationControls[feature][chIdx].getCompensableRange();
+        defaultParamValue = defaultUserDomainParams[feature];
+    }
+
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes, std::vector <std::string> &){

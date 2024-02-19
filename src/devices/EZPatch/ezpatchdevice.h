@@ -144,7 +144,6 @@ public:
     ErrorCodes_t setResistanceCorrectionLag(Measurement_t lag);
     ErrorCodes_t setResistancePredictionGain(Measurement_t gain);
     ErrorCodes_t setResistancePredictionPercentage(Measurement_t percentage);
-    ErrorCodes_t setResistancePredictionBandwidthGain(Measurement_t gain);
     ErrorCodes_t setResistancePredictionTau(Measurement_t tau);
     virtual ErrorCodes_t setLeakConductance(Measurement_t conductance);
     ErrorCodes_t setBridgeBalanceResistance(Measurement_t resistance); /*! \todo FCON sono arrivato qui */
@@ -227,7 +226,6 @@ public:
     virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> &options) override;
     virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> &options) override;
 
-    virtual ErrorCodes_t getCompFeatures(CompensationUserParams feature, std::vector <RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) override;
     ErrorCodes_t getLiquidJunctionControl(CompensationControl_t &control);
     virtual ErrorCodes_t getPipetteCapacitanceControl(CompensationControl_t &control) override;
     virtual ErrorCodes_t getCCPipetteCapacitanceControl(CompensationControl_t &control) override;
@@ -237,7 +235,6 @@ public:
     virtual ErrorCodes_t getResistanceCorrectionLagControl(CompensationControl_t &control) override;
     virtual ErrorCodes_t getResistancePredictionGainControl(CompensationControl_t &control) override;
     virtual ErrorCodes_t getResistancePredictionPercentageControl(CompensationControl_t &control) override;
-    virtual ErrorCodes_t getResistancePredictionBandwidthGainControl(CompensationControl_t &control) override;
     virtual ErrorCodes_t getResistancePredictionTauControl(CompensationControl_t &control) override;
     virtual ErrorCodes_t getLeakConductanceControl(CompensationControl_t &control) override;
     virtual ErrorCodes_t getBridgeBalanceResistanceControl(CompensationControl_t &control) override;
@@ -316,7 +313,7 @@ protected:
     ErrorCodes_t turnCompensationsOn(bool &flag, bool on);
     ErrorCodes_t turnCompensationOn(std::vector <bool> &flag, bool on);
     virtual ErrorCodes_t setCompensationsOptions();
-    ErrorCodes_t setCompensationValue(double &param, CompensationControl_t &control, Measurement_t newValue);
+    ErrorCodes_t setCompensationValue(CompensationControl_t &control, Measurement_t newValue);
     virtual void compensationsFlags2Switches(std::vector <uint16_t> &txDataMessage);
 
     /****************\
@@ -528,19 +525,6 @@ protected:
     std::vector <bool> compensationsSwitchesEnableSignArray; /*! true means that enabling the compensation closes a switch (write a 1) */
 
     std::vector <bool> compensationsEnabledArray[CompensationsNum]; /*! Compensations actually enabled on device */
-
-    std::vector <double> pipetteCapacitance;
-    std::vector <double> ccPipetteCapacitance;
-    std::vector <double> membraneCapacitance;
-    std::vector <double> accessResistance;
-    std::vector <double> resistanceCorrectionPercentage;
-    std::vector <double> resistanceCorrectionLag;
-    std::vector <double> resistancePredictionGain;
-    std::vector <double> resistancePredictionPercentage;
-    std::vector <double> resistancePredictionBandwidthGain;
-    std::vector <double> resistancePredictionTau;
-    std::vector <double> leakConductance;
-    std::vector <double> bridgeBalanceResistance;
 
     bool pipetteCompensationImplemented = false;
     bool ccPipetteCompensationImplemented = false;

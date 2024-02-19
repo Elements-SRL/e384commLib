@@ -129,8 +129,6 @@ public:
     ErrorCodes_t getCalibMappingFileDir(std::string &dir) override;
     ErrorCodes_t getCalibMappingFilePath(std::string &path) override;
 
-    virtual ErrorCodes_t hasCompFeature(CompensationUserParams feature) override;
-    virtual ErrorCodes_t getCompFeatures(CompensationUserParams paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) override;
 
 protected:
 

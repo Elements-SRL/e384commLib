@@ -607,7 +607,7 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
     CompensationControl_t control;
 
     compensationControls[U_CpVc].resize(currentChannelsNum);
-    this->getCCPipetteCapacitanceControl(control);
+    this->getPipetteCapacitanceControl(control);
     std::fill(compensationControls[U_CpVc].begin(), compensationControls[U_CpVc].end(), control);
 
     compensationControls[U_Cm].resize(currentChannelsNum);
@@ -627,7 +627,7 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
     std::fill(compensationControls[U_RsPg].begin(), compensationControls[U_RsPg].end(), control);
 
     compensationControls[U_CpCc].resize(currentChannelsNum);
-    this->getPipetteCapacitanceControl(control);
+    this->getCCPipetteCapacitanceControl(control);
     std::fill(compensationControls[U_CpCc].begin(), compensationControls[U_CpCc].end(), control);
 
     /*! COMPENSATION OPTIONS STRINGS*/

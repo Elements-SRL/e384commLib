@@ -1540,27 +1540,47 @@ ErrorCodes_t EZPatchDevice::setCompValues(std::vector <uint16_t> channelIndexes,
         compensationsSettingChannel = channelIndexes[i];
         switch (paramToUpdate) {
         case U_CpVc:
-            this->setPipetteCapacitance({newParamValues[i], pipetteCapacitanceControl.prefix, pipetteCapacitanceControl.unit});
+            this->setPipetteCapacitance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_Cm:
-            this->setMembraneCapacitance({newParamValues[i], membraneCapacitanceControl.prefix, membraneCapacitanceControl.unit});
+            this->setMembraneCapacitance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_Rs:
-            this->setAccessResistance({newParamValues[i], accessResistanceControl.prefix, accessResistanceControl.unit});
+            this->setAccessResistance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_RsCp:
-            this->setResistanceCorrectionPercentage({newParamValues[i], resistanceCorrectionPercentageControl.prefix, resistanceCorrectionPercentageControl.unit});
+            this->setResistanceCorrectionPercentage({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            break;
+
+        case U_RsCl:
+            this->setResistanceCorrectionLag({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_RsPg:
-            this->setResistancePredictionGain({newParamValues[i], resistancePredictionGainControl.prefix, resistancePredictionGainControl.unit});
+            this->setResistancePredictionGain({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            break;
+
+        case U_RsPp:
+            this->setResistancePredictionPercentage({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            break;
+
+        case U_RsPt:
+            this->setResistancePredictionTau({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            break;
+
+        case U_LkG:
+            this->setLeakConductance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_CpCc:
-            this->setCCPipetteCapacitance({newParamValues[i], ccPipetteCapacitanceControl.prefix, ccPipetteCapacitanceControl.unit});
+            this->setCCPipetteCapacitance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            break;
+
+        case U_BrB:
+            this->setBridgeBalanceResistance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
         }
     }
@@ -1780,51 +1800,47 @@ ErrorCodes_t EZPatchDevice::setBridgeBalanceCompensationOptions(uint16_t optionI
 }
 
 ErrorCodes_t EZPatchDevice::setPipetteCapacitance(Measurement_t capacitance) {
-    return this->setCompensationValue(pipetteCapacitance[compensationsSettingChannel], pipetteCapacitanceControl, capacitance);
+    return this->setCompensationValue(compensationControls[U_CpVc][compensationsSettingChannel], capacitance);
 }
 
 ErrorCodes_t EZPatchDevice::setCCPipetteCapacitance(Measurement_t capacitance) {
-    return this->setCompensationValue(ccPipetteCapacitance[compensationsSettingChannel], ccPipetteCapacitanceControl, capacitance);
+    return this->setCompensationValue(compensationControls[U_CpCc][compensationsSettingChannel], capacitance);
 }
 
 ErrorCodes_t EZPatchDevice::setMembraneCapacitance(Measurement_t capacitance) {
-    return this->setCompensationValue(membraneCapacitance[compensationsSettingChannel], membraneCapacitanceControl, capacitance);
+    return this->setCompensationValue(compensationControls[U_Cm][compensationsSettingChannel], capacitance);
 }
 
 ErrorCodes_t EZPatchDevice::setAccessResistance(Measurement_t resistance) {
-    return this->setCompensationValue(accessResistance[compensationsSettingChannel], accessResistanceControl, resistance);
+    return this->setCompensationValue(compensationControls[U_Rs][compensationsSettingChannel], resistance);
 }
 
 ErrorCodes_t EZPatchDevice::setResistanceCorrectionPercentage(Measurement_t percentage) {
-    return this->setCompensationValue(resistanceCorrectionPercentage[compensationsSettingChannel], resistanceCorrectionPercentageControl, percentage);
+    return this->setCompensationValue(compensationControls[U_RsCp][compensationsSettingChannel], percentage);
 }
 
 ErrorCodes_t EZPatchDevice::setResistanceCorrectionLag(Measurement_t lag) {
-    return this->setCompensationValue(resistanceCorrectionLag[compensationsSettingChannel], resistanceCorrectionLagControl, lag);
+    return this->setCompensationValue(compensationControls[U_RsCl][compensationsSettingChannel], lag);
 }
 
 ErrorCodes_t EZPatchDevice::setResistancePredictionGain(Measurement_t gain) {
-    return this->setCompensationValue(resistancePredictionGain[compensationsSettingChannel], resistancePredictionGainControl, gain);
+    return this->setCompensationValue(compensationControls[U_RsPg][compensationsSettingChannel], gain);
 }
 
 ErrorCodes_t EZPatchDevice::setResistancePredictionPercentage(Measurement_t percentage) {
-    return this->setCompensationValue(resistancePredictionPercentage[compensationsSettingChannel], resistancePredictionPercentageControl, percentage);
-}
-
-ErrorCodes_t EZPatchDevice::setResistancePredictionBandwidthGain(Measurement_t gain) {
-    return this->setCompensationValue(resistancePredictionBandwidthGain[compensationsSettingChannel], resistancePredictionBandwidthGainControl, gain);
+    return this->setCompensationValue(compensationControls[U_RsPp][compensationsSettingChannel], percentage);
 }
 
 ErrorCodes_t EZPatchDevice::setResistancePredictionTau(Measurement_t tau) {
-    return this->setCompensationValue(resistancePredictionTau[compensationsSettingChannel], resistancePredictionTauControl, tau);
+    return this->setCompensationValue(compensationControls[U_RsPt][compensationsSettingChannel], tau);
 }
 
 ErrorCodes_t EZPatchDevice::setLeakConductance(Measurement_t conductance) {
-    return this->setCompensationValue(leakConductance[compensationsSettingChannel], leakConductanceControl, conductance);
+    return this->setCompensationValue(compensationControls[U_LkG][compensationsSettingChannel], conductance);
 }
 
 ErrorCodes_t EZPatchDevice::setBridgeBalanceResistance(Measurement_t resistance) {
-    return this->setCompensationValue(bridgeBalanceResistance[compensationsSettingChannel], bridgeBalanceResistanceControl, resistance);
+    return this->setCompensationValue(compensationControls[U_BrB][compensationsSettingChannel], resistance);
 }
 
 ErrorCodes_t EZPatchDevice::setDigitalTriggerOutput(uint16_t triggerIdx, bool terminator, bool polarity, uint16_t triggerId, Measurement_t delay) {
@@ -2783,78 +2799,6 @@ ErrorCodes_t EZPatchDevice::getBridgeBalanceCompensationOptions(std::vector <std
     }
 }
 
-ErrorCodes_t EZPatchDevice::getCompFeatures(CompensationUserParams paramToExtractFeatures, std::vector <RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) {
-    switch(paramToExtractFeatures){
-    case U_CpVc:
-        if(pipetteCapEnCompensationCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uCpVcCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_CpVc];
-            }
-        }
-        break;
-
-    case U_Cm:
-        if(membraneCapEnCompensationCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uCmCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_Cm];
-            }
-        }
-        break;
-
-    case U_Rs:
-        if(membraneCapTauValCompensationMultiCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uRsCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_Rs];
-            }
-        }
-        break;
-
-    case U_RsCp:
-        if(rsCorrValCompensationCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uRsCpCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_RsCp];
-            }
-        }
-        break;
-    case U_RsPg:
-        if(rsPredEnCompensationCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uRsPgCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_RsPg];
-            }
-        }
-        break;
-    case U_CpCc:
-        if(rsPredEnCompensationCoders.size() == 0){
-            return ErrorFeatureNotImplemented;
-        } else {
-            for(int i = 0; i < currentChannelsNum; i++){
-                compensationFeatures[i] = uCpCcCompensable[i];
-                defaultParamValue = defaultUserDomainParams[U_CpCc];
-            }
-        }
-        break;
-
-    default:
-        return ErrorFeatureNotImplemented;
-    }
-    return Success;
-}
-
 ErrorCodes_t EZPatchDevice::getLiquidJunctionControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
     if (liquidJunctionControl.implemented) {
@@ -2866,8 +2810,8 @@ ErrorCodes_t EZPatchDevice::getLiquidJunctionControl(CompensationControl_t &cont
 
 ErrorCodes_t EZPatchDevice::getPipetteCapacitanceControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (pipetteCapacitanceControl.implemented) {
-        control = pipetteCapacitanceControl;
+    if (compensationControls[U_CpVc][compensationsSettingChannel].implemented) {
+        control = compensationControls[U_CpVc][compensationsSettingChannel];
         ret = Success;
     }
     return ret;
@@ -2875,8 +2819,8 @@ ErrorCodes_t EZPatchDevice::getPipetteCapacitanceControl(CompensationControl_t &
 
 ErrorCodes_t EZPatchDevice::getCCPipetteCapacitanceControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (ccPipetteCapacitanceControl.implemented) {
-        control = ccPipetteCapacitanceControl;
+    if (compensationControls[U_CpCc][compensationsSettingChannel].implemented) {
+        control = compensationControls[U_CpCc][compensationsSettingChannel];
         ret = Success;
     }
     return ret;
@@ -2884,8 +2828,8 @@ ErrorCodes_t EZPatchDevice::getCCPipetteCapacitanceControl(CompensationControl_t
 
 ErrorCodes_t EZPatchDevice::getMembraneCapacitanceControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (membraneCapacitanceControl.implemented) {
-        control = membraneCapacitanceControl;
+    if (compensationControls[U_Cm][compensationsSettingChannel].implemented) {
+        control = compensationControls[U_Cm][compensationsSettingChannel];
         ret = Success;
     }
     return ret;
@@ -2893,8 +2837,8 @@ ErrorCodes_t EZPatchDevice::getMembraneCapacitanceControl(CompensationControl_t 
 
 ErrorCodes_t EZPatchDevice::getAccessResistanceControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (accessResistanceControl.implemented) {
-        control = accessResistanceControl;
+    if (compensationControls[U_Rs][compensationsSettingChannel].implemented) {
+        control = compensationControls[U_Rs][compensationsSettingChannel];
         ret = Success;
     }
     return ret;
@@ -2902,8 +2846,8 @@ ErrorCodes_t EZPatchDevice::getAccessResistanceControl(CompensationControl_t &co
 
 ErrorCodes_t EZPatchDevice::getResistanceCorrectionPercentageControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (resistanceCorrectionPercentageControl.implemented) {
-        control = resistanceCorrectionPercentageControl;
+    if (compensationControls[U_RsCp][compensationsSettingChannel].implemented) {
+        control = compensationControls[U_RsCp][compensationsSettingChannel];
         ret = Success;
     }
     return ret;
@@ -2911,8 +2855,8 @@ ErrorCodes_t EZPatchDevice::getResistanceCorrectionPercentageControl(Compensatio
 
 ErrorCodes_t EZPatchDevice::getResistanceCorrectionLagControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (resistanceCorrectionLagControl.implemented) {
-        control = resistanceCorrectionLagControl;
+    if (compensationControls[U_RsCl][compensationsSettingChannel].implemented) {
+        control = compensationControls[U_RsCl][compensationsSettingChannel];
         ret = Success;
     }
     return ret;
@@ -2920,8 +2864,8 @@ ErrorCodes_t EZPatchDevice::getResistanceCorrectionLagControl(CompensationContro
 
 ErrorCodes_t EZPatchDevice::getResistancePredictionGainControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (resistancePredictionGainControl.implemented) {
-        control = resistancePredictionGainControl;
+    if (compensationControls[U_RsPg][compensationsSettingChannel].implemented) {
+        control = compensationControls[U_RsPg][compensationsSettingChannel];
         ret = Success;
     }
     return ret;
@@ -2929,17 +2873,8 @@ ErrorCodes_t EZPatchDevice::getResistancePredictionGainControl(CompensationContr
 
 ErrorCodes_t EZPatchDevice::getResistancePredictionPercentageControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (resistancePredictionPercentageControl.implemented) {
-        control = resistancePredictionPercentageControl;
-        ret = Success;
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::getResistancePredictionBandwidthGainControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (resistancePredictionBandwidthGainControl.implemented) {
-        control = resistancePredictionBandwidthGainControl;
+    if (compensationControls[U_RsPp][compensationsSettingChannel].implemented) {
+        control = compensationControls[U_RsPp][compensationsSettingChannel];
         ret = Success;
     }
     return ret;
@@ -2947,8 +2882,8 @@ ErrorCodes_t EZPatchDevice::getResistancePredictionBandwidthGainControl(Compensa
 
 ErrorCodes_t EZPatchDevice::getResistancePredictionTauControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (resistancePredictionTauControl.implemented) {
-        control = resistancePredictionTauControl;
+    if (compensationControls[U_RsPt][compensationsSettingChannel].implemented) {
+        control = compensationControls[U_RsPt][compensationsSettingChannel];
         ret = Success;
     }
     return ret;
@@ -2956,8 +2891,8 @@ ErrorCodes_t EZPatchDevice::getResistancePredictionTauControl(CompensationContro
 
 ErrorCodes_t EZPatchDevice::getLeakConductanceControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (leakConductanceControl.implemented) {
-        control = leakConductanceControl;
+    if (compensationControls[U_LkG][compensationsSettingChannel].implemented) {
+        control = compensationControls[U_LkG][compensationsSettingChannel];
         ret = Success;
     }
     return ret;
@@ -2965,8 +2900,8 @@ ErrorCodes_t EZPatchDevice::getLeakConductanceControl(CompensationControl_t &con
 
 ErrorCodes_t EZPatchDevice::getBridgeBalanceResistanceControl(CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (bridgeBalanceResistanceControl.implemented) {
-        control = bridgeBalanceResistanceControl;
+    if (compensationControls[U_BrB][compensationsSettingChannel].implemented) {
+        control = compensationControls[U_BrB][compensationsSettingChannel];
         ret = Success;
     }
     return ret;
@@ -3230,31 +3165,17 @@ void EZPatchDevice::initializeCompensations() {
     vcCompensationsActivated = false;
     ccCompensationsActivated = false;
 
-    pipetteCapacitance.resize(currentChannelsNum);
-    ccPipetteCapacitance.resize(currentChannelsNum);
-    membraneCapacitance.resize(currentChannelsNum);
-    accessResistance.resize(currentChannelsNum);
-    resistanceCorrectionPercentage.resize(currentChannelsNum);
-    resistanceCorrectionLag.resize(currentChannelsNum);
-    resistancePredictionGain.resize(currentChannelsNum);
-    resistancePredictionPercentage.resize(currentChannelsNum);
-    resistancePredictionBandwidthGain.resize(currentChannelsNum);
-    resistancePredictionTau.resize(currentChannelsNum);
-    leakConductance.resize(currentChannelsNum);
-    bridgeBalanceResistance.resize(currentChannelsNum);
-
-    std::fill(pipetteCapacitance.begin(), pipetteCapacitance.end(), 1.0);
-    std::fill(ccPipetteCapacitance.begin(), ccPipetteCapacitance.end(), 1.0);
-    std::fill(membraneCapacitance.begin(), membraneCapacitance.end(), 1.0);
-    std::fill(accessResistance.begin(), accessResistance.end(), 1.0);
-    std::fill(resistanceCorrectionPercentage.begin(), resistanceCorrectionPercentage.end(), 1.0);
-    std::fill(resistanceCorrectionLag.begin(), resistanceCorrectionLag.end(), 1.0);
-    std::fill(resistancePredictionGain.begin(), resistancePredictionGain.end(), 1.0);
-    std::fill(resistancePredictionPercentage.begin(), resistancePredictionPercentage.end(), 1.0);
-    std::fill(resistancePredictionBandwidthGain.begin(), resistancePredictionBandwidthGain.end(), 1.0);
-    std::fill(resistancePredictionTau.begin(), resistancePredictionTau.end(), 1.0);
-    std::fill(pipetteCapacitance.begin(), pipetteCapacitance.end(), 1.0);
-    std::fill(bridgeBalanceResistance.begin(), bridgeBalanceResistance.end(), 1.0);
+    compensationControls[U_CpVc].resize(currentChannelsNum);
+    compensationControls[U_CpCc].resize(currentChannelsNum);
+    compensationControls[U_Cm].resize(currentChannelsNum);
+    compensationControls[U_Rs].resize(currentChannelsNum);
+    compensationControls[U_RsCp].resize(currentChannelsNum);
+    compensationControls[U_RsCl].resize(currentChannelsNum);
+    compensationControls[U_RsPg].resize(currentChannelsNum);
+    compensationControls[U_RsPp].resize(currentChannelsNum);
+    compensationControls[U_RsPt].resize(currentChannelsNum);
+    compensationControls[U_LkG].resize(currentChannelsNum);
+    compensationControls[U_BrB].resize(currentChannelsNum);
 
     compCfastEnable.resize(currentChannelsNum);
     compCcCfastEnable.resize(currentChannelsNum);
@@ -3665,13 +3586,13 @@ ErrorCodes_t EZPatchDevice::setCompensationsOptions() {
     return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
 }
 
-ErrorCodes_t EZPatchDevice::setCompensationValue(double &compensatedQuantity, CompensationControl_t &control, Measurement_t newValue) {
+ErrorCodes_t EZPatchDevice::setCompensationValue(CompensationControl_t &control, Measurement_t newValue) {
     ErrorCodes_t ret;
 
     if (control.implemented) {
         newValue.convertValue(control.prefix);
-        double originalValue = compensatedQuantity;
-        compensatedQuantity = newValue.value;
+        double originalValue = control.value;
+        control.value = newValue.value;
 
         if (this->checkCompensationsValues()) {
             uint16_t dataLength = compensationsRegistersNum*2;
@@ -3682,7 +3603,7 @@ ErrorCodes_t EZPatchDevice::setCompensationValue(double &compensatedQuantity, Co
                     this->updateWrittenCompesantionValues(txDataMessage);
 
                 } else {
-                    compensatedQuantity = originalValue;
+                    control.value = originalValue;
                 }
 
             } else {

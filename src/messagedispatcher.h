@@ -100,7 +100,6 @@ public:
         U_RsCl,     // SeriesCorrectionLag
         U_RsPg,     // SeriesPredictionGain
         U_RsPp,     // SeriesPredictionPerc
-        U_RsPb,     // SeriesPredictionBW
         U_RsPt,     // SeriesPredictionTau
         U_LkG,      // LeakConductance
         U_CpCc,     // CCPipetteCapacitance
@@ -347,8 +346,8 @@ public:
     virtual ErrorCodes_t getCalibMappingFilePath(std::string &path);
 
     virtual ErrorCodes_t hasCompFeature(CompensationUserParams feature);
-    virtual ErrorCodes_t getCompFeatures(CompensationUserParams paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
-    virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray);
+    virtual ErrorCodes_t getCompFeatures(CompensationUserParams feature, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
+    virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray);
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix);
     virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues);
 
@@ -590,19 +589,6 @@ protected:
     RangedMeasurement_t rsPredTauRange;
 
     std::vector <CompensationControl_t> compensationControls[CompensationUserParamsNum];
-
-    CompensationControl_t pipetteCapacitanceControl;
-    CompensationControl_t ccPipetteCapacitanceControl;
-    CompensationControl_t membraneCapacitanceControl;
-    CompensationControl_t accessResistanceControl;
-    CompensationControl_t resistanceCorrectionPercentageControl;
-    CompensationControl_t resistanceCorrectionLagControl;
-    CompensationControl_t resistancePredictionGainControl;
-    CompensationControl_t resistancePredictionPercentageControl;
-    CompensationControl_t resistancePredictionBandwidthGainControl;
-    CompensationControl_t resistancePredictionTauControl;
-    CompensationControl_t leakConductanceControl;
-    CompensationControl_t bridgeBalanceResistanceControl;
 
     /*! Default paramter values in USER domain*/
     std::vector <double> defaultUserDomainParams;

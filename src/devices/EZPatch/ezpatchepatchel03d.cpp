@@ -360,7 +360,7 @@ EZPatchePatchEL03D_V04::EZPatchePatchEL03D_V04(std::string di) :
     liquidJunctionControl.min = minLiquidJunctionRange;
     liquidJunctionControl.value = 0.0;
     liquidJunctionControl.max = maxLiquidJunctionRange;
-    liquidJunctionControl.compensable = maxLiquidJunctionRange;
+    liquidJunctionControl.maxCompensable = maxLiquidJunctionRange;
     liquidJunctionControl.steps = liquidJunctionSteps;
     liquidJunctionControl.step = liquidJunctionStep;
     liquidJunctionControl.decimals = liquidJunctionDecimals;
@@ -368,77 +368,86 @@ EZPatchePatchEL03D_V04::EZPatchePatchEL03D_V04(std::string di) :
     liquidJunctionControl.unit = liquidJunctionUnit;
     liquidJunctionControl.name = liquidJunctionName;
 
-    pipetteCapacitanceControl.implemented = true;
-    pipetteCapacitanceControl.min = minPipetteCapacitance;
-    pipetteCapacitanceControl.value = minPipetteCapacitance;
-    pipetteCapacitanceControl.max = maxPipetteCapacitance;
-    pipetteCapacitanceControl.compensable = maxPipetteCapacitance;
-    pipetteCapacitanceControl.steps = pipetteCapacitanceSteps;
-    pipetteCapacitanceControl.step = pipetteCapacitanceStep;
-    pipetteCapacitanceControl.decimals = pipetteCapacitanceDecimals;
-    pipetteCapacitanceControl.prefix = pipetteCapacitancePrefix;
-    pipetteCapacitanceControl.unit = pipetteCapacitanceUnit;
-    pipetteCapacitanceControl.name = pipetteCapacitanceName;
+    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
+    CompensationControl_t control;
 
-    membraneCapacitanceControl.implemented = true;
-    membraneCapacitanceControl.min = minMembraneCapacitance;
-    membraneCapacitanceControl.value = minMembraneCapacitance;
-    membraneCapacitanceControl.max = maxMembraneCapacitance;
-    membraneCapacitanceControl.compensable = maxMembraneCapacitance;
-    membraneCapacitanceControl.steps = membraneCapacitanceSteps;
-    membraneCapacitanceControl.step = membraneCapacitanceStep;
-    membraneCapacitanceControl.decimals = membraneCapacitanceDecimals;
-    membraneCapacitanceControl.prefix = membraneCapacitancePrefix;
-    membraneCapacitanceControl.unit = membraneCapacitanceUnit;
-    membraneCapacitanceControl.name = membraneCapacitanceName;
+    control.implemented = true;
+    control.min = minPipetteCapacitance;
+    control.value = minPipetteCapacitance;
+    control.max = maxPipetteCapacitance;
+    control.maxCompensable = maxPipetteCapacitance;
+    control.steps = pipetteCapacitanceSteps;
+    control.step = pipetteCapacitanceStep;
+    control.decimals = pipetteCapacitanceDecimals;
+    control.prefix = pipetteCapacitancePrefix;
+    control.unit = pipetteCapacitanceUnit;
+    control.name = pipetteCapacitanceName;
+    std::fill(compensationControls[U_CpVc].begin(), compensationControls[U_CpVc].end(), control);
 
-    accessResistanceControl.implemented = true;
-    accessResistanceControl.min = 0.0;
-    accessResistanceControl.value = 0.0;
-    accessResistanceControl.max = 100.0;
-    accessResistanceControl.compensable = 100.0;
-    accessResistanceControl.steps = 1001.0;
-    accessResistanceControl.step = 0.1;
-    accessResistanceControl.decimals = 1;
-    accessResistanceControl.prefix = accessResistancePrefix;
-    accessResistanceControl.unit = accessResistanceUnit;
-    accessResistanceControl.name = accessResistanceName;
+    control.implemented = true;
+    control.min = minMembraneCapacitance;
+    control.value = minMembraneCapacitance;
+    control.max = maxMembraneCapacitance;
+    control.maxCompensable = maxMembraneCapacitance;
+    control.steps = membraneCapacitanceSteps;
+    control.step = membraneCapacitanceStep;
+    control.decimals = membraneCapacitanceDecimals;
+    control.prefix = membraneCapacitancePrefix;
+    control.unit = membraneCapacitanceUnit;
+    control.name = membraneCapacitanceName;
+    std::fill(compensationControls[U_Cm].begin(), compensationControls[U_Cm].end(), control);
 
-    resistanceCorrectionPercentageControl.implemented = true;
-    resistanceCorrectionPercentageControl.min = 0.0;
-    resistanceCorrectionPercentageControl.value = 0.0;
-    resistanceCorrectionPercentageControl.max = 100.0;
-    resistanceCorrectionPercentageControl.compensable = 100.0;
-    resistanceCorrectionPercentageControl.steps = 101.0;
-    resistanceCorrectionPercentageControl.step = 1.0;
-    resistanceCorrectionPercentageControl.decimals = 1;
-    resistanceCorrectionPercentageControl.prefix = resistanceCorrectionPercentagePrefix;
-    resistanceCorrectionPercentageControl.unit = resistanceCorrectionPercentageUnit;
-    resistanceCorrectionPercentageControl.name = resistanceCorrectionPercentageName;
+    control.implemented = true;
+    control.min = 0.0;
+    control.value = 0.0;
+    control.max = 100.0;
+    control.maxCompensable = 100.0;
+    control.steps = 1001.0;
+    control.step = 0.1;
+    control.decimals = 1;
+    control.prefix = accessResistancePrefix;
+    control.unit = accessResistanceUnit;
+    control.name = accessResistanceName;
+    std::fill(compensationControls[U_Rs].begin(), compensationControls[U_Rs].end(), control);
 
-    resistanceCorrectionLagControl.implemented = true;
-    resistanceCorrectionLagControl.min = minResistanceCorrectionLag;
-    resistanceCorrectionLagControl.value = minResistanceCorrectionLag;
-    resistanceCorrectionLagControl.max = maxResistanceCorrectionLag;
-    resistanceCorrectionLagControl.compensable = maxResistanceCorrectionLag;
-    resistanceCorrectionLagControl.steps = resistanceCorrectionLagSteps;
-    resistanceCorrectionLagControl.step = resistanceCorrectionLagStep;
-    resistanceCorrectionLagControl.decimals = resistanceCorrectionLagDecimals;
-    resistanceCorrectionLagControl.prefix = resistanceCorrectionLagPrefix;
-    resistanceCorrectionLagControl.unit = resistanceCorrectionLagUnit;
-    resistanceCorrectionLagControl.name = resistanceCorrectionLagName;
+    control.implemented = true;
+    control.min = 0.0;
+    control.value = 0.0;
+    control.max = 100.0;
+    control.maxCompensable = 100.0;
+    control.steps = 101.0;
+    control.step = 1.0;
+    control.decimals = 1;
+    control.prefix = resistanceCorrectionPercentagePrefix;
+    control.unit = resistanceCorrectionPercentageUnit;
+    control.name = resistanceCorrectionPercentageName;
+    std::fill(compensationControls[U_RsCp].begin(), compensationControls[U_RsCp].end(), control);
 
-    resistancePredictionPercentageControl.implemented = true;
-    resistancePredictionPercentageControl.min = 0.0;
-    resistancePredictionPercentageControl.value = 100.0;
-    resistancePredictionPercentageControl.max = 150.0;
-    resistancePredictionPercentageControl.compensable = 150.0;
-    resistancePredictionPercentageControl.steps = 151.0;
-    resistancePredictionPercentageControl.step = 1.0;
-    resistancePredictionPercentageControl.decimals = 1;
-    resistancePredictionPercentageControl.prefix = resistancePredictionPercentagePrefix;
-    resistancePredictionPercentageControl.unit = resistancePredictionPercentageUnit;
-    resistancePredictionPercentageControl.name = resistancePredictionPercentageName;
+    control.implemented = true;
+    control.min = minResistanceCorrectionLag;
+    control.value = minResistanceCorrectionLag;
+    control.max = maxResistanceCorrectionLag;
+    control.maxCompensable = maxResistanceCorrectionLag;
+    control.steps = resistanceCorrectionLagSteps;
+    control.step = resistanceCorrectionLagStep;
+    control.decimals = resistanceCorrectionLagDecimals;
+    control.prefix = resistanceCorrectionLagPrefix;
+    control.unit = resistanceCorrectionLagUnit;
+    control.name = resistanceCorrectionLagName;
+    std::fill(compensationControls[U_RsCl].begin(), compensationControls[U_RsCl].end(), control);
+
+    control.implemented = true;
+    control.min = 0.0;
+    control.value = 100.0;
+    control.max = 150.0;
+    control.maxCompensable = 150.0;
+    control.steps = 151.0;
+    control.step = 1.0;
+    control.decimals = 1;
+    control.prefix = resistancePredictionPercentagePrefix;
+    control.unit = resistancePredictionPercentageUnit;
+    control.name = resistancePredictionPercentageName;
+    std::fill(compensationControls[U_RsPp].begin(), compensationControls[U_RsPp].end(), control);
 
     /*! Zap command */
     zapDurationHwRegisterOffset = 6;
@@ -597,49 +606,49 @@ void EZPatchePatchEL03D_V04::initializeCompensations() {
 
 bool EZPatchePatchEL03D_V04::checkCompensationsValues() {
     bool ret = true;
-    ret &= (pipetteCapacitance[compensationsSettingChannel] > (minPipetteCapacitance-0.5*pipetteCapacitanceStep) &&
-            pipetteCapacitance[compensationsSettingChannel] < (maxPipetteCapacitance+0.5*pipetteCapacitanceStep));
-    ret &= (membraneCapacitance[compensationsSettingChannel] > (minMembraneCapacitance-0.5*membraneCapacitanceStep) &&
-            membraneCapacitance[compensationsSettingChannel] < (maxMembraneCapacitance+0.5*membraneCapacitanceStep));
-    double membraneTau = membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel];
+    ret &= (compensationControls[U_CpVc][compensationsSettingChannel].value > (minPipetteCapacitance-0.5*pipetteCapacitanceStep) &&
+            compensationControls[U_CpVc][compensationsSettingChannel].value < (maxPipetteCapacitance+0.5*pipetteCapacitanceStep));
+    ret &= (compensationControls[U_Cm][compensationsSettingChannel].value > (minMembraneCapacitance-0.5*membraneCapacitanceStep) &&
+            compensationControls[U_Cm][compensationsSettingChannel].value < (maxMembraneCapacitance+0.5*membraneCapacitanceStep));
+    double membraneTau = compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value;
     ret &= (membraneTau > (minMembraneTau-0.5*membraneTauStep) &&
             membraneTau < (maxMembraneTau+0.5*membraneTauStep));
-    double resistanceCorrected = accessResistance[compensationsSettingChannel]*resistanceCorrectionPercentage[compensationsSettingChannel]/maxResistanceCorrectionPercentage;
+    double resistanceCorrected = compensationControls[U_Rs][compensationsSettingChannel].value*compensationControls[U_RsCp][compensationsSettingChannel].value/maxResistanceCorrectionPercentage;
     ret &= (resistanceCorrected > (0.999*minResistanceCorrection-0.001*maxResistanceCorrection()) &&
             resistanceCorrected < (0.001*minResistanceCorrection+1.001*maxResistanceCorrection()));
-    ret &= (resistanceCorrectionLag[compensationsSettingChannel] > (minResistanceCorrectionLag-0.5*resistanceCorrectionLagStep) &&
-            resistanceCorrectionLag[compensationsSettingChannel] < (maxResistanceCorrectionLag+0.5*resistanceCorrectionLagStep));
-    double resistancePredictionTau = membraneTau*resistancePredictionPercentage[compensationsSettingChannel]/maxResistancePredictionPercentage;
+    ret &= (compensationControls[U_RsCl][compensationsSettingChannel].value > (minResistanceCorrectionLag-0.5*resistanceCorrectionLagStep) &&
+            compensationControls[U_RsCl][compensationsSettingChannel].value < (maxResistanceCorrectionLag+0.5*resistanceCorrectionLagStep));
+    double resistancePredictionTau = membraneTau*compensationControls[U_RsPp][compensationsSettingChannel].value/maxResistancePredictionPercentage;
     ret &= (resistancePredictionTau > (minResistancePredictionTau-0.5*resistancePredictionTauStep) &&
             resistancePredictionTau < (maxResistancePredictionTau+0.5*resistancePredictionTauStep));
 
     if (ret) {
-        double rs = fmax(accessResistance[compensationsSettingChannel], accessResistanceControl.step);
-        double rc = fmax(resistanceCorrectionPercentage[compensationsSettingChannel], resistanceCorrectionPercentageControl.step);
-        double rp = fmax(resistancePredictionPercentage[compensationsSettingChannel], resistancePredictionPercentageControl.step);
+        double rs = fmax(compensationControls[U_Rs][compensationsSettingChannel].value, compensationControls[U_Rs][compensationsSettingChannel].step);
+        double rc = fmax(compensationControls[U_RsCp][compensationsSettingChannel].value, compensationControls[U_RsCp][compensationsSettingChannel].step);
+        double rp = fmax(compensationControls[U_RsPp][compensationsSettingChannel].value, compensationControls[U_RsPp][compensationsSettingChannel].step);
 
-        /*! pipetteCapacitanceControl.compensable doesn't depend on other controls */
+        /*! pipetteCapacitanceControl.maxCompensable doesn't depend on other controls */
 
         double d1 = maxMembraneCapacitance;
         double d2 = maxMembraneTau/rs;
         double d3 = maxResistancePredictionTau*maxResistancePredictionPercentage/(rs*rp);
-        membraneCapacitanceControl.compensable = fmin(fmin(d1, d2), d3);
+        compensationControls[U_Cm][compensationsSettingChannel].maxCompensable = fmin(fmin(d1, d2), d3);
 
-        d1 = accessResistanceControl.max;
-        d2 = maxMembraneTau/membraneCapacitance[compensationsSettingChannel];
+        d1 = compensationControls[U_Rs][compensationsSettingChannel].max;
+        d2 = maxMembraneTau/compensationControls[U_Cm][compensationsSettingChannel].value;
         d3 = maxResistanceCorrection()*maxResistanceCorrectionPercentage/rc;
-        double d4 = maxResistancePredictionTau*maxResistancePredictionPercentage/(membraneCapacitance[compensationsSettingChannel]*rp);
-        accessResistanceControl.compensable = fmin(fmin(fmin(d1, d2), d3), d4);
+        double d4 = maxResistancePredictionTau*maxResistancePredictionPercentage/(compensationControls[U_Cm][compensationsSettingChannel].value*rp);
+        compensationControls[U_Rs][compensationsSettingChannel].maxCompensable = fmin(fmin(fmin(d1, d2), d3), d4);
 
-        d1 = resistanceCorrectionPercentageControl.max;
+        d1 = compensationControls[U_RsCp][compensationsSettingChannel].max;
         d2 = maxResistanceCorrection()*maxResistanceCorrectionPercentage/rs;
-        resistanceCorrectionPercentageControl.compensable = fmin(d1, d2);
+        compensationControls[U_RsCp][compensationsSettingChannel].maxCompensable = fmin(d1, d2);
 
-        /*! resistanceCorrectionLagControl.compensable doesn't depend on other controls */
+        /*! resistanceCorrectionLagControl.maxCompensable doesn't depend on other controls */
 
-        d1 = resistancePredictionPercentageControl.max;
-        d2 = maxResistancePredictionTau*maxResistancePredictionPercentage/(membraneCapacitance[compensationsSettingChannel]*rs);
-        resistancePredictionPercentageControl.compensable = fmin(d1, d2);
+        d1 = compensationControls[U_RsPp][compensationsSettingChannel].max;
+        d2 = maxResistancePredictionTau*maxResistancePredictionPercentage/(compensationControls[U_Cm][compensationsSettingChannel].value*rs);
+        compensationControls[U_RsPp][compensationsSettingChannel].maxCompensable = fmin(d1, d2);
     }
 
     return ret;
@@ -648,17 +657,17 @@ bool EZPatchePatchEL03D_V04::checkCompensationsValues() {
 bool EZPatchePatchEL03D_V04::fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) {
     bool anythingChanged = false;
     txDataMessage[0] = CompensationsRegisterAmpCFast+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[1] = ((vcCompensationsActivated & compCfastEnable[compensationsSettingChannel]) ? (uint16_t)round(pipetteCapacitance[compensationsSettingChannel]/pipetteCapacitanceStep) : 0);
+    txDataMessage[1] = ((vcCompensationsActivated & compCfastEnable[compensationsSettingChannel]) ? (uint16_t)round(compensationControls[U_CpVc][compensationsSettingChannel].value/pipetteCapacitanceStep) : 0);
     txDataMessage[2] = CompensationsRegisterExtAmpCSlow+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[3] = ((vcCompensationsActivated & compCslowEnable[compensationsSettingChannel]) ? (uint16_t)round((membraneCapacitance[compensationsSettingChannel]-minMembraneCapacitance)/membraneCapacitanceStep) : 0);
+    txDataMessage[3] = ((vcCompensationsActivated & compCslowEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance)/membraneCapacitanceStep) : 0);
     txDataMessage[4] = CompensationsRegisterExtDacCSlow+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[5] = ((vcCompensationsActivated & compCslowEnable[compensationsSettingChannel]) ? (uint16_t)round((membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel]-minMembraneTau)/membraneTauStep) : 0);
+    txDataMessage[5] = ((vcCompensationsActivated & compCslowEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value-minMembraneTau)/membraneTauStep) : 0);
     txDataMessage[6] = CompensationsRegisterOdacRs+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[7] = ((vcCompensationsActivated & compRsCompEnable[compensationsSettingChannel]) ? (uint16_t)round(resistanceCorrectionPercentage[compensationsSettingChannel]/resistanceCorrectionPercentageStep*accessResistance[compensationsSettingChannel]/transImpedance[selectedVcCurrentRangeIdx]) : 0);
+    txDataMessage[7] = ((vcCompensationsActivated & compRsCompEnable[compensationsSettingChannel]) ? (uint16_t)round(compensationControls[U_RsCp][compensationsSettingChannel].value/resistanceCorrectionPercentageStep*compensationControls[U_Rs][compensationsSettingChannel].value/transImpedance[selectedVcCurrentRangeIdx]) : 0);
     txDataMessage[8] = CompensationsRegisterRsLag+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[9] = ((vcCompensationsActivated & compRsCompEnable[compensationsSettingChannel]) ? (uint16_t)round((resistanceCorrectionLag[compensationsSettingChannel]-minResistanceCorrectionLag)/resistanceCorrectionLagStep) : 0);
+    txDataMessage[9] = ((vcCompensationsActivated & compRsCompEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_RsCl][compensationsSettingChannel].value-minResistanceCorrectionLag)/resistanceCorrectionLagStep) : 0);
     txDataMessage[10] = CompensationsRegisterRsPrediction+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[11] = ((vcCompensationsActivated & compRsCompEnable[compensationsSettingChannel]) ? (uint16_t)round((membraneCapacitance[compensationsSettingChannel]*accessResistance[compensationsSettingChannel]*resistancePredictionPercentage[compensationsSettingChannel]/maxResistancePredictionPercentage-minResistancePredictionTau)/resistancePredictionTauStep) : 0);
+    txDataMessage[11] = ((vcCompensationsActivated & compRsCompEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value*compensationControls[U_RsPp][compensationsSettingChannel].value/maxResistancePredictionPercentage-minResistancePredictionTau)/resistancePredictionTauStep) : 0);
 
     if (txDataMessage[1] != pipetteCapacitanceRegValue[compensationsSettingChannel] ||
             txDataMessage[3] != membraneCapacitanceRegValue[compensationsSettingChannel] ||
