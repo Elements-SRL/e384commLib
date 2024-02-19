@@ -635,7 +635,7 @@ ErrorCodes_t EmcrDevice::setCalibRShuntConductance(std::vector<uint16_t> channel
         conductances[i].convertValue(rRShuntConductanceCalibRange[selectedVcCurrentRangeIdx].prefix);
         calibrationParams.rShuntConductance[selectedVcCurrentRangeIdx][channelIndexes[i]] = conductances[i];
     }
-    this->updateCalibCcCurrentOffset(channelIndexes, applyFlag);
+    this->updateCalibRShuntConductance(channelIndexes, applyFlag);
 
     return Success;
 }
