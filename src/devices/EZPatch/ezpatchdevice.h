@@ -145,7 +145,7 @@ public:
     ErrorCodes_t setResistancePredictionGain(Measurement_t gain);
     ErrorCodes_t setResistancePredictionPercentage(Measurement_t percentage);
     ErrorCodes_t setResistancePredictionTau(Measurement_t tau);
-    virtual ErrorCodes_t setLeakConductance(Measurement_t conductance);
+    ErrorCodes_t setLeakConductance(Measurement_t conductance);
     ErrorCodes_t setBridgeBalanceResistance(Measurement_t resistance); /*! \todo FCON sono arrivato qui */
 
     ErrorCodes_t setDigitalTriggerOutput(uint16_t triggerIdx, bool terminator, bool polarity, uint16_t triggerId, Measurement_t delay);

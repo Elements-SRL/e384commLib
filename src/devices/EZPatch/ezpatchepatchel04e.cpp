@@ -620,20 +620,19 @@ EZPatchePatchEL04E::EZPatchePatchEL04E(std::string di) :
     control.name = resistancePredictionTauName;
     std::fill(compensationControls[U_RsPt].begin(), compensationControls[U_RsPt].end(), control);
 
-    control.implemented = true;
-    control.min = minLeakConductanceLow;
-    control.value = minLeakConductanceLow;
-    control.max = maxLeakConductanceLow;
-    control.maxCompensable = maxLeakConductanceLow;
-    control.steps = leakConductanceLowSteps;
-    control.step = leakConductanceLowStep;
-    control.decimals = leakConductanceLowDecimals;
-    control.prefix = leakConductanceLowPrefix;
-    control.unit = leakConductanceLowUnit;
-    control.name = leakConductanceLowName;
-    std::fill(compensationControls[U_LkG].begin(), compensationControls[U_LkG].end(), control);
+    leakConductanceControlLow.implemented = true;
+    leakConductanceControlLow.min = minLeakConductanceHigh;
+    leakConductanceControlLow.value = minLeakConductanceHigh;
+    leakConductanceControlLow.max = maxLeakConductanceHigh;
+    leakConductanceControlLow.maxCompensable = maxLeakConductanceHigh;
+    leakConductanceControlLow.steps = leakConductanceHighSteps;
+    leakConductanceControlLow.step = leakConductanceHighStep;
+    leakConductanceControlLow.decimals = leakConductanceHighDecimals;
+    leakConductanceControlLow.prefix = leakConductanceHighPrefix;
+    leakConductanceControlLow.unit = leakConductanceHighUnit;
+    leakConductanceControlLow.name = leakConductanceHighName;
+    std::fill(compensationControls[U_LkG].begin(), compensationControls[U_LkG].end(), leakConductanceControlLow);
 
-    leakHai
     leakConductanceControlHigh.implemented = true;
     leakConductanceControlHigh.min = minLeakConductanceHigh;
     leakConductanceControlHigh.value = minLeakConductanceHigh;
@@ -846,25 +845,24 @@ ErrorCodes_t EZPatchePatchEL04E::setResistancePredictionOptions(uint16_t optionI
     }
 }
 
-ErrorCodes_t EZPatchePatchEL04E::setLeakConductance(Measurement_t conductance) {
-    if (selectedVcCurrentRangeIdx < VCCurrentRange30nA) {
-        return this->setCompensationValue(compensationControls[U_LkG][compensationsSettingChannel], conductance);
-
-    } else {
-        return this->setCompensationValue(compensationControls[U_LkG][compensationsSettingChannel], conductance);
-    }
-}
-
 ErrorCodes_t EZPatchePatchEL04E::getLeakConductanceControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (selectedVcCurrentRangeIdx < VCCurrentRange30nA) {
-        control = leakConductanceControlLow;
+    if (selectedVcCurrentRangeIdx < VCCurrentRange3nA) {
+        compensationControls[U_RsPt][compensationsSettingChannel].min = leakConductanceControlLow.min;
+        compensationControls[U_RsPt][compensationsSettingChannel].max = leakConductanceControlLow.max;
+        compensationControls[U_RsPt][compensationsSettingChannel].minCompensable = leakConductanceControlLow.minCompensable;
+        compensationControls[U_RsPt][compensationsSettingChannel].maxCompensable = leakConductanceControlLow.maxCompensable;
+        compensationControls[U_RsPt][compensationsSettingChannel].step = leakConductanceControlLow.step;
+        compensationControls[U_RsPt][compensationsSettingChannel].decimals = leakConductanceControlLow.decimals;
 
     } else {
-        control = leakConductanceControlHigh;
+        compensationControls[U_RsPt][compensationsSettingChannel].min = leakConductanceControlHigh.min;
+        compensationControls[U_RsPt][compensationsSettingChannel].max = leakConductanceControlHigh.max;
+        compensationControls[U_RsPt][compensationsSettingChannel].minCompensable = leakConductanceControlHigh.minCompensable;
+        compensationControls[U_RsPt][compensationsSettingChannel].maxCompensable = leakConductanceControlHigh.maxCompensable;
+        compensationControls[U_RsPt][compensationsSettingChannel].step = leakConductanceControlHigh.step;
+        compensationControls[U_RsPt][compensationsSettingChannel].decimals = leakConductanceControlHigh.decimals;
     }
-    ret = Success;
-    return ret;
+    return EZPatchDevice::getLeakConductanceControl(control);
 }
 
 void EZPatchePatchEL04E::selectChannelsResolutions() {
@@ -947,7 +945,7 @@ bool EZPatchePatchEL04E::checkCompensationsValues() {
         double resistancePredictedTau = membraneTau*compensationControls[U_RsPp][compensationsSettingChannel].value/maxResistancePredictionPercentage/compensationControls[U_RsPg][compensationsSettingChannel].value;
         ret &= (resistancePredictedTau > (minResistancePredictionTau-0.5*resistancePredictionTauStep) &&
                 resistancePredictedTau < (maxResistancePredictionTau+0.5*resistancePredictionTauStep));
-        if (selectedVcCurrentRangeIdx < VCCurrentRange30nA) {
+        if (selectedVcCurrentRangeIdx < VCCurrentRange3nA) {
             ret &= (compensationControls[U_LkG][compensationsSettingChannel].value > (minLeakConductanceLow-0.5*leakConductanceLowStep) &&
                     compensationControls[U_LkG][compensationsSettingChannel].value < (maxLeakConductanceLow+0.5*leakConductanceLowStep));
 
@@ -1016,7 +1014,7 @@ bool EZPatchePatchEL04E::fillCompensationsRegistersTxData(std::vector <uint16_t>
     txDataMessage[8] = CompensationsRegisterVCRPredTau+compensationsSettingChannel*coreSpecificRegistersNum;
     txDataMessage[9] = 0xFF-((vcCompensationsActivated & compRsPredEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value*compensationControls[U_RsPp][compensationsSettingChannel].value/maxResistancePredictionPercentage-minResistancePredictionTau)/compensationControls[U_RsPg][compensationsSettingChannel].value/resistancePredictionTauStep) : 0);
     txDataMessage[10] = CompensationsRegisterVCRLeakGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    if (selectedVcCurrentRangeIdx < VCCurrentRange30nA) {
+    if (selectedVcCurrentRangeIdx < VCCurrentRange3nA) {
         txDataMessage[11] = 0xFF-((vcCompensationsActivated & compLeakEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_LkG][compensationsSettingChannel].value-minLeakConductanceLow)/leakConductanceLowStep) : 0);
 
     } else {

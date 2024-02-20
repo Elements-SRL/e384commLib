@@ -13,7 +13,6 @@ public:
     ErrorCodes_t hasCompFeature(CompensationUserParams feature) override;
 
     ErrorCodes_t setResistancePredictionOptions(uint16_t optionIdx) override;
-    ErrorCodes_t setLeakConductance(Measurement_t conductance) override;
     ErrorCodes_t getLeakConductanceControl(CompensationControl_t &control) override;
 
 protected:
