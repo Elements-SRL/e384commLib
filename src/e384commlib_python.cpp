@@ -272,12 +272,41 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return md->turnChannelsOn(channelIndexes, onValues, true);
     });
 
+    m.def("setCompValues",[](std::vector<uint16_t> channelIndexes, MessageDispatcher::CompensationUserParams paramToUpdate, std::vector<double> newParamValues){
+        return md->setCompValues(channelIndexes, paramToUpdate, newParamValues, true);
+    });
+
+    m.def("enableCompensation",[](std::vector<uint16_t> channelIndexes, MessageDispatcher::CompensationTypes compType, bool status){
+        std::vector<bool> onValues;
+        for(auto i: channelIndexes){
+           onValues.push_back(status);
+        }
+        return md->enableCompensation(channelIndexes, compType, onValues, true);
+    });
+
     /*! \todo MPAC: anche qui ancora non aggiorniamo il modelChannel. Vogliamo farlo???*/
     py::enum_<ClampingModality_t>(m, "ClampingModality")
             .value("VOLTAGE_CLAMP",      ClampingModality_t::VOLTAGE_CLAMP)
             .value("CURRENT_CLAMP",      ClampingModality_t::CURRENT_CLAMP)
             .value("DYNAMIC_CLAMP",      ClampingModality_t::DYNAMIC_CLAMP)
             .value("ZERO_CURRENT_CLAMP",  ClampingModality_t::ZERO_CURRENT_CLAMP)
+            .export_values();
+
+    py::enum_<MessageDispatcher::CompensationUserParams>(m, "CompensationUserParams")
+            .value("U_CpVc",                            MessageDispatcher::CompensationUserParams::U_CpVc)
+            .value("U_Cm",                              MessageDispatcher::CompensationUserParams::U_Cm)
+            .value("U_Rs",                              MessageDispatcher::CompensationUserParams::U_Rs)
+            .value("U_RsCp",                            MessageDispatcher::CompensationUserParams::U_RsCp)
+            .value("U_RsPg",                            MessageDispatcher::CompensationUserParams::U_RsPg)
+            .value("U_CpCc",                            MessageDispatcher::CompensationUserParams::U_CpCc)
+            .export_values();
+
+    py::enum_<MessageDispatcher::CompensationTypes>(m, "CompensationTypes")
+            .value("CompCfast",                         MessageDispatcher::CompensationTypes::CompCfast)
+            .value("CompCslow",                         MessageDispatcher::CompensationTypes::CompCslow)
+            .value("CompRsCorr",                        MessageDispatcher::CompensationTypes::CompRsCorr)
+            .value("CompRsPred",                        MessageDispatcher::CompensationTypes::CompRsPred)
+            .value("CompCcCfast",                       MessageDispatcher::CompensationTypes::CompCcCfast)
             .export_values();
 
 //    todo completare gli error codes
