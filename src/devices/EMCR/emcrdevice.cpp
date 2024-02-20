@@ -640,17 +640,34 @@ ErrorCodes_t EmcrDevice::setCalibRShuntConductance(std::vector<uint16_t> channel
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::updateCalibRShuntConductance(std::vector<uint16_t> channelIndexes, bool applyFlag){
+ErrorCodes_t EmcrDevice::updateCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibRShuntConductanceCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
     } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
-    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.rShuntConductance[selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(rRShuntConductanceCalibRange[selectedVcCurrentRangeIdx].prefix);
         double conductance = calibrationParams.rShuntConductance[selectedVcCurrentRangeIdx][channelIndexes[i]].value;
         calibRShuntConductanceCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(conductance, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::resetCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag) {
+    if (calibRShuntConductanceCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+        calibRShuntConductanceCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
     if (applyFlag) {
@@ -726,6 +743,7 @@ ErrorCodes_t EmcrDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool applyF
 
     this->updateCalibCcCurrentGain(allChannelIndexes, false);
     this->updateCalibCcCurrentOffset(allChannelIndexes, false);
+    this->resetCalibRShuntConductance(allChannelIndexes, false);
     this->updateCurrentHoldTuner(false);
 
     if (applyFlag) {
