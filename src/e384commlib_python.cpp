@@ -276,6 +276,12 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return md->setCompValues(channelIndexes, paramToUpdate, newParamValues, true);
     });
 
+    m.def("getCompValueMatrix",[](){
+        std::vector<std::vector<double>> compValues;
+        auto err = md->getCompValueMatrix(compValues);
+        return std::make_tuple(err, compValues);
+    });
+
     m.def("enableCompensation",[](std::vector<uint16_t> channelIndexes, MessageDispatcher::CompensationTypes compType, bool status){
         std::vector<bool> onValues;
         for(auto i: channelIndexes){
