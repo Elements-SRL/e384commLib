@@ -112,6 +112,9 @@ PYBIND11_MODULE(e384CommLibPython, m) {
     m.def("setCalibCcCurrentGains",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains){
         return md->setCalibCcCurrentGain(channelIndexes, gains, true);
     });
+    m.def("setCalibRShuntConductance",[](std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains){
+        return md->setCalibRShuntConductance(channelIndexes, gains, true);
+    });
 
     m.def("setVCVoltageRange",[](uint16_t voltageRangeIdx){
         return md->setVCVoltageRange(voltageRangeIdx, true);
