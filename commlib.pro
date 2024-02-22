@@ -70,6 +70,7 @@ SOURCES += \
     src/devices/EMCR/emcr384patchclamp_prot_v01_fw_v02.cpp \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v03.cpp \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v04.cpp \
+    src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v05.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
     src/devices/EMCR/emcropalkellydevice.cpp \
@@ -101,6 +102,7 @@ HEADERS += \
     src/devices/EMCR/emcr384patchclamp_prot_v01_fw_v02.h \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v03.h \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v04.h \
+    src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v05.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
