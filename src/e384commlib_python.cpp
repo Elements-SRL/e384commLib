@@ -363,7 +363,8 @@ PYBIND11_MODULE(e384CommLibPython, m) {
             .def(py::init<double, UnitPfx_t, std::string>())
             .def_readonly("value", &Measurement_t::value)
             .def_readonly("prefix", &Measurement_t::prefix)
-            .def_readonly("unit", &Measurement_t::unit);
+            .def_readonly("unit", &Measurement_t::unit)
+            .def("getNoPrefixValue", &Measurement_t::getNoPrefixValue);
 
     py::class_<RangedMeasurement_t>(m, "RangedMeasurement")
             .def(py::init<double, double, double, UnitPfx_t, std::string>())
