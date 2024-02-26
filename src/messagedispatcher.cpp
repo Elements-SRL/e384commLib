@@ -1166,6 +1166,7 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
         if (vcCurrentRangesNum > 0) {
             this->updateCalibVcCurrentGain(allChannelIndexes, false);
             this->updateCalibVcCurrentOffset(allChannelIndexes, false);
+            this->updateCalibRShuntConductance(allChannelIndexes, false);
         }
 
         if (vcVoltageRangesNum > 0) {
