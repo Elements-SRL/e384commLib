@@ -4,7 +4,7 @@
 #define UDB_RX_BUFFER_SIZE 0x1000000 /*!< Number of bytes. Always use a power of 2 for efficient circular buffer management through index masking */
 #define UDB_RX_BUFFER_MASK (UDB_RX_BUFFER_SIZE-1)
 #define UDB_RX_TRANSFER_SIZE 0x100000  /*! 1MB, must be lower than 4MB */
-//#define UDB_RX_BLOCK_SIZE 0x4000 /*! 16kB. Must match value in FPGA FW */
+#define UDB_RX_EXTENDED_BUFFER_SIZE (UDB_RX_BUFFER_SIZE+UDB_RX_TRANSFER_SIZE) /*!< Add space to be able to always store data from the XferData */
 #define UDB_BULKIN_ENDPOINT_TIMEOUT ((int)2000)
 #define UDB_BULKOUT_ENDPOINT_TIMEOUT ((int)2000)
 #define UDB_PACKETS_PER_TRANSFER ((int)64)

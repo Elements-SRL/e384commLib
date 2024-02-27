@@ -336,12 +336,18 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
 #endif
 
     /*! Read the data */
-    bytesRead = readDataTransferSize; /*! \todo FCON qui si sta dando per scontato che l'UDB ritorni sempre la stessa quantità di dati */
+    bytesRead = readDataTransferSize;
     if (eptBulkin->XferData((PUCHAR)rxRawBuffer+rxRawBufferWriteOffset, bytesRead, nullptr, false) == false) {
         /*! XferData, apparently, returns false also if the required data is not available before timeout, so check the amount of available data as well */
         if (bytesRead <= 0) {
             return ErrorNoDataAvailable;
             /*! \todo eptbulkin->NtStatus controllare per vedere il tipo di fallimento */
+        }
+    }
+
+    if (rxRawBufferWriteOffset+bytesRead > UDB_RX_BUFFER_MASK) {
+        for (uint32_t idx = 0; idx < rxRawBufferWriteOffset+bytesRead-UDB_RX_BUFFER_MASK; idx++) {
+            rxRawBuffer[idx] = rxRawBuffer[UDB_RX_BUFFER_MASK+idx];
         }
     }
 
@@ -531,7 +537,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
 }
 
 ErrorCodes_t EmcrUdbDevice::initializeMemory() {
-    rxRawBuffer = new (std::nothrow) uint8_t[UDB_RX_BUFFER_SIZE];
+    rxRawBuffer = new (std::nothrow) uint8_t[UDB_RX_EXTENDED_BUFFER_SIZE];
     if (rxRawBuffer == nullptr) {
         this->deinitializeMemory();
         return ErrorMemoryInitialization;
