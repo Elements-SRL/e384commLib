@@ -6,8 +6,6 @@
 #include "e384commlib_global.h"
 #include "e384commlib_errorcodes.h"
 
-class MessageDispatcher;
-
 /************************\
  *  Connection methods  *
 \************************/
@@ -2128,6 +2126,16 @@ ErrorCodes_t getCcDacOffsetCalibration(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getRsCorrDacOffsetCalibration(
+        E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Gets the conductance due to the shunt resistance.
+ *
+ * \param meas [out] calibration parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getRsShuntConductanceCalibration(
         E384CL_ARGOUT LVecMeasHandle * meas);
 
 /*! \brief Set a debug bit

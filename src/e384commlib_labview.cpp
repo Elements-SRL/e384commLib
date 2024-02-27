@@ -2102,7 +2102,7 @@ ErrorCodes_t getVcAdcGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.allGainAdcMeas, meas);
+    matrixMeasurement2Output(calibParams.vcGainAdc, meas);
     return ret;
 }
 
@@ -2115,7 +2115,7 @@ ErrorCodes_t getVcAdcOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.allOffsetAdcMeas, meas);
+    matrixMeasurement2Output(calibParams.vcOffsetAdc, meas);
     return ret;
 }
 
@@ -2128,7 +2128,7 @@ ErrorCodes_t getVcDacGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.allGainDacMeas, meas);
+    matrixMeasurement2Output(calibParams.vcGainDac, meas);
     return ret;
 }
 
@@ -2141,7 +2141,7 @@ ErrorCodes_t getVcDacOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.allOffsetDacMeas, meas);
+    matrixMeasurement2Output(calibParams.vcOffsetDac, meas);
     return ret;
 }
 
@@ -2154,7 +2154,7 @@ ErrorCodes_t getCcAdcGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.ccAllGainAdcMeas, meas);
+    matrixMeasurement2Output(calibParams.ccGainAdc, meas);
     return ret;
 }
 
@@ -2167,7 +2167,7 @@ ErrorCodes_t getCcAdcOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.ccAllOffsetAdcMeas, meas);
+    matrixMeasurement2Output(calibParams.ccOffsetAdc, meas);
     return ret;
 }
 
@@ -2180,7 +2180,7 @@ ErrorCodes_t getCcDacGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.ccAllGainDacMeas, meas);
+    matrixMeasurement2Output(calibParams.ccGainDac, meas);
     return ret;
 }
 
@@ -2193,7 +2193,7 @@ ErrorCodes_t getCcDacOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.ccAllOffsetDacMeas, meas);
+    matrixMeasurement2Output(calibParams.ccOffsetDac, meas);
     return ret;
 }
 
@@ -2206,7 +2206,20 @@ ErrorCodes_t getRsCorrDacOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.allOffsetRsCorrMeas, meas);
+    matrixMeasurement2Output(calibParams.rsCorrOffsetDac, meas);
+    return ret;
+}
+
+ErrorCodes_t getRsShuntConductanceCalibration(
+        LVecMeasHandle * meas) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+    CalibrationParams_t calibParams;
+    ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
+    matrixMeasurement2Output(calibParams.rShuntConductance, meas);
     return ret;
 }
 

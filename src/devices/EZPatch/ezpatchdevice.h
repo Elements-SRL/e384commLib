@@ -113,7 +113,7 @@ public:
     ErrorCodes_t setConstantSwitches();
 
     ErrorCodes_t setCompensationsChannel(uint16_t channelIdx);
-    ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
+    ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
     ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag) override;
     ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag) override;
     ErrorCodes_t turnPipetteCompensationOn(bool on);

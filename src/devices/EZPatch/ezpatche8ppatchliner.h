@@ -8,8 +8,6 @@ public:
     EZPatche8PPatchliner(std::string di);
     virtual ~EZPatche8PPatchliner();
 
-    ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data) override; /*!< overidden because it needs a custom data interleaving */
-
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
     ErrorCodes_t hasCompFeature(uint16_t feature) override;

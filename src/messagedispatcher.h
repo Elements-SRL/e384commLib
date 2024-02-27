@@ -83,11 +83,11 @@ public:
     virtual ~MessageDispatcher();
 
     enum CompensationTypes {
-        CompCfast, // pipette
-        CompCslow, // membrane
-        CompRsCorr,
-        CompRsPred,
-        CompCcCfast,
+        CompCfast,      // pipette voltage clamp
+        CompCslow,      // membrane
+        CompRsCorr,     // rseries correction
+        CompRsPred,     // rseries prediction
+        CompCcCfast,    // pipette current clamp
         CompensationTypesNum
     };
 
@@ -162,6 +162,8 @@ public:
     virtual ErrorCodes_t updateCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag);
     virtual ErrorCodes_t setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
     virtual ErrorCodes_t updateCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag);
+    virtual ErrorCodes_t setCalibRShuntConductance(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> conductances, bool applyFlag);
+    virtual ErrorCodes_t updateCalibRShuntConductance(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
     virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag);
     virtual ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag);
@@ -214,7 +216,7 @@ public:
     virtual ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag);
     virtual ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag);
 
-    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag);
+    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag);
     virtual ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag);
     virtual ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag);
     virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag);
@@ -566,7 +568,7 @@ protected:
     uint16_t selectedSourceForVoltageChannelIdx;
     uint16_t selectedSourceForCurrentChannelIdx;
 
-    std::vector <RangedMeasurement_t> vcLeakCalibRange;
+    std::vector <RangedMeasurement_t> rRShuntConductanceCalibRange;
 
     /*! Compensation options*/
     std::vector <uint16_t> selectedRsCorrBws;
@@ -574,9 +576,9 @@ protected:
     uint16_t defaultRsCorrBwIdx;
 
     /*! Features in ASIC domain, depend on asic*/
-    std::vector <RangedMeasurement> pipetteCapacitanceRange_pF;
-    std::vector <RangedMeasurement> membraneCapValueRange_pF;
-    std::vector <RangedMeasurement> membraneCapTauValueRange_us;
+    std::vector <RangedMeasurement> pipetteCapacitanceRange;
+    std::vector <RangedMeasurement> membraneCapValueRange;
+    std::vector <RangedMeasurement> membraneCapTauValueRange;
     RangedMeasurement_t rsCorrValueRange;
     RangedMeasurement_t rsPredGainRange;
     RangedMeasurement_t rsPredTauRange;

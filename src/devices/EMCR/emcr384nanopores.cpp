@@ -252,17 +252,17 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
 
     /*! VC leak calibration (shunt resistance)*/
-    vcLeakCalibRange.resize(VCCurrentRangesNum);
-    vcLeakCalibRange[VCCurrentRange200nA].step = (vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step)/4096.0;
-    vcLeakCalibRange[VCCurrentRange200nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step);
-    vcLeakCalibRange[VCCurrentRange200nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange200nA].step;
-    vcLeakCalibRange[VCCurrentRange200nA]. prefix = UnitPfxNone;
-    vcLeakCalibRange[VCCurrentRange200nA].unit = "S";
-    vcLeakCalibRange[VCCurrentRange4uA].step = (vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step)/4096.0;
-    vcLeakCalibRange[VCCurrentRange4uA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step);
-    vcLeakCalibRange[VCCurrentRange4uA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step) - vcLeakCalibRange[VCCurrentRange4uA].step;
-    vcLeakCalibRange[VCCurrentRange4uA]. prefix = UnitPfxNone;
-    vcLeakCalibRange[VCCurrentRange4uA].unit = "S";
+    rRShuntConductanceCalibRange.resize(VCCurrentRangesNum);
+    rRShuntConductanceCalibRange[VCCurrentRange200nA].step = (vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step)/16384.0;
+    rRShuntConductanceCalibRange[VCCurrentRange200nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange200nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange200nA].step;
+    rRShuntConductanceCalibRange[VCCurrentRange200nA]. prefix = UnitPfxMicro;
+    rRShuntConductanceCalibRange[VCCurrentRange200nA].unit = "S";
+    rRShuntConductanceCalibRange[VCCurrentRange4uA].step = (vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step)/16384.0;
+    rRShuntConductanceCalibRange[VCCurrentRange4uA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange4uA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange4uA].step;
+    rRShuntConductanceCalibRange[VCCurrentRange4uA]. prefix = UnitPfxMicro;
+    rRShuntConductanceCalibRange[VCCurrentRange4uA].unit = "S";
 
     /*! VC voltage calib gain (DAC) */
     calibVcVoltageGainRange.step = 1.0/1024.0;
@@ -665,16 +665,16 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     /*! VC leak calibration */
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
-    vcLeakCalibCoders.resize(VCCurrentRangesNum);
+    calibRShuntConductanceCoders.resize(VCCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 760;
-        doubleConfig.resolution = vcLeakCalibRange[rangeIdx].step;
-        doubleConfig.minValue = vcLeakCalibRange[rangeIdx].min;
-        doubleConfig.maxValue = vcLeakCalibRange[rangeIdx].max;
-        vcLeakCalibCoders[rangeIdx].resize(currentChannelsNum);
+        doubleConfig.resolution = rRShuntConductanceCalibRange[rangeIdx].step;
+        doubleConfig.minValue = rRShuntConductanceCalibRange[rangeIdx].min;
+        doubleConfig.maxValue = rRShuntConductanceCalibRange[rangeIdx].max;
+        calibRShuntConductanceCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            vcLeakCalibCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(vcLeakCalibCoders[rangeIdx][channelIdx]);
+            calibRShuntConductanceCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibRShuntConductanceCoders[rangeIdx][channelIdx]);
             doubleConfig.initialWord++;
         }
     }

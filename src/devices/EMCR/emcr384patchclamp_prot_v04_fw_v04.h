@@ -1,19 +1,19 @@
-#ifndef EMCR384PATCHCLAMP_H
-#define EMCR384PATCHCLAMP_H
+#ifndef EMCR384PATCHCLAMP_PROT_V04_FW_V04_H
+#define EMCR384PATCHCLAMP_PROT_V04_FW_V04_H
 
 #include "emcropalkellydevice.h"
 
-class Emcr384PatchClamp_V01 : public EmcrOpalKellyDevice {
+class Emcr384PatchClamp_prot_v04_fw_v04 : public EmcrOpalKellyDevice {
 public:
-    Emcr384PatchClamp_V01(std::string di);
-    virtual ~Emcr384PatchClamp_V01();
+    Emcr384PatchClamp_prot_v04_fw_v04(std::string di);
+    virtual ~Emcr384PatchClamp_prot_v04_fw_v04();
 
     virtual ErrorCodes_t hasCompFeature(uint16_t feature) override;
     virtual ErrorCodes_t getCompFeatures(uint16_t paramToExtractFeatures, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue) override;
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray) override;
     virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix) override;
     virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues) override;
-    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
+    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
     virtual ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag) override;
     virtual ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag) override;
     virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag) override;
@@ -166,4 +166,4 @@ protected:
     virtual ErrorCodes_t getResistancePredictionGainControl(CompensationControl_t &control) override;
 };
 
-#endif // EMCR384PATCHCLAMP_H
+#endif // EMCR384PATCHCLAMP_PROT_V04_FW_V04_H
