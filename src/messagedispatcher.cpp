@@ -308,6 +308,10 @@ ErrorCodes_t MessageDispatcher::turnChannelsOn(std::vector<uint16_t>, std::vecto
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::hasCalSw(){
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::turnCalSwOn(std::vector<uint16_t>, std::vector<bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
@@ -765,6 +769,16 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(uint32_t &idx) {
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::getVoltageRange(RangedMeasurement_t &range) {
+    range = voltageRange;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCurrentRange(RangedMeasurement_t &range) {
+    range = currentRange;
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getMaxVCCurrentRange(RangedMeasurement_t &range, uint32_t &idx) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
@@ -1166,6 +1180,7 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
         if (vcCurrentRangesNum > 0) {
             this->updateCalibVcCurrentGain(allChannelIndexes, false);
             this->updateCalibVcCurrentOffset(allChannelIndexes, false);
+            this->updateCalibRShuntConductance(allChannelIndexes, false);
         }
 
         if (vcVoltageRangesNum > 0) {

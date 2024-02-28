@@ -180,6 +180,7 @@ typedef enum DeviceTypes {
     Device384PatchClamp_prot_v01_fw_v02,        /*!< Nanion's Syncropatch */
     Device384PatchClamp_prot_v04_fw_v03,
     Device384PatchClamp_prot_v04_fw_v04,    /*!< Nanion's Syncropatch */
+    Device384PatchClamp_prot_v04_fw_v05,
     Device2x10MHz_PCBV01,       /*!< 2 channels 10MHz nanopore reader */
     Device2x10MHz_PCBV02,       /*!< 2 channels 10MHz nanopore reader */
     Device4x10MHz_PCBV01,       /*!< 4 channels 10MHz nanopore reader */

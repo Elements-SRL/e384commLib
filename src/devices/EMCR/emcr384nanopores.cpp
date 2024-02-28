@@ -253,15 +253,15 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
 
     /*! VC leak calibration (shunt resistance)*/
     rRShuntConductanceCalibRange.resize(VCCurrentRangesNum);
-    rRShuntConductanceCalibRange[VCCurrentRange200nA].step = (vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step)/4096.0;
+    rRShuntConductanceCalibRange[VCCurrentRange200nA].step = (vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step)/16384.0;
     rRShuntConductanceCalibRange[VCCurrentRange200nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step);
     rRShuntConductanceCalibRange[VCCurrentRange200nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange200nA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange200nA].step;
-    rRShuntConductanceCalibRange[VCCurrentRange200nA]. prefix = UnitPfxNone;
+    rRShuntConductanceCalibRange[VCCurrentRange200nA]. prefix = UnitPfxMicro;
     rRShuntConductanceCalibRange[VCCurrentRange200nA].unit = "S";
-    rRShuntConductanceCalibRange[VCCurrentRange4uA].step = (vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step)/4096.0;
+    rRShuntConductanceCalibRange[VCCurrentRange4uA].step = (vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step)/16384.0;
     rRShuntConductanceCalibRange[VCCurrentRange4uA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step);
     rRShuntConductanceCalibRange[VCCurrentRange4uA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange4uA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange4uA].step;
-    rRShuntConductanceCalibRange[VCCurrentRange4uA]. prefix = UnitPfxNone;
+    rRShuntConductanceCalibRange[VCCurrentRange4uA]. prefix = UnitPfxMicro;
     rRShuntConductanceCalibRange[VCCurrentRange4uA].unit = "S";
 
     /*! VC voltage calib gain (DAC) */

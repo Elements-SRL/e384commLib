@@ -183,6 +183,7 @@ public:
     virtual ErrorCodes_t enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
     virtual ErrorCodes_t turnChannelsOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
     virtual ErrorCodes_t turnCalSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+    virtual ErrorCodes_t hasCalSw();
     virtual ErrorCodes_t turnVcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
     virtual ErrorCodes_t turnCcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
     virtual ErrorCodes_t turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
@@ -289,6 +290,11 @@ public:
     ErrorCodes_t getVCVoltageRangeIdx(uint32_t &idx);
     ErrorCodes_t getCCCurrentRangeIdx(uint32_t &idx);
     ErrorCodes_t getCCVoltageRangeIdx(uint32_t &idx);
+
+    // Get the voltage in use (could be any clamping modality)
+    ErrorCodes_t getVoltageRange(RangedMeasurement_t &range);
+    // Get the current range in use (could be any clamping modality)
+    ErrorCodes_t getCurrentRange(RangedMeasurement_t &range);
 
     ErrorCodes_t getMaxVCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
     ErrorCodes_t getMinVCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);

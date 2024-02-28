@@ -2344,14 +2344,15 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
     double xFlt;
 
     std::unique_lock <std::mutex> rxMutexLock (rxMutex);
-    if (rxMsgBufferReadLength <= 0) {
+    if (rxMsgBufferReadLength == 0) {
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
         std::chrono::steady_clock::time_point currentTime = startTime;
-        while ((std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count()) < EZP_NO_DATA_WAIT_TIME_MS) {
+        while (((std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count()) < EZP_NO_DATA_WAIT_TIME_MS) &&
+               (rxMsgBufferReadLength == 0)) {
             rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(EZP_NO_DATA_WAIT_TIME_MS));
             currentTime = std::chrono::steady_clock::now();
         }
-        if (rxMsgBufferReadLength <= 0) {
+        if (rxMsgBufferReadLength == 0) {
             return ErrorNoDataAvailable;
         }
     }
@@ -3044,7 +3045,7 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
         this->resetFpga();
         while (rxOutput.msgTypeId != MsgDirectionDeviceToPc+MsgTypeIdFpgaReset) {
             ret = this->getNextMessage(rxOutput, datain);
-            if (ret == ErrorNoDataAvailable) {
+            if (ret == ErrorNoDataAvailable) { /*! If another valid packet is obtained it doesn't count as a fail, only if no packets are available it is in fact a retry */
                 if (fpgaResetTries++ > EZP_MAX_FPGA_RESET_TRIES) {
                     return ErrorConnectionFpgaResetFailed;
                 }

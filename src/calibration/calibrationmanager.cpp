@@ -191,6 +191,7 @@ void CalibrationManager::loadDefaultParams() {
     Measurement_t one = {1.0, UnitPfxNone, ""};
     Measurement_t zeroV = {0.0, UnitPfxNone, "V"};
     Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
+    Measurement_t zeroS = {0.0, UnitPfxNone, "S"};
 
     calibrationParams.vcGainAdc.resize(vcCurrentRangesNum);
     calibrationParams.vcOffsetAdc.resize(vcCurrentRangesNum);
@@ -219,7 +220,7 @@ void CalibrationManager::loadDefaultParams() {
     calibrationParams.rShuntConductance.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
         calibrationParams.rShuntConductance[rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.rShuntConductance[rangeIdx].begin(), calibrationParams.rShuntConductance[rangeIdx].end(), one);
+        std::fill(calibrationParams.rShuntConductance[rangeIdx].begin(), calibrationParams.rShuntConductance[rangeIdx].end(), zeroS);
     }
 
     calibrationParams.ccGainAdc.resize(ccVoltageRangesNum);
@@ -387,8 +388,8 @@ bool CalibrationManager::loadSetOfMeas(std::fstream &stream, uint32_t boardIdx, 
 
 void CalibrationManager::loadSetOfDefaultMeas(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t>> &outMeas, std::string unit) {
     for (uint32_t rangeIdx = 0; rangeIdx < rangesNum; rangeIdx++) {
-        Measurement_t one = {0.0, UnitPfxNone, unit};
-        std::fill(outMeas[rangeIdx].begin()+boardIdx*channelsPerBoard, outMeas[rangeIdx].begin()+(boardIdx+1)*channelsPerBoard, one);
+        Measurement_t zero = {0.0, UnitPfxNone, unit};
+        std::fill(outMeas[rangeIdx].begin()+boardIdx*channelsPerBoard, outMeas[rangeIdx].begin()+(boardIdx+1)*channelsPerBoard, zero);
     }
 }
 

@@ -1,6 +1,3 @@
-include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
-include($$(FTD2XX_PATH)includeftd2xx.pri)
-
 DEFINES += E384COMMLIB_STATIC
 
 INCLUDEPATH += \
@@ -21,3 +18,6 @@ win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PATH)
 else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PATH)lib/debug/libe384commlibd.a
 else:msvc:win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PATH)lib/release/e384commlib.lib
 else:msvc:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PATH)lib/debug/e384commlibd.lib
+
+include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
+include($$(FTD2XX_PATH)includeftd2xx.pri)
