@@ -899,12 +899,11 @@ void EZPatchFtdiDevice::readAndParseMessages() {
         }
     }
 
-    if (rxMsgBufferReadLength <= 0) {
-        rxMutex.lock();
+    if (rxMsgBufferReadLength == 0) {
+        std::unique_lock <std::mutex> rxMutexLock (rxMutex);
         parsingFlag = false;
         rxMsgBufferReadLength++;
         rxMsgBufferNotEmpty.notify_all();
-        rxMutex.unlock();
     }
 }
 

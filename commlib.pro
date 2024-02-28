@@ -24,7 +24,6 @@ CONFIG(release, debug|release) {
 
 DEFINES += E384NPR_ADDITIONAL_SR_FLAG
 #DEFINES += E384PATCH_ADDITIONAL_SR_FLAG
-#DEFINES += DISABLE_IIR
 
 TEMPLATE = lib
 CONFIG += c++14
@@ -46,7 +45,7 @@ contains(DEFINES, E384COMMLIB_PYTHON_WRAPPER) {
     TARGET = e384CommLibPython
     CONFIG -= app_bundle
 
-    SOURCES += src/e384commlib_python.cpp
+#    SOURCES += src/e384commlib_python.cpp
     LIBS += -L"$$(LOCAL_PYTHON_3_10_7)\libs" -lpython310
     INCLUDEPATH += $$(LOCAL_PYBIND_11)\include \
             "$$(LOCAL_PYTHON_3_10_7)\include"
