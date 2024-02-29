@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include "emcropalkellydevice.h"
+#include "emcrudbdevice.h"
 #include "ezpatchftdidevice.h"
 #include "utils.h"
 
@@ -48,6 +49,12 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     ret = retTemp; /*! Set the first return anyway, so even if all methods return an error the return is set here.
                        Afterwards update only on a Success */
 
+    retTemp = EmcrUdbDevice::detectDevices(deviceIdsTemp);
+    if (retTemp == Success) {
+        deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
+        ret = retTemp;
+    }
+
     retTemp = EZPatchFtdiDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
         deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
@@ -63,13 +70,15 @@ ErrorCodes_t MessageDispatcher::getDeviceType(std::string deviceId, DeviceTypes_
 
 ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     messageDispatcher = nullptr;
-    ErrorCodes_t ret = EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId);
-    if (ret == Success) {
+    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
         return EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher, fwPath);
     }
 
-    ret = EZPatchFtdiDevice::isDeviceSerialDetected(deviceId);
-    if (ret == Success) {
+    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return EmcrUdbDevice::connectDevice(deviceId, messageDispatcher, fwPath);
+    }
+
+    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
         return EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher, fwPath);
     }
 }
@@ -140,15 +149,7 @@ ErrorCodes_t MessageDispatcher::startProtocol() {
 }
 
 ErrorCodes_t MessageDispatcher::stopProtocol() {
-    if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-        this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest);
-        this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
-
-    } else {
-        this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest);
-        this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
-    }
-    return this->startProtocol();
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::startStateArray() {

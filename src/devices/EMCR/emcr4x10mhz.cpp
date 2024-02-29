@@ -25,7 +25,7 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     rxWordOffsets[RxMessageCurrentDataLoad] = rxWordOffsets[RxMessageVoltageDataLoad] + rxWordLengths[RxMessageVoltageDataLoad];
     rxWordLengths[RxMessageCurrentDataLoad] = currentChannelsNum*packetsPerFrame;
 
-    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
+    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageCurrentDataLoad] + rxWordLengths[RxMessageCurrentDataLoad];
     rxWordLengths[RxMessageDataHeader] = 4;
 
     rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
@@ -742,6 +742,7 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
     txStatus[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus[13] = 0x00F0; /*! disable the x20 amplification on startup */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
@@ -804,7 +805,7 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     rxWordOffsets[RxMessageCurrentDataLoad] = rxWordOffsets[RxMessageVoltageDataLoad] + rxWordLengths[RxMessageVoltageDataLoad];
     rxWordLengths[RxMessageCurrentDataLoad] = currentChannelsNum*packetsPerFrame;
 
-    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
+    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageCurrentDataLoad] + rxWordLengths[RxMessageCurrentDataLoad];
     rxWordLengths[RxMessageDataHeader] = 4;
 
     rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
@@ -1553,6 +1554,7 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
     txStatus[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus[13] = 0x00F0; /*! disable the x20 amplification on startup */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
@@ -1751,6 +1753,7 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
     txStatus[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus[13] = 0x00F0; /*! disable the x20 amplification on startup */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 

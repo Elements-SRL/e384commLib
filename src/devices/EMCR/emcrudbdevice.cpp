@@ -1,59 +1,21 @@
-#include "emcropalkellydevice.h"
+#include "emcrudbdevice.h"
 
-#include "emcr384nanopores.h"
-#include "emcr384nanopores_sr7p5khz_v01.h"
-#include "emcr384patchclamp_prot_v01_fw_v02.h"
-#include "emcr384patchclamp_prot_v04_fw_v03.h"
-#include "emcr384patchclamp_prot_v04_fw_v04.h"
-#include "emcr384patchclamp_prot_v04_fw_v05.h"
-#include "emcr4x10mhz.h"
-#include "emcr2x10mhz.h"
-#ifdef DEBUG
-/*! Fake device that generates synthetic data */
-#include "emcr384nanoporesfake.h"
-#include "emcr384patchclampfake.h"
-#include "emcr4x10mhzfake.h"
-#include "emcr2x10mhzfake.h"
-#endif
+#include "emcr10mhz.h"
 
-static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
-    {"221000107S", Device384Nanopores_SR7p5kHz},
-    {"221000108T", Device384Nanopores_SR7p5kHz},
-    {"22510013B4", Device384Nanopores},
-    {"23190014UX", Device384PatchClamp_prot_v04_fw_v05},
-    {"23210014U9", Device384Nanopores},
-    {"23210014UP", Device384Nanopores},
-    {"2210001076", Device384PatchClamp_prot_v04_fw_v03},
-    {"221000106B", Device384PatchClamp_prot_v04_fw_v03},
-    {"221000106C", Device384PatchClamp_prot_v01_fw_v02},
-    {"23210014UF", Device384PatchClamp_prot_v01_fw_v02},
-    {"22370012CI", Device4x10MHz_PCBV01},
-    {"22370012CB", Device2x10MHz_PCBV02},
-    {"224800131L", Device2x10MHz_PCBV02},
-    {"224800130X", Device4x10MHz_PCBV01},
-    {"233600165Q", Device2x10MHz_PCBV02},
-    {"233600161X", Device4x10MHz_PCBV03},
-    {"224800130Y", Device4x10MHz_PCBV03},
-    {"2336001642", Device2x10MHz_PCBV02}
-    #ifdef DEBUG
-    ,{"FAKE_Nanopores", Device384Fake},
-    {"FAKE_PATCH_CLAMP", Device384FakePatchClamp},
-    {"FAKE_4x10MHz", Device4x10MHzFake},
-    {"FAKE_2x10MHz", Device2x10MHzFake}
-    #endif
-}; /*! \todo FCON queste info dovrebbero risiedere nel DB */
+static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 8, Device10MHzV01},                  //   11,  1,  8 : UDB V02
+};
 
-EmcrOpalKellyDevice::EmcrOpalKellyDevice(std::string deviceId) :
+EmcrUdbDevice::EmcrUdbDevice(std::string deviceId) :
     EmcrDevice(deviceId) {
 
-    rxRawBufferMask = OKY_RX_BUFFER_MASK;
 }
 
-EmcrOpalKellyDevice::~EmcrOpalKellyDevice() {
+EmcrUdbDevice::~EmcrUdbDevice() {
     this->disconnectDevice();
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
+ErrorCodes_t EmcrUdbDevice::detectDevices(
         std::vector <std::string> &deviceIds) {
     /*! Gets number of devices */
     int numDevs;
@@ -61,11 +23,9 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
     if (!devCountOk) {
         return ErrorListDeviceFailed;
 
-#ifndef DEBUG
     } else if (numDevs == 0) {
         deviceIds.clear();
         return ErrorNoDeviceFound;
-#endif
     }
 
     deviceIds.clear();
@@ -75,29 +35,30 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
         deviceIds.push_back(getDeviceSerial(i));
     }
 
-#ifdef DEBUG
-    numDevs++;
-    deviceIds.push_back("FAKE_Nanopores");
-    numDevs++;
-    deviceIds.push_back("FAKE_PATCH_CLAMP");
-    numDevs++;
-    deviceIds.push_back("FAKE_4x10MHz");
-    numDevs++;
-    deviceIds.push_back("FAKE_2x10MHz");
-#endif
-
     return Success;
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
-    if (deviceIdMapping.count(deviceId) == 0) {
+ErrorCodes_t EmcrUdbDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
+    DeviceTuple_t tuple = getDeviceTuple(getDeviceIndex(deviceId));
+
+    bool deviceFound = false;
+    for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
+        if (tuple.version == deviceTupleMapping[mappingIdx][0] &&
+                tuple.subversion == deviceTupleMapping[mappingIdx][1] &&
+                tuple.fwVersion == deviceTupleMapping[mappingIdx][2]) {
+            type = (DeviceTypes_t)deviceTupleMapping[mappingIdx][3];
+            deviceFound = true;
+            break;
+        }
+    }
+
+    if (!deviceFound) {
         return ErrorDeviceTypeNotRecognized;
     }
-    type = deviceIdMapping[deviceId];
     return Success;
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::isDeviceSerialDetected(std::string deviceId) {
+ErrorCodes_t EmcrUdbDevice::isDeviceSerialDetected(std::string deviceId) {
     ErrorCodes_t ret = Success;
     std::vector <std::string> deviceIds;
     ret = detectDevices(deviceIds);
@@ -114,78 +75,23 @@ ErrorCodes_t EmcrOpalKellyDevice::isDeviceSerialDetected(std::string deviceId) {
     return ret;
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
+ErrorCodes_t EmcrUdbDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     ErrorCodes_t ret = Success;
     if (messageDispatcher != nullptr) {
         return ErrorDeviceAlreadyConnected;
     }
 
     DeviceTypes_t deviceType;
-    ret = EmcrOpalKellyDevice::getDeviceType(deviceId, deviceType);
+
+    ret = EmcrUdbDevice::getDeviceType(deviceId, deviceType);
     if (ret != Success) {
         return ErrorDeviceTypeNotRecognized;
     }
 
-    messageDispatcher = nullptr;
-
     switch (deviceType) {
-    case Device384Nanopores:
-        messageDispatcher = new Emcr384NanoPores_V01(deviceId);
+    case Device10MHzV01:
+        messageDispatcher = new Emcr10MHz_V01(deviceId);
         break;
-
-    case Device384Nanopores_SR7p5kHz:
-        messageDispatcher = new Emcr384NanoPores_SR7p5kHz_V01(deviceId);
-        break;
-
-    case Device384PatchClamp_prot_v01_fw_v02:
-        messageDispatcher = new Emcr384PatchClamp_prot_v01_fw_v02(deviceId);
-        break;
-
-    case Device384PatchClamp_prot_v04_fw_v03:
-        messageDispatcher = new Emcr384PatchClamp_prot_v04_fw_v03(deviceId);
-        break;
-
-    case Device384PatchClamp_prot_v04_fw_v04:
-        messageDispatcher = new Emcr384PatchClamp_prot_v04_fw_v04(deviceId);
-        break;
-
-    case Device384PatchClamp_prot_v04_fw_v05:
-        messageDispatcher = new Emcr384PatchClamp_prot_v04_fw_v05(deviceId);
-        break;
-
-    case Device2x10MHz_PCBV01:
-        messageDispatcher = new Emcr2x10MHz_PCBV01_V02(deviceId);
-        break;
-
-    case Device2x10MHz_PCBV02:
-        messageDispatcher = new Emcr2x10MHz_PCBV02_V02(deviceId);
-        break;
-
-    case Device4x10MHz_PCBV01:
-        messageDispatcher = new Emcr4x10MHz_PCBV01_V03(deviceId);
-        break;
-
-    case Device4x10MHz_PCBV03:
-        messageDispatcher = new Emcr4x10MHz_PCBV03_V04(deviceId);
-        break;
-
-#ifdef DEBUG
-    case Device384Fake:
-        messageDispatcher = new Emcr384FakeNanopores(deviceId);
-        break;
-
-    case Device384FakePatchClamp:
-        messageDispatcher = new Emcr384FakePatchClamp(deviceId);
-        break;
-
-    case Device4x10MHzFake:
-        messageDispatcher = new Emcr4x10MHzFake(deviceId);
-        break;
-
-    case Device2x10MHzFake:
-        messageDispatcher = new Emcr2x10MHzFake(deviceId);
-        break;
-#endif
 
     default:
         return ErrorDeviceTypeNotRecognized;
@@ -204,12 +110,12 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
     return ret;
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::disconnectDevice() {
+ErrorCodes_t EmcrUdbDevice::disconnectDevice() {
     this->deinitialize();
     return Success;
 }
 
-int32_t EmcrOpalKellyDevice::getDeviceIndex(std::string serial) {
+int32_t EmcrUdbDevice::getDeviceIndex(std::string serial) {
     /*! Gets number of devices */
     int numDevs;
     bool devCountOk = getDeviceCount(numDevs);
@@ -229,49 +135,82 @@ int32_t EmcrOpalKellyDevice::getDeviceIndex(std::string serial) {
     return -1;
 }
 
-std::string EmcrOpalKellyDevice::getDeviceSerial(uint32_t index) {
+std::string EmcrUdbDevice::getDeviceSerial(uint32_t index) {
     std::string serial;
     int numDevs;
     getDeviceCount(numDevs);
-    if (index < numDevs) {
-        okCFrontPanel okDev;
-        okDev.GetDeviceCount();
-        serial = okDev.GetDeviceListSerial(index);
-        return serial;
-
-    } else {
+    if (index >= numDevs) {
         return "";
     }
+
+    CCyUSBDevice * tempDev = new CCyUSBDevice;
+    char serialNumber[255];
+    sprintf(serialNumber, "%ls", tempDev->SerialNumber);
+    serial = std::string(serialNumber);
+    tempDev->Close();
+    delete tempDev;
+    return serial;
 }
 
-bool EmcrOpalKellyDevice::getDeviceCount(int &numDevs) {
-    okCFrontPanel okDev;
-    numDevs = okDev.GetDeviceCount();
+bool EmcrUdbDevice::getDeviceCount(int &numDevs) {
+    /*! Get the number of connected devices */
+    CCyUSBDevice * tempDev = new CCyUSBDevice;
+    numDevs = tempDev->DeviceCount();
+    delete tempDev;
     return true;
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
-    okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
-
-    if (error != okCFrontPanel::NoError) {
+ErrorCodes_t EmcrUdbDevice::startCommunication(std::string fwPath) {
+    int32_t idx = getDeviceIndex(deviceId);
+    if (idx < 0) {
         return ErrorDeviceConnectionFailed;
     }
+    dev = new CCyUSBDevice;
+    dev->Open(idx);
 
-    error = dev.ConfigureFPGA(fwPath + fwName);
+    this->findBulkEndpoints();
+    this->resetBulkEndpoints();
+    this->initEndpoints();
+    return Success;
+}
 
-    if (error != okCFrontPanel::NoError) {
-        return ErrorDeviceFwLoadingFailed;
+ErrorCodes_t EmcrUdbDevice::initializeHW() {
+    /*! check if FX3 is in FPGA config mode, otherwise switch into it */
+    if (this->getFwStatus() == fwStatusConfigMode) {
+        this->bootFpgafromFLASH();
+        Sleep(1000); /*!< wait a bit to be sure that the FPGA write is in progress */
+
+        /*! wait the configuration to finish */
+        while (this->fpgaLoadBitstreamStatus() == fpgaLoadingInProgress) {
+            Sleep(100); /*!< don't poll too frequently... may lockup */
+        }
+
+        if (this->fpgaLoadBitstreamStatus() == fpgaLoadingError) {
+            return ErrorDeviceFwLoadingFailed;
+        }
+
+        /*! resetBulkEndPoints here might disrupt the FX3 initialization */
+
+        Sleep(1000); /*!< Wait a bit after the FPGA has booted: not 100% sure, but the communication might break if the first commands arrive
+                      *   when the FPGA is still executing the starting procedures */
     }
+
+    this->sendCommands();
+
     return Success;
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::stopCommunication() {
-    dev.Close();
+ErrorCodes_t EmcrUdbDevice::stopCommunication() {
+    dev->Close();
+    delete dev;
+    dev = nullptr;
     return Success;
 }
 
-void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
-    regs.reserve(txMaxRegs);
+void EmcrUdbDevice::handleCommunicationWithDevice() {
+    /*! Header and type do not change for now */
+    txRawBuffer[0] = 0x5aa55aa5;
+    txRawBuffer[1] = 0x00000000;
 
     std::unique_lock <std::mutex> txMutexLock (txMutex);
     txMutexLock.unlock();
@@ -306,10 +245,10 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
             txMsgBufferNotFull.notify_all();
         }
 
-        /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
+        /*! Avoid performing reads too early, might trigger timeout, which appears to be a non escapable condition */
         if (waitingTimeForReadingPassed) {
             rxRawMutexLock.lock();
-            if (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE <= OKY_RX_BUFFER_SIZE) {
+            if (rxRawBufferReadLength+UDB_RX_TRANSFER_SIZE <= UDB_RX_BUFFER_SIZE) {
                 anyOperationPerformed = true;
                 rxRawMutexLock.unlock();
 
@@ -340,20 +279,21 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
     }
 }
 
-void EmcrOpalKellyDevice::sendCommandsToDevice() {
+void EmcrUdbDevice::sendCommandsToDevice() {
+    txRawBuffer[2] = txMsgLength[txMsgBufferReadOffset]/2;
+
     int writeTries = 0;
 
     bool notSentTxData;
 
     /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
-    regs.resize(txMsgLength[txMsgBufferReadOffset]/2);
     for (uint32_t txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
-        regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
-        regs[txDataBufferReadIdx/2].data =
+        txRawBuffer[3+txDataBufferReadIdx] = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
+        txRawBuffer[3+txDataBufferReadIdx+1] =
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
     }
-    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
+//    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
 
     txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 
@@ -364,7 +304,7 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
     notSentTxData = true;
     writeTries = 0;
     while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
-        if (!this->writeRegistersAndActivateTriggers(type)) {
+        if (!this->writeRegisters()) {
             continue;
         }
 
@@ -383,35 +323,16 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
     }
 }
 
-bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
-    if (dev.WriteRegisters(regs) == okCFrontPanel::NoError) {
-        switch (type) {
-        case TxTriggerParameteresUpdated:
-            dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-            break;
-
-        case TxTriggerStartProtocol:
-            dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
-            dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
-            break;
-
-        case TxTriggerStartStateArray:
-            dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
-            dev.ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
-            break;
-        }
-        return true;
-
-    } else {
+bool EmcrUdbDevice::writeRegisters() {
+    if (!this->writeToBulkOut()) {
         return false;
     }
+    return true;
 }
 
-uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
+uint32_t EmcrUdbDevice::readDataFromDevice() {
     /*! Declare variables to manage buffers indexing */
-    uint32_t bytesRead; /*!< Bytes read during last transfer from Opal Kelly */
+    long bytesRead; /*!< Bytes read during last transfer from Opal Kelly */
 
     /******************\
      *  Reading part  *
@@ -422,35 +343,21 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
     fflush(rxProcFid);
 #endif
 
-//    int okWrites = 0;
-//    std::chrono::steady_clock::time_point startPrintfTime;
-//    std::chrono::steady_clock::time_point currentPrintfTime;
-//    startPrintfTime = std::chrono::steady_clock::now();
     /*! Read the data */
-    bytesRead = dev.ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxRawBuffer+rxRawBufferWriteOffset);
-
-    if (bytesRead > INT32_MAX) {
-        if (bytesRead == ok_Timeout || bytesRead == ok_Failed) {
-            /*! The device cannot recover from timeout condition */
-            dev.Close();
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            txModifiedStartingWord = 0;
-            txModifiedEndingWord = txMaxWords;
-            this->sendCommands();
-            dev.OpenBySerial(deviceId);
+    bytesRead = readDataTransferSize;
+    if (eptBulkin->XferData((PUCHAR)rxRawBuffer+rxRawBufferWriteOffset, bytesRead, nullptr, false) == false) {
+        /*! XferData, apparently, returns false also if the required data is not available before timeout, so check the amount of available data as well */
+        if (bytesRead <= 0) {
+            return ErrorNoDataAvailable;
+            /*! \todo eptbulkin->NtStatus controllare per vedere il tipo di fallimento */
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-#ifdef DEBUG_RX_PROCESSING_PRINT
-        fprintf(rxProcFid, "Error %x\n", bytesRead);
-        fflush(rxProcFid);
-#endif
+    }
 
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-        fprintf(rxRawFid, "Error %x\n", bytesRead);
-        fflush(rxRawFid);
-#endif
-
-    } else {
+    if (rxRawBufferWriteOffset+bytesRead > UDB_RX_BUFFER_MASK) {
+        for (uint32_t idx = 0; idx < rxRawBufferWriteOffset+bytesRead-UDB_RX_BUFFER_MASK; idx++) {
+            rxRawBuffer[idx] = rxRawBuffer[UDB_RX_BUFFER_MASK+idx];
+        }
+    }
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
         fprintf(rxProcFid, "Bytes read %d\n", bytesRead);
@@ -461,13 +368,13 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
         fprintf(rxRawFid, "Bytes read %d\n", bytesRead);
         fflush(rxRawFid);
 #endif
-        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & OKY_RX_BUFFER_MASK;
-    }
+
+    rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & UDB_RX_BUFFER_MASK;
     /*! Update buffer writing point */
     return bytesRead;
 }
 
-void EmcrOpalKellyDevice::parseDataFromDevice() {
+void EmcrUdbDevice::parseDataFromDevice() {
     RxParsePhase_t rxParsePhase = RxParseLookForHeader;
 
     rxRawBufferReadOffset = 0;
@@ -490,9 +397,9 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
     while (!stopConnectionFlag) {
         rxRawMutexLock.lock();
-        /*! Since OKY_RX_TRANSFER_SIZE bytes are obtained each time from the opal kelly, wait that at least these many are available,
+        /*! Since UDB_RX_TRANSFER_SIZE bytes are obtained each time from the UDB, wait that at least these many are available,
          *  Otherwise it means that no reads from the Opal kelly took place. */
-        while (rxRawBufferReadLength < OKY_RX_TRANSFER_SIZE && !stopConnectionFlag) {
+        while (rxRawBufferReadLength < UDB_RX_TRANSFER_SIZE && !stopConnectionFlag) {
             rxRawBufferNotEmpty.wait_for(rxRawMutexLock, std::chrono::milliseconds(3));
         }
         maxRxRawBytesRead = rxRawBufferReadLength;
@@ -527,7 +434,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                     } else {
                         /*! If not all the bytes match the sync word restore one of the removed bytes and recheck */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset-1) & OKY_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset-1) & UDB_RX_BUFFER_MASK;
                         rxRawBytesAvailable++;
                     }
                 }
@@ -555,7 +462,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                     if (rxDataBytes > maxInputDataLoadSize) {
                         /*! Too many bytes to be read, restarting looking for a sync word from the previous one */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & UDB_RX_BUFFER_MASK;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
 #ifdef DEBUG_RX_DATA_PRINT
@@ -605,14 +512,14 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & UDB_RX_BUFFER_MASK;
                         rxRawBytesAvailable -= rxSyncWordSize;
 
                         rxParsePhase = RxParseLookForLength;
 
                     } else {
                         /*! Sync word not found, restart looking from the previous sync word */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & UDB_RX_BUFFER_MASK;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
                         rxParsePhase = RxParseLookForHeader;
@@ -637,9 +544,15 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
     }
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {
-    rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_BUFFER_SIZE];
+ErrorCodes_t EmcrUdbDevice::initializeMemory() {
+    rxRawBuffer = new (std::nothrow) uint8_t[UDB_RX_EXTENDED_BUFFER_SIZE];
     if (rxRawBuffer == nullptr) {
+        this->deinitializeMemory();
+        return ErrorMemoryInitialization;
+    }
+
+    txRawBuffer = new (std::nothrow) uint32_t[3+2*txMaxWords];
+    if (txRawBuffer == nullptr) {
         this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
@@ -648,12 +561,161 @@ ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {
     return EmcrDevice::initializeMemory();
 }
 
-void EmcrOpalKellyDevice::deinitializeMemory() {
+void EmcrUdbDevice::deinitializeMemory() {
     if (rxRawBuffer != nullptr) {
         delete [] rxRawBuffer;
         rxRawBuffer = nullptr;
     }
+
+    if (txRawBuffer != nullptr) {
+        delete [] txRawBuffer;
+        txRawBuffer = nullptr;
+    }
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
     EmcrDevice::deinitializeMemory();
+}
+
+EmcrUdbDevice::DeviceTuple_t EmcrUdbDevice::getDeviceTuple(uint32_t deviceIdx) {
+    DeviceTuple_t tuple;
+    CCyUSBDevice * tempDev = new CCyUSBDevice;
+    if (tempDev->DeviceCount() > 0) {
+        tempDev->Open(deviceIdx);
+
+        CCyControlEndPoint * ctrept;
+        long ctrlen = 4;
+
+        unsigned char		buffer[4];
+
+        ctrept = tempDev->ControlEndPt;
+        ctrept->Target		= TGT_DEVICE;
+        ctrept->ReqType		= REQ_VENDOR;
+        ctrept->Direction	= DIR_FROM_DEVICE;
+        ctrept->ReqCode		= 0xC1;
+        ctrept->Value		= 0;
+        ctrept->Index		= 0;
+
+        if (ctrept->XferData((PUCHAR)buffer, ctrlen) == false) {
+            tuple.version = (DeviceVersion_t)buffer[0];
+            tuple.subversion = (DeviceSubversion_t)buffer[1];
+            tuple.fwVersion = buffer[2];
+        }
+
+        tempDev->Close();
+    }
+    return tuple;
+}
+
+void EmcrUdbDevice::findBulkEndpoints() {
+    int endpointcnt = 0;
+    CCyUSBEndPoint * ept;
+
+    endpointcnt = dev->EndPointCount();
+    for (int e = 0; e < endpointcnt; e++) {
+        ept = dev->EndPoints[e];
+        // INTR, BULK and ISO endpoints are supported.
+        if (ept->Attributes == 2) {
+            if (ept->bIn) {
+                eptBulkin = dev->EndPoints[e];
+
+            } else {
+                eptBulkout = dev->EndPoints[e];
+            }
+        }
+    }
+}
+
+bool EmcrUdbDevice::resetBulkEndpoints() {
+    if (eptBulkin->Reset() == false) {
+        return false;
+
+    } else if (eptBulkout->Reset() == false) {
+        return false;
+    }
+    return true;
+}
+
+void EmcrUdbDevice::initEndpoints() {
+    eptBulkin->TimeOut = UDB_BULKIN_ENDPOINT_TIMEOUT;
+    eptBulkout->TimeOut = UDB_BULKOUT_ENDPOINT_TIMEOUT;
+
+    /*! The total transfer must be a multiple of eptBulkin->MaxPktSize */
+    readDataTransferSize = (readDataTransferSize/eptBulkin->MaxPktSize)*eptBulkin->MaxPktSize;
+
+    eptBulkin->SetXferSize(readDataTransferSize);
+    eptBulkout->SetXferSize(eptBulkout->MaxPktSize);
+}
+
+bool EmcrUdbDevice::bootFpgafromFLASH() {
+    CCyControlEndPoint * ctrept;
+    long ctrlen = 0;
+
+    ctrept = dev->ControlEndPt;
+    ctrept->Target		= TGT_DEVICE;
+    ctrept->ReqType		= REQ_VENDOR;
+    ctrept->Direction	= DIR_TO_DEVICE;
+    ctrept->ReqCode		= 0xBF;
+    ctrept->Value		= 0;
+    ctrept->Index		= 0;
+
+    return ctrept->XferData((PUCHAR)nullptr, ctrlen);
+}
+
+unsigned char EmcrUdbDevice::fpgaLoadBitstreamStatus() {
+    CCyControlEndPoint * ctrept;
+    long ctrlen = 1;
+    unsigned char status = 0xFF;
+
+    ctrept = dev->ControlEndPt;
+    ctrept->Target		= TGT_DEVICE;
+    ctrept->ReqType		= REQ_VENDOR;
+    ctrept->Direction	= DIR_FROM_DEVICE;
+    ctrept->ReqCode		= 0xB1;
+    ctrept->Value		= 0;
+    ctrept->Index		= 0;
+
+    if (ctrept->XferData((PUCHAR)&status, ctrlen) == false) {
+        status = fpgaLoadingError;
+    }
+    return status;
+}
+
+unsigned char EmcrUdbDevice::getFwStatus() {
+    CCyControlEndPoint * ctrept;
+    long ctrlen = 1;
+    unsigned char status = 0xFF;
+
+    ctrept = dev->ControlEndPt;
+    ctrept->Target		= TGT_DEVICE;
+    ctrept->ReqType		= REQ_VENDOR;
+    ctrept->Direction	= DIR_FROM_DEVICE;
+    ctrept->ReqCode		= 0xB4;
+    ctrept->Value		= 0;
+    ctrept->Index		= 0;
+
+    if (ctrept->XferData((PUCHAR)&status, ctrlen) == false) {
+        status = fwStatusError;
+    }
+    return status;
+}
+
+bool EmcrUdbDevice::writeToBulkOut() {
+    long bytesNum = 4*(3+2*txRawBuffer[2]);
+    std::unique_lock <std::mutex> deviceMtxLock (deviceMtx);
+
+    if (!(eptBulkout->XferData((PUCHAR)txRawBuffer, bytesNum))) {
+        eptBulkout->Abort();
+        return false;
+    }
+
+//#ifdef DEBUG_PRINT
+//    fprintf(fid, "config sent:");
+//    for (int i = 0; i < bytesNum/bytesNum; i++) {
+//        fprintf(fid, "0x%08x ", *(txRawBuffer+i));
+//    }
+//    fprintf(fid, "\n");
+//    fflush(fid);
+//#endif
+
+    return true;
 }

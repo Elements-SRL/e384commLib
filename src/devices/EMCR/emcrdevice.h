@@ -17,6 +17,7 @@ public:
 
     ErrorCodes_t sendCommands() override;
     ErrorCodes_t startProtocol() override;
+    ErrorCodes_t stopProtocol() override;
     ErrorCodes_t startStateArray() override;
 
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlag = true) override;
@@ -212,8 +213,8 @@ protected:
     uint16_t txModifiedStartingWord;
     uint16_t txModifiedEndingWord;
 
-    std::vector<uint16_t> rxWordOffsets;
-    std::vector<uint16_t> rxWordLengths;
+    std::vector <uint16_t> rxWordOffsets;
+    std::vector <uint16_t> rxWordLengths;
 
     std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
 
@@ -313,6 +314,7 @@ protected:
     BoolArrayCoder * wordDebugCoder = nullptr;
 
     /*! Protocol coders */
+    BoolArrayCoder * protocolResetCoder = nullptr;
     BoolArrayCoder * protocolIdCoder = nullptr;
     BoolArrayCoder * protocolItemsNumberCoder = nullptr;
     BoolArrayCoder * protocolSweepsNumberCoder = nullptr;

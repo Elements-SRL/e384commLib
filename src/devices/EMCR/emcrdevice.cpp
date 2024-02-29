@@ -59,9 +59,33 @@ ErrorCodes_t EmcrDevice::sendCommands() {
 }
 
 ErrorCodes_t EmcrDevice::startProtocol() {
-    this->forceOutMessage();
-    this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
+    if (protocolResetCoder == nullptr) {
+        this->forceOutMessage();
+        this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
+
+    } else {
+        protocolResetCoder->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        this->stackOutgoingMessage(txStatus);
+    }
     return Success;
+}
+
+ErrorCodes_t EmcrDevice::stopProtocol() {
+    if (protocolResetCoder == nullptr) {
+        if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+            this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest);
+            this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+
+        } else {
+            this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest);
+            this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+        }
+        return this->startProtocol();
+
+    } else {
+        protocolResetCoder->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        this->stackOutgoingMessage(txStatus);
+    }
 }
 
 ErrorCodes_t EmcrDevice::startStateArray() {
@@ -1917,7 +1941,7 @@ ErrorCodes_t EmcrDevice::isStateArrayAvailable() {
 }
 
 ErrorCodes_t EmcrDevice::getCalibData(CalibrationData_t &calibData){
-    if(calibrationData.vcCalibResArray.empty()){
+    if (calibrationData.vcCalibResArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     calibData = calibrationData;
@@ -2134,14 +2158,13 @@ void EmcrDevice::updateVoltageHoldTuner(bool applyFlag) {
     if (vHoldTunerCoders.empty()) {
         return;
 
-    } else {
-        for (uint32_t i = 0; i < currentChannelsNum; i++) {
-            vHoldTunerCoders[selectedVcVoltageRangeIdx][i]->encode(selectedVoltageHoldVector[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
+    }
+    for (uint32_t i = 0; i < currentChannelsNum; i++) {
+        vHoldTunerCoders[selectedVcVoltageRangeIdx][i]->encode(selectedVoltageHoldVector[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
 
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
     }
 }
 
@@ -2149,14 +2172,13 @@ void EmcrDevice::updateCurrentHoldTuner(bool applyFlag) {
     if (cHoldTunerCoders.empty()) {
         return;
 
-    } else {
-        for (uint32_t i = 0; i < voltageChannelsNum; i++) {
-            cHoldTunerCoders[selectedCcCurrentRangeIdx][i]->encode(selectedCurrentHoldVector[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        }
+    }
+    for (uint32_t i = 0; i < voltageChannelsNum; i++) {
+        cHoldTunerCoders[selectedCcCurrentRangeIdx][i]->encode(selectedCurrentHoldVector[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
 
-        if (applyFlag) {
-            this->stackOutgoingMessage(txStatus);
-        }
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
     }
 }
 
@@ -2172,7 +2194,8 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
     rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataWords;
     rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
 
-    if (rxMessageType == RxMessageCurrentDataLoad) {
+    switch (rxMessageType) {
+    case RxMessageCurrentDataLoad: {
         /*! Data frame with only current */
         uint32_t packetsNum = rxDataWords/currentChannelsNum;
         uint32_t rxDataBufferWriteIdx = 0;
@@ -2189,24 +2212,71 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
                 rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx++) & RX_DATA_BUFFER_MASK] = voltageDataValues[idx];
             }
 
-            /*! The store the new current values */
+            /*! Then store the new current values */
             for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
                 rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx++) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
             }
         }
 
-        /* The size of the data returned by the message dispatcher is different from the size of the fram returned by the FPGA */
+        /* The size of the data returned by the message dispatcher is different from the size of the packet fram returned by the FPGA */
         rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataBufferWriteIdx;
+        break;
+    }
 
-    } else if (rxMessageType == RxMessageVoltageDataLoad) {
+    case RxMessageVoltageDataLoad:
         for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
             voltageDataValues[idx] = this->popUint16FromRxRawBuffer();
         }
+        break;
 
-    } else {
+    case RxMessageVoltageThenCurrentDataLoad: {
+        /*! Data frame with only current */
+        uint32_t packetsNum = rxDataWords/currentChannelsNum;
+        uint32_t rxDataBufferWriteIdx = 0;
+
+#ifdef DEBUG_RX_PROCESSING_PRINT
+        fprintf(rxProcFid, "rxDataWords: %d\n", rxDataWords);
+        fprintf(rxProcFid, "packetsNum: %d\n", packetsNum);
+        fflush(rxProcFid);
+#endif
+
+        for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
+            /*! Store the voltage values first */
+            for (uint32_t idx = 0; idx < voltageChannelsNum-1; idx++) {
+                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)] = this->popUint16FromRxRawBuffer();
+                rxDataBufferWriteIdx = (rxDataBufferWriteIdx+1) & RX_DATA_BUFFER_MASK;
+            }
+            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)] = this->popUint16FromRxRawBuffer();
+            /*! Leave space for the current */
+            rxDataBufferWriteIdx = (rxDataBufferWriteIdx+currentChannelsNum) & RX_DATA_BUFFER_MASK;
+        }
+
+        rxDataBufferWriteIdx = 0;
+        for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
+            /*! Leave space for the voltage */
+            rxDataBufferWriteIdx = (rxDataBufferWriteIdx+voltageChannelsNum) & RX_DATA_BUFFER_MASK;
+            /*! Then store the current values */
+            for (uint32_t idx = 0; idx < currentChannelsNum-1; idx++) {
+                rxDataBuffer[rxDataBufferWriteOffset+rxDataBufferWriteIdx] = this->popUint16FromRxRawBuffer();
+                rxDataBufferWriteIdx = (rxDataBufferWriteIdx+1) & RX_DATA_BUFFER_MASK;
+            }
+            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)] = this->popUint16FromRxRawBuffer();
+        }
+
+        /* The size of the data returned by the message dispatcher is different from the size of the packet fram returned by the FPGA */
+        rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataBufferWriteIdx;
+        break;
+    }
+        break;
+
+    case RxMessageDataLoad:
+    case RxMessageDataHeader:
+    case RxMessageDataTail:
+    case RxMessageStatus:
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
         }
+        break;
     }
 
     rxDataBufferWriteOffset = (rxDataBufferWriteOffset+rxMsgBuffer[rxMsgBufferWriteOffset].dataLength) & RX_DATA_BUFFER_MASK;
