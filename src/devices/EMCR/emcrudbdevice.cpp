@@ -203,7 +203,9 @@ ErrorCodes_t EmcrUdbDevice::stopCommunication() {
 }
 
 void EmcrUdbDevice::handleCommunicationWithDevice() {
-    regs.reserve(txMaxRegs);
+    /*! Header and type do not change for now */
+    txRawBuffer[0] = 0x5aa55aa5;
+    txRawBuffer[1] = 0x00000000;
 
     std::unique_lock <std::mutex> txMutexLock (txMutex);
     txMutexLock.unlock();
@@ -273,19 +275,20 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
 }
 
 void EmcrUdbDevice::sendCommandsToDevice() {
+    txRawBuffer[2] = txMsgLength[txMsgBufferReadOffset]/2;
+
     int writeTries = 0;
 
     bool notSentTxData;
 
     /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
-    regs.resize(txMsgLength[txMsgBufferReadOffset]/2);
     for (uint32_t txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
-        regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
-        regs[txDataBufferReadIdx/2].data =
+        txRawBuffer[3+txDataBufferReadIdx] = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
+        txRawBuffer[3+txDataBufferReadIdx+1] =
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
     }
-    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
+//    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
 
     txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 
@@ -316,7 +319,7 @@ void EmcrUdbDevice::sendCommandsToDevice() {
 }
 
 bool EmcrUdbDevice::writeRegisters() {
-    if (dev.WriteRegisters(regs) != okCFrontPanel::NoError) {
+    if (!this->writeToBulkOut()) {
         return false;
     }
     return true;
@@ -543,6 +546,12 @@ ErrorCodes_t EmcrUdbDevice::initializeMemory() {
         return ErrorMemoryInitialization;
     }
 
+    txRawBuffer = new (std::nothrow) uint32_t[3+2*txMaxWords];
+    if (txRawBuffer == nullptr) {
+        this->deinitializeMemory();
+        return ErrorMemoryInitialization;
+    }
+
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
     return EmcrDevice::initializeMemory();
 }
@@ -551,6 +560,11 @@ void EmcrUdbDevice::deinitializeMemory() {
     if (rxRawBuffer != nullptr) {
         delete [] rxRawBuffer;
         rxRawBuffer = nullptr;
+    }
+
+    if (txRawBuffer != nullptr) {
+        delete [] txRawBuffer;
+        txRawBuffer = nullptr;
     }
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
@@ -678,4 +692,25 @@ unsigned char EmcrUdbDevice::getFwStatus() {
         status = fwStatusError;
     }
     return status;
+}
+
+bool EmcrUdbDevice::writeToBulkOut() {
+    long bytesNum = 4*(3+2*txRawBuffer[2]);
+    std::unique_lock <std::mutex> deviceMtxLock (deviceMtx);
+
+    if (!(eptBulkout->XferData((PUCHAR)txRawBuffer, bytesNum))) {
+        eptBulkout->Abort();
+        return false;
+    }
+
+//#ifdef DEBUG_PRINT
+//    fprintf(fid, "config sent:");
+//    for (int i = 0; i < bytesNum/bytesNum; i++) {
+//        fprintf(fid, "0x%08x ", *(txRawBuffer+i));
+//    }
+//    fprintf(fid, "\n");
+//    fflush(fid);
+//#endif
+
+    return true;
 }

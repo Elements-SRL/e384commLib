@@ -97,12 +97,18 @@ protected:
 
     int waitingTimeBeforeReadingData = 1;
 
-//    okTRegisterEntries regs;
-
     /*! Variables used to access the tx msg buffer */
     uint32_t txMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be processed */
 
 private:
+    typedef struct OutputPacket {
+        uint32_t header = 0x5aa55aa5;
+        uint32_t type = 0;
+        uint32_t valuesNum = 0;
+        std::vector <uint32_t> addresses;
+        std::vector <uint32_t> values;
+    } OutputPacket_t;
+
     enum fpgaLoadingStatus {
         fpgaLoadingInProgress = 0,
         fpgaLoadingSuccess = 1,
@@ -126,10 +132,13 @@ private:
     bool bootFpgafromFLASH();
     unsigned char fpgaLoadBitstreamStatus();
     unsigned char getFwStatus();
+    bool writeToBulkOut();
 
     /***************\
      *  Variables  *
     \***************/
+
+    uint32_t * txRawBuffer = nullptr;
 
     DeviceTuple_t deviceTuple;
 };
