@@ -3,7 +3,7 @@
 #include "emcr10mhz.h"
 
 static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
-    {DeviceVersion10MHz, DeviceSubversionUDB_PCBV02, 8, Device10MHzV01},                  //   11,  1,  8 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 8, Device10MHzV01},                  //   11,  1,  8 : UDB V02
 };
 
 EmcrUdbDevice::EmcrUdbDevice(std::string deviceId) :
@@ -108,6 +108,11 @@ ErrorCodes_t EmcrUdbDevice::connectDevice(std::string deviceId, MessageDispatche
     }
 
     return ret;
+}
+
+ErrorCodes_t EmcrUdbDevice::disconnectDevice() {
+    this->deinitialize();
+    return Success;
 }
 
 int32_t EmcrUdbDevice::getDeviceIndex(std::string serial) {

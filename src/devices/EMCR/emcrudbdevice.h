@@ -17,24 +17,24 @@
 
 #include "emcrdevice.h"
 
-typedef enum {
-    DeviceVersion10MHz = 0x0B,
-    DeviceVersionUndefined = 0xFF
-} DeviceVersion_t;
-
-typedef enum {
-    /*! Subversions used for version = 0x0B */
-    DeviceSubversionUDB_PCBV02 = 0x01,
-    DeviceSubversionUDB_PCBV03 = 0x02,
-
-    /*! Subversions used for Version = 0xFF */
-    DeviceSubversionUndefined = 0xFF
-} DeviceSubversion_t ;
-
 class EmcrUdbDevice : public EmcrDevice {
 public:
     EmcrUdbDevice(std::string deviceId);
     virtual ~EmcrUdbDevice();
+
+    typedef enum {
+        DeviceVersion10MHz = 0x0B,
+        DeviceVersionUndefined = 0xFF
+    } DeviceVersion_t;
+
+    typedef enum {
+        /*! Subversions used for version = 0x0B */
+        DeviceSubversionUDB_PCBV02 = 0x01,
+        DeviceSubversionUDB_PCBV03 = 0x02,
+
+        /*! Subversions used for Version = 0xFF */
+        DeviceSubversionUndefined = 0xFF
+    } DeviceSubversion_t ;
 
     typedef struct DeviceTuple {
         DeviceVersion_t version = DeviceVersionUndefined;
