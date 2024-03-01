@@ -87,6 +87,7 @@ ErrorCodes_t EmcrDevice::stopProtocol() {
     } else {
         protocolResetCoder->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         this->stackOutgoingMessage(txStatus);
+        return Success;
     }
 }
 
