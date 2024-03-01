@@ -29,7 +29,6 @@ TEMPLATE = lib
 CONFIG += c++14
 
 #DEFINES += E384COMMLIB_LABVIEW_WRAPPER
-#DEFINES += E384COMMLIB_PYTHON_WRAPPER
 
 contains(DEFINES, E384COMMLIB_LABVIEW_WRAPPER) {
     # create .dll
@@ -37,18 +36,6 @@ contains(DEFINES, E384COMMLIB_LABVIEW_WRAPPER) {
     SOURCES += src/e384commlib_labview.cpp
     HEADERS += src/e384commlib_labview.h
     include($$(LABVIEW_TO_C_PATH)/includelabview.pri)
-}
-
-contains(DEFINES, E384COMMLIB_PYTHON_WRAPPER) {
-    # create .dll
-    DEFINES += E384COMMLIB_LIBRARY
-    TARGET = e384CommLibPython
-    CONFIG -= app_bundle
-
-#    SOURCES += src/e384commlib_python.cpp
-    LIBS += -L"$$(LOCAL_PYTHON_3_10_7)\libs" -lpython310
-    INCLUDEPATH += $$(LOCAL_PYBIND_11)\include \
-            "$$(LOCAL_PYTHON_3_10_7)\include"
 }
 
 ! contains(DEFINES, E384COMMLIB_LIBRARY) {
