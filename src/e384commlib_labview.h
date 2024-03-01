@@ -426,8 +426,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setClampingModality(
         E384CL_ARGIN ClampingModality_t clampingModalityIndex,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN bool stopProtocolFlag);
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Set a VC current gain on a specific channel.
  *
@@ -1169,6 +1168,15 @@ ErrorCodes_t voltSin(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t startProtocol(
+        E384CL_ARGVOID);
+
+/*! \brief Stop a protocol.
+ *
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t stopProtocol(
         E384CL_ARGVOID);
 
 /*! \brief Describes the structure of an incoming current protocol.

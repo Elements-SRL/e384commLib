@@ -314,6 +314,7 @@ protected:
     BoolArrayCoder * wordDebugCoder = nullptr;
 
     /*! Protocol coders */
+    bool protocolResetFlag = true;
     BoolArrayCoder * protocolResetCoder = nullptr;
     BoolArrayCoder * protocolIdCoder = nullptr;
     BoolArrayCoder * protocolItemsNumberCoder = nullptr;

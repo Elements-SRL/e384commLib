@@ -65,9 +65,13 @@ ErrorCodes_t EmcrDevice::startProtocol() {
         this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
 
     } else {
+        if (protocolResetFlag == false) {
+            this->stopProtocol();
+        }
         this->stackOutgoingMessage(txStatus); /*! Make sure the registers are submitted */
         protocolResetCoder->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         this->stackOutgoingMessage(txStatus); /*! Then take the protocol out of the reset state */
+        protocolResetFlag = false;
     }
     return Success;
 }
@@ -87,7 +91,10 @@ ErrorCodes_t EmcrDevice::stopProtocol() {
 
     } else {
         protocolResetCoder->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        this->stackOutgoingMessage(txStatus);
+        this->forceOutMessage();
         this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
+        protocolResetFlag = true;
         return Success;
     }
 }
