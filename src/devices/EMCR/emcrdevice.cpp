@@ -33,6 +33,7 @@ EmcrDevice::~EmcrDevice() {
     for (auto coder : coders) {
         delete coder;
     }
+    coders.clear();
 }
 
 ErrorCodes_t EmcrDevice::enableRxMessageType(MsgTypeId_t messageType, bool flag) {

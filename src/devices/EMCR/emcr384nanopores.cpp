@@ -141,7 +141,6 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     samplingRatesArray[SamplingRate6_25kHz].value = 6.25;
     samplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
     samplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
-#ifdef E384NPR_ADDITIONAL_SR_FLAG
     samplingRatesArray[SamplingRate12_5kHz].value = 12.5;
     samplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
     samplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
@@ -157,14 +156,12 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     samplingRatesArray[SamplingRate200kHz].value = 200.0;
     samplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
     samplingRatesArray[SamplingRate200kHz].unit = "Hz";
-#endif
     defaultSamplingRateIdx = SamplingRate6_25kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
     realSamplingRatesArray[SamplingRate6_25kHz].value = 6.25;
     realSamplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
-#ifdef E384NPR_ADDITIONAL_SR_FLAG
     realSamplingRatesArray[SamplingRate12_5kHz].value = 12.5;
     realSamplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
@@ -180,13 +177,11 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     realSamplingRatesArray[SamplingRate200kHz].value = 200.0;
     realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
-#endif
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate6_25kHz].value = 1.0/6.25;
     integrationStepArray[SamplingRate6_25kHz].prefix = UnitPfxMilli;
     integrationStepArray[SamplingRate6_25kHz].unit = "s";
-#ifdef E384NPR_ADDITIONAL_SR_FLAG
     integrationStepArray[SamplingRate12_5kHz].value = 1.0/12.5;
     integrationStepArray[SamplingRate12_5kHz].prefix = UnitPfxMilli;
     integrationStepArray[SamplingRate12_5kHz].unit = "s";
@@ -202,18 +197,15 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     integrationStepArray[SamplingRate200kHz].value = 1.0/200.0;
     integrationStepArray[SamplingRate200kHz].prefix = UnitPfxMilli;
     integrationStepArray[SamplingRate200kHz].unit = "s";
-#endif
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-        {SamplingRate6_25kHz, VCCurrentFilter20kHz}
-    #ifdef E384NPR_ADDITIONAL_SR_FLAG
-        ,{SamplingRate12_5kHz, VCCurrentFilter20kHz},
+        {SamplingRate6_25kHz, VCCurrentFilter20kHz},
+        {SamplingRate12_5kHz, VCCurrentFilter20kHz},
         {SamplingRate25kHz, VCCurrentFilter20kHz},
         {SamplingRate50kHz, VCCurrentFilter100kHz},
         {SamplingRate100kHz, VCCurrentFilter100kHz},
         {SamplingRate200kHz, VCCurrentFilter100kHz}
-    #endif
     };
 
     // mapping ADC Current Clamp

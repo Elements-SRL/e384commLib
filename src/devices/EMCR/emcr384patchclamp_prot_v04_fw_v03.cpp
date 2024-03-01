@@ -17,5 +17,5 @@ Emcr384PatchClamp_prot_v04_fw_v03::Emcr384PatchClamp_prot_v04_fw_v03(std::string
     boolConfig.initialBit = 14;
     boolConfig.bitsNum = 1;
     protocolResetCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(protocolIdCoder);
+    coders.push_back(protocolResetCoder);
 }

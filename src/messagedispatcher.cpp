@@ -2052,7 +2052,7 @@ void MessageDispatcher::fillChannelList(uint16_t numOfBoards, uint16_t numOfChan
     uint16_t newChannelId = 0;
     channelModels.resize(numOfChannelsOnBoard*numOfBoards);
     for(uint16_t i = 0; i< numOfBoards; i++ ){
-        for(uint16_t j = 0; j< numOfChannelsOnBoard; j++ ){
+        for(uint16_t j = 0; j< numOfChannelsOnBoard; j++){
             this->channelModels[newChannelId] = this->boardModels[i]->getChannelsOnBoard()[j];
             newChannelId++;
         }

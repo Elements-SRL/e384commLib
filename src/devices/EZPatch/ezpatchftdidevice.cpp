@@ -462,7 +462,7 @@ bool EZPatchFtdiDevice::getDeviceCount(DWORD &numDevs) {
     }
 }
 
-ErrorCodes_t EZPatchFtdiDevice::startCommunication(std::string fwPath) {
+ErrorCodes_t EZPatchFtdiDevice::startCommunication(std::string) {
     ErrorCodes_t ret = this->loadFpgaFw();
     if (ret != Success) {
         return ret;

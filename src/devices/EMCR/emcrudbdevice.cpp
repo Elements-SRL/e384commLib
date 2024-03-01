@@ -160,7 +160,7 @@ bool EmcrUdbDevice::getDeviceCount(int &numDevs) {
     return true;
 }
 
-ErrorCodes_t EmcrUdbDevice::startCommunication(std::string fwPath) {
+ErrorCodes_t EmcrUdbDevice::startCommunication(std::string) {
     int32_t idx = getDeviceIndex(deviceId);
     if (idx < 0) {
         return ErrorDeviceConnectionFailed;

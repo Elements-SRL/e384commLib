@@ -10,12 +10,10 @@ public:
 protected:
     enum SamplingRates {
         SamplingRate7_5kHz,
-#ifdef E384NPR_ADDITIONAL_SR_FLAG
         SamplingRate15kHz,
         SamplingRate30kHz,
         SamplingRate60kHz,
         SamplingRate120kHz,
-#endif
         SamplingRatesNum
     };
 };
