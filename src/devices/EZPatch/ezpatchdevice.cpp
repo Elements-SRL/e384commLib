@@ -2732,6 +2732,31 @@ ErrorCodes_t EZPatchDevice::hasBridgeBalanceCompensation() {
     return ret;
 }
 
+ErrorCodes_t EZPatchDevice::getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray) {
+    switch (type) {
+    case CompCfast:
+        return this->getPipetteCompensationOptions(compOptionsArray);
+
+    case CompCslow:
+        return this->getMembraneCompensationOptions(compOptionsArray);
+
+    case CompRsCorr:
+        return this->getResistanceCorrectionOptions(compOptionsArray);
+
+    case CompRsPred:
+        return this->getResistancePredictionOptions(compOptionsArray);
+
+    case CompCcCfast:
+        return this->getCCPipetteCompensationOptions(compOptionsArray);
+
+    case CompBridgeRes:
+        return this->getBridgeBalanceCompensationOptions(compOptionsArray);
+
+    default:
+        return ErrorFeatureNotImplemented;
+    }
+}
+
 ErrorCodes_t EZPatchDevice::getPipetteCompensationOptions(std::vector <std::string> &options) {
     if (pipetteCompensationOptions.size() > 0) {
         options = pipetteCompensationOptions;
@@ -3500,7 +3525,7 @@ void EZPatchDevice::updateCompensations() {
     this->checkCompensationsValues();
     if (this->fillCompensationsRegistersTxData(txDataMessage)) {
         if (this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength) == Success) {
-            this->updateWrittenCompesantionValues(txDataMessage);
+            this->updateWrittenCompensationValues(txDataMessage);
         }
 
         /*! \todo FCON qui volendo si potrebbe fare il backtrace anche del comando degli switch/current range
@@ -3613,7 +3638,7 @@ ErrorCodes_t EZPatchDevice::setCompensationValue(CompensationControl_t &control,
             if (this->fillCompensationsRegistersTxData(txDataMessage)) {
                 ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
                 if (ret == Success) {
-                    this->updateWrittenCompesantionValues(txDataMessage);
+                    this->updateWrittenCompensationValues(txDataMessage);
 
                 } else {
                     control.value = originalValue;

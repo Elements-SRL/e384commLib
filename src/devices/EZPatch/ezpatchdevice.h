@@ -218,6 +218,8 @@ public:
     virtual ErrorCodes_t hasLeakConductanceCompensation();
     virtual ErrorCodes_t hasBridgeBalanceCompensation();
 
+    virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray) override;
+
     virtual ErrorCodes_t getPipetteCompensationOptions(std::vector <std::string> &options) override;
     virtual ErrorCodes_t getCCPipetteCompensationOptions(std::vector <std::string> &options) override;
     virtual ErrorCodes_t getMembraneCompensationOptions(std::vector <std::string> &options) override;
@@ -310,7 +312,7 @@ protected:
     void updateCompensations();
     virtual bool checkCompensationsValues() = 0;
     virtual bool fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) = 0;
-    virtual void updateWrittenCompesantionValues(std::vector <uint16_t> &txDataMessage) = 0;
+    virtual void updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) = 0;
     ErrorCodes_t turnCompensationsOn(bool &flag, bool on);
     ErrorCodes_t turnCompensationOn(std::vector <bool> &flag, bool on);
     virtual ErrorCodes_t setCompensationsOptions();

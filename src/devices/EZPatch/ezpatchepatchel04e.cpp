@@ -539,138 +539,6 @@ EZPatchePatchEL04E::EZPatchePatchEL04E(std::string di) :
     liquidJunctionControl.unit = liquidJunctionUnit;
     liquidJunctionControl.name = liquidJunctionName;
 
-    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
-    CompensationControl_t control;
-
-    control.implemented = true;
-    control.min = minPipetteCapacitance;
-    control.value = minPipetteCapacitance;
-    control.max = maxPipetteCapacitance;
-    control.maxCompensable = maxPipetteCapacitance;
-    control.steps = pipetteCapacitanceSteps;
-    control.step = pipetteCapacitanceStep;
-    control.decimals = pipetteCapacitanceDecimals;
-    control.prefix = pipetteCapacitancePrefix;
-    control.unit = pipetteCapacitanceUnit;
-    control.name = pipetteCapacitanceName;
-    std::fill(compensationControls[U_CpVc].begin(), compensationControls[U_CpVc].end(), control);
-
-    control.implemented = true;
-    control.min = minMembraneCapacitance;
-    control.value = minMembraneCapacitance;
-    control.max = maxMembraneCapacitance;
-    control.maxCompensable = maxMembraneCapacitance;
-    control.steps = membraneCapacitanceSteps;
-    control.step = membraneCapacitanceStep;
-    control.decimals = membraneCapacitanceDecimals;
-    control.prefix = membraneCapacitancePrefix;
-    control.unit = membraneCapacitanceUnit;
-    control.name = membraneCapacitanceName;
-    std::fill(compensationControls[U_Cm].begin(), compensationControls[U_Cm].end(), control);
-
-    control.implemented = true;
-    control.min = 0.0;
-    control.value = 0.0;
-    control.max = 100.0;
-    control.maxCompensable = 100.0;
-    control.steps = 1001.0;
-    control.step = 0.1;
-    control.decimals = 1;
-    control.prefix = accessResistancePrefix;
-    control.unit = accessResistanceUnit;
-    control.name = accessResistanceName;
-    std::fill(compensationControls[U_Rs].begin(), compensationControls[U_Rs].end(), control);
-
-    control.implemented = true;
-    control.min = 0.0;
-    control.value = 0.0;
-    control.max = 100.0;
-    control.maxCompensable = 100.0;
-    control.steps = 101.0;
-    control.step = 1.0;
-    control.decimals = 1;
-    control.prefix = resistanceCorrectionPercentagePrefix;
-    control.unit = resistanceCorrectionPercentageUnit;
-    control.name = resistanceCorrectionPercentageName;
-    std::fill(compensationControls[U_RsCp].begin(), compensationControls[U_RsCp].end(), control);
-
-    control.implemented = true;
-    control.min = 0.0;
-    control.value = 100.0;
-    control.max = 150.0;
-    control.maxCompensable = 150.0;
-    control.steps = 151.0;
-    control.step = 1.0;
-    control.decimals = 1;
-    control.prefix = resistancePredictionPercentagePrefix;
-    control.unit = resistancePredictionPercentageUnit;
-    control.name = resistancePredictionPercentageName;
-    std::fill(compensationControls[U_RsPp].begin(), compensationControls[U_RsPp].end(), control);
-
-    control.implemented = false;
-    control.min = minResistancePredictionTau;
-    control.value = minResistancePredictionTau;
-    control.max = maxResistancePredictionTau;
-    control.maxCompensable = maxResistancePredictionTau;
-    control.steps = resistancePredictionTauSteps;
-    control.step = resistancePredictionTauStep;
-    control.decimals = resistancePredictionTauDecimals;
-    control.prefix = resistancePredictionTauPrefix;
-    control.unit = resistancePredictionTauUnit;
-    control.name = resistancePredictionTauName;
-    std::fill(compensationControls[U_RsPt].begin(), compensationControls[U_RsPt].end(), control);
-
-    leakConductanceControlLow.implemented = true;
-    leakConductanceControlLow.min = minLeakConductanceHigh;
-    leakConductanceControlLow.value = minLeakConductanceHigh;
-    leakConductanceControlLow.max = maxLeakConductanceHigh;
-    leakConductanceControlLow.maxCompensable = maxLeakConductanceHigh;
-    leakConductanceControlLow.steps = leakConductanceHighSteps;
-    leakConductanceControlLow.step = leakConductanceHighStep;
-    leakConductanceControlLow.decimals = leakConductanceHighDecimals;
-    leakConductanceControlLow.prefix = leakConductanceHighPrefix;
-    leakConductanceControlLow.unit = leakConductanceHighUnit;
-    leakConductanceControlLow.name = leakConductanceHighName;
-    std::fill(compensationControls[U_LkG].begin(), compensationControls[U_LkG].end(), leakConductanceControlLow);
-
-    leakConductanceControlHigh.implemented = true;
-    leakConductanceControlHigh.min = minLeakConductanceHigh;
-    leakConductanceControlHigh.value = minLeakConductanceHigh;
-    leakConductanceControlHigh.max = maxLeakConductanceHigh;
-    leakConductanceControlHigh.maxCompensable = maxLeakConductanceHigh;
-    leakConductanceControlHigh.steps = leakConductanceHighSteps;
-    leakConductanceControlHigh.step = leakConductanceHighStep;
-    leakConductanceControlHigh.decimals = leakConductanceHighDecimals;
-    leakConductanceControlHigh.prefix = leakConductanceHighPrefix;
-    leakConductanceControlHigh.unit = leakConductanceHighUnit;
-    leakConductanceControlHigh.name = leakConductanceHighName;
-
-    control.implemented = true;
-    control.min = minCcPipetteCapacitance;
-    control.value = minCcPipetteCapacitance;
-    control.max = maxCcPipetteCapacitance;
-    control.maxCompensable = maxCcPipetteCapacitance;
-    control.steps = ccPipetteCapacitanceSteps;
-    control.step = ccPipetteCapacitanceStep;
-    control.decimals = ccPipetteCapacitanceDecimals;
-    control.prefix = ccPipetteCapacitancePrefix;
-    control.unit = ccPipetteCapacitanceUnit;
-    control.name = ccPipetteCapacitanceName;
-    std::fill(compensationControls[U_CpCc].begin(), compensationControls[U_CpCc].end(), control);
-
-    control.implemented = true;
-    control.min = minBridgeBalanceResistance;
-    control.value = minBridgeBalanceResistance;
-    control.max = maxBridgeBalanceResistance;
-    control.maxCompensable = maxBridgeBalanceResistance;
-    control.steps = bridgeBalanceResistanceSteps;
-    control.step = bridgeBalanceResistanceStep;
-    control.decimals = bridgeBalanceResistanceDecimals;
-    control.prefix = bridgeBalanceResistancePrefix;
-    control.unit = bridgeBalanceResistanceUnit;
-    control.name = bridgeBalanceResistanceName;
-    std::fill(compensationControls[U_BrB].begin(), compensationControls[U_BrB].end(), control);
-
     /*! Zap command */
     zapDurationHwRegisterOffset = 8;
 
@@ -908,6 +776,138 @@ void EZPatchePatchEL04E::selectVoltageOffsetResolution() {
 void EZPatchePatchEL04E::initializeCompensations() {
     EZPatchDevice::initializeCompensations();
 
+    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
+    CompensationControl_t control;
+
+    control.implemented = true;
+    control.min = minPipetteCapacitance;
+    control.value = minPipetteCapacitance;
+    control.max = maxPipetteCapacitance;
+    control.maxCompensable = maxPipetteCapacitance;
+    control.steps = pipetteCapacitanceSteps;
+    control.step = pipetteCapacitanceStep;
+    control.decimals = pipetteCapacitanceDecimals;
+    control.prefix = pipetteCapacitancePrefix;
+    control.unit = pipetteCapacitanceUnit;
+    control.name = pipetteCapacitanceName;
+    std::fill(compensationControls[U_CpVc].begin(), compensationControls[U_CpVc].end(), control);
+
+    control.implemented = true;
+    control.min = minMembraneCapacitance;
+    control.value = minMembraneCapacitance;
+    control.max = maxMembraneCapacitance;
+    control.maxCompensable = maxMembraneCapacitance;
+    control.steps = membraneCapacitanceSteps;
+    control.step = membraneCapacitanceStep;
+    control.decimals = membraneCapacitanceDecimals;
+    control.prefix = membraneCapacitancePrefix;
+    control.unit = membraneCapacitanceUnit;
+    control.name = membraneCapacitanceName;
+    std::fill(compensationControls[U_Cm].begin(), compensationControls[U_Cm].end(), control);
+
+    control.implemented = true;
+    control.min = 0.0;
+    control.value = 0.0;
+    control.max = 100.0;
+    control.maxCompensable = 100.0;
+    control.steps = 1001.0;
+    control.step = 0.1;
+    control.decimals = 1;
+    control.prefix = accessResistancePrefix;
+    control.unit = accessResistanceUnit;
+    control.name = accessResistanceName;
+    std::fill(compensationControls[U_Rs].begin(), compensationControls[U_Rs].end(), control);
+
+    control.implemented = true;
+    control.min = 0.0;
+    control.value = 0.0;
+    control.max = 100.0;
+    control.maxCompensable = 100.0;
+    control.steps = 101.0;
+    control.step = 1.0;
+    control.decimals = 1;
+    control.prefix = resistanceCorrectionPercentagePrefix;
+    control.unit = resistanceCorrectionPercentageUnit;
+    control.name = resistanceCorrectionPercentageName;
+    std::fill(compensationControls[U_RsCp].begin(), compensationControls[U_RsCp].end(), control);
+
+    control.implemented = true;
+    control.min = 0.0;
+    control.value = 100.0;
+    control.max = 150.0;
+    control.maxCompensable = 150.0;
+    control.steps = 151.0;
+    control.step = 1.0;
+    control.decimals = 1;
+    control.prefix = resistancePredictionPercentagePrefix;
+    control.unit = resistancePredictionPercentageUnit;
+    control.name = resistancePredictionPercentageName;
+    std::fill(compensationControls[U_RsPp].begin(), compensationControls[U_RsPp].end(), control);
+
+    control.implemented = false;
+    control.min = minResistancePredictionTau;
+    control.value = minResistancePredictionTau;
+    control.max = maxResistancePredictionTau;
+    control.maxCompensable = maxResistancePredictionTau;
+    control.steps = resistancePredictionTauSteps;
+    control.step = resistancePredictionTauStep;
+    control.decimals = resistancePredictionTauDecimals;
+    control.prefix = resistancePredictionTauPrefix;
+    control.unit = resistancePredictionTauUnit;
+    control.name = resistancePredictionTauName;
+    std::fill(compensationControls[U_RsPt].begin(), compensationControls[U_RsPt].end(), control);
+
+    leakConductanceControlLow.implemented = true;
+    leakConductanceControlLow.min = minLeakConductanceHigh;
+    leakConductanceControlLow.value = minLeakConductanceHigh;
+    leakConductanceControlLow.max = maxLeakConductanceHigh;
+    leakConductanceControlLow.maxCompensable = maxLeakConductanceHigh;
+    leakConductanceControlLow.steps = leakConductanceHighSteps;
+    leakConductanceControlLow.step = leakConductanceHighStep;
+    leakConductanceControlLow.decimals = leakConductanceHighDecimals;
+    leakConductanceControlLow.prefix = leakConductanceHighPrefix;
+    leakConductanceControlLow.unit = leakConductanceHighUnit;
+    leakConductanceControlLow.name = leakConductanceHighName;
+    std::fill(compensationControls[U_LkG].begin(), compensationControls[U_LkG].end(), leakConductanceControlLow);
+
+    leakConductanceControlHigh.implemented = true;
+    leakConductanceControlHigh.min = minLeakConductanceHigh;
+    leakConductanceControlHigh.value = minLeakConductanceHigh;
+    leakConductanceControlHigh.max = maxLeakConductanceHigh;
+    leakConductanceControlHigh.maxCompensable = maxLeakConductanceHigh;
+    leakConductanceControlHigh.steps = leakConductanceHighSteps;
+    leakConductanceControlHigh.step = leakConductanceHighStep;
+    leakConductanceControlHigh.decimals = leakConductanceHighDecimals;
+    leakConductanceControlHigh.prefix = leakConductanceHighPrefix;
+    leakConductanceControlHigh.unit = leakConductanceHighUnit;
+    leakConductanceControlHigh.name = leakConductanceHighName;
+
+    control.implemented = true;
+    control.min = minCcPipetteCapacitance;
+    control.value = minCcPipetteCapacitance;
+    control.max = maxCcPipetteCapacitance;
+    control.maxCompensable = maxCcPipetteCapacitance;
+    control.steps = ccPipetteCapacitanceSteps;
+    control.step = ccPipetteCapacitanceStep;
+    control.decimals = ccPipetteCapacitanceDecimals;
+    control.prefix = ccPipetteCapacitancePrefix;
+    control.unit = ccPipetteCapacitanceUnit;
+    control.name = ccPipetteCapacitanceName;
+    std::fill(compensationControls[U_CpCc].begin(), compensationControls[U_CpCc].end(), control);
+
+    control.implemented = true;
+    control.min = minBridgeBalanceResistance;
+    control.value = minBridgeBalanceResistance;
+    control.max = maxBridgeBalanceResistance;
+    control.maxCompensable = maxBridgeBalanceResistance;
+    control.steps = bridgeBalanceResistanceSteps;
+    control.step = bridgeBalanceResistanceStep;
+    control.decimals = bridgeBalanceResistanceDecimals;
+    control.prefix = bridgeBalanceResistancePrefix;
+    control.unit = bridgeBalanceResistanceUnit;
+    control.name = bridgeBalanceResistanceName;
+    std::fill(compensationControls[U_BrB].begin(), compensationControls[U_BrB].end(), control);
+
     pipetteCapacitanceRegValue.resize(currentChannelsNum);
     ccPipetteCapacitanceRegValue.resize(currentChannelsNum);
     membraneCapacitanceRegValue.resize(currentChannelsNum);
@@ -1038,7 +1038,7 @@ bool EZPatchePatchEL04E::fillCompensationsRegistersTxData(std::vector <uint16_t>
     return anythingChanged;
 }
 
-void EZPatchePatchEL04E::updateWrittenCompesantionValues(std::vector <uint16_t> &txDataMessage) {
+void EZPatchePatchEL04E::updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) {
     pipetteCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[1];
     membraneCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[3];
     membraneTauRegValue[compensationsSettingChannel] = txDataMessage[5];

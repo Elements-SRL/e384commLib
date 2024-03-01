@@ -667,7 +667,6 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw0_622kHz] = rsCorrBwArray[CompensationRsCorrBw0_622kHz].niceLabel();
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw0_311kHz] = rsCorrBwArray[CompensationRsCorrBw0_311kHz].niceLabel();
 
-
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
     currentResolution = currentRange.step;
@@ -693,12 +692,12 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     // Initialization of the USER compensation domain with standard parameters
     for(int i = 0; i < currentChannelsNum; i++){
-        compValueMatrix[i][U_CpVc] =  defaultUserDomainParams[U_CpVc];
-        compValueMatrix[i][U_Cm] =  defaultUserDomainParams[U_Cm];
-        compValueMatrix[i][U_Rs] =  defaultUserDomainParams[U_Rs];
-        compValueMatrix[i][U_RsCp] =  defaultUserDomainParams[U_RsCp];
-        compValueMatrix[i][U_RsPg] =  defaultUserDomainParams[U_RsPg];
-        compValueMatrix[i][U_CpCc] =  defaultUserDomainParams[U_CpCc];
+        compValueMatrix[i][U_CpVc] = defaultUserDomainParams[U_CpVc];
+        compValueMatrix[i][U_Cm] = defaultUserDomainParams[U_Cm];
+        compValueMatrix[i][U_Rs] = defaultUserDomainParams[U_Rs];
+        compValueMatrix[i][U_RsCp] = defaultUserDomainParams[U_RsCp];
+        compValueMatrix[i][U_RsPg] = defaultUserDomainParams[U_RsPg];
+        compValueMatrix[i][U_CpCc] = defaultUserDomainParams[U_CpCc];
     }
 
     // Initialization of the RsCorr bandwidth option with default option

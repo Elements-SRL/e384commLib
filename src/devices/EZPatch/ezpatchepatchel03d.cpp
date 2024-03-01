@@ -368,87 +368,6 @@ EZPatchePatchEL03D_V04::EZPatchePatchEL03D_V04(std::string di) :
     liquidJunctionControl.unit = liquidJunctionUnit;
     liquidJunctionControl.name = liquidJunctionName;
 
-    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
-    CompensationControl_t control;
-
-    control.implemented = true;
-    control.min = minPipetteCapacitance;
-    control.value = minPipetteCapacitance;
-    control.max = maxPipetteCapacitance;
-    control.maxCompensable = maxPipetteCapacitance;
-    control.steps = pipetteCapacitanceSteps;
-    control.step = pipetteCapacitanceStep;
-    control.decimals = pipetteCapacitanceDecimals;
-    control.prefix = pipetteCapacitancePrefix;
-    control.unit = pipetteCapacitanceUnit;
-    control.name = pipetteCapacitanceName;
-    std::fill(compensationControls[U_CpVc].begin(), compensationControls[U_CpVc].end(), control);
-
-    control.implemented = true;
-    control.min = minMembraneCapacitance;
-    control.value = minMembraneCapacitance;
-    control.max = maxMembraneCapacitance;
-    control.maxCompensable = maxMembraneCapacitance;
-    control.steps = membraneCapacitanceSteps;
-    control.step = membraneCapacitanceStep;
-    control.decimals = membraneCapacitanceDecimals;
-    control.prefix = membraneCapacitancePrefix;
-    control.unit = membraneCapacitanceUnit;
-    control.name = membraneCapacitanceName;
-    std::fill(compensationControls[U_Cm].begin(), compensationControls[U_Cm].end(), control);
-
-    control.implemented = true;
-    control.min = 0.0;
-    control.value = 0.0;
-    control.max = 100.0;
-    control.maxCompensable = 100.0;
-    control.steps = 1001.0;
-    control.step = 0.1;
-    control.decimals = 1;
-    control.prefix = accessResistancePrefix;
-    control.unit = accessResistanceUnit;
-    control.name = accessResistanceName;
-    std::fill(compensationControls[U_Rs].begin(), compensationControls[U_Rs].end(), control);
-
-    control.implemented = true;
-    control.min = 0.0;
-    control.value = 0.0;
-    control.max = 100.0;
-    control.maxCompensable = 100.0;
-    control.steps = 101.0;
-    control.step = 1.0;
-    control.decimals = 1;
-    control.prefix = resistanceCorrectionPercentagePrefix;
-    control.unit = resistanceCorrectionPercentageUnit;
-    control.name = resistanceCorrectionPercentageName;
-    std::fill(compensationControls[U_RsCp].begin(), compensationControls[U_RsCp].end(), control);
-
-    control.implemented = true;
-    control.min = minResistanceCorrectionLag;
-    control.value = minResistanceCorrectionLag;
-    control.max = maxResistanceCorrectionLag;
-    control.maxCompensable = maxResistanceCorrectionLag;
-    control.steps = resistanceCorrectionLagSteps;
-    control.step = resistanceCorrectionLagStep;
-    control.decimals = resistanceCorrectionLagDecimals;
-    control.prefix = resistanceCorrectionLagPrefix;
-    control.unit = resistanceCorrectionLagUnit;
-    control.name = resistanceCorrectionLagName;
-    std::fill(compensationControls[U_RsCl].begin(), compensationControls[U_RsCl].end(), control);
-
-    control.implemented = true;
-    control.min = 0.0;
-    control.value = 100.0;
-    control.max = 150.0;
-    control.maxCompensable = 150.0;
-    control.steps = 151.0;
-    control.step = 1.0;
-    control.decimals = 1;
-    control.prefix = resistancePredictionPercentagePrefix;
-    control.unit = resistancePredictionPercentageUnit;
-    control.name = resistancePredictionPercentageName;
-    std::fill(compensationControls[U_RsPp].begin(), compensationControls[U_RsPp].end(), control);
-
     /*! Zap command */
     zapDurationHwRegisterOffset = 6;
 
@@ -587,6 +506,87 @@ void EZPatchePatchEL03D_V04::selectVoltageOffsetResolution() {
 void EZPatchePatchEL03D_V04::initializeCompensations() {
     EZPatchDevice::initializeCompensations();
 
+    /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
+    CompensationControl_t control;
+
+    control.implemented = true;
+    control.min = minPipetteCapacitance;
+    control.value = minPipetteCapacitance;
+    control.max = maxPipetteCapacitance;
+    control.maxCompensable = maxPipetteCapacitance;
+    control.steps = pipetteCapacitanceSteps;
+    control.step = pipetteCapacitanceStep;
+    control.decimals = pipetteCapacitanceDecimals;
+    control.prefix = pipetteCapacitancePrefix;
+    control.unit = pipetteCapacitanceUnit;
+    control.name = pipetteCapacitanceName;
+    std::fill(compensationControls[U_CpVc].begin(), compensationControls[U_CpVc].end(), control);
+
+    control.implemented = true;
+    control.min = minMembraneCapacitance;
+    control.value = minMembraneCapacitance;
+    control.max = maxMembraneCapacitance;
+    control.maxCompensable = maxMembraneCapacitance;
+    control.steps = membraneCapacitanceSteps;
+    control.step = membraneCapacitanceStep;
+    control.decimals = membraneCapacitanceDecimals;
+    control.prefix = membraneCapacitancePrefix;
+    control.unit = membraneCapacitanceUnit;
+    control.name = membraneCapacitanceName;
+    std::fill(compensationControls[U_Cm].begin(), compensationControls[U_Cm].end(), control);
+
+    control.implemented = true;
+    control.min = 0.0;
+    control.value = 0.0;
+    control.max = 100.0;
+    control.maxCompensable = 100.0;
+    control.steps = 1001.0;
+    control.step = 0.1;
+    control.decimals = 1;
+    control.prefix = accessResistancePrefix;
+    control.unit = accessResistanceUnit;
+    control.name = accessResistanceName;
+    std::fill(compensationControls[U_Rs].begin(), compensationControls[U_Rs].end(), control);
+
+    control.implemented = true;
+    control.min = 0.0;
+    control.value = 0.0;
+    control.max = 100.0;
+    control.maxCompensable = 100.0;
+    control.steps = 101.0;
+    control.step = 1.0;
+    control.decimals = 1;
+    control.prefix = resistanceCorrectionPercentagePrefix;
+    control.unit = resistanceCorrectionPercentageUnit;
+    control.name = resistanceCorrectionPercentageName;
+    std::fill(compensationControls[U_RsCp].begin(), compensationControls[U_RsCp].end(), control);
+
+    control.implemented = true;
+    control.min = minResistanceCorrectionLag;
+    control.value = minResistanceCorrectionLag;
+    control.max = maxResistanceCorrectionLag;
+    control.maxCompensable = maxResistanceCorrectionLag;
+    control.steps = resistanceCorrectionLagSteps;
+    control.step = resistanceCorrectionLagStep;
+    control.decimals = resistanceCorrectionLagDecimals;
+    control.prefix = resistanceCorrectionLagPrefix;
+    control.unit = resistanceCorrectionLagUnit;
+    control.name = resistanceCorrectionLagName;
+    std::fill(compensationControls[U_RsCl].begin(), compensationControls[U_RsCl].end(), control);
+
+    control.implemented = true;
+    control.min = 0.0;
+    control.value = 100.0;
+    control.max = 150.0;
+    control.maxCompensable = 150.0;
+    control.steps = 151.0;
+    control.step = 1.0;
+    control.decimals = 1;
+    control.prefix = resistancePredictionPercentagePrefix;
+    control.unit = resistancePredictionPercentageUnit;
+    control.name = resistancePredictionPercentageName;
+    std::fill(compensationControls[U_RsPp].begin(), compensationControls[U_RsPp].end(), control);
+
     pipetteCapacitanceRegValue.resize(currentChannelsNum);
     membraneCapacitanceRegValue.resize(currentChannelsNum);
     membraneTauRegValue.resize(currentChannelsNum);
@@ -680,7 +680,7 @@ bool EZPatchePatchEL03D_V04::fillCompensationsRegistersTxData(std::vector <uint1
     return anythingChanged;
 }
 
-void EZPatchePatchEL03D_V04::updateWrittenCompesantionValues(std::vector <uint16_t> &txDataMessage) {
+void EZPatchePatchEL03D_V04::updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) {
     pipetteCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[1];
     membraneCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[3];
     membraneTauRegValue[compensationsSettingChannel] = txDataMessage[5];

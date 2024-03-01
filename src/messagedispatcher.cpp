@@ -1916,13 +1916,13 @@ ErrorCodes_t MessageDispatcher::getCompFeatures(CompensationUserParams feature, 
         return ErrorFeatureNotImplemented;
     }
 
-    if (!compensationControls[0][feature].implemented) {
+    if (!compensationControls[feature][0].implemented) {
         return ErrorFeatureNotImplemented;
     }
 
     for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
         compensationFeatures[chIdx] = compensationControls[feature][chIdx].getCompensableRange();
-        defaultParamValue = defaultUserDomainParams[feature];
+        defaultParamValue = compensationControls[feature][chIdx].value;
     }
 
     return Success;

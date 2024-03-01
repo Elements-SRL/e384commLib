@@ -234,7 +234,7 @@ protected:
     void initializeCompensations() override;
     bool checkCompensationsValues() override;
     bool fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) override;
-    void updateWrittenCompesantionValues(std::vector <uint16_t> &txDataMessage) override;
+    void updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) override;
 
     uint16_t samplingRatesSwitchesNum = 0;
     std::vector <uint16_t> samplingRatesSwitchesWord;

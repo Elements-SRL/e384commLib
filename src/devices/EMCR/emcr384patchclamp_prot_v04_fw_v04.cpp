@@ -1761,7 +1761,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::initializeHW() {
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray){
+ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray){
     switch(type) {
     case CompRsCorr:
         if(rsCorrBwArray.size()==0){
