@@ -1907,9 +1907,12 @@ ErrorCodes_t EZPatchDevice::setDigitalRepetitiveTriggerOutput(uint16_t triggersN
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest) {
+ErrorCodes_t EZPatchDevice::setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest, bool stopProtocolFlag) {
     if (itemsNum > protocolMaxItemsNum) {
         return ErrorValueOutOfRange;
+    }
+    if (stopProtocolFlag) {
+        this->stopProtocol();
     }
 
     selectedProtocolId = protId;
@@ -2077,20 +2080,24 @@ ErrorCodes_t EZPatchDevice::startProtocol() {
 }
 
 ErrorCodes_t EZPatchDevice::stopProtocol() {
+    bool stopProtocolFlag = false; /*! We're already commiting a stop protocol, so commiting another one on the protocol structure will create an infinite recursion */
     if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-        this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest);
+        this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest, stopProtocolFlag);
         this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
 
     } else {
-        this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest);
+        this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest, stopProtocolFlag);
         this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
     }
     return this->startProtocol();
 }
 
-ErrorCodes_t EZPatchDevice::setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest) {
+ErrorCodes_t EZPatchDevice::setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest, bool stopProtocolFlag) {
     if (itemsNum > protocolMaxItemsNum) {
         return ErrorValueOutOfRange;
+    }
+    if (stopProtocolFlag) {
+        this->stopProtocol();
     }
 
     selectedProtocolId = protId;

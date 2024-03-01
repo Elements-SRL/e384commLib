@@ -1009,7 +1009,7 @@ ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
     }
     Measurement_t vRest;
     input2Measurement(vRestIn, vRest);
-    return messageDispatcher->setVoltageProtocolStructure(protId, itemsNum, sweepsNum, vRest);
+    return messageDispatcher->setVoltageProtocolStructure(protId, itemsNum, sweepsNum, vRest, true);
 }
 
 ErrorCodes_t voltStepTimeStep(
@@ -1098,7 +1098,7 @@ ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
     }
     Measurement_t iRest;
     input2Measurement(iRestIn, iRest);
-    return messageDispatcher->setCurrentProtocolStructure(protId, itemsNum, sweepsNum, iRest);
+    return messageDispatcher->setCurrentProtocolStructure(protId, itemsNum, sweepsNum, iRest, true);
 }
 
 ErrorCodes_t currStepTimeStep(
