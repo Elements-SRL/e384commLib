@@ -408,7 +408,7 @@ ErrorCodes_t MessageDispatcher::turnCurrentStimulusOn(bool, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t, uint16_t, uint16_t, Measurement_t) {
+ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t, uint16_t, uint16_t, Measurement_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -424,7 +424,7 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t, uint16_t, uint16
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentProtocolStructure(uint16_t, uint16_t, uint16_t, Measurement_t) {
+ErrorCodes_t MessageDispatcher::setCurrentProtocolStructure(uint16_t, uint16_t, uint16_t, Measurement_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 

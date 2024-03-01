@@ -153,7 +153,7 @@ public:
     ErrorCodes_t setDigitalRepetitiveTriggerOutput(uint16_t triggersNum, bool valid, bool infinite, uint16_t triggerId,
                                                    Measurement_t delay, Measurement_t duration, Measurement_t period, Measurement_t deltaPeriod);
 
-    ErrorCodes_t setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest) override;
+    ErrorCodes_t setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest, bool stopProtocolFlag) override;
     ErrorCodes_t voltStepTimeStep(Measurement_t v0, Measurement_t vStep, Measurement_t t0, Measurement_t tStep,
                                   uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps);
     ErrorCodes_t voltRamp(Measurement_t v0, Measurement_t vFinal, Measurement_t t,
@@ -166,7 +166,7 @@ public:
     ErrorCodes_t startProtocol() override;
     ErrorCodes_t stopProtocol() override;
 
-    ErrorCodes_t setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest) override;
+    ErrorCodes_t setCurrentProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t iRest, bool stopProtocolFlag) override;
     ErrorCodes_t currStepTimeStep(Measurement_t i0, Measurement_t iStep, Measurement_t t0, Measurement_t tStep,
                                   uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps);
     ErrorCodes_t currRamp(Measurement_t i0, Measurement_t iFinal, Measurement_t t,
