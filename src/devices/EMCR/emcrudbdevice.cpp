@@ -209,8 +209,12 @@ ErrorCodes_t EmcrUdbDevice::stopCommunication() {
 
 void EmcrUdbDevice::handleCommunicationWithDevice() {
     /*! Header and type do not change for now */
-    txRawBuffer[0] = 0x5aa55aa5;
-    txRawBuffer[1] = 0x00000000;
+    txRawBulkBuffer[0] = 0x5aa55aa5;
+    txRawBulkBuffer[1] = 0x00000000;
+
+    txRawTriggerBuffer[0] = 0x5aa55aa5;
+    txRawTriggerBuffer[1] = 0x00000001;
+    txRawTriggerBuffer[2] = 0x00000001;
 
     std::unique_lock <std::mutex> txMutexLock (txMutex);
     txMutexLock.unlock();
@@ -280,7 +284,7 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
 }
 
 void EmcrUdbDevice::sendCommandsToDevice() {
-    txRawBuffer[2] = txMsgLength[txMsgBufferReadOffset]/2;
+    txRawBulkBuffer[2] = txMsgLength[txMsgBufferReadOffset]/2;
 
     int writeTries = 0;
 
@@ -288,12 +292,12 @@ void EmcrUdbDevice::sendCommandsToDevice() {
 
     /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
     for (uint32_t txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
-        txRawBuffer[3+txDataBufferReadIdx] = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
-        txRawBuffer[3+txDataBufferReadIdx+1] =
+        txRawBulkBuffer[3+txDataBufferReadIdx] = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
+        txRawBulkBuffer[3+txDataBufferReadIdx+1] =
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
     }
-//    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
+    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
 
     txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 
@@ -304,7 +308,7 @@ void EmcrUdbDevice::sendCommandsToDevice() {
     notSentTxData = true;
     writeTries = 0;
     while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
-        if (!this->writeRegisters()) {
+        if (!this->writeRegistersAndActivateTriggers(type)) {
             continue;
         }
 
@@ -323,9 +327,26 @@ void EmcrUdbDevice::sendCommandsToDevice() {
     }
 }
 
-bool EmcrUdbDevice::writeRegisters() {
-    if (!this->writeToBulkOut()) {
+bool EmcrUdbDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
+    if (this->writeRegisters() == false) {
         return false;
+    }
+    switch (type) {
+    case TxTriggerParameteresUpdated:
+//        this->activateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerStartProtocol:
+//        this->activateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        return this->activateTriggerIn(UDB_START_PROTOCOL_TRIGGER_IN_ADDR, UDB_START_PROTOCOL_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerStartStateArray:
+//        this->activateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+//        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+//        this->activateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
+        break;
     }
     return true;
 }
@@ -551,8 +572,14 @@ ErrorCodes_t EmcrUdbDevice::initializeMemory() {
         return ErrorMemoryInitialization;
     }
 
-    txRawBuffer = new (std::nothrow) uint32_t[3+2*txMaxWords];
-    if (txRawBuffer == nullptr) {
+    txRawBulkBuffer = new (std::nothrow) uint32_t[3+2*txMaxWords];
+    if (txRawBulkBuffer == nullptr) {
+        this->deinitializeMemory();
+        return ErrorMemoryInitialization;
+    }
+
+    txRawTriggerBuffer = new (std::nothrow) uint32_t[UDB_TX_TRIGGER_BUFFER_SIZE];
+    if (txRawTriggerBuffer == nullptr) {
         this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
@@ -567,9 +594,14 @@ void EmcrUdbDevice::deinitializeMemory() {
         rxRawBuffer = nullptr;
     }
 
-    if (txRawBuffer != nullptr) {
-        delete [] txRawBuffer;
-        txRawBuffer = nullptr;
+    if (txRawBulkBuffer != nullptr) {
+        delete [] txRawBulkBuffer;
+        txRawBulkBuffer = nullptr;
+    }
+
+    if (txRawTriggerBuffer != nullptr) {
+        delete [] txRawTriggerBuffer;
+        txRawTriggerBuffer = nullptr;
     }
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
@@ -699,11 +731,21 @@ unsigned char EmcrUdbDevice::getFwStatus() {
     return status;
 }
 
-bool EmcrUdbDevice::writeToBulkOut() {
-    long bytesNum = 4*(3+2*txRawBuffer[2]);
+bool EmcrUdbDevice::writeRegisters() {
+    return writeToBulkOut(txRawBulkBuffer);
+}
+
+bool EmcrUdbDevice::activateTriggerIn(int address, int bit) {
+    txRawTriggerBuffer[3] = (uint32_t)address;
+    txRawTriggerBuffer[4] = ((uint32_t)1) << ((uint32_t)bit);
+    return writeToBulkOut(txRawTriggerBuffer);
+}
+
+bool EmcrUdbDevice::writeToBulkOut(uint32_t * buffer) {
+    long bytesNum = 4*(3+2*buffer[2]);
     std::unique_lock <std::mutex> deviceMtxLock (deviceMtx);
 
-    if (!(eptBulkout->XferData((PUCHAR)txRawBuffer, bytesNum))) {
+    if (!(eptBulkout->XferData((PUCHAR)buffer, bytesNum))) {
         eptBulkout->Abort();
         return false;
     }
@@ -711,7 +753,7 @@ bool EmcrUdbDevice::writeToBulkOut() {
 //#ifdef DEBUG_PRINT
 //    fprintf(fid, "config sent:");
 //    for (int i = 0; i < bytesNum/bytesNum; i++) {
-//        fprintf(fid, "0x%08x ", *(txRawBuffer+i));
+//        fprintf(fid, "0x%08x ", *(buffer+i));
 //    }
 //    fprintf(fid, "\n");
 //    fflush(fid);

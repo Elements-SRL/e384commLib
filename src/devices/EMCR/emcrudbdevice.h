@@ -5,9 +5,16 @@
 #define UDB_RX_BUFFER_MASK (UDB_RX_BUFFER_SIZE-1)
 #define UDB_RX_TRANSFER_SIZE 0x100000  /*! 1MB, must be lower than 4MB */
 #define UDB_RX_EXTENDED_BUFFER_SIZE (UDB_RX_BUFFER_SIZE+UDB_RX_TRANSFER_SIZE) /*!< Add space to be able to always store data from the XferData */
+#define UDB_TX_TRIGGER_BUFFER_SIZE 5 // header, type, length = 1, payload[2]
 #define UDB_BULKIN_ENDPOINT_TIMEOUT ((int)2000)
 #define UDB_BULKOUT_ENDPOINT_TIMEOUT ((int)2000)
 #define UDB_PACKETS_PER_TRANSFER ((int)64)
+//#define UDB_REGISTERS_CHANGED_TRIGGER_IN_ADDR 0x53
+//#define UDB_REGISTERS_CHANGED_TRIGGER_IN_BIT 0
+#define UDB_START_PROTOCOL_TRIGGER_IN_ADDR 0x40
+#define UDB_START_PROTOCOL_TRIGGER_IN_BIT 0
+//#define UDB_START_STATE_ARRAY_TRIGGER_IN_ADDR 0x53
+//#define UDB_START_STATE_ARRAY_TRIGGER_IN_BIT 3
 
 #include "stdafx.h"
 #ifdef _WIN32
@@ -69,7 +76,7 @@ protected:
 
     virtual void handleCommunicationWithDevice() override;
     void sendCommandsToDevice();
-    virtual bool writeRegisters();
+    virtual bool writeRegistersAndActivateTriggers(TxTriggerType_t type);
     virtual uint32_t readDataFromDevice() override;
     virtual void parseDataFromDevice() override;
 
@@ -132,13 +139,16 @@ private:
     bool bootFpgafromFLASH();
     unsigned char fpgaLoadBitstreamStatus();
     unsigned char getFwStatus();
-    bool writeToBulkOut();
+    bool writeRegisters();
+    bool activateTriggerIn(int address, int bit);
+    bool writeToBulkOut(uint32_t * buffer);
 
     /***************\
      *  Variables  *
     \***************/
 
-    uint32_t * txRawBuffer = nullptr;
+    uint32_t * txRawBulkBuffer = nullptr;
+    uint32_t * txRawTriggerBuffer = nullptr;
 
     DeviceTuple_t deviceTuple;
 };

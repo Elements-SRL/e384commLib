@@ -91,8 +91,6 @@ ErrorCodes_t EmcrDevice::stopProtocol() {
 
     } else {
         protocolResetCoder->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        this->stackOutgoingMessage(txStatus);
-        this->forceOutMessage();
         this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
         protocolResetFlag = true;
         return Success;
