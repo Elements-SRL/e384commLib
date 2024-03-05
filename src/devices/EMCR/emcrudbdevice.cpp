@@ -449,13 +449,13 @@ void EmcrUdbDevice::parseDataFromDevice() {
                 } else {
                     rxFrameOffset = rxRawBufferReadOffset;
                     /*! Check byte by byte if the buffer contains a sync word (frame header) */
-                    if (popUint16FromRxRawBuffer() == rxSyncWord) {
+                    if (popUint32FromRxRawBuffer() == rxSyncWord) {
                         /*! If all the bytes match the sync word move rxSyncWordSize bytes ahead and look for the message length */
                         rxParsePhase = RxParseLookForLength;
 
                     } else {
-                        /*! If not all the bytes match the sync word restore one of the removed bytes and recheck */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset-1) & UDB_RX_BUFFER_MASK;
+                        /*! If not all the bytes match the sync word restore three of the removed bytes and recheck */
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & UDB_RX_BUFFER_MASK;
                         rxRawBytesAvailable++;
                     }
                 }
@@ -623,11 +623,11 @@ EmcrUdbDevice::DeviceTuple_t EmcrUdbDevice::getDeviceTuple(uint32_t deviceIdx) {
         ctrept->Target		= TGT_DEVICE;
         ctrept->ReqType		= REQ_VENDOR;
         ctrept->Direction	= DIR_FROM_DEVICE;
-        ctrept->ReqCode		= 0xC1;
+        ctrept->ReqCode		= CYP_CMD_GET_TUPLE;
         ctrept->Value		= 0;
         ctrept->Index		= 0;
 
-        if (ctrept->XferData((PUCHAR)buffer, ctrlen) == false) {
+        if (ctrept->XferData((PUCHAR)buffer, ctrlen)) {
             tuple.version = (DeviceVersion_t)buffer[0];
             tuple.subversion = (DeviceSubversion_t)buffer[1];
             tuple.fwVersion = buffer[2];
@@ -686,7 +686,7 @@ bool EmcrUdbDevice::bootFpgafromFLASH() {
     ctrept->Target		= TGT_DEVICE;
     ctrept->ReqType		= REQ_VENDOR;
     ctrept->Direction	= DIR_TO_DEVICE;
-    ctrept->ReqCode		= 0xBF;
+    ctrept->ReqCode		= CYP_CMD_BOOT_FROM_FLASH;
     ctrept->Value		= 0;
     ctrept->Index		= 0;
 
@@ -702,7 +702,7 @@ unsigned char EmcrUdbDevice::fpgaLoadBitstreamStatus() {
     ctrept->Target		= TGT_DEVICE;
     ctrept->ReqType		= REQ_VENDOR;
     ctrept->Direction	= DIR_FROM_DEVICE;
-    ctrept->ReqCode		= 0xB1;
+    ctrept->ReqCode		= CYP_CMD_LOAD_BITSTREAM_STATUS;
     ctrept->Value		= 0;
     ctrept->Index		= 0;
 
@@ -721,7 +721,7 @@ unsigned char EmcrUdbDevice::getFwStatus() {
     ctrept->Target		= TGT_DEVICE;
     ctrept->ReqType		= REQ_VENDOR;
     ctrept->Direction	= DIR_FROM_DEVICE;
-    ctrept->ReqCode		= 0xB4;
+    ctrept->ReqCode		= CYP_CMD_LOAD_FW_STATUS;
     ctrept->Value		= 0;
     ctrept->Index		= 0;
 

@@ -16,6 +16,11 @@
 //#define UDB_START_STATE_ARRAY_TRIGGER_IN_ADDR 0x53
 //#define UDB_START_STATE_ARRAY_TRIGGER_IN_BIT 3
 
+#define CYP_CMD_GET_TUPLE 0xC1
+#define CYP_CMD_BOOT_FROM_FLASH 0xBF
+#define CYP_CMD_LOAD_BITSTREAM_STATUS 0xB1
+#define CYP_CMD_LOAD_FW_STATUS 0xB4
+
 #include "stdafx.h"
 #ifdef _WIN32
 #include <windows.h> /*! This has to be included before CyAPI.h, otherwise it won't be correctly interpreted */
@@ -86,6 +91,8 @@ protected:
     /****************\
      *  Parameters  *
     \****************/
+
+    uint32_t rxSyncWord;
 
     CCyUSBDevice * dev = nullptr;
 

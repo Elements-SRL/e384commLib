@@ -2347,6 +2347,16 @@ uint16_t EmcrDevice::popUint16FromRxRawBuffer() {
     return value;
 }
 
+uint32_t EmcrDevice::popUint32FromRxRawBuffer() {
+    uint32_t value = (((uint32_t)rxRawBuffer[rxRawBufferReadOffset]) << 24) +
+                     (((uint32_t)rxRawBuffer[rxRawBufferReadOffset+1]) << 16) +
+                     (((uint32_t)rxRawBuffer[rxRawBufferReadOffset+2]) << 8) +
+                       (uint32_t)rxRawBuffer[rxRawBufferReadOffset+3];
+    rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_WORD_SIZE) & rxRawBufferMask;
+    rxRawBytesAvailable -= RX_WORD_SIZE;
+    return value;
+}
+
 uint16_t EmcrDevice::readUint16FromRxRawBuffer(uint32_t n) {
     uint16_t value = (rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask] << 8) + rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask];
     return value;
