@@ -271,7 +271,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     boolConfig.initialBit = 6;
     boolConfig.bitsNum = 1;
     protocolResetCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(fpgaResetCoder);
+    coders.push_back(protocolResetCoder);
 
     /*! Current range VC */
     // undefined
