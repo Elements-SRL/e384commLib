@@ -2247,7 +2247,7 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
 
     case RxMessageVoltageThenCurrentDataLoad: {
         /*! Data frame with only current */
-        uint32_t packetsNum = rxDataWords/currentChannelsNum;
+        uint32_t packetsNum = rxDataWords/totalChannelsNum;
         uint32_t rxDataBufferWriteIdx = 0;
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
@@ -2259,24 +2259,25 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! Store the voltage values first */
             for (uint32_t idx = 0; idx < voltageChannelsNum-1; idx++) {
-                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)] = this->popUint16FromRxRawBuffer();
-                rxDataBufferWriteIdx = (rxDataBufferWriteIdx+1) & RX_DATA_BUFFER_MASK;
+                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
+                rxDataBufferWriteIdx++;
             }
-            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)] = this->popUint16FromRxRawBuffer();
+            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
             /*! Leave space for the current */
-            rxDataBufferWriteIdx = (rxDataBufferWriteIdx+currentChannelsNum) & RX_DATA_BUFFER_MASK;
+            rxDataBufferWriteIdx += 1+currentChannelsNum;
         }
 
         rxDataBufferWriteIdx = 0;
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! Leave space for the voltage */
-            rxDataBufferWriteIdx = (rxDataBufferWriteIdx+voltageChannelsNum) & RX_DATA_BUFFER_MASK;
+            rxDataBufferWriteIdx = (rxDataBufferWriteIdx+voltageChannelsNum);
             /*! Then store the current values */
             for (uint32_t idx = 0; idx < currentChannelsNum-1; idx++) {
-                rxDataBuffer[rxDataBufferWriteOffset+rxDataBufferWriteIdx] = this->popUint16FromRxRawBuffer();
-                rxDataBufferWriteIdx = (rxDataBufferWriteIdx+1) & RX_DATA_BUFFER_MASK;
+                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
+                rxDataBufferWriteIdx++;
             }
-            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)] = this->popUint16FromRxRawBuffer();
+            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
+            rxDataBufferWriteIdx++;
         }
 
         /* The size of the data returned by the message dispatcher is different from the size of the packet fram returned by the FPGA */
@@ -2352,12 +2353,21 @@ uint32_t EmcrDevice::popUint32FromRxRawBuffer() {
                      (((uint32_t)rxRawBuffer[rxRawBufferReadOffset+1]) << 16) +
                      (((uint32_t)rxRawBuffer[rxRawBufferReadOffset+2]) << 8) +
                        (uint32_t)rxRawBuffer[rxRawBufferReadOffset+3];
-    rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_WORD_SIZE) & rxRawBufferMask;
-    rxRawBytesAvailable -= RX_WORD_SIZE;
+
+    rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_32WORD_SIZE) & rxRawBufferMask;
+    rxRawBytesAvailable -= RX_32WORD_SIZE;
     return value;
 }
 
 uint16_t EmcrDevice::readUint16FromRxRawBuffer(uint32_t n) {
     uint16_t value = (rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask] << 8) + rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask];
+    return value;
+}
+
+uint32_t EmcrDevice::readUint32FromRxRawBuffer(uint32_t n) {
+    uint32_t value = (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask]) << 24) +
+                     (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask]) << 16) +
+                     (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+2) & rxRawBufferMask]) << 8) +
+                       (uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+3) & rxRawBufferMask];
     return value;
 }

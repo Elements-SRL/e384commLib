@@ -167,6 +167,7 @@ protected:
     uint16_t popUint16FromRxRawBuffer();
     uint32_t popUint32FromRxRawBuffer();
     uint16_t readUint16FromRxRawBuffer(uint32_t n);
+    uint32_t readUint32FromRxRawBuffer(uint32_t n);
 
     /************\
      *  Fields  *

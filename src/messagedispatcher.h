@@ -48,6 +48,7 @@
 #endif
 
 #define RX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
+#define RX_32WORD_SIZE (sizeof(uint32_t)) // 16 bit word
 #define RX_FEW_PACKETS_COEFF 0.01 /*!< = 10.0/1000.0: 10.0 because I want to get data once every 10ms, 1000 to convert sampling rate from Hz to kHz */
 #define RX_MAX_BYTES_TO_WAIT_FOR 16384
 #define RX_MSG_BUFFER_SIZE 0x10000 // ~64k

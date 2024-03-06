@@ -3,7 +3,7 @@
 Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     EmcrUdbDevice(di) {
 
-    deviceName = "2x10MHz";
+    deviceName = "10MHz";
 
     waitingTimeBeforeReadingData = 2; //s
 
@@ -24,12 +24,12 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     rxWordLengths[RxMessageDataHeader] = 4;
 
     rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
-    rxWordLengths[RxMessageDataTail] = 1;
+    rxWordLengths[RxMessageDataTail] = 2;
 
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
-    rxWordLengths[RxMessageStatus] = 1;
+    rxWordLengths[RxMessageStatus] = 2;
 
-    rxMaxWords = currentChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
+    rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
     txDataWords = 260; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
@@ -156,24 +156,24 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     defaultSamplingRateIdx = SamplingRate40MHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate40MHz].value = 80.0/2.0;
-    samplingRatesArray[SamplingRate40MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate40MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate20MHz].value = 80.0/4.0;
-    samplingRatesArray[SamplingRate20MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate20MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate10MHz].value = 80.0/8.0;
-    samplingRatesArray[SamplingRate10MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate10MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate5MHz].value = 80.0/16.0;
-    samplingRatesArray[SamplingRate5MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate5MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate2_5MHz].value = 80.0/32.0;
-    samplingRatesArray[SamplingRate2_5MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate2_5MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate1_25kHz].value = 80.0/64.0;
-    samplingRatesArray[SamplingRate1_25kHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate1_25kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate40MHz].value = 80.0/2.0;
+    realSamplingRatesArray[SamplingRate40MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate40MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate20MHz].value = 80.0/4.0;
+    realSamplingRatesArray[SamplingRate20MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate20MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate10MHz].value = 80.0/8.0;
+    realSamplingRatesArray[SamplingRate10MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate10MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate5MHz].value = 80.0/16.0;
+    realSamplingRatesArray[SamplingRate5MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate5MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate2_5MHz].value = 80.0/32.0;
+    realSamplingRatesArray[SamplingRate2_5MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate2_5MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate1_25kHz].value = 80.0/64.0;
+    realSamplingRatesArray[SamplingRate1_25kHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate1_25kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate40MHz].value = 2.0/80.0;

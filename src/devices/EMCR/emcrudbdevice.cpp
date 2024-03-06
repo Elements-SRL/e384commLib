@@ -9,6 +9,7 @@ static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
 EmcrUdbDevice::EmcrUdbDevice(std::string deviceId) :
     EmcrDevice(deviceId) {
 
+    rxRawBufferMask = UDB_RX_BUFFER_MASK;
 }
 
 EmcrUdbDevice::~EmcrUdbDevice() {
@@ -386,7 +387,7 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
 #endif
 
 #ifdef DEBUG_RX_RAW_DATA_PRINT
-        fprintf(rxRawFid, "Bytes read %d\n", bytesRead);
+        fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(rxRawBuffer[0]), bytesRead, rxRawFid);
         fflush(rxRawFid);
 #endif
 
@@ -405,7 +406,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
     uint16_t rxWordOffset; /*!< Offset of the first word in the received frame */
     uint16_t rxWordsLength; /*!< Number of words in the received frame */
     uint32_t rxDataBytes; /*!< Number of bytes in the received frame */
-    uint16_t rxCandidateHeader;
+    uint32_t rxCandidateHeader;
 
     bool notEnoughRxData;
 
@@ -456,7 +457,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
                     } else {
                         /*! If not all the bytes match the sync word restore three of the removed bytes and recheck */
                         rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & UDB_RX_BUFFER_MASK;
-                        rxRawBytesAvailable++;
+                        rxRawBytesAvailable += 3;
                     }
                 }
                 break;
@@ -509,11 +510,14 @@ void EmcrUdbDevice::parseDataFromDevice() {
                     notEnoughRxData = true;
 
                 } else {
-                    rxCandidateHeader = readUint16FromRxRawBuffer(rxDataBytes);
+                    rxCandidateHeader = readUint32FromRxRawBuffer(rxDataBytes);
 
                     if (rxCandidateHeader == rxSyncWord) {
                         if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
+
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageThenCurrentDataLoad]) {
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageVoltageThenCurrentDataLoad);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageCurrentDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageCurrentDataLoad);
