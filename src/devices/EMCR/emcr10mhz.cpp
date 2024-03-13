@@ -49,7 +49,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     availableVoltageSourcesIdxs.VoltageFromVoltageClamp = ChannelSourceVoltageFromVoltageClamp;
 
     /*! Protocols parameters */
-    protocolFpgaClockFrequencyHz = 10.08e6; /*! \todo FCON copiato dal 2x10MHz, verificare quant'è sul 10MHz singolo canale */
+    protocolFpgaClockFrequencyHz = 10.0e3;
 
     protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
     protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
@@ -60,7 +60,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     positiveProtocolTimeRange = protocolTimeRange;
     positiveProtocolTimeRange.min = 0.0;
 
-    protocolFrequencyRange.step = protocolFpgaClockFrequencyHz/(256.0*(UINT24_MAX+1.0)); /*! 10.08MHz / 256 / 2^24 */
+    protocolFrequencyRange.step = protocolFpgaClockFrequencyHz/(256.0*(UINT24_MAX+1.0)); /*! 10.0kHz / 256 / 2^24 */
     protocolFrequencyRange.min = INT24_MIN*protocolFrequencyRange.step;
     protocolFrequencyRange.max = INT24_MAX*protocolFrequencyRange.step;
     protocolFrequencyRange.prefix = UnitPfxNone;
@@ -75,7 +75,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
 
     protocolMaxItemsNum = 15;
     protocolWordOffset = 10;
-    protocolItemsWordsNum = 12;
+    protocolItemsWordsNum = 16;
 
     /*! Current ranges */
     /*! VC */
@@ -303,23 +303,8 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     boolConfig.bitsNum = 1;
     digitalOffsetCompensationCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        digitalOffsetCompensationCoders[idx] = new BoolNegatedArrayCoder(boolConfig);
+        digitalOffsetCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
         coders.push_back(digitalOffsetCompensationCoders[idx]);
-        boolConfig.initialBit++;
-        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
-            boolConfig.initialBit = 0;
-            boolConfig.initialWord++;
-        }
-    }
-
-    /*! Enable stimulus */
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 5;
-    boolConfig.bitsNum = 1;
-    enableStimulusCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        enableStimulusCoders[idx] = new BoolArrayCoder(boolConfig);
-        coders.push_back(enableStimulusCoders[idx]);
         boolConfig.initialBit++;
         if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
             boolConfig.initialBit = 0;
@@ -398,42 +383,6 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
 
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 32;
-    currentProtocolStim0Coders.resize(CCCurrentRangesNum);
-    currentProtocolStim0StepCoders.resize(CCCurrentRangesNum);
-    currentProtocolStim1Coders.resize(CCCurrentRangesNum);
-    currentProtocolStim1StepCoders.resize(CCCurrentRangesNum);
-
-    for (unsigned int rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
-        currentProtocolStim0Coders[rangeIdx].resize(protocolMaxItemsNum);
-        currentProtocolStim0StepCoders[rangeIdx].resize(protocolMaxItemsNum);
-        currentProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
-        currentProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
-
-        doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
-        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
-        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
-
-        for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-            doubleConfig.initialWord = protocolWordOffset+4+protocolItemsWordsNum*itemIdx;
-            currentProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(currentProtocolStim0Coders[rangeIdx][itemIdx]);
-
-            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
-            currentProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(currentProtocolStim0StepCoders[rangeIdx][itemIdx]);
-
-            doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
-            currentProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(currentProtocolStim1Coders[rangeIdx][itemIdx]);
-
-            doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
-            currentProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(currentProtocolStim1StepCoders[rangeIdx][itemIdx]);
-        }
-    }
-
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 32;
     doubleConfig.resolution = positiveProtocolTimeRange.step;
     doubleConfig.minValue = positiveProtocolTimeRange.min;
     doubleConfig.maxValue = positiveProtocolTimeRange.max;
@@ -505,9 +454,9 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
 
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 254;
-        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
-        doubleConfig.minValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
-        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
+        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);

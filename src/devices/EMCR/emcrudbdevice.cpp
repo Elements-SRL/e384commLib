@@ -314,8 +314,8 @@ void EmcrUdbDevice::sendCommandsToDevice() {
         }
 
 #ifdef DEBUG_TX_DATA_PRINT
-        for (uint16_t regIdx = 0; regIdx < regs.size(); regIdx++) {
-            fprintf(txFid, "%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
+        for (uint32_t regIdx = 0; regIdx < txRawBulkBuffer[2]; regIdx++) {
+            fprintf(txFid, "%04d:0x%08X ", txRawBulkBuffer[3+regIdx*2], txRawBulkBuffer[3+regIdx*2+1]);
             if (regIdx % 16 == 15) {
                 fprintf(txFid, "\n");
             }
@@ -746,7 +746,7 @@ bool EmcrUdbDevice::activateTriggerIn(int address, int bit) {
 }
 
 bool EmcrUdbDevice::writeToBulkOut(uint32_t * buffer) {
-    long bytesNum = 4*(3+2*buffer[2]);
+    long bytesNum = sizeof(uint32_t)*(3+2*buffer[2]);
     std::unique_lock <std::mutex> deviceMtxLock (deviceMtx);
 
     if (!(eptBulkout->XferData((PUCHAR)buffer, bytesNum))) {
