@@ -459,7 +459,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
         doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
             doubleConfig.initialWord++;
         }
