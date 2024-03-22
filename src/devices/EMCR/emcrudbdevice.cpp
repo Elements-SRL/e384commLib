@@ -370,7 +370,6 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
     if (eptBulkin->XferData((PUCHAR)rxRawBuffer+rxRawBufferWriteOffset, bytesRead, nullptr, false) == false) {
         /*! XferData, apparently, returns false also if the required data is not available before timeout, so check the amount of available data as well */
         if (bytesRead <= 0) {
-            ULONG pippo = eptBulkin->NtStatus;
             return 0;
             /*! \todo eptbulkin->NtStatus controllare per vedere il tipo di fallimento */
         }
