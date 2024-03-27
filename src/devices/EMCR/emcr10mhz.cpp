@@ -5,8 +5,6 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
 
     deviceName = "10MHz";
 
-    waitingTimeBeforeReadingData = 2; //s
-
     rxSyncWord = 0x5aa55aa5;
 
     packetsPerFrame = 1024;

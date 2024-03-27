@@ -195,6 +195,8 @@ ErrorCodes_t EmcrUdbDevice::initializeHW() {
         Sleep(1000); /*!< Wait a bit after the FPGA has booted: not 100% sure, but the communication might break if the first commands arrive
                       *   when the FPGA is still executing the starting procedures */
     }
+    fwLoadedFlag = true;
+    parsingFlag = true;
 
     this->sendCommands();
 
@@ -223,35 +225,28 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
     std::unique_lock <std::mutex> rxRawMutexLock (rxRawMutex);
     rxRawMutexLock.unlock();
 
-    std::chrono::steady_clock::time_point startWhileTime = std::chrono::steady_clock::now();
-
-    bool waitingTimeForReadingPassed = false;
     bool anyOperationPerformed;
 
     while (!stopConnectionFlag) {
         anyOperationPerformed = false;
 
-        /***********************\
-         *  Data copying part  *
-        \***********************/
-
-        txMutexLock.lock();
-        while (txMsgBufferReadLength > 0) {
-            anyOperationPerformed = true;
-            this->sendCommandsToDevice();
-            txMsgBufferReadLength--;
-            if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
-                /*! \todo FCON let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
-                liquidJunctionControlPending = false;
+        /*! Avoid communicating too early, communication might break if the fw has not started yet */
+        if (fwLoadedFlag) {
+            txMutexLock.lock();
+            while (txMsgBufferReadLength > 0) {
+                anyOperationPerformed = true;
+                this->sendCommandsToDevice();
+                txMsgBufferReadLength--;
+                if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
+                    /*! \todo FCON let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
+                    liquidJunctionControlPending = false;
+                }
             }
-        }
-        txMutexLock.unlock();
-        if (anyOperationPerformed) {
-            txMsgBufferNotFull.notify_all();
-        }
+            txMutexLock.unlock();
+            if (anyOperationPerformed) {
+                txMsgBufferNotFull.notify_all();
+            }
 
-        /*! Avoid performing reads too early, might trigger timeout, which appears to be a non escapable condition */
-        if (waitingTimeForReadingPassed) {
             rxRawMutexLock.lock();
             if (rxRawBufferReadLength+UDB_RX_TRANSFER_SIZE <= UDB_RX_BUFFER_SIZE) {
                 anyOperationPerformed = true;
@@ -268,13 +263,6 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
 
             } else {
                 rxRawMutexLock.unlock();
-            }
-
-        } else {
-            long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
-            if (t > waitingTimeBeforeReadingData*1e6) {
-                waitingTimeForReadingPassed = true;
-                parsingFlag = true;
             }
         }
 
@@ -371,7 +359,7 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
         /*! XferData, apparently, returns false also if the required data is not available before timeout, so check the amount of available data as well */
         if (bytesRead <= 0) {
             return 0;
-            /*! \todo eptbulkin->NtStatus controllare per vedere il tipo di fallimento */
+            /*! \todo eptBulkin->NtStatus controllare per vedere il tipo di fallimento */
         }
     }
 

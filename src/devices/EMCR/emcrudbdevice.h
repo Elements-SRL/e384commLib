@@ -109,7 +109,7 @@ protected:
      *  Variables  *
     \***************/
 
-    int waitingTimeBeforeReadingData = 1;
+    bool fwLoadedFlag = false;
 
     /*! Variables used to access the tx msg buffer */
     uint32_t txMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be processed */
