@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #define UTL_SEPARATOR "\\\\"
+#define UTL_DEFAULT_FW_PATH (std::string("FW") + UTL_SEPARATOR)
 
 template<typename I_t> bool allLessThan(std::vector<I_t> myVector, I_t maxValue){
     if(myVector.empty()){

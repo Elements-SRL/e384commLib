@@ -1,5 +1,7 @@
 #include "emcropalkellydevice.h"
 
+#include <fstream>
+
 #include "emcr384nanopores.h"
 #include "emcr384nanopores_sr7p5khz_v01.h"
 #include "emcr384patchclamp_prot_v01_fw_v02.h"
@@ -257,7 +259,13 @@ ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
         return ErrorDeviceConnectionFailed;
     }
 
-    error = dev.ConfigureFPGA(fwPath + fwName);
+    std::ifstream file(fwPath + fwName);
+    if (file.good()) {
+        error = dev.ConfigureFPGA(fwPath + fwName);
+
+    } else {
+        error = dev.ConfigureFPGA(fwName);
+    }
 
     if (error != okCFrontPanel::NoError) {
         return ErrorDeviceFwLoadingFailed;

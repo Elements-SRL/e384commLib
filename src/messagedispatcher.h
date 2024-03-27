@@ -12,6 +12,7 @@
 #include "e384commlib_errorcodes.h"
 #include "e384commlib_global.h"
 #include "boardmodel.h"
+#include "utils.h"
 
 #ifdef E384COMMLIB_LABVIEW_WRAPPER
 #include "e384commlib_global_addendum.h"
@@ -108,7 +109,7 @@ public:
 
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
-    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
+    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
     virtual ErrorCodes_t initialize(std::string fwPath) = 0;
     virtual void deinitialize() = 0;
     virtual ErrorCodes_t disconnectDevice() = 0;

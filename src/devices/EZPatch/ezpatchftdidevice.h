@@ -21,6 +21,7 @@
 #define FTD_FRAME_SIZE (FTD_RX_SYNC_WORD_SIZE+FTD_RX_HB_TY_LN_SIZE+2*FTD_RX_CRC_WORD_SIZE) // could be different size
 
 #include "ezpatchdevice.h"
+#include "utils.h"
 
 class EZPatchFtdiDevice : public EZPatchDevice {
 public:
@@ -30,7 +31,7 @@ public:
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
-    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
+    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
     ErrorCodes_t disconnectDevice() override;
 
 protected:
