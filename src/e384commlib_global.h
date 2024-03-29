@@ -262,7 +262,7 @@ typedef enum ProtocolItemTypes {
     ProtocolItemTypesNum
 } ProtocolItemTypes_t;
 
-/*! \enum ProtocolItemTypes_t
+/*! \enum TxTriggerType_t
  * \brief Enumerates the notifications that can be sent to the FPGA.
  */
 typedef enum TxTriggerType_t {
@@ -270,6 +270,20 @@ typedef enum TxTriggerType_t {
     TxTriggerStartProtocol,
     TxTriggerStartStateArray,
 } TxTriggerType_t;
+
+/*! \enum LiquidJunctionStatus_t
+ * \brief Enumerates the possible status of the liquid junction compensation (aka digital offset compensation) algorithm.
+ */
+typedef enum LiquidJunctionStatus {
+    LiquidJunctionNotPerformed,
+    LiquidJunctionInterrupted,
+    LiquidJunctionSucceded,
+    LiquidJunctionFailedOpenCircuit,
+    LiquidJunctionFailedTooManySteps,
+    LiquidJunctionFailedSaturation,
+    LiquidJunctionResetted,
+    LiquidJunctionStatusesNum
+} LiquidJunctionStatus_t;
 
 /*! \enum UnitPfx_t
  * \brief Enumerates the unit prefixes used.

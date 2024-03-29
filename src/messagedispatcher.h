@@ -74,7 +74,7 @@ typedef struct MsgResume {
     uint32_t startDataPtr;
 } MsgResume_t;
 
-class MessageDispatcher {
+class E384COMMLIBSHARED_EXPORT MessageDispatcher {
 public:
 
     /*****************\
@@ -247,6 +247,7 @@ public:
     ErrorCodes_t convertCurrentValues(int16_t * intValue, double * fltValue, int valuesNum);
 
     ErrorCodes_t getLiquidJunctionVoltages(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> &voltages);
+    ErrorCodes_t getLiquidJunctionStatuses(std::vector<uint16_t> channelIndexes, std::vector<LiquidJunctionStatus_t> &statuses);
 
     virtual ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
     virtual ErrorCodes_t getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &voltageHalfTunerFeatures);
@@ -605,8 +606,9 @@ protected:
     std::vector <double> membraneCapValueInjCapacitance;
     std::vector <std::vector<std::string>> compensationOptionStrings;
 
-    bool anyLiquidJuctionActive = false;
+    bool anyLiquidJunctionActive = false;
 
+    std::vector <LiquidJunctionStatus_t> liquidJunctionStatuses;
     std::vector <LiquidJunctionState_t> liquidJunctionStates;
     std::vector <int64_t> liquidJunctionCurrentSums;
     std::vector <double> liquidJunctionCurrentEstimates;
