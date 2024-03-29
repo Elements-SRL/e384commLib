@@ -84,7 +84,9 @@ SOURCES += \
     src/devices/EZPatch/ezpatche8ppatchliner_el07ab.cpp \
     src/model/boardmodel.cpp \
     src/model/channelmodel.cpp \
-    src/calibration/calibrationmanager.cpp
+    src/calibration/calibrationmanager.cpp \
+    src/programming/udbprogrammer.cpp \
+    src/udbutils.cpp
 
 HEADERS += \
     src/e384commlib_global.h \
@@ -123,6 +125,8 @@ HEADERS += \
     src/model/boardmodel.h \
     src/model/channelmodel.h \
     src/calibration/calibrationmanager.h \
+    src/programming/udbprogrammer.h \
+    src/udbutils.h \
     src/utils.h
 
 contains(DEFINES, DEBUG) {

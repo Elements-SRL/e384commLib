@@ -1,13 +1,13 @@
 #ifndef EMCRUDBDEVICE_H
 #define EMCRUDBDEVICE_H
 
+#include "udbutils.h"
+
 #define UDB_RX_BUFFER_SIZE 0x1000000 /*!< Number of bytes. Always use a power of 2 for efficient circular buffer management through index masking */
 #define UDB_RX_BUFFER_MASK (UDB_RX_BUFFER_SIZE-1)
 #define UDB_RX_TRANSFER_SIZE 0x100000  /*! 1MB, must be lower than 4MB */
 #define UDB_RX_EXTENDED_BUFFER_SIZE (UDB_RX_BUFFER_SIZE+UDB_RX_TRANSFER_SIZE) /*!< Add space to be able to always store data from the XferData */
 #define UDB_TX_TRIGGER_BUFFER_SIZE 5 // header, type, length = 1, payload[2]
-#define UDB_BULKIN_ENDPOINT_TIMEOUT ((int)2000)
-#define UDB_BULKOUT_ENDPOINT_TIMEOUT ((int)2000)
 #define UDB_PACKETS_PER_TRANSFER ((int)64)
 //#define UDB_REGISTERS_CHANGED_TRIGGER_IN_ADDR 0x53
 //#define UDB_REGISTERS_CHANGED_TRIGGER_IN_BIT 0
@@ -15,17 +15,6 @@
 #define UDB_START_PROTOCOL_TRIGGER_IN_BIT 0
 //#define UDB_START_STATE_ARRAY_TRIGGER_IN_ADDR 0x53
 //#define UDB_START_STATE_ARRAY_TRIGGER_IN_BIT 3
-
-#define CYP_CMD_GET_TUPLE 0xC1
-#define CYP_CMD_BOOT_FROM_FLASH 0xBF
-#define CYP_CMD_LOAD_BITSTREAM_STATUS 0xB1
-#define CYP_CMD_LOAD_FW_STATUS 0xB4
-
-#include "stdafx.h"
-#ifdef _WIN32
-#include <windows.h> /*! This has to be included before CyAPI.h, otherwise it won't be correctly interpreted */
-#endif
-#include "CyAPI.h"
 
 #include "emcrdevice.h"
 #include "utils.h"
@@ -71,10 +60,6 @@ protected:
     /*************\
      *  Methods  *
     \*************/
-
-    static int32_t getDeviceIndex(std::string serial);
-    static std::string getDeviceSerial(uint32_t index);
-    static bool getDeviceCount(int &numDevs);
 
     virtual ErrorCodes_t startCommunication(std::string fwPath) override;
     virtual ErrorCodes_t initializeHW() override;
@@ -124,29 +109,11 @@ private:
         std::vector <uint32_t> values;
     } OutputPacket_t;
 
-    enum fpgaLoadingStatus {
-        fpgaLoadingInProgress = 0,
-        fpgaLoadingSuccess = 1,
-        fpgaLoadingError = 2
-    };
-
-    enum fwStatus {
-        fwStatusConfigMode = 0,
-        fwStatusSlaveFifo = 1,
-        fwStatusError = 2
-    };
-
     /*************\
      *  Methods  *
     \*************/
 
     static DeviceTuple_t getDeviceTuple(uint32_t deviceIdx);
-    void findBulkEndpoints();
-    bool resetBulkEndpoints();
-    void initEndpoints();
-    bool bootFpgafromFLASH();
-    unsigned char fpgaLoadBitstreamStatus();
-    unsigned char getFwStatus();
     bool writeRegisters();
     bool activateTriggerIn(int address, int bit);
     bool writeToBulkOut(uint32_t * buffer);
