@@ -49,7 +49,7 @@ std::string UdbUtils::getDeviceSerial(uint32_t index) {
     return serial;
 }
 
-void UdbUtils::findBulkEndpoints(CCyUSBDevice * dev, CCyUSBEndPoint * eptBulkin, CCyUSBEndPoint * eptBulkout) {
+void UdbUtils::findBulkEndpoints(CCyUSBDevice * dev, CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout) {
     int endpointcnt = 0;
     CCyUSBEndPoint * ept;
 
@@ -68,17 +68,18 @@ void UdbUtils::findBulkEndpoints(CCyUSBDevice * dev, CCyUSBEndPoint * eptBulkin,
     }
 }
 
-bool UdbUtils::resetBulkEndpoints(CCyUSBEndPoint * eptBulkin, CCyUSBEndPoint * eptBulkout) {
+bool UdbUtils::resetBulkEndpoints(CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout) {
     if (eptBulkin->Reset() == false) {
         return false;
+    }
 
-    } else if (eptBulkout->Reset() == false) {
+    if (eptBulkout->Reset() == false) {
         return false;
     }
     return true;
 }
 
-void UdbUtils::initEndpoints(uint32_t &readDataTransferSize, CCyUSBEndPoint * eptBulkin, CCyUSBEndPoint * eptBulkout) {
+void UdbUtils::initEndpoints(uint32_t &readDataTransferSize, CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout) {
     eptBulkin->TimeOut = UDB_BULKIN_ENDPOINT_TIMEOUT;
     eptBulkout->TimeOut = UDB_BULKOUT_ENDPOINT_TIMEOUT;
 

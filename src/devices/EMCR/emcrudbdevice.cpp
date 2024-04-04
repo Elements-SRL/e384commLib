@@ -1,6 +1,10 @@
 #include "emcrudbdevice.h"
 
+#include <fstream>
+
 #include "emcr10mhz.h"
+
+static UdbProgrammer programmer;
 
 static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 0, Device10MHzOld},                  //   11,  1,  0 : UDB V02
@@ -12,6 +16,11 @@ static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 6, Device10MHzOld},                  //   11,  1,  6 : UDB V02
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 7, Device10MHzOld},                  //   11,  1,  7 : UDB V02
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 8, Device10MHzV01},                  //   11,  1,  8 : UDB V02
+};
+
+static std::unordered_map <DeviceTypes_t, MessageDispatcher::FwUpgradeInfo_t> fwUpgradeInfo = {
+    {Device10MHzOld, {true, 8, "10MHz_V08.bin"}},
+    {Device10MHzV01, MessageDispatcher::FwUpgradeInfo_t()}
 };
 
 EmcrUdbDevice::EmcrUdbDevice(std::string deviceId) :
@@ -63,6 +72,14 @@ ErrorCodes_t EmcrUdbDevice::getDeviceType(std::string deviceId, DeviceTypes_t &t
 
     if (!deviceFound) {
         return ErrorDeviceTypeNotRecognized;
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrUdbDevice::getUpgradeInfo(DeviceTypes_t type, FwUpgradeInfo_t &info) {
+    info = fwUpgradeInfo[type];
+    if (!(info.available)) {
+        return ErrorDeviceNotUpgradable;
     }
     return Success;
 }
@@ -120,6 +137,103 @@ ErrorCodes_t EmcrUdbDevice::connectDevice(std::string deviceId, MessageDispatche
     }
 
     return ret;
+}
+
+ErrorCodes_t EmcrUdbDevice::isDeviceUpgradable(std::string deviceId) {
+    DeviceTypes_t deviceType;
+
+    ErrorCodes_t ret = EmcrUdbDevice::getDeviceType(deviceId, deviceType);
+    if (ret != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    FwUpgradeInfo_t info;
+    EmcrUdbDevice::getUpgradeInfo(deviceType, info);
+    if (!(info.available)) {
+        return ErrorDeviceNotUpgradable;
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
+    DeviceTypes_t deviceType;
+
+    ErrorCodes_t ret = EmcrUdbDevice::getDeviceType(deviceId, deviceType);
+    if (ret != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    FwUpgradeInfo_t upgradeInfo;
+    EmcrUdbDevice::getUpgradeInfo(deviceType, upgradeInfo);
+
+    int32_t idx = UdbUtils::getDeviceIndex(deviceId);
+    if (idx < 0) {
+        return ErrorDeviceConnectionFailed;
+    }
+
+    programmer.connect(idx, true);
+
+    UdbProgrammer::InfoStruct_t infoStruct;
+    programmer.getDeviceInfo(infoStruct);
+    if (infoStruct.fx3FwVersion < UTL_DEFAULT_FX3_FW_VERSION) {
+        /*! Upgrade FX3 FW and version if needed */
+        infoStruct.fx3FwVersion = UTL_DEFAULT_FX3_FW_VERSION;
+        std::ifstream file(UTL_DEFAULT_FW_PATH + UTL_DEFAULT_FX3_FW_NAME, std::ios::binary);
+
+        if (!file) {
+            return ErrorFwNotFound;
+        }
+
+        file.seekg(0, std::ios::end);
+        unsigned int fileSize = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        char * buffer = new char[fileSize];
+
+        file.read(buffer, fileSize);
+        file.close();
+
+        programmer.programFlashBlock(UdbUtils::BlockFX3, buffer, fileSize+4);
+
+        delete [] buffer;
+    }
+
+    /*! Upgrade FPGA FW */
+    std::ifstream file(UTL_DEFAULT_FW_PATH + upgradeInfo.fwName, std::ios::binary);
+
+    if (!file) {
+        return ErrorFwNotFound;
+    }
+
+    file.seekg(0, std::ios::end);
+    unsigned int fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    char * buffer = new char[fileSize+4];
+    /*! add image length as leading four bytes... */
+    buffer[0] = fileSize & 0x000000FF;
+    buffer[1] = (fileSize  >> 8)& 0x000000FF;
+    buffer[2] = (fileSize >> 16)& 0x000000FF;
+    buffer[3] = (fileSize >> 24)& 0x000000FF;
+
+    file.read(buffer+4, fileSize);
+    file.close();
+
+    programmer.programFlashBlock(UdbUtils::BlockFPGA, buffer, fileSize+4);
+
+    delete [] buffer;
+
+    /*! Upgrade FPGA version */
+    infoStruct.fpgaFwVersion = upgradeInfo.fwVersion;
+    programmer.programFlashBlock(UdbUtils::BlockInfo, (char *)&infoStruct, sizeof(UdbProgrammer::InfoStruct_t));
+
+    programmer.connect(idx, false);
+    return Success;
+}
+
+ErrorCodes_t EmcrUdbDevice::getUpgradeProgress(int32_t &progress) {
+    progress = programmer.getProgress();
+    return Success;
 }
 
 ErrorCodes_t EmcrUdbDevice::disconnectDevice() {

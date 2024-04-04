@@ -152,14 +152,16 @@ INCLUDEPATH += \
     ./src/devices/EMCR \
     ./src/devices/EZPatch \
     ./src/model \
-    ./src/calibration
+    ./src/calibration \
+    ./src/programming
 DEPENDPATH += \
     ./src \
     ./src/devices \
     ./src/devices/EMCR \
     ./src/devices/EZPatch \
     ./src/model \
-    ./src/calibration
+    ./src/calibration \
+    ./src/programming
 
 include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)

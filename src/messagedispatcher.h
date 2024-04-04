@@ -103,6 +103,12 @@ public:
         CompensationUserParamsNum
     };
 
+    typedef struct FwUpgradeInfo { /*! Defaults to "no upgrades available" */
+        bool available = false;
+        unsigned char fwVersion = 0xFF;
+        std::string fwName = "";
+    } FwUpgradeInfo_t;
+
     /************************\
      *  Connection methods  *
     \************************/
@@ -110,6 +116,9 @@ public:
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
+    static ErrorCodes_t isDeviceUpgradable(std::string deviceId);
+    static ErrorCodes_t upgradeDevice(std::string deviceId);
+//    static ErrorCodes_t getUpgradeProgress(int32_t &progress);
     virtual ErrorCodes_t initialize(std::string fwPath) = 0;
     virtual void deinitialize() = 0;
     virtual ErrorCodes_t disconnectDevice() = 0;

@@ -2,6 +2,7 @@
 #define EMCRUDBDEVICE_H
 
 #include "udbutils.h"
+#include "udbprogrammer.h"
 
 #define UDB_RX_BUFFER_SIZE 0x1000000 /*!< Number of bytes. Always use a power of 2 for efficient circular buffer management through index masking */
 #define UDB_RX_BUFFER_MASK (UDB_RX_BUFFER_SIZE-1)
@@ -46,8 +47,12 @@ public:
 
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
+    static ErrorCodes_t getUpgradeInfo(DeviceTypes_t type, FwUpgradeInfo_t &info);
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
+    static ErrorCodes_t isDeviceUpgradable(std::string deviceId);
+    static ErrorCodes_t upgradeDevice(std::string deviceId);
+    static ErrorCodes_t getUpgradeProgress(int32_t &progress);
     ErrorCodes_t disconnectDevice() override;
 
 protected:

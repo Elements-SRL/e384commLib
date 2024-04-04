@@ -81,7 +81,61 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
     if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
         return EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher, fwPath);
     }
+    return ErrorDeviceTypeNotRecognized;
 }
+
+ErrorCodes_t MessageDispatcher::isDeviceUpgradable(std::string deviceId) {
+    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return ErrorDeviceNotUpgradable;
+    }
+
+    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return EmcrUdbDevice::isDeviceUpgradable(deviceId);
+    }
+
+    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return ErrorDeviceNotUpgradable;
+    }
+    return ErrorDeviceTypeNotRecognized;
+}
+
+ErrorCodes_t MessageDispatcher::upgradeDevice(std::string deviceId) {
+    if ((MessageDispatcher::isDeviceUpgradable(deviceId)) != Success) {
+        return ErrorDeviceNotUpgradable;
+    }
+
+    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return ErrorDeviceNotUpgradable;
+    }
+
+    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return EmcrUdbDevice::upgradeDevice(deviceId);
+    }
+
+    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return ErrorDeviceNotUpgradable;
+    }
+    return ErrorDeviceTypeNotRecognized;
+}
+
+//ErrorCodes_t MessageDispatcher::getUpgradeProgress(int32_t &progress) {
+//    if ((MessageDispatcher::isDeviceUpgradable(deviceId)) != Success) {
+//        return ErrorDeviceNotUpgradable;
+//    }
+
+//    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+//        return ErrorDeviceNotUpgradable;
+//    }
+
+//    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+//        return EmcrUdbDevice::upgradeDevice(deviceId);
+//    }
+
+//    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+//        return ErrorDeviceNotUpgradable;
+//    }
+//    return ErrorDeviceTypeNotRecognized;
+//}
 
 /****************\
  *  Tx methods  *

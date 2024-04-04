@@ -2,6 +2,7 @@
 #define UDBPROGRAMMER_H
 
 #include "udbutils.h"
+#include "utils.h"
 
 #include <string>
 
@@ -9,11 +10,19 @@
 
 class UdbProgrammer {
 public:
+    typedef struct InfoStruct {
+        unsigned char deviceVersion;
+        unsigned char deviceSubVersion;
+        unsigned char fpgaFwVersion;
+        char serialNumber[8];
+        unsigned char fx3FwVersion;
+    } InfoStruct_t;
+
     UdbProgrammer();
     ~UdbProgrammer();
 
     void connect(int idx, bool flag);
-    void getDeviceInfo(char &deviceVersion, char &deviceSubVersion, char &fpgaFwVersion, char &fx3FwVersion);
+    void getDeviceInfo(InfoStruct_t &info);
     void programFlashBlock(UdbUtils::FlashBlock_t block, char * buffer, unsigned int length);
     int32_t getProgress();
 

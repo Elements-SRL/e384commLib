@@ -20,8 +20,7 @@ void UdbProgrammer::connect(int idx, bool flag) {
         CCyFX3Device bootDev;
         bootDev.Open(idx);
         if (bootDev.IsBootLoaderRunning()) {
-            char filename[12] = "UDB-FX3.img";
-            bootDev.DownloadFw(filename, RAM);
+            bootDev.DownloadFw(const_cast <char *> ((UTL_DEFAULT_FW_PATH + UTL_DEFAULT_FX3_FW_NAME).c_str()), RAM);
         }
         bootDev.Close();
 
@@ -40,15 +39,18 @@ void UdbProgrammer::connect(int idx, bool flag) {
     }
 }
 
-void UdbProgrammer::getDeviceInfo(char &deviceVersion, char &deviceSubVersion, char &fpgaFwVersion, char &fx3FwVersion) {
+void UdbProgrammer::getDeviceInfo(InfoStruct_t &info) {
     char * buffer;
     buffer = new char[UDB_INFO_SIZE];
     readFlashBlock(UdbUtils::BlockInfo, buffer);
 
-    deviceVersion = buffer[0];
-    deviceSubVersion = buffer[1];
-    fpgaFwVersion = buffer[2];
-    fx3FwVersion = buffer[11];
+    info.deviceVersion = buffer[0];
+    info.deviceSubVersion = buffer[1];
+    info.fpgaFwVersion = buffer[2];
+    for (unsigned int idx = 0; idx < 8; idx++) {
+        info.serialNumber[idx] = buffer[3+idx];
+    }
+    info.fx3FwVersion = buffer[11];
 
     delete [] buffer;
 }

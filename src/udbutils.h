@@ -35,7 +35,7 @@
 #define CYP_CMD_WRITE_FLASH 0xBA
 #define CYP_CMD_LOAD_FLASH_STATUS 0xBB
 #define CYP_CMD_DISABLE_HYBRID_SECTORS 0xBC
-#define CYP_CMD_ERASE_FLASH_SECTOR 0xBC
+#define CYP_CMD_ERASE_FLASH_SECTOR 0xBE
 
 class UdbUtils {
 public:
@@ -63,9 +63,9 @@ public:
     static int32_t getDeviceIndex(std::string serial);
     static std::string getDeviceSerial(uint32_t index);
 
-    static void findBulkEndpoints(CCyUSBDevice * dev, CCyUSBEndPoint * eptBulkin, CCyUSBEndPoint * eptBulkout);
-    static bool resetBulkEndpoints(CCyUSBEndPoint * eptBulkin, CCyUSBEndPoint * eptBulkout);
-    static void initEndpoints(uint32_t &readDataTransferSize, CCyUSBEndPoint * eptBulkin, CCyUSBEndPoint * eptBulkout);
+    static void findBulkEndpoints(CCyUSBDevice * dev, CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout);
+    static bool resetBulkEndpoints(CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout);
+    static void initEndpoints(uint32_t &readDataTransferSize, CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout);
 
     static unsigned char getFwStatus(CCyUSBDevice * dev);
     static unsigned char getFlashStatus(CCyUSBDevice * dev);
