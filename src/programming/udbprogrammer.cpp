@@ -4,15 +4,11 @@
 #include <thread>
 
 UdbProgrammer::UdbProgrammer() {
-//    logFile.setFileName(UDB_LOG_PATH + "Log" + QDateTime().currentDateTime().toString("yyyyMMdd-hhmmss") + ".txt");
-//    logFile.open(QFile::WriteOnly | QFile::Truncate);
-//    logStream.setDevice(&logFile);
+
 }
 
 UdbProgrammer::~UdbProgrammer() {
-//    logStream.flush();
-//    logStream.setDevice(nullptr);
-//    logFile.close();
+
 }
 
 void UdbProgrammer::connect(int idx, bool flag) {
@@ -41,7 +37,7 @@ void UdbProgrammer::connect(int idx, bool flag) {
 
 void UdbProgrammer::getDeviceInfo(InfoStruct_t &info) {
     char * buffer;
-    buffer = new char[UDB_INFO_SIZE];
+    buffer = new char[UDB_INFO_ACTUAL_SIZE];
     readFlashBlock(UdbUtils::BlockInfo, buffer);
 
     info.deviceVersion = buffer[0];
@@ -75,14 +71,14 @@ void UdbProgrammer::programFlashBlock(UdbUtils::FlashBlock_t block, char * buffe
         break;
 
     case UdbUtils::BlockFPGA:
-        offset = UDB_FPGA_ACTUAL_ADDRESS-UDB_FPGA_ADDRESS;
+        offset = UDB_INFO_ACTUAL_SIZE;
         totalLength = offset+length;
         totalBuffer = new char[totalLength];
         this->readFlashBlock(UdbUtils::BlockInfo, totalBuffer);
         break;
     }
 
-    for (unsigned int idx = 0; idx < length; idx ++) {
+    for (unsigned int idx = 0; idx < length; idx++) {
         totalBuffer[offset+idx] = buffer[idx];
     }
 
@@ -97,6 +93,42 @@ void UdbProgrammer::programFlashBlock(UdbUtils::FlashBlock_t block, char * buffe
     delete [] totalBuffer;
 }
 
+bool UdbProgrammer::verifyFlashBlock(UdbUtils::FlashBlock_t block, char * buffer, unsigned int length) {
+    char * readBuffer;
+    unsigned int offset;
+    unsigned int size;
+    bool ok = true;
+
+    switch (block) {
+    case UdbUtils::BlockFX3:
+        offset = 0;
+        size = UDB_FX3_SIZE;
+        break;
+
+    case UdbUtils::BlockInfo:
+        offset = 0;
+        size = UDB_INFO_SIZE;
+        break;
+
+    case UdbUtils::BlockFPGA:
+        offset = UDB_INFO_ACTUAL_SIZE;
+        size = UDB_FPGA_SIZE;
+        break;
+    }
+
+    readBuffer = new char[size];
+    readFlashBlock(block, readBuffer);
+
+    for (unsigned int idx = 0; idx < length; idx++) {
+        if (buffer[idx] != readBuffer[offset+idx]) {
+            ok = false;
+        }
+    }
+
+    delete [] readBuffer;
+    return ok;
+}
+
 int32_t UdbProgrammer::getProgress() {
     return progress;
 }
@@ -104,7 +136,6 @@ int32_t UdbProgrammer::getProgress() {
 long UdbProgrammer::writeData(unsigned char * buffer, unsigned long length) {
     long wlen = length;
     if (eptBulkout->XferData((PUCHAR)buffer, wlen) == false) {
-        //  logStream << "writeData\n\terror" << endl;
         /*! \todo FCON manage error */
         eptBulkout->Abort();
     }
@@ -115,7 +146,6 @@ long UdbProgrammer::writeData(unsigned char * buffer, unsigned long length) {
 long UdbProgrammer::readData(unsigned char * buffer, unsigned long length) {
     long rlen = length;
     if (eptBulkin->XferData((PUCHAR)buffer, rlen, nullptr, true) == false) {
-        //  logStream << "readData\n\terror" << endl;
         /*! \todo FCON manage error */
         eptBulkin->Abort();
     }
@@ -124,8 +154,6 @@ long UdbProgrammer::readData(unsigned char * buffer, unsigned long length) {
 }
 
 void UdbProgrammer::readFlashBlock(UdbUtils::FlashBlock_t block, char * buffer) {
-    //  logStream << "readFlashBlock";
-
     unsigned int startAddress = 0;
     unsigned int length = 0;
 
@@ -155,15 +183,10 @@ void UdbProgrammer::readFlashBlock(UdbUtils::FlashBlock_t block, char * buffer) 
 
     UdbUtils::readFlash(dev, startAddress, length);
 
-    //  logStream << "\n\treading ";
     this->readData((unsigned char *)buffer, length);
-
-    //  logStream << "done\n";
-    //  logStream.flush();
 }
 
 void UdbProgrammer::eraseFlashBlock(UdbUtils::FlashBlock_t block) {
-    //  logStream << "eraseFlashBlock";
     unsigned char flashStatus;
 
     unsigned int startAddress = 0;
@@ -200,7 +223,6 @@ void UdbProgrammer::eraseFlashBlock(UdbUtils::FlashBlock_t block) {
     progress = 0;
 
     for (unsigned int idx = 0; idx < length; idx += UDB_SECTOR_SIZE) {
-        //  logStream << "\n\terasing " << idx << " / " << length << "\n";
         flashStatus = UdbUtils::getFlashStatus(dev);
         if ((flashStatus & UDB_FLASH_STATUS_WRITE_ENABLE_MASK) == 0) {
             UdbUtils::enableFlashWrite(dev);
@@ -219,12 +241,9 @@ void UdbProgrammer::eraseFlashBlock(UdbUtils::FlashBlock_t block) {
             flashStatus = UdbUtils::getFlashStatus(dev);
         } while ((flashStatus & UDB_FLASH_STATUS_WRITING_MASK) != 0);
     }
-    //  logStream.flush();
 }
 
 void UdbProgrammer::writeFlashBlock(UdbUtils::FlashBlock_t block, char * buffer, unsigned int length) {
-    //  logStream << "programFlashBlock";
-
     unsigned int startAddress = 0;
     unsigned int writeSize = 1024;
     int flashWriteLen;
@@ -248,12 +267,9 @@ void UdbProgrammer::writeFlashBlock(UdbUtils::FlashBlock_t block, char * buffer,
         UdbUtils::resetBulkEndpoints(eptBulkin, eptBulkout);
     }
 
-    //  logStream << "\n\tsize " << length << "\n";
-
     UdbUtils::writeFlash(dev, startAddress, length);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    eptBulkout->SetXferSize(eptBulkout->MaxPktSize);
 
     progress = 0;
 
@@ -266,18 +282,11 @@ void UdbProgrammer::writeFlashBlock(UdbUtils::FlashBlock_t block, char * buffer,
         }
 
         if (flashWriteLen == -1) {
-            //  logStream << "\n\terror" << endl;
             return;
         }
         idx += flashWriteLen;
 
         progress = 50+(int32_t)((50*(idx+UDB_SECTOR_SIZE))/length);
         progress = (progress > 100 ? 100 : progress);
-
-        if (idx % UDB_SECTOR_SIZE == 0) {
-            //  logStream << "\n\t" << idx << " / " << length << "\n";
-        }
     }
-
-    //  logStream << "\n\t" << length << " / " << length << endl;
 }

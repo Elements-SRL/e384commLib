@@ -193,10 +193,14 @@ ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
         file.read(buffer, fileSize);
         file.close();
 
-        programmer.programFlashBlock(UdbUtils::BlockFX3, buffer, fileSize+4);
+        programmer.programFlashBlock(UdbUtils::BlockFX3, buffer, fileSize);
 
         delete [] buffer;
     }
+
+    /*! Upgrade FPGA version */
+    infoStruct.fpgaFwVersion = upgradeInfo.fwVersion;
+    programmer.programFlashBlock(UdbUtils::BlockInfo, (char *)&infoStruct, sizeof(UdbProgrammer::InfoStruct_t));
 
     /*! Upgrade FPGA FW */
     std::ifstream file(UTL_DEFAULT_FW_PATH + upgradeInfo.fwName, std::ios::binary);
@@ -221,11 +225,12 @@ ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
 
     programmer.programFlashBlock(UdbUtils::BlockFPGA, buffer, fileSize+4);
 
-    delete [] buffer;
+    if (!(programmer.verifyFlashBlock(UdbUtils::BlockFPGA, buffer, fileSize+4))) {
+        delete [] buffer;
+        return ErrorFwUpgradeFailed;
+    }
 
-    /*! Upgrade FPGA version */
-    infoStruct.fpgaFwVersion = upgradeInfo.fwVersion;
-    programmer.programFlashBlock(UdbUtils::BlockInfo, (char *)&infoStruct, sizeof(UdbProgrammer::InfoStruct_t));
+    delete [] buffer;
 
     programmer.connect(idx, false);
     return Success;

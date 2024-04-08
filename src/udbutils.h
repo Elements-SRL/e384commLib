@@ -14,16 +14,18 @@
 
 #define UDB_FLASH_STATUS_WRITE_ENABLE_MASK (0x2)
 #define UDB_FLASH_STATUS_WRITING_MASK (0x1)
+#define UDB_SECTOR_SIZE (0x10000)
 #define UDB_FX3_ADDRESS (0)
 #define UDB_FX3_SIZE (0x80000)
 #define UDB_INFO_ADDRESS (UDB_FX3_ADDRESS+UDB_FX3_SIZE)
-#define UDB_INFO_SIZE (0x10000)
+#define UDB_INFO_SIZE UDB_SECTOR_SIZE // the size of the info block is smaller than the flash sections
+                                      // so in order to write it a whole sections has to be erased first
+                                      // and then rewritten
 #define UDB_INFO_ACTUAL_SIZE (0x100)
 #define UDB_FPGA_ADDRESS (UDB_FX3_ADDRESS+UDB_FX3_SIZE)
 #define UDB_FPGA_ACTUAL_ADDRESS (UDB_FPGA_ADDRESS+UDB_INFO_ACTUAL_SIZE)
 #define UDB_FPGA_SIZE (0x400000)
 #define UDB_FLASH_STATUS_ERROR (2)
-#define UDB_SECTOR_SIZE (65536)
 
 #define CYP_CMD_GET_TUPLE 0xC1
 #define CYP_CMD_BOOT_FROM_FLASH 0xBF

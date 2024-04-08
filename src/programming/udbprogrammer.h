@@ -24,6 +24,7 @@ public:
     void connect(int idx, bool flag);
     void getDeviceInfo(InfoStruct_t &info);
     void programFlashBlock(UdbUtils::FlashBlock_t block, char * buffer, unsigned int length);
+    bool verifyFlashBlock(UdbUtils::FlashBlock_t block, char * buffer, unsigned int length);
     int32_t getProgress();
 
 private:
