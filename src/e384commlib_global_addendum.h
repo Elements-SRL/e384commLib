@@ -90,6 +90,31 @@ static inline bool decrementUnit(E384CL_ARGOUT UnitPfx_t &value, E384CL_ARGIN in
     }
 }
 
+inline UnitPfx_t operator * (const UnitPfx_t &a, const UnitPfx_t &b) {
+    const auto noneInt = static_cast <int> (UnitPfx::UnitPfxNone);
+    const auto aNoNone = static_cast <int> (a) - noneInt;
+    const auto bNoNone = static_cast <int> (b) - noneInt;
+    const auto res = aNoNone + bNoNone + noneInt;
+    if (res >= 0 || res < UnitPfx::UnitPfxNum) {
+        return static_cast <UnitPfx_t> (res);
+    } else {
+        return static_cast <UnitPfx_t> (0);
+    }
+}
+
+
+inline UnitPfx_t operator / (const UnitPfx_t &a, const UnitPfx_t &b) {
+    const auto noneInt = static_cast <int> (UnitPfx::UnitPfxNone);
+    const auto aNoNone = static_cast <int> (a) - noneInt;
+    const auto bNoNone = static_cast <int> (b) - noneInt;
+    const auto res = aNoNone - bNoNone + noneInt;
+    if (res >= 0 || res < UnitPfx::UnitPfxNum) {
+        return static_cast <UnitPfx_t> (res);
+    } else {
+        return static_cast <UnitPfx_t> (0);
+    }
+}
+
 /*! \brief Array with the strings corresponding to the unit prefixes of type UnitPfx_t. */
 static const std::string unitPrefixes[UnitPfxNum] = {
     "f",
