@@ -74,7 +74,7 @@ typedef struct MsgResume {
     uint32_t startDataPtr;
 } MsgResume_t;
 
-class MessageDispatcher {
+class E384COMMLIBSHARED_EXPORT MessageDispatcher {
 public:
 
     /*****************\
@@ -103,6 +103,12 @@ public:
         CompensationUserParamsNum
     };
 
+    typedef struct FwUpgradeInfo { /*! Defaults to "no upgrades available" */
+        bool available = false;
+        unsigned char fwVersion = 0xFF;
+        std::string fwName = "";
+    } FwUpgradeInfo_t;
+
     /************************\
      *  Connection methods  *
     \************************/
@@ -110,6 +116,9 @@ public:
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
+    static ErrorCodes_t isDeviceUpgradable(std::string deviceId);
+    static ErrorCodes_t upgradeDevice(std::string deviceId);
+//    static ErrorCodes_t getUpgradeProgress(int32_t &progress);
     virtual ErrorCodes_t initialize(std::string fwPath) = 0;
     virtual void deinitialize() = 0;
     virtual ErrorCodes_t disconnectDevice() = 0;
@@ -247,6 +256,7 @@ public:
     ErrorCodes_t convertCurrentValues(int16_t * intValue, double * fltValue, int valuesNum);
 
     ErrorCodes_t getLiquidJunctionVoltages(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> &voltages);
+    ErrorCodes_t getLiquidJunctionStatuses(std::vector<uint16_t> channelIndexes, std::vector<LiquidJunctionStatus_t> &statuses);
 
     virtual ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures);
     virtual ErrorCodes_t getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &voltageHalfTunerFeatures);
@@ -605,8 +615,9 @@ protected:
     std::vector <double> membraneCapValueInjCapacitance;
     std::vector <std::vector<std::string>> compensationOptionStrings;
 
-    bool anyLiquidJuctionActive = false;
+    bool anyLiquidJunctionActive = false;
 
+    std::vector <LiquidJunctionStatus_t> liquidJunctionStatuses;
     std::vector <LiquidJunctionState_t> liquidJunctionStates;
     std::vector <int64_t> liquidJunctionCurrentSums;
     std::vector <double> liquidJunctionCurrentEstimates;

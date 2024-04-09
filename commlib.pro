@@ -28,6 +28,7 @@ TEMPLATE = lib
 CONFIG += c++14
 
 #DEFINES += E384COMMLIB_LABVIEW_WRAPPER
+#DEFINES += E384COMMLIB_LIBRARY
 
 contains(DEFINES, E384COMMLIB_LABVIEW_WRAPPER) {
     # create .dll
@@ -83,7 +84,9 @@ SOURCES += \
     src/devices/EZPatch/ezpatche8ppatchliner_el07ab.cpp \
     src/model/boardmodel.cpp \
     src/model/channelmodel.cpp \
-    src/calibration/calibrationmanager.cpp
+    src/calibration/calibrationmanager.cpp \
+    src/programming/udbprogrammer.cpp \
+    src/udbutils.cpp
 
 HEADERS += \
     src/e384commlib_global.h \
@@ -122,6 +125,8 @@ HEADERS += \
     src/model/boardmodel.h \
     src/model/channelmodel.h \
     src/calibration/calibrationmanager.h \
+    src/programming/udbprogrammer.h \
+    src/udbutils.h \
     src/utils.h
 
 contains(DEFINES, DEBUG) {
@@ -147,14 +152,16 @@ INCLUDEPATH += \
     ./src/devices/EMCR \
     ./src/devices/EZPatch \
     ./src/model \
-    ./src/calibration
+    ./src/calibration \
+    ./src/programming
 DEPENDPATH += \
     ./src \
     ./src/devices \
     ./src/devices/EMCR \
     ./src/devices/EZPatch \
     ./src/model \
-    ./src/calibration
+    ./src/calibration \
+    ./src/programming
 
 include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)

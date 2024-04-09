@@ -915,7 +915,7 @@ ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(std::vector <uint16_t> cha
         this->stopProtocol();
     }
 
-    anyLiquidJuctionActive = true;
+    anyLiquidJunctionActive = true;
     return Success;
 }
 
@@ -2498,14 +2498,14 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
                             lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
 
-                            if (anyLiquidJuctionActive) {
+                            if (anyLiquidJunctionActive) {
                                 liquidJunctionCurrentSums[channelIdx] += (int64_t)data[dataWritten+sampleIdx+voltageChannelsNum];
                             }
 
                             sampleIdx++;
                         }
 
-                        if (anyLiquidJuctionActive) {
+                        if (anyLiquidJunctionActive) {
                             liquidJunctionCurrentEstimatesNum++;
                         }
                         sampleIdx += currentChannelsNum;

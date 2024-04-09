@@ -185,6 +185,7 @@ typedef enum DeviceTypes {
     Device2x10MHz_PCBV02,       /*!< 2 channels 10MHz nanopore reader */
     Device4x10MHz_PCBV01,       /*!< 4 channels 10MHz nanopore reader */
     Device4x10MHz_PCBV03,       /*!< 4 channels 10MHz nanopore reader */
+    Device10MHzOld,             /*!< UDB based 10MHz nanopore reader, old firmware */
     Device10MHzV01,             /*!< UDB based 10MHz nanopore reader */
     /*! EZ patch devices */
     DeviceEPatchEL03D_V04,                  /*!< ePatch device with EL03D chip: digital repetitive trigger output. */
@@ -262,7 +263,7 @@ typedef enum ProtocolItemTypes {
     ProtocolItemTypesNum
 } ProtocolItemTypes_t;
 
-/*! \enum ProtocolItemTypes_t
+/*! \enum TxTriggerType_t
  * \brief Enumerates the notifications that can be sent to the FPGA.
  */
 typedef enum TxTriggerType_t {
@@ -270,6 +271,20 @@ typedef enum TxTriggerType_t {
     TxTriggerStartProtocol,
     TxTriggerStartStateArray,
 } TxTriggerType_t;
+
+/*! \enum LiquidJunctionStatus_t
+ * \brief Enumerates the possible status of the liquid junction compensation (aka digital offset compensation) algorithm.
+ */
+typedef enum LiquidJunctionStatus {
+    LiquidJunctionNotPerformed,
+    LiquidJunctionInterrupted,
+    LiquidJunctionSucceded,
+    LiquidJunctionFailedOpenCircuit,
+    LiquidJunctionFailedTooManySteps,
+    LiquidJunctionFailedSaturation,
+    LiquidJunctionResetted,
+    LiquidJunctionStatusesNum
+} LiquidJunctionStatus_t;
 
 /*! \enum UnitPfx_t
  * \brief Enumerates the unit prefixes used.

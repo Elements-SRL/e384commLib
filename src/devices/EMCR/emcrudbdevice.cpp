@@ -1,9 +1,26 @@
 #include "emcrudbdevice.h"
 
+#include <fstream>
+
 #include "emcr10mhz.h"
 
+static UdbProgrammer programmer;
+
 static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 0, Device10MHzOld},                  //   11,  1,  0 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 1, Device10MHzOld},                  //   11,  1,  1 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 2, Device10MHzOld},                  //   11,  1,  2 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 3, Device10MHzOld},                  //   11,  1,  3 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 4, Device10MHzOld},                  //   11,  1,  4 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 5, Device10MHzOld},                  //   11,  1,  5 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 6, Device10MHzOld},                  //   11,  1,  6 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 7, Device10MHzOld},                  //   11,  1,  7 : UDB V02
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 8, Device10MHzV01},                  //   11,  1,  8 : UDB V02
+};
+
+static std::unordered_map <DeviceTypes_t, MessageDispatcher::FwUpgradeInfo_t> fwUpgradeInfo = {
+    {Device10MHzOld, {true, 8, "10MHz_V08.bin"}},
+    {Device10MHzV01, MessageDispatcher::FwUpgradeInfo_t()}
 };
 
 EmcrUdbDevice::EmcrUdbDevice(std::string deviceId) :
@@ -20,7 +37,7 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
         std::vector <std::string> &deviceIds) {
     /*! Gets number of devices */
     int numDevs;
-    bool devCountOk = getDeviceCount(numDevs);
+    bool devCountOk = UdbUtils::getDeviceCount(numDevs);
     if (!devCountOk) {
         return ErrorListDeviceFailed;
 
@@ -33,14 +50,14 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
 
     /*! Lists all serial numbers */
     for (int i = 0; i < numDevs; i++) {
-        deviceIds.push_back(getDeviceSerial(i));
+        deviceIds.push_back(UdbUtils::getDeviceSerial(i));
     }
 
     return Success;
 }
 
 ErrorCodes_t EmcrUdbDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
-    DeviceTuple_t tuple = getDeviceTuple(getDeviceIndex(deviceId));
+    DeviceTuple_t tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
 
     bool deviceFound = false;
     for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
@@ -55,6 +72,14 @@ ErrorCodes_t EmcrUdbDevice::getDeviceType(std::string deviceId, DeviceTypes_t &t
 
     if (!deviceFound) {
         return ErrorDeviceTypeNotRecognized;
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrUdbDevice::getUpgradeInfo(DeviceTypes_t type, FwUpgradeInfo_t &info) {
+    info = fwUpgradeInfo[type];
+    if (!(info.available)) {
+        return ErrorDeviceNotUpgradable;
     }
     return Success;
 }
@@ -94,6 +119,9 @@ ErrorCodes_t EmcrUdbDevice::connectDevice(std::string deviceId, MessageDispatche
         messageDispatcher = new Emcr10MHz_V01(deviceId);
         break;
 
+    case Device10MHzOld:
+        return ErrorDeviceToBeUpgraded;
+
     default:
         return ErrorDeviceTypeNotRecognized;
     }
@@ -111,82 +139,139 @@ ErrorCodes_t EmcrUdbDevice::connectDevice(std::string deviceId, MessageDispatche
     return ret;
 }
 
+ErrorCodes_t EmcrUdbDevice::isDeviceUpgradable(std::string deviceId) {
+    DeviceTypes_t deviceType;
+
+    ErrorCodes_t ret = EmcrUdbDevice::getDeviceType(deviceId, deviceType);
+    if (ret != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    FwUpgradeInfo_t info;
+    EmcrUdbDevice::getUpgradeInfo(deviceType, info);
+    if (!(info.available)) {
+        return ErrorDeviceNotUpgradable;
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
+    DeviceTypes_t deviceType;
+
+    ErrorCodes_t ret = EmcrUdbDevice::getDeviceType(deviceId, deviceType);
+    if (ret != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    FwUpgradeInfo_t upgradeInfo;
+    EmcrUdbDevice::getUpgradeInfo(deviceType, upgradeInfo);
+
+    int32_t idx = UdbUtils::getDeviceIndex(deviceId);
+    if (idx < 0) {
+        return ErrorDeviceConnectionFailed;
+    }
+
+    programmer.connect(idx, true);
+
+    UdbProgrammer::InfoStruct_t infoStruct;
+    programmer.getDeviceInfo(infoStruct);
+    if (infoStruct.fx3FwVersion < UTL_DEFAULT_FX3_FW_VERSION) {
+        /*! Upgrade FX3 FW and version if needed */
+        infoStruct.fx3FwVersion = UTL_DEFAULT_FX3_FW_VERSION;
+        std::ifstream file(UTL_DEFAULT_FW_PATH + UTL_DEFAULT_FX3_FW_NAME, std::ios::binary);
+
+        if (!file) {
+            return ErrorFwNotFound;
+        }
+
+        file.seekg(0, std::ios::end);
+        unsigned int fileSize = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        char * buffer = new char[fileSize];
+
+        file.read(buffer, fileSize);
+        file.close();
+
+        programmer.programFlashBlock(UdbUtils::BlockFX3, buffer, fileSize);
+
+        delete [] buffer;
+    }
+
+    /*! Upgrade FPGA version */
+    infoStruct.fpgaFwVersion = upgradeInfo.fwVersion;
+    programmer.programFlashBlock(UdbUtils::BlockInfo, (char *)&infoStruct, sizeof(UdbProgrammer::InfoStruct_t));
+
+    /*! Upgrade FPGA FW */
+    std::ifstream file(UTL_DEFAULT_FW_PATH + upgradeInfo.fwName, std::ios::binary);
+
+    if (!file) {
+        return ErrorFwNotFound;
+    }
+
+    file.seekg(0, std::ios::end);
+    unsigned int fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    char * buffer = new char[fileSize+4];
+    /*! add image length as leading four bytes... */
+    buffer[0] = fileSize & 0x000000FF;
+    buffer[1] = (fileSize  >> 8)& 0x000000FF;
+    buffer[2] = (fileSize >> 16)& 0x000000FF;
+    buffer[3] = (fileSize >> 24)& 0x000000FF;
+
+    file.read(buffer+4, fileSize);
+    file.close();
+
+    programmer.programFlashBlock(UdbUtils::BlockFPGA, buffer, fileSize+4);
+
+    if (!(programmer.verifyFlashBlock(UdbUtils::BlockFPGA, buffer, fileSize+4))) {
+        delete [] buffer;
+        return ErrorFwUpgradeFailed;
+    }
+
+    delete [] buffer;
+
+    programmer.connect(idx, false);
+    return Success;
+}
+
+ErrorCodes_t EmcrUdbDevice::getUpgradeProgress(int32_t &progress) {
+    progress = programmer.getProgress();
+    return Success;
+}
+
 ErrorCodes_t EmcrUdbDevice::disconnectDevice() {
     this->deinitialize();
     return Success;
 }
 
-int32_t EmcrUdbDevice::getDeviceIndex(std::string serial) {
-    /*! Gets number of devices */
-    int numDevs;
-    bool devCountOk = getDeviceCount(numDevs);
-    if (!devCountOk) {
-        return -1;
-
-    } else if (numDevs == 0) {
-        return -1;
-    }
-
-    for (int index = 0; index < numDevs; index++) {
-        std::string deviceId = getDeviceSerial(index);
-        if (deviceId == serial) {
-            return index;
-        }
-    }
-    return -1;
-}
-
-std::string EmcrUdbDevice::getDeviceSerial(uint32_t index) {
-    std::string serial;
-    int numDevs;
-    getDeviceCount(numDevs);
-    if (index >= numDevs) {
-        return "";
-    }
-
-    CCyUSBDevice * tempDev = new CCyUSBDevice;
-    char serialNumber[255];
-    sprintf(serialNumber, "%ls", tempDev->SerialNumber);
-    serial = std::string(serialNumber);
-    tempDev->Close();
-    delete tempDev;
-    return serial;
-}
-
-bool EmcrUdbDevice::getDeviceCount(int &numDevs) {
-    /*! Get the number of connected devices */
-    CCyUSBDevice * tempDev = new CCyUSBDevice;
-    numDevs = tempDev->DeviceCount();
-    delete tempDev;
-    return true;
-}
-
 ErrorCodes_t EmcrUdbDevice::startCommunication(std::string) {
-    int32_t idx = getDeviceIndex(deviceId);
+    int32_t idx = UdbUtils::getDeviceIndex(deviceId);
     if (idx < 0) {
         return ErrorDeviceConnectionFailed;
     }
     dev = new CCyUSBDevice;
     dev->Open(idx);
 
-    this->findBulkEndpoints();
-    this->resetBulkEndpoints();
-    this->initEndpoints();
+    UdbUtils::findBulkEndpoints(dev, eptBulkin, eptBulkout);
+    UdbUtils::resetBulkEndpoints(eptBulkin, eptBulkout);
+    UdbUtils::initEndpoints(readDataTransferSize, eptBulkin, eptBulkout);
     return Success;
 }
 
 ErrorCodes_t EmcrUdbDevice::initializeHW() {
     /*! check if FX3 is in FPGA config mode, otherwise switch into it */
-    if (this->getFwStatus() == fwStatusConfigMode) {
-        this->bootFpgafromFLASH();
+    if (UdbUtils::getFwStatus(dev) == UdbUtils::fwStatusConfigMode) {
+        UdbUtils::bootFpgafromFLASH(dev);
         Sleep(1000); /*!< wait a bit to be sure that the FPGA write is in progress */
 
         /*! wait the configuration to finish */
-        while (this->fpgaLoadBitstreamStatus() == fpgaLoadingInProgress) {
+        while (UdbUtils::fpgaLoadBitstreamStatus(dev) == UdbUtils::fpgaLoadingInProgress) {
             Sleep(100); /*!< don't poll too frequently... may lockup */
         }
 
-        if (this->fpgaLoadBitstreamStatus() == fpgaLoadingError) {
+        if (UdbUtils::fpgaLoadBitstreamStatus(dev) == UdbUtils::fpgaLoadingError) {
             return ErrorDeviceFwLoadingFailed;
         }
 
@@ -627,100 +712,8 @@ EmcrUdbDevice::DeviceTuple_t EmcrUdbDevice::getDeviceTuple(uint32_t deviceIdx) {
 
         tempDev->Close();
     }
+    delete tempDev;
     return tuple;
-}
-
-void EmcrUdbDevice::findBulkEndpoints() {
-    int endpointcnt = 0;
-    CCyUSBEndPoint * ept;
-
-    endpointcnt = dev->EndPointCount();
-    for (int e = 0; e < endpointcnt; e++) {
-        ept = dev->EndPoints[e];
-        // INTR, BULK and ISO endpoints are supported.
-        if (ept->Attributes == 2) {
-            if (ept->bIn) {
-                eptBulkin = dev->EndPoints[e];
-
-            } else {
-                eptBulkout = dev->EndPoints[e];
-            }
-        }
-    }
-}
-
-bool EmcrUdbDevice::resetBulkEndpoints() {
-    if (eptBulkin->Reset() == false) {
-        return false;
-
-    } else if (eptBulkout->Reset() == false) {
-        return false;
-    }
-    return true;
-}
-
-void EmcrUdbDevice::initEndpoints() {
-    eptBulkin->TimeOut = UDB_BULKIN_ENDPOINT_TIMEOUT;
-    eptBulkout->TimeOut = UDB_BULKOUT_ENDPOINT_TIMEOUT;
-
-    /*! The total transfer must be a multiple of eptBulkin->MaxPktSize */
-    readDataTransferSize = (readDataTransferSize/eptBulkin->MaxPktSize)*eptBulkin->MaxPktSize;
-
-    eptBulkin->SetXferSize(readDataTransferSize);
-    eptBulkout->SetXferSize(eptBulkout->MaxPktSize);
-}
-
-bool EmcrUdbDevice::bootFpgafromFLASH() {
-    CCyControlEndPoint * ctrept;
-    long ctrlen = 0;
-
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_TO_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_BOOT_FROM_FLASH;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    return ctrept->XferData((PUCHAR)nullptr, ctrlen);
-}
-
-unsigned char EmcrUdbDevice::fpgaLoadBitstreamStatus() {
-    CCyControlEndPoint * ctrept;
-    long ctrlen = 1;
-    unsigned char status = 0xFF;
-
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_FROM_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_LOAD_BITSTREAM_STATUS;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    if (ctrept->XferData((PUCHAR)&status, ctrlen) == false) {
-        status = fpgaLoadingError;
-    }
-    return status;
-}
-
-unsigned char EmcrUdbDevice::getFwStatus() {
-    CCyControlEndPoint * ctrept;
-    long ctrlen = 1;
-    unsigned char status = 0xFF;
-
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_FROM_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_LOAD_FW_STATUS;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    if (ctrept->XferData((PUCHAR)&status, ctrlen) == false) {
-        status = fwStatusError;
-    }
-    return status;
 }
 
 bool EmcrUdbDevice::writeRegisters() {
