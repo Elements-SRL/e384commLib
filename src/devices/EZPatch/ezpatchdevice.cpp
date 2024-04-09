@@ -3375,7 +3375,8 @@ ErrorCodes_t EZPatchDevice::setDigitalOffsetCompensationOverrideValue(uint16_t c
     std::vector <uint16_t> txDataMessage(dataLength);
 
     txDataMessage[0] = digitalOffsetCompensationOverrideRegisterOffset+channelIdx*coreSpecificRegistersNum;
-    uint16_t uintValue = (uint16_t)((int16_t)round(-value.value/liquidJunctionResolution/16.0)*16.0); /*! \todo FCON sta schifezza serve a tenere i 4 bit meno significativi a zero */
+    /*! In some devices (EL04e/f based devices) we need to keep some LSBs to 0, because the resolution of the lj is just too small, a few uV */
+    uint16_t uintValue = (uint16_t)((int16_t)round(-value.value/liquidJunctionResolution/liquidJunctionRounding)*liquidJunctionRounding);
     txDataMessage[1] = uintValue;
 
     ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);

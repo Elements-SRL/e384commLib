@@ -352,6 +352,8 @@ protected:
     CompensationControl_t liquidJunctionControl;
     double liquidJunctionResolution = 1.0;
     double liquidJunctionOffsetBinary = 0.0;
+    double liquidJunctionRounding = 1.0; /*! In some case the 4 LSBs are fixed at 0. Since the automatic compensation does not set these bits in EL04e/f device,
+                                             this bits must not be set, otherwise the FW fails to check against the upper and lower limits */
 
     uint16_t zapDurationHwRegisterOffset = 0;
     uint16_t vcHoldTunerHwRegisterOffset = 0;
