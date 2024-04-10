@@ -296,8 +296,7 @@ ErrorCodes_t setDigitalFilter(
 
 /*! \brief Execute digital offset compensation.
  * Digital offset compensation tunes the offset of the applied voltage so that the
- * acquired current is 0. When the compensation ends the device sends a message with
- * the compensated voltage, that can be used as an estimate of the liquid junction voltage.
+ * acquired current is 0.
  *
  * \param channelIndexesIn [in] Channel indexes.
  * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the pipette compensation on, false to turn it off.
@@ -1381,8 +1380,8 @@ ErrorCodes_t getChannelsNumber(
 /*! \brief Get the available data sources for all channels type.
  * \note Unavailable sources have index -1.
  *
- * \param sourcesIdxs [out] Indexes of the available data sources to be used for voltage channels.
- * \param sourcesIdxs [out] Indexes of the available data sources to be used for current channels.
+ * \param voltageSourcesIdxs [out] Indexes of the available data sources to be used for voltage channels.
+ * \param currentSourcesIdxs [out] Indexes of the available data sources to be used for current channels.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
@@ -1603,7 +1602,8 @@ ErrorCodes_t getFrequencyProtocolRange(
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getMaxProtocolItems(E384CL_ARGOUT unsigned int &maxItemsNum);
+ErrorCodes_t getMaxProtocolItems(
+        E384CL_ARGOUT unsigned int &maxItemsNum);
 
 /*! \brief Tell if the device implements step protocol items.
  *
@@ -1640,7 +1640,7 @@ ErrorCodes_t hasProtocolSin(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVoltageStimulusLpfs(
-        E384CL_ARGOUT LStrHandle *  filterOptions);
+        E384CL_ARGOUT LStrHandle * filterOptions);
 
 /*! \brief Get the available options for the current stimulus low pass filter.
  *
@@ -1650,7 +1650,7 @@ ErrorCodes_t getVoltageStimulusLpfs(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCurrentStimulusLpfs(
-        E384CL_ARGOUT LStrHandle *  filterOptions);
+        E384CL_ARGOUT LStrHandle * filterOptions);
 
 /*! \brief Get options for the pipette compensation.
  *
@@ -1660,7 +1660,7 @@ ErrorCodes_t getCurrentStimulusLpfs(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getPipetteCompensationOptions(
-        E384CL_ARGOUT LStrHandle *  options);
+        E384CL_ARGOUT LStrHandle * options);
 
 /*! \brief Get options for the pipette compensation for current clamp.
  *
@@ -1670,7 +1670,7 @@ ErrorCodes_t getPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCPipetteCompensationOptions(
-        E384CL_ARGOUT LStrHandle *  options);
+        E384CL_ARGOUT LStrHandle * options);
 
 /*! \brief Get options for the membrane compensation.
  *
@@ -1680,7 +1680,7 @@ ErrorCodes_t getCCPipetteCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getMembraneCompensationOptions(
-        E384CL_ARGOUT LStrHandle *  options);
+        E384CL_ARGOUT LStrHandle * options);
 
 /*! \brief Get options for the access resistance compensation.
  * \note Resistance compensation includes resistance correction and prediction.
@@ -1691,7 +1691,7 @@ ErrorCodes_t getMembraneCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCompensationOptions(
-        E384CL_ARGOUT LStrHandle *  options);
+        E384CL_ARGOUT LStrHandle * options);
 
 /*! \brief Get options for the access resistance correction.
  *
@@ -1701,7 +1701,7 @@ ErrorCodes_t getAccessResistanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCorrectionOptions(
-        E384CL_ARGOUT LStrHandle *  options);
+        E384CL_ARGOUT LStrHandle * options);
 
 /*! \brief Get options for the access resistance prediction.
  *
@@ -1711,7 +1711,7 @@ ErrorCodes_t getAccessResistanceCorrectionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionOptions(
-        E384CL_ARGOUT LStrHandle *  options);
+        E384CL_ARGOUT LStrHandle * options);
 
 /*! \brief Get options for the leak conductance compensation.
  *
@@ -1721,7 +1721,7 @@ ErrorCodes_t getAccessResistancePredictionOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLeakConductanceCompensationOptions(
-        E384CL_ARGOUT LStrHandle *  options);
+        E384CL_ARGOUT LStrHandle * options);
 
 /*! \brief Get options for the bridge balance compensation.
  *
@@ -1731,7 +1731,7 @@ ErrorCodes_t getLeakConductanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceCompensationOptions(
-        E384CL_ARGOUT LStrHandle *  options);
+        E384CL_ARGOUT LStrHandle * options);
 
 /*! \brief Get the specifications of the control for the pipette capacitance.
  *
@@ -1853,7 +1853,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceResistanceControl(
         E384CL_ARGOUT CharCompensationControl_t &control);
 
-// NEW MICHELANGELO'S GETS
 /*! \brief Gets the value of the pipette capacitance for voltage clamp for each channel.
  *
  * \param channelIndexesIn [in] Array/vector of channel indexes.
@@ -2160,9 +2159,11 @@ ErrorCodes_t setDebugBit(
         E384CL_ARGIN uint16_t bitOffset,
         E384CL_ARGIN bool status);
 
-/*! \brief something
+/*! \brief Set a debug word
  *
- * \param something else
+ * \param wordOffset [in] word of the debug bit to be modified.
+ * \param word value [in] new value for the debug word.
+ * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
