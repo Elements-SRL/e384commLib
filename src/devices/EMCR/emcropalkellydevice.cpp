@@ -1,5 +1,7 @@
 #include "emcropalkellydevice.h"
 
+#include <fstream>
+
 #include "emcr384nanopores.h"
 #include "emcr384nanopores_sr7p5khz_v01.h"
 #include "emcr384patchclamp_prot_v01_fw_v02.h"
@@ -23,7 +25,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"23190014UX", Device384PatchClamp_prot_v04_fw_v05},
     {"23210014U9", Device384Nanopores},
     {"23210014UP", Device384Nanopores},
-    {"2210001076", Device384PatchClamp_prot_v04_fw_v03},
+    {"2210001076", Device384PatchClamp_prot_v04_fw_v05},
     {"221000106B", Device384PatchClamp_prot_v04_fw_v03},
     {"221000106C", Device384PatchClamp_prot_v01_fw_v02},
     {"23210014UF", Device384PatchClamp_prot_v01_fw_v02},
@@ -257,7 +259,13 @@ ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
         return ErrorDeviceConnectionFailed;
     }
 
-    error = dev.ConfigureFPGA(fwPath + fwName);
+    std::ifstream file(fwPath + fwName);
+    if (file.good()) {
+        error = dev.ConfigureFPGA(fwPath + fwName);
+
+    } else {
+        error = dev.ConfigureFPGA(fwName);
+    }
 
     if (error != okCFrontPanel::NoError) {
         return ErrorDeviceFwLoadingFailed;
@@ -384,29 +392,27 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
 }
 
 bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
-    if (dev.WriteRegisters(regs) == okCFrontPanel::NoError) {
-        switch (type) {
-        case TxTriggerParameteresUpdated:
-            dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-            break;
-
-        case TxTriggerStartProtocol:
-            dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
-            dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
-            break;
-
-        case TxTriggerStartStateArray:
-            dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
-            dev.ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
-            break;
-        }
-        return true;
-
-    } else {
+    if (dev.WriteRegisters(regs) != okCFrontPanel::NoError) {
         return false;
     }
+    switch (type) {
+    case TxTriggerParameteresUpdated:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerStartProtocol:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerStartStateArray:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        dev.ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
+        break;
+    }
+    return true;
 }
 
 uint32_t EmcrOpalKellyDevice::readDataFromDevice() {

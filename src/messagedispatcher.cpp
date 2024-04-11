@@ -42,7 +42,7 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     deviceIds.clear();
     std::vector <std::string> deviceIdsTemp;
 
-    ErrorCodes_t retTemp = EmcrOpalKellyDevice::detectDevices(deviceIdsTemp);
+    ErrorCodes_t retTemp = EZPatchFtdiDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
         deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
     }
@@ -55,7 +55,7 @@ ErrorCodes_t MessageDispatcher::detectDevices(
         ret = retTemp;
     }
 
-    retTemp = EZPatchFtdiDevice::detectDevices(deviceIdsTemp);
+    retTemp = EmcrOpalKellyDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
         deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
         ret = retTemp;
@@ -81,7 +81,61 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
     if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
         return EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher, fwPath);
     }
+    return ErrorDeviceTypeNotRecognized;
 }
+
+ErrorCodes_t MessageDispatcher::isDeviceUpgradable(std::string deviceId) {
+    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return ErrorDeviceNotUpgradable;
+    }
+
+    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return EmcrUdbDevice::isDeviceUpgradable(deviceId);
+    }
+
+    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return ErrorDeviceNotUpgradable;
+    }
+    return ErrorDeviceTypeNotRecognized;
+}
+
+ErrorCodes_t MessageDispatcher::upgradeDevice(std::string deviceId) {
+    if ((MessageDispatcher::isDeviceUpgradable(deviceId)) != Success) {
+        return ErrorDeviceNotUpgradable;
+    }
+
+    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return ErrorDeviceNotUpgradable;
+    }
+
+    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return EmcrUdbDevice::upgradeDevice(deviceId);
+    }
+
+    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+        return ErrorDeviceNotUpgradable;
+    }
+    return ErrorDeviceTypeNotRecognized;
+}
+
+//ErrorCodes_t MessageDispatcher::getUpgradeProgress(int32_t &progress) {
+//    if ((MessageDispatcher::isDeviceUpgradable(deviceId)) != Success) {
+//        return ErrorDeviceNotUpgradable;
+//    }
+
+//    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+//        return ErrorDeviceNotUpgradable;
+//    }
+
+//    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+//        return EmcrUdbDevice::upgradeDevice(deviceId);
+//    }
+
+//    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+//        return ErrorDeviceNotUpgradable;
+//    }
+//    return ErrorDeviceTypeNotRecognized;
+//}
 
 /****************\
  *  Tx methods  *
@@ -186,6 +240,9 @@ ErrorCodes_t MessageDispatcher::setLiquidJunctionVoltage(std::vector<uint16_t> c
 
 ErrorCodes_t MessageDispatcher::resetLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     std::vector <Measurement_t> voltages(channelIndexes.size(), {0.0, liquidJunctionRange.prefix, "V"});
+    for (auto channelIdx : channelIndexes) {
+        liquidJunctionStatuses[channelIdx] = LiquidJunctionResetted;
+    }
     return this->setLiquidJunctionVoltage(channelIndexes, voltages, applyFlag);
 }
 
@@ -557,6 +614,20 @@ ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector<uint16_t> 
     voltages.resize(channelIndexes.size());
     for (auto channel : channelIndexes) {
         voltages[channel] = selectedLiquidJunctionVector[channel];
+    }
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getLiquidJunctionStatuses(std::vector<uint16_t> channelIndexes, std::vector<LiquidJunctionStatus_t> &statuses) {
+    if (liquidJunctionStatuses.empty()) {
+        return ErrorFeatureNotImplemented;
+
+    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    statuses.resize(channelIndexes.size());
+    for (auto channel : channelIndexes) {
+        statuses[channel] = liquidJunctionStatuses[channel];
     }
     return Success;
 }
@@ -1240,8 +1311,8 @@ void MessageDispatcher::computeLiquidJunction() {
     double estimatedResistance;
 
     while (!stopConnectionFlag) {
-        if (anyLiquidJuctionActive && liquidJunctionCurrentEstimatesNum > 0) {
-            anyLiquidJuctionActive = false;
+        if (anyLiquidJunctionActive && liquidJunctionCurrentEstimatesNum > 0) {
+            anyLiquidJunctionActive = false;
             channelIndexes.clear();
             voltages.clear();
             ljMutexLock.lock();
@@ -1251,11 +1322,12 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionStarting:
-                    anyLiquidJuctionActive = true;
+                    anyLiquidJunctionActive = true;
                     channelIndexes.push_back(channelIdx);
                     liquidJunctionVoltagesBackup[channelIdx] = selectedLiquidJunctionVector[channelIdx];
                     voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
                     liquidJunctionStates[channelIdx] = LiquidJunctionFirstStep;
+                    liquidJunctionStatuses[channelIdx] = LiquidJunctionInterrupted;
                     liquidJunctionConvergingCount[channelIdx] = 0;
                     liquidJunctionConvergedCount[channelIdx] = 0;
                     liquidJunctionPositiveSaturationCount[channelIdx] = 0;
@@ -1283,7 +1355,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionFirstStep:
-                    anyLiquidJuctionActive = true;
+                    anyLiquidJunctionActive = true;
                     liquidJunctionCurrentEstimates[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum;
                     if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) { /*! More or less 10% from saturation */
                         liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
@@ -1332,7 +1404,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionConverge:
-                    anyLiquidJuctionActive = true;
+                    anyLiquidJunctionActive = true;
                     liquidJunctionDeltaCurrents[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum-liquidJunctionCurrentEstimates[channelIdx];
                     liquidJunctionCurrentEstimates[channelIdx] += liquidJunctionDeltaCurrents[channelIdx];
 
@@ -1470,8 +1542,9 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionSuccess:
-                    anyLiquidJuctionActive = true;
+                    anyLiquidJunctionActive = true;
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
+                    liquidJunctionStatuses[channelIdx] = LiquidJunctionSucceded;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                     fprintf(ljFid,
                             "%d: success.",
@@ -1481,10 +1554,11 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionFailOpenCircuit:
-                    anyLiquidJuctionActive = true;
+                    anyLiquidJunctionActive = true;
                     channelIndexes.push_back(channelIdx);
                     voltages.push_back(liquidJunctionVoltagesBackup[channelIdx]);
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
+                    liquidJunctionStatuses[channelIdx] = LiquidJunctionFailedOpenCircuit;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                     fprintf(ljFid,
                             "%d: open circuit.",
@@ -1494,8 +1568,9 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionFailTooManySteps:
-                    anyLiquidJuctionActive = true;
+                    anyLiquidJunctionActive = true;
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
+                    liquidJunctionStatuses[channelIdx] = LiquidJunctionFailedTooManySteps;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                     fprintf(ljFid,
                             "%d: too many steps.",
@@ -1505,10 +1580,11 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionFailSaturation:
-                    anyLiquidJuctionActive = true;
+                    anyLiquidJunctionActive = true;
                     channelIndexes.push_back(channelIdx);
                     voltages.push_back(liquidJunctionVoltagesBackup[channelIdx]);
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
+                    liquidJunctionStatuses[channelIdx] = LiquidJunctionFailedSaturation;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                     fprintf(ljFid,
                             "%d: saturation.",
@@ -1518,7 +1594,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionTerminate:
-                    anyLiquidJuctionActive = true;
+                    anyLiquidJunctionActive = true;
                     liquidJunctionSmallestCurrentChange[channelIdx] = 10.0;
                     liquidJunctionStates[channelIdx] = LiquidJunctionIdle;
                     break;
@@ -1540,7 +1616,7 @@ void MessageDispatcher::computeLiquidJunction() {
 
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
         } else {
-            if (anyLiquidJuctionActive) {
+            if (anyLiquidJunctionActive) {
                 fprintf(ljFid,
                         "not performing: %lld.\n",
                         liquidJunctionCurrentEstimatesNum);
@@ -1566,6 +1642,8 @@ void MessageDispatcher::initializeCalibration() {
 
 void MessageDispatcher::initializeLiquidJunction() {
     liquidJunctionCurrentEstimatesNum = 0;
+    liquidJunctionStatuses.resize(currentChannelsNum);
+    std::fill(liquidJunctionStatuses.begin(), liquidJunctionStatuses.end(), LiquidJunctionNotPerformed);
     liquidJunctionStates.resize(currentChannelsNum);
     std::fill(liquidJunctionStates.begin(), liquidJunctionStates.end(), LiquidJunctionIdle);
     liquidJunctionCurrentSums.resize(currentChannelsNum);
@@ -2073,7 +2151,7 @@ void MessageDispatcher::fillChannelList(uint16_t numOfBoards, uint16_t numOfChan
     uint16_t newChannelId = 0;
     channelModels.resize(numOfChannelsOnBoard*numOfBoards);
     for(uint16_t i = 0; i< numOfBoards; i++ ){
-        for(uint16_t j = 0; j< numOfChannelsOnBoard; j++ ){
+        for(uint16_t j = 0; j< numOfChannelsOnBoard; j++){
             this->channelModels[newChannelId] = this->boardModels[i]->getChannelsOnBoard()[j];
             newChannelId++;
         }

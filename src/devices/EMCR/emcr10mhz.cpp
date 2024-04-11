@@ -3,11 +3,9 @@
 Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     EmcrUdbDevice(di) {
 
-    deviceName = "2x10MHz";
+    deviceName = "10MHz";
 
-    waitingTimeBeforeReadingData = 2; //s
-
-    rxSyncWord = 0x5aa5;
+    rxSyncWord = 0x5aa55aa5;
 
     packetsPerFrame = 1024;
 
@@ -24,12 +22,12 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     rxWordLengths[RxMessageDataHeader] = 4;
 
     rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
-    rxWordLengths[RxMessageDataTail] = 1;
+    rxWordLengths[RxMessageDataTail] = 2;
 
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
-    rxWordLengths[RxMessageStatus] = 1;
+    rxWordLengths[RxMessageStatus] = 2;
 
-    rxMaxWords = currentChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
+    rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
     txDataWords = 260; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
@@ -49,7 +47,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     availableVoltageSourcesIdxs.VoltageFromVoltageClamp = ChannelSourceVoltageFromVoltageClamp;
 
     /*! Protocols parameters */
-    protocolFpgaClockFrequencyHz = 10.08e6; /*! \todo FCON copiato dal 2x10MHz, verificare quant'è sul 10MHz singolo canale */
+    protocolFpgaClockFrequencyHz = 10.0e3;
 
     protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
     protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
@@ -60,7 +58,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     positiveProtocolTimeRange = protocolTimeRange;
     positiveProtocolTimeRange.min = 0.0;
 
-    protocolFrequencyRange.step = protocolFpgaClockFrequencyHz/(256.0*(UINT24_MAX+1.0)); /*! 10.08MHz / 256 / 2^24 */
+    protocolFrequencyRange.step = protocolFpgaClockFrequencyHz/(256.0*(UINT24_MAX+1.0)); /*! 10.0kHz / 256 / 2^24 */
     protocolFrequencyRange.min = INT24_MIN*protocolFrequencyRange.step;
     protocolFrequencyRange.max = INT24_MAX*protocolFrequencyRange.step;
     protocolFrequencyRange.prefix = UnitPfxNone;
@@ -75,7 +73,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
 
     protocolMaxItemsNum = 15;
     protocolWordOffset = 10;
-    protocolItemsWordsNum = 12;
+    protocolItemsWordsNum = 16;
 
     /*! Current ranges */
     /*! VC */
@@ -156,24 +154,24 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     defaultSamplingRateIdx = SamplingRate40MHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate40MHz].value = 80.0/2.0;
-    samplingRatesArray[SamplingRate40MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate40MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate20MHz].value = 80.0/4.0;
-    samplingRatesArray[SamplingRate20MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate20MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate10MHz].value = 80.0/8.0;
-    samplingRatesArray[SamplingRate10MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate10MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate5MHz].value = 80.0/16.0;
-    samplingRatesArray[SamplingRate5MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate5MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate2_5MHz].value = 80.0/32.0;
-    samplingRatesArray[SamplingRate2_5MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate2_5MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate1_25kHz].value = 80.0/64.0;
-    samplingRatesArray[SamplingRate1_25kHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate1_25kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate40MHz].value = 80.0/2.0;
+    realSamplingRatesArray[SamplingRate40MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate40MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate20MHz].value = 80.0/4.0;
+    realSamplingRatesArray[SamplingRate20MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate20MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate10MHz].value = 80.0/8.0;
+    realSamplingRatesArray[SamplingRate10MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate10MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate5MHz].value = 80.0/16.0;
+    realSamplingRatesArray[SamplingRate5MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate5MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate2_5MHz].value = 80.0/32.0;
+    realSamplingRatesArray[SamplingRate2_5MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate2_5MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate1_25kHz].value = 80.0/64.0;
+    realSamplingRatesArray[SamplingRate1_25kHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate1_25kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate40MHz].value = 2.0/80.0;
@@ -271,7 +269,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     boolConfig.initialBit = 6;
     boolConfig.bitsNum = 1;
     protocolResetCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(fpgaResetCoder);
+    coders.push_back(protocolResetCoder);
 
     /*! Current range VC */
     // undefined
@@ -303,23 +301,8 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     boolConfig.bitsNum = 1;
     digitalOffsetCompensationCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        digitalOffsetCompensationCoders[idx] = new BoolNegatedArrayCoder(boolConfig);
+        digitalOffsetCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
         coders.push_back(digitalOffsetCompensationCoders[idx]);
-        boolConfig.initialBit++;
-        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
-            boolConfig.initialBit = 0;
-            boolConfig.initialWord++;
-        }
-    }
-
-    /*! Enable stimulus */
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 5;
-    boolConfig.bitsNum = 1;
-    enableStimulusCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        enableStimulusCoders[idx] = new BoolArrayCoder(boolConfig);
-        coders.push_back(enableStimulusCoders[idx]);
         boolConfig.initialBit++;
         if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
             boolConfig.initialBit = 0;
@@ -398,42 +381,6 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
 
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 32;
-    currentProtocolStim0Coders.resize(CCCurrentRangesNum);
-    currentProtocolStim0StepCoders.resize(CCCurrentRangesNum);
-    currentProtocolStim1Coders.resize(CCCurrentRangesNum);
-    currentProtocolStim1StepCoders.resize(CCCurrentRangesNum);
-
-    for (unsigned int rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
-        currentProtocolStim0Coders[rangeIdx].resize(protocolMaxItemsNum);
-        currentProtocolStim0StepCoders[rangeIdx].resize(protocolMaxItemsNum);
-        currentProtocolStim1Coders[rangeIdx].resize(protocolMaxItemsNum);
-        currentProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
-
-        doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
-        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
-        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
-
-        for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-            doubleConfig.initialWord = protocolWordOffset+4+protocolItemsWordsNum*itemIdx;
-            currentProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(currentProtocolStim0Coders[rangeIdx][itemIdx]);
-
-            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
-            currentProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(currentProtocolStim0StepCoders[rangeIdx][itemIdx]);
-
-            doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
-            currentProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(currentProtocolStim1Coders[rangeIdx][itemIdx]);
-
-            doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
-            currentProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(currentProtocolStim1StepCoders[rangeIdx][itemIdx]);
-        }
-    }
-
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 32;
     doubleConfig.resolution = positiveProtocolTimeRange.step;
     doubleConfig.minValue = positiveProtocolTimeRange.min;
     doubleConfig.maxValue = positiveProtocolTimeRange.max;
@@ -505,12 +452,12 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
 
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 254;
-        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
-        doubleConfig.minValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
-        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
+        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
             doubleConfig.initialWord++;
         }
@@ -598,6 +545,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
+    txStatus[1] = 0x0002; /*! ADC power enable override */
     txStatus[256] = 0x0400; /*! current gain 1 */
     txStatus[258] = 0x0400; /*! voltage gain 1 */
 }

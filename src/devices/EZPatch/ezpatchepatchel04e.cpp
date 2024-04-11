@@ -526,6 +526,7 @@ EZPatchePatchEL04E::EZPatchePatchEL04E(std::string di) :
 
     liquidJunctionOffsetBinary = SHORT_OFFSET_BINARY;
     liquidJunctionResolution = liquidJunctionStep;
+    liquidJunctionRounding = 16.0;
 
     liquidJunctionControl.implemented = true;
     liquidJunctionControl.min = minLiquidJunctionRange;

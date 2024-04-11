@@ -827,6 +827,7 @@ EZPatche8PPatchliner::EZPatche8PPatchliner(std::string di) :
 
     liquidJunctionOffsetBinary = SHORT_OFFSET_BINARY;
     liquidJunctionResolution = liquidJunctionStep;
+    liquidJunctionRounding = 16.0;
 
     liquidJunctionControl.implemented = true;
     liquidJunctionControl.min = minLiquidJunctionRange;

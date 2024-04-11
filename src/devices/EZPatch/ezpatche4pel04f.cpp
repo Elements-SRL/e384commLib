@@ -704,6 +704,7 @@ EZPatche4PEL04F::EZPatche4PEL04F(std::string di) :
 
     liquidJunctionOffsetBinary = SHORT_OFFSET_BINARY;
     liquidJunctionResolution = liquidJunctionStep;
+    liquidJunctionRounding = 16.0;
 
     liquidJunctionControl.implemented = true;
     liquidJunctionControl.min = minLiquidJunctionRange;

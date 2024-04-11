@@ -1,14 +1,32 @@
 #include "emcrudbdevice.h"
 
+#include <fstream>
+
 #include "emcr10mhz.h"
 
+static UdbProgrammer programmer;
+
 static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 0, Device10MHzOld},                  //   11,  1,  0 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 1, Device10MHzOld},                  //   11,  1,  1 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 2, Device10MHzOld},                  //   11,  1,  2 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 3, Device10MHzOld},                  //   11,  1,  3 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 4, Device10MHzOld},                  //   11,  1,  4 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 5, Device10MHzOld},                  //   11,  1,  5 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 6, Device10MHzOld},                  //   11,  1,  6 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 7, Device10MHzOld},                  //   11,  1,  7 : UDB V02
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 8, Device10MHzV01},                  //   11,  1,  8 : UDB V02
+};
+
+static std::unordered_map <DeviceTypes_t, MessageDispatcher::FwUpgradeInfo_t> fwUpgradeInfo = {
+    {Device10MHzOld, {true, 8, "10MHz_V08.bin"}},
+    {Device10MHzV01, MessageDispatcher::FwUpgradeInfo_t()}
 };
 
 EmcrUdbDevice::EmcrUdbDevice(std::string deviceId) :
     EmcrDevice(deviceId) {
 
+    rxRawBufferMask = UDB_RX_BUFFER_MASK;
 }
 
 EmcrUdbDevice::~EmcrUdbDevice() {
@@ -19,7 +37,7 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
         std::vector <std::string> &deviceIds) {
     /*! Gets number of devices */
     int numDevs;
-    bool devCountOk = getDeviceCount(numDevs);
+    bool devCountOk = UdbUtils::getDeviceCount(numDevs);
     if (!devCountOk) {
         return ErrorListDeviceFailed;
 
@@ -32,14 +50,14 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
 
     /*! Lists all serial numbers */
     for (int i = 0; i < numDevs; i++) {
-        deviceIds.push_back(getDeviceSerial(i));
+        deviceIds.push_back(UdbUtils::getDeviceSerial(i));
     }
 
     return Success;
 }
 
 ErrorCodes_t EmcrUdbDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
-    DeviceTuple_t tuple = getDeviceTuple(getDeviceIndex(deviceId));
+    DeviceTuple_t tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
 
     bool deviceFound = false;
     for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
@@ -54,6 +72,14 @@ ErrorCodes_t EmcrUdbDevice::getDeviceType(std::string deviceId, DeviceTypes_t &t
 
     if (!deviceFound) {
         return ErrorDeviceTypeNotRecognized;
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrUdbDevice::getUpgradeInfo(DeviceTypes_t type, FwUpgradeInfo_t &info) {
+    info = fwUpgradeInfo[type];
+    if (!(info.available)) {
+        return ErrorDeviceNotUpgradable;
     }
     return Success;
 }
@@ -93,6 +119,9 @@ ErrorCodes_t EmcrUdbDevice::connectDevice(std::string deviceId, MessageDispatche
         messageDispatcher = new Emcr10MHz_V01(deviceId);
         break;
 
+    case Device10MHzOld:
+        return ErrorDeviceToBeUpgraded;
+
     default:
         return ErrorDeviceTypeNotRecognized;
     }
@@ -110,82 +139,139 @@ ErrorCodes_t EmcrUdbDevice::connectDevice(std::string deviceId, MessageDispatche
     return ret;
 }
 
+ErrorCodes_t EmcrUdbDevice::isDeviceUpgradable(std::string deviceId) {
+    DeviceTypes_t deviceType;
+
+    ErrorCodes_t ret = EmcrUdbDevice::getDeviceType(deviceId, deviceType);
+    if (ret != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    FwUpgradeInfo_t info;
+    EmcrUdbDevice::getUpgradeInfo(deviceType, info);
+    if (!(info.available)) {
+        return ErrorDeviceNotUpgradable;
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
+    DeviceTypes_t deviceType;
+
+    ErrorCodes_t ret = EmcrUdbDevice::getDeviceType(deviceId, deviceType);
+    if (ret != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    FwUpgradeInfo_t upgradeInfo;
+    EmcrUdbDevice::getUpgradeInfo(deviceType, upgradeInfo);
+
+    int32_t idx = UdbUtils::getDeviceIndex(deviceId);
+    if (idx < 0) {
+        return ErrorDeviceConnectionFailed;
+    }
+
+    programmer.connect(idx, true);
+
+    UdbProgrammer::InfoStruct_t infoStruct;
+    programmer.getDeviceInfo(infoStruct);
+    if (infoStruct.fx3FwVersion < UTL_DEFAULT_FX3_FW_VERSION) {
+        /*! Upgrade FX3 FW and version if needed */
+        infoStruct.fx3FwVersion = UTL_DEFAULT_FX3_FW_VERSION;
+        std::ifstream file(UTL_DEFAULT_FW_PATH + UTL_DEFAULT_FX3_FW_NAME, std::ios::binary);
+
+        if (!file) {
+            return ErrorFwNotFound;
+        }
+
+        file.seekg(0, std::ios::end);
+        unsigned int fileSize = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        char * buffer = new char[fileSize];
+
+        file.read(buffer, fileSize);
+        file.close();
+
+        programmer.programFlashBlock(UdbUtils::BlockFX3, buffer, fileSize);
+
+        delete [] buffer;
+    }
+
+    /*! Upgrade FPGA version */
+    infoStruct.fpgaFwVersion = upgradeInfo.fwVersion;
+    programmer.programFlashBlock(UdbUtils::BlockInfo, (char *)&infoStruct, sizeof(UdbProgrammer::InfoStruct_t));
+
+    /*! Upgrade FPGA FW */
+    std::ifstream file(UTL_DEFAULT_FW_PATH + upgradeInfo.fwName, std::ios::binary);
+
+    if (!file) {
+        return ErrorFwNotFound;
+    }
+
+    file.seekg(0, std::ios::end);
+    unsigned int fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    char * buffer = new char[fileSize+4];
+    /*! add image length as leading four bytes... */
+    buffer[0] = fileSize & 0x000000FF;
+    buffer[1] = (fileSize  >> 8)& 0x000000FF;
+    buffer[2] = (fileSize >> 16)& 0x000000FF;
+    buffer[3] = (fileSize >> 24)& 0x000000FF;
+
+    file.read(buffer+4, fileSize);
+    file.close();
+
+    programmer.programFlashBlock(UdbUtils::BlockFPGA, buffer, fileSize+4);
+
+    if (!(programmer.verifyFlashBlock(UdbUtils::BlockFPGA, buffer, fileSize+4))) {
+        delete [] buffer;
+        return ErrorFwUpgradeFailed;
+    }
+
+    delete [] buffer;
+
+    programmer.connect(idx, false);
+    return Success;
+}
+
+ErrorCodes_t EmcrUdbDevice::getUpgradeProgress(int32_t &progress) {
+    progress = programmer.getProgress();
+    return Success;
+}
+
 ErrorCodes_t EmcrUdbDevice::disconnectDevice() {
     this->deinitialize();
     return Success;
 }
 
-int32_t EmcrUdbDevice::getDeviceIndex(std::string serial) {
-    /*! Gets number of devices */
-    int numDevs;
-    bool devCountOk = getDeviceCount(numDevs);
-    if (!devCountOk) {
-        return -1;
-
-    } else if (numDevs == 0) {
-        return -1;
-    }
-
-    for (int index = 0; index < numDevs; index++) {
-        std::string deviceId = getDeviceSerial(index);
-        if (deviceId == serial) {
-            return index;
-        }
-    }
-    return -1;
-}
-
-std::string EmcrUdbDevice::getDeviceSerial(uint32_t index) {
-    std::string serial;
-    int numDevs;
-    getDeviceCount(numDevs);
-    if (index >= numDevs) {
-        return "";
-    }
-
-    CCyUSBDevice * tempDev = new CCyUSBDevice;
-    char serialNumber[255];
-    sprintf(serialNumber, "%ls", tempDev->SerialNumber);
-    serial = std::string(serialNumber);
-    tempDev->Close();
-    delete tempDev;
-    return serial;
-}
-
-bool EmcrUdbDevice::getDeviceCount(int &numDevs) {
-    /*! Get the number of connected devices */
-    CCyUSBDevice * tempDev = new CCyUSBDevice;
-    numDevs = tempDev->DeviceCount();
-    delete tempDev;
-    return true;
-}
-
-ErrorCodes_t EmcrUdbDevice::startCommunication(std::string fwPath) {
-    int32_t idx = getDeviceIndex(deviceId);
+ErrorCodes_t EmcrUdbDevice::startCommunication(std::string) {
+    int32_t idx = UdbUtils::getDeviceIndex(deviceId);
     if (idx < 0) {
         return ErrorDeviceConnectionFailed;
     }
     dev = new CCyUSBDevice;
     dev->Open(idx);
 
-    this->findBulkEndpoints();
-    this->resetBulkEndpoints();
-    this->initEndpoints();
+    UdbUtils::findBulkEndpoints(dev, eptBulkin, eptBulkout);
+    UdbUtils::resetBulkEndpoints(eptBulkin, eptBulkout);
+    UdbUtils::initEndpoints(readDataTransferSize, eptBulkin, eptBulkout);
     return Success;
 }
 
 ErrorCodes_t EmcrUdbDevice::initializeHW() {
     /*! check if FX3 is in FPGA config mode, otherwise switch into it */
-    if (this->getFwStatus() == fwStatusConfigMode) {
-        this->bootFpgafromFLASH();
+    if (UdbUtils::getFwStatus(dev) == UdbUtils::fwStatusConfigMode) {
+        UdbUtils::bootFpgafromFLASH(dev);
         Sleep(1000); /*!< wait a bit to be sure that the FPGA write is in progress */
 
         /*! wait the configuration to finish */
-        while (this->fpgaLoadBitstreamStatus() == fpgaLoadingInProgress) {
+        while (UdbUtils::fpgaLoadBitstreamStatus(dev) == UdbUtils::fpgaLoadingInProgress) {
             Sleep(100); /*!< don't poll too frequently... may lockup */
         }
 
-        if (this->fpgaLoadBitstreamStatus() == fpgaLoadingError) {
+        if (UdbUtils::fpgaLoadBitstreamStatus(dev) == UdbUtils::fpgaLoadingError) {
             return ErrorDeviceFwLoadingFailed;
         }
 
@@ -194,6 +280,8 @@ ErrorCodes_t EmcrUdbDevice::initializeHW() {
         Sleep(1000); /*!< Wait a bit after the FPGA has booted: not 100% sure, but the communication might break if the first commands arrive
                       *   when the FPGA is still executing the starting procedures */
     }
+    fwLoadedFlag = true;
+    parsingFlag = true;
 
     this->sendCommands();
 
@@ -209,8 +297,12 @@ ErrorCodes_t EmcrUdbDevice::stopCommunication() {
 
 void EmcrUdbDevice::handleCommunicationWithDevice() {
     /*! Header and type do not change for now */
-    txRawBuffer[0] = 0x5aa55aa5;
-    txRawBuffer[1] = 0x00000000;
+    txRawBulkBuffer[0] = 0x5aa55aa5;
+    txRawBulkBuffer[1] = 0x00000000;
+
+    txRawTriggerBuffer[0] = 0x5aa55aa5;
+    txRawTriggerBuffer[1] = 0x00000001;
+    txRawTriggerBuffer[2] = 0x00000001;
 
     std::unique_lock <std::mutex> txMutexLock (txMutex);
     txMutexLock.unlock();
@@ -218,35 +310,28 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
     std::unique_lock <std::mutex> rxRawMutexLock (rxRawMutex);
     rxRawMutexLock.unlock();
 
-    std::chrono::steady_clock::time_point startWhileTime = std::chrono::steady_clock::now();
-
-    bool waitingTimeForReadingPassed = false;
     bool anyOperationPerformed;
 
     while (!stopConnectionFlag) {
         anyOperationPerformed = false;
 
-        /***********************\
-         *  Data copying part  *
-        \***********************/
-
-        txMutexLock.lock();
-        while (txMsgBufferReadLength > 0) {
-            anyOperationPerformed = true;
-            this->sendCommandsToDevice();
-            txMsgBufferReadLength--;
-            if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
-                /*! \todo FCON let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
-                liquidJunctionControlPending = false;
+        /*! Avoid communicating too early, communication might break if the fw has not started yet */
+        if (fwLoadedFlag) {
+            txMutexLock.lock();
+            while (txMsgBufferReadLength > 0) {
+                anyOperationPerformed = true;
+                this->sendCommandsToDevice();
+                txMsgBufferReadLength--;
+                if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
+                    /*! \todo FCON let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
+                    liquidJunctionControlPending = false;
+                }
             }
-        }
-        txMutexLock.unlock();
-        if (anyOperationPerformed) {
-            txMsgBufferNotFull.notify_all();
-        }
+            txMutexLock.unlock();
+            if (anyOperationPerformed) {
+                txMsgBufferNotFull.notify_all();
+            }
 
-        /*! Avoid performing reads too early, might trigger timeout, which appears to be a non escapable condition */
-        if (waitingTimeForReadingPassed) {
             rxRawMutexLock.lock();
             if (rxRawBufferReadLength+UDB_RX_TRANSFER_SIZE <= UDB_RX_BUFFER_SIZE) {
                 anyOperationPerformed = true;
@@ -264,13 +349,6 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
             } else {
                 rxRawMutexLock.unlock();
             }
-
-        } else {
-            long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
-            if (t > waitingTimeBeforeReadingData*1e6) {
-                waitingTimeForReadingPassed = true;
-                parsingFlag = true;
-            }
         }
 
         if (!anyOperationPerformed) {
@@ -280,7 +358,7 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
 }
 
 void EmcrUdbDevice::sendCommandsToDevice() {
-    txRawBuffer[2] = txMsgLength[txMsgBufferReadOffset]/2;
+    txRawBulkBuffer[2] = txMsgLength[txMsgBufferReadOffset]/2;
 
     int writeTries = 0;
 
@@ -288,12 +366,12 @@ void EmcrUdbDevice::sendCommandsToDevice() {
 
     /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
     for (uint32_t txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
-        txRawBuffer[3+txDataBufferReadIdx] = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
-        txRawBuffer[3+txDataBufferReadIdx+1] =
+        txRawBulkBuffer[3+txDataBufferReadIdx] = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
+        txRawBulkBuffer[3+txDataBufferReadIdx+1] =
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
     }
-//    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
+    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
 
     txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 
@@ -304,13 +382,13 @@ void EmcrUdbDevice::sendCommandsToDevice() {
     notSentTxData = true;
     writeTries = 0;
     while (notSentTxData && (writeTries++ < TX_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
-        if (!this->writeRegisters()) {
+        if (!this->writeRegistersAndActivateTriggers(type)) {
             continue;
         }
 
 #ifdef DEBUG_TX_DATA_PRINT
-        for (uint16_t regIdx = 0; regIdx < regs.size(); regIdx++) {
-            fprintf(txFid, "%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
+        for (uint32_t regIdx = 0; regIdx < txRawBulkBuffer[2]; regIdx++) {
+            fprintf(txFid, "%04d:0x%08X ", txRawBulkBuffer[3+regIdx*2], txRawBulkBuffer[3+regIdx*2+1]);
             if (regIdx % 16 == 15) {
                 fprintf(txFid, "\n");
             }
@@ -323,9 +401,26 @@ void EmcrUdbDevice::sendCommandsToDevice() {
     }
 }
 
-bool EmcrUdbDevice::writeRegisters() {
-    if (!this->writeToBulkOut()) {
+bool EmcrUdbDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
+    if (this->writeRegisters() == false) {
         return false;
+    }
+    switch (type) {
+    case TxTriggerParameteresUpdated:
+//        this->activateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerStartProtocol:
+//        this->activateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        return this->activateTriggerIn(UDB_START_PROTOCOL_TRIGGER_IN_ADDR, UDB_START_PROTOCOL_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerStartStateArray:
+//        this->activateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+//        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+//        this->activateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
+        break;
     }
     return true;
 }
@@ -348,14 +443,14 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
     if (eptBulkin->XferData((PUCHAR)rxRawBuffer+rxRawBufferWriteOffset, bytesRead, nullptr, false) == false) {
         /*! XferData, apparently, returns false also if the required data is not available before timeout, so check the amount of available data as well */
         if (bytesRead <= 0) {
-            return ErrorNoDataAvailable;
-            /*! \todo eptbulkin->NtStatus controllare per vedere il tipo di fallimento */
+            return 0;
+            /*! \todo eptBulkin->NtStatus controllare per vedere il tipo di fallimento */
         }
     }
 
-    if (rxRawBufferWriteOffset+bytesRead > UDB_RX_BUFFER_MASK) {
-        for (uint32_t idx = 0; idx < rxRawBufferWriteOffset+bytesRead-UDB_RX_BUFFER_MASK; idx++) {
-            rxRawBuffer[idx] = rxRawBuffer[UDB_RX_BUFFER_MASK+idx];
+    if (rxRawBufferWriteOffset+bytesRead > UDB_RX_BUFFER_SIZE) {
+        for (uint32_t idx = 0; idx < rxRawBufferWriteOffset+bytesRead-UDB_RX_BUFFER_SIZE; idx++) {
+            rxRawBuffer[idx] = rxRawBuffer[UDB_RX_BUFFER_SIZE+idx];
         }
     }
 
@@ -365,7 +460,7 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
 #endif
 
 #ifdef DEBUG_RX_RAW_DATA_PRINT
-        fprintf(rxRawFid, "Bytes read %d\n", bytesRead);
+        fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(rxRawBuffer[0]), bytesRead, rxRawFid);
         fflush(rxRawFid);
 #endif
 
@@ -384,7 +479,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
     uint16_t rxWordOffset; /*!< Offset of the first word in the received frame */
     uint16_t rxWordsLength; /*!< Number of words in the received frame */
     uint32_t rxDataBytes; /*!< Number of bytes in the received frame */
-    uint16_t rxCandidateHeader;
+    uint32_t rxCandidateHeader;
 
     bool notEnoughRxData;
 
@@ -428,14 +523,14 @@ void EmcrUdbDevice::parseDataFromDevice() {
                 } else {
                     rxFrameOffset = rxRawBufferReadOffset;
                     /*! Check byte by byte if the buffer contains a sync word (frame header) */
-                    if (popUint16FromRxRawBuffer() == rxSyncWord) {
+                    if (popUint32FromRxRawBuffer() == rxSyncWord) {
                         /*! If all the bytes match the sync word move rxSyncWordSize bytes ahead and look for the message length */
                         rxParsePhase = RxParseLookForLength;
 
                     } else {
-                        /*! If not all the bytes match the sync word restore one of the removed bytes and recheck */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset-1) & UDB_RX_BUFFER_MASK;
-                        rxRawBytesAvailable++;
+                        /*! If not all the bytes match the sync word restore three of the removed bytes and recheck */
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & UDB_RX_BUFFER_MASK;
+                        rxRawBytesAvailable += 3;
                     }
                 }
                 break;
@@ -488,11 +583,14 @@ void EmcrUdbDevice::parseDataFromDevice() {
                     notEnoughRxData = true;
 
                 } else {
-                    rxCandidateHeader = readUint16FromRxRawBuffer(rxDataBytes);
+                    rxCandidateHeader = readUint32FromRxRawBuffer(rxDataBytes);
 
                     if (rxCandidateHeader == rxSyncWord) {
                         if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
+
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageThenCurrentDataLoad]) {
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageVoltageThenCurrentDataLoad);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageCurrentDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageCurrentDataLoad);
@@ -551,8 +649,14 @@ ErrorCodes_t EmcrUdbDevice::initializeMemory() {
         return ErrorMemoryInitialization;
     }
 
-    txRawBuffer = new (std::nothrow) uint32_t[3+2*txMaxWords];
-    if (txRawBuffer == nullptr) {
+    txRawBulkBuffer = new (std::nothrow) uint32_t[3+2*txMaxWords];
+    if (txRawBulkBuffer == nullptr) {
+        this->deinitializeMemory();
+        return ErrorMemoryInitialization;
+    }
+
+    txRawTriggerBuffer = new (std::nothrow) uint32_t[UDB_TX_TRIGGER_BUFFER_SIZE];
+    if (txRawTriggerBuffer == nullptr) {
         this->deinitializeMemory();
         return ErrorMemoryInitialization;
     }
@@ -567,9 +671,14 @@ void EmcrUdbDevice::deinitializeMemory() {
         rxRawBuffer = nullptr;
     }
 
-    if (txRawBuffer != nullptr) {
-        delete [] txRawBuffer;
-        txRawBuffer = nullptr;
+    if (txRawBulkBuffer != nullptr) {
+        delete [] txRawBulkBuffer;
+        txRawBulkBuffer = nullptr;
+    }
+
+    if (txRawTriggerBuffer != nullptr) {
+        delete [] txRawTriggerBuffer;
+        txRawTriggerBuffer = nullptr;
     }
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
@@ -591,11 +700,11 @@ EmcrUdbDevice::DeviceTuple_t EmcrUdbDevice::getDeviceTuple(uint32_t deviceIdx) {
         ctrept->Target		= TGT_DEVICE;
         ctrept->ReqType		= REQ_VENDOR;
         ctrept->Direction	= DIR_FROM_DEVICE;
-        ctrept->ReqCode		= 0xC1;
+        ctrept->ReqCode		= CYP_CMD_GET_TUPLE;
         ctrept->Value		= 0;
         ctrept->Index		= 0;
 
-        if (ctrept->XferData((PUCHAR)buffer, ctrlen) == false) {
+        if (ctrept->XferData((PUCHAR)buffer, ctrlen)) {
             tuple.version = (DeviceVersion_t)buffer[0];
             tuple.subversion = (DeviceSubversion_t)buffer[1];
             tuple.fwVersion = buffer[2];
@@ -603,107 +712,25 @@ EmcrUdbDevice::DeviceTuple_t EmcrUdbDevice::getDeviceTuple(uint32_t deviceIdx) {
 
         tempDev->Close();
     }
+    delete tempDev;
     return tuple;
 }
 
-void EmcrUdbDevice::findBulkEndpoints() {
-    int endpointcnt = 0;
-    CCyUSBEndPoint * ept;
-
-    endpointcnt = dev->EndPointCount();
-    for (int e = 0; e < endpointcnt; e++) {
-        ept = dev->EndPoints[e];
-        // INTR, BULK and ISO endpoints are supported.
-        if (ept->Attributes == 2) {
-            if (ept->bIn) {
-                eptBulkin = dev->EndPoints[e];
-
-            } else {
-                eptBulkout = dev->EndPoints[e];
-            }
-        }
-    }
+bool EmcrUdbDevice::writeRegisters() {
+    return writeToBulkOut(txRawBulkBuffer);
 }
 
-bool EmcrUdbDevice::resetBulkEndpoints() {
-    if (eptBulkin->Reset() == false) {
-        return false;
-
-    } else if (eptBulkout->Reset() == false) {
-        return false;
-    }
-    return true;
+bool EmcrUdbDevice::activateTriggerIn(int address, int bit) {
+    txRawTriggerBuffer[3] = (uint32_t)address;
+    txRawTriggerBuffer[4] = ((uint32_t)1) << ((uint32_t)bit);
+    return writeToBulkOut(txRawTriggerBuffer);
 }
 
-void EmcrUdbDevice::initEndpoints() {
-    eptBulkin->TimeOut = UDB_BULKIN_ENDPOINT_TIMEOUT;
-    eptBulkout->TimeOut = UDB_BULKOUT_ENDPOINT_TIMEOUT;
-
-    /*! The total transfer must be a multiple of eptBulkin->MaxPktSize */
-    readDataTransferSize = (readDataTransferSize/eptBulkin->MaxPktSize)*eptBulkin->MaxPktSize;
-
-    eptBulkin->SetXferSize(readDataTransferSize);
-    eptBulkout->SetXferSize(eptBulkout->MaxPktSize);
-}
-
-bool EmcrUdbDevice::bootFpgafromFLASH() {
-    CCyControlEndPoint * ctrept;
-    long ctrlen = 0;
-
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_TO_DEVICE;
-    ctrept->ReqCode		= 0xBF;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    return ctrept->XferData((PUCHAR)nullptr, ctrlen);
-}
-
-unsigned char EmcrUdbDevice::fpgaLoadBitstreamStatus() {
-    CCyControlEndPoint * ctrept;
-    long ctrlen = 1;
-    unsigned char status = 0xFF;
-
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_FROM_DEVICE;
-    ctrept->ReqCode		= 0xB1;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    if (ctrept->XferData((PUCHAR)&status, ctrlen) == false) {
-        status = fpgaLoadingError;
-    }
-    return status;
-}
-
-unsigned char EmcrUdbDevice::getFwStatus() {
-    CCyControlEndPoint * ctrept;
-    long ctrlen = 1;
-    unsigned char status = 0xFF;
-
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_FROM_DEVICE;
-    ctrept->ReqCode		= 0xB4;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    if (ctrept->XferData((PUCHAR)&status, ctrlen) == false) {
-        status = fwStatusError;
-    }
-    return status;
-}
-
-bool EmcrUdbDevice::writeToBulkOut() {
-    long bytesNum = 4*(3+2*txRawBuffer[2]);
+bool EmcrUdbDevice::writeToBulkOut(uint32_t * buffer) {
+    long bytesNum = sizeof(uint32_t)*(3+2*buffer[2]);
     std::unique_lock <std::mutex> deviceMtxLock (deviceMtx);
 
-    if (!(eptBulkout->XferData((PUCHAR)txRawBuffer, bytesNum))) {
+    if (!(eptBulkout->XferData((PUCHAR)buffer, bytesNum))) {
         eptBulkout->Abort();
         return false;
     }
@@ -711,7 +738,7 @@ bool EmcrUdbDevice::writeToBulkOut() {
 //#ifdef DEBUG_PRINT
 //    fprintf(fid, "config sent:");
 //    for (int i = 0; i < bytesNum/bytesNum; i++) {
-//        fprintf(fid, "0x%08x ", *(txRawBuffer+i));
+//        fprintf(fid, "0x%08x ", *(buffer+i));
 //    }
 //    fprintf(fid, "\n");
 //    fflush(fid);

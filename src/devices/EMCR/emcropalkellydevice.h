@@ -17,6 +17,7 @@
 #include "okFrontPanelDLL.h"
 
 #include "emcrdevice.h"
+#include "utils.h"
 
 class EmcrOpalKellyDevice : public EmcrDevice {
 public:
@@ -26,7 +27,7 @@ public:
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
-    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = "");
+    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
     ErrorCodes_t disconnectDevice() override;
 
 protected:
@@ -60,6 +61,7 @@ protected:
      *  Parameters  *
     \****************/
 
+    uint16_t rxSyncWord;
     okCFrontPanel dev;
 
     std::string fwName = "top.bit";

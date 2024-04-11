@@ -915,7 +915,7 @@ ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(std::vector <uint16_t> cha
         this->stopProtocol();
     }
 
-    anyLiquidJuctionActive = true;
+    anyLiquidJunctionActive = true;
     return Success;
 }
 
@@ -2514,14 +2514,14 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
                             lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
 
-                            if (anyLiquidJuctionActive) {
+                            if (anyLiquidJunctionActive) {
                                 liquidJunctionCurrentSums[channelIdx] += (int64_t)data[dataWritten+sampleIdx+voltageChannelsNum];
                             }
 
                             sampleIdx++;
                         }
 
-                        if (anyLiquidJuctionActive) {
+                        if (anyLiquidJunctionActive) {
                             liquidJunctionCurrentEstimatesNum++;
                         }
                         sampleIdx += currentChannelsNum;
@@ -3393,7 +3393,8 @@ ErrorCodes_t EZPatchDevice::setDigitalOffsetCompensationOverrideValue(uint16_t c
     std::vector <uint16_t> txDataMessage(dataLength);
 
     txDataMessage[0] = digitalOffsetCompensationOverrideRegisterOffset+channelIdx*coreSpecificRegistersNum;
-    uint16_t uintValue = (uint16_t)((int16_t)round(-value.value/liquidJunctionResolution/16.0)*16.0); /*! \todo FCON sta schifezza serve a tenere i 4 bit meno significativi a zero */
+    /*! In some devices (EL04e/f based devices) we need to keep some LSBs to 0, because the resolution of the lj is just too small, a few uV */
+    uint16_t uintValue = (uint16_t)((int16_t)round(-value.value/liquidJunctionResolution/liquidJunctionRounding)*liquidJunctionRounding);
     txDataMessage[1] = uintValue;
 
     ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);

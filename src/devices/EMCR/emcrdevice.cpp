@@ -33,6 +33,7 @@ EmcrDevice::~EmcrDevice() {
     for (auto coder : coders) {
         delete coder;
     }
+    coders.clear();
 }
 
 ErrorCodes_t EmcrDevice::enableRxMessageType(MsgTypeId_t messageType, bool flag) {
@@ -64,9 +65,13 @@ ErrorCodes_t EmcrDevice::startProtocol() {
         this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
 
     } else {
+        if (protocolResetFlag == false) {
+            this->stopProtocol();
+        }
         this->stackOutgoingMessage(txStatus); /*! Make sure the registers are submitted */
         protocolResetCoder->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         this->stackOutgoingMessage(txStatus); /*! Then take the protocol out of the reset state */
+        protocolResetFlag = false;
     }
     return Success;
 }
@@ -87,6 +92,7 @@ ErrorCodes_t EmcrDevice::stopProtocol() {
     } else {
         protocolResetCoder->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
         this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
+        protocolResetFlag = true;
         return Success;
     }
 }
@@ -1140,12 +1146,12 @@ ErrorCodes_t EmcrDevice::digitalOffsetCompensation(std::vector <uint16_t> channe
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
 
-        } else if (!onValues[i]) {
+        } else if (!onValues[i] && (liquidJunctionStates[chIdx] != LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
         }
     }
 
-    anyLiquidJuctionActive = true;
+    anyLiquidJunctionActive = true;
 
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1189,6 +1195,7 @@ ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFla
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
+    this->purgeData();
     return Success;
 }
 
@@ -1505,6 +1512,7 @@ ErrorCodes_t EmcrDevice::setStateArrayEnabled(int chIdx, bool enabledFlag) {
 ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     ErrorCodes_t ret = Success;
     double xFlt;
+    rxOutput.dataLen = 0; /*! Initialize data length in case more messages are merged or if an error is returned before this can be set to its proper value */
 
     std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
     if (rxMsgBufferReadLength <= 0) {
@@ -1522,7 +1530,6 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
     uint32_t msgReadCount = 0;
 
-    rxOutput.dataLen = 0; /*! Initialize data length in case more messages are merged */
     lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdInvalid;
 
     uint32_t dataOffset;
@@ -1600,13 +1607,13 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 #else
                                 data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
 #endif
-                                if (anyLiquidJuctionActive) {
+                                if (anyLiquidJunctionActive) {
                                     liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
                                 }
                                 sampleIdx++;
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
-                            if (anyLiquidJuctionActive) {
+                            if (anyLiquidJunctionActive) {
                                 liquidJunctionCurrentEstimatesNum++;
                             }
 
@@ -1620,12 +1627,12 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                             for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
                                 rawFloat = (int16_t)rxDataBuffer[dataOffset];
                                 xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                                if (anyLiquidJuctionActive) {
+                                if (anyLiquidJunctionActive) {
                                     liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)round(xFlt);
                                 }
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
-                            if (anyLiquidJuctionActive) {
+                            if (anyLiquidJunctionActive) {
                                 liquidJunctionCurrentEstimatesNum++;
                             }
                         }
@@ -1663,13 +1670,13 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 #else
                             data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
 #endif
-                            if (anyLiquidJuctionActive) {
+                            if (anyLiquidJunctionActive) {
                                 liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
                             }
                             sampleIdx++;
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
-                        if (anyLiquidJuctionActive) {
+                        if (anyLiquidJunctionActive) {
                             liquidJunctionCurrentEstimatesNum++;
                         }
 
@@ -1692,13 +1699,13 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
                         for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
                             data[dataWritten+sampleIdx] = rxDataBuffer[dataOffset];
-                            if (anyLiquidJuctionActive) {
+                            if (anyLiquidJunctionActive) {
                                 liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
                             }
                             sampleIdx++;
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
-                        if (anyLiquidJuctionActive) {
+                        if (anyLiquidJunctionActive) {
                             liquidJunctionCurrentEstimatesNum++;
                         }
                     }
@@ -2241,7 +2248,7 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
 
     case RxMessageVoltageThenCurrentDataLoad: {
         /*! Data frame with only current */
-        uint32_t packetsNum = rxDataWords/currentChannelsNum;
+        uint32_t packetsNum = rxDataWords/totalChannelsNum;
         uint32_t rxDataBufferWriteIdx = 0;
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
@@ -2253,24 +2260,25 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! Store the voltage values first */
             for (uint32_t idx = 0; idx < voltageChannelsNum-1; idx++) {
-                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)] = this->popUint16FromRxRawBuffer();
-                rxDataBufferWriteIdx = (rxDataBufferWriteIdx+1) & RX_DATA_BUFFER_MASK;
+                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
+                rxDataBufferWriteIdx++;
             }
-            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)] = this->popUint16FromRxRawBuffer();
+            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
             /*! Leave space for the current */
-            rxDataBufferWriteIdx = (rxDataBufferWriteIdx+currentChannelsNum) & RX_DATA_BUFFER_MASK;
+            rxDataBufferWriteIdx += 1+currentChannelsNum;
         }
 
         rxDataBufferWriteIdx = 0;
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! Leave space for the voltage */
-            rxDataBufferWriteIdx = (rxDataBufferWriteIdx+voltageChannelsNum) & RX_DATA_BUFFER_MASK;
+            rxDataBufferWriteIdx = (rxDataBufferWriteIdx+voltageChannelsNum);
             /*! Then store the current values */
             for (uint32_t idx = 0; idx < currentChannelsNum-1; idx++) {
-                rxDataBuffer[rxDataBufferWriteOffset+rxDataBufferWriteIdx] = this->popUint16FromRxRawBuffer();
-                rxDataBufferWriteIdx = (rxDataBufferWriteIdx+1) & RX_DATA_BUFFER_MASK;
+                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
+                rxDataBufferWriteIdx++;
             }
-            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)] = this->popUint16FromRxRawBuffer();
+            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
+            rxDataBufferWriteIdx++;
         }
 
         /* The size of the data returned by the message dispatcher is different from the size of the packet fram returned by the FPGA */
@@ -2341,7 +2349,26 @@ uint16_t EmcrDevice::popUint16FromRxRawBuffer() {
     return value;
 }
 
+uint32_t EmcrDevice::popUint32FromRxRawBuffer() {
+    uint32_t value = (((uint32_t)rxRawBuffer[rxRawBufferReadOffset]) << 24) +
+                     (((uint32_t)rxRawBuffer[rxRawBufferReadOffset+1]) << 16) +
+                     (((uint32_t)rxRawBuffer[rxRawBufferReadOffset+2]) << 8) +
+                       (uint32_t)rxRawBuffer[rxRawBufferReadOffset+3];
+
+    rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_32WORD_SIZE) & rxRawBufferMask;
+    rxRawBytesAvailable -= RX_32WORD_SIZE;
+    return value;
+}
+
 uint16_t EmcrDevice::readUint16FromRxRawBuffer(uint32_t n) {
     uint16_t value = (rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask] << 8) + rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask];
+    return value;
+}
+
+uint32_t EmcrDevice::readUint32FromRxRawBuffer(uint32_t n) {
+    uint32_t value = (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask]) << 24) +
+                     (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask]) << 16) +
+                     (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+2) & rxRawBufferMask]) << 8) +
+                       (uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+3) & rxRawBufferMask];
     return value;
 }

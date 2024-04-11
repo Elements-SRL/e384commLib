@@ -165,13 +165,14 @@ protected:
     void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);
     void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, TxTriggerType_t triggerType = TxTriggerParameteresUpdated);
     uint16_t popUint16FromRxRawBuffer();
+    uint32_t popUint32FromRxRawBuffer();
     uint16_t readUint16FromRxRawBuffer(uint32_t n);
+    uint32_t readUint32FromRxRawBuffer(uint32_t n);
 
     /************\
      *  Fields  *
     \************/
 
-    uint16_t rxSyncWord;
     unsigned int packetsPerFrame = 1;
 
     int motherboardBootTime_s = 1;
@@ -314,6 +315,7 @@ protected:
     BoolArrayCoder * wordDebugCoder = nullptr;
 
     /*! Protocol coders */
+    bool protocolResetFlag = true;
     BoolArrayCoder * protocolResetCoder = nullptr;
     BoolArrayCoder * protocolIdCoder = nullptr;
     BoolArrayCoder * protocolItemsNumberCoder = nullptr;
