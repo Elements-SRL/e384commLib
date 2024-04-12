@@ -109,24 +109,12 @@ protected:
     };
 
     enum SamplingRates {
-#ifdef E384PATCH_ADDITIONAL_SR_FLAG
-        SamplingRate100Hz,
-        SamplingRate200Hz,
-        SamplingRate400Hz,
-        SamplingRate800Hz,
-        SamplingRate1_6kHz,
-#endif
         SamplingRate5kHz,
         SamplingRate10kHz,
         SamplingRate20kHz,
         SamplingRate40kHz,
         SamplingRate80kHz,
         SamplingRatesNum
-    };
-
-    enum CalibResistances{
-        CalibRes5_0MOhm,
-        CalibResNum
     };
 
     enum CompensationAsicParams {

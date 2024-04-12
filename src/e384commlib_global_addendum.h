@@ -899,22 +899,6 @@ typedef struct CompensationControl {
     }
 } CompensationControl_t;
 
-typedef struct CalibrationData {
-    uint16_t samplingRateIdx = 0;
-
-    std::vector<std::vector<Measurement_t>> vcCalibStepsArrays;
-    std::vector<Measurement_t> vcCalibResArray;
-    std::unordered_map<uint16_t, uint16_t> vcCurrRange2CalibResMap;
-    bool areCalibResistOnBoard;
-    bool canInputsBeOpened;
-    bool adcCalibratedInOffsetBinary;
-
-    std::vector <std::vector <Measurement_t>> ccCalibVoltStepsArrays;
-    std::vector <std::vector <Measurement_t>> ccCalibCurrStepsArrays;
-    std::vector <Measurement_t> ccCalibResArray;
-    std::vector <Measurement_t> ccCalibResForCcAdcOffsetArray;
-} CalibrationData_t;
-
 /*! \struct CalibrationParams_t
  * \brief Structure used to return calibration values.
  * \note All fields are vectors of vectors because the first vector indexes ranges, while the second range indexes channels

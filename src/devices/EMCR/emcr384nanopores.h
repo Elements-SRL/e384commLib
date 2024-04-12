@@ -71,12 +71,6 @@ protected:
         LedsNum
     };
 
-    enum CalibResistances{
-        CalibRes120kOhm,
-        CalibRes2_49MOhm,
-        CalibResNum
-    };
-
     BoolArrayCoder * minus24VCoder = nullptr;
     BoolArrayCoder * plus24VCoder = nullptr;
     

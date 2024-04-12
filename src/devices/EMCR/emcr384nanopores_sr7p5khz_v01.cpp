@@ -70,8 +70,6 @@ Emcr384NanoPores_SR7p5kHz_V01::Emcr384NanoPores_SR7p5kHz_V01(std::string di):
     // mapping ADC Current Clamp
     // undefined
 
-    calibrationData.samplingRateIdx = SamplingRate7_5kHz;
-
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
     selectedSamplingRateIdx = defaultSamplingRateIdx;

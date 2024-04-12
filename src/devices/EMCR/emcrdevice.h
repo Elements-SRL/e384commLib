@@ -126,13 +126,11 @@ public:
     ErrorCodes_t hasStimulusHalf() override;
     ErrorCodes_t isStateArrayAvailable() override;
 
-    ErrorCodes_t getCalibData(CalibrationData_t &calibData) override;
     ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams) override;
     ErrorCodes_t getCalibFileNames(std::vector<std::string> &calibFileNames) override;
     ErrorCodes_t getCalibFilesFlags(std::vector<std::vector <bool>> &calibFilesFlags) override;
     ErrorCodes_t getCalibMappingFileDir(std::string &dir) override;
     ErrorCodes_t getCalibMappingFilePath(std::string &path) override;
-
 
 protected:
 
@@ -219,7 +217,6 @@ protected:
 
     std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
 
-    CalibrationData_t calibrationData;
     // Calibration DAC coders and ranges
     RangedMeasurement_t calibCcCurrentGainRange;
     std::vector <RangedMeasurement_t> calibCcCurrentOffsetRanges;

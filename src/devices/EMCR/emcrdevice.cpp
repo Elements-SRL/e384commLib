@@ -1957,14 +1957,6 @@ ErrorCodes_t EmcrDevice::isStateArrayAvailable() {
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::getCalibData(CalibrationData_t &calibData){
-    if (calibrationData.vcCalibResArray.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
-    calibData = calibrationData;
-    return Success;
-}
-
 ErrorCodes_t EmcrDevice::getCalibParams(CalibrationParams_t &calibParams) {
     if (!calibrationParams.vcGainAdc.empty()) {
         calibParams.vcGainAdc = calibrationParams.vcGainAdc;

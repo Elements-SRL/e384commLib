@@ -1077,10 +1077,6 @@ ErrorCodes_t MessageDispatcher::hasStimulusHalf() {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibData(CalibrationData_t &){
-    return ErrorFeatureNotImplemented;
-}
-
 ErrorCodes_t MessageDispatcher::getCalibParams(CalibrationParams_t &) {
     return ErrorFeatureNotImplemented;
 }

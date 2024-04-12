@@ -1071,8 +1071,6 @@ public:
     ErrorCodes_t hasProtocolSinFeature();
     virtual ErrorCodes_t isStateArrayAvailable();
 
-    virtual ErrorCodes_t getCalibData(CalibrationData_t &calibData);
-
     /*! \brief Get a structure containing the calibration parameters.
      *
      * \param calibParams [out] calibration parameters.
