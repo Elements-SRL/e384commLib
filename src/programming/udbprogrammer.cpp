@@ -36,8 +36,8 @@ void UdbProgrammer::connect(int idx, bool flag) {
 }
 
 void UdbProgrammer::getDeviceInfo(InfoStruct_t &info) {
-    char * buffer;
-    buffer = new char[UDB_INFO_ACTUAL_SIZE];
+    char * buffer = nullptr;
+    buffer = new char[UDB_INFO_SIZE];
     readFlashBlock(UdbUtils::BlockInfo, buffer);
 
     info.deviceVersion = buffer[0];

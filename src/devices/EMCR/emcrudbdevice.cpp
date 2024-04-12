@@ -186,7 +186,7 @@ ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
         }
 
         file.seekg(0, std::ios::end);
-        unsigned int fileSize = file.tellg();
+        unsigned int fileSize = (unsigned int)file.tellg();
         file.seekg(0, std::ios::beg);
 
         char * buffer = new char[fileSize];
@@ -211,7 +211,7 @@ ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
     }
 
     file.seekg(0, std::ios::end);
-    unsigned int fileSize = file.tellg();
+    unsigned int fileSize = (unsigned int)file.tellg();
     file.seekg(0, std::ios::beg);
 
     char * buffer = new char[fileSize+4];
@@ -233,6 +233,7 @@ ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
 
     delete [] buffer;
 
+    /*! disconnect */
     programmer.connect(idx, false);
     return Success;
 }
