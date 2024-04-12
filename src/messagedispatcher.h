@@ -1459,7 +1459,12 @@ protected:
     std::vector <double> defaultUserDomainParams;
 
     std::vector <double> membraneCapValueInjCapacitance;
-    std::vector <std::vector<std::string>> compensationOptionStrings;
+    std::vector <std::vector <std::string>> compensationOptionStrings;
+
+    std::vector <std::vector <double>> compValueMatrix;
+    std::vector <bool> compensationsEnableFlags[CompensationTypesNum];
+    bool vcCompensationsActivated = false;
+    bool ccCompensationsActivated = false;
 
     bool anyLiquidJunctionActive = false;
 
@@ -1477,18 +1482,6 @@ protected:
     std::vector <uint16_t> liquidJunctionPositiveSaturationCount;
     std::vector <uint16_t> liquidJunctionNegativeSaturationCount;
     std::vector <uint16_t> liquidJunctionOpenCircuitCount;
-
-    std::vector<std::vector<double>> compValueMatrix;
-    std::vector<bool> compCfastEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<bool> compCslowEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<bool> compRsCompEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<bool> compRsCorrEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<bool> compRsPredEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<bool> compLeakEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<bool> compCcCfastEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    std::vector<bool> compCcBridgeEnable; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
-    bool vcCompensationsActivated = false;
-    bool ccCompensationsActivated = false;
 
     std::string deviceId;
     std::string deviceName;

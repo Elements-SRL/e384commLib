@@ -520,16 +520,16 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
     selectedRsCorrBws.resize(currentChannelsNum);
 
     /*! Compensation type enables, one element per channel*/
-    compCfastEnable.resize(currentChannelsNum);
-    compCslowEnable.resize(currentChannelsNum);
-    compRsCorrEnable.resize(currentChannelsNum);
-    compRsPredEnable.resize(currentChannelsNum);
-    compCcCfastEnable.resize(currentChannelsNum);
-    fill(compCfastEnable.begin(), compCfastEnable.end(), false);
-    fill(compCslowEnable.begin(), compCslowEnable.end(), false);
-    fill(compRsCorrEnable.begin(), compRsCorrEnable.end(), false);
-    fill(compRsPredEnable.begin(), compRsPredEnable.end(), false);
-    fill(compCcCfastEnable.begin(), compCcCfastEnable.end(), false);
+    compensationsEnableFlags[CompCfast].resize(currentChannelsNum);
+    compensationsEnableFlags[CompCslow].resize(currentChannelsNum);
+    compensationsEnableFlags[CompRsCorr].resize(currentChannelsNum);
+    compensationsEnableFlags[CompRsPred].resize(currentChannelsNum);
+    compensationsEnableFlags[CompCcCfast].resize(currentChannelsNum);
+    fill(compensationsEnableFlags[CompCfast].begin(), compensationsEnableFlags[CompCfast].end(), false);
+    fill(compensationsEnableFlags[CompCslow].begin(), compensationsEnableFlags[CompCslow].end(), false);
+    fill(compensationsEnableFlags[CompRsCorr].begin(), compensationsEnableFlags[CompRsCorr].end(), false);
+    fill(compensationsEnableFlags[CompRsPred].begin(), compensationsEnableFlags[CompRsPred].end(), false);
+    fill(compensationsEnableFlags[CompCcCfast].begin(), compensationsEnableFlags[CompCcCfast].end(), false);
 
     /*! FEATURES ASIC DOMAIN Pipette capacitance */
     const double pipetteVarResistance = 100.0e-3;
@@ -1793,7 +1793,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = compCfastEnable[channelIndexes[i]];
+            onValues[i] = compensationsEnableFlags[compTypeToEnable][channelIndexes[i]];
         }
         break;
 
@@ -1802,7 +1802,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = compCslowEnable[channelIndexes[i]];
+            onValues[i] = compensationsEnableFlags[compTypeToEnable][channelIndexes[i]];
         }
         break;
 
@@ -1811,7 +1811,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = compRsCorrEnable[channelIndexes[i]];
+            onValues[i] = compensationsEnableFlags[compTypeToEnable][channelIndexes[i]];
         }
         break;
 
@@ -1820,7 +1820,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = compRsPredEnable[channelIndexes[i]] = onValues[i];
+            onValues[i] = compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
         }
         break;
 
@@ -1829,7 +1829,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = compCcCfastEnable[channelIndexes[i]];
+            onValues[i] = compensationsEnableFlags[compTypeToEnable][channelIndexes[i]];
         }
         break;
 
@@ -1855,7 +1855,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::enableCompensation(std::vector<u
         debugString += "enable cfast: ";
 #endif
         for(int i = 0; i<channelIndexes.size(); i++){
-            compCfastEnable[channelIndexes[i]] = onValues[i];
+            compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
             pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1874,7 +1874,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::enableCompensation(std::vector<u
         debugString += "enable cslow: ";
 #endif
         for(int i = 0; i<channelIndexes.size(); i++){
-            compCslowEnable[channelIndexes[i]] = onValues[i];
+            compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
             membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingCslowRs(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1893,7 +1893,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::enableCompensation(std::vector<u
         debugString += "enable rscorr: ";
 #endif
         for(int i = 0; i<channelIndexes.size(); i++){
-            compRsCorrEnable[channelIndexes[i]] = onValues[i];
+            compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
             rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingRsCp(onValues[i]);
             this->updateLiquidJunctionVoltage(channelIndexes[i], false);
@@ -1913,7 +1913,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::enableCompensation(std::vector<u
         debugString += "enable rspred: ";
 #endif
         for(int i = 0; i<channelIndexes.size(); i++){
-            compRsPredEnable[channelIndexes[i]] = onValues[i];
+            compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
             rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingRsPg(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1932,7 +1932,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::enableCompensation(std::vector<u
         debugString += "enable cccfast: ";
 #endif
         for(int i = 0; i<channelIndexes.size(); i++){
-            compCcCfastEnable[channelIndexes[i]] = onValues[i];/*! \todo MPAC, forse mettere anche questi in and a areCcCompsEnabled*/
+            compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];/*! \todo MPAC, forse mettere anche questi in and a areCcCompsEnabled*/
             pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingCcCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1963,10 +1963,10 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::enableVcCompensations(bool enabl
     vcCompensationsActivated = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
-        pipetteCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        membraneCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compCslowEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsCorrEnCompensationCoders[i]->encode(vcCompensationsActivated && compRsCorrEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsPredEnCompensationCoders[i]->encode(vcCompensationsActivated && compRsPredEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCfast][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        membraneCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCslow][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        rsCorrEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsCorr][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        rsPredEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsPred][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
         this->updateLiquidJunctionVoltage(i, false);
     }
 
@@ -1985,7 +1985,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::enableCcCompensations(bool enabl
     ccCompensationsActivated = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
-        pipetteCapCcEnCompensationCoders[i]->encode(ccCompensationsActivated && compCcCfastEnable[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapCcEnCompensationCoders[i]->encode(ccCompensationsActivated && compensationsEnableFlags[CompCcCfast][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
     if (applyFlag) {
@@ -2252,7 +2252,7 @@ std::vector<double> Emcr384PatchClamp_prot_v04_fw_v04::user2AsicDomainTransform(
 
     MultiCoder::MultiCoderConfig_t aaa;
     membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
-    asicCmCinj = computeAsicCmCinj(userDomainParams[U_Cm], compCslowEnable[chIdx], aaa);
+    asicCmCinj = computeAsicCmCinj(userDomainParams[U_Cm], compensationsEnableFlags[CompCslow][chIdx], aaa);
 
     if (selectedClampingModality == VOLTAGE_CLAMP){
         cp = userDomainParams[U_CpVc] + asicCmCinj;
@@ -2298,7 +2298,7 @@ std::vector<double> Emcr384PatchClamp_prot_v04_fw_v04::asic2UserDomainTransform(
 
     MultiCoder::MultiCoderConfig_t aaa;
     membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
-    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compCslowEnable[chIdx], aaa);
+    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compensationsEnableFlags[CompCslow][chIdx], aaa);
 
     //  pipette capacitance to pipette capacitance VC domain conversion
     if (selectedClampingModality == VOLTAGE_CLAMP){
@@ -2345,7 +2345,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::asic2UserDomainCompensable(int c
     double asicCmCinj;
     MultiCoder::MultiCoderConfig_t aaa;
     membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
-    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compCslowEnable[chIdx], aaa);
+    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compensationsEnableFlags[CompCslow][chIdx], aaa);
 
     /*! Compensable for U_CpVc*/
     compensationControls[U_CpVc][chIdx].maxCompensable = pipetteCapacitanceRange.back().max - asicCmCinj;
@@ -2364,7 +2364,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::asic2UserDomainCompensable(int c
 
     potentialMaxs.push_back(membraneCapTauValueRange.back().max/userDomainParams[U_Rs]);
 
-    if(compCfastEnable[chIdx]){
+    if(compensationsEnableFlags[CompCfast][chIdx]){
         double zzz1;
         double zzz2;
         for (int i = 0; i < membraneCapValueInjCapacitance.size(); i++){
@@ -2378,7 +2378,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::asic2UserDomainCompensable(int c
         potentialMaxs.push_back(myInfinity);
     }
 
-    if(compRsPredEnable[chIdx]){
+    if(compensationsEnableFlags[CompRsPred][chIdx]){
         potentialMaxs.push_back(rsPredTauRange.max*(userDomainParams[U_RsPg]+1)/userDomainParams[U_Rs]);
     } else {
         potentialMaxs.push_back(myInfinity);
@@ -2392,7 +2392,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::asic2UserDomainCompensable(int c
 
     potentialMins.push_back(membraneCapTauValueRange.front().min/userDomainParams[U_Rs]);
 
-    if(compRsPredEnable[chIdx]){
+    if(compensationsEnableFlags[CompRsPred][chIdx]){
         potentialMins.push_back(rsPredTauRange.min*(userDomainParams[U_RsPg]+1)/userDomainParams[U_Rs]);
     } else {
         potentialMins.push_back(0.0);
@@ -2406,19 +2406,19 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::asic2UserDomainCompensable(int c
 
     /*! Compensable for U_Rs*/
     //max
-    if(compCslowEnable[chIdx]){
+    if(compensationsEnableFlags[CompCslow][chIdx]){
         potentialMaxs.push_back(membraneCapTauValueRange.back().max/userDomainParams[U_Cm]);
     } else {
         potentialMaxs.push_back(membraneCapTauValueRange.back().max/compensationControls[U_Cm][chIdx].minCompensable);
     }
 
-    if(compRsCorrEnable[chIdx]){
+    if(compensationsEnableFlags[CompRsCorr][chIdx]){
         potentialMaxs.push_back(rsCorrValueRange.max / userDomainParams[U_RsCp] * 100.0);
     } else {
         potentialMaxs.push_back(myInfinity);
     }
 
-    if(compRsPredEnable[chIdx]){
+    if(compensationsEnableFlags[CompRsPred][chIdx]){
         potentialMaxs.push_back(rsPredTauRange.max * (userDomainParams[U_RsPg]+1) / userDomainParams[U_Cm]);
     } else {
         potentialMaxs.push_back(myInfinity);
@@ -2428,19 +2428,19 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::asic2UserDomainCompensable(int c
     potentialMaxs.clear();
 
     //min
-    if(compCslowEnable[chIdx]){
+    if(compensationsEnableFlags[CompCslow][chIdx]){
         potentialMins.push_back(membraneCapTauValueRange.front().min / userDomainParams[U_Cm]);
     } else {
         potentialMins.push_back(membraneCapTauValueRange.front().min / compensationControls[U_Cm][chIdx].maxCompensable);
     }
 
-    if(compRsCorrEnable[chIdx]){
+    if(compensationsEnableFlags[CompRsCorr][chIdx]){
         potentialMins.push_back(rsCorrValueRange.min / userDomainParams[U_RsCp] * 100.0);
     } else {
         potentialMins.push_back(0);
     }
 
-    if(compRsPredEnable[chIdx]){
+    if(compensationsEnableFlags[CompRsPred][chIdx]){
         potentialMins.push_back(rsPredTauRange.min * (userDomainParams[U_RsPg]+1) / userDomainParams[U_Cm]);
     } else {
         potentialMins.push_back(0);
