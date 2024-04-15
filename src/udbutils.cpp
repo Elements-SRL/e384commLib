@@ -1,5 +1,10 @@
 #include "udbutils.h"
 
+#include <iostream>
+
+#include "thread"
+#include "chrono"
+
 UdbUtils::UdbUtils() {
 
 }
@@ -70,10 +75,12 @@ void UdbUtils::findBulkEndpoints(CCyUSBDevice * dev, CCyUSBEndPoint * &eptBulkin
 
 bool UdbUtils::resetBulkEndpoints(CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout) {
     if (eptBulkin->Reset() == false) {
+        std::cout << "erase bepin failed" << std::endl;
         return false;
     }
 
     if (eptBulkout->Reset() == false) {
+        std::cout << "erase bepout failed" << std::endl;
         return false;
     }
     return true;
@@ -128,20 +135,24 @@ unsigned char UdbUtils::getFlashStatus(CCyUSBDevice * dev) {
     return status;
 }
 
-void UdbUtils::switchToConfigMode(CCyUSBDevice * dev) {
-    CCyControlEndPoint * ctrept;
-    LONG ctrlen = 0;
+void UdbUtils::switchToConfigMode(CCyUSBDevice * dev,CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout) {
+    if (UdbUtils::getFwStatus(dev) != UdbUtils::fwStatusConfigMode) {
+        CCyControlEndPoint * ctrept;
+        LONG ctrlen = 0;
 
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_TO_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_SET_CONFIGMODE;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
+        ctrept = dev->ControlEndPt;
+        ctrept->Target		= TGT_DEVICE;
+        ctrept->ReqType		= REQ_VENDOR;
+        ctrept->Direction	= DIR_TO_DEVICE;
+        ctrept->ReqCode		= CYP_CMD_SET_CONFIGMODE;
+        ctrept->Value		= 0;
+        ctrept->Index		= 0;
 
-    if (ctrept->XferData((PUCHAR)nullptr, ctrlen) == false) {
-        /*! \todo FCON manage error */
+        if (ctrept->XferData((PUCHAR)nullptr, ctrlen) == false) {
+            std::cout << "switch to config mode failed" << std::endl;
+        }
+
+        UdbUtils::resetBulkEndpoints(eptBulkin, eptBulkout);
     }
 }
 
@@ -158,7 +169,7 @@ void UdbUtils::disableFlashHybridSectors(CCyUSBDevice * dev) {
     ctrept->Index		= 0;
 
     if (ctrept->XferData((PUCHAR)nullptr, ctrlen) == false) {
-        /*! \todo FCON manage error */
+        std::cout << "disable hybrid sectors failed" << std::endl;
     }
 }
 
@@ -209,7 +220,7 @@ void UdbUtils::enableFlashWrite(CCyUSBDevice * dev) {
     ctrept->Index		= 0;
 
     if (ctrept->XferData((PUCHAR)nullptr, ctrlen) == false) {
-        /*! \todo FCON manage error */
+        std::cout << "enable flash write failed" << std::endl;
     }
 }
 
@@ -228,8 +239,9 @@ void UdbUtils::eraseFlashSector(CCyUSBDevice * dev, unsigned int address) {
     ctrept->Value		= 0;
     ctrept->Index		= 0;
 
-    if (ctrept->XferData((PUCHAR)&payload, ctrlen) == false) {
-        /*! \todo FCON manage error */
+    int tries = 0;
+    while (ctrept->XferData((PUCHAR)&payload, ctrlen) == false && ++tries >= 3) {
+        std::cout << "erase flash failed " << tries << std::endl;
     }
 }
 
@@ -249,19 +261,24 @@ void UdbUtils::writeFlash(CCyUSBDevice * dev, unsigned int address, unsigned int
     ctrept->Value		= 0;
     ctrept->Index		= 0;
 
-    if (ctrept->XferData((PUCHAR)payload, ctrlen) == false) {
-        /*! \todo FCON manage error */
+    int tries = 0;
+    while (ctrept->XferData((PUCHAR)payload, ctrlen) == false && ++tries >= 3) {
+        std::cout << "write flash failed " << tries << std::endl;
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
-void UdbUtils::readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int length) {
+void UdbUtils::readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int &length) {
     CCyControlEndPoint * ctrept;
     LONG ctrlen = 2 * sizeof(unsigned int);
     unsigned int payload[2];
 
     unsigned int readSize = 1024;
 
+    std::cout << "read flash length " << length;
     length = ((length+readSize-1)/readSize)*readSize; /*!< upper readSize multiple */
+    std::cout << " -> " << length << std::endl;
 
     payload[0] = address;
     payload[1] = length;
@@ -274,7 +291,52 @@ void UdbUtils::readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int 
     ctrept->Value		= 0;
     ctrept->Index		= 0;
 
-    if (ctrept->XferData((PUCHAR)payload, ctrlen) == false) {
-        /*! \todo FCON manage error */
+    int tries = 0;
+    if (ctrept->XferData((PUCHAR)payload, ctrlen) == false && ++ tries >= 3) {
+        std::cout << "read flash failed " << tries << std::endl;
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+}
+
+long UdbUtils::getRequiredLength(FlashBlock_t block) {
+    switch (block) {
+    case UdbUtils::BlockFX3:
+        return UDB_FX3_SIZE;
+
+    case UdbUtils::BlockInfo:
+        return UDB_INFO_SIZE;
+
+    case UdbUtils::BlockFPGA:
+        return UDB_FPGA_SIZE;
+    }
+    return -1;
+}
+
+long UdbUtils::getStartAddress(FlashBlock_t block) {
+    switch (block) {
+    case UdbUtils::BlockFX3:
+        return UDB_FX3_ADDRESS;
+
+    case UdbUtils::BlockInfo:
+        return UDB_INFO_ADDRESS;
+
+    case UdbUtils::BlockFPGA:
+        return UDB_FPGA_ADDRESS;
+    }
+    return -1;
+}
+
+long UdbUtils::getAddressOffset(FlashBlock_t block) {
+    switch (block) {
+    case UdbUtils::BlockFX3:
+        return 0;
+
+    case UdbUtils::BlockInfo:
+        return 0;
+
+    case UdbUtils::BlockFPGA:
+        return UDB_INFO_ACTUAL_SIZE;
+    }
+    return -1;
 }

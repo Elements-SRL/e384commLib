@@ -63,10 +63,28 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     return ret;
 }
 
-/*! \todo FCON questo deve sparire come metodo pubblico, ora è solo usato dal calibratore */
-ErrorCodes_t MessageDispatcher::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
-    return EmcrOpalKellyDevice::getDeviceType(deviceId, type);
-}
+//ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+//    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+//        deviceVersion = -1;
+//        deviceSubVersion = -1;
+//        fwVersion = -1;
+//        return Success;
+//    }
+
+//    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+//        EmcrUdbDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+//        return Success;
+//    }
+
+//    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+////        EZPatchFtdiDevice::getDeviceInfo(deviceId, deviceName, deviceVersion, deviceSubVersion, fwVersion);
+//        deviceVersion = -1;
+//        deviceSubVersion = -1;
+//        fwVersion = -1;
+//        return Success;
+//    }
+//    return ErrorDeviceTypeNotRecognized;
+//}
 
 ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     messageDispatcher = nullptr;

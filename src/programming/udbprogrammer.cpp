@@ -3,6 +3,10 @@
 #include <chrono>
 #include <thread>
 
+#include <iostream>
+
+static int fileIdx = 0;
+
 UdbProgrammer::UdbProgrammer() {
 
 }
@@ -52,29 +56,24 @@ void UdbProgrammer::getDeviceInfo(InfoStruct_t &info) {
 }
 
 void UdbProgrammer::programFlashBlock(UdbUtils::FlashBlock_t block, char * buffer, unsigned int length) {
-    char * totalBuffer;
-    unsigned int totalLength;
-    unsigned int offset;
+    unsigned int totalLength = UdbUtils::getRequiredLength(block);
+    char * totalBuffer = new char[totalLength];
+    unsigned int offset = UdbUtils::getAddressOffset(block);
+
+    long readBackLength = UdbUtils::getRequiredLength(UdbUtils::BlockFX3);
 
     switch (block) {
     case UdbUtils::BlockFX3:
-        offset = 0;
-        totalLength = length;
-        totalBuffer = new char[totalLength];
         break;
 
     case UdbUtils::BlockInfo:
-        offset = 0;
-        totalLength = UDB_INFO_SIZE;
-        totalBuffer = new char[totalLength];
         this->readFlashBlock(UdbUtils::BlockInfo, totalBuffer);
+        readBackLength += UdbUtils::getRequiredLength(UdbUtils::BlockInfo);
         break;
 
     case UdbUtils::BlockFPGA:
-        offset = UDB_INFO_ACTUAL_SIZE;
-        totalLength = offset+length;
-        totalBuffer = new char[totalLength];
         this->readFlashBlock(UdbUtils::BlockInfo, totalBuffer);
+        readBackLength += UdbUtils::getRequiredLength(UdbUtils::BlockFPGA);
         break;
     }
 
@@ -82,39 +81,58 @@ void UdbProgrammer::programFlashBlock(UdbUtils::FlashBlock_t block, char * buffe
         totalBuffer[offset+idx] = buffer[idx];
     }
 
+    FILE * fid = fopen(("file" + std::to_string(fileIdx++) + ".dat").c_str(), "wb");
+    fwrite(totalBuffer, 1, totalLength, fid);
+    fflush(fid);
+    fclose(fid);
+
+    char * readBackBuffer = new char[readBackLength];
+    this->readFlashBlock(UdbUtils::BlockFX3, readBackBuffer);
+    this->readFlashBlock(block, readBackBuffer+UDB_FX3_SIZE);
+    fid = fopen(("file" + std::to_string(fileIdx++) + ".dat").c_str(), "wb");
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    fwrite(readBackBuffer, 1, readBackLength, fid);
+    fflush(fid);
+    fclose(fid);
+
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     this->eraseFlashBlock(block);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
+    this->readFlashBlock(UdbUtils::BlockFX3, readBackBuffer);
+    this->readFlashBlock(block, readBackBuffer+UDB_FX3_SIZE);
+    fid = fopen(("file" + std::to_string(fileIdx++) + ".dat").c_str(), "wb");
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    fwrite(readBackBuffer, 1, readBackLength, fid);
+    fflush(fid);
+    fclose(fid);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
     this->writeFlashBlock(block, totalBuffer, totalLength);
 
     delete [] totalBuffer;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    this->readFlashBlock(UdbUtils::BlockFX3, readBackBuffer);
+    this->readFlashBlock(block, readBackBuffer+UDB_FX3_SIZE);
+    fid = fopen(("file" + std::to_string(fileIdx++) + ".dat").c_str(), "wb");
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    fwrite(readBackBuffer, 1, readBackLength, fid);
+    fflush(fid);
+    fclose(fid);
+
+    delete [] readBackBuffer;
 }
 
 bool UdbProgrammer::verifyFlashBlock(UdbUtils::FlashBlock_t block, char * buffer, unsigned int length) {
     char * readBuffer;
-    unsigned int offset;
-    unsigned int size;
+    unsigned int offset = UdbUtils::getAddressOffset(block);
+    unsigned int size = UdbUtils::getRequiredLength(block);
     bool ok = true;
-
-    switch (block) {
-    case UdbUtils::BlockFX3:
-        offset = 0;
-        size = UDB_FX3_SIZE;
-        break;
-
-    case UdbUtils::BlockInfo:
-        offset = 0;
-        size = UDB_INFO_SIZE;
-        break;
-
-    case UdbUtils::BlockFPGA:
-        offset = UDB_INFO_ACTUAL_SIZE;
-        size = UDB_FPGA_SIZE;
-        break;
-    }
 
     readBuffer = new char[size];
     readFlashBlock(block, readBuffer);
@@ -136,8 +154,9 @@ int32_t UdbProgrammer::getProgress() {
 long UdbProgrammer::writeData(unsigned char * buffer, unsigned long length) {
     long wlen = length;
     if (eptBulkout->XferData((PUCHAR)buffer, wlen) == false) {
-        /*! \todo FCON manage error */
         eptBulkout->Abort();
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::cout << "write data error" << std::endl;
     }
 
     return wlen;
@@ -146,147 +165,89 @@ long UdbProgrammer::writeData(unsigned char * buffer, unsigned long length) {
 long UdbProgrammer::readData(unsigned char * buffer, unsigned long length) {
     long rlen = length;
     if (eptBulkin->XferData((PUCHAR)buffer, rlen, nullptr, true) == false) {
-        /*! \todo FCON manage error */
         eptBulkin->Abort();
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::cout << "read data error " << std::endl;
+        return 0;
     }
+    std::cout << rlen << " " << length << std::endl;
 
     return rlen;
 }
 
 void UdbProgrammer::readFlashBlock(UdbUtils::FlashBlock_t block, char * buffer) {
-    unsigned int startAddress = 0;
-    unsigned int length = 0;
+    unsigned int startAddress = UdbUtils::getStartAddress(block);
+    unsigned int length = UdbUtils::getRequiredLength(block);
 
-    switch (block) {
-    case UdbUtils::BlockFX3:
-        startAddress = UDB_FX3_ADDRESS;
-        length = UDB_FX3_SIZE;
-        break;
+    UdbUtils::switchToConfigMode(dev, eptBulkin, eptBulkout);
 
-    case UdbUtils::BlockInfo:
-        startAddress = UDB_INFO_ADDRESS;
-        length = UDB_INFO_SIZE;
-        break;
+    long rlen = 0;
+    while (rlen < length) {
+        UdbUtils::readFlash(dev, startAddress, length);
 
-    case UdbUtils::BlockFPGA:
-        startAddress = UDB_FPGA_ADDRESS;
-        length = UDB_FPGA_SIZE;
-        break;
+        rlen = this->readData((unsigned char *)buffer, length);
     }
-
-    if (UdbUtils::getFwStatus(dev) != UdbUtils::fwStatusConfigMode) {
-        UdbUtils::switchToConfigMode(dev);
-        UdbUtils::resetBulkEndpoints(eptBulkin, eptBulkout);
-    }
-
-    UdbUtils::disableFlashHybridSectors(dev);
-
-    UdbUtils::readFlash(dev, startAddress, length);
-
-    this->readData((unsigned char *)buffer, length);
 }
 
 void UdbProgrammer::eraseFlashBlock(UdbUtils::FlashBlock_t block) {
-    unsigned char flashStatus;
+    unsigned int startAddress = UdbUtils::getStartAddress(block);
+    unsigned int length = UdbUtils::getRequiredLength(block);
 
-    unsigned int startAddress = 0;
-    unsigned int endAddress = 0;
-    unsigned int length = 0;
-
-    switch (block) {
-    case UdbUtils::BlockFX3:
-        startAddress = UDB_FX3_ADDRESS;
-        length = UDB_FX3_SIZE;
-        endAddress = startAddress+length;
-        break;
-
-    case UdbUtils::BlockInfo:
-        startAddress = UDB_INFO_ADDRESS;
-        length = UDB_INFO_SIZE;
-        endAddress = startAddress+length;
-        break;
-
-    case UdbUtils::BlockFPGA:
-        startAddress = UDB_FPGA_ADDRESS;
-        length = UDB_FPGA_SIZE;
-        endAddress = startAddress+length;
-        break;
-    }
-
-    if (UdbUtils::getFwStatus(dev) != UdbUtils::fwStatusConfigMode) {
-        UdbUtils::switchToConfigMode(dev);
-        UdbUtils::resetBulkEndpoints(eptBulkin, eptBulkout);
-    }
+    UdbUtils::switchToConfigMode(dev, eptBulkin, eptBulkout);
 
     UdbUtils::disableFlashHybridSectors(dev);
 
     progress = 0;
 
     for (unsigned int idx = 0; idx < length; idx += UDB_SECTOR_SIZE) {
-        flashStatus = UdbUtils::getFlashStatus(dev);
-        if ((flashStatus & UDB_FLASH_STATUS_WRITE_ENABLE_MASK) == 0) {
+        while ((UdbUtils::getFlashStatus(dev) & UDB_FLASH_STATUS_WRITE_ENABLE_MASK) == 0) {
             UdbUtils::enableFlashWrite(dev);
-            flashStatus = UdbUtils::getFlashStatus(dev);
-            if ((flashStatus & UDB_FLASH_STATUS_WRITE_ENABLE_MASK) == 0) {
-                //  logStream << "\n\terror" << endl;
-            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            std::cout << "enable flash write retry" << std::endl;
         }
+
         UdbUtils::eraseFlashSector(dev, startAddress+idx);
 
         progress = (int32_t)((50*(idx+UDB_SECTOR_SIZE))/length);
         progress = (progress > 50 ? 50 : progress);
 
-        do {
+        while ((UdbUtils::getFlashStatus(dev) & UDB_FLASH_STATUS_WRITING_MASK) != 0) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            flashStatus = UdbUtils::getFlashStatus(dev);
-        } while ((flashStatus & UDB_FLASH_STATUS_WRITING_MASK) != 0);
+        }
     }
 }
 
 void UdbProgrammer::writeFlashBlock(UdbUtils::FlashBlock_t block, char * buffer, unsigned int length) {
-    unsigned int startAddress = 0;
+    unsigned int startAddress = UdbUtils::getStartAddress(block);
     unsigned int writeSize = 1024;
     int flashWriteLen;
 
-    switch (block) {
-    case UdbUtils::BlockFX3:
-        startAddress = UDB_FX3_ADDRESS;
-        break;
-
-    case UdbUtils::BlockInfo:
-        startAddress = UDB_INFO_ADDRESS;
-        break;
-
-    case UdbUtils::BlockFPGA:
-        startAddress = UDB_FPGA_ADDRESS;
-        break;
-    }
-
-    if (UdbUtils::getFwStatus(dev) != UdbUtils::fwStatusConfigMode) {
-        UdbUtils::switchToConfigMode(dev);
-        UdbUtils::resetBulkEndpoints(eptBulkin, eptBulkout);
-    }
+    UdbUtils::switchToConfigMode(dev, eptBulkin, eptBulkout);
 
     UdbUtils::writeFlash(dev, startAddress, length);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     progress = 0;
 
     for (unsigned int idx = 0; idx < length;) {
-        if (length-idx >= writeSize) {
-            flashWriteLen = writeData(((unsigned char *)buffer)+idx, writeSize);
-
-        } else {
-            flashWriteLen = writeData(((unsigned char *)buffer)+idx, length-idx);
+        while ((UdbUtils::getFlashStatus(dev) & UDB_FLASH_STATUS_WRITE_ENABLE_MASK) == 0) {
+            UdbUtils::enableFlashWrite(dev);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            std::cout << "enable flash write retry" << std::endl;
         }
 
+        flashWriteLen = writeData(((unsigned char *)buffer)+idx, length-idx >= writeSize ? writeSize : length-idx);
+
         if (flashWriteLen == -1) {
+            std::cout << "write data failed" << std::endl;
             return;
         }
         idx += flashWriteLen;
 
         progress = 50+(int32_t)((50*(idx+UDB_SECTOR_SIZE))/length);
         progress = (progress > 100 ? 100 : progress);
+
+        while ((UdbUtils::getFlashStatus(dev) & UDB_FLASH_STATUS_WRITING_MASK) != 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
     }
 }

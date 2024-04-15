@@ -71,7 +71,7 @@ public:
 
     static unsigned char getFwStatus(CCyUSBDevice * dev);
     static unsigned char getFlashStatus(CCyUSBDevice * dev);
-    static void switchToConfigMode(CCyUSBDevice * dev);
+    static void switchToConfigMode(CCyUSBDevice * dev, CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout);
     static void disableFlashHybridSectors(CCyUSBDevice * dev);
     static bool bootFpgafromFLASH(CCyUSBDevice * dev);
     static unsigned char fpgaLoadBitstreamStatus(CCyUSBDevice * dev);
@@ -79,7 +79,11 @@ public:
     static void enableFlashWrite(CCyUSBDevice * dev);
     static void eraseFlashSector(CCyUSBDevice * dev, unsigned int idx);
     static void writeFlash(CCyUSBDevice * dev, unsigned int address, unsigned int length);
-    static void readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int length);
+    static void readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int &length);
+
+    static long getRequiredLength(FlashBlock_t block);
+    static long getStartAddress(FlashBlock_t block);
+    static long getAddressOffset(FlashBlock_t block);
 };
 
 #endif // UDBUTILS_H
