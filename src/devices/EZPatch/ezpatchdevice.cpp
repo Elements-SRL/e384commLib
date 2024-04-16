@@ -1383,12 +1383,12 @@ ErrorCodes_t EZPatchDevice::enableVcCompensations(bool enable, bool applyFlag) {
         flags[4] = compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel];
         flags[5] = compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel];
 
-        compensationsEnabledArray[CompensationPipette][compensationsSettingChannel] = enable & compCfastEnable[compensationsSettingChannel];
-        compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel] = enable & compCslowEnable[compensationsSettingChannel];
-        compensationsEnabledArray[CompensationResistance][compensationsSettingChannel] = enable & compRsCompEnable[compensationsSettingChannel];
-        compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel] = enable & compRsCorrEnable[compensationsSettingChannel];
-        compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel] = enable & compRsPredEnable[compensationsSettingChannel];
-        compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel] = enable & compLeakEnable[compensationsSettingChannel];
+        compensationsEnabledArray[CompensationPipette][compensationsSettingChannel] = enable & compensationsEnableFlags[CompCfast][compensationsSettingChannel];
+        compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel] = enable & compensationsEnableFlags[CompCslow][compensationsSettingChannel];
+        compensationsEnabledArray[CompensationResistance][compensationsSettingChannel] = enable & compensationsEnableFlags[CompRsComp][compensationsSettingChannel];
+        compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel] = enable & compensationsEnableFlags[CompRsCorr][compensationsSettingChannel];
+        compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel] = enable & compensationsEnableFlags[CompRsPred][compensationsSettingChannel];
+        compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel] = enable & compensationsEnableFlags[CompGLeak][compensationsSettingChannel];
 
         ErrorCodes_t tempRet = this->turnCompensationsOn(vcCompensationsActivated, enable);
         if (tempRet != Success) {
@@ -1414,8 +1414,8 @@ ErrorCodes_t EZPatchDevice::enableCcCompensations(bool enable, bool applyFlag) {
         flags[0] = compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel];
         flags[1] = compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel];
 
-        compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel] = enable & compCcCfastEnable[compensationsSettingChannel];
-        compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel] = enable & compCcBridgeEnable[compensationsSettingChannel];
+        compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel] = enable & compensationsEnableFlags[CompCcCfast][compensationsSettingChannel];
+        compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel] = enable & compensationsEnableFlags[CompBridgeRes][compensationsSettingChannel];
 
         ErrorCodes_t tempRet = this->turnCompensationsOn(ccCompensationsActivated, enable);
         if (tempRet != Success) {
@@ -1432,7 +1432,7 @@ ErrorCodes_t EZPatchDevice::turnPipetteCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationPipette][compensationsSettingChannel];
     compensationsEnabledArray[CompensationPipette][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(compCfastEnable, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compensationsEnableFlags[CompCfast], on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationPipette][compensationsSettingChannel] = flag;
     }
@@ -1443,7 +1443,7 @@ ErrorCodes_t EZPatchDevice::turnCCPipetteCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel];
     compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(compCcCfastEnable, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compensationsEnableFlags[CompCcCfast], on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationCCPipette][compensationsSettingChannel] = flag;
     }
@@ -1454,7 +1454,7 @@ ErrorCodes_t EZPatchDevice::turnMembraneCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel];
     compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(compCslowEnable, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compensationsEnableFlags[CompCslow], on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationMembrane][compensationsSettingChannel] = flag;
     }
@@ -1465,7 +1465,7 @@ ErrorCodes_t EZPatchDevice::turnResistanceCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationResistance][compensationsSettingChannel];
     compensationsEnabledArray[CompensationResistance][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(compRsCompEnable, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compensationsEnableFlags[CompRsComp], on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationResistance][compensationsSettingChannel] = flag;
     }
@@ -1476,7 +1476,7 @@ ErrorCodes_t EZPatchDevice::turnResistanceCorrectionOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel];
     compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(compRsCorrEnable, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compensationsEnableFlags[CompRsCorr], on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationResistanceCorrection][compensationsSettingChannel] = flag;
     }
@@ -1487,7 +1487,7 @@ ErrorCodes_t EZPatchDevice::turnResistancePredictionOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel];
     compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(compRsPredEnable, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compensationsEnableFlags[CompRsPred], on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationResistancePrediction][compensationsSettingChannel] = flag;
     }
@@ -1498,7 +1498,7 @@ ErrorCodes_t EZPatchDevice::turnLeakConductanceCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel];
     compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(compLeakEnable, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compensationsEnableFlags[CompGLeak], on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationLeakConductance][compensationsSettingChannel] = flag;
     }
@@ -1509,7 +1509,7 @@ ErrorCodes_t EZPatchDevice::turnBridgeBalanceCompensationOn(bool on) {
     bool flag = compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel];
     compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel] = on;
 
-    ErrorCodes_t ret = this->turnCompensationOn(compCcBridgeEnable, on);
+    ErrorCodes_t ret = this->turnCompensationOn(compensationsEnableFlags[CompBridgeRes], on);
     if (ret != Success) {
         compensationsEnabledArray[CompensationBridgeBalance][compensationsSettingChannel] = flag;
     }
@@ -3222,23 +3222,23 @@ void EZPatchDevice::initializeCompensations() {
     compensationControls[U_LkG].resize(currentChannelsNum);
     compensationControls[U_BrB].resize(currentChannelsNum);
 
-    compCfastEnable.resize(currentChannelsNum);
-    compCcCfastEnable.resize(currentChannelsNum);
-    compCslowEnable.resize(currentChannelsNum);
-    compRsCompEnable.resize(currentChannelsNum);
-    compRsCorrEnable.resize(currentChannelsNum);
-    compRsPredEnable.resize(currentChannelsNum);
-    compLeakEnable.resize(currentChannelsNum);
-    compCcBridgeEnable.resize(currentChannelsNum);
+    compensationsEnableFlags[CompCfast].resize(currentChannelsNum);
+    compensationsEnableFlags[CompCcCfast].resize(currentChannelsNum);
+    compensationsEnableFlags[CompCslow].resize(currentChannelsNum);
+    compensationsEnableFlags[CompRsComp].resize(currentChannelsNum);
+    compensationsEnableFlags[CompRsCorr].resize(currentChannelsNum);
+    compensationsEnableFlags[CompRsPred].resize(currentChannelsNum);
+    compensationsEnableFlags[CompGLeak].resize(currentChannelsNum);
+    compensationsEnableFlags[CompBridgeRes].resize(currentChannelsNum);
 
-    std::fill(compCfastEnable.begin(), compCfastEnable.end(), false);
-    std::fill(compCcCfastEnable.begin(), compCcCfastEnable.end(), false);
-    std::fill(compCslowEnable.begin(), compCslowEnable.end(), false);
-    std::fill(compRsCompEnable.begin(), compRsCompEnable.end(), false);
-    std::fill(compRsCorrEnable.begin(), compRsCorrEnable.end(), false);
-    std::fill(compRsPredEnable.begin(), compRsPredEnable.end(), false);
-    std::fill(compLeakEnable.begin(), compLeakEnable.end(), false);
-    std::fill(compCcBridgeEnable.begin(), compCcBridgeEnable.end(), false);
+    std::fill(compensationsEnableFlags[CompCfast].begin(), compensationsEnableFlags[CompCfast].end(), false);
+    std::fill(compensationsEnableFlags[CompCcCfast].begin(), compensationsEnableFlags[CompCcCfast].end(), false);
+    std::fill(compensationsEnableFlags[CompCslow].begin(), compensationsEnableFlags[CompCslow].end(), false);
+    std::fill(compensationsEnableFlags[CompRsComp].begin(), compensationsEnableFlags[CompRsComp].end(), false);
+    std::fill(compensationsEnableFlags[CompRsCorr].begin(), compensationsEnableFlags[CompRsCorr].end(), false);
+    std::fill(compensationsEnableFlags[CompRsPred].begin(), compensationsEnableFlags[CompRsPred].end(), false);
+    std::fill(compensationsEnableFlags[CompGLeak].begin(), compensationsEnableFlags[CompGLeak].end(), false);
+    std::fill(compensationsEnableFlags[CompBridgeRes].begin(), compensationsEnableFlags[CompBridgeRes].end(), false);
 
     pipetteCompensationOptionReg.resize(currentChannelsNum);
     ccPipetteCompensationOptionReg.resize(currentChannelsNum);

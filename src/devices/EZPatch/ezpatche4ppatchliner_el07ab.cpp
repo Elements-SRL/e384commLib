@@ -994,7 +994,7 @@ void EZPatche4PPatchliner_el07ab::initializeCompensations() {
 bool EZPatche4PPatchliner_el07ab::checkCompensationsValues() {
     bool ret = true;
     if (vcCompensationsActivated) {
-        if (compCfastEnable[compensationsSettingChannel] && compCslowEnable[compensationsSettingChannel]) {
+        if (compensationsEnableFlags[CompCfast][compensationsSettingChannel] && compensationsEnableFlags[CompCslow][compensationsSettingChannel]) {
             if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance3) {
                 additionalPipetteCapacitanceFromMembrane = membraneInjCapacitance4;
 
@@ -1012,13 +1012,13 @@ bool EZPatche4PPatchliner_el07ab::checkCompensationsValues() {
             additionalPipetteCapacitanceFromMembrane = 0.0;
         }
 
-        if (compCfastEnable[compensationsSettingChannel]){
+        if (compensationsEnableFlags[CompCfast][compensationsSettingChannel]){
             ret &= (compensationControls[U_CpVc][compensationsSettingChannel].value+additionalPipetteCapacitanceFromMembrane > (minPipetteCapacitance-0.5*pipetteCapacitanceStep) &&
                     compensationControls[U_CpVc][compensationsSettingChannel].value+additionalPipetteCapacitanceFromMembrane < (maxPipetteCapacitance+0.5*pipetteCapacitanceStep));
         }
 
         double membraneTau;
-        if (compCslowEnable[compensationsSettingChannel]) {
+        if (compensationsEnableFlags[CompCslow][compensationsSettingChannel]) {
             ret &= (compensationControls[U_Cm][compensationsSettingChannel].value > (minMembraneCapacitance-0.5*membraneCapacitanceStep) &&
                     compensationControls[U_Cm][compensationsSettingChannel].value < (maxMembraneCapacitance+0.5*membraneCapacitanceStep));
             membraneTau = compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value;
@@ -1028,12 +1028,12 @@ bool EZPatche4PPatchliner_el07ab::checkCompensationsValues() {
             membraneTau = 0.0;
         }
 
-        if (compRsCorrEnable[compensationsSettingChannel]) {
+        if (compensationsEnableFlags[CompRsCorr][compensationsSettingChannel]) {
             double resistanceCorrected = compensationControls[U_Rs][compensationsSettingChannel].value*compensationControls[U_RsCp][compensationsSettingChannel].value/maxResistanceCorrectionPercentage; /*! Missing the minimum check because for this device this is handled when building the packet */
             ret &= (resistanceCorrected < (0.001*minResistanceCorrection+1.001*maxResistanceCorrection)); /*! Missing the minimum check because for this device this is handled when building the packet */
         }
 
-        if (compRsPredEnable[compensationsSettingChannel]) {
+        if (compensationsEnableFlags[CompRsPred][compensationsSettingChannel]) {
             ret &= (compensationControls[U_RsPg][compensationsSettingChannel].value > (minResistancePredictionGain-0.5*resistancePredictionGainStep) &&
                     compensationControls[U_RsPg][compensationsSettingChannel].value < (maxResistancePredictionGain+0.5*resistancePredictionGainStep));
             double resistancePredictedTau = membraneTau/compensationControls[U_RsPg][compensationsSettingChannel].value;
@@ -1055,13 +1055,13 @@ bool EZPatche4PPatchliner_el07ab::checkCompensationsValues() {
 
         double d1 = maxMembraneCapacitance;
         double d2 = maxMembraneTau/rs;
-        double d3 = (compRsPredEnable[compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(rs*rp) : std::numeric_limits <double>::max());
+        double d3 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(rs*rp) : std::numeric_limits <double>::max());
         compensationControls[U_Cm][compensationsSettingChannel].maxCompensable = fmin(fmin(d1, d2), d3);
 
         d1 = compensationControls[U_Rs][compensationsSettingChannel].max;
         d2 = maxMembraneTau/compensationControls[U_Cm][compensationsSettingChannel].value;
         d3 = maxResistanceCorrection*maxResistanceCorrectionPercentage/rc;
-        double d4 = (compRsPredEnable[compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(compensationControls[U_Cm][compensationsSettingChannel].value*rp) : std::numeric_limits <double>::max());
+        double d4 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(compensationControls[U_Cm][compensationsSettingChannel].value*rp) : std::numeric_limits <double>::max());
         compensationControls[U_Rs][compensationsSettingChannel].maxCompensable = fmin(fmin(fmin(d1, d2), d3), d4);
 
         d1 = compensationControls[U_RsCp][compensationsSettingChannel].max;
@@ -1229,22 +1229,22 @@ bool EZPatche4PPatchliner_el07ab::fillCompensationsRegistersTxData(std::vector <
 
     if (vcCompensationsActivated) {
         txDataMessage[0] = CompensationsRegisterVCCFastGain+compensationsSettingChannel*coreSpecificRegistersNum;
-        txDataMessage[1] = ((vcCompensationsActivated & compCfastEnable[compensationsSettingChannel]) ? pipetteRange | (uint16_t)round(pipetteValue) : 0);
+        txDataMessage[1] = ((vcCompensationsActivated & compensationsEnableFlags[CompCfast][compensationsSettingChannel]) ? pipetteRange | (uint16_t)round(pipetteValue) : 0);
 
     } else if (ccCompensationsActivated) {
         txDataMessage[0] = CompensationsRegisterCCCFastGain+compensationsSettingChannel*coreSpecificRegistersNum;
-        txDataMessage[1] = ((ccCompensationsActivated & compCcCfastEnable[compensationsSettingChannel]) ? ccPipetteRange | (uint16_t)round(ccPipetteValue) : 0);
+        txDataMessage[1] = ((ccCompensationsActivated & compensationsEnableFlags[CompCcCfast][compensationsSettingChannel]) ? ccPipetteRange | (uint16_t)round(ccPipetteValue) : 0);
     }
     txDataMessage[2] = CompensationsRegisterVCCSlowGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[3] = ((vcCompensationsActivated & compCslowEnable[compensationsSettingChannel]) ? membraneRange | (uint16_t)round(membraneValue) : 0);
+    txDataMessage[3] = ((vcCompensationsActivated & compensationsEnableFlags[CompCslow][compensationsSettingChannel]) ? membraneRange | (uint16_t)round(membraneValue) : 0);
     txDataMessage[4] = CompensationsRegisterVCCslowTau+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[5] = ((vcCompensationsActivated & compCslowEnable[compensationsSettingChannel]) ? membraneTauRange | (uint16_t)round(membraneTauValue) : 0);
+    txDataMessage[5] = ((vcCompensationsActivated & compensationsEnableFlags[CompCslow][compensationsSettingChannel]) ? membraneTauRange | (uint16_t)round(membraneTauValue) : 0);
     txDataMessage[6] = CompensationsRegisterVCRCorrGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[7] = ((vcCompensationsActivated & compRsCorrEnable[compensationsSettingChannel]) ? (uint16_t)round((correctedResistance-minResistanceCorrection)/resistanceCorrectionStep) : 0);
+    txDataMessage[7] = ((vcCompensationsActivated & compensationsEnableFlags[CompRsCorr][compensationsSettingChannel]) ? (uint16_t)round((correctedResistance-minResistanceCorrection)/resistanceCorrectionStep) : 0);
     txDataMessage[8] = CompensationsRegisterVCRPredGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[9] = ((vcCompensationsActivated & compRsPredEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_RsPg][compensationsSettingChannel].value-minResistancePredictionGain)/resistancePredictionGainStep) : 0);
+    txDataMessage[9] = ((vcCompensationsActivated & compensationsEnableFlags[CompRsPred][compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_RsPg][compensationsSettingChannel].value-minResistancePredictionGain)/resistancePredictionGainStep) : 0);
     txDataMessage[10] = CompensationsRegisterVCRPredTau+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[11] = ((vcCompensationsActivated & compRsPredEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value-minResistancePredictionTau)/compensationControls[U_RsPg][compensationsSettingChannel].value/resistancePredictionTauStep) : 0);
+    txDataMessage[11] = ((vcCompensationsActivated & compensationsEnableFlags[CompRsPred][compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value-minResistancePredictionTau)/compensationControls[U_RsPg][compensationsSettingChannel].value/resistancePredictionTauStep) : 0);
 
     if (vcCompensationsActivated) {
         if (txDataMessage[1] != pipetteCapacitanceRegValue[compensationsSettingChannel] ||

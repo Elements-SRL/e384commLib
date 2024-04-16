@@ -87,8 +87,10 @@ public:
     enum CompensationTypes {
         CompCfast,      // pipette voltage clamp
         CompCslow,      // membrane
+        CompRsComp,     // rseries compensation
         CompRsCorr,     // rseries correction
         CompRsPred,     // rseries prediction
+        CompGLeak,      // leakage conductance
         CompCcCfast,    // pipette current clamp
         CompBridgeRes,  // bridge balance
         CompensationTypesNum

@@ -900,19 +900,19 @@ bool EZPatchePatchEL03F_4D_PCBV03_V04::checkCompensationsValues() {
 bool EZPatchePatchEL03F_4D_PCBV03_V04::fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) {
     bool anythingChanged = false;
     txDataMessage[0] = CompensationsRegisterVCCFastGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[1] = ((vcCompensationsActivated & compCfastEnable[compensationsSettingChannel]) ? (uint16_t)round(compensationControls[U_CpVc][compensationsSettingChannel].value/pipetteCapacitanceStep) : 0);
+    txDataMessage[1] = ((vcCompensationsActivated & compensationsEnableFlags[CompCfast][compensationsSettingChannel]) ? (uint16_t)round(compensationControls[U_CpVc][compensationsSettingChannel].value/pipetteCapacitanceStep) : 0);
     txDataMessage[2] = CompensationsRegisterVCCSlowGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[3] = 0xFF-((vcCompensationsActivated & compCslowEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance)/membraneCapacitanceStep) : 0);
+    txDataMessage[3] = 0xFF-((vcCompensationsActivated & compensationsEnableFlags[CompCslow][compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance)/membraneCapacitanceStep) : 0);
     txDataMessage[4] = CompensationsRegisterVCCslowTau+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[5] = 0xFF-((vcCompensationsActivated & compCslowEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value-minMembraneTau)/membraneTauStep) : 0);
+    txDataMessage[5] = 0xFF-((vcCompensationsActivated & compensationsEnableFlags[CompCslow][compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value-minMembraneTau)/membraneTauStep) : 0);
     txDataMessage[6] = CompensationsRegisterVCRCorrGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[7] = 0xFF-((vcCompensationsActivated & compRsCorrEnable[compensationsSettingChannel]) ? (uint16_t)round(compensationControls[U_RsCp][compensationsSettingChannel].value/maxResistanceCorrectionPercentage*compensationControls[U_Rs][compensationsSettingChannel].value/resistanceCorrectionStep) : 0);
+    txDataMessage[7] = 0xFF-((vcCompensationsActivated & compensationsEnableFlags[CompRsCorr][compensationsSettingChannel]) ? (uint16_t)round(compensationControls[U_RsCp][compensationsSettingChannel].value/maxResistanceCorrectionPercentage*compensationControls[U_Rs][compensationsSettingChannel].value/resistanceCorrectionStep) : 0);
     txDataMessage[8] = CompensationsRegisterVCRPredTau+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[9] = 0xFF-((vcCompensationsActivated & compRsPredEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value*compensationControls[U_RsPp][compensationsSettingChannel].value/maxResistancePredictionPercentage-minResistancePredictionTau)/compensationControls[U_RsPg][compensationsSettingChannel].value/resistancePredictionTauStep) : 0);
+    txDataMessage[9] = 0xFF-((vcCompensationsActivated & compensationsEnableFlags[CompRsPred][compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value*compensationControls[U_RsPp][compensationsSettingChannel].value/maxResistancePredictionPercentage-minResistancePredictionTau)/compensationControls[U_RsPg][compensationsSettingChannel].value/resistancePredictionTauStep) : 0);
     txDataMessage[10] = CompensationsRegisterCCCFastGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[11] = 0xFF-((ccCompensationsActivated & compCcCfastEnable[compensationsSettingChannel]) ? (uint16_t)round(compensationControls[U_CpCc][compensationsSettingChannel].value/ccPipetteCapacitanceStep) : 0);
+    txDataMessage[11] = 0xFF-((ccCompensationsActivated & compensationsEnableFlags[CompCcCfast][compensationsSettingChannel]) ? (uint16_t)round(compensationControls[U_CpCc][compensationsSettingChannel].value/ccPipetteCapacitanceStep) : 0);
     txDataMessage[12] = CompensationsRegisterCCBridgeGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[13] = 0xFF-((ccCompensationsActivated & compCcBridgeEnable[compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_BrB][compensationsSettingChannel].value-minBridgeBalanceResistance)/bridgeBalanceResistanceStep) : 0);
+    txDataMessage[13] = 0xFF-((ccCompensationsActivated & compensationsEnableFlags[CompBridgeRes][compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_BrB][compensationsSettingChannel].value-minBridgeBalanceResistance)/bridgeBalanceResistanceStep) : 0);
 
     if (txDataMessage[1] != pipetteCapacitanceRegValue[compensationsSettingChannel] ||
             txDataMessage[3] != membraneCapacitanceRegValue[compensationsSettingChannel] ||
