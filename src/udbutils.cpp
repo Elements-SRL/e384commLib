@@ -1,7 +1,5 @@
 #include "udbutils.h"
 
-#include <iostream>
-
 #include "thread"
 #include "chrono"
 
@@ -75,12 +73,10 @@ void UdbUtils::findBulkEndpoints(CCyUSBDevice * dev, CCyUSBEndPoint * &eptBulkin
 
 bool UdbUtils::resetBulkEndpoints(CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout) {
     if (eptBulkin->Reset() == false) {
-        std::cout << "erase bepin failed" << std::endl;
         return false;
     }
 
     if (eptBulkout->Reset() == false) {
-        std::cout << "erase bepout failed" << std::endl;
         return false;
     }
     return true;
@@ -149,7 +145,7 @@ void UdbUtils::switchToConfigMode(CCyUSBDevice * dev,CCyUSBEndPoint * &eptBulkin
         ctrept->Index		= 0;
 
         if (ctrept->XferData((PUCHAR)nullptr, ctrlen) == false) {
-            std::cout << "switch to config mode failed" << std::endl;
+            /*! unhandled error */
         }
 
         UdbUtils::resetBulkEndpoints(eptBulkin, eptBulkout);
@@ -157,6 +153,7 @@ void UdbUtils::switchToConfigMode(CCyUSBDevice * dev,CCyUSBEndPoint * &eptBulkin
 }
 
 void UdbUtils::disableFlashHybridSectors(CCyUSBDevice * dev) {
+    /*! Needed only on factory new devices */
     CCyControlEndPoint * ctrept;
     LONG ctrlen = 0;
 
@@ -169,7 +166,7 @@ void UdbUtils::disableFlashHybridSectors(CCyUSBDevice * dev) {
     ctrept->Index		= 0;
 
     if (ctrept->XferData((PUCHAR)nullptr, ctrlen) == false) {
-        std::cout << "disable hybrid sectors failed" << std::endl;
+        /*! unhandled error */
     }
 }
 
@@ -220,7 +217,7 @@ void UdbUtils::enableFlashWrite(CCyUSBDevice * dev) {
     ctrept->Index		= 0;
 
     if (ctrept->XferData((PUCHAR)nullptr, ctrlen) == false) {
-        std::cout << "enable flash write failed" << std::endl;
+        /*! unhandled error */
     }
 }
 
@@ -240,8 +237,8 @@ void UdbUtils::eraseFlashSector(CCyUSBDevice * dev, unsigned int address) {
     ctrept->Index		= 0;
 
     int tries = 0;
-    while (ctrept->XferData((PUCHAR)&payload, ctrlen) == false && ++tries >= 3) {
-        std::cout << "erase flash failed " << tries << std::endl;
+    while (ctrept->XferData((PUCHAR)&payload, ctrlen) == false && ++tries <= 3) {
+        /*! unhandled error */
     }
 }
 
@@ -262,8 +259,8 @@ void UdbUtils::writeFlash(CCyUSBDevice * dev, unsigned int address, unsigned int
     ctrept->Index		= 0;
 
     int tries = 0;
-    while (ctrept->XferData((PUCHAR)payload, ctrlen) == false && ++tries >= 3) {
-        std::cout << "write flash failed " << tries << std::endl;
+    while (ctrept->XferData((PUCHAR)payload, ctrlen) == false && ++tries <= 3) {
+        /*! unhandled error */
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -276,9 +273,7 @@ void UdbUtils::readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int 
 
     unsigned int readSize = 1024;
 
-    std::cout << "read flash length " << length;
     length = ((length+readSize-1)/readSize)*readSize; /*!< upper readSize multiple */
-    std::cout << " -> " << length << std::endl;
 
     payload[0] = address;
     payload[1] = length;
@@ -292,8 +287,7 @@ void UdbUtils::readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int 
     ctrept->Index		= 0;
 
     int tries = 0;
-    if (ctrept->XferData((PUCHAR)payload, ctrlen) == false && ++ tries >= 3) {
-        std::cout << "read flash failed " << tries << std::endl;
+    while (ctrept->XferData((PUCHAR)payload, ctrlen) == false && ++ tries <= 3) {
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
