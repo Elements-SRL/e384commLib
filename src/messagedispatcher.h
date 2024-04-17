@@ -128,7 +128,7 @@ public:
      * \return Error code.
      */
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
-    static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
+//    static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
 
     /*! \brief Connects to a specific device
      * Calling this method if a device is already connected will return an error code.
@@ -1079,8 +1079,6 @@ public:
      */
     ErrorCodes_t hasProtocolSinFeature();
     virtual ErrorCodes_t isStateArrayAvailable();
-
-    virtual ErrorCodes_t getCalibData(CalibrationData_t &calibData);
 
     /*! \brief Get a structure containing the calibration parameters.
      *

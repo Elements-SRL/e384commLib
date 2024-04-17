@@ -378,6 +378,7 @@ ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispa
         messageDispatcher = new EZPatche8PPatchliner_el07ab_artix7_PCBV02(deviceId);
         break;
 
+#ifdef DEBUG
     case DeviceFakePatch:
         messageDispatcher = new EZPatchFakePatch(deviceId);
         break;
@@ -385,6 +386,7 @@ ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispa
     case DeviceFakeP8:
         messageDispatcher = new EZPatchFakeP8(deviceId);
         break;
+#endif
 
     case DeviceEPatchDlp:
         messageDispatcher = new EZPatchePatchDlp(deviceId);

@@ -45,9 +45,6 @@ private:
     uint32_t readDataTransferSize = 0x100000; /*! 1MB, must be lower than 4MB */
 
     int32_t progress = 0;
-
-//    QFile logFile;
-//    QTextStream logStream;
 };
 
 #endif // UDBPROGRAMMER_H

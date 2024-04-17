@@ -2,6 +2,7 @@ QT     -= core gui
 CONFIG -= qt
 
 CONFIG(debug, debug|release) {
+    QMAKE_CXXFLAGS += -O0 # No optimization for debug
     TARGET = e384commlibd
     DEFINES += DEBUG
     # comment or uncomment depending on the desired verbosity
@@ -14,8 +15,8 @@ CONFIG(debug, debug|release) {
 }
 
 CONFIG(release, debug|release) {
+    QMAKE_CXXFLAGS += -O2
     TARGET = e384commlib
-    DEFINES += DEBUG
 #    DEFINES += DEBUG_RX_RAW_DATA_PRINT
 #    DEFINES += DEBUG_RX_DATA_PRINT
 #    DEFINES += DEBUG_TX_DATA_PRINT

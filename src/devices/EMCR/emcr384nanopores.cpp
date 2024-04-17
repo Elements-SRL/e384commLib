@@ -211,36 +211,6 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     // mapping ADC Current Clamp
     // undefined
 
-    calibrationData.samplingRateIdx = SamplingRate6_25kHz;
-
-    /*! VC calibration voltage steps*/
-    calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
-    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA].resize(4);
-    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA].resize(4);
-    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][0] = {-400.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][1] = {-200.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][2] = {0.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange4uA][3] = {200.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][0] = {-400.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][1] = {-200.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][2] = {0.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange200nA][3] = {200.0, UnitPfxMilli, "V"};
-
-    /*! VC calibration resistances*/
-    calibrationData.vcCalibResArray.resize(CalibResNum);
-    calibrationData.vcCalibResArray[CalibRes120kOhm] = {120.0, UnitPfxKilo, "Ohm"}; // 4uA
-    calibrationData.vcCalibResArray[CalibRes2_49MOhm] = {2.49, UnitPfxMega, "Ohm"}; // 200nA
-
-    // mapping VC current range - calibration resistances
-    calibrationData.vcCurrRange2CalibResMap = {
-      {VCCurrentRange4uA, CalibRes120kOhm},
-      {VCCurrentRange200nA, CalibRes2_49MOhm}
-    };
-
-    calibrationData.areCalibResistOnBoard = false;
-    calibrationData.canInputsBeOpened = true;
-    calibrationData.adcCalibratedInOffsetBinary = true;
-
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
 
     /*! VC leak calibration (shunt resistance)*/

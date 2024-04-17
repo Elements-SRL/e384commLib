@@ -2345,7 +2345,7 @@ ErrorCodes_t EZPatchDevice::isDeviceUpgradable(std::string &upgradeNotes, std::s
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::getDeviceInfo(std::string &deviceId, std::string &deviceName, uint8_t &deviceVersion, uint8_t &deviceSubversion, uint32_t &firmwareVersion) {
+ErrorCodes_t EZPatchDevice::getDeviceInfo(std::string &deviceId, std::string &deviceName, uint32_t &deviceVersion, uint32_t &deviceSubversion, uint32_t &firmwareVersion) {
     ErrorCodes_t ret = Success;
 
     deviceId = this->deviceId;

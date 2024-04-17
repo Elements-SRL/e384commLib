@@ -188,7 +188,8 @@ public:
     \****************/
 
     ErrorCodes_t isDeviceUpgradable(std::string &upgradeNotes, std::string &notificationTag);
-    ErrorCodes_t getDeviceInfo(std::string &deviceId, std::string &deviceName, uint8_t &deviceVersion, uint8_t &deviceSubversion, uint32_t &firmwareVersion);
+    /*! \todo FCON fare il metodo statico per il get device info */
+    ErrorCodes_t getDeviceInfo(std::string &deviceId, std::string &deviceName, uint32_t &deviceVersion, uint32_t &deviceSubversion, uint32_t &firmwareVersion);
     virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data) override; /*!< overidden by eP4 device because it needs a custom data interleaving */
 
     ErrorCodes_t hasVoltageHoldTuner();

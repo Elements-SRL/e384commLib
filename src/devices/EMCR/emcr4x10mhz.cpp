@@ -228,31 +228,6 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     // mapping ADC Current Clamp
     // undefined
 
-    calibrationData.samplingRateIdx = SamplingRate833kHz;
-
-    /*! VC calibration voltage steps*/
-    calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA].resize(5);
-
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][0] = {-500.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][1] = {-250.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][2] = {0.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][3] = {250.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][4] = {500.0, UnitPfxMilli, "V"};
-
-    /*! VC calibration resistances*/
-    calibrationData.vcCalibResArray.resize(VCCurrentRangesNum);
-    calibrationData.vcCalibResArray[VCCurrentRange100nA] = {10.0, UnitPfxMega, "Ohm"};
-
-    // mapping VC current range - calibration resistances
-    calibrationData.vcCurrRange2CalibResMap = {
-        {VCCurrentRange100nA, CalibRes10_0MOhm}
-    };
-
-    calibrationData.areCalibResistOnBoard = false;
-    calibrationData.canInputsBeOpened = false;
-    calibrationData.adcCalibratedInOffsetBinary = false;
-
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange1000mV].prefix, vcVoltageRangesArray[VCVoltageRange1000mV].unit};
 
     /*! Calib VC current gain */
@@ -1007,31 +982,6 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
 
     // mapping ADC Current Clamp
     // undefined
-
-    calibrationData.samplingRateIdx = SamplingRate833kHz;
-
-    /*! VC calibration voltage steps*/
-    calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA].resize(5);
-
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][0] = {-500.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][1] = {-250.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][2] = {0.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][3] = {250.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange100nA][4] = {500.0, UnitPfxMilli, "V"};
-
-    /*! VC calibration resistances*/
-    calibrationData.vcCalibResArray.resize(VCCurrentRangesNum);
-    calibrationData.vcCalibResArray[VCCurrentRange100nA] = {10.0, UnitPfxMega, "Ohm"};
-
-    // mapping VC current range - calibration resistances
-    calibrationData.vcCurrRange2CalibResMap = {
-        {VCCurrentRange100nA, CalibRes10_0MOhm}
-    };
-
-    calibrationData.areCalibResistOnBoard = false;
-    calibrationData.canInputsBeOpened = false;
-    calibrationData.adcCalibratedInOffsetBinary = false;
 
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange1000mV].prefix, vcVoltageRangesArray[VCVoltageRange1000mV].unit};
 

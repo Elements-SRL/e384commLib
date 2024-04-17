@@ -65,11 +65,6 @@ protected:
         SamplingRatesNum
     };
 
-    enum CalibResistances {
-        CalibRes10_0MOhm,
-        CalibResNum
-    };
-
     virtual ErrorCodes_t initializeHW() override;
 
     BoolArrayCoder * dcmResetCoder = nullptr;
@@ -143,11 +138,6 @@ protected:
         SamplingRate1_67MHz,
         SamplingRate833kHz,
         SamplingRatesNum
-    };
-
-    enum CalibResistances {
-        CalibRes10_0MOhm,
-        CalibResNum
     };
 
     virtual ErrorCodes_t initializeHW() override;

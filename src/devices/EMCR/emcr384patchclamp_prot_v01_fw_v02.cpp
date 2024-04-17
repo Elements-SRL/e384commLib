@@ -242,23 +242,6 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
-#ifdef E384PATCH_ADDITIONAL_SR_FLAG
-    samplingRatesArray[SamplingRate100Hz].value = 100.0;
-    samplingRatesArray[SamplingRate100Hz].prefix = UnitPfxNone;
-    samplingRatesArray[SamplingRate100Hz].unit = "Hz";
-    samplingRatesArray[SamplingRate200Hz].value = 200.0;
-    samplingRatesArray[SamplingRate200Hz].prefix = UnitPfxNone;
-    samplingRatesArray[SamplingRate200Hz].unit = "Hz";
-    samplingRatesArray[SamplingRate400Hz].value = 400.0;
-    samplingRatesArray[SamplingRate400Hz].prefix = UnitPfxNone;
-    samplingRatesArray[SamplingRate400Hz].unit = "Hz";
-    samplingRatesArray[SamplingRate800Hz].value = 800.0;
-    samplingRatesArray[SamplingRate800Hz].prefix = UnitPfxNone;
-    samplingRatesArray[SamplingRate800Hz].unit = "Hz";
-    samplingRatesArray[SamplingRate1_6kHz].value = 1600.0;
-    samplingRatesArray[SamplingRate1_6kHz].prefix = UnitPfxNone;
-    samplingRatesArray[SamplingRate1_6kHz].unit = "Hz";
-#endif
     samplingRatesArray[SamplingRate5kHz].value = 5.0;
     samplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
     samplingRatesArray[SamplingRate5kHz].unit = "Hz";
@@ -274,30 +257,9 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     samplingRatesArray[SamplingRate80kHz].value = 80.0;
     samplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
     samplingRatesArray[SamplingRate80kHz].unit = "Hz";
-#ifdef E384PATCH_ADDITIONAL_SR_FLAG
-    defaultSamplingRateIdx = SamplingRate100Hz;
-#else
     defaultSamplingRateIdx = SamplingRate5kHz;
-#endif
 
     realSamplingRatesArray.resize(samplingRatesNum);
-#ifdef E384PATCH_ADDITIONAL_SR_FLAG
-    realSamplingRatesArray[SamplingRate100Hz].value = 100.0;
-    realSamplingRatesArray[SamplingRate100Hz].prefix = UnitPfxNone;
-    realSamplingRatesArray[SamplingRate100Hz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate200Hz].value = 200.0;
-    realSamplingRatesArray[SamplingRate200Hz].prefix = UnitPfxNone;
-    realSamplingRatesArray[SamplingRate200Hz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate400Hz].value = 400.0;
-    realSamplingRatesArray[SamplingRate400Hz].prefix = UnitPfxNone;
-    realSamplingRatesArray[SamplingRate400Hz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate800Hz].value = 800.0;
-    realSamplingRatesArray[SamplingRate800Hz].prefix = UnitPfxNone;
-    realSamplingRatesArray[SamplingRate800Hz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate1_6kHz].value = 1600.0;
-    realSamplingRatesArray[SamplingRate1_6kHz].prefix = UnitPfxNone;
-    realSamplingRatesArray[SamplingRate1_6kHz].unit = "Hz";
-#endif
     realSamplingRatesArray[SamplingRate5kHz].value = 5.0;
     realSamplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate5kHz].unit = "Hz";
@@ -316,23 +278,6 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
 
     integrationStepArray.resize(samplingRatesNum);
-#ifdef E384PATCH_ADDITIONAL_SR_FLAG
-    integrationStepArray[SamplingRate100Hz].value = 0.01;
-    integrationStepArray[SamplingRate100Hz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate100Hz].unit = "s";
-    integrationStepArray[SamplingRate200Hz].value = 0.005;
-    integrationStepArray[SamplingRate200Hz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate200Hz].unit = "s";
-    integrationStepArray[SamplingRate400Hz].value = 0.0025;
-    integrationStepArray[SamplingRate400Hz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate400Hz].unit = "s";
-    integrationStepArray[SamplingRate800Hz].value = 0.00125;
-    integrationStepArray[SamplingRate800Hz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate800Hz].unit = "s";
-    integrationStepArray[SamplingRate1_6kHz].value = 0.000625;
-    integrationStepArray[SamplingRate1_6kHz].prefix = UnitPfxNone;
-    integrationStepArray[SamplingRate1_6kHz].unit = "s";
-#endif
     integrationStepArray[SamplingRate5kHz].value = 0.0002;
     integrationStepArray[SamplingRate5kHz].prefix = UnitPfxNone;
     integrationStepArray[SamplingRate5kHz].unit = "s";
@@ -351,13 +296,6 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-    #ifdef E384PATCH_ADDITIONAL_SR_FLAG
-        {SamplingRate100Hz, VCCurrentFilter3kHz},
-        {SamplingRate200Hz, VCCurrentFilter3kHz},
-        {SamplingRate400Hz, VCCurrentFilter3kHz},
-        {SamplingRate800Hz, VCCurrentFilter3kHz},
-        {SamplingRate1_6kHz, VCCurrentFilter3kHz},
-    #endif
         {SamplingRate5kHz, VCCurrentFilter3_6kHz},
         {SamplingRate10kHz, VCCurrentFilter10kHz},
         {SamplingRate20kHz, VCCurrentFilter25kHz},
@@ -367,82 +305,6 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     // mapping ADC Current Clamp
     // undefined
-
-    calibrationData.samplingRateIdx = SamplingRate5kHz;
-
-    /*! VC calibration voltage steps*/
-    calibrationData.vcCalibStepsArrays.resize(VCCurrentRangesNum);
-    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA].resize(5);
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw].resize(5);
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw].resize(5);
-    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA].resize(5);
-
-    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA][0] = {-25.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA][1] = {-12.5, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA][2] = {0.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA][3] = {12.5, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange10nA][4] = {25.0, UnitPfxMilli, "V"};
-
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw][0] = {-100.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw][1] = {-50.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw][2] = {0.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw][3] = {50.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nALbw][4] = {100.0, UnitPfxMilli, "V"};
-
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw][0] = {-100.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw][1] = {-50.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw][2] = {0.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw][3] = {50.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange40nAHbw][4] = {100.0, UnitPfxMilli, "V"};
-
-    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA][0] = {-400.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA][1] = {-200.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA][2] = {0.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA][3] = {200.0, UnitPfxMilli, "V"};
-    calibrationData.vcCalibStepsArrays[VCCurrentRange400nA][4] = {400.0, UnitPfxMilli, "V"};
-
-    /*! VC calibration resistances*/
-    calibrationData.vcCalibResArray.resize(VCCurrentRangesNum);
-    calibrationData.vcCalibResArray[VCCurrentRange10nA] = {5.0, UnitPfxMega, "Ohm"}; // 10nA
-    calibrationData.vcCalibResArray[VCCurrentRange40nALbw] = {5.0, UnitPfxMega, "Ohm"}; // 40nA
-    calibrationData.vcCalibResArray[VCCurrentRange40nAHbw] = {5.0, UnitPfxMega, "Ohm"}; // 40nA
-    calibrationData.vcCalibResArray[VCCurrentRange400nA] = {5.0, UnitPfxMega, "Ohm"}; // 400nA
-
-    // mapping VC current range - calibration resistances
-    calibrationData.vcCurrRange2CalibResMap = {
-        {VCCurrentRange10nA, CalibRes5_0MOhm},
-        {VCCurrentRange40nALbw, CalibRes5_0MOhm},
-        {VCCurrentRange40nAHbw, CalibRes5_0MOhm},
-        {VCCurrentRange400nA, CalibRes5_0MOhm}
-    };
-
-    calibrationData.areCalibResistOnBoard = true;
-    calibrationData.canInputsBeOpened = true;
-    calibrationData.adcCalibratedInOffsetBinary = true;
-
-    calibrationData.ccCalibVoltStepsArrays.resize(CCVoltageRangesNum);
-    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV].resize(5);
-    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV][0] = {-400.0, UnitPfxMilli, "V"};
-    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV][1] = {-200.0, UnitPfxMilli, "V"};
-    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV][2] = {0.0, UnitPfxMilli, "V"};
-    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV][3] = {200.0, UnitPfxMilli, "V"};
-    calibrationData.ccCalibVoltStepsArrays[CCVoltageRange1000mV][4] = {400.0, UnitPfxMilli, "V"};
-
-    calibrationData.ccCalibCurrStepsArrays.resize(CCCurrentRangesNum);
-    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA].resize(5);
-    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][0] = {-7.9, UnitPfxNano, "A"};
-    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][1] = {-4.0, UnitPfxNano, "A"};
-    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][2] = {0.0, UnitPfxNano, "A"};
-    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][3] = {4.0, UnitPfxNano, "A"};
-    calibrationData.ccCalibCurrStepsArrays[CCCurrentRange8nA][4] = {7.9, UnitPfxNano, "A"};
-
-    /*! CC calibration resistances on each board*/
-    calibrationData.ccCalibResArray.resize(CCCurrentRangesNum);
-    calibrationData.ccCalibResArray[CCCurrentRange8nA] = {5.0, UnitPfxMega, "Ohm"};
-
-    /*! CC calibration resistances on Model cell*/
-    calibrationData.ccCalibResForCcAdcOffsetArray.resize(CCVoltageRangesNum);
-    calibrationData.ccCalibResForCcAdcOffsetArray[CCVoltageRange1000mV] = {120.0, UnitPfxKilo, "Ohm"};
 
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
     defaultCurrentHoldTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
@@ -732,21 +594,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 3;
     boolConfig.bitsNum = 4;
-#ifdef E384PATCH_ADDITIONAL_SR_FLAG
-    samplingRateCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(8);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(9);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(10);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(11);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(12);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(0);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(1);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(2);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(3);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(4);
-#else
     samplingRateCoder = new BoolArrayCoder(boolConfig);
-#endif
     coders.push_back(samplingRateCoder);
 
     /*! Clamping mode */
