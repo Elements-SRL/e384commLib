@@ -156,6 +156,7 @@ ErrorCodes_t EmcrUdbDevice::isDeviceUpgradable(std::string deviceId) {
     return Success;
 }
 
+
 ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
     DeviceTypes_t deviceType;
 
@@ -199,17 +200,18 @@ ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
         delete [] buffer;
     }
 
-    /*! Upgrade FPGA version */
-    infoStruct.fpgaFwVersion = upgradeInfo.fwVersion;
-    programmer.programFlashBlock(UdbUtils::BlockInfo, (char *)&infoStruct, sizeof(UdbProgrammer::InfoStruct_t));
-
-    /*! Upgrade FPGA FW */
+    /*! Read FPGA FW bitstream */
     std::ifstream file(UTL_DEFAULT_FW_PATH + upgradeInfo.fwName, std::ios::binary);
-
     if (!file) {
         return ErrorFwNotFound;
     }
 
+    /*! Upgrade FPGA version */
+    unsigned char originalFwVersion = infoStruct.fpgaFwVersion;
+    infoStruct.fpgaFwVersion = upgradeInfo.fwVersion;
+    programmer.programFlashBlock(UdbUtils::BlockInfo, (char *)&infoStruct, sizeof(UdbProgrammer::InfoStruct_t));
+
+    /*! Upgrade FPGA FW */
     file.seekg(0, std::ios::end);
     unsigned int fileSize = (unsigned int)file.tellg();
     file.seekg(0, std::ios::beg);
@@ -227,6 +229,10 @@ ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
     programmer.programFlashBlock(UdbUtils::BlockFPGA, buffer, fileSize+4);
 
     if (!(programmer.verifyFlashBlock(UdbUtils::BlockFPGA, buffer, fileSize+4))) {
+        /*! Restore original FPGA version */
+        infoStruct.fpgaFwVersion = originalFwVersion;
+        programmer.programFlashBlock(UdbUtils::BlockInfo, (char *)&infoStruct, sizeof(UdbProgrammer::InfoStruct_t));
+
         delete [] buffer;
         return ErrorFwUpgradeFailed;
     }
@@ -237,6 +243,7 @@ ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
     programmer.connect(idx, false);
     return Success;
 }
+
 
 ErrorCodes_t EmcrUdbDevice::getUpgradeProgress(int32_t &progress) {
     progress = programmer.getProgress();
