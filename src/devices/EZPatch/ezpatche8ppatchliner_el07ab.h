@@ -10,8 +10,6 @@ public:
 
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
-    ErrorCodes_t hasCompFeature(CompensationUserParams feature) override;
-
 protected:
     enum ClampingModalities {
         VoltageClamp,

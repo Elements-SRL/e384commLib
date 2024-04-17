@@ -10,8 +10,6 @@ public:
 
     ErrorCodes_t setResistancePredictionOptions(uint16_t optionIdx) override;
 
-    ErrorCodes_t hasCompFeature(CompensationUserParams feature) override;
-
 protected:
     enum ClampingModalities {
         VoltageClamp,

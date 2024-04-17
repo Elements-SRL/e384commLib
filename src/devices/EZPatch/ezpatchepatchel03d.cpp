@@ -471,20 +471,6 @@ ErrorCodes_t EZPatchePatchEL03D_V04::setVCCurrentRange(uint16_t currentRangeIdx,
     return ret;
 }
 
-ErrorCodes_t EZPatchePatchEL03D_V04::hasCompFeature(CompensationUserParams feature) {
-    switch (feature) {
-    case U_CpVc:
-    case U_Cm:
-    case U_Rs:
-    case U_RsCp:
-    case U_RsPg:
-        return Success;
-
-    default:
-        return ErrorFeatureNotImplemented;
-    }
-}
-
 void EZPatchePatchEL03D_V04::selectChannelsResolutions() {
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         currentTunerCorrection[channelIdx] = 0.0;

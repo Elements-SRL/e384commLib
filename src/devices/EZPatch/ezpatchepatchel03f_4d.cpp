@@ -653,21 +653,6 @@ ErrorCodes_t EZPatchePatchEL03F_4D_PCBV03_V04::setResistancePredictionOptions(ui
     }
 }
 
-ErrorCodes_t EZPatchePatchEL03F_4D_PCBV03_V04::hasCompFeature(CompensationUserParams feature) {
-    switch (feature) {
-    case U_CpVc:
-    case U_Cm:
-    case U_Rs:
-    case U_RsCp:
-    case U_RsPg:
-    case U_CpCc:
-        return Success;
-
-    default:
-        return ErrorFeatureNotImplemented;
-    }
-}
-
 void EZPatchePatchEL03F_4D_PCBV03_V04::selectChannelsResolutions() {
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {

@@ -908,21 +908,6 @@ ErrorCodes_t EZPatche4PPatchliner::setSamplingRate(uint16_t samplingRateIdx, boo
     return ret;
 }
 
-ErrorCodes_t EZPatche4PPatchliner::hasCompFeature(CompensationUserParams feature) {
-    switch (feature) {
-    case U_CpVc:
-    case U_Cm:
-    case U_Rs:
-    case U_RsCp:
-    case U_RsPg:
-    case U_CpCc:
-        return Success;
-
-    default:
-        return ErrorFeatureNotImplemented;
-    }
-}
-
 ErrorCodes_t EZPatche4PPatchliner::setResistancePredictionOptions(uint16_t optionIdx) {
     if (optionIdx < resistancePredictionOptions.size()) {
         if (optionIdx == 0) {

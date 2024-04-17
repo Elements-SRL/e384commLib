@@ -893,21 +893,6 @@ ErrorCodes_t EZPatche4PEL04F::setSamplingRate(uint16_t samplingRateIdx, bool app
     return ret;
 }
 
-ErrorCodes_t EZPatche4PEL04F::hasCompFeature(CompensationUserParams feature) {
-    switch (feature) {
-    case U_CpVc:
-    case U_Cm:
-    case U_Rs:
-    case U_RsCp:
-    case U_RsPg:
-    case U_CpCc:
-        return Success;
-
-    default:
-        return ErrorFeatureNotImplemented;
-    }
-}
-
 ErrorCodes_t EZPatche4PEL04F::setResistancePredictionOptions(uint16_t optionIdx) {
     if (optionIdx < resistancePredictionOptions.size()) {
         if (optionIdx == 0) {
