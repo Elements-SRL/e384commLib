@@ -573,6 +573,19 @@ void EZPatchePatchEL03D_V04::initializeCompensations() {
     control.name = resistancePredictionPercentageName;
     std::fill(compensationControls[U_RsPp].begin(), compensationControls[U_RsPp].end(), control);
 
+    compValueMatrix.resize(currentChannelsNum, std::vector <double> (CompensationUserParamsNum));
+    int compIdx = 0;
+    int channelIdx = 0;
+    for (auto controls : compensationControls) {
+        if (controls[0].implemented) {
+            for (auto control : controls) {
+                compValueMatrix[channelIdx++][compIdx] = control.value;
+            }
+            channelIdx = 0;
+            compIdx++;
+        }
+    }
+
     pipetteCapacitanceRegValue.resize(currentChannelsNum);
     membraneCapacitanceRegValue.resize(currentChannelsNum);
     membraneTauRegValue.resize(currentChannelsNum);

@@ -375,7 +375,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     /*! Compensations */
     /*! compValueMatrix contains one vector of compensation values for each of the channels (e.g. 384 channels) */
-    compValueMatrix.resize(currentChannelsNum, std::vector<double>(CompensationAsicParamsNum));
+    compValueMatrix.resize(currentChannelsNum, std::vector <double> (CompensationUserParamsNum));
     selectedRsCorrBws.resize(currentChannelsNum);
 
     /*! Compensation type enables, one element per channel*/
@@ -1579,11 +1579,6 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompOptionsFeatures(Compensat
     default:
         return ErrorFeatureNotImplemented;
     }
-}
-
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix){
-    compValueMatrix = this->compValueMatrix;
-    return Success;
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues){

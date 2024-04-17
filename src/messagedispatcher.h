@@ -1094,7 +1094,7 @@ public:
     ErrorCodes_t hasCompFeature(CompensationUserParams feature);
     virtual ErrorCodes_t getCompFeatures(CompensationUserParams feature, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray);
-    virtual ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &compValueMatrix);
+    ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &matrix);
     virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues);
 
     /*! \brief Get options for the pipette compensation.

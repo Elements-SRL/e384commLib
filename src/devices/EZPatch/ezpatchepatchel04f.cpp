@@ -1000,6 +1000,19 @@ void EZPatchePatchEL04F::initializeCompensations() {
     control.name = bridgeBalanceResistanceName;
     std::fill(compensationControls[U_BrB].begin(), compensationControls[U_BrB].end(), control);
 
+    compValueMatrix.resize(currentChannelsNum, std::vector <double> (CompensationUserParamsNum));
+    int compIdx = 0;
+    int channelIdx = 0;
+    for (auto controls : compensationControls) {
+        if (controls[0].implemented) {
+            for (auto control : controls) {
+                compValueMatrix[channelIdx++][compIdx] = control.value;
+            }
+            channelIdx = 0;
+            compIdx++;
+        }
+    }
+
     pipetteCapacitanceRegValue.resize(currentChannelsNum);
     ccPipetteCapacitanceRegValue.resize(currentChannelsNum);
     membraneCapacitanceRegValue.resize(currentChannelsNum);

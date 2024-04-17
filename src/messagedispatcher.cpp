@@ -2024,8 +2024,12 @@ ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes, std::v
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector<std::vector<double>> &){
-    return ErrorFeatureNotImplemented;
+ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector <std::vector <double>> &matrix) {
+    if (compValueMatrix.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    matrix = compValueMatrix;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCompensationEnables(std::vector<uint16_t>, uint16_t, std::vector<bool> &){

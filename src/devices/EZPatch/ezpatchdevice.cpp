@@ -1535,53 +1535,61 @@ ErrorCodes_t EZPatchDevice::setPipetteCompensationOptions(uint16_t optionIdx) {
 }
 
 ErrorCodes_t EZPatchDevice::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector <double> newParamValues, bool) {
+    ErrorCodes_t err;
     int tempCompensationSettingChannel = compensationsSettingChannel;
     for (int i = 0; i < channelIndexes.size(); i++) {
         compensationsSettingChannel = channelIndexes[i];
         switch (paramToUpdate) {
         case U_CpVc:
-            this->setPipetteCapacitance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            err = this->setPipetteCapacitance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_Cm:
-            this->setMembraneCapacitance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            err = this->setMembraneCapacitance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_Rs:
-            this->setAccessResistance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            err = this->setAccessResistance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_RsCp:
-            this->setResistanceCorrectionPercentage({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            err = this->setResistanceCorrectionPercentage({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_RsCl:
-            this->setResistanceCorrectionLag({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            err = this->setResistanceCorrectionLag({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_RsPg:
-            this->setResistancePredictionGain({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            err = this->setResistancePredictionGain({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_RsPp:
-            this->setResistancePredictionPercentage({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            err = this->setResistancePredictionPercentage({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_RsPt:
-            this->setResistancePredictionTau({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            err = this->setResistancePredictionTau({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_LkG:
-            this->setLeakConductance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            err = this->setLeakConductance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_CpCc:
-            this->setCCPipetteCapacitance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            err = this->setCCPipetteCapacitance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
 
         case U_BrB:
-            this->setBridgeBalanceResistance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
+            err = this->setBridgeBalanceResistance({newParamValues[i], compensationControls[paramToUpdate][compensationsSettingChannel].prefix, compensationControls[paramToUpdate][compensationsSettingChannel].unit});
             break;
+
+        case CompensationUserParamsNum:
+            return ErrorValueOutOfRange;
+        }
+
+        if (err == Success) {
+            compValueMatrix[compensationsSettingChannel][paramToUpdate] = newParamValues[i];
         }
     }
     compensationsSettingChannel = tempCompensationSettingChannel;
