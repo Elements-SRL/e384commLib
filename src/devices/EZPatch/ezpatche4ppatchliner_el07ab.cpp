@@ -573,11 +573,11 @@ EZPatche4PPatchliner_el07ab::EZPatche4PPatchliner_el07ab(std::string di) :
     compensationsSwitchesByte[CompensationsSwitchRPredEn] = 0x0800;
     compensationsSwitchesByte[CompensationsSwitchCCFastEn] = 0x0020;
 
-    compensationsSwitchesLut[CompensationsSwitchCFastEn] = CompensationPipette;
-    compensationsSwitchesLut[CompensationsSwitchCSlowEn] = CompensationMembrane;
-    compensationsSwitchesLut[CompensationsSwitchRCorrEn] = CompensationResistanceCorrection;
-    compensationsSwitchesLut[CompensationsSwitchRPredEn] = CompensationResistancePrediction;
-    compensationsSwitchesLut[CompensationsSwitchCCFastEn] = CompensationCCPipette;
+    compensationsSwitchesLut[CompensationsSwitchRCorrEn] = CompRsCorr;
+    compensationsSwitchesLut[CompensationsSwitchCFastEn] = CompCfast;
+    compensationsSwitchesLut[CompensationsSwitchCSlowEn] = CompCslow;
+    compensationsSwitchesLut[CompensationsSwitchRPredEn] = CompRsPred;
+    compensationsSwitchesLut[CompensationsSwitchCCFastEn] = CompCcCfast;
 
     compensationsSwitchesLutStrings[CompensationsSwitchCFastEn] = '1';
     compensationsSwitchesLutStrings[CompensationsSwitchCSlowEn] = '1';

@@ -480,13 +480,13 @@ EZPatchePatchEL04E::EZPatchePatchEL04E(std::string di) :
     compensationsSwitchesByte[CompensationsSwitchCCFastEn] = 0x0008;
     compensationsSwitchesByte[CompensationsSwitchBridgeDis] = 0x0010;
 
-    compensationsSwitchesLut[CompensationsSwitchCFastEn] = CompensationPipette;
-    compensationsSwitchesLut[CompensationsSwitchCSlowEn] = CompensationMembrane;
-    compensationsSwitchesLut[CompensationsSwitchRCorrEn] = CompensationResistanceCorrection;
-    compensationsSwitchesLut[CompensationsSwitchRPredEn] = CompensationResistancePrediction;
-    compensationsSwitchesLut[CompensationsSwitchRLeakEn] = CompensationLeakConductance;
-    compensationsSwitchesLut[CompensationsSwitchCCFastEn] = CompensationCCPipette;
-    compensationsSwitchesLut[CompensationsSwitchBridgeDis] = CompensationBridgeBalance;
+    compensationsSwitchesLut[CompensationsSwitchCFastEn] = CompCfast;
+    compensationsSwitchesLut[CompensationsSwitchCSlowEn] = CompCslow;
+    compensationsSwitchesLut[CompensationsSwitchRCorrEn] = CompRsCorr;
+    compensationsSwitchesLut[CompensationsSwitchRPredEn] = CompRsPred;
+    compensationsSwitchesLut[CompensationsSwitchRLeakEn] = CompGLeak;
+    compensationsSwitchesLut[CompensationsSwitchCCFastEn] = CompCcCfast;
+    compensationsSwitchesLut[CompensationsSwitchBridgeDis] = CompBridgeRes;
 
     compensationsSwitchesLutStrings[CompensationsSwitchCFastEn] = '1';
     compensationsSwitchesLutStrings[CompensationsSwitchCSlowEn] = '1';

@@ -1745,7 +1745,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = compensationsEnableFlags[CompCfast][channelIndexes[i]];
+            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[CompCfast][channelIndexes[i]];
         }
         break;
 
@@ -1754,7 +1754,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = compensationsEnableFlags[CompCslow][channelIndexes[i]];
+            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[CompCslow][channelIndexes[i]];
         }
         break;
 
@@ -1763,7 +1763,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = compensationsEnableFlags[CompRsCorr][channelIndexes[i]];
+            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[CompRsCorr][channelIndexes[i]];
         }
         break;
 
@@ -1772,7 +1772,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = compensationsEnableFlags[CompRsPred][channelIndexes[i]] = onValues[i];
+            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[CompRsPred][channelIndexes[i]];
         }
         break;
 
@@ -1781,7 +1781,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = compensationsEnableFlags[CompCcCfast][channelIndexes[i]];
+            onValues[i] = ccCompensationsActivated && compensationsEnableFlags[CompCcCfast][channelIndexes[i]];
         }
         break;
 
@@ -2203,7 +2203,7 @@ std::vector<double> Emcr384PatchClamp_prot_v01_fw_v02::user2AsicDomainTransform(
 
     MultiCoder::MultiCoderConfig_t aaa;
     membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
-    asicCmCinj = computeAsicCmCinj(userDomainParams[U_Cm], compensationsEnableFlags[CompCslow][chIdx], aaa);
+    asicCmCinj = computeAsicCmCinj(userDomainParams[U_Cm], vcCompensationsActivated && compensationsEnableFlags[CompCslow][chIdx], aaa);
 
     if (selectedClampingModality == VOLTAGE_CLAMP){
         cp = userDomainParams[U_CpVc] + asicCmCinj;
@@ -2249,7 +2249,7 @@ std::vector<double> Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainTransform(
 
     MultiCoder::MultiCoderConfig_t aaa;
     membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
-    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compensationsEnableFlags[CompCslow][chIdx], aaa);
+    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], vcCompensationsActivated && compensationsEnableFlags[CompCslow][chIdx], aaa);
 
     //  pipette capacitance to pipette capacitance VC domain conversion
     if (selectedClampingModality == VOLTAGE_CLAMP){
@@ -2296,7 +2296,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
     double asicCmCinj;
     MultiCoder::MultiCoderConfig_t aaa;
     membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
-    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], compensationsEnableFlags[CompCslow][chIdx], aaa);
+    asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], vcCompensationsActivated && compensationsEnableFlags[CompCslow][chIdx], aaa);
 
     /*! Compensable for U_CpVc*/
     compensationControls[U_CpVc][chIdx].maxCompensable = pipetteCapacitanceRange.back().max - asicCmCinj;
@@ -2315,7 +2315,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
 
     potentialMaxs.push_back(membraneCapTauValueRange.back().max/userDomainParams[U_Rs]);
 
-    if(compensationsEnableFlags[CompCfast][chIdx]){
+    if(vcCompensationsActivated && compensationsEnableFlags[CompCfast][chIdx]){
         double zzz1;
         double zzz2;
         for (int i = 0; i < membraneCapValueInjCapacitance.size(); i++){
@@ -2329,7 +2329,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
         potentialMaxs.push_back(myInfinity);
     }
 
-    if(compensationsEnableFlags[CompRsPred][chIdx]){
+    if(vcCompensationsActivated && compensationsEnableFlags[CompRsPred][chIdx]){
         potentialMaxs.push_back(rsPredTauRange.max*(userDomainParams[U_RsPg]+1)/userDomainParams[U_Rs]);
     } else {
         potentialMaxs.push_back(myInfinity);
@@ -2343,7 +2343,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
 
     potentialMins.push_back(membraneCapTauValueRange.front().min/userDomainParams[U_Rs]);
 
-    if(compensationsEnableFlags[CompRsPred][chIdx]){
+    if(vcCompensationsActivated && compensationsEnableFlags[CompRsPred][chIdx]){
         potentialMins.push_back(rsPredTauRange.min*(userDomainParams[U_RsPg]+1)/userDomainParams[U_Rs]);
     } else {
         potentialMins.push_back(0.0);
@@ -2357,19 +2357,19 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
 
     /*! Compensable for U_Rs*/
     //max
-    if(compensationsEnableFlags[CompCslow][chIdx]){
+    if(vcCompensationsActivated && compensationsEnableFlags[CompCslow][chIdx]){
         potentialMaxs.push_back(membraneCapTauValueRange.back().max/userDomainParams[U_Cm]);
     } else {
         potentialMaxs.push_back(membraneCapTauValueRange.back().max/compensationControls[U_Cm][chIdx].minCompensable);
     }
 
-    if(compensationsEnableFlags[CompRsCorr][chIdx]){
+    if(vcCompensationsActivated && compensationsEnableFlags[CompRsCorr][chIdx]){
         potentialMaxs.push_back(rsCorrValueRange.max / userDomainParams[U_RsCp] * 100.0);
     } else {
         potentialMaxs.push_back(myInfinity);
     }
 
-    if(compensationsEnableFlags[CompRsPred][chIdx]){
+    if(vcCompensationsActivated && compensationsEnableFlags[CompRsPred][chIdx]){
         potentialMaxs.push_back(rsPredTauRange.max * (userDomainParams[U_RsPg]+1) / userDomainParams[U_Cm]);
     } else {
         potentialMaxs.push_back(myInfinity);
@@ -2379,19 +2379,19 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
     potentialMaxs.clear();
 
     //min
-    if(compensationsEnableFlags[CompCslow][chIdx]){
+    if(vcCompensationsActivated && compensationsEnableFlags[CompCslow][chIdx]){
         potentialMins.push_back(membraneCapTauValueRange.front().min / userDomainParams[U_Cm]);
     } else {
         potentialMins.push_back(membraneCapTauValueRange.front().min / compensationControls[U_Cm][chIdx].maxCompensable);
     }
 
-    if(compensationsEnableFlags[CompRsCorr][chIdx]){
+    if(vcCompensationsActivated && compensationsEnableFlags[CompRsCorr][chIdx]){
         potentialMins.push_back(rsCorrValueRange.min / userDomainParams[U_RsCp] * 100.0);
     } else {
         potentialMins.push_back(0);
     }
 
-    if(compensationsEnableFlags[CompRsPred][chIdx]){
+    if(vcCompensationsActivated && compensationsEnableFlags[CompRsPred][chIdx]){
         potentialMins.push_back(rsPredTauRange.min * (userDomainParams[U_RsPg]+1) / userDomainParams[U_Cm]);
     } else {
         potentialMins.push_back(0);

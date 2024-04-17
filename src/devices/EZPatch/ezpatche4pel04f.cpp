@@ -659,13 +659,13 @@ EZPatche4PEL04F::EZPatche4PEL04F(std::string di) :
     compensationsSwitchesByte[CompensationsSwitchCCFastEn] = 0x0800;
     compensationsSwitchesByte[CompensationsSwitchBridgeDis] = 0x1000;
 
-    compensationsSwitchesLut[CompensationsSwitchCFastEn] = CompensationPipette;
-    compensationsSwitchesLut[CompensationsSwitchCSlowEn] = CompensationMembrane;
-    compensationsSwitchesLut[CompensationsSwitchRCorrEn] = CompensationResistanceCorrection;
-    compensationsSwitchesLut[CompensationsSwitchRPredEn] = CompensationResistancePrediction;
-    compensationsSwitchesLut[CompensationsSwitchRLeakEn] = CompensationLeakConductance;
-    compensationsSwitchesLut[CompensationsSwitchCCFastEn] = CompensationCCPipette;
-    compensationsSwitchesLut[CompensationsSwitchBridgeDis] = CompensationBridgeBalance;
+    compensationsSwitchesLut[CompensationsSwitchRCorrEn] = CompRsCorr;
+    compensationsSwitchesLut[CompensationsSwitchCFastEn] = CompCfast;
+    compensationsSwitchesLut[CompensationsSwitchCSlowEn] = CompCslow;
+    compensationsSwitchesLut[CompensationsSwitchRPredEn] = CompRsPred;
+    compensationsSwitchesLut[CompensationsSwitchRLeakEn] = CompGLeak;
+    compensationsSwitchesLut[CompensationsSwitchCCFastEn] = CompCcCfast;
+    compensationsSwitchesLut[CompensationsSwitchBridgeDis] = CompBridgeRes;
 
     compensationsSwitchesLutStrings[CompensationsSwitchCFastEn] = '1';
     compensationsSwitchesLutStrings[CompensationsSwitchCSlowEn] = '1';

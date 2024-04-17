@@ -453,12 +453,12 @@ EZPatchePatchEL03F_4D_PCBV03_V04::EZPatchePatchEL03F_4D_PCBV03_V04(std::string d
     compensationsSwitchesByte[CompensationsSwitchCCFastEn] = 0x0008;
     compensationsSwitchesByte[CompensationsSwitchBridgeDis] = 0x0010;
 
-    compensationsSwitchesLut[CompensationsSwitchCFastEn] = CompensationPipette;
-    compensationsSwitchesLut[CompensationsSwitchCSlowEn] = CompensationMembrane;
-    compensationsSwitchesLut[CompensationsSwitchRCorrEn] = CompensationResistanceCorrection;
-    compensationsSwitchesLut[CompensationsSwitchRPredEn] = CompensationResistancePrediction;
-    compensationsSwitchesLut[CompensationsSwitchCCFastEn] = CompensationCCPipette;
-    compensationsSwitchesLut[CompensationsSwitchBridgeDis] = CompensationBridgeBalance;
+    compensationsSwitchesLut[CompensationsSwitchRCorrEn] = CompRsCorr;
+    compensationsSwitchesLut[CompensationsSwitchCFastEn] = CompCfast;
+    compensationsSwitchesLut[CompensationsSwitchCSlowEn] = CompCslow;
+    compensationsSwitchesLut[CompensationsSwitchRPredEn] = CompRsPred;
+    compensationsSwitchesLut[CompensationsSwitchCCFastEn] = CompCcCfast;
+    compensationsSwitchesLut[CompensationsSwitchBridgeDis] = CompBridgeRes;
 
     compensationsSwitchesLutStrings[CompensationsSwitchCFastEn] = '1';
     compensationsSwitchesLutStrings[CompensationsSwitchCSlowEn] = '1';

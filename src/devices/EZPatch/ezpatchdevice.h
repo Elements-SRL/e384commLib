@@ -248,19 +248,6 @@ protected:
         FpgaFwLoadPatchlinerArtix7_V01
     } FpgaLoadType_t;
 
-    enum CompensationsTypes {
-        CompensationPipette = 0,
-        CompensationMembrane = 1,
-        CompensationResistance = 2,
-        CompensationResistanceCorrection = 3,
-        CompensationResistancePrediction = 4,
-        CompensationLeakConductance = 5,
-        VCCompensationsNum = 6,
-        CompensationCCPipette = 6,
-        CompensationBridgeBalance = 7,
-        CompensationsNum = 8
-    };
-
     /*************\
      *  Methods  *
     \*************/
@@ -529,7 +516,7 @@ protected:
     std::vector <char> compensationsSwitchesLutStrings;
     std::vector <bool> compensationsSwitchesEnableSignArray; /*! true means that enabling the compensation closes a switch (write a 1) */
 
-    std::vector <bool> compensationsEnabledArray[CompensationsNum]; /*! Compensations actually enabled on device */
+    std::vector <bool> compensationsEnabledArray[CompensationTypesNum]; /*! Compensations actually enabled on device (the compensation is active and we are in the correct clamping modality) */
 
     bool pipetteCompensationImplemented = false;
     bool ccPipetteCompensationImplemented = false;
