@@ -71,7 +71,7 @@ EZPatche8PPatchliner_el07ab::EZPatche8PPatchliner_el07ab(std::string di) :
     ccCurrentRangesNum = CCCurrentRangesNum;
     ccCurrentRangesArray.resize(ccCurrentRangesNum);
     ccCurrentRangesArray[CCCurrentRange8nA].max = 8000.0;
-    ccCurrentRangesArray[CCCurrentRange8nA].min = 8000.0;
+    ccCurrentRangesArray[CCCurrentRange8nA].min = -8000.0;
     ccCurrentRangesArray[CCCurrentRange8nA].step = ccCurrentRangesArray[CCCurrentRange8nA].max/(INT13_MAX+1.0);
     ccCurrentRangesArray[CCCurrentRange8nA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange8nA].unit = "A";
