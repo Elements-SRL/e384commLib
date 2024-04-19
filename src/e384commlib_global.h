@@ -249,6 +249,7 @@ typedef struct RxOutput {
     uint16_t protocolItemIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the item index of the following data in the current protocol */
     uint16_t protocolRepsIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the iteration of an interal loop of the following data in the current protocol */
     uint16_t protocolSweepIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the sweep index of the following data in the current protocol */
+    uint32_t itemFirstSampleDistance = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the distance from the end to the first sample of a new item */
     uint32_t firstSampleOffset = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionData this field holds the data offset wrt the protocol first sample */
     uint32_t dataLen = 0; /*!< Number of data samples available in field data */
 } RxOutput_t;
