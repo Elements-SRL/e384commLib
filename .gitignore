@@ -32,3 +32,13 @@
 *.app
 
 commlib.pro.user
+.qmake.stash
+.vs/
+commlib.qtvscr
+commlib.sln
+commlib.vcxproj
+commlib.vcxproj.filters
+commlib.vcxproj.user
+commlib/
+debug/
+release/
