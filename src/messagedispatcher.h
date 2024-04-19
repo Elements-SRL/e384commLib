@@ -464,7 +464,7 @@ public:
      * \param stopProtocolFlag [in] true, to automatically stop the currently applied stimulation before changing modality.
      * \return Error code.
      */
-    virtual ErrorCodes_t setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag = true);
+    ErrorCodes_t setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag = true);
 
     /*! \brief Set the data sources for voltage channels.
      *

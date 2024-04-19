@@ -412,8 +412,12 @@ ErrorCodes_t MessageDispatcher::setClampingModality(uint32_t, bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t, bool, bool) {
-    return ErrorFeatureNotImplemented;
+ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag) {
+    auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
+    if (iter == clampingModalitiesArray.end()) {
+        return ErrorValueOutOfRange;
+    }
+    return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag, stopProtocolFlag);
 }
 
 ErrorCodes_t MessageDispatcher::setSourceForVoltageChannel(uint16_t, bool){

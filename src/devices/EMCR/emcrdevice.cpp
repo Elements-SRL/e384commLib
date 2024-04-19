@@ -1100,14 +1100,6 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag) {
-    auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
-    if (iter == clampingModalitiesArray.end()) {
-        return ErrorValueOutOfRange;
-    }
-    return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag, stopProtocolFlag);
-}
-
 ErrorCodes_t EmcrDevice::setSourceForVoltageChannel(uint16_t source, bool applyFlag) {
     if (sourceForVoltageChannelCoder == nullptr) {
         return ErrorFeatureNotImplemented;

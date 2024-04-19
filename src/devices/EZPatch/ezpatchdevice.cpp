@@ -540,6 +540,10 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
         return ErrorValueOutOfRange;
     }
 
+    if (idx == selectedClampingModalityIdx) {
+        return Success;
+    }
+
     if (stopProtocolFlag) {
         this->stopProtocol();
     }
@@ -565,10 +569,8 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
         /*! Apply on previous command to turn the voltage clamp on first */
         this->turnCurrentStimulusOn(false, false);
         this->turnVoltageReaderOn(false, false);
-        if (previousClampingModality == VOLTAGE_CLAMP) {
-            this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
-
-        } else {
+        if ((previousClampingModality == CURRENT_CLAMP) ||
+                (previousClampingModality == ZERO_CURRENT_CLAMP)) {
             this->setVCCurrentRange(storedVcCurrentRangeIdx, false);
         }
         this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
@@ -654,14 +656,6 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
     }
 
     return Success;
-}
-
-ErrorCodes_t EZPatchDevice::setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag) {
-    auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
-    if (iter == clampingModalitiesArray.end()) {
-        return ErrorValueOutOfRange;
-    }
-    return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag, stopProtocolFlag);
 }
 
 ErrorCodes_t EZPatchDevice::setSourceForVoltageChannel(uint16_t source, bool applyFlag) {
