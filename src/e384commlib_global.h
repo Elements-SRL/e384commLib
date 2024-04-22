@@ -181,6 +181,7 @@ typedef enum DeviceTypes {
     Device384PatchClamp_prot_v04_fw_v03,
     Device384PatchClamp_prot_v04_fw_v04,    /*!< Nanion's Syncropatch */
     Device384PatchClamp_prot_v04_fw_v05,
+    Device384PatchClamp_prot_v05_fw_v06,    /*! Header packet */
     Device2x10MHz_PCBV01,       /*!< 2 channels 10MHz nanopore reader */
     Device2x10MHz_PCBV02,       /*!< 2 channels 10MHz nanopore reader */
     Device4x10MHz_PCBV01,       /*!< 4 channels 10MHz nanopore reader */
@@ -249,6 +250,7 @@ typedef struct RxOutput {
     uint16_t protocolItemIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the item index of the following data in the current protocol */
     uint16_t protocolRepsIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the iteration of an interal loop of the following data in the current protocol */
     uint16_t protocolSweepIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the sweep index of the following data in the current protocol */
+    uint32_t itemFirstSampleDistance = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the distance from the end to the first sample of a new item */
     uint32_t firstSampleOffset = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionData this field holds the data offset wrt the protocol first sample */
     uint32_t dataLen = 0; /*!< Number of data samples available in field data */
 } RxOutput_t;

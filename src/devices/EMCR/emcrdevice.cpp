@@ -1545,6 +1545,9 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 rxOutput.protocolItemIdx = rxDataBuffer[(dataOffset+1) & RX_DATA_BUFFER_MASK];
                 rxOutput.protocolRepsIdx = rxDataBuffer[(dataOffset+2) & RX_DATA_BUFFER_MASK];
                 rxOutput.protocolSweepIdx = rxDataBuffer[(dataOffset+3) & RX_DATA_BUFFER_MASK];
+                if (rxWordLengths[RxMessageDataHeader] > 4) {
+                    rxOutput.itemFirstSampleDistance = (uint32_t)rxDataBuffer[(dataOffset+4) & RX_DATA_BUFFER_MASK] + 65536*(uint32_t)rxDataBuffer[(dataOffset+5) & RX_DATA_BUFFER_MASK];
+                }
 
                 lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader;
 
