@@ -131,6 +131,10 @@ private:
     uint32_t * txRawTriggerBuffer = nullptr;
 
     DeviceTuple_t deviceTuple;
+
+    std::chrono::steady_clock::time_point startTime;
+    std::chrono::steady_clock::time_point currentTime;
+    long long totalBytesRead = 0;
 };
 
 #endif // EMCRUDBDEVICE_H

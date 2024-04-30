@@ -1197,6 +1197,12 @@ void MessageDispatcher::createDebugFiles() {
     }
 #endif
 
+#ifdef DEBUG_RX_SPEED_PRINT
+    if (rxSpeedFid == nullptr) {
+        createDebugFile(rxSpeedFid, "e384CommLib_rxSpeed");
+    }
+#endif
+
 #ifdef DEBUG_RX_RAW_DATA_PRINT
     if (rxRawFid == nullptr) {
         createDebugFile(rxRawFid, "e384CommLib_rxRaw");

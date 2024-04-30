@@ -1560,6 +1560,10 @@ protected:
     FILE * txFid = nullptr;
 #endif
 
+#ifdef DEBUG_RX_SPEED_PRINT
+    FILE * rxSpeedFid = nullptr;
+#endif
+
 #ifdef DEBUG_RX_RAW_DATA_PRINT
     FILE * rxRawFid = nullptr;
 #endif

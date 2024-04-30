@@ -28,6 +28,7 @@ EmcrUdbDevice::EmcrUdbDevice(std::string deviceId) :
     EmcrDevice(deviceId) {
 
     rxRawBufferMask = UDB_RX_BUFFER_MASK;
+    startTime = std::chrono::steady_clock::now();
 }
 
 EmcrUdbDevice::~EmcrUdbDevice() {
@@ -455,6 +456,15 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
             return 0;
             /*! \todo eptBulkin->NtStatus controllare per vedere il tipo di fallimento */
         }
+    }
+
+    totalBytesRead += bytesRead;
+    currentTime = std::chrono::steady_clock::now();
+    long long duration = (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count());
+    if (duration > (1000.0)) {
+        startTime = currentTime;
+        fprintf(rxSpeedFid, "%d\n", totalBytesRead);
+        totalBytesRead = 0;
     }
 
     if (rxRawBufferWriteOffset+bytesRead > UDB_RX_BUFFER_SIZE) {
