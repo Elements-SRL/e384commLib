@@ -57,6 +57,14 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
     return Success;
 }
 
+ErrorCodes_t EmcrUdbDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    DeviceTuple_t tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
+    deviceVersion = tuple.version;
+    deviceSubVersion = tuple.subversion;
+    fwVersion = tuple.fwVersion;
+    return Success;
+}
+
 ErrorCodes_t EmcrUdbDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
     DeviceTuple_t tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
 

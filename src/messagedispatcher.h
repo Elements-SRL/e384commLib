@@ -119,7 +119,19 @@ public:
      * \return Error code.
      */
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
-//    static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
+
+    /*! \brief Get information about a connected device.
+     *
+     * \param deviceId [in] Serial number of the device.
+     * \param deviceVersion [out] Version of the device (device family). -1 if not available.
+     * \param deviceSubVersion [out] Subversion of the device (increases with PCB changes). -1 if not available.
+     * \param fwVersion [out] Version of the firmware (increases with device's firmware). -1 if not available.
+     * \note The available device versions with the corresponding devices sub versions are found
+     *       as enums in some header files, more specifically, devices/EMCR/emcrudbdevice.h and
+     *       devices/EZPatch/ftdieeprom.h
+     * \return Error code.
+     */
+    static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
 
     /*! \brief Connects to a specific device
      * Calling this method if a device is already connected will return an error code.
