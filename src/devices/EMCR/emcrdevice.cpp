@@ -978,10 +978,15 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
         return ErrorValueOutOfRange;
     }
 
+    if ((idx == selectedClampingModalityIdx) && clampingModalitySetFlag) {
+        return Success;
+    }
+
     if (stopProtocolFlag) {
         this->stopProtocol();
     }
 
+    clampingModalitySetFlag = true;
     selectedClampingModalityIdx = idx;
     previousClampingModality = selectedClampingModality;
     selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];

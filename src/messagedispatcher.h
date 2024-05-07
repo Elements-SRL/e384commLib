@@ -1358,6 +1358,7 @@ protected:
 
     uint32_t clampingModalitiesNum = 0;
     uint32_t selectedClampingModalityIdx = 0;
+    bool clampingModalitySetFlag = false;
     uint32_t selectedClampingModality = VOLTAGE_CLAMP;
     uint32_t previousClampingModality = VOLTAGE_CLAMP;
     std::vector <ClampingModality_t> clampingModalitiesArray;

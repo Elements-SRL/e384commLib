@@ -540,7 +540,7 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
         return ErrorValueOutOfRange;
     }
 
-    if (idx == selectedClampingModalityIdx) {
+    if ((idx == selectedClampingModalityIdx) && clampingModalitySetFlag) {
         return Success;
     }
 
@@ -548,6 +548,7 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
         this->stopProtocol();
     }
 
+    clampingModalitySetFlag = true;
     selectedClampingModalityIdx = idx;
     previousClampingModality = selectedClampingModality;
     selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];
