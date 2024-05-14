@@ -54,6 +54,7 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
+    src/devices/EMCR/emcr10mhzfake.cpp \
     src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
@@ -91,6 +92,7 @@ SOURCES += \
     src/udbutils.cpp
 
 HEADERS += \
+    src/devices/EMCR/emcr10mhzfake.h \
     src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \

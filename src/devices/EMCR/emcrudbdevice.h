@@ -34,6 +34,7 @@ public:
         /*! Subversions used for version = 0x0B */
         DeviceSubversionUDB_PCBV02 = 0x01,
         DeviceSubversionUDB_PCBV03 = 0x02,
+        DeviceSubversionUDB_FAKE = 0xFE,
 
         /*! Subversions used for Version = 0xFF */
         DeviceSubversionUndefined = 0xFF
