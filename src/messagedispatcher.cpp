@@ -1988,6 +1988,18 @@ ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t>, Compensati
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::setCustomFlag(uint16_t idx, bool flag, bool applyFlag) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setCustomOption(uint16_t idx, uint16_t value, bool applyFlag) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setCustomDouble(uint16_t idx, double value, bool applyFlag) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::hasCompFeature(uint16_t) {
     return ErrorFeatureNotImplemented;
 }
@@ -2110,6 +2122,35 @@ ErrorCodes_t MessageDispatcher::getLeakConductance(std::vector<uint16_t>, std::v
 
 ErrorCodes_t MessageDispatcher::getBridgeBalanceResistance(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
     return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getCustomFlags(std::vector <std::string> &customFlags, std::vector <bool> &customFlagsDefault) {
+    if (customFlagsNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    customFlags = customFlagsNames;
+    customFlagsDefault = this->customFlagsDefault;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCustomOptions(std::vector <std::string> &customOptions, std::vector <std::vector <std::string>> &customOptionsDescriptions, std::vector <bool> &customOptionsDefault) {
+    if (customOptionsNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    customOptions = customOptionsNames;
+    customOptionsDescriptions = this->customOptionsDescriptions;
+    customOptionsDefault = this->customOptionsDefault;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCustomDoubles(std::vector <std::string> &customDoubles, std::vector <RangedMeasurement_t> &customDoublesRanges, std::vector <double> &customDoublesDefault) {
+    if (customDoublesNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    customDoubles.resize(customDoublesNum);
+    customDoublesRanges = this->customDoublesRanges;
+    customDoublesDefault = this->customDoublesDefault;
+    return Success;
 }
 
 std::vector<double> MessageDispatcher::user2AsicDomainTransform(int, std::vector<double>){

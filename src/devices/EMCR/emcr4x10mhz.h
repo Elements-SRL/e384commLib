@@ -6,7 +6,6 @@
 class Emcr4x10MHz_PCBV01_V02 : public EmcrOpalKellyDevice {
 public:
     Emcr4x10MHz_PCBV01_V02(std::string di);
-    virtual ~Emcr4x10MHz_PCBV01_V02();
 
 protected:
     enum ClampingModalities {
@@ -76,7 +75,6 @@ protected:
 class Emcr4x10MHz_PCBV01_V03 : public EmcrOpalKellyDevice {
 public:
     Emcr4x10MHz_PCBV01_V03(std::string di);
-    virtual ~Emcr4x10MHz_PCBV01_V03();
 
 protected:
     enum ClampingModalities {
@@ -146,7 +144,6 @@ protected:
 class Emcr4x10MHz_PCBV03_V03: public Emcr4x10MHz_PCBV01_V03 {
 public:
     Emcr4x10MHz_PCBV03_V03(std::string di);
-    virtual ~Emcr4x10MHz_PCBV03_V03();
 
 protected:
     enum VCVoltageFilters {
@@ -159,7 +156,17 @@ protected:
 class Emcr4x10MHz_PCBV03_V04: public Emcr4x10MHz_PCBV03_V03 {
 public:
     Emcr4x10MHz_PCBV03_V04(std::string di);
-    virtual ~Emcr4x10MHz_PCBV03_V04();
+};
+
+class Emcr4x10MHz_SB_PCBV01_V05: public Emcr4x10MHz_PCBV03_V04 {
+public:
+    Emcr4x10MHz_SB_PCBV01_V05(std::string di);
+
+protected:
+    enum CustomOptions {
+        CustomOptionInterposer,
+        CustomOptionsNum
+    };
 };
 
 #endif // EMCR4x10MHZ_H

@@ -721,10 +721,6 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-Emcr4x10MHz_PCBV01_V02::~Emcr4x10MHz_PCBV01_V02() {
-
-}
-
 ErrorCodes_t Emcr4x10MHz_PCBV01_V02::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1508,10 +1504,6 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-Emcr4x10MHz_PCBV01_V03::~Emcr4x10MHz_PCBV01_V03() {
-
-}
-
 ErrorCodes_t Emcr4x10MHz_PCBV01_V03::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1573,10 +1565,6 @@ Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
     static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x00); // 16kHz on all channels
     static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x55); // 1.6kHz on all channels
     coders.push_back(vcVoltageFilterCoder);
-}
-
-Emcr4x10MHz_PCBV03_V03::~Emcr4x10MHz_PCBV03_V03() {
-
 }
 
 Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
@@ -1707,6 +1695,31 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-Emcr4x10MHz_PCBV03_V04::~Emcr4x10MHz_PCBV03_V04() {
+Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
+    Emcr4x10MHz_PCBV03_V04(id) {
 
+    fwName = "4x10MHz_SB_V01.bit";
+
+    customOptionsNum = CustomOptionsNum;
+    customOptionsNames.resize(customOptionsNum);
+    customOptionsNames[CustomOptionInterposer] = "Interposer";
+    customOptionsDescriptions.resize(customOptionsNum);
+    customOptionsDescriptions[CustomOptionInterposer].resize(4);
+    customOptionsDescriptions[CustomOptionInterposer][0] = "Ch 1, 5, 9, 13";
+    customOptionsDescriptions[CustomOptionInterposer][1] = "Ch 2, 6,10, 14";
+    customOptionsDescriptions[CustomOptionInterposer][2] = "Ch 3, 7,11, 15";
+    customOptionsDescriptions[CustomOptionInterposer][3] = "Ch 4, 8,12, 16";
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Input controls */
+    BoolCoder::CoderConfig_t boolConfig;
+
+    boolConfig.initialWord = 0;
+    boolConfig.initialBit = 7;
+    boolConfig.bitsNum = 2;
+    customOptionsCoders.resize(customOptionsNum);
+    customOptionsCoders[CustomOptionInterposer] = new BoolArrayCoder(boolConfig);
 }

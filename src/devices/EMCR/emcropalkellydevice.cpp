@@ -176,6 +176,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr4x10MHz_PCBV03_V04(deviceId);
         break;
 
+    case Device4x10MHz_SB_PCBV01:
+        messageDispatcher = new Emcr4x10MHz_SB_PCBV01_V05(deviceId);
+        break;
+
 #ifdef DEBUG
     case Device384Fake:
         messageDispatcher = new Emcr384FakeNanopores(deviceId);
