@@ -30,7 +30,7 @@ protected:
 private:
     ErrorCodes_t fillBuffer();
 
-    uint16_t syntheticData = 0;
+    uint32_t syntheticData = 0;
     double generatedByteRate = 160.0e6;
 
     std::chrono::steady_clock::time_point startTime;

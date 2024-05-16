@@ -91,7 +91,7 @@ ErrorCodes_t Emcr10MHzFake::fillBuffer() {
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from UDB */
 
-    while (bytesRead+(voltageChannelsNum+currentChannelsNum*packetsPerFrame+8)*RX_WORD_SIZE < UDB_RX_BUFFER_SIZE) {
+    while (bytesRead+((voltageChannelsNum+currentChannelsNum)*packetsPerFrame+8)*RX_WORD_SIZE < UDB_RX_BUFFER_SIZE) {
         rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
         rxRawBuffer[rxRawBufferWriteOffset+1] = 0XA5;
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & UDB_RX_BUFFER_MASK;
@@ -117,7 +117,7 @@ ErrorCodes_t Emcr10MHzFake::fillBuffer() {
                     rxRawBuffer[rxRawBufferWriteOffset] = (data[syntheticData] & 0xFF00) >> 8;
                     rxRawBuffer[rxRawBufferWriteOffset+1] = data[syntheticData] & 0x00FF;
                     rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & UDB_RX_BUFFER_MASK;
-                    syntheticData += 1;
+                    syntheticData++;
                 }
             }
 
@@ -134,7 +134,7 @@ ErrorCodes_t Emcr10MHzFake::fillBuffer() {
                     rxRawBuffer[rxRawBufferWriteOffset] = ((syntheticData+idx*20) & 0xFF00) >> 8;
                     rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
                     rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & UDB_RX_BUFFER_MASK;
-                    syntheticData += 1;
+                    syntheticData++;
                 }
             }
         }
