@@ -1709,6 +1709,8 @@ Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
     customOptionsDescriptions[CustomOptionInterposer][1] = "Ch 2, 6,10, 14";
     customOptionsDescriptions[CustomOptionInterposer][2] = "Ch 3, 7,11, 15";
     customOptionsDescriptions[CustomOptionInterposer][3] = "Ch 4, 8,12, 16";
+    customOptionsDefault.resize(CustomOptionsNum);
+    customOptionsDefault[CustomOptionInterposer] = 0;
 
     /**********\
      * Coders *

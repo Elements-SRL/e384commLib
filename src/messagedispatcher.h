@@ -1257,7 +1257,7 @@ public:
     /*! Device specific controls */
 
     ErrorCodes_t getCustomFlags(std::vector <std::string> &customFlags, std::vector <bool> &customFlagsDefault);
-    ErrorCodes_t getCustomOptions(std::vector <std::string> &customOptions, std::vector <std::vector <std::string>> &customOptionsDescriptions, std::vector <bool> &customOptionsDefault);
+    ErrorCodes_t getCustomOptions(std::vector <std::string> &customOptions, std::vector <std::vector <std::string>> &customOptionsDescriptions, std::vector <uint16_t> &customOptionsDefault);
     ErrorCodes_t getCustomDoubles(std::vector <std::string> &customDoubles, std::vector <RangedMeasurement_t> &customDoublesRanges, std::vector <double> &customDoublesDefault);
 
 protected:
@@ -1546,7 +1546,7 @@ protected:
     uint16_t customOptionsNum = 0;
     std::vector <std::string> customOptionsNames;
     std::vector <std::vector <std::string>> customOptionsDescriptions;
-    std::vector <bool> customOptionsDefault;
+    std::vector <uint16_t> customOptionsDefault;
 
     uint16_t customDoublesNum = 0;
     std::vector <std::string> customDoublesNames;

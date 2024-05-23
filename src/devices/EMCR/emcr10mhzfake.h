@@ -10,7 +10,7 @@ public:
 protected:
 
     enum SamplingRates {
-        SamplingRate40MHz,
+        SamplingRate1MHz,
         SamplingRatesNum
     };
 
@@ -31,7 +31,7 @@ private:
     ErrorCodes_t fillBuffer();
 
     uint32_t syntheticData = 0;
-    double generatedByteRate = 160.0e6;
+    double generatedByteRate = 4.0e6;
 
     std::chrono::steady_clock::time_point startTime;
     std::chrono::steady_clock::time_point currentTime;

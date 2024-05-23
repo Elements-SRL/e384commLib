@@ -8,20 +8,26 @@ Emcr10MHzFake::Emcr10MHzFake(std::string id) :
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate40MHz].value = 40.0;
-    samplingRatesArray[SamplingRate40MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate40MHz].unit = "Hz";
-    defaultSamplingRateIdx = SamplingRate40MHz;
+    samplingRatesArray[SamplingRate1MHz].value = 1.0;
+    samplingRatesArray[SamplingRate1MHz].prefix = UnitPfxMega;
+    samplingRatesArray[SamplingRate1MHz].unit = "Hz";
+    defaultSamplingRateIdx = SamplingRate1MHz;
+    defaultSamplingRateIdx = SamplingRate1MHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate40MHz].value = 40.0;
-    realSamplingRatesArray[SamplingRate40MHz].prefix = UnitPfxMega;
-    realSamplingRatesArray[SamplingRate40MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate1MHz].value = 1.0;
+    realSamplingRatesArray[SamplingRate1MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate1MHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate40MHz].value = 25.0;
-    integrationStepArray[SamplingRate40MHz].prefix = UnitPfxNano;
-    integrationStepArray[SamplingRate40MHz].unit = "s";
+    integrationStepArray[SamplingRate1MHz].value = 1000.0;
+    integrationStepArray[SamplingRate1MHz].prefix = UnitPfxNano;
+    integrationStepArray[SamplingRate1MHz].unit = "s";
+
+    samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
+    integrationStep = integrationStepArray[defaultSamplingRateIdx];
+
+    selectedSamplingRateIdx = defaultSamplingRateIdx;
 }
 
 ErrorCodes_t Emcr10MHzFake::startCommunication(std::string) {

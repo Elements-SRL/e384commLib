@@ -2133,7 +2133,7 @@ ErrorCodes_t MessageDispatcher::getCustomFlags(std::vector <std::string> &custom
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCustomOptions(std::vector <std::string> &customOptions, std::vector <std::vector <std::string>> &customOptionsDescriptions, std::vector <bool> &customOptionsDefault) {
+ErrorCodes_t MessageDispatcher::getCustomOptions(std::vector <std::string> &customOptions, std::vector <std::vector <std::string>> &customOptionsDescriptions, std::vector <uint16_t> &customOptionsDefault) {
     if (customOptionsNum == 0) {
         return ErrorFeatureNotImplemented;
     }

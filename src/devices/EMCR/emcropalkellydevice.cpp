@@ -37,7 +37,8 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"233600165Q", Device2x10MHz_PCBV02},
     {"233600161X", Device4x10MHz_PCBV03},
     {"224800130Y", Device4x10MHz_PCBV03},
-    {"2336001642", Device2x10MHz_PCBV02}
+    {"2336001642", Device2x10MHz_PCBV02},
+    {"23230014TO", Device4x10MHz_SB_PCBV01}
     #ifdef DEBUG
     ,{"FAKE_Nanopores", Device384Fake},
     {"FAKE_PATCH_CLAMP", Device384FakePatchClamp},
