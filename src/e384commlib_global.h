@@ -182,13 +182,14 @@ typedef enum DeviceTypes {
     Device384PatchClamp_prot_v04_fw_v04,    /*!< Nanion's Syncropatch */
     Device384PatchClamp_prot_v04_fw_v05,
     Device384PatchClamp_prot_v05_fw_v06,    /*! Header packet */
-    Device2x10MHz_PCBV01,       /*!< 2 channels 10MHz nanopore reader */
-    Device2x10MHz_PCBV02,       /*!< 2 channels 10MHz nanopore reader */
-    Device4x10MHz_PCBV01,       /*!< 4 channels 10MHz nanopore reader */
-    Device4x10MHz_PCBV03,       /*!< 4 channels 10MHz nanopore reader */
-    Device4x10MHz_SB_PCBV01,    /*!< 4 channels 10MHz nanopore reader, single board */
-    Device10MHzOld,             /*!< UDB based 10MHz nanopore reader, old firmware */
-    Device10MHzV01,             /*!< UDB based 10MHz nanopore reader */
+    Device2x10MHz_PCBV01,                   /*!< 2 channels 10MHz nanopore reader */
+    Device2x10MHz_PCBV02,                   /*!< 2 channels 10MHz nanopore reader */
+    Device4x10MHz_PCBV01,                   /*!< 4 channels 10MHz nanopore reader */
+    Device4x10MHz_PCBV03,                   /*!< 4 channels 10MHz nanopore reader */
+    Device4x10MHz_SB_PCBV01,                /*!< 4 channels 10MHz nanopore reader, single board */
+    Device4x10MHz_QuadAnalog_PCBV01,        /*!< 4 channels 10MHz nanopore reader, single board */
+    Device10MHzOld,                         /*!< UDB based 10MHz nanopore reader, old firmware */
+    Device10MHzV01,                         /*!< UDB based 10MHz nanopore reader */
     /*! EZ patch devices */
     DeviceEPatchEL03D_V04,                  /*!< ePatch device with EL03D chip: digital repetitive trigger output. */
     DeviceEPatchEL03D_V03,                  /*!< ePatch device with EL03D chip: increased maximum amount of digital trigger output events. */
