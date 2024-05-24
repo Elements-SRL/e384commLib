@@ -1569,7 +1569,7 @@ Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
 
 Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     Emcr4x10MHz_PCBV03_V03(di) {
-    fwName = "4x10MHz_V06.bit";
+    fwName = "4x10MHz_V07.bit";
 
     txDataWords = 442; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
