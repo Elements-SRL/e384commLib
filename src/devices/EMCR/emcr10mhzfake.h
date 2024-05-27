@@ -1,7 +1,11 @@
 #ifndef EMCR10MHZFAKE_H
 #define EMCR10MHZFAKE_H
 
+//#define SHORT_FILE
+
 #include "emcr10mhz.h"
+
+#include <fstream>
 
 class Emcr10MHzFake : public Emcr10MHz_V01 {
 public:
@@ -28,7 +32,8 @@ protected:
     virtual uint32_t readDataFromDevice() override;
 
 private:
-    ErrorCodes_t fillBuffer();
+    void fillBuffer();
+    void initializeLongBuffer();
 
     uint32_t syntheticData = 0;
     double generatedByteRate = 4.0e6;
@@ -36,6 +41,15 @@ private:
     std::chrono::steady_clock::time_point startTime;
     std::chrono::steady_clock::time_point currentTime;
     uint32_t totalBytesWritten = 0;
+
+    std::string filenameLong = "data_long.dat";
+    bool fileOkLong;
+    std::ifstream fileLong;
+    std::streampos fileSizeLong;
+    std::size_t numElementsLong;
+    std::size_t maxElementsLong;
+    std::size_t readElementsLong;
+    std::vector <int16_t> dataLong;
 };
 
 #endif // EMCR10MHZFAKE_H
