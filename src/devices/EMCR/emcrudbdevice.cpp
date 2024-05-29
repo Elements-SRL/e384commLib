@@ -3,6 +3,10 @@
 #include <fstream>
 
 #include "emcr10mhz.h"
+#ifdef DEBUG
+/*! Fake device that generates synthetic data */
+#include "emcr10mhzfake.h"
+#endif
 
 static UdbProgrammer programmer;
 
@@ -16,12 +20,18 @@ static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 6, Device10MHzOld},                  //   11,  1,  6 : UDB V02
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 7, Device10MHzOld},                  //   11,  1,  7 : UDB V02
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 8, Device10MHzOld},                  //   11,  1,  8 : UDB V02
-    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 9, Device10MHzV01},                  //   11,  1,  9 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 9, Device10MHzV01}                   //   11,  1,  9 : UDB V02
+    #ifdef DEBUG
+    ,{EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_FAKE, 254, Device10MHzFake}                 //   11,254,254 : UDB FAKE
+    #endif
 };
 
 static std::unordered_map <DeviceTypes_t, MessageDispatcher::FwUpgradeInfo_t> fwUpgradeInfo = {
     {Device10MHzOld, {true, 9, "10MHz_V09.bin"}},
     {Device10MHzV01, MessageDispatcher::FwUpgradeInfo_t()}
+    #ifdef DEBUG
+    ,{Device10MHzFake, MessageDispatcher::FwUpgradeInfo_t()}
+    #endif
 };
 
 EmcrUdbDevice::EmcrUdbDevice(std::string deviceId) :
@@ -43,9 +53,11 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
     if (!devCountOk) {
         return ErrorListDeviceFailed;
 
+#ifndef DEBUG
     } else if (numDevs == 0) {
         deviceIds.clear();
         return ErrorNoDeviceFound;
+#endif
     }
 
     deviceIds.clear();
@@ -55,11 +67,39 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
         deviceIds.push_back(UdbUtils::getDeviceSerial(i));
     }
 
+#ifdef DEBUG
+    numDevs++;
+    deviceIds.push_back("FAKE_10MHz");
+#endif
+
+    return Success;
+}
+
+ErrorCodes_t EmcrUdbDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    if (deviceId != "FAKE_10MHz") {
+        DeviceTuple_t tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
+        deviceVersion = tuple.version;
+        deviceSubVersion = tuple.subversion;
+        fwVersion = tuple.fwVersion;
+
+    } else {
+        deviceVersion = DeviceVersion10MHz;
+        deviceSubVersion = DeviceSubversionUDB_FAKE;
+        fwVersion = 254;
+    }
     return Success;
 }
 
 ErrorCodes_t EmcrUdbDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
-    DeviceTuple_t tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
+    DeviceTuple_t tuple;
+    if (deviceId != "FAKE_10MHz") {
+        tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
+
+    } else {
+        tuple.version = DeviceVersion10MHz;
+        tuple.subversion = DeviceSubversionUDB_FAKE;
+        tuple.fwVersion = 254;
+    }
 
     bool deviceFound = false;
     for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
@@ -123,6 +163,12 @@ ErrorCodes_t EmcrUdbDevice::connectDevice(std::string deviceId, MessageDispatche
 
     case Device10MHzOld:
         return ErrorDeviceToBeUpgraded;
+
+#ifdef DEBUG
+    case Device10MHzFake:
+        messageDispatcher = new Emcr10MHzFake(deviceId);
+        break;
+#endif
 
     default:
         return ErrorDeviceTypeNotRecognized;
@@ -458,14 +504,15 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
         }
     }
 
-    totalBytesRead += bytesRead;
-    currentTime = std::chrono::steady_clock::now();
-    long long duration = (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count());
-    if (duration > (1000.0)) {
-        startTime = currentTime;
-        fprintf(rxSpeedFid, "%d\n", totalBytesRead);
-        totalBytesRead = 0;
-    }
+//    totalBytesRead += bytesRead;
+//    currentTime = std::chrono::steady_clock::now();
+//    long long duration = (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count());
+//    if (duration > (1000.0)) {
+//        startTime = currentTime;
+//        fprintf(rxSpeedFid, "%f64Msps\n", ((double)totalBytesRead)/4.0e6);
+//        fflush(rxSpeedFid);
+//        totalBytesRead = 0;
+//    }
 
     if (rxRawBufferWriteOffset+bytesRead > UDB_RX_BUFFER_SIZE) {
         for (uint32_t idx = 0; idx < rxRawBufferWriteOffset+bytesRead-UDB_RX_BUFFER_SIZE; idx++) {

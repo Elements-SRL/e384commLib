@@ -34,6 +34,7 @@ public:
         /*! Subversions used for version = 0x0B */
         DeviceSubversionUDB_PCBV02 = 0x01,
         DeviceSubversionUDB_PCBV03 = 0x02,
+        DeviceSubversionUDB_FAKE = 0xFE,
 
         /*! Subversions used for Version = 0xFF */
         DeviceSubversionUndefined = 0xFF
@@ -46,6 +47,7 @@ public:
     } DeviceTuple_t;
 
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
+    static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t getUpgradeInfo(DeviceTypes_t type, FwUpgradeInfo_t &info);
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
@@ -131,10 +133,6 @@ private:
     uint32_t * txRawTriggerBuffer = nullptr;
 
     DeviceTuple_t deviceTuple;
-
-    std::chrono::steady_clock::time_point startTime;
-    std::chrono::steady_clock::time_point currentTime;
-    long long totalBytesRead = 0;
 };
 
 #endif // EMCRUDBDEVICE_H

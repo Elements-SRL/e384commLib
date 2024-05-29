@@ -5,8 +5,6 @@ CONFIG(debug, debug|release) {
     QMAKE_CXXFLAGS += -O0 # No optimization for debug
     TARGET = e384commlibd
     DEFINES += DEBUG
-#    QMAKE_CXXFLAGS_DEBUG += /MTd
-#    QMAKE_LFLAGS_DEBUG += /NODEFAULTLIB:MSVCRTD
 
     # comment or uncomment depending on the desired verbosity
 #    DEFINES += DEBUG_TX_DATA_PRINT
@@ -21,8 +19,7 @@ CONFIG(debug, debug|release) {
 CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS += -O2
     TARGET = e384commlib
-#    QMAKE_CXXFLAGS_RELEASE += /MT
-#    QMAKE_LFLAGS_RELEASE += /NODEFAULTLIB:MSVCRT
+
 #    DEFINES += DEBUG_RX_RAW_DATA_PRINT
 #    DEFINES += DEBUG_RX_DATA_PRINT
 #    DEFINES += DEBUG_TX_DATA_PRINT
@@ -61,7 +58,6 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
-    src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
     src/devices/EMCR/emcropalkellydevice.cpp \
@@ -72,6 +68,7 @@ SOURCES += \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v03.cpp \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v04.cpp \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v05.cpp \
+    src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.cpp \
     src/devices/EMCR/emcr10mhz.cpp \
     src/devices/EMCR/emcr2x10mhz.cpp \
     src/devices/EMCR/emcr4x10mhz.cpp \
@@ -98,7 +95,6 @@ SOURCES += \
     src/udbutils.cpp
 
 HEADERS += \
-    src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
@@ -113,6 +109,7 @@ HEADERS += \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v03.h \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v04.h \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v05.h \
+    src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.h \
     src/devices/EMCR/emcr10mhz.h \
     src/devices/EMCR/emcr2x10mhz.h \
     src/devices/EMCR/emcr4x10mhz.h \
@@ -143,6 +140,7 @@ contains(DEFINES, DEBUG) {
     SOURCES += \
     src/devices/EMCR/emcr384nanoporesfake.cpp \
     src/devices/EMCR/emcr384patchclampfake.cpp \
+    src/devices/EMCR/emcr10mhzfake.cpp \
     src/devices/EMCR/emcr2x10mhzfake.cpp \
     src/devices/EMCR/emcr4x10mhzfake.cpp \
     src/devices/EZPatch/ezpatchfakepatch.cpp \
@@ -150,6 +148,7 @@ contains(DEFINES, DEBUG) {
     HEADERS += \
     src/devices/EMCR/emcr384nanoporesfake.h \
     src/devices/EMCR/emcr384patchclampfake.h \
+    src/devices/EMCR/emcr10mhzfake.h \
     src/devices/EMCR/emcr2x10mhzfake.h \
     src/devices/EMCR/emcr4x10mhzfake.h \
     src/devices/EZPatch/ezpatchfakepatch.h \

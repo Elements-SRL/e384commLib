@@ -12,7 +12,7 @@ bool UdbUtils::getDeviceCount(int &numDevs) {
     CCyUSBDevice * tempDev = new CCyUSBDevice;
     numDevs = tempDev->DeviceCount();
     delete tempDev;
-    return numDevs > 0;
+    return true;
 }
 
 int32_t UdbUtils::getDeviceIndex(std::string serial) {

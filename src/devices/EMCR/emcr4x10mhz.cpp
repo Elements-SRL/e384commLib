@@ -721,10 +721,6 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-Emcr4x10MHz_PCBV01_V02::~Emcr4x10MHz_PCBV01_V02() {
-
-}
-
 ErrorCodes_t Emcr4x10MHz_PCBV01_V02::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1508,10 +1504,6 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-Emcr4x10MHz_PCBV01_V03::~Emcr4x10MHz_PCBV01_V03() {
-
-}
-
 ErrorCodes_t Emcr4x10MHz_PCBV01_V03::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1575,13 +1567,9 @@ Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
     coders.push_back(vcVoltageFilterCoder);
 }
 
-Emcr4x10MHz_PCBV03_V03::~Emcr4x10MHz_PCBV03_V03() {
-
-}
-
 Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     Emcr4x10MHz_PCBV03_V03(di) {
-    fwName = "4x10MHz_V06.bit";
+    fwName = "4x10MHz_V07.bit";
 
     txDataWords = 442; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
@@ -1707,6 +1695,39 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-Emcr4x10MHz_PCBV03_V04::~Emcr4x10MHz_PCBV03_V04() {
+Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
+    Emcr4x10MHz_PCBV03_V04(id) {
 
+    fwName = "4x10MHz_SB_V01.bit";
+
+    customOptionsNum = CustomOptionsNum;
+    customOptionsNames.resize(customOptionsNum);
+    customOptionsNames[CustomOptionInterposer] = "Interposer";
+    customOptionsDescriptions.resize(customOptionsNum);
+    customOptionsDescriptions[CustomOptionInterposer].resize(4);
+    customOptionsDescriptions[CustomOptionInterposer][0] = "Ch 1, 5, 9, 13";
+    customOptionsDescriptions[CustomOptionInterposer][1] = "Ch 2, 6,10, 14";
+    customOptionsDescriptions[CustomOptionInterposer][2] = "Ch 3, 7,11, 15";
+    customOptionsDescriptions[CustomOptionInterposer][3] = "Ch 4, 8,12, 16";
+    customOptionsDefault.resize(CustomOptionsNum);
+    customOptionsDefault[CustomOptionInterposer] = 0;
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Input controls */
+    BoolCoder::CoderConfig_t boolConfig;
+
+    boolConfig.initialWord = 0;
+    boolConfig.initialBit = 7;
+    boolConfig.bitsNum = 2;
+    customOptionsCoders.resize(customOptionsNum);
+    customOptionsCoders[CustomOptionInterposer] = new BoolArrayCoder(boolConfig);
+}
+
+Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string id) :
+    Emcr4x10MHz_SB_PCBV01_V05(id) {
+
+    fwName = "4x10MHz_quad_analog_V08.bit";
 }

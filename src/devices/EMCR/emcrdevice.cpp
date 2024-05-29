@@ -1501,6 +1501,42 @@ ErrorCodes_t EmcrDevice::setStateArrayEnabled(int chIdx, bool enabledFlag) {
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::setCustomFlag(uint16_t idx, bool flag, bool applyFlag) {
+    if (idx >= customFlagsNum) {
+        return ErrorValueOutOfRange;
+    }
+    customFlagsCoders[idx]->encode(flag ? 1 : 0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::setCustomOption(uint16_t idx, uint16_t value, bool applyFlag) {
+    if (idx >= customOptionsNum) {
+        return ErrorValueOutOfRange;
+    }
+    if (value >= customOptionsDescriptions[idx].size()) {
+        return ErrorValueOutOfRange;
+    }
+    customOptionsCoders[idx]->encode(value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::setCustomDouble(uint16_t idx, double value, bool applyFlag) {
+    if (idx >= customDoublesNum) {
+        return ErrorValueOutOfRange;
+    }
+    customDoublesCoders[idx]->encode(value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
 ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     ErrorCodes_t ret = Success;
     double xFlt;
@@ -1514,9 +1550,11 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
         }
     }
     uint32_t maxMsgRead = rxMsgBufferReadLength;
+    gettingNextDataFlag = true;
     rxMutexLock.unlock();
 
     if (!parsingFlag) {
+        gettingNextDataFlag = false;
         return ErrorDeviceNotConnected;
     }
 
@@ -1569,6 +1607,17 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
         case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData):
             samplesNum = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
+
+            totalBytesRead += samplesNum*2;
+            currentTime = std::chrono::steady_clock::now();
+            if ((std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count()) > (1000.0)) {
+                startTime = currentTime;
+                fprintf(rxSpeedFid, "%012d, %04x %04x   ", rxMsgBufferReadLength, rxMsgBufferReadOffset, rxMsgBufferWriteOffset);
+                fprintf(rxSpeedFid, "%f64Msps\n", ((double)totalBytesRead)/4.0e6);
+                fflush(rxSpeedFid);
+                totalBytesRead = 0;
+            }
+
             dataWritten = rxOutput.dataLen;
             if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid ||
                     (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData && dataWritten+samplesNum < E384CL_OUT_STRUCT_DATA_LEN)) {
@@ -1797,6 +1846,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
     rxMutexLock.lock();
     rxMsgBufferReadLength -= msgReadCount;
+    gettingNextDataFlag = false;
     rxMutexLock.unlock();
     rxMsgBufferNotFull.notify_all();
 
@@ -1807,6 +1857,10 @@ ErrorCodes_t EmcrDevice::purgeData() {
     ErrorCodes_t ret = Success;
 
     std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
+    while (gettingNextDataFlag) {
+        rxMsgBufferNotFull.wait_for(rxMutexLock, std::chrono::milliseconds(1));
+    }
+
     rxMsgBufferReadOffset = (rxMsgBufferReadOffset+rxMsgBufferReadLength) & RX_MSG_BUFFER_MASK;
     rxMsgBufferReadLength = 0;
     rxMutexLock.unlock();
@@ -2283,6 +2337,16 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
         }
         break;
     }
+
+//    totalBytesRead += rxDataWords*2;
+//    currentTime = std::chrono::steady_clock::now();
+//    long long duration = (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count());
+//    if (duration > (1000.0)) {
+//        startTime = currentTime;
+//        fprintf(rxSpeedFid, "%f64Msps\n", ((double)totalBytesRead)/4.0e6);
+//        fflush(rxSpeedFid);
+//        totalBytesRead = 0;
+//    }
 
     rxDataBufferWriteOffset = (rxDataBufferWriteOffset+rxMsgBuffer[rxMsgBufferWriteOffset].dataLength) & RX_DATA_BUFFER_MASK;
 

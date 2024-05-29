@@ -98,6 +98,12 @@ public:
     ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag) override;
     ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag) override;
 
+    /*! Device specific controls */
+
+    virtual ErrorCodes_t setCustomFlag(uint16_t idx, bool flag, bool applyFlag) override;
+    virtual ErrorCodes_t setCustomOption(uint16_t idx, uint16_t value, bool applyFlag) override;
+    virtual ErrorCodes_t setCustomDouble(uint16_t idx, double value, bool applyFlag) override;
+
     /****************\
      *  Rx methods  *
     \****************/
@@ -193,6 +199,8 @@ protected:
     uint32_t rxDataBufferWriteOffset = 0;
     std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */
 
+    bool gettingNextDataFlag = false;
+
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
 
     uint16_t * rxDataBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's data */
@@ -216,14 +224,14 @@ protected:
 
     std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
 
-    // Calibration DAC coders and ranges
+    // Calibration DAC ranges
     RangedMeasurement_t calibCcCurrentGainRange;
     std::vector <RangedMeasurement_t> calibCcCurrentOffsetRanges;
 
     RangedMeasurement_t calibVcVoltageGainRange;
     std::vector <RangedMeasurement_t> calibVcVoltageOffsetRanges;
 
-    // Calibration ADC coders and ranges
+    // Calibration ADC ranges
     RangedMeasurement_t calibVcCurrentGainRange;
     std::vector <RangedMeasurement_t> calibVcCurrentOffsetRanges;
 
@@ -358,6 +366,10 @@ protected:
     std::vector <DoubleCoder*> rsPredTauCompensationCoders;
     std::vector <BoolCoder*> pipetteCapCcEnCompensationCoders;
     std::vector <MultiCoder*> pipetteCapCcValCompensationMultiCoders;
+
+    std::vector <BoolArrayCoder *> customFlagsCoders;
+    std::vector <BoolArrayCoder *> customOptionsCoders;
+    std::vector <DoubleCoder *> customDoublesCoders;
 
     /********************************************\
      *  Multi-thread synchronization variables  *
