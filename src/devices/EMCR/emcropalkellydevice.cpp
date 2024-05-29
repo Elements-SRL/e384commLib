@@ -278,10 +278,20 @@ ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
         error = dev.ConfigureFPGA(fwPath + fwName);
 
     } else {
-        error = dev.ConfigureFPGA(fwName);
+        std::ifstream file(fwName);
+        if (file.good()) {
+            error = dev.ConfigureFPGA(fwName);
+
+        } else {
+            return ErrorFwNotFound;
+        }
     }
 
     if (error != okCFrontPanel::NoError) {
+        return ErrorDeviceFwLoadingFailed;
+    }
+
+    if (!(dev.IsFrontPanelEnabled())) {
         return ErrorDeviceFwLoadingFailed;
     }
     return Success;
