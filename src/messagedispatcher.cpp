@@ -63,28 +63,25 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     return ret;
 }
 
-//ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
-//    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
-//        deviceVersion = -1;
-//        deviceSubVersion = -1;
-//        fwVersion = -1;
-//        return Success;
-//    }
+ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+        deviceVersion = -1;
+        deviceSubVersion = -1;
+        fwVersion = -1;
+        return Success;
+    }
 
-//    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
-//        EmcrUdbDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
-//        return Success;
-//    }
+    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+        EmcrUdbDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+        return Success;
+    }
 
-//    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
-////        EZPatchFtdiDevice::getDeviceInfo(deviceId, deviceName, deviceVersion, deviceSubVersion, fwVersion);
-//        deviceVersion = -1;
-//        deviceSubVersion = -1;
-//        fwVersion = -1;
-//        return Success;
-//    }
-//    return ErrorDeviceTypeNotRecognized;
-//}
+    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+        EZPatchFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+        return Success;
+    }
+    return ErrorDeviceTypeNotRecognized;
+}
 
 ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     messageDispatcher = nullptr;
@@ -1995,6 +1992,18 @@ ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t>, Compensati
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::setCustomFlag(uint16_t idx, bool flag, bool applyFlag) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setCustomOption(uint16_t idx, uint16_t value, bool applyFlag) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setCustomDouble(uint16_t idx, double value, bool applyFlag) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::hasCompFeature(CompensationUserParams feature) {
     if (compensationControls[feature].empty()) {
         return ErrorFeatureNotImplemented;
@@ -2142,6 +2151,35 @@ ErrorCodes_t MessageDispatcher::getLeakConductance(std::vector<uint16_t>, std::v
 
 ErrorCodes_t MessageDispatcher::getBridgeBalanceResistance(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
     return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getCustomFlags(std::vector <std::string> &customFlags, std::vector <bool> &customFlagsDefault) {
+    if (customFlagsNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    customFlags = customFlagsNames;
+    customFlagsDefault = this->customFlagsDefault;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCustomOptions(std::vector <std::string> &customOptions, std::vector <std::vector <std::string>> &customOptionsDescriptions, std::vector <uint16_t> &customOptionsDefault) {
+    if (customOptionsNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    customOptions = customOptionsNames;
+    customOptionsDescriptions = this->customOptionsDescriptions;
+    customOptionsDefault = this->customOptionsDefault;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCustomDoubles(std::vector <std::string> &customDoubles, std::vector <RangedMeasurement_t> &customDoublesRanges, std::vector <double> &customDoublesDefault) {
+    if (customDoublesNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    customDoubles.resize(customDoublesNum);
+    customDoublesRanges = this->customDoublesRanges;
+    customDoublesDefault = this->customDoublesDefault;
+    return Success;
 }
 
 std::vector<double> MessageDispatcher::user2AsicDomainTransform(int, std::vector<double>){

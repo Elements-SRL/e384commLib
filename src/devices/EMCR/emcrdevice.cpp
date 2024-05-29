@@ -1506,6 +1506,42 @@ ErrorCodes_t EmcrDevice::setStateArrayEnabled(int chIdx, bool enabledFlag) {
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::setCustomFlag(uint16_t idx, bool flag, bool applyFlag) {
+    if (idx >= customFlagsNum) {
+        return ErrorValueOutOfRange;
+    }
+    customFlagsCoders[idx]->encode(flag ? 1 : 0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::setCustomOption(uint16_t idx, uint16_t value, bool applyFlag) {
+    if (idx >= customOptionsNum) {
+        return ErrorValueOutOfRange;
+    }
+    if (value >= customOptionsDescriptions[idx].size()) {
+        return ErrorValueOutOfRange;
+    }
+    customOptionsCoders[idx]->encode(value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::setCustomDouble(uint16_t idx, double value, bool applyFlag) {
+    if (idx >= customDoublesNum) {
+        return ErrorValueOutOfRange;
+    }
+    customDoublesCoders[idx]->encode(value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
 ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     ErrorCodes_t ret = Success;
     double xFlt;

@@ -183,6 +183,24 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
     return Success;
 }
 
+ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
+    DeviceTuple_t tuple;
+    switch (ftdiEepromId) {
+    case FtdiEepromId56:
+        tuple = FtdiEeprom56(deviceId).getDeviceTuple();
+        break;
+
+    case FtdiEepromIdDemo:
+        tuple = FtdiEepromDemo(deviceId).getDeviceTuple();
+        break;
+    }
+    deviceVersion = tuple.version;
+    deviceSubVersion = tuple.subversion;
+    fwVersion = tuple.fwVersion;
+    return Success;
+}
+
 ErrorCodes_t EZPatchFtdiDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
     FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
     DeviceTuple_t tuple;

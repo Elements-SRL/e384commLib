@@ -24,11 +24,7 @@ Emcr2x10MHzFake::Emcr2x10MHzFake(std::string id) :
     integrationStepArray[SamplingRate2MHz].unit = "s";
 }
 
-Emcr2x10MHzFake::~Emcr2x10MHzFake() {
-
-}
-
-ErrorCodes_t Emcr2x10MHzFake::startCommunication(std::string fwPath) {
+ErrorCodes_t Emcr2x10MHzFake::startCommunication(std::string) {
     /*! Nothing to be done */
     return Success;
 }

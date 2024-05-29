@@ -128,7 +128,19 @@ public:
      * \return Error code.
      */
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
-//    static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
+
+    /*! \brief Get information about a connected device.
+     *
+     * \param deviceId [in] Serial number of the device.
+     * \param deviceVersion [out] Version of the device (device family). -1 if not available.
+     * \param deviceSubVersion [out] Subversion of the device (increases with PCB changes). -1 if not available.
+     * \param fwVersion [out] Version of the firmware (increases with device's firmware). -1 if not available.
+     * \note The available device versions with the corresponding devices sub versions are found
+     *       as enums in some header files, more specifically, devices/EMCR/emcrudbdevice.h and
+     *       devices/EZPatch/ftdieeprom.h
+     * \return Error code.
+     */
+    static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
 
     /*! \brief Connects to a specific device
      * Calling this method if a device is already connected will return an error code.
@@ -764,6 +776,12 @@ public:
      */
     virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlag);
 
+    /*! Device specific controls */
+
+    virtual ErrorCodes_t setCustomFlag(uint16_t idx, bool flag, bool applyFlag);
+    virtual ErrorCodes_t setCustomOption(uint16_t idx, uint16_t value, bool applyFlag);
+    virtual ErrorCodes_t setCustomDouble(uint16_t idx, double value, bool applyFlag);
+
     /****************\
      *  Rx methods  *
     \****************/
@@ -1245,6 +1263,12 @@ public:
     virtual ErrorCodes_t getLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
     virtual ErrorCodes_t getBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
 
+    /*! Device specific controls */
+
+    ErrorCodes_t getCustomFlags(std::vector <std::string> &customFlags, std::vector <bool> &customFlagsDefault);
+    ErrorCodes_t getCustomOptions(std::vector <std::string> &customOptions, std::vector <std::vector <std::string>> &customOptionsDescriptions, std::vector <uint16_t> &customOptionsDefault);
+    ErrorCodes_t getCustomDoubles(std::vector <std::string> &customDoubles, std::vector <RangedMeasurement_t> &customDoublesRanges, std::vector <double> &customDoublesDefault);
+
 protected:
     typedef enum RxMessageTypes {
         RxMessageDataLoad,
@@ -1511,6 +1535,20 @@ protected:
     Measurement_t stateArrayReactionTime = {0.0, UnitPfxMicro, "s"};
 
     std::vector <uint16_t> allChannelIndexes;
+
+    uint16_t customFlagsNum = 0;
+    std::vector <std::string> customFlagsNames;
+    std::vector <bool> customFlagsDefault;
+
+    uint16_t customOptionsNum = 0;
+    std::vector <std::string> customOptionsNames;
+    std::vector <std::vector <std::string>> customOptionsDescriptions;
+    std::vector <uint16_t> customOptionsDefault;
+
+    uint16_t customDoublesNum = 0;
+    std::vector <std::string> customDoublesNames;
+    std::vector <RangedMeasurement_t> customDoublesRanges;
+    std::vector <double> customDoublesDefault;
 
     /***********************\
      *  Filters variables  *

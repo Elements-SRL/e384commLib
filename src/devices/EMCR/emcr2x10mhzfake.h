@@ -6,7 +6,6 @@
 class Emcr2x10MHzFake : public Emcr2x10MHz_PCBV01_V02 {
 public:
     Emcr2x10MHzFake(std::string id);
-    virtual ~Emcr2x10MHzFake();
 
 protected:
 
