@@ -1729,5 +1729,5 @@ Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
 Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string id) :
     Emcr4x10MHz_SB_PCBV01_V05(id) {
 
-    fwName = "4x10MHz_QuadAnalog_V07.bit";
+    fwName = "4x10MHz_quad_analog_V08.bit";
 }
