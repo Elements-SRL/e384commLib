@@ -199,6 +199,7 @@ protected:
     uint32_t rxMsgBufferWriteOffset = 0;
     uint32_t rxDataBufferWriteOffset = 0;
     std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */
+    bool gettingNextDataFlag = false;
 
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
 
