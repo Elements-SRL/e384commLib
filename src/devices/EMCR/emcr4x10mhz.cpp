@@ -1549,7 +1549,7 @@ Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
     vcVoltageFiltersArray[VCVoltageFilter1_6kHz].value = 1.6;
     vcVoltageFiltersArray[VCVoltageFilter1_6kHz].prefix = UnitPfxKilo;
     vcVoltageFiltersArray[VCVoltageFilter1_6kHz].unit = "Hz";
-    defaultVcVoltageFilterIdx = VCVoltageFilter10kHz;
+    defaultVcVoltageFilterIdx = VCVoltageFilter16kHz;
 
     /**********\
      * Coders *
@@ -1697,10 +1697,10 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
+Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string id) :
     Emcr4x10MHz_PCBV03_V04(id) {
 
-    fwName = "4x10MHz_SB_V01.bit";
+    fwName = "4x10MHz_quad_analog_V08.bit";
 
     customOptionsNum = CustomOptionsNum;
     customOptionsNames.resize(customOptionsNum);
@@ -1729,8 +1729,40 @@ Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
     coders.push_back(customOptionsCoders[CustomOptionInterposer]);
 }
 
-Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string id) :
-    Emcr4x10MHz_SB_PCBV01_V05(id) {
+Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
+    Emcr4x10MHz_QuadAnalog_PCBV01_V05(id) {
 
-    fwName = "4x10MHz_quad_analog_V08.bit";
+    fwName = "4x10MHz_SB_V01.bit";
+
+    /*! Voltage filters */
+    /*! VC */
+    vcVoltageFiltersNum = VCVoltageFiltersNum;
+    vcVoltageFiltersArray.resize(vcVoltageFiltersNum);
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].value = 16.0;
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].value = 1.6;
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter160Hz].value = 0.16;
+    vcVoltageFiltersArray[VCVoltageFilter160Hz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter160Hz].unit = "Hz";
+    defaultVcVoltageFilterIdx = VCVoltageFilter16kHz;
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Input controls */
+    BoolCoder::CoderConfig_t boolConfig;
+
+    /*! Voltage filter VC */
+    boolConfig.initialWord = 11;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 8;
+    vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x00); // 16kHz on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x55); // 1.6kHz on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0xFF); // 160Hz on all channels
+    coders.push_back(vcVoltageFilterCoder);
 }

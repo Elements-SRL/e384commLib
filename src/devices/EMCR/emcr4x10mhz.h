@@ -158,9 +158,9 @@ public:
     Emcr4x10MHz_PCBV03_V04(std::string di);
 };
 
-class Emcr4x10MHz_SB_PCBV01_V05: public Emcr4x10MHz_PCBV03_V04 {
+class Emcr4x10MHz_QuadAnalog_PCBV01_V05: public Emcr4x10MHz_PCBV03_V04 {
 public:
-    Emcr4x10MHz_SB_PCBV01_V05(std::string di);
+    Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string di);
 
 protected:
     enum CustomOptions {
@@ -169,9 +169,17 @@ protected:
     };
 };
 
-class Emcr4x10MHz_QuadAnalog_PCBV01_V05: public Emcr4x10MHz_SB_PCBV01_V05 {
+class Emcr4x10MHz_SB_PCBV01_V05: public Emcr4x10MHz_QuadAnalog_PCBV01_V05 {
 public:
-    Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string di);
+    Emcr4x10MHz_SB_PCBV01_V05(std::string di);
+
+protected:
+    enum VCVoltageFilters {
+        VCVoltageFilter16kHz,
+        VCVoltageFilter1_6kHz,
+        VCVoltageFilter160Hz,
+        VCVoltageFiltersNum
+    };
 };
 
 #endif // EMCR4x10MHZ_H
