@@ -1708,9 +1708,9 @@ Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string
     customOptionsDescriptions.resize(customOptionsNum);
     customOptionsDescriptions[CustomOptionInterposer].resize(4);
     customOptionsDescriptions[CustomOptionInterposer][0] = "Ch 1, 5, 9, 13";
-    customOptionsDescriptions[CustomOptionInterposer][1] = "Ch 2, 6,10, 14";
-    customOptionsDescriptions[CustomOptionInterposer][2] = "Ch 3, 7,11, 15";
-    customOptionsDescriptions[CustomOptionInterposer][3] = "Ch 4, 8,12, 16";
+    customOptionsDescriptions[CustomOptionInterposer][1] = "Ch 2, 6, 10, 14";
+    customOptionsDescriptions[CustomOptionInterposer][2] = "Ch 3, 7, 11, 15";
+    customOptionsDescriptions[CustomOptionInterposer][3] = "Ch 4, 8, 12, 16";
     customOptionsDefault.resize(CustomOptionsNum);
     customOptionsDefault[CustomOptionInterposer] = 0;
 
@@ -1725,8 +1725,20 @@ Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string
     boolConfig.initialBit = 7;
     boolConfig.bitsNum = 2;
     customOptionsCoders.resize(customOptionsNum);
-    customOptionsCoders[CustomOptionInterposer] = new BoolArrayCoder(boolConfig);
+    customOptionsCoders[CustomOptionInterposer] = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x11);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x10);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x01);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x00);
     coders.push_back(customOptionsCoders[CustomOptionInterposer]);
+
+    txStatus[0] = (txStatus[0] & 0xFE7F) | 0x0180; /*! Set the default interposer configuration */
+}
+
+Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05(std::string id) :
+    Emcr4x10MHz_QuadAnalog_PCBV01_V05(id) {
+
+    fwName = "4x10MHz_quad_analog_digv01_V08.bit";
 }
 
 Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
