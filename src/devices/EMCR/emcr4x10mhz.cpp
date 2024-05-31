@@ -1741,10 +1741,10 @@ Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string
     boolConfig.bitsNum = 2;
     customOptionsCoders.resize(customOptionsNum);
     customOptionsCoders[CustomOptionInterposer] = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x11);
-    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x10);
-    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x01);
-    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x00);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x3);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x2);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x1);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x0);
     coders.push_back(customOptionsCoders[CustomOptionInterposer]);
 
     txStatus[0] = (txStatus[0] & 0xFE7F) | 0x0180; /*! Set the default interposer configuration */
