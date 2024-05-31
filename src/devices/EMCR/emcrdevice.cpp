@@ -98,6 +98,9 @@ ErrorCodes_t EmcrDevice::stopProtocol() {
 }
 
 ErrorCodes_t EmcrDevice::startStateArray() {
+    if (numberOfStatesCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+    }
     this->stopProtocol();
     this->forceOutMessage();
     this->stackOutgoingMessage(txStatus, TxTriggerStartStateArray);
@@ -1467,7 +1470,7 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextIt
 }
 
 ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime) {
-    if (numberOfStatesCoder == nullptr ) {
+    if (numberOfStatesCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
     if ((unsigned int)numberOfStates > stateMaxNum || initialState >= numberOfStates){
@@ -1483,11 +1486,11 @@ ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialS
 }
 
 ErrorCodes_t EmcrDevice::setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag){
-    if (appliedVoltageCoders.empty()) {
+    if (stateAppliedVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
     }
     voltage.convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
-    appliedVoltageCoders[selectedVcVoltageRangeIdx][stateIdx]->encode(voltage.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateAppliedVoltageCoders[selectedVcVoltageRangeIdx][stateIdx]->encode(voltage.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stateTimeoutFlagCoders[stateIdx]->encode(timeoutStateFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stateTriggerFlagCoders[stateIdx]->encode(triggerFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stateTriggerDeltaFlagCoders[stateIdx]->encode(deltaFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);

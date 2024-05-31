@@ -302,7 +302,7 @@ protected:
     DoubleCoder * stateArrayMovingAverageLengthCoder = nullptr;
     std::vector <BoolCoder *> enableStateArrayChannelsCoder;
 
-    std::vector <std::vector <DoubleCoder *>> appliedVoltageCoders;
+    std::vector <std::vector <DoubleCoder *>> stateAppliedVoltageCoders;
 
     std::vector <BoolArrayCoder *> stateTimeoutFlagCoders;
     std::vector <BoolArrayCoder *> stateTriggerFlagCoders;

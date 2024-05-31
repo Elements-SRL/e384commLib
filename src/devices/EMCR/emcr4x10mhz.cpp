@@ -622,9 +622,9 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
         coders.push_back(enableStateArrayChannelsCoder[chNum]);
     }
 
-    appliedVoltageCoders.resize(VCVoltageRangesNum);
+    stateAppliedVoltageCoders.resize(VCVoltageRangesNum);
     for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
-        appliedVoltageCoders[rangeIdx].resize(stateMaxNum);
+        stateAppliedVoltageCoders[rangeIdx].resize(stateMaxNum);
     }
 
     stateTimeoutFlagCoders.resize(stateMaxNum);
@@ -650,8 +650,8 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
             doubleConfig.resolution = -vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
             doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
             doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
-            appliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(appliedVoltageCoders[rangeIdx][stateIdx]);
+            stateAppliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(stateAppliedVoltageCoders[rangeIdx][stateIdx]);
         }
 
         boolConfig.initialWord = stateWordOffset + 1;
@@ -1405,9 +1405,9 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
         coders.push_back(enableStateArrayChannelsCoder[chNum]);
     }
 
-    appliedVoltageCoders.resize(VCVoltageRangesNum);
+    stateAppliedVoltageCoders.resize(VCVoltageRangesNum);
     for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
-        appliedVoltageCoders[rangeIdx].resize(stateMaxNum);
+        stateAppliedVoltageCoders[rangeIdx].resize(stateMaxNum);
     }
 
     stateTimeoutFlagCoders.resize(stateMaxNum);
@@ -1433,8 +1433,8 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
             doubleConfig.resolution = -vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
             doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
             doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
-            appliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(appliedVoltageCoders[rangeIdx][stateIdx]);
+            stateAppliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(stateAppliedVoltageCoders[rangeIdx][stateIdx]);
         }
 
         boolConfig.initialWord = stateWordOffset + 1;
@@ -1598,9 +1598,9 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     doubleConfig.resolution = 1.0;
     stateArrayMovingAverageLengthCoder = new DoubleOffsetBinaryCoder(doubleConfig);
 
-    appliedVoltageCoders.resize(VCVoltageRangesNum);
+    stateAppliedVoltageCoders.resize(VCVoltageRangesNum);
     for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
-        appliedVoltageCoders[rangeIdx].resize(stateMaxNum);
+        stateAppliedVoltageCoders[rangeIdx].resize(stateMaxNum);
     }
 
     stateTimeoutFlagCoders.resize(stateMaxNum);
@@ -1626,8 +1626,8 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
             doubleConfig.resolution = -vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
             doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
             doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
-            appliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(appliedVoltageCoders[rangeIdx][stateIdx]);
+            stateAppliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(stateAppliedVoltageCoders[rangeIdx][stateIdx]);
         }
 
         boolConfig.initialWord = stateWordOffset + 1;
@@ -1701,6 +1701,21 @@ Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string
     Emcr4x10MHz_PCBV03_V04(id) {
 
     fwName = "4x10MHz_quad_analog_V08.bit";
+
+    /*! Disable state arrays */
+    stateMaxNum = 0;
+    numberOfStatesCoder = nullptr;
+    initialStateCoder = nullptr;
+    enableStateArrayChannelsCoder.clear();
+    stateAppliedVoltageCoders.clear();
+    stateTimeoutFlagCoders.clear();
+    stateTriggerFlagCoders.clear();
+    stateTriggerDeltaFlagCoders.clear();
+    stateTimeoutValueCoders.clear();
+    stateTimeoutNextStateCoders.clear();
+    stateMinTriggerCurrentCoders.clear();
+    stateMaxTriggerCurrentCoders.clear();
+    stateTriggerNextStateCoders.clear();
 
     customOptionsNum = CustomOptionsNum;
     customOptionsNames.resize(customOptionsNum);
