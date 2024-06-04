@@ -33,13 +33,7 @@ CONFIG += c++14
 #DEFINES += E384COMMLIB_LIBRARY
 
 contains(DEFINES, E384COMMLIB_LABVIEW_WRAPPER) {
-    CONFIG(debug, debug|release) {
-        TARGET = e384commlib_labviewd
-    }
-
-    CONFIG(release, debug|release) {
-        TARGET = e384commlib_labview
-    }
+    TARGET = e384commlib_labview
     # create .dll
     DEFINES += E384COMMLIB_LIBRARY
     SOURCES += src/e384commlib_labview.cpp
