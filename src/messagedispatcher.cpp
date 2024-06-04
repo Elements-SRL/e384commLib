@@ -255,9 +255,11 @@ ErrorCodes_t MessageDispatcher::setLiquidJunctionVoltage(std::vector<uint16_t> c
 
 ErrorCodes_t MessageDispatcher::resetLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     std::vector <Measurement_t> voltages(channelIndexes.size(), {0.0, liquidJunctionRange.prefix, "V"});
+    std::unique_lock <std::mutex> ljMutexLock (ljMutex);
     for (auto channelIdx : channelIndexes) {
         liquidJunctionStatuses[channelIdx] = LiquidJunctionResetted;
     }
+    ljMutexLock.unlock();
     return this->setLiquidJunctionVoltage(channelIndexes, voltages, applyFlag);
 }
 

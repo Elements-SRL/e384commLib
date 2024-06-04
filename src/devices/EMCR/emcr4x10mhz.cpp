@@ -622,9 +622,9 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
         coders.push_back(enableStateArrayChannelsCoder[chNum]);
     }
 
-    appliedVoltageCoders.resize(VCVoltageRangesNum);
+    stateAppliedVoltageCoders.resize(VCVoltageRangesNum);
     for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
-        appliedVoltageCoders[rangeIdx].resize(stateMaxNum);
+        stateAppliedVoltageCoders[rangeIdx].resize(stateMaxNum);
     }
 
     stateTimeoutFlagCoders.resize(stateMaxNum);
@@ -650,8 +650,8 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
             doubleConfig.resolution = -vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
             doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
             doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
-            appliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(appliedVoltageCoders[rangeIdx][stateIdx]);
+            stateAppliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(stateAppliedVoltageCoders[rangeIdx][stateIdx]);
         }
 
         boolConfig.initialWord = stateWordOffset + 1;
@@ -1405,9 +1405,9 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
         coders.push_back(enableStateArrayChannelsCoder[chNum]);
     }
 
-    appliedVoltageCoders.resize(VCVoltageRangesNum);
+    stateAppliedVoltageCoders.resize(VCVoltageRangesNum);
     for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
-        appliedVoltageCoders[rangeIdx].resize(stateMaxNum);
+        stateAppliedVoltageCoders[rangeIdx].resize(stateMaxNum);
     }
 
     stateTimeoutFlagCoders.resize(stateMaxNum);
@@ -1433,8 +1433,8 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
             doubleConfig.resolution = -vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
             doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
             doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
-            appliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(appliedVoltageCoders[rangeIdx][stateIdx]);
+            stateAppliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(stateAppliedVoltageCoders[rangeIdx][stateIdx]);
         }
 
         boolConfig.initialWord = stateWordOffset + 1;
@@ -1536,6 +1536,7 @@ ErrorCodes_t Emcr4x10MHz_PCBV01_V03::initializeHW() {
 
 Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
     Emcr4x10MHz_PCBV01_V03(di) {
+
     fwName = "4x10MHz_V05.bit";
 
     /*! Voltage filters */
@@ -1548,7 +1549,7 @@ Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
     vcVoltageFiltersArray[VCVoltageFilter1_6kHz].value = 1.6;
     vcVoltageFiltersArray[VCVoltageFilter1_6kHz].prefix = UnitPfxKilo;
     vcVoltageFiltersArray[VCVoltageFilter1_6kHz].unit = "Hz";
-    defaultVcVoltageFilterIdx = VCVoltageFilter10kHz;
+    defaultVcVoltageFilterIdx = VCVoltageFilter16kHz;
 
     /**********\
      * Coders *
@@ -1569,6 +1570,7 @@ Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
 
 Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     Emcr4x10MHz_PCBV03_V03(di) {
+
     fwName = "4x10MHz_V07.bit";
 
     txDataWords = 442; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
@@ -1596,9 +1598,9 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     doubleConfig.resolution = 1.0;
     stateArrayMovingAverageLengthCoder = new DoubleOffsetBinaryCoder(doubleConfig);
 
-    appliedVoltageCoders.resize(VCVoltageRangesNum);
+    stateAppliedVoltageCoders.resize(VCVoltageRangesNum);
     for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
-        appliedVoltageCoders[rangeIdx].resize(stateMaxNum);
+        stateAppliedVoltageCoders[rangeIdx].resize(stateMaxNum);
     }
 
     stateTimeoutFlagCoders.resize(stateMaxNum);
@@ -1624,8 +1626,8 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
             doubleConfig.resolution = -vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
             doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
             doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
-            appliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(appliedVoltageCoders[rangeIdx][stateIdx]);
+            stateAppliedVoltageCoders[rangeIdx][stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(stateAppliedVoltageCoders[rangeIdx][stateIdx]);
         }
 
         boolConfig.initialWord = stateWordOffset + 1;
@@ -1695,10 +1697,25 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
+Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string id) :
     Emcr4x10MHz_PCBV03_V04(id) {
 
-    fwName = "4x10MHz_SB_V01.bit";
+    fwName = "4x10MHz_quad_analog_V08.bit";
+
+    /*! Disable state arrays */
+    stateMaxNum = 0;
+    numberOfStatesCoder = nullptr;
+    initialStateCoder = nullptr;
+    enableStateArrayChannelsCoder.clear();
+    stateAppliedVoltageCoders.clear();
+    stateTimeoutFlagCoders.clear();
+    stateTriggerFlagCoders.clear();
+    stateTriggerDeltaFlagCoders.clear();
+    stateTimeoutValueCoders.clear();
+    stateTimeoutNextStateCoders.clear();
+    stateMinTriggerCurrentCoders.clear();
+    stateMaxTriggerCurrentCoders.clear();
+    stateTriggerNextStateCoders.clear();
 
     customOptionsNum = CustomOptionsNum;
     customOptionsNames.resize(customOptionsNum);
@@ -1706,9 +1723,9 @@ Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
     customOptionsDescriptions.resize(customOptionsNum);
     customOptionsDescriptions[CustomOptionInterposer].resize(4);
     customOptionsDescriptions[CustomOptionInterposer][0] = "Ch 1, 5, 9, 13";
-    customOptionsDescriptions[CustomOptionInterposer][1] = "Ch 2, 6,10, 14";
-    customOptionsDescriptions[CustomOptionInterposer][2] = "Ch 3, 7,11, 15";
-    customOptionsDescriptions[CustomOptionInterposer][3] = "Ch 4, 8,12, 16";
+    customOptionsDescriptions[CustomOptionInterposer][1] = "Ch 2, 6, 10, 14";
+    customOptionsDescriptions[CustomOptionInterposer][2] = "Ch 3, 7, 11, 15";
+    customOptionsDescriptions[CustomOptionInterposer][3] = "Ch 4, 8, 12, 16";
     customOptionsDefault.resize(CustomOptionsNum);
     customOptionsDefault[CustomOptionInterposer] = 0;
 
@@ -1723,11 +1740,56 @@ Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
     boolConfig.initialBit = 7;
     boolConfig.bitsNum = 2;
     customOptionsCoders.resize(customOptionsNum);
-    customOptionsCoders[CustomOptionInterposer] = new BoolArrayCoder(boolConfig);
+    customOptionsCoders[CustomOptionInterposer] = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x3);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x2);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x1);
+    static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x0);
+    coders.push_back(customOptionsCoders[CustomOptionInterposer]);
+
+    txStatus[0] = (txStatus[0] & 0xFE7F) | 0x0180; /*! Set the default interposer configuration */
 }
 
-Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string id) :
-    Emcr4x10MHz_SB_PCBV01_V05(id) {
+Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05(std::string id) :
+    Emcr4x10MHz_QuadAnalog_PCBV01_V05(id) {
 
-    fwName = "4x10MHz_quad_analog_V08.bit";
+    fwName = "4x10MHz_quad_analog_digv01_V08.bit";
+}
+
+Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
+    Emcr4x10MHz_QuadAnalog_PCBV01_V05(id) {
+
+    fwName = "4x10MHz_SB_V01.bit";
+
+    /*! Voltage filters */
+    /*! VC */
+    vcVoltageFiltersNum = VCVoltageFiltersNum;
+    vcVoltageFiltersArray.resize(vcVoltageFiltersNum);
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].value = 16.0;
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].value = 1.6;
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter1_6kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter160Hz].value = 0.16;
+    vcVoltageFiltersArray[VCVoltageFilter160Hz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter160Hz].unit = "Hz";
+    defaultVcVoltageFilterIdx = VCVoltageFilter16kHz;
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Input controls */
+    BoolCoder::CoderConfig_t boolConfig;
+
+    /*! Voltage filter VC */
+    boolConfig.initialWord = 11;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 8;
+    vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x00); // 16kHz on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0xAA); // 1.6kHz on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0xFF); // 160Hz on all channels
+    coders.push_back(vcVoltageFilterCoder);
 }

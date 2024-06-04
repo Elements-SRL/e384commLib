@@ -30,7 +30,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000106B", Device384PatchClamp_prot_v04_fw_v03},
     {"221000106C", Device384PatchClamp_prot_v01_fw_v02},
     {"23210014UF", Device384PatchClamp_prot_v01_fw_v02},
-    {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01},
+    {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
     {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
@@ -38,7 +38,9 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"233600161X", Device4x10MHz_PCBV03},
     {"224800130Y", Device4x10MHz_PCBV03},
     {"2336001642", Device2x10MHz_PCBV02},
-    {"23230014TO", Device4x10MHz_SB_PCBV01}
+    {"23230014TO", Device4x10MHz_SB_PCBV01},
+    {"23190014UW", Device4x10MHz_SB_PCBV01},
+    {"23230014TE", Device4x10MHz_SB_PCBV01}
     #ifdef DEBUG
     ,{"FAKE_Nanopores", Device384Fake},
     {"FAKE_PATCH_CLAMP", Device384FakePatchClamp},
@@ -185,6 +187,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr4x10MHz_QuadAnalog_PCBV01_V05(deviceId);
         break;
 
+    case Device4x10MHz_QuadAnalog_PCBV01_DIGV01:
+        messageDispatcher = new Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05(deviceId);
+        break;
+
 #ifdef DEBUG
     case Device384Fake:
         messageDispatcher = new Emcr384FakeNanopores(deviceId);
@@ -278,10 +284,20 @@ ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
         error = dev.ConfigureFPGA(fwPath + fwName);
 
     } else {
-        error = dev.ConfigureFPGA(fwName);
+        std::ifstream file(fwName);
+        if (file.good()) {
+            error = dev.ConfigureFPGA(fwName);
+
+        } else {
+            return ErrorFwNotFound;
+        }
     }
 
     if (error != okCFrontPanel::NoError) {
+        return ErrorDeviceFwLoadingFailed;
+    }
+
+    if (!(dev.IsFrontPanelEnabled())) {
         return ErrorDeviceFwLoadingFailed;
     }
     return Success;

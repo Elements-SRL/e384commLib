@@ -98,6 +98,9 @@ ErrorCodes_t EmcrDevice::stopProtocol() {
 }
 
 ErrorCodes_t EmcrDevice::startStateArray() {
+    if (numberOfStatesCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+    }
     this->stopProtocol();
     this->forceOutMessage();
     this->stackOutgoingMessage(txStatus, TxTriggerStartStateArray);
@@ -1136,6 +1139,8 @@ ErrorCodes_t EmcrDevice::digitalOffsetCompensation(std::vector <uint16_t> channe
     } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
+
+    std::unique_lock <std::mutex> ljMutexLock (ljMutex);
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
         digitalOffsetCompensationCoders[chIdx]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord); /*!< Disables protocols and vhold */
@@ -1147,6 +1152,7 @@ ErrorCodes_t EmcrDevice::digitalOffsetCompensation(std::vector <uint16_t> channe
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
         }
     }
+    ljMutexLock.unlock();
 
     anyLiquidJunctionActive = true;
 
@@ -1464,7 +1470,7 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextIt
 }
 
 ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime) {
-    if (numberOfStatesCoder == nullptr ) {
+    if (numberOfStatesCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
     if ((unsigned int)numberOfStates > stateMaxNum || initialState >= numberOfStates){
@@ -1480,11 +1486,11 @@ ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialS
 }
 
 ErrorCodes_t EmcrDevice::setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag){
-    if (appliedVoltageCoders.empty()) {
+    if (stateAppliedVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
     }
     voltage.convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
-    appliedVoltageCoders[selectedVcVoltageRangeIdx][stateIdx]->encode(voltage.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateAppliedVoltageCoders[selectedVcVoltageRangeIdx][stateIdx]->encode(voltage.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stateTimeoutFlagCoders[stateIdx]->encode(timeoutStateFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stateTriggerFlagCoders[stateIdx]->encode(triggerFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stateTriggerDeltaFlagCoders[stateIdx]->encode(deltaFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1555,9 +1561,11 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
         }
     }
     uint32_t maxMsgRead = rxMsgBufferReadLength;
+    gettingNextDataFlag = true;
     rxMutexLock.unlock();
 
     if (!parsingFlag) {
+        gettingNextDataFlag = false;
         return ErrorDeviceNotConnected;
     }
 
@@ -1838,6 +1846,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
     rxMutexLock.lock();
     rxMsgBufferReadLength -= msgReadCount;
+    gettingNextDataFlag = false;
     rxMutexLock.unlock();
     rxMsgBufferNotFull.notify_all();
 
@@ -1848,6 +1857,10 @@ ErrorCodes_t EmcrDevice::purgeData() {
     ErrorCodes_t ret = Success;
 
     std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
+    while (gettingNextDataFlag) {
+        /*! Wait for the getNextMessage method to be outside of its loop, because the rxMsgBufferReadLength and rxMsgBufferReadOffset variables must not change during its execution */
+        rxMsgBufferNotFull.wait_for(rxMutexLock, std::chrono::milliseconds(1));
+    }
     rxMsgBufferReadOffset = (rxMsgBufferReadOffset+rxMsgBufferReadLength) & RX_MSG_BUFFER_MASK;
     rxMsgBufferReadLength = 0;
     rxMutexLock.unlock();

@@ -187,7 +187,8 @@ typedef enum DeviceTypes {
     Device4x10MHz_PCBV01,                   /*!< 4 channels 10MHz nanopore reader */
     Device4x10MHz_PCBV03,                   /*!< 4 channels 10MHz nanopore reader */
     Device4x10MHz_SB_PCBV01,                /*!< 4 channels 10MHz nanopore reader, single board */
-    Device4x10MHz_QuadAnalog_PCBV01,        /*!< 4 channels 10MHz nanopore reader, single board */
+    Device4x10MHz_QuadAnalog_PCBV01,        /*!< 4 channels 10MHz nanopore reader, one analog board */
+    Device4x10MHz_QuadAnalog_PCBV01_DIGV01, /*!< 4 channels 10MHz nanopore reader, one analog board, digital board V01 */
     Device10MHzOld,                         /*!< UDB based 10MHz nanopore reader, old firmware */
     Device10MHzV01,                         /*!< UDB based 10MHz nanopore reader */
     /*! EZ patch devices */
