@@ -1142,6 +1142,8 @@ ErrorCodes_t EmcrDevice::digitalOffsetCompensation(std::vector <uint16_t> channe
     } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
+
+    std::unique_lock <std::mutex> ljMutexLock (ljMutex);
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
         digitalOffsetCompensationCoders[chIdx]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord); /*!< Disables protocols and vhold */
@@ -1153,6 +1155,7 @@ ErrorCodes_t EmcrDevice::digitalOffsetCompensation(std::vector <uint16_t> channe
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
         }
     }
+    ljMutexLock.unlock();
 
     anyLiquidJunctionActive = true;
 
