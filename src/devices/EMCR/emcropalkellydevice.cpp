@@ -9,6 +9,7 @@
 #include "emcr384patchclamp_prot_v04_fw_v04.h"
 #include "emcr384patchclamp_prot_v04_fw_v05.h"
 #include "emcr384patchclamp_prot_v05_fw_v06.h"
+#include "emcrtestboardel07ab.h"
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
 #ifdef DEBUG
@@ -34,12 +35,11 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
     {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
-    {"233600165Q", Device2x10MHz_PCBV02},
+    {"233600165Q", DeviceTestBoardEL07d},
     {"233600161X", Device4x10MHz_PCBV03},
     {"224800130Y", Device4x10MHz_PCBV03},
-    {"2336001642", Device2x10MHz_PCBV02},
+    {"2336001642", DeviceTestBoardEL07ab},
     {"23230014TO", Device4x10MHz_SB_PCBV01},
-    {"23190014UW", Device4x10MHz_SB_PCBV01},
     {"23230014TE", Device4x10MHz_SB_PCBV01}
     #ifdef DEBUG
     ,{"FAKE_Nanopores", Device384Fake},
@@ -162,6 +162,9 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
     case Device384PatchClamp_prot_v05_fw_v06:
         messageDispatcher = new Emcr384PatchClamp_prot_v05_fw_v06(deviceId);
         break;
+
+    case DeviceTestBoardEL07ab:
+        messageDispatcher = new EmcrTestBoardEl07ab(deviceId);
 
     case Device2x10MHz_PCBV01:
         messageDispatcher = new Emcr2x10MHz_PCBV01_V02(deviceId);

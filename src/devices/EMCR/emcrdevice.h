@@ -285,9 +285,6 @@ protected:
     std::vector <DoubleCoder *> gateVoltageCoders;
     std::vector <DoubleCoder *> sourceVoltageCoders;
 
-    BoolArrayCoder* voltageChanSourceCoder;
-    BoolArrayCoder* currentChanSourceCoder;
-
     std::vector <BoolCoder *> calSwCoders;
     std::vector <BoolCoder *> vcSwCoders;
     std::vector <BoolCoder *> ccSwCoders;

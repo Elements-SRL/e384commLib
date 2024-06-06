@@ -1,26 +1,26 @@
-#include "emcr384patchclamp_prot_v01_fw_v02.h"
+#include "emcrtestboardel07ab.h"
 #include "utils.h"
 
-Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string di) :
+EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     EmcrOpalKellyDevice(di) {
 
-    deviceName = "384PatchClamp";
+    deviceName = "TestBoardEL07ab";
 
-    fwName = "384PatchClamp_V02.bit";
+    fwName = "TestBoard_EL07ab_QFN48c_V01.bit";
 
-    fwSize_B = 5105684;
-    motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
+    fwSize_B = 0;
+    motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+2;
     waitingTimeBeforeReadingData = 2; //s
 
     rxSyncWord = 0x5aa5;
 
     packetsPerFrame = 1;
 
-    voltageChannelsNum = 384;
-    currentChannelsNum = 384;
+    voltageChannelsNum = 8;
+    currentChannelsNum = 8;
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
-    totalBoardsNum = 24;
+    totalBoardsNum = 1;
 
     rxWordOffsets[RxMessageDataLoad] = 0;
     rxWordLengths[RxMessageDataLoad] = (voltageChannelsNum+currentChannelsNum)*packetsPerFrame;
@@ -37,7 +37,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 4504; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 359;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
@@ -83,7 +83,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     currentProtocolSinImplemented = false;
 
     protocolMaxItemsNum = 15;
-    protocolWordOffset = 204;
+    protocolWordOffset = 20;
     protocolItemsWordsNum = 16;
 
     /*! Current ranges */
@@ -242,64 +242,74 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate5kHz].value = 5.0;
-    samplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate5kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate10kHz].value = 10.0;
-    samplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate10kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate20kHz].value = 20.0;
-    samplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate20kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate40kHz].value = 40.0;
-    samplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate40kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate80kHz].value = 80.0;
-    samplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate80kHz].unit = "Hz";
-    defaultSamplingRateIdx = SamplingRate5kHz;
+    samplingRatesArray[SamplingRate6_25kHz].value = 6.25;
+    samplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate12_5kHz].value = 12.5;
+    samplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate25kHz].value = 25.0;
+    samplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate25kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate50kHz].value = 50.0;
+    samplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate50kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate100kHz].value = 100.0;
+    samplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate100kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate200kHz].value = 200.0;
+    samplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate200kHz].unit = "Hz";
+    defaultSamplingRateIdx = SamplingRate6_25kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate5kHz].value = 5.0;
-    realSamplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate5kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate10kHz].value = 10.0;
-    realSamplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate10kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate20kHz].value = 20.0;
-    realSamplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate20kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate40kHz].value = 40.0;
-    realSamplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate40kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate80kHz].value = 80.0;
-    realSamplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate80kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate6_25kHz].value = 6.25;
+    realSamplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate12_5kHz].value = 12.5;
+    realSamplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate25kHz].value = 25.0;
+    realSamplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate25kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate50kHz].value = 50.0;
+    realSamplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate50kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate100kHz].value = 100.0;
+    realSamplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate100kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate200kHz].value = 200.0;
+    realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate5kHz].value = 200.0;
-    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate5kHz].unit = "s";
-    integrationStepArray[SamplingRate10kHz].value = 100.0;
-    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate10kHz].unit = "s";
-    integrationStepArray[SamplingRate20kHz].value = 50.0;
-    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate20kHz].unit = "s";
-    integrationStepArray[SamplingRate40kHz].value = 25.0;
-    integrationStepArray[SamplingRate40kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate40kHz].unit = "s";
-    integrationStepArray[SamplingRate80kHz].value = 12.5;
-    integrationStepArray[SamplingRate80kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate80kHz].unit = "s";
+    integrationStepArray[SamplingRate6_25kHz].value = 160.0;
+    integrationStepArray[SamplingRate6_25kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate6_25kHz].unit = "s";
+    integrationStepArray[SamplingRate12_5kHz].value = 80.0;
+    integrationStepArray[SamplingRate12_5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate12_5kHz].unit = "s";
+    integrationStepArray[SamplingRate25kHz].value = 40.0;
+    integrationStepArray[SamplingRate25kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate25kHz].unit = "s";
+    integrationStepArray[SamplingRate50kHz].value = 20.0;
+    integrationStepArray[SamplingRate50kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate50kHz].unit = "s";
+    integrationStepArray[SamplingRate100kHz].value = 10.0;
+    integrationStepArray[SamplingRate100kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate100kHz].unit = "s";
+    integrationStepArray[SamplingRate200kHz].value = 5.0;
+    integrationStepArray[SamplingRate200kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate200kHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-        {SamplingRate5kHz, VCCurrentFilter3_6kHz},
-        {SamplingRate10kHz, VCCurrentFilter10kHz},
-        {SamplingRate20kHz, VCCurrentFilter25kHz},
-        {SamplingRate40kHz, VCCurrentFilter30kHz},
-        {SamplingRate80kHz, VCCurrentFilter100kHz}
+        {SamplingRate6_25kHz, VCCurrentFilter3_6kHz},
+        {SamplingRate12_5kHz, VCCurrentFilter10kHz},
+        {SamplingRate25kHz, VCCurrentFilter25kHz},
+        {SamplingRate50kHz, VCCurrentFilter30kHz},
+        {SamplingRate100kHz, VCCurrentFilter100kHz},
+        {SamplingRate200kHz, VCCurrentFilter120kHz}
     };
 
     // mapping ADC Current Clamp
@@ -307,6 +317,9 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
     defaultCurrentHoldTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
+
+    defaultVoltageHalfTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
+    defaultCurrentHalfTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
 
     /*! VC leak calibration (shunt resistance)*/
     rRShuntConductanceCalibRange.resize(VCCurrentRangesNum);
@@ -374,7 +387,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     /*! Compensations */
     /*! compValueMatrix contains one vector of compensation values for each of the channels (e.g. 384 channels) */
-    compValueMatrix.resize(currentChannelsNum, std::vector <double> (CompensationUserParamsNum));
+    compValueMatrix.resize(currentChannelsNum, std::vector<double>(CompensationUserParamsNum));
     selectedRsCorrBws.resize(currentChannelsNum);
 
     /*! Compensation type enables, one element per channel*/
@@ -528,6 +541,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw0_622kHz] = rsCorrBwArray[CompensationRsCorrBw0_622kHz].niceLabel();
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw0_311kHz] = rsCorrBwArray[CompensationRsCorrBw0_311kHz].niceLabel();
 
+
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
     currentResolution = currentRange.step;
@@ -553,12 +567,12 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     // Initialization of the USER compensation domain with standard parameters
     for(int i = 0; i < currentChannelsNum; i++){
-        compValueMatrix[i][U_CpVc] = defaultUserDomainParams[U_CpVc];
-        compValueMatrix[i][U_Cm] = defaultUserDomainParams[U_Cm];
-        compValueMatrix[i][U_Rs] = defaultUserDomainParams[U_Rs];
-        compValueMatrix[i][U_RsCp] = defaultUserDomainParams[U_RsCp];
-        compValueMatrix[i][U_RsPg] = defaultUserDomainParams[U_RsPg];
-        compValueMatrix[i][U_CpCc] = defaultUserDomainParams[U_CpCc];
+        compValueMatrix[i][U_CpVc] =  defaultUserDomainParams[U_CpVc];
+        compValueMatrix[i][U_Cm] =  defaultUserDomainParams[U_Cm];
+        compValueMatrix[i][U_Rs] =  defaultUserDomainParams[U_Rs];
+        compValueMatrix[i][U_RsCp] =  defaultUserDomainParams[U_RsCp];
+        compValueMatrix[i][U_RsPg] =  defaultUserDomainParams[U_RsPg];
+        compValueMatrix[i][U_CpCc] =  defaultUserDomainParams[U_CpCc];
     }
 
     // Initialization of the RsCorr bandwidth option with default option
@@ -602,6 +616,13 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     boolConfig.bitsNum = 2;
     clampingModeCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(clampingModeCoder);
+
+    /*! Protocol reset */
+    boolConfig.initialWord = 4;
+    boolConfig.initialBit = 14;
+    boolConfig.bitsNum = 1;
+    protocolResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolResetCoder);
 
     /*! Voltage Source */
     boolConfig.initialWord = 3;
@@ -688,9 +709,8 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
         }
     }
 
-
     /*! Enable stimulus */
-    boolConfig.initialWord = 36;
+    boolConfig.initialWord = 13;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     enableStimulusCoders.resize(currentChannelsNum);
@@ -705,7 +725,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! Turn channels on */
-    boolConfig.initialWord = 60;
+    boolConfig.initialWord = 14;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     turnChannelsOnCoders.resize(currentChannelsNum);
@@ -720,7 +740,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! CAL_SW */
-    boolConfig.initialWord = 84;
+    boolConfig.initialWord = 15;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     calSwCoders.resize(currentChannelsNum);
@@ -735,7 +755,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! VC_SW */
-    boolConfig.initialWord = 108;
+    boolConfig.initialWord = 16;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     vcSwCoders.resize(currentChannelsNum);
@@ -750,7 +770,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! CC_SW */
-    boolConfig.initialWord = 132;
+    boolConfig.initialWord = 17;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     ccSwCoders.resize(currentChannelsNum);
@@ -765,7 +785,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! VC_CC_SEL */
-    boolConfig.initialWord = 156;
+    boolConfig.initialWord = 18;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     vcCcSelCoders.resize(currentChannelsNum);
@@ -780,7 +800,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! CC_Stim_En */
-    boolConfig.initialWord = 180;
+    boolConfig.initialWord = 19;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     ccStimEnCoders.resize(currentChannelsNum);
@@ -968,6 +988,16 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
         coders.push_back(protocolApplyStepsCoders[itemIdx]);
     }
 
+    boolConfig.initialBit = 1;
+    boolConfig.bitsNum = 1;
+    protocolStimHalfCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
+        protocolStimHalfCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolStimHalfCoders[itemIdx]);
+    }
+
     boolConfig.initialBit = 2;
     boolConfig.bitsNum = 4;
     protocolItemTypeCoders.resize(protocolMaxItemsNum);
@@ -983,7 +1013,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     doubleConfig.bitsNum = 16;
     vHoldTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 448;
+        doubleConfig.initialWord = 264;
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
         doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
@@ -1000,7 +1030,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     doubleConfig.bitsNum = 16;
     cHoldTunerCoders.resize(CCCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < CCCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 448;
+        doubleConfig.initialWord = 264;
         doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
         doubleConfig.minValue = ccCurrentRangesArray[rangeIdx].min;
         doubleConfig.maxValue = ccCurrentRangesArray[rangeIdx].max;
@@ -1012,12 +1042,46 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
         }
     }
 
+    /*! V half tuner */
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    vHalfTunerCoders.resize(VCVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 272;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
+        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
+        vHalfTunerCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            vHalfTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(vHalfTunerCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! C half tuner */
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    cHalfTunerCoders.resize(CCCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < CCCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 272;
+        doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
+        doubleConfig.minValue = ccCurrentRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = ccCurrentRangesArray[rangeIdx].max;
+        cHalfTunerCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            cHalfTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(cHalfTunerCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
     /*! liquid junction voltage */
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     liquidJunctionVoltageCoders.resize(liquidJunctionRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < liquidJunctionRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 4120;
+        doubleConfig.initialWord = 351;
         doubleConfig.resolution = liquidJunctionRangesArray[rangeIdx].step;
         doubleConfig.minValue = liquidJunctionRangesArray[rangeIdx].min;
         doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
@@ -1034,7 +1098,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     doubleConfig.bitsNum = 16;
     calibRShuntConductanceCoders.resize(VCCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 832;
+        doubleConfig.initialWord = 280;
         doubleConfig.resolution = rRShuntConductanceCalibRange[rangeIdx].step;
         doubleConfig.minValue = rRShuntConductanceCalibRange[rangeIdx].min;
         doubleConfig.maxValue = rRShuntConductanceCalibRange[rangeIdx].max;
@@ -1048,7 +1112,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     /*! DAC gain e offset*/
     /*! VC Voltage gain tuner */
-    doubleConfig.initialWord = 1216;
+    doubleConfig.initialWord = 288;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcVoltageGainRange.step;
@@ -1064,7 +1128,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! VC Voltage offset tuner */
     calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 1600;
+        doubleConfig.initialWord = 296;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
@@ -1079,7 +1143,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! CC Current gain tuner */
-    doubleConfig.initialWord = 1216;
+    doubleConfig.initialWord = 288;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibCcCurrentGainRange.step;
@@ -1095,7 +1159,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! CC Voltage offset tuner */
     calibCcCurrentOffsetCoders.resize(ccCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 1600;
+        doubleConfig.initialWord = 296;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibCcCurrentOffsetRanges[rangeIdx].step;
@@ -1113,7 +1177,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! \note MPAC sebbene nel calibratore si cicli sui range per calcolare i gainADC, questi non dipendono dai range essendo numeri puri. Il ciclo sui
     range serve solo per selezionare gli step di corrente range-specifici*/
     /*! VC current gain tuner */
-    doubleConfig.initialWord = 1984;
+    doubleConfig.initialWord = 304;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcCurrentGainRange.step;
@@ -1129,7 +1193,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! VC current offset tuner */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 2368;
+        doubleConfig.initialWord = 312;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -1144,7 +1208,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! CC Voltage gain tuner */
-    doubleConfig.initialWord = 1984;
+    doubleConfig.initialWord = 304;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibCcVoltageGainRange.step;
@@ -1160,7 +1224,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! CC Voltage offset tuner */
     calibCcVoltageOffsetCoders.resize(ccVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < ccVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 2368;
+        doubleConfig.initialWord = 312;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibCcVoltageOffsetRanges[rangeIdx].step;
@@ -1174,9 +1238,9 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
         }
     }
 
-    /*! Compensation coders */
+    /*! Compensation coders*/
     /*! Cfast / pipette capacitance compensation ENABLE */
-    boolConfig.initialWord = 2752;
+    boolConfig.initialWord = 320;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     pipetteCapEnCompensationCoders.resize(currentChannelsNum);
@@ -1193,11 +1257,11 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! Cfast / pipette capacitance compensation VALUE*/
     pipetteCapValCompensationMultiCoders.resize(currentChannelsNum);
 
-    boolConfig.initialWord = 2776;
+    boolConfig.initialWord = 321;
     boolConfig.initialBit = 6;
     boolConfig.bitsNum = 2;
 
-    doubleConfig.initialWord = 2776;
+    doubleConfig.initialWord = 321;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
 
@@ -1240,7 +1304,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! Cslow / membrane capacitance compensation ENABLE */
-    boolConfig.initialWord = 2968;
+    boolConfig.initialWord = 325;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     membraneCapEnCompensationCoders.resize(currentChannelsNum);
@@ -1257,11 +1321,11 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! Cslow / membrane capacitance compensation */
     membraneCapValCompensationMultiCoders.resize(currentChannelsNum);
 
-    boolConfig.initialWord = 2992;
+    boolConfig.initialWord = 326;
     boolConfig.initialBit = 6;
     boolConfig.bitsNum = 2;
 
-    doubleConfig.initialWord = 2992;
+    doubleConfig.initialWord = 326;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
 
@@ -1306,11 +1370,11 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! Cslow / membrane capacitance compensation TAU and TAU RANGES */
     membraneCapTauValCompensationMultiCoders.resize(currentChannelsNum);
 
-    doubleConfig.initialWord = 3184;
+    doubleConfig.initialWord = 333;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
-    boolConfig.initialWord = 3376;
+    boolConfig.initialWord = 334;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
 
@@ -1352,7 +1416,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! Rs correction compensation ENABLE*/
-    boolConfig.initialWord = 3400;
+    boolConfig.initialWord = 335;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     rsCorrEnCompensationCoders.resize(currentChannelsNum);
@@ -1367,7 +1431,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! Rs correction compensation VALUE*/
-    doubleConfig.initialWord = 3424;
+    doubleConfig.initialWord = 336;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
     doubleConfig.resolution = rsCorrValueRange.step;
@@ -1386,7 +1450,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
 
     /*! Rs correction compensation BANDWIDTH */
     /*! \todo QUESTO VIENE IMPATTATO DALLA SWITCHED CAP FREQUENCY SOLO  A LIVELLO DI RAPPRESENTAZINE DI STRINGHE PER LA BANDA NELLA GUI. ATTIVAMENTE QUI NN FACCIAMO NULLA!!!!!*/
-    boolConfig.initialWord = 3616;
+    boolConfig.initialWord = 340;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 3;
     rsCorrBwCompensationCoders.resize(currentChannelsNum);
@@ -1401,7 +1465,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! Rs PREDICTION compensation ENABLE*/
-    boolConfig.initialWord = 3712;
+    boolConfig.initialWord = 342;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     rsPredEnCompensationCoders.resize(currentChannelsNum);
@@ -1416,7 +1480,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! Rs prediction compensation GAIN*/
-    doubleConfig.initialWord = 3736;
+    doubleConfig.initialWord = 343;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
     doubleConfig.resolution = rsPredGainRange.step;
@@ -1434,7 +1498,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! Rs prediction compensation TAU*/
-    doubleConfig.initialWord = 3928;
+    doubleConfig.initialWord = 347;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
     doubleConfig.resolution = rsPredTauRange.step;
@@ -1452,7 +1516,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! CURRENT CLAMP Cfast / pipette capacitance compensation ENABLE */
-    boolConfig.initialWord = 2752;
+    boolConfig.initialWord = 320;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     pipetteCapCcEnCompensationCoders.resize(currentChannelsNum);
@@ -1469,11 +1533,11 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! CURRENT CLAMP Cfast / pipette capacitance compensation VALUE*/
     pipetteCapCcValCompensationMultiCoders.resize(currentChannelsNum);
 
-    boolConfig.initialWord = 2776;
+    boolConfig.initialWord = 321;
     boolConfig.initialBit = 6;
     boolConfig.bitsNum = 2;
 
-    doubleConfig.initialWord = 2776;
+    doubleConfig.initialWord = 321;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
 
@@ -1525,14 +1589,9 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x0070; // fans on by default
 }
 
-Emcr384PatchClamp_prot_v01_fw_v02::~Emcr384PatchClamp_prot_v01_fw_v02() {
-
-}
-
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::initializeHW() {
+ErrorCodes_t EmcrTestBoardEl07ab::initializeHW() {
     std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
 
     this->resetFpga(true, true);
@@ -1546,7 +1605,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::initializeHW() {
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompOptionsFeatures(CompensationTypes type ,std::vector <std::string> &compOptionsArray){
+ErrorCodes_t EmcrTestBoardEl07ab::getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray){
     switch(type) {
     case CompRsCorr:
         if(rsCorrBwArray.size()==0){
@@ -1566,14 +1625,14 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompOptionsFeatures(Compensat
     }
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues){
+ErrorCodes_t EmcrTestBoardEl07ab::getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues){
     switch(compTypeToEnable){
     case CompCfast:
         if(pipetteCapEnCompensationCoders.size() == 0){
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[CompCfast][channelIndexes[i]];
+            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[compTypeToEnable][channelIndexes[i]];
         }
         break;
 
@@ -1582,7 +1641,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[CompCslow][channelIndexes[i]];
+            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[compTypeToEnable][channelIndexes[i]];
         }
         break;
 
@@ -1591,7 +1650,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[CompRsCorr][channelIndexes[i]];
+            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[compTypeToEnable][channelIndexes[i]];
         }
         break;
 
@@ -1600,7 +1659,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[CompRsPred][channelIndexes[i]];
+            onValues[i] = vcCompensationsActivated && compensationsEnableFlags[compTypeToEnable][channelIndexes[i]];
         }
         break;
 
@@ -1609,7 +1668,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
             return ErrorFeatureNotImplemented;
         }
         for(int i = 0; i<channelIndexes.size(); i++){
-            onValues[i] = ccCompensationsActivated && compensationsEnableFlags[CompCcCfast][channelIndexes[i]];
+            onValues[i] =  ccCompensationsActivated && compensationsEnableFlags[compTypeToEnable][channelIndexes[i]];
         }
         break;
 
@@ -1620,7 +1679,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
@@ -1635,7 +1694,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<u
         debugString += "enable cfast: ";
 #endif
         for(int i = 0; i<channelIndexes.size(); i++){
-            compensationsEnableFlags[CompCfast][channelIndexes[i]] = onValues[i];
+            compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
             pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1654,7 +1713,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<u
         debugString += "enable cslow: ";
 #endif
         for(int i = 0; i<channelIndexes.size(); i++){
-            compensationsEnableFlags[CompCslow][channelIndexes[i]] = onValues[i];
+            compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
             membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingCslowRs(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1673,7 +1732,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<u
         debugString += "enable rscorr: ";
 #endif
         for(int i = 0; i<channelIndexes.size(); i++){
-            compensationsEnableFlags[CompRsCorr][channelIndexes[i]] = onValues[i];
+            compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
             rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingRsCp(onValues[i]);
             this->updateLiquidJunctionVoltage(channelIndexes[i], false);
@@ -1693,7 +1752,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<u
         debugString += "enable rspred: ";
 #endif
         for(int i = 0; i<channelIndexes.size(); i++){
-            compensationsEnableFlags[CompRsPred][channelIndexes[i]] = onValues[i];
+            compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
             rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingRsPg(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1712,7 +1771,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<u
         debugString += "enable cccfast: ";
 #endif
         for(int i = 0; i<channelIndexes.size(); i++){
-            compensationsEnableFlags[CompCcCfast][channelIndexes[i]] = onValues[i];/*! \todo MPAC, forse mettere anche questi in and a areCcCompsEnabled*/
+            compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
             pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             channelModels[channelIndexes[i]]->setCompensatingCcCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1739,7 +1798,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector<u
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableVcCompensations(bool enable, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::enableVcCompensations(bool enable, bool applyFlag){
     vcCompensationsActivated = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
@@ -1761,7 +1820,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableVcCompensations(bool enabl
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCcCompensations(bool enable, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::enableCcCompensations(bool enable, bool applyFlag){
     ccCompensationsActivated = enable;
 
     for(int i = 0; i < currentChannelsNum; i++){
@@ -1778,7 +1837,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCcCompensations(bool enabl
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag){
     std::string debugString = "";
     // make local copy of the user domain param vectors
     std::vector<std::vector<double>> localCompValueSubMatrix;
@@ -1899,11 +1958,12 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector<uint16
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlag){
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
-    switch(type) {
+    switch(type)
+    {
     case CompRsCorr:
         if (rsCorrBwCompensationCoders.size() == 0) {
             return ErrorFeatureNotImplemented;
@@ -1925,7 +1985,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompOptions(std::vector<uint1
     }
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnVoltageReaderOn(bool onValueIn, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::turnVoltageReaderOn(bool onValueIn, bool applyFlag){
     std::vector<bool> allTheTrueIneed;
     std::vector<bool> allTheFalseIneed;
 
@@ -1948,7 +2008,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnVoltageReaderOn(bool onValue
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnCurrentReaderOn(bool onValueIn, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::turnCurrentReaderOn(bool onValueIn, bool applyFlag){
     std::vector<bool> allTheTrueIneed;
     std::vector<bool> allTheFalseIneed;
 
@@ -1971,7 +2031,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnCurrentReaderOn(bool onValue
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnVoltageStimulusOn(bool onValue, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::turnVoltageStimulusOn(bool onValue, bool applyFlag){
     std::vector<bool> allTheTrueIneed;
     std::vector<bool> allTheFalseIneed;
 
@@ -1990,7 +2050,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnVoltageStimulusOn(bool onVal
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnCurrentStimulusOn(bool onValue, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::turnCurrentStimulusOn(bool onValue, bool applyFlag){
     std::vector<bool> allTheTrueIneed;
     std::vector<bool> allTheFalseIneed;
 
@@ -2011,7 +2071,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnCurrentStimulusOn(bool onVal
     return Success;
 }
 
-std::vector<double> Emcr384PatchClamp_prot_v01_fw_v02::user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams){
+std::vector<double> EmcrTestBoardEl07ab::user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams){
     std::vector<double> asicDomainParameter;
     asicDomainParameter.resize(CompensationAsicParamsNum);
     double cp; // pipette capacitance
@@ -2062,7 +2122,7 @@ std::vector<double> Emcr384PatchClamp_prot_v01_fw_v02::user2AsicDomainTransform(
     return asicDomainParameter;
 }
 
-std::vector<double> Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc){
+std::vector<double> EmcrTestBoardEl07ab::asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc){
     std::vector<double> userDomainParameter;
     userDomainParameter.resize(CompensationUserParamsNum);
 
@@ -2114,7 +2174,7 @@ std::vector<double> Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainTransform(
     return userDomainParameter;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams){
+ErrorCodes_t EmcrTestBoardEl07ab::asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams){
     /*! \todo still to understand how to obtain them. COuld they be imputs of the function?*/
     std::vector<double> potentialMaxs;
     std::vector<double> potentialMins;
@@ -2271,7 +2331,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::asic2UserDomainCompensable(int c
     return Success;
 }
 
-double Emcr384PatchClamp_prot_v01_fw_v02::computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow){
+double EmcrTestBoardEl07ab::computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow){
     bool done = false;
     int i;
     double asicCmCinj;
@@ -2293,7 +2353,7 @@ double Emcr384PatchClamp_prot_v01_fw_v02::computeAsicCmCinj(double cm, bool chan
     return asicCmCinj;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getPipetteCapacitanceControl(CompensationControl_t &control) {
+ErrorCodes_t EmcrTestBoardEl07ab::getPipetteCapacitanceControl(CompensationControl_t &control) {
     control.implemented = true;
     control.min = pipetteCapacitanceRange.front().min;
     control.max = pipetteCapacitanceRange.back().max;
@@ -2309,7 +2369,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getPipetteCapacitanceControl(Com
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCCPipetteCapacitanceControl(CompensationControl_t &control) {
+ErrorCodes_t EmcrTestBoardEl07ab::getCCPipetteCapacitanceControl(CompensationControl_t &control) {
     control.implemented = true;
     control.min = pipetteCapacitanceRange.front().min;
     control.max = pipetteCapacitanceRange.back().max;
@@ -2325,7 +2385,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCCPipetteCapacitanceControl(C
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getMembraneCapacitanceControl(CompensationControl_t &control) {
+ErrorCodes_t EmcrTestBoardEl07ab::getMembraneCapacitanceControl(CompensationControl_t &control) {
     control.implemented = true;
     control.min = membraneCapValueRange.front().min;
     control.max = membraneCapValueRange.back().max;
@@ -2341,7 +2401,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getMembraneCapacitanceControl(Co
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getAccessResistanceControl(CompensationControl_t &control) {
+ErrorCodes_t EmcrTestBoardEl07ab::getAccessResistanceControl(CompensationControl_t &control) {
     control.implemented = true;
     control.min = rsCorrValueRange.min;
     control.max = rsCorrValueRange.max;
@@ -2357,7 +2417,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getAccessResistanceControl(Compe
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getResistanceCorrectionPercentageControl(CompensationControl_t &control) {
+ErrorCodes_t EmcrTestBoardEl07ab::getResistanceCorrectionPercentageControl(CompensationControl_t &control) {
     control.implemented = true;
     control.min = 1.0;
     control.max = 100.0;
@@ -2373,7 +2433,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getResistanceCorrectionPercentag
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getResistancePredictionGainControl(CompensationControl_t &control) {
+ErrorCodes_t EmcrTestBoardEl07ab::getResistancePredictionGainControl(CompensationControl_t &control) {
     control.implemented = true;
     control.min = rsPredGainRange.min;
     control.max = rsPredGainRange.max;

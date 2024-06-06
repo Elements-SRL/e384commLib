@@ -277,20 +277,20 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
     realSamplingRatesArray[SamplingRate80kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate5kHz].value = 0.0002;
-    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate5kHz].value = 200.0;
+    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate5kHz].unit = "s";
-    integrationStepArray[SamplingRate10kHz].value = 0.0001;
-    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate10kHz].value = 100.0;
+    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate10kHz].unit = "s";
-    integrationStepArray[SamplingRate20kHz].value = 0.00005;
-    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate20kHz].value = 50.0;
+    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate20kHz].unit = "s";
-    integrationStepArray[SamplingRate40kHz].value = 0.000025;
-    integrationStepArray[SamplingRate40kHz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate40kHz].value = 25.0;
+    integrationStepArray[SamplingRate40kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate40kHz].unit = "s";
-    integrationStepArray[SamplingRate80kHz].value = 0.0000125;
-    integrationStepArray[SamplingRate80kHz].prefix = UnitPfxNone;
+    integrationStepArray[SamplingRate80kHz].value = 12.5;
+    integrationStepArray[SamplingRate80kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate80kHz].unit = "s";
 
     // mapping ADC Voltage Clamp
@@ -607,19 +607,19 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
     clampingModeCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(clampingModeCoder);
 
-    /*! Voltage channel / source */
+    /*! Voltage Source */
     boolConfig.initialWord = 3;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
-    voltageChanSourceCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(voltageChanSourceCoder);
+    sourceForVoltageChannelCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(sourceForVoltageChannelCoder);
 
-    /*! Voltage channel / source */
+    /*! Current Source */
     boolConfig.initialWord = 3;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    currentChanSourceCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(currentChanSourceCoder);
+    sourceForCurrentChannelCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(sourceForCurrentChannelCoder);
 
     /*! Current range VC */
     boolConfig.initialWord = 10;
@@ -797,20 +797,6 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
             boolConfig.initialWord++;
         }
     }
-
-    /*! Voltage Source */
-    boolConfig.initialWord = 3;
-    boolConfig.initialBit = 0;
-    boolConfig.bitsNum = 4;
-    sourceForVoltageChannelCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(sourceForVoltageChannelCoder);
-
-    /*! Current Source */
-    boolConfig.initialWord = 3;
-    boolConfig.initialBit = 4;
-    boolConfig.bitsNum = 4;
-    sourceForCurrentChannelCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(sourceForCurrentChannelCoder);
 
     /*! Protocol structure */
     boolConfig.initialWord = protocolWordOffset;
