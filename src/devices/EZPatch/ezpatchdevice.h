@@ -220,27 +220,10 @@ public:
 
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray) override;
 
-    virtual ErrorCodes_t getPipetteCompensationOptions(std::vector <std::string> &options) override;
-    virtual ErrorCodes_t getCCPipetteCompensationOptions(std::vector <std::string> &options) override;
-    virtual ErrorCodes_t getMembraneCompensationOptions(std::vector <std::string> &options) override;
-    virtual ErrorCodes_t getResistanceCompensationOptions(std::vector <std::string> &options) override;
-    virtual ErrorCodes_t getResistanceCorrectionOptions(std::vector <std::string> &options) override;
-    virtual ErrorCodes_t getResistancePredictionOptions(std::vector <std::string> &options) override;
-    virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> &options) override;
-    virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> &options) override;
+    virtual ErrorCodes_t getCompensationOptions(CompensationTypes_t type, std::vector <std::string> &options) override;
 
     ErrorCodes_t getLiquidJunctionControl(CompensationControl_t &control);
-    virtual ErrorCodes_t getPipetteCapacitanceControl(CompensationControl_t &control) override;
-    virtual ErrorCodes_t getCCPipetteCapacitanceControl(CompensationControl_t &control) override;
-    virtual ErrorCodes_t getMembraneCapacitanceControl(CompensationControl_t &control) override;
-    virtual ErrorCodes_t getAccessResistanceControl(CompensationControl_t &control) override;
-    virtual ErrorCodes_t getResistanceCorrectionPercentageControl(CompensationControl_t &control) override;
-    virtual ErrorCodes_t getResistanceCorrectionLagControl(CompensationControl_t &control) override;
-    virtual ErrorCodes_t getResistancePredictionGainControl(CompensationControl_t &control) override;
-    virtual ErrorCodes_t getResistancePredictionPercentageControl(CompensationControl_t &control) override;
-    virtual ErrorCodes_t getResistancePredictionTauControl(CompensationControl_t &control) override;
-    virtual ErrorCodes_t getLeakConductanceControl(CompensationControl_t &control) override;
-    virtual ErrorCodes_t getBridgeBalanceResistanceControl(CompensationControl_t &control) override;
+    virtual ErrorCodes_t getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) override;
 
 protected:
     typedef enum {

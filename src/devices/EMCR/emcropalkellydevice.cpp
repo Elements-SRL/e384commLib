@@ -35,7 +35,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
     {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
-    {"233600165Q", DeviceTestBoardEL07d},
+    {"233600165Q", DeviceTestBoardEL07ab},//DeviceTestBoardEL07d},
     {"233600161X", Device4x10MHz_PCBV03},
     {"224800130Y", Device4x10MHz_PCBV03},
     {"2336001642", DeviceTestBoardEL07ab},
@@ -165,6 +165,7 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case DeviceTestBoardEL07ab:
         messageDispatcher = new EmcrTestBoardEl07ab(deviceId);
+        break;
 
     case Device2x10MHz_PCBV01:
         messageDispatcher = new Emcr2x10MHz_PCBV01_V02(deviceId);

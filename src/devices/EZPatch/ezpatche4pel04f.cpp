@@ -911,24 +911,26 @@ ErrorCodes_t EZPatche4PEL04F::setResistancePredictionOptions(uint16_t optionIdx)
     }
 }
 
-ErrorCodes_t EZPatche4PEL04F::getLeakConductanceControl(CompensationControl_t &control) {
-    if (selectedVcCurrentRangeIdx < VCCurrentRange3nA) {
-        compensationControls[U_RsPt][compensationsSettingChannel].min = leakConductanceControlLow.min;
-        compensationControls[U_RsPt][compensationsSettingChannel].max = leakConductanceControlLow.max;
-        compensationControls[U_RsPt][compensationsSettingChannel].minCompensable = leakConductanceControlLow.minCompensable;
-        compensationControls[U_RsPt][compensationsSettingChannel].maxCompensable = leakConductanceControlLow.maxCompensable;
-        compensationControls[U_RsPt][compensationsSettingChannel].step = leakConductanceControlLow.step;
-        compensationControls[U_RsPt][compensationsSettingChannel].decimals = leakConductanceControlLow.decimals;
+ErrorCodes_t EZPatche4PEL04F::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
+    if (param == U_LkG) {
+        if (selectedVcCurrentRangeIdx < VCCurrentRange3nA) {
+            compensationControls[U_LkG][compensationsSettingChannel].min = leakConductanceControlLow.min;
+            compensationControls[U_LkG][compensationsSettingChannel].max = leakConductanceControlLow.max;
+            compensationControls[U_LkG][compensationsSettingChannel].minCompensable = leakConductanceControlLow.minCompensable;
+            compensationControls[U_LkG][compensationsSettingChannel].maxCompensable = leakConductanceControlLow.maxCompensable;
+            compensationControls[U_LkG][compensationsSettingChannel].step = leakConductanceControlLow.step;
+            compensationControls[U_LkG][compensationsSettingChannel].decimals = leakConductanceControlLow.decimals;
 
-    } else {
-        compensationControls[U_RsPt][compensationsSettingChannel].min = leakConductanceControlHigh.min;
-        compensationControls[U_RsPt][compensationsSettingChannel].max = leakConductanceControlHigh.max;
-        compensationControls[U_RsPt][compensationsSettingChannel].minCompensable = leakConductanceControlHigh.minCompensable;
-        compensationControls[U_RsPt][compensationsSettingChannel].maxCompensable = leakConductanceControlHigh.maxCompensable;
-        compensationControls[U_RsPt][compensationsSettingChannel].step = leakConductanceControlHigh.step;
-        compensationControls[U_RsPt][compensationsSettingChannel].decimals = leakConductanceControlHigh.decimals;
+        } else {
+            compensationControls[U_LkG][compensationsSettingChannel].min = leakConductanceControlHigh.min;
+            compensationControls[U_LkG][compensationsSettingChannel].max = leakConductanceControlHigh.max;
+            compensationControls[U_LkG][compensationsSettingChannel].minCompensable = leakConductanceControlHigh.minCompensable;
+            compensationControls[U_LkG][compensationsSettingChannel].maxCompensable = leakConductanceControlHigh.maxCompensable;
+            compensationControls[U_LkG][compensationsSettingChannel].step = leakConductanceControlHigh.step;
+            compensationControls[U_LkG][compensationsSettingChannel].decimals = leakConductanceControlHigh.decimals;
+        }
     }
-    return EZPatchDevice::getLeakConductanceControl(control);
+    return EZPatchDevice::getCompensationControl(param, control);
 }
 
 void EZPatche4PEL04F::selectChannelsResolutions() {

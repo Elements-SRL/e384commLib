@@ -11,7 +11,7 @@ public:
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
     ErrorCodes_t setResistancePredictionOptions(uint16_t optionIdx) override;
-    ErrorCodes_t getLeakConductanceControl(CompensationControl_t &control) override;
+    ErrorCodes_t getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) override;
 
 protected:
     enum ClampingModalities {

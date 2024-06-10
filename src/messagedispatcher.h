@@ -84,7 +84,7 @@ public:
     MessageDispatcher(std::string deviceId);
     virtual ~MessageDispatcher();
 
-    enum CompensationTypes {
+    typedef enum CompensationTypes {
         CompCfast = 0,      // pipette voltage clamp
         CompCslow = 1,      // membrane
         CompRsComp = 2,     // rseries compensation
@@ -95,9 +95,9 @@ public:
         CompCcCfast = 6,    // pipette current clamp
         CompBridgeRes = 7,  // bridge balance
         CompensationTypesNum = 8
-    };
+    } CompensationTypes_t;
 
-    enum CompensationUserParams {
+    typedef enum CompensationUserParams {
         U_CpVc,     // VCPipetteCapacitance
         U_Cm,       // MembraneCapacitance
         U_Rs,       // SeriesResistance
@@ -110,7 +110,7 @@ public:
         U_CpCc,     // CCPipetteCapacitance
         U_BrB,      // CCBridgeBlaance
         CompensationUserParamsNum
-    };
+    } CompensationUserParams_t;
 
     typedef struct FwUpgradeInfo { /*! Defaults to "no upgrades available" */
         bool available = false;
@@ -499,7 +499,7 @@ public:
      * acquired current is 0.
      *
      * \param channelIndexes [in] Channel indexes.
-     * \param onValues [in] Array of booleans, one for each channel: True to turn the pipette compensation on, false to turn it off.
+     * \param onValues [in] Array of booleans, one for each channel: True to turn the offset compensation on, false to turn it off.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
@@ -760,11 +760,11 @@ public:
      *
      * \param channelIndexes [in] Array/vector of channel indexes.
      * \param paramToUpdate [in] Compensation parameter to be updated.
-     * \param channelValues [in] Array/vector of pipette capacitances.
+     * \param newParamValues [in] Array/vector of compensation values.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag);
+    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector <double> newParamValues, bool applyFlag);
 
     /*! \brief Set options for a specific compensation.
      *
@@ -774,7 +774,7 @@ public:
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlag);
+    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector <uint16_t> options, bool applyFlag);
 
     /*! Device specific controls */
 
@@ -1115,146 +1115,21 @@ public:
     ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &matrix);
     virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues);
 
-    /*! \brief Get options for the pipette compensation.
+    /*! \brief Get options for the selected compensation type.
      *
+     * \param type [in]: Compensation type, e.g. pipette compensation.
      * \param options [out]: vector of strings of the available options.
-     * \return Success if the device has options for pipette compensation.
+     * \return Success if the device has options for the selected compensation type.
      */
-    virtual ErrorCodes_t getPipetteCompensationOptions(std::vector <std::string> &options);
+    virtual ErrorCodes_t getCompensationOptions(CompensationTypes_t type, std::vector <std::string> &options);
 
-    /*! \brief Get options for the pipette compensation for current clamp.
+    /*! \brief Get the specifications of the control for the selected compensation parameter.
      *
-     * \param options [out]: vector of strings of the available options.
-     * \return Success if the device has options for pipette compensation for current clamp.
+     * \param param [in] Compensation parameter, e.g. pipette capacitance.
+     * \param control [out] Specifications of the control for the selected parameter.
+     * \return Success if the device implements the selected parameter control.
      */
-    virtual ErrorCodes_t getCCPipetteCompensationOptions(std::vector <std::string> &options);
-
-    /*! \brief Get options for the membrane compensation.
-     *
-     * \param options [out]: vector of strings of the available options.
-     * \return Success if the device has options for membrane compensation.
-     */
-    virtual ErrorCodes_t getMembraneCompensationOptions(std::vector <std::string> &options);
-
-    /*! \brief Get options for the access resistance compensation.
-     * \note Resistance compensation includes resistance correction and prediction.
-     *
-     * \param options [out]: vector of strings of the available options.
-     * \return Success if the device has options for access resistance compensation.
-     */
-    virtual ErrorCodes_t getResistanceCompensationOptions(std::vector <std::string> &options);
-
-    /*! \brief Get options for the access resistance correction.
-     *
-     * \param options [out]: vector of strings of the available options.
-     * \return Success if the device has options for access resistance correction.
-     */
-    virtual ErrorCodes_t getResistanceCorrectionOptions(std::vector <std::string> &options);
-
-    /*! \brief Get options for the access resistance prediction.
-     *
-     * \param options [out]: vector of strings of the available options.
-     * \return Success if the device has options for access resistance prediction.
-     */
-    virtual ErrorCodes_t getResistancePredictionOptions(std::vector <std::string> &options);
-
-    /*! \brief Get options for the leak conductance compensation.
-     *
-     * \param options [out]: vector of strings of the available options.
-     * \return Success if the device has options for leak conductance compensation.
-     */
-    virtual ErrorCodes_t getLeakConductanceCompensationOptions(std::vector <std::string> &options);
-
-    /*! \brief Get options for the bridge balance compensation.
-     *
-     * \param options [out]: vector of strings of the available options.
-     * \return Success if the device has options for bridge balance compensation.
-     */
-    virtual ErrorCodes_t getBridgeBalanceCompensationOptions(std::vector <std::string> &options);
-
-    /*! \brief Get the specifications of the control for the pipette capacitance.
-     *
-     * \param control [out] Specifications of the control for the pipette capacitance.
-     * \return Success if the device implements pipette capacitance control.
-     */
-    virtual ErrorCodes_t getPipetteCapacitanceControl(CompensationControl_t &control);
-
-    /*! \brief Get the specifications of the control for the pipette capacitance for current clamp.
-     *
-     * \param control [out] Specifications of the control for the pipette capacitance for current clamp.
-     * \return Success if the device implements pipette capacitance control for current clamp.
-     */
-    virtual ErrorCodes_t getCCPipetteCapacitanceControl(CompensationControl_t &control);
-
-    /*! \brief Get the specifications of the control for the membrane capacitance.
-     *
-     * \param control [out] Specifications of the control for the membrane capacitance.
-     * \return Success if the device implements membrane capacitance control.
-     */
-    virtual ErrorCodes_t getMembraneCapacitanceControl(CompensationControl_t &control);
-
-    /*! \brief Get the specifications of the control for the access resistance.
-     *
-     * \param control [out] Specifications of the control for the access resistance.
-     * \return Success if the device implements access resistance control.
-     */
-    virtual ErrorCodes_t getAccessResistanceControl(CompensationControl_t &control);
-
-    /*! \brief Get the specifications of the control for the resistance correction percentage.
-     *
-     * \param control [out] Specifications of the control for the resistance correction percentage.
-     * \return Success if the device implements resistance correction percentage control.
-     */
-    virtual ErrorCodes_t getResistanceCorrectionPercentageControl(CompensationControl_t &control);
-
-    /*! \brief Get the specifications of the control for the resistance correction lag.
-     *
-     * \param control [out] Specifications of the control for the resistance correction lag.
-     * \return Success if the device implements resistance correction lag control.
-     */
-    virtual ErrorCodes_t getResistanceCorrectionLagControl(CompensationControl_t &control);
-
-    /*! \brief Get the specifications of the control for the resistance prediction gain.
-     *
-     * \param control [out] Specifications of the control for the resistance prediction gain.
-     * \return Success if the device implements resistance prediction gain control.
-     */
-    virtual ErrorCodes_t getResistancePredictionGainControl(CompensationControl_t &control);
-
-    /*! \brief Get the specifications of the control for the resistance prediction percentage.
-     *
-     * \param control [out] Specifications of the control for the resistance prediction percentage.
-     * \return Success if the device implements resistance prediction percentage control.
-     */
-    virtual ErrorCodes_t getResistancePredictionPercentageControl(CompensationControl_t &control);
-
-    /*! \brief Get the specifications of the control for the resistance prediction bandwidth gain.
-     *
-     * \param control [out] Specifications of the control for the resistance prediction bandwidth gain.
-     * \return Success if the device implements resistance prediction bandwidth gain control.
-     */
-    virtual ErrorCodes_t getResistancePredictionBandwidthGainControl(CompensationControl_t &control);
-
-    /*! \brief Get the specifications of the control for the resistance prediction tau.
-     *
-     * \param control [out] Specifications of the control for the resistance prediction tau.
-     * \return Success if the device implements resistance prediction tau control.
-     */
-    virtual ErrorCodes_t getResistancePredictionTauControl(CompensationControl_t &control);
-
-    /*! \brief Get the specifications of the control for the leak conductance.
-     *
-     * \param control [out] Specifications of the control for the leak conductance.
-     * \return Success if the device implements resistance prediction tau control.
-     */
-    virtual ErrorCodes_t getLeakConductanceControl(CompensationControl_t &control);
-
-    /*! \brief Get the specifications of the control for the bridge balance resistance.
-     *
-     * \param control [out] Specifications of the control for the bridge balance resistance.
-     * \return Success if the device implements bridge balance resistance control.
-     */
-    virtual ErrorCodes_t getBridgeBalanceResistanceControl(CompensationControl_t &control);
+    virtual ErrorCodes_t getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control);
 
     virtual ErrorCodes_t getAccessResistanceCorrectionLag(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
     virtual ErrorCodes_t getAccessResistancePredictionPercentage(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);

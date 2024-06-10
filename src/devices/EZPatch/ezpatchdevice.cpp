@@ -2745,106 +2745,88 @@ ErrorCodes_t EZPatchDevice::hasBridgeBalanceCompensation() {
 ErrorCodes_t EZPatchDevice::getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray) {
     switch (type) {
     case CompCfast:
-        return this->getPipetteCompensationOptions(compOptionsArray);
+        return this->getCompensationOptions(CompCcCfast, compOptionsArray);
 
     case CompCslow:
-        return this->getMembraneCompensationOptions(compOptionsArray);
+        return this->getCompensationOptions(CompCslow, compOptionsArray);
 
     case CompRsCorr:
-        return this->getResistanceCorrectionOptions(compOptionsArray);
+        return this->getCompensationOptions(CompRsCorr, compOptionsArray);
 
     case CompRsPred:
-        return this->getResistancePredictionOptions(compOptionsArray);
+        return this->getCompensationOptions(CompRsPred, compOptionsArray);
 
     case CompCcCfast:
-        return this->getCCPipetteCompensationOptions(compOptionsArray);
+        return this->getCompensationOptions(CompCcCfast, compOptionsArray);
 
     case CompBridgeRes:
-        return this->getBridgeBalanceCompensationOptions(compOptionsArray);
+        return this->getCompensationOptions(CompBridgeRes, compOptionsArray);
 
     default:
         return ErrorFeatureNotImplemented;
     }
 }
 
-ErrorCodes_t EZPatchDevice::getPipetteCompensationOptions(std::vector <std::string> &options) {
-    if (pipetteCompensationOptions.size() > 0) {
-        options = pipetteCompensationOptions;
-        return Success;
+ErrorCodes_t EZPatchDevice::getCompensationOptions(CompensationTypes type, std::vector <std::string> &options) {
+    switch (type) {
+    case CompCfast:
+        if (pipetteCompensationOptions.size() > 0) {
+            options = pipetteCompensationOptions;
+            return Success;
+        }
+        break;
 
-    } else {
-        return ErrorFeatureNotImplemented;
+    case CompCslow:
+        if (membraneCompensationOptions.size() > 0) {
+            options = membraneCompensationOptions;
+            return Success;
+        }
+        break;
+
+    case CompRsComp:
+        if (resistanceCompensationOptions.size() > 0) {
+            options = resistanceCompensationOptions;
+            return Success;
+        }
+        break;
+
+    case CompRsCorr:
+        if (resistanceCorrectionOptions.size() > 0) {
+            options = resistanceCorrectionOptions;
+            return Success;
+        }
+        break;
+
+    case CompRsPred:
+        if (resistancePredictionOptions.size() > 0) {
+            options = resistancePredictionOptions;
+            return Success;
+        }
+        break;
+
+    case CompGLeak:
+        if (leakConductanceCompensationOptions.size() > 0) {
+            options = leakConductanceCompensationOptions;
+            return Success;
+        }
+        break;
+
+    case CompCcCfast:
+        if (ccPipetteCompensationOptions.size() > 0) {
+            options = ccPipetteCompensationOptions;
+            return Success;
+
+        }
+        break;
+
+    case CompBridgeRes:
+        if (bridgeBalanceCompensationOptions.size() > 0) {
+            options = bridgeBalanceCompensationOptions;
+            return Success;
+        }
+        break;
     }
-}
-
-ErrorCodes_t EZPatchDevice::getCCPipetteCompensationOptions(std::vector <std::string> &options) {
-    if (ccPipetteCompensationOptions.size() > 0) {
-        options = ccPipetteCompensationOptions;
-        return Success;
-
-    } else {
-        return ErrorFeatureNotImplemented;
-    }
-}
-
-ErrorCodes_t EZPatchDevice::getMembraneCompensationOptions(std::vector <std::string> &options) {
-    if (membraneCompensationOptions.size() > 0) {
-        options = membraneCompensationOptions;
-        return Success;
-
-    } else {
-        return ErrorFeatureNotImplemented;
-    }
-}
-
-ErrorCodes_t EZPatchDevice::getResistanceCompensationOptions(std::vector <std::string> &options) {
-    if (resistanceCompensationOptions.size() > 0) {
-        options = resistanceCompensationOptions;
-        return Success;
-
-    } else {
-        return ErrorFeatureNotImplemented;
-    }
-}
-
-ErrorCodes_t EZPatchDevice::getResistanceCorrectionOptions(std::vector <std::string> &options) {
-    if (resistanceCorrectionOptions.size() > 0) {
-        options = resistanceCorrectionOptions;
-        return Success;
-
-    } else {
-        return ErrorFeatureNotImplemented;
-    }
-}
-
-ErrorCodes_t EZPatchDevice::getResistancePredictionOptions(std::vector <std::string> &options) {
-    if (resistancePredictionOptions.size() > 0) {
-        options = resistancePredictionOptions;
-        return Success;
-
-    } else {
-        return ErrorFeatureNotImplemented;
-    }
-}
-
-ErrorCodes_t EZPatchDevice::getLeakConductanceCompensationOptions(std::vector <std::string> &options) {
-    if (leakConductanceCompensationOptions.size() > 0) {
-        options = leakConductanceCompensationOptions;
-        return Success;
-
-    } else {
-        return ErrorFeatureNotImplemented;
-    }
-}
-
-ErrorCodes_t EZPatchDevice::getBridgeBalanceCompensationOptions(std::vector <std::string> &options) {
-    if (bridgeBalanceCompensationOptions.size() > 0) {
-        options = bridgeBalanceCompensationOptions;
-        return Success;
-
-    } else {
-        return ErrorFeatureNotImplemented;
-    }
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t EZPatchDevice::getLiquidJunctionControl(CompensationControl_t &control) {
@@ -2856,100 +2838,10 @@ ErrorCodes_t EZPatchDevice::getLiquidJunctionControl(CompensationControl_t &cont
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::getPipetteCapacitanceControl(CompensationControl_t &control) {
+ErrorCodes_t EZPatchDevice::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
     ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (compensationControls[U_CpVc][compensationsSettingChannel].implemented) {
-        control = compensationControls[U_CpVc][compensationsSettingChannel];
-        ret = Success;
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::getCCPipetteCapacitanceControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (compensationControls[U_CpCc][compensationsSettingChannel].implemented) {
-        control = compensationControls[U_CpCc][compensationsSettingChannel];
-        ret = Success;
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::getMembraneCapacitanceControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (compensationControls[U_Cm][compensationsSettingChannel].implemented) {
-        control = compensationControls[U_Cm][compensationsSettingChannel];
-        ret = Success;
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::getAccessResistanceControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (compensationControls[U_Rs][compensationsSettingChannel].implemented) {
-        control = compensationControls[U_Rs][compensationsSettingChannel];
-        ret = Success;
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::getResistanceCorrectionPercentageControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (compensationControls[U_RsCp][compensationsSettingChannel].implemented) {
-        control = compensationControls[U_RsCp][compensationsSettingChannel];
-        ret = Success;
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::getResistanceCorrectionLagControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (compensationControls[U_RsCl][compensationsSettingChannel].implemented) {
-        control = compensationControls[U_RsCl][compensationsSettingChannel];
-        ret = Success;
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::getResistancePredictionGainControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (compensationControls[U_RsPg][compensationsSettingChannel].implemented) {
-        control = compensationControls[U_RsPg][compensationsSettingChannel];
-        ret = Success;
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::getResistancePredictionPercentageControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (compensationControls[U_RsPp][compensationsSettingChannel].implemented) {
-        control = compensationControls[U_RsPp][compensationsSettingChannel];
-        ret = Success;
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::getResistancePredictionTauControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (compensationControls[U_RsPt][compensationsSettingChannel].implemented) {
-        control = compensationControls[U_RsPt][compensationsSettingChannel];
-        ret = Success;
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::getLeakConductanceControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (compensationControls[U_LkG][compensationsSettingChannel].implemented) {
-        control = compensationControls[U_LkG][compensationsSettingChannel];
-        ret = Success;
-    }
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::getBridgeBalanceResistanceControl(CompensationControl_t &control) {
-    ErrorCodes_t ret = ErrorFeatureNotImplemented;
-    if (compensationControls[U_BrB][compensationsSettingChannel].implemented) {
-        control = compensationControls[U_BrB][compensationsSettingChannel];
+    if (compensationControls[param][compensationsSettingChannel].implemented) {
+        control = compensationControls[param][compensationsSettingChannel];
         ret = Success;
     }
     return ret;

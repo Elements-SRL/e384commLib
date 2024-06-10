@@ -2051,83 +2051,11 @@ ErrorCodes_t MessageDispatcher::getCompensationEnables(std::vector<uint16_t>, ui
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getPipetteCompensationOptions(std::vector <std::string> &){
+ErrorCodes_t MessageDispatcher::getCompensationOptions(CompensationTypes_t, std::vector <std::string> &){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCCPipetteCompensationOptions(std::vector <std::string> &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getMembraneCompensationOptions(std::vector <std::string> &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getResistanceCompensationOptions(std::vector <std::string> &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getResistanceCorrectionOptions(std::vector <std::string> &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getResistancePredictionOptions(std::vector <std::string> &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getLeakConductanceCompensationOptions(std::vector <std::string> &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getBridgeBalanceCompensationOptions(std::vector <std::string> &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getPipetteCapacitanceControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getCCPipetteCapacitanceControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getMembraneCapacitanceControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getAccessResistanceControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getResistanceCorrectionPercentageControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getResistanceCorrectionLagControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getResistancePredictionGainControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getResistancePredictionPercentageControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getResistancePredictionBandwidthGainControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getResistancePredictionTauControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getLeakConductanceControl(CompensationControl_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getBridgeBalanceResistanceControl(CompensationControl_t &){
+ErrorCodes_t MessageDispatcher::getCompensationControl(CompensationUserParams_t, CompensationControl_t &){
     return ErrorFeatureNotImplemented;
 }
 

@@ -6,7 +6,7 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
 
     deviceName = "TestBoardEL07ab";
 
-    fwName = "TestBoard_EL07ab_QFN48c_V01.bit";
+    fwName = "TB_EL07_ab_V01.bit";
 
     fwSize_B = 0;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+2;
@@ -476,30 +476,12 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
 
     /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
     CompensationControl_t control;
-
-    compensationControls[U_CpVc].resize(currentChannelsNum);
-    this->getPipetteCapacitanceControl(control);
-    std::fill(compensationControls[U_CpVc].begin(), compensationControls[U_CpVc].end(), control);
-
-    compensationControls[U_Cm].resize(currentChannelsNum);
-    this->getMembraneCapacitanceControl(control);
-    std::fill(compensationControls[U_Cm].begin(), compensationControls[U_Cm].end(), control);
-
-    compensationControls[U_Rs].resize(currentChannelsNum);
-    this->getAccessResistanceControl(control);
-    std::fill(compensationControls[U_Rs].begin(), compensationControls[U_Rs].end(), control);
-
-    compensationControls[U_RsCp].resize(currentChannelsNum);
-    this->getResistanceCorrectionPercentageControl(control);
-    std::fill(compensationControls[U_RsCp].begin(), compensationControls[U_RsCp].end(), control);
-
-    compensationControls[U_RsPg].resize(currentChannelsNum);
-    this->getResistancePredictionGainControl(control);
-    std::fill(compensationControls[U_RsPg].begin(), compensationControls[U_RsPg].end(), control);
-
-    compensationControls[U_CpCc].resize(currentChannelsNum);
-    this->getCCPipetteCapacitanceControl(control);
-    std::fill(compensationControls[U_CpCc].begin(), compensationControls[U_CpCc].end(), control);
+    std::vector <CompensationUserParams_t> availableCompensationsControls = {U_CpVc, U_Cm, U_Rs, U_RsCp, U_RsPg, U_CpCc};
+    for (auto param : availableCompensationsControls) {
+        compensationControls[param].resize(currentChannelsNum);
+        this->getCompensationControl(param, control);
+        std::fill(compensationControls[param].begin(), compensationControls[param].end(), control);
+    }
 
     /*! COMPENSATION OPTIONS STRINGS*/
     compensationOptionStrings.resize(CompensationTypesNum);
@@ -1370,7 +1352,7 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     /*! Cslow / membrane capacitance compensation TAU and TAU RANGES */
     membraneCapTauValCompensationMultiCoders.resize(currentChannelsNum);
 
-    doubleConfig.initialWord = 333;
+    doubleConfig.initialWord = 330;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
@@ -2353,98 +2335,99 @@ double EmcrTestBoardEl07ab::computeAsicCmCinj(double cm, bool chanCslowEnable, M
     return asicCmCinj;
 }
 
-ErrorCodes_t EmcrTestBoardEl07ab::getPipetteCapacitanceControl(CompensationControl_t &control) {
-    control.implemented = true;
-    control.min = pipetteCapacitanceRange.front().min;
-    control.max = pipetteCapacitanceRange.back().max;
-    control.minCompensable = pipetteCapacitanceRange.front().min;
-    control.maxCompensable = pipetteCapacitanceRange.back().max;
-    control.step = pipetteCapacitanceRange.front().step;
-    control.steps = round(1.0+(control.max-control.min)/control.step);
-    control.decimals = pipetteCapacitanceRange.front().decimals();
-    control.value = pipetteCapacitanceRange.front().min;
-    control.prefix = pipetteCapacitanceRange.front().prefix;
-    control.unit = pipetteCapacitanceRange.front().unit;
-    control.name = "Pipette Capacitance";
-    return Success;
-}
+ErrorCodes_t EmcrTestBoardEl07ab::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
+    switch (param) {
+    case U_CpVc:
+        control.implemented = true;
+        control.min = pipetteCapacitanceRange.front().min;
+        control.max = pipetteCapacitanceRange.back().max;
+        control.minCompensable = pipetteCapacitanceRange.front().min;
+        control.maxCompensable = pipetteCapacitanceRange.back().max;
+        control.step = pipetteCapacitanceRange.front().step;
+        control.steps = round(1.0+(control.max-control.min)/control.step);
+        control.decimals = pipetteCapacitanceRange.front().decimals();
+        control.value = pipetteCapacitanceRange.front().min;
+        control.prefix = pipetteCapacitanceRange.front().prefix;
+        control.unit = pipetteCapacitanceRange.front().unit;
+        control.name = "Pipette Capacitance (VC)";
+        return Success;
 
-ErrorCodes_t EmcrTestBoardEl07ab::getCCPipetteCapacitanceControl(CompensationControl_t &control) {
-    control.implemented = true;
-    control.min = pipetteCapacitanceRange.front().min;
-    control.max = pipetteCapacitanceRange.back().max;
-    control.minCompensable = pipetteCapacitanceRange.front().min;
-    control.maxCompensable = pipetteCapacitanceRange.back().max;
-    control.step = pipetteCapacitanceRange.front().step;
-    control.steps = round(1.0+(control.max-control.min)/control.step);
-    control.decimals = pipetteCapacitanceRange.front().decimals();
-    control.value = pipetteCapacitanceRange.front().min;
-    control.prefix = pipetteCapacitanceRange.front().prefix;
-    control.unit = pipetteCapacitanceRange.front().unit;
-    control.name = "Pipette Capacitance";
-    return Success;
-}
+    case U_CpCc:
+        control.implemented = true;
+        control.min = pipetteCapacitanceRange.front().min;
+        control.max = pipetteCapacitanceRange.back().max;
+        control.minCompensable = pipetteCapacitanceRange.front().min;
+        control.maxCompensable = pipetteCapacitanceRange.back().max;
+        control.step = pipetteCapacitanceRange.front().step;
+        control.steps = round(1.0+(control.max-control.min)/control.step);
+        control.decimals = pipetteCapacitanceRange.front().decimals();
+        control.value = pipetteCapacitanceRange.front().min;
+        control.prefix = pipetteCapacitanceRange.front().prefix;
+        control.unit = pipetteCapacitanceRange.front().unit;
+        control.name = "Pipette Capacitance (CC)";
+        return Success;
 
-ErrorCodes_t EmcrTestBoardEl07ab::getMembraneCapacitanceControl(CompensationControl_t &control) {
-    control.implemented = true;
-    control.min = membraneCapValueRange.front().min;
-    control.max = membraneCapValueRange.back().max;
-    control.minCompensable = membraneCapValueRange.front().min;
-    control.maxCompensable = membraneCapValueRange.back().max;
-    control.step = membraneCapValueRange.front().step;
-    control.steps = round(1.0+(control.max-control.min)/control.step);
-    control.decimals = membraneCapValueRange.front().decimals();
-    control.value = membraneCapValueRange.front().min;
-    control.prefix = membraneCapValueRange.front().prefix;
-    control.unit = membraneCapValueRange.front().unit;
-    control.name = "Membrane Capacitance";
-    return Success;
-}
+    case U_Cm:
+        control.implemented = true;
+        control.min = membraneCapValueRange.front().min;
+        control.max = membraneCapValueRange.back().max;
+        control.minCompensable = membraneCapValueRange.front().min;
+        control.maxCompensable = membraneCapValueRange.back().max;
+        control.step = membraneCapValueRange.front().step;
+        control.steps = round(1.0+(control.max-control.min)/control.step);
+        control.decimals = membraneCapValueRange.front().decimals();
+        control.value = membraneCapValueRange.front().min;
+        control.prefix = membraneCapValueRange.front().prefix;
+        control.unit = membraneCapValueRange.front().unit;
+        control.name = "Membrane Capacitance";
+        return Success;
 
-ErrorCodes_t EmcrTestBoardEl07ab::getAccessResistanceControl(CompensationControl_t &control) {
-    control.implemented = true;
-    control.min = rsCorrValueRange.min;
-    control.max = rsCorrValueRange.max;
-    control.minCompensable = rsCorrValueRange.min;
-    control.maxCompensable = rsCorrValueRange.max;
-    control.step = rsCorrValueRange.step;
-    control.steps = rsCorrValueRange.steps();
-    control.decimals = rsCorrValueRange.decimals();
-    control.value = rsCorrValueRange.min;
-    control.prefix = rsCorrValueRange.prefix;
-    control.unit = rsCorrValueRange.unit;
-    control.name = "Access Resistance";
-    return Success;
-}
+    case U_Rs:
+        control.implemented = true;
+        control.min = rsCorrValueRange.min;
+        control.max = rsCorrValueRange.max;
+        control.minCompensable = rsCorrValueRange.min;
+        control.maxCompensable = rsCorrValueRange.max;
+        control.step = rsCorrValueRange.step;
+        control.steps = rsCorrValueRange.steps();
+        control.decimals = rsCorrValueRange.decimals();
+        control.value = rsCorrValueRange.min;
+        control.prefix = rsCorrValueRange.prefix;
+        control.unit = rsCorrValueRange.unit;
+        control.name = "Access Resistance";
+        return Success;
 
-ErrorCodes_t EmcrTestBoardEl07ab::getResistanceCorrectionPercentageControl(CompensationControl_t &control) {
-    control.implemented = true;
-    control.min = 1.0;
-    control.max = 100.0;
-    control.minCompensable = 1.0;
-    control.maxCompensable = 100.0;
-    control.step = 1.0;
-    control.steps = round(1.0+(control.max-control.min)/control.step);
-    control.decimals = 1;
-    control.value = 1.0;
-    control.prefix = UnitPfxNone;
-    control.unit = "%";
-    control.name = "Correction Percentage";
-    return Success;
-}
+    case U_RsCp:
+        control.implemented = true;
+        control.min = 1.0;
+        control.max = 100.0;
+        control.minCompensable = 1.0;
+        control.maxCompensable = 100.0;
+        control.step = 1.0;
+        control.steps = round(1.0+(control.max-control.min)/control.step);
+        control.decimals = 1;
+        control.value = 1.0;
+        control.prefix = UnitPfxNone;
+        control.unit = "%";
+        control.name = "Correction Percentage";
+        return Success;
 
-ErrorCodes_t EmcrTestBoardEl07ab::getResistancePredictionGainControl(CompensationControl_t &control) {
-    control.implemented = true;
-    control.min = rsPredGainRange.min;
-    control.max = rsPredGainRange.max;
-    control.minCompensable = rsPredGainRange.min;
-    control.maxCompensable = rsPredGainRange.max;
-    control.step = rsPredGainRange.step;
-    control.steps = rsPredGainRange.steps();
-    control.decimals = rsPredGainRange.decimals();
-    control.value = rsPredGainRange.min;
-    control.prefix = rsPredGainRange.prefix;
-    control.unit = rsPredGainRange.unit;
-    control.name = "Prediction Gain";
-    return Success;
+    case U_RsPg:
+        control.implemented = true;
+        control.min = rsPredGainRange.min;
+        control.max = rsPredGainRange.max;
+        control.minCompensable = rsPredGainRange.min;
+        control.maxCompensable = rsPredGainRange.max;
+        control.step = rsPredGainRange.step;
+        control.steps = rsPredGainRange.steps();
+        control.decimals = rsPredGainRange.decimals();
+        control.value = rsPredGainRange.min;
+        control.prefix = rsPredGainRange.prefix;
+        control.unit = rsPredGainRange.unit;
+        control.name = "Prediction Gain";
+        return Success;
+
+    default:
+        return ErrorFeatureNotImplemented;
+    }
 }
