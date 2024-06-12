@@ -653,7 +653,7 @@ ErrorCodes_t turnMembraneCompensationOn(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN bool * onValuesIn,
         E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off access resistance compensation for each channel.
  * \note Resistance compensation includes resistance correction and prediction.
@@ -664,13 +664,13 @@ ErrorCodes_t turnMembraneCompensationOn(
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t turnAccessResistanceCompensationOn(
-//        E384CL_ARGIN uint16_t * channelIndexesIn,
-//        E384CL_ARGIN bool * onValuesIn,
-//        E384CL_ARGIN bool applyFlagIn,
-//        E384CL_ARGIN int vectorLengthIn = 0);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t turnAccessResistanceCompensationOn(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off access resistance correction for each channel.
  *
@@ -712,13 +712,13 @@ ErrorCodes_t turnAccessResistancePredictionOn(
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t turnLeakConductanceCompensationOn(
-//        E384CL_ARGIN uint16_t * channelIndexesIn,
-//        E384CL_ARGIN bool * onValuesIn,
-//        E384CL_ARGIN bool applyFlagIn,
-//        E384CL_ARGIN int vectorLengthIn = 0);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t turnLeakConductanceCompensationOn(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Turn on/off bridge balance compensation for each channel.
  *
@@ -728,13 +728,13 @@ ErrorCodes_t turnAccessResistancePredictionOn(
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t turnBridgeBalanceCompensationOn(
-//        E384CL_ARGIN uint16_t * channelIndexesIn,
-//        E384CL_ARGIN bool * onValuesIn,
-//        E384CL_ARGIN bool applyFlagIn,
-//        E384CL_ARGIN int vectorLengthIn = 0);
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t turnBridgeBalanceCompensationOn(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set options for pipette compensation (voltage clamp) for each channel.
  *
@@ -1056,6 +1056,198 @@ ErrorCodes_t setBridgeBalanceResistance(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+/*! \brief Sets the range of the pipette capacitance for voltage clamp for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of pipette capacitance ranges.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setPipetteCapacitanceRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * channelRangesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Sets the range of the pipette capacitance for current clamp for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of pipette capacitance ranges for current clamp.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCCPipetteCapacitanceRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * channelRangesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Sets the range of the membrane capacitance for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of membrane capacitance ranges.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setMembraneCapacitanceRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * channelRangesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Sets the range of the access resistance for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of access resistance ranges.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setAccessResistanceRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * channelRangesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Sets the range for the access resistance correction percentage for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of resistance correction percentage ranges.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setAccessResistanceCorrectionPercentageRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * channelRangesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Sets the range for the access resistance correction lag for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of access resistance correction lag ranges.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setAccessResistanceCorrectionLagRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * channelRangesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Sets the range for the access resistance prediction gain for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of access resistance prediction gain ranges.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setAccessResistancePredictionGainRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * channelRangesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Sets the range for the access resistance prediction percentage for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of access resistance prediction percentage ranges.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setAccessResistancePredictionPercentageRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * channelRangesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Sets the range for the access resistance prediction bandwidth gain for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of access resistance prediction bandwiths gain ranges.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setAccessResistancePredictionBandwidthGainRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * channelRangesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Sets the range for the access resistance prediction tau for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of access resistance prediction tau ranges.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setAccessResistancePredictionTauRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * channelRangesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Sets the range for the leak conductance for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of leak conductance ranges.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setLeakConductanceRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN uint16_t * channelRangesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Sets the range of the access resistance for bridge balance for each channel.
+ *
+ * \param channelIndexesIn [in] Array/vector of channel indexes.
+ * \param channelRangesIn [in] Array/vector of bridge balance rangeSs.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setBridgeBalanceResistanceRange(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN double * channelValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
 /*! \brief Describes the structure of an incoming voltage protocol.
  *
  * \param protId [in] Protocol identifier number.
@@ -1363,7 +1555,7 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLiquidJunctionVoltages(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGOUT LMeasHandle * voltages,
-        E384CL_ARGIN int vectorLengthIn);
+        E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Get the number of channels for the device.
  *
@@ -1995,7 +2187,7 @@ ErrorCodes_t getAccessResistancePredictionBandwidthGain(
         E384CL_ARGIN  uint16_t * channelIndexesIn,
         E384CL_ARGOUT double * channelValuesOut,
         E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn);
+        E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the access resistance prediction tau for each channel.
  *

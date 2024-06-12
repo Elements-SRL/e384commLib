@@ -1974,7 +1974,7 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
     return y;
 }
 
-ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t>, CompensationTypes, std::vector<bool>, bool){
+ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t>, CompensationTypes_t, std::vector<bool>, bool){
     return ErrorFeatureNotImplemented;
 }
 
@@ -1986,11 +1986,15 @@ ErrorCodes_t MessageDispatcher::enableCcCompensations(bool, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t>, CompensationUserParams, std::vector<double>, bool){
+ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t>, CompensationUserParams_t, std::vector<double>, bool){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t>, CompensationTypes, std::vector<uint16_t>, bool){
+ErrorCodes_t MessageDispatcher::setCompRanges(std::vector<uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t>, CompensationTypes_t, std::vector<uint16_t>, bool){
     return ErrorFeatureNotImplemented;
 }
 
@@ -2006,7 +2010,7 @@ ErrorCodes_t MessageDispatcher::setCustomDouble(uint16_t idx, double value, bool
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::hasCompFeature(CompensationUserParams feature) {
+ErrorCodes_t MessageDispatcher::hasCompFeature(CompensationUserParams_t feature) {
     if (compensationControls[feature].empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -2018,7 +2022,7 @@ ErrorCodes_t MessageDispatcher::hasCompFeature(CompensationUserParams feature) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCompFeatures(CompensationUserParams feature, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
+ErrorCodes_t MessageDispatcher::getCompFeatures(CompensationUserParams_t feature, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
     if (compensationControls[feature].empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -2035,7 +2039,7 @@ ErrorCodes_t MessageDispatcher::getCompFeatures(CompensationUserParams feature, 
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes, std::vector <std::string> &){
+ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes_t, std::vector <std::string> &){
     return ErrorFeatureNotImplemented;
 }
 
@@ -2048,10 +2052,6 @@ ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector <std::vector <dou
 }
 
 ErrorCodes_t MessageDispatcher::getCompensationEnables(std::vector<uint16_t>, uint16_t, std::vector<bool> &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getCompensationOptions(CompensationTypes_t, std::vector <std::string> &){
     return ErrorFeatureNotImplemented;
 }
 

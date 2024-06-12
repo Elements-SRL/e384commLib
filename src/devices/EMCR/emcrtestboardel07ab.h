@@ -7,13 +7,13 @@ class EmcrTestBoardEl07ab : public EmcrOpalKellyDevice {
 public:
     EmcrTestBoardEl07ab(std::string di);
 
-    virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray) override;
+    virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) override;
     virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues) override;
-    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
+    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
     virtual ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag) override;
     virtual ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag) override;
-    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag) override;
-    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlag) override;
+    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector<double> newParamValues, bool applyFlag) override;
+    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes_t type, std::vector<uint16_t> options, bool applyFlag) override;
 
     virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlag) override;
     virtual ErrorCodes_t turnCurrentReaderOn(bool onValueIn, bool applyFlag) override;

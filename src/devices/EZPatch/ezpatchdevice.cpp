@@ -1274,7 +1274,7 @@ ErrorCodes_t EZPatchDevice::setCompensationsChannel(uint16_t channelIdx) {
     return Success;
 }
 
-ErrorCodes_t EZPatchDevice::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) {
     int tempCompensationSettingChannel = compensationsSettingChannel;
     switch (compTypeToEnable) {
     case CompCfast:
@@ -1529,7 +1529,7 @@ ErrorCodes_t EZPatchDevice::setPipetteCompensationOptions(uint16_t optionIdx) {
     }
 }
 
-ErrorCodes_t EZPatchDevice::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector <double> newParamValues, bool) {
+ErrorCodes_t EZPatchDevice::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool) {
     ErrorCodes_t err;
     int tempCompensationSettingChannel = compensationsSettingChannel;
     for (int i = 0; i < channelIndexes.size(); i++) {
@@ -1591,7 +1591,7 @@ ErrorCodes_t EZPatchDevice::setCompValues(std::vector <uint16_t> channelIndexes,
     return Success;
 }
 
-ErrorCodes_t EZPatchDevice::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes type, std::vector <uint16_t> options, bool) {
+ErrorCodes_t EZPatchDevice::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool) {
     int tempCompensationSettingChannel = compensationsSettingChannel;
     switch (type) {
     case CompCfast:
@@ -2742,32 +2742,7 @@ ErrorCodes_t EZPatchDevice::hasBridgeBalanceCompensation() {
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray) {
-    switch (type) {
-    case CompCfast:
-        return this->getCompensationOptions(CompCcCfast, compOptionsArray);
-
-    case CompCslow:
-        return this->getCompensationOptions(CompCslow, compOptionsArray);
-
-    case CompRsCorr:
-        return this->getCompensationOptions(CompRsCorr, compOptionsArray);
-
-    case CompRsPred:
-        return this->getCompensationOptions(CompRsPred, compOptionsArray);
-
-    case CompCcCfast:
-        return this->getCompensationOptions(CompCcCfast, compOptionsArray);
-
-    case CompBridgeRes:
-        return this->getCompensationOptions(CompBridgeRes, compOptionsArray);
-
-    default:
-        return ErrorFeatureNotImplemented;
-    }
-}
-
-ErrorCodes_t EZPatchDevice::getCompensationOptions(CompensationTypes type, std::vector <std::string> &options) {
+ErrorCodes_t EZPatchDevice::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &options) {
     switch (type) {
     case CompCfast:
         if (pipetteCompensationOptions.size() > 0) {

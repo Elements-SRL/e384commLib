@@ -275,7 +275,7 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return md->turnChannelsOn(channelIndexes, onValues, true);
     });
 
-    m.def("setCompValues",[](std::vector<uint16_t> channelIndexes, MessageDispatcher::CompensationUserParams paramToUpdate, std::vector<double> newParamValues){
+    m.def("setCompValues",[](std::vector<uint16_t> channelIndexes, MessageDispatcher::CompensationUserParams_t paramToUpdate, std::vector<double> newParamValues){
         return md->setCompValues(channelIndexes, paramToUpdate, newParamValues, true);
     });
 
@@ -285,7 +285,7 @@ PYBIND11_MODULE(e384CommLibPython, m) {
         return std::make_tuple(err, compValues);
     });
 
-    m.def("enableCompensation",[](std::vector<uint16_t> channelIndexes, MessageDispatcher::CompensationTypes compType, bool status){
+    m.def("enableCompensation",[](std::vector<uint16_t> channelIndexes, MessageDispatcher::CompensationTypes_t compType, bool status){
         std::vector<bool> onValues;
         for(auto i: channelIndexes){
            onValues.push_back(status);
@@ -301,21 +301,21 @@ PYBIND11_MODULE(e384CommLibPython, m) {
             .value("ZERO_CURRENT_CLAMP",  ClampingModality_t::ZERO_CURRENT_CLAMP)
             .export_values();
 
-    py::enum_<MessageDispatcher::CompensationUserParams>(m, "CompensationUserParams")
-            .value("U_CpVc",                            MessageDispatcher::CompensationUserParams::U_CpVc)
-            .value("U_Cm",                              MessageDispatcher::CompensationUserParams::U_Cm)
-            .value("U_Rs",                              MessageDispatcher::CompensationUserParams::U_Rs)
-            .value("U_RsCp",                            MessageDispatcher::CompensationUserParams::U_RsCp)
-            .value("U_RsPg",                            MessageDispatcher::CompensationUserParams::U_RsPg)
-            .value("U_CpCc",                            MessageDispatcher::CompensationUserParams::U_CpCc)
+    py::enum_<MessageDispatcher::CompensationUserParams_t>(m, "CompensationUserParams_t")
+            .value("U_CpVc",                            MessageDispatcher::CompensationUserParams_t::U_CpVc)
+            .value("U_Cm",                              MessageDispatcher::CompensationUserParams_t::U_Cm)
+            .value("U_Rs",                              MessageDispatcher::CompensationUserParams_t::U_Rs)
+            .value("U_RsCp",                            MessageDispatcher::CompensationUserParams_t::U_RsCp)
+            .value("U_RsPg",                            MessageDispatcher::CompensationUserParams_t::U_RsPg)
+            .value("U_CpCc",                            MessageDispatcher::CompensationUserParams_t::U_CpCc)
             .export_values();
 
-    py::enum_<MessageDispatcher::CompensationTypes>(m, "CompensationTypes")
-            .value("CompCfast",                         MessageDispatcher::CompensationTypes::CompCfast)
-            .value("CompCslow",                         MessageDispatcher::CompensationTypes::CompCslow)
-            .value("CompRsCorr",                        MessageDispatcher::CompensationTypes::CompRsCorr)
-            .value("CompRsPred",                        MessageDispatcher::CompensationTypes::CompRsPred)
-            .value("CompCcCfast",                       MessageDispatcher::CompensationTypes::CompCcCfast)
+    py::enum_<MessageDispatcher::CompensationTypes_t>(m, "CompensationTypes_t")
+            .value("CompCfast",                         MessageDispatcher::CompensationTypes_t::CompCfast)
+            .value("CompCslow",                         MessageDispatcher::CompensationTypes_t::CompCslow)
+            .value("CompRsCorr",                        MessageDispatcher::CompensationTypes_t::CompRsCorr)
+            .value("CompRsPred",                        MessageDispatcher::CompensationTypes_t::CompRsPred)
+            .value("CompCcCfast",                       MessageDispatcher::CompensationTypes_t::CompCcCfast)
             .export_values();
 
 //    todo completare gli error codes

@@ -108,7 +108,7 @@ public:
         U_RsPt,     // SeriesPredictionTau
         U_LkG,      // LeakConductance
         U_CpCc,     // CCPipetteCapacitance
-        U_BrB,      // CCBridgeBlaance
+        U_BrB,      // CCBridgeBalance
         CompensationUserParamsNum
     } CompensationUserParams_t;
 
@@ -738,7 +738,7 @@ public:
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<bool> onValues, bool applyFlag);
+    virtual ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes_t type, std::vector<bool> onValues, bool applyFlag);
 
     /*! \brief Turn on/off the voltage clamp compesantions for each channel.
      *
@@ -764,7 +764,18 @@ public:
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector <double> newParamValues, bool applyFlag);
+    virtual ErrorCodes_t setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag);
+
+    /*! \brief Sets the range for a specific compensation when more than one is available.
+     *  \note If an invalide range index is provided than the range is selected automatically based on the compensation value.
+     *
+     * \param channelIndexes [in] Array/vector of channel indexes.
+     * \param paramToUpdate [in] Compensation parameter to be updated.
+     * \param newRanges [in] Array/vector of compensation range indexes.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setCompRanges(std::vector<uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag);
 
     /*! \brief Set options for a specific compensation.
      *
@@ -774,7 +785,7 @@ public:
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector <uint16_t> options, bool applyFlag);
+    virtual ErrorCodes_t setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag);
 
     /*! Device specific controls */
 
@@ -1109,11 +1120,8 @@ public:
     virtual ErrorCodes_t getCalibMappingFileDir(std::string &dir);
     virtual ErrorCodes_t getCalibMappingFilePath(std::string &path);
 
-    ErrorCodes_t hasCompFeature(CompensationUserParams feature);
-    virtual ErrorCodes_t getCompFeatures(CompensationUserParams feature, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
-    virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray);
-    ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &matrix);
-    virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues);
+    ErrorCodes_t hasCompFeature(CompensationUserParams_t feature);
+    virtual ErrorCodes_t getCompFeatures(CompensationUserParams_t feature, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
 
     /*! \brief Get options for the selected compensation type.
      *
@@ -1121,7 +1129,9 @@ public:
      * \param options [out]: vector of strings of the available options.
      * \return Success if the device has options for the selected compensation type.
      */
-    virtual ErrorCodes_t getCompensationOptions(CompensationTypes_t type, std::vector <std::string> &options);
+    virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray);
+    ErrorCodes_t getCompValueMatrix(std::vector<std::vector<double>> &matrix);
+    virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues);
 
     /*! \brief Get the specifications of the control for the selected compensation parameter.
      *

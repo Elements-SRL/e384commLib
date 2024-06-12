@@ -1576,7 +1576,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::initializeHW() {
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray){
+ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray){
     switch(type) {
     case CompRsCorr:
         if(rsCorrBwArray.size()==0){
@@ -1650,7 +1650,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::getCompensationEnables(std::vect
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
+ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
@@ -1808,7 +1808,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::enableCcCompensations(bool enabl
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag){
+ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector<double> newParamValues, bool applyFlag){
     std::string debugString = "";
     // make local copy of the user domain param vectors
     std::vector<std::vector<double>> localCompValueSubMatrix;
@@ -1929,7 +1929,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::setCompValues(std::vector<uint16
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlag){
+ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes_t type, std::vector<uint16_t> options, bool applyFlag){
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif

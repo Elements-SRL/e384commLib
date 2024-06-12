@@ -11,6 +11,7 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     fwSize_B = 0;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+2;
     waitingTimeBeforeReadingData = 2; //s
+    okTransferSize = 0x10000;
 
     rxSyncWord = 0x5aa5;
 
@@ -409,7 +410,6 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     const double pipetteCapacitanceValuesNum = 64.0;
 
     std::vector <double> pipetteInjCapacitance = {2.5, 5.0, 10.0, 20.0};
-    /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
     pipetteCapacitanceRange.resize(pipetteCapacitanceRanges);
     for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
         pipetteCapacitanceRange[idx].step = pipetteVarResistance/pipetteCapacitanceValuesNum/pipetteFixedResistance*pipetteInjCapacitance[idx];
@@ -1587,7 +1587,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::initializeHW() {
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07ab::getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray){
+ErrorCodes_t EmcrTestBoardEl07ab::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray){
     switch(type) {
     case CompRsCorr:
         if(rsCorrBwArray.size()==0){
@@ -1661,7 +1661,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::getCompensationEnables(std::vector<uint16_t> c
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07ab::enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag){
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
@@ -1819,7 +1819,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::enableCcCompensations(bool enable, bool applyF
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07ab::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector<double> newParamValues, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::setCompValues(std::vector<uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector<double> newParamValues, bool applyFlag){
     std::string debugString = "";
     // make local copy of the user domain param vectors
     std::vector<std::vector<double>> localCompValueSubMatrix;
@@ -1940,7 +1940,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::setCompValues(std::vector<uint16_t> channelInd
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07ab::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes type, std::vector<uint16_t> options, bool applyFlag){
+ErrorCodes_t EmcrTestBoardEl07ab::setCompOptions(std::vector<uint16_t> channelIndexes, CompensationTypes_t type, std::vector<uint16_t> options, bool applyFlag){
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif

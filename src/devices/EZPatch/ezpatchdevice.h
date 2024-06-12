@@ -112,7 +112,7 @@ public:
     ErrorCodes_t setConstantSwitches();
 
     ErrorCodes_t setCompensationsChannel(uint16_t channelIdx);
-    ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
+    ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
     ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag) override;
     ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag) override;
     ErrorCodes_t turnPipetteCompensationOn(bool on);
@@ -124,7 +124,7 @@ public:
     ErrorCodes_t turnLeakConductanceCompensationOn(bool on);
     ErrorCodes_t turnBridgeBalanceCompensationOn(bool on);
 
-    ErrorCodes_t setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes type, std::vector <uint16_t> options, bool applyFlag) override;
+    ErrorCodes_t setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) override;
     ErrorCodes_t setPipetteCompensationOptions(uint16_t optionIdx);
     ErrorCodes_t setCCPipetteCompensationOptions(uint16_t optionIdx);
     ErrorCodes_t setMembraneCompensationOptions(uint16_t optionIdx);
@@ -134,7 +134,7 @@ public:
     ErrorCodes_t setLeakConductanceCompensationOptions(uint16_t optionIdx);
     ErrorCodes_t setBridgeBalanceCompensationOptions(uint16_t optionIdx);
 
-    ErrorCodes_t setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams paramToUpdate, std::vector <double> newParamValues, bool applyFlag) override;
+    ErrorCodes_t setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) override;
     ErrorCodes_t setPipetteCapacitance(Measurement_t capacitance);
     ErrorCodes_t setCCPipetteCapacitance(Measurement_t capacitance);
     ErrorCodes_t setMembraneCapacitance(Measurement_t capacitance);
@@ -218,9 +218,7 @@ public:
     virtual ErrorCodes_t hasLeakConductanceCompensation();
     virtual ErrorCodes_t hasBridgeBalanceCompensation();
 
-    virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes type, std::vector <std::string> &compOptionsArray) override;
-
-    virtual ErrorCodes_t getCompensationOptions(CompensationTypes_t type, std::vector <std::string> &options) override;
+    virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &options) override;
 
     ErrorCodes_t getLiquidJunctionControl(CompensationControl_t &control);
     virtual ErrorCodes_t getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) override;

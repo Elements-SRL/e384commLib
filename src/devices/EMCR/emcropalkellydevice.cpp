@@ -24,9 +24,9 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000107S", Device384Nanopores_SR7p5kHz},
     {"221000108T", Device384Nanopores_SR7p5kHz},
     {"22510013B4", Device384Nanopores},
-    {"23190014UX", Device384PatchClamp_prot_v04_fw_v05},
     {"23210014U9", Device384Nanopores},
     {"23210014UP", Device384Nanopores},
+    {"23190014UX", Device384PatchClamp_prot_v04_fw_v05},
     {"2210001076", Device384PatchClamp_prot_v05_fw_v06},
     {"221000106B", Device384PatchClamp_prot_v04_fw_v03},
     {"221000106C", Device384PatchClamp_prot_v01_fw_v02},
@@ -351,7 +351,7 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
         if (waitingTimeForReadingPassed) {
             rxRawMutexLock.lock();
-            if (rxRawBufferReadLength+OKY_RX_TRANSFER_SIZE <= OKY_RX_BUFFER_SIZE) {
+            if (rxRawBufferReadLength+okTransferSize <= OKY_RX_BUFFER_SIZE) {
                 anyOperationPerformed = true;
                 rxRawMutexLock.unlock();
 
@@ -467,7 +467,7 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
 //    std::chrono::steady_clock::time_point currentPrintfTime;
 //    startPrintfTime = std::chrono::steady_clock::now();
     /*! Read the data */
-    bytesRead = dev.ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, OKY_RX_TRANSFER_SIZE, rxRawBuffer+rxRawBufferWriteOffset);
+    bytesRead = dev.ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, okTransferSize, rxRawBuffer+rxRawBufferWriteOffset);
 
     if (bytesRead > INT32_MAX) {
         if (bytesRead == ok_Timeout || bytesRead == ok_Failed) {
@@ -532,7 +532,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
         rxRawMutexLock.lock();
         /*! Since OKY_RX_TRANSFER_SIZE bytes are obtained each time from the opal kelly, wait that at least these many are available,
          *  Otherwise it means that no reads from the Opal kelly took place. */
-        while (rxRawBufferReadLength < OKY_RX_TRANSFER_SIZE && !stopConnectionFlag) {
+        while (rxRawBufferReadLength < okTransferSize && !stopConnectionFlag) {
             rxRawBufferNotEmpty.wait_for(rxRawMutexLock, std::chrono::milliseconds(3));
         }
         maxRxRawBytesRead = rxRawBufferReadLength;
