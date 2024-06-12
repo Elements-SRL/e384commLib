@@ -154,13 +154,16 @@ public:
     } MultiCoderConfig_t;
 
     MultiCoder(MultiCoderConfig_t multiConfig);
-    virtual ~MultiCoder();
 
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord);
+    void setEncodingRange(int rangeIdx);
     void getMultiConfig(MultiCoderConfig_t &multiConfig);
 
 private:
     MultiCoderConfig_t multiConfig;
+    bool rangeSelectedFlag = false;
+    int selectedRange = 0;
+    int rangesNum = 0;
 };
 
 #endif // COMMANDCODER_H

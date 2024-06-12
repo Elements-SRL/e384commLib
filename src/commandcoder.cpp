@@ -248,30 +248,42 @@ MultiCoder::MultiCoder(MultiCoderConfig_t multiConfig) :
     CommandCoder(0, 0, 0),
     multiConfig(multiConfig) {
 
-}
-
-MultiCoder::~MultiCoder() {
-
+    rangesNum = multiConfig.thresholdVector.size();
 }
 
 double MultiCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
-    bool done = false;
     double ret;
-    int i;
-    for (i = 0; i < multiConfig.thresholdVector.size(); i++) {
-        /*! \todo RECHECK: just <threshold as thresholds are as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-        if (value < multiConfig.thresholdVector[i] && !done) {
+    if (rangeSelectedFlag) {
+        multiConfig.boolCoder->encode(selectedRange, encodingWords, startingWord, endingWord);
+        ret = multiConfig.doubleCoderVector[selectedRange]->encode(value, encodingWords, startingWord, endingWord);
+
+    } else {
+        bool done = false;
+        int i;
+        for (i = 0; i < rangesNum; i++) {
+            if (value < multiConfig.thresholdVector[i] && !done) {
+                multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
+                ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);
+                done = true;
+            }
+        }
+        if (!done) {
             multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
             ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);
             done = true;
         }
     }
-    if (!done) {
-        multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
-        ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);
-        done = true;
-    }
     return ret;
+}
+
+void MultiCoder::setEncodingRange(int rangeIdx) {
+    if (rangeIdx < 0 || rangeIdx > rangesNum) {
+        rangeSelectedFlag = false;
+
+    } else {
+        rangeSelectedFlag = true;
+        selectedRange = rangeIdx;
+    }
 }
 
 void MultiCoder::getMultiConfig(MultiCoderConfig_t &multiConfig) {
