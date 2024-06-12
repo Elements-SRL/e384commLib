@@ -57,6 +57,7 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 SOURCES += \
     src/commandcoder.cpp \
     src/devices/EMCR/emcrtestboardel07ab.cpp \
+    src/devices/EMCR/emcrtestboardel07cd.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
     src/devices/EMCR/emcropalkellydevice.cpp \
@@ -95,6 +96,7 @@ SOURCES += \
 
 HEADERS += \
     src/devices/EMCR/emcrtestboardel07ab.h \
+    src/devices/EMCR/emcrtestboardel07cd.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
