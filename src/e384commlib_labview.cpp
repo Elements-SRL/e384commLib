@@ -925,22 +925,6 @@ ErrorCodes_t setAccessResistancePredictionPercentage(
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_RsPp, channelValues, applyFlagIn);
 }
 
-ErrorCodes_t setAccessResistancePredictionBandwidthGain(
-        uint16_t * channelIndexesIn,
-        double * channelValuesIn,
-        bool applyFlagIn,
-        int vectorLengthIn) {
-    if (messageDispatcher == nullptr) {
-        return ErrorDeviceNotConnected;
-    }
-//    std::vector<uint16_t> channelIndexes;
-//    std::vector<double> channelValues;
-//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-//    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
-
-//    return messageDispatcher->setResistancePredictionBandwidthGain(channelIndexes, channelValues, applyFlagIn);
-}
-
 ErrorCodes_t setAccessResistancePredictionTau(
         uint16_t * channelIndexesIn,
         double * channelValuesIn,
@@ -1115,22 +1099,6 @@ ErrorCodes_t setAccessResistancePredictionPercentageRange(
     input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_RsPp, channelRanges, applyFlagIn);
-}
-
-ErrorCodes_t setAccessResistancePredictionBandwidthGainRange(
-        uint16_t * channelIndexesIn,
-        uint16_t * channelRangesIn,
-        bool applyFlagIn,
-        int vectorLengthIn) {
-    if (messageDispatcher == nullptr) {
-        return ErrorDeviceNotConnected;
-    }
-//    std::vector<uint16_t> channelIndexes;
-//    std::vector<uint16_t> channelRanges;
-//    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-//    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
-
-//    return messageDispatcher->setResistancePredictionBandwidthGain(channelIndexes, channelRanges, applyFlagIn);
 }
 
 ErrorCodes_t setAccessResistancePredictionTauRange(
@@ -1932,18 +1900,6 @@ ErrorCodes_t getResistancePredictionPercentageControl(
     return ret;
 }
 
-ErrorCodes_t getResistancePredictionBandwidthGainControl(
-        CharCompensationControl_t &controlOut) {
-    if (messageDispatcher == nullptr) {
-        return ErrorDeviceNotConnected;
-    }
-    return ErrorFeatureNotImplemented;
-//    CompensationControl_t control;
-//    ErrorCodes_t ret = messageDispatcher->getCompensationControl(MessageDispatcher::U_CpVc, control);
-//    compensationControl2Output(control, controlOut);
-//    return ret;
-}
-
 ErrorCodes_t getResistancePredictionTauControl(
         CharCompensationControl_t &controlOut) {
     if (messageDispatcher == nullptr) {
@@ -2196,26 +2152,6 @@ ErrorCodes_t getAccessResistancePredictionPercentage(
     input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getAccessResistancePredictionPercentage(channelIndexes, channelValues, activeNotActive);
-
-    numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
-    numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
-    return ret;
-}
-
-ErrorCodes_t getAccessResistancePredictionBandwidthGain(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
-    if (messageDispatcher == nullptr) {
-        return ErrorDeviceNotConnected;
-    }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<double> channelValues;
-    std::vector<bool> activeNotActive;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-
-    ErrorCodes_t ret = messageDispatcher->getAccessResistancePredictionBandwidthGain(channelIndexes, channelValues, activeNotActive);
 
     numericVector2Output<std::vector <double>, double>(channelValues, channelValuesOut);
     numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);

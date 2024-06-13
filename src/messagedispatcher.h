@@ -789,8 +789,31 @@ public:
 
     /*! Device specific controls */
 
+    /*! \brief Set a custom flag.
+     *
+     * \param idx [in] Index of the flag to be set.
+     * \param flag [in] Value for the flag.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t setCustomFlag(uint16_t idx, bool flag, bool applyFlag);
+
+    /*! \brief Set a custom multivalued option.
+     *
+     * \param idx [in] Index of the option to be set.
+     * \param value [in] Value for the option.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t setCustomOption(uint16_t idx, uint16_t value, bool applyFlag);
+
+    /*! \brief Set a custom double value.
+     *
+     * \param idx [in] Index of the value to be set.
+     * \param value [in] Value to be set.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t setCustomDouble(uint16_t idx, double value, bool applyFlag);
 
     /****************\
@@ -1143,7 +1166,6 @@ public:
 
     virtual ErrorCodes_t getAccessResistanceCorrectionLag(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
     virtual ErrorCodes_t getAccessResistancePredictionPercentage(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
-    virtual ErrorCodes_t getAccessResistancePredictionBandwidthGain(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
     virtual ErrorCodes_t getAccessResistancePredictionTau(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
     virtual ErrorCodes_t getLeakConductance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);
     virtual ErrorCodes_t getBridgeBalanceResistance(std::vector<uint16_t> channelIndexes, std::vector<double> channelValues, std::vector<bool> activeNotActive);

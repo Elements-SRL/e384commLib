@@ -992,22 +992,6 @@ ErrorCodes_t setAccessResistancePredictionPercentage(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
-/*! \brief Sets the value for the access resistance prediction bandwidth gain for each channel.
- *
- * \param channelIndexesIn [in] Array/vector of channel indexes.
- * \param channelValuesIn [in] Array/vector of access resistance prediction bandwiths gains.
- * \param applyFlagIn [in] Flag for instant application of this setting.
- * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setAccessResistancePredictionBandwidthGain(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN double * channelValuesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
-
 /*! \brief Sets the value for the access resistance prediction tau for each channel.
  *
  * \param channelIndexesIn [in] Array/vector of channel indexes.
@@ -1179,22 +1163,6 @@ ErrorCodes_t setAccessResistancePredictionGainRange(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setAccessResistancePredictionPercentageRange(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN uint16_t * channelRangesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn = 0);
-
-/*! \brief Sets the range for the access resistance prediction bandwidth gain for each channel.
- *
- * \param channelIndexesIn [in] Array/vector of channel indexes.
- * \param channelRangesIn [in] Array/vector of access resistance prediction bandwiths gain ranges.
- * \param applyFlagIn [in] Flag for instant application of this setting.
- * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setAccessResistancePredictionBandwidthGainRange(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN uint16_t * channelRangesIn,
         E384CL_ARGIN bool applyFlagIn,
@@ -2005,16 +1973,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionPercentageControl(
         E384CL_ARGOUT CharCompensationControl_t &control);
 
-/*! \brief Get the specifications of the control for the resistance prediction bandwidth gain.
- *
- * \param control [out] Specifications of the control for the resistance prediction bandwidth gain.
- * \return Success if the device implements resistance prediction bandwidth gain control.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getResistancePredictionBandwidthGainControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
-
 /*! \brief Get the specifications of the control for the resistance prediction tau.
  *
  * \param control [out] Specifications of the control for the resistance prediction tau.
@@ -2168,22 +2126,6 @@ ErrorCodes_t getAccessResistancePredictionGain(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionPercentage(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
-
-/*! \brief Gets the value of the access resistance prediction bandwidth gain for each channel.
- *
- * \param channelIndexesIn [in] Array/vector of channel indexes.
- * \param channelValuesOut [out] Array/vector of access resistance prediction bandwidth gains.
- * \param activeNotActiveOut [out] Array/vector of flags for each channel activity state.
- * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getAccessResistancePredictionBandwidthGain(
         E384CL_ARGIN  uint16_t * channelIndexesIn,
         E384CL_ARGOUT double * channelValuesOut,
         E384CL_ARGOUT bool * activeNotActiveOut,

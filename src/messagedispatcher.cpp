@@ -2067,10 +2067,6 @@ ErrorCodes_t MessageDispatcher::getAccessResistancePredictionPercentage(std::vec
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getAccessResistancePredictionBandwidthGain(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
-    return ErrorFeatureNotImplemented;
-}
-
 ErrorCodes_t MessageDispatcher::getAccessResistancePredictionTau(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
     return ErrorFeatureNotImplemented;
 }

@@ -539,8 +539,24 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     customOptionsDescriptions[CustomOptionClockDivider][1] = "/ 2";
     customOptionsDescriptions[CustomOptionClockDivider][2] = "/ 4";
     customOptionsDescriptions[CustomOptionClockDivider][3] = "/ 8";
-    customOptionsDefault.resize(CustomOptionsNum);
+    customOptionsDefault.resize(customOptionsNum);
     customOptionsDefault[CustomOptionClockDivider] = 0;
+
+    customDoublesNum = CustomDoublesNum;
+    customDoublesNames.resize(customDoublesNum);
+    customDoublesNames[CustomOffset1] = "Offset 1";
+    customDoublesNames[CustomOffset2] = "Offset 2";
+    customDoublesNames[CustomOffset3] = "Offset 3";
+    customDoublesNames[CustomOffset4] = "Offset 4";
+    customDoublesNames[CustomOffset5] = "Offset 5";
+    customDoublesNames[CustomOffset6] = "Offset 6";
+    customDoublesNames[CustomOffset7] = "Offset 7";
+    customDoublesNames[CustomOffset8] = "Offset 8";
+    customDoublesRanges.resize(customDoublesNum);
+    RangedMeasurement_t customRange = {-64.0, 63.0, 1.0, UnitPfxMilli, "V"};
+    std::fill(customDoublesRanges.begin(), customDoublesRanges.end(), customRange);
+    customDoublesDefault.resize(customDoublesNum);
+    std::fill(customDoublesDefault.begin(), customDoublesDefault.end(), 0.0);
 
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
@@ -785,18 +801,16 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     }
 
     /*! VC_CC_SEL */
-    boolConfig.initialWord = 22;
-    boolConfig.initialBit = 0;
-    boolConfig.bitsNum = 1;
+    boolConfig.initialWord = 0;
+    boolConfig.initialBit = 11;
+    boolConfig.bitsNum = 2;
     vcCcSelCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        vcCcSelCoders[idx] = new BoolArrayCoder(boolConfig);
+        vcCcSelCoders[idx] = new BoolRandomArrayCoder(boolConfig);
+        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x0);
+        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x3); // set also the Cfast_SW
         coders.push_back(vcCcSelCoders[idx]);
-        boolConfig.initialBit++;
-        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
-            boolConfig.initialBit = 0;
-            boolConfig.initialWord++;
-        }
+        // VC_CC_sel unified
     }
 
     /*! CC_Stim_En */
@@ -1343,7 +1357,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
             coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < membraneCapValueRanges-1) {
-                multiCoderConfig.thresholdVector[rangeIdx] = pipetteCapacitanceRange[rangeIdx].max + pipetteCapacitanceRange[rangeIdx].step;
+                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapValueRange[rangeIdx].max + membraneCapValueRange[rangeIdx].step;
             }
         }
         membraneCapValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
@@ -1586,6 +1600,24 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     customOptionsCoders.resize(customOptionsNum);
     customOptionsCoders[CustomOptionClockDivider] = new BoolArrayCoder(boolConfig);
     coders.push_back(customOptionsCoders[CustomOptionClockDivider]);
+
+    doubleConfig.initialWord = 284;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 7;
+    customDoublesCoders.resize(customDoublesNum);
+    for (int idx = 0; idx < customDoublesNum; idx++) {
+        doubleConfig.minValue = customDoublesRanges[idx].min;
+        doubleConfig.maxValue = customDoublesRanges[idx].max;
+        doubleConfig.resolution = customDoublesRanges[idx].step;
+        customDoublesCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(customOptionsCoders[idx]);
+
+        doubleConfig.initialBit += 8;
+        if (doubleConfig.initialBit > 8) {
+            doubleConfig.initialWord++;
+            doubleConfig.initialBit = 0;
+        }
+    }
 
     /*! Default status */
     txStatus.resize(txDataWords);

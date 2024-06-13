@@ -142,10 +142,22 @@ protected:
         CustomOptionsNum
     };
 
+    enum CustomDouble {
+        CustomOffset1,
+        CustomOffset2,
+        CustomOffset3,
+        CustomOffset4,
+        CustomOffset5,
+        CustomOffset6,
+        CustomOffset7,
+        CustomOffset8,
+        CustomDoublesNum
+    };
+
     virtual ErrorCodes_t initializeHW() override;
 
-    virtual std::vector<double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams) override;
-    virtual std::vector<double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc) override;
+    virtual std::vector <double> user2AsicDomainTransform(int chIdx, std::vector<double> userDomainParams) override;
+    virtual std::vector <double> asic2UserDomainTransform(int chIdx, std::vector<double> asicDomainParams, double oldUCpVc, double oldUCpCc) override;
     virtual ErrorCodes_t asic2UserDomainCompensable(int chIdx, std::vector<double> asicDomainParams, std::vector<double> userDomainParams) override;
 
     virtual ErrorCodes_t getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) override;
