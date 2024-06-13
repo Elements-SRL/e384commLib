@@ -1785,7 +1785,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector<uint16
             debugString += "[U_CpVc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cp]) + "\n";
 #endif
             //encode
-            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             // update asic domain vector with coder return value
             asicParams[A_Cp] = temp;
             break;
@@ -1795,17 +1795,17 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector<uint16
             debugString += "[U_Cm chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cm]) + "\n";
 #endif
             //encode
-            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             // update asic domain vector with coder return value
             asicParams[A_Cp] = temp;
 
             //encode
-            temp = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             // update asic domain vector with coder return value
             asicParams[A_Cm] = temp;
 
             //encode
-            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             // update asic domain vector with coder return value
             asicParams[A_Taum] = temp;
             break;
@@ -1815,12 +1815,12 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector<uint16
             debugString += "[U_Rs chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Taum]) + "\n";
 #endif
             //encode
-            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             // update asic domain vector with coder return value
             asicParams[A_Taum] = temp;
 
             //encode
-            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             // update asic domain vector with coder return value
             asicParams[A_RsCr] = temp;
             break;
@@ -1830,7 +1830,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector<uint16
             debugString += "[U_RsCp chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsCr]) + "\n";
 #endif
             //encode
-            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             // update asic domain vector with coder return value
             asicParams[A_RsCr] = temp;
             break;
@@ -1840,12 +1840,12 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector<uint16
             debugString += "[U_RsPg chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPg]) + "\n";
 #endif
             //encode
-            temp = rsPredGainCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = rsPredGainCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             // update asic domain vector with coder return value
             asicParams[A_RsPg] = temp;
 
             //encode
-            temp = rsPredTauCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = rsPredTauCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             // update asic domain vector with coder return value
             asicParams[A_RsPtau] = temp;
             break;
@@ -1855,7 +1855,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector<uint16
             debugString += "[U_CpCc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPtau]) + "\n";
 #endif
             //encode
-            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord)   ;
+            temp = pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             // update asic domain vector with coder return value
             asicParams[A_RsPtau] = temp;
             break;

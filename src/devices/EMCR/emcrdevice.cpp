@@ -1469,6 +1469,57 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextIt
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::setCompRanges(std::vector<uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) {
+    if (!allLessThan(newRanges, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+
+    std::vector <std::vector <double>> localCompValueSubMatrix(channelIndexes.size());
+    std::vector <double> newParams(channelIndexes.size());
+    for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
+        localCompValueSubMatrix[chIdx] = this->compValueMatrix[channelIndexes[chIdx]];
+    }
+
+    switch(paramToUpdate) {
+    case U_CpVc:
+        if (pipetteCapValCompensationMultiCoders.empty()) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
+            pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->setEncodingRange(newRanges[chIdx]);
+            newParams[chIdx] = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        break;
+
+    case U_Cm:
+        if (membraneCapValCompensationMultiCoders.empty()) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
+            membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->setEncodingRange(newRanges[chIdx]);
+            newParams[chIdx] = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        break;
+
+    case U_CpCc:
+        if (pipetteCapCcValCompensationMultiCoders.empty()) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
+            pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->setEncodingRange(newRanges[chIdx]);
+            newParams[chIdx] = pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        }
+        break;
+
+    default:
+        return ErrorFeatureNotImplemented;
+    }
+    return this->setCompValues(channelIndexes, paramToUpdate, newParams, applyFlag);
+}
+
 ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime) {
     if (numberOfStatesCoder == nullptr) {
         return ErrorFeatureNotImplemented;
