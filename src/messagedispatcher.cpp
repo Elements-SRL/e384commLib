@@ -534,7 +534,7 @@ ErrorCodes_t MessageDispatcher::setStateArrayStructure(int, int, Measurement_t) 
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setSateArrayState(int, Measurement_t, bool, double, int, Measurement_t, Measurement_t, int, bool, bool) {
+ErrorCodes_t MessageDispatcher::setSateArrayState(int, Measurement_t, bool, Measurement_t, int, Measurement_t, Measurement_t, int, bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 

@@ -671,9 +671,9 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
         doubleConfig.initialWord = stateWordOffset+2;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 32;
-        doubleConfig.resolution = 1/(10.08e6);
+        doubleConfig.resolution = 1.0/protocolFpgaClockFrequencyHz;
         doubleConfig.minValue = 0;
-        doubleConfig.maxValue = (4.2950e+09 - 1)*doubleConfig.resolution;
+        doubleConfig.maxValue = UINT32_MAX*doubleConfig.resolution;
         stateTimeoutValueCoders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(stateTimeoutValueCoders[stateIdx]);
 
@@ -1454,9 +1454,9 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
         doubleConfig.initialWord = stateWordOffset+2;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 32;
-        doubleConfig.resolution = 1/(10.08e6);
+        doubleConfig.resolution = 1.0/protocolFpgaClockFrequencyHz;
         doubleConfig.minValue = 0;
-        doubleConfig.maxValue = (4.2950e+09 - 1)*doubleConfig.resolution;
+        doubleConfig.maxValue = UINT32_MAX*doubleConfig.resolution;
         stateTimeoutValueCoders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(stateTimeoutValueCoders[stateIdx]);
 
@@ -1647,9 +1647,9 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
         doubleConfig.initialWord = stateWordOffset+2;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 32;
-        doubleConfig.resolution = 1/(10.08e6);
+        doubleConfig.resolution = 1.0/protocolFpgaClockFrequencyHz;
         doubleConfig.minValue = 0;
-        doubleConfig.maxValue = (4.2950e+09 - 1)*doubleConfig.resolution;
+        doubleConfig.maxValue = UINT32_MAX*doubleConfig.resolution;
         stateTimeoutValueCoders[stateIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(stateTimeoutValueCoders[stateIdx]);
 

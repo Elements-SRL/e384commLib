@@ -69,13 +69,6 @@
 using namespace e384CommLib;
 #endif
 
-typedef struct MsgResume {
-    uint16_t typeId;
-    uint16_t heartbeat;
-    uint32_t dataLength;
-    uint32_t startDataPtr;
-} MsgResume_t;
-
 class E384COMMLIBSHARED_EXPORT MessageDispatcher {
 public:
 
@@ -83,7 +76,15 @@ public:
      *  Ctor / Dtor  *
     \*****************/
 
+    /*! \brief Constructor.
+     *  \note Don't call directly, the connectDevice should be used to get a MessageDispatcher.
+     *
+     * \param deviceId [out] Serial number of the device.
+     */
     MessageDispatcher(std::string deviceId);
+
+    /*! \brief Destructor.
+     */
     virtual ~MessageDispatcher();
 
     typedef enum CompensationTypes {
@@ -113,6 +114,13 @@ public:
         U_BrB,      // CCBridgeBalance
         CompensationUserParamsNum
     } CompensationUserParams_t;
+
+    typedef struct MsgResume {
+        uint16_t typeId;
+        uint16_t heartbeat;
+        uint32_t dataLength;
+        uint32_t startDataPtr;
+    } MsgResume_t;
 
     typedef struct FwUpgradeInfo { /*! Defaults to "no upgrades available" */
         bool available = false;
@@ -144,7 +152,7 @@ public:
      */
     static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
 
-    /*! \brief Connects to a specific device
+    /*! \brief Connects to a specific device.
      * Calling this method if a device is already connected will return an error code.
      *
      * \param deviceId [in] Device ID of the device to connect to.
@@ -153,9 +161,35 @@ public:
      * \return Error code.
      */
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
+
+    /*! \brief Indicates if there's a firmware upgrade for the selected device.
+     *
+     * \param deviceId [in] Device ID of the device to check for upgrades.
+     * \return Success if the device is upgradable.
+     */
     static ErrorCodes_t isDeviceUpgradable(std::string deviceId);
+
+    /*! \brief Upgrades the device's firmware.
+     *  \note The commlib can upgrade the device only if it finds the firmware on the file system in the FW folder.
+     *
+     * \param deviceId [in] Device ID of the device to be upgraded.
+     * \return Error code.
+     */
     static ErrorCodes_t upgradeDevice(std::string deviceId);
+
+    /*! \brief Initialize the device.
+     *  \note Internal method used by the commlib during the connection. Must not be called.
+     *
+     * \param fwPath [in] Path to the firmware file (if needed).
+     * \return Error code.
+     */
     virtual ErrorCodes_t initialize(std::string fwPath) = 0;
+
+    /*! \brief Deinitialize the device.
+     *  \note Internal method used by the commlib during the disconnection. Must not be called.
+     *
+     * \return Error code.
+     */
     virtual void deinitialize() = 0;
 
     /*! \brief Disconnects from connected device.
@@ -165,7 +199,7 @@ public:
      */
     virtual ErrorCodes_t disconnectDevice() = 0;
 
-    /*! \brief Enables or disables message types, so that disabled messages are not returned by getNextMessage
+    /*! \brief Enables or disables message types, so that disabled messages are not returned by getNextMessage.
      *  \note Message types are available in e384comllib_global.h.
      *
      * \param messageType [in] Message type to enable or disable.
@@ -174,16 +208,56 @@ public:
      */
     virtual ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag) = 0;
 
-    /***************************\
-     *  Configuration methods  *
-    \***************************/
+    /***************************************\
+     *  Channels overview support methods  *
+    \***************************************/
 
+    /*! \brief Command used by EMCR to keep track of the channels selected in the channels overview.
+     *
+     * \param chIdx [in] Channel index.
+     * \param newState [in] true: channel selected; false: channel not selected.
+     * \return Error code.
+     */
     ErrorCodes_t setChannelSelected(uint16_t chIdx, bool newState);
+
+    /*! \brief Command used by EMCR to keep track of the boards selected in the channels overview.
+     *
+     * \param brdIdx [in] board index.
+     * \param newState [in] true: board selected; false: board not selected.
+     * \return Error code.
+     */
     ErrorCodes_t setBoardSelected(uint16_t brdIdx, bool newState);
+
+    /*! \brief Command used by EMCR to keep track of the rows of channels selected in the channels overview.
+     *
+     * \param rowIdx [in] row index.
+     * \param newState [in] true: row of channels selected; false: row of channels not selected.
+     * \return Error code.
+     */
     ErrorCodes_t setRowSelected(uint16_t rowIdx, bool newState);
-    ErrorCodes_t getChannelsOnRow(uint16_t rowIdx, std::vector<ChannelModel *> &channels);
+
+    /*! \brief Command used by EMCR to keep track of the channels selected in the channels overview.
+     *
+     * \param newState [in] true: all channels selected; false: all channels not selected.
+     * \return Error code.
+     */
     ErrorCodes_t setAllChannelsSelected(bool newState);
+
+    /*! \brief Command used by EMCR to get the channel models for the board selected in the channels overview.
+     *
+     * \param boardIdx [in] board index.
+     * \param channels [out] models of the channels in the selected board.
+     * \return Error code.
+     */
     ErrorCodes_t getChannelsOnBoard(uint16_t boardIdx, std::vector <ChannelModel *> &channels);
+
+    /*! \brief Command used by EMCR to get the channel models for the row selected in the channels overview.
+     *
+     * \param rowIdx [in] row index.
+     * \param channels [out] models of the channels in the selected row.
+     * \return Error code.
+     */
+    ErrorCodes_t getChannelsOnRow(uint16_t rowIdx, std::vector <ChannelModel *> &channels);
 
     /****************\
      *  Tx methods  *
@@ -206,6 +280,11 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t stopProtocol();
+
+    /*! \brief Start the state array (if available).
+     *
+     * \return Error code.
+     */
     virtual ErrorCodes_t startStateArray();
 
     /*! \brief Reset the device's ASIC.
@@ -295,6 +374,11 @@ public:
      */
     virtual ErrorCodes_t setSourceVoltages(std::vector<uint16_t> boardIndexes, std::vector<Measurement_t> sourceVoltages, bool applyFlag);
 
+    /*! \brief Set the values for all the calibration parameters.
+     *
+     * \param calibParams [in] Structure containing all the calibration parameters required by the device.
+     * \return Error code.
+     */
     virtual ErrorCodes_t setCalibParams(CalibrationParams_t calibParams);
 
     /*! \brief Set a VC current gain on a specific channel.
@@ -305,6 +389,14 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t setCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+
+    /*! \brief Update the VC current gain on a specific channel.
+     *  \note Method used internally to set the correct calibration value after a range change.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t updateCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set a VC current offset on a specific channel.
@@ -315,6 +407,14 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t setCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+
+    /*! \brief Update the VC current offset on a specific channel.
+     *  \note Method used internally to set the correct calibration value after a range change.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t updateCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set a VC Voltage gain on a specific channel.
@@ -325,6 +425,14 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t setCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+
+    /*! \brief Update the VC Voltage gain on a specific channel.
+     *  \note Method used internally to set the correct calibration value after a range change.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t updateCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set a VC voltage offset on a specific channel.
@@ -335,6 +443,14 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t setCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+
+    /*! \brief Update the VC voltage offset on a specific channel.
+     *  \note Method used internally to set the correct calibration value after a range change.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t updateCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set a CC voltage gain on a specific channel.
@@ -345,6 +461,14 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t setCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+
+    /*! \brief Update the CC voltage gain on a specific channel.
+     *  \note Method used internally to set the correct calibration value after a range change.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t updateCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set a CC voltage offset on a specific channel.
@@ -355,6 +479,14 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t setCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+
+    /*! \brief Update the CC voltage offset on a specific channel.
+     *  \note Method used internally to set the correct calibration value after a range change.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t updateCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set a CC current gain on a specific channel.
@@ -365,6 +497,14 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t setCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag);
+
+    /*! \brief Update the CC current gain on a specific channel.
+     *  \note Method used internally to set the correct calibration value after a range change.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t updateCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set a CC current offset on a specific channel.
@@ -375,8 +515,32 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag);
+
+    /*! \brief Update the CC current offset on a specific channel.
+     *  \note Method used internally to set the correct calibration value after a range change.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t updateCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag);
+
+    /*! \brief Set a shunt resistance correction on a specific channel.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to control.
+     * \param offsets [in] Vector of shunt resistances.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t setCalibRShuntConductance(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> conductances, bool applyFlag);
+
+    /*! \brief Update the shunt resistance correction on a specific channel.
+     *  \note Method used internally to set the correct calibration value after a range change.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t updateCalibRShuntConductance(std::vector<uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set the current range for voltage clamp.
@@ -410,6 +574,12 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag);
+
+    /*! \brief Set the voltage range for liquid junction correction voltage clamp.
+     *
+     * \param idx [in] Index of the voltage range to be set.
+     * \return Error code.
+     */
     virtual ErrorCodes_t setLiquidJunctionRange(uint16_t idx);
 
     /*! \brief Sets the low pass filter on the voltage stimulus.
@@ -449,14 +619,46 @@ public:
     /*! \brief Open and closes the calibration switch for a specific channel.
      *
      * \param channelIndexes [in] Vector of indexes of the channel to control.
-     * \param onValues [in] Vector of on values: True to close the channel CALIBRATION SWITCH, false to open it.
+     * \param onValues [in] Vector of on values: True to close the channel calibration switch, false to open it.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
     virtual ErrorCodes_t turnCalSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+
+    /*! \brief Check if the device has calibration switches.
+     *
+     * \return Success if calibration switches are available.
+     */
     virtual ErrorCodes_t hasCalSw();
+
+    /*! \brief Open and closes the voltage clamp switch for a specific channel.
+     *  \note Method used internally during clamping modalities changes.
+     *
+     * \param channelIndexes [in] Vector of indexes of the channel to control.
+     * \param onValues [in] Vector of on values: True to close the channel voltage clamp switch, false to open it.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t turnVcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+
+    /*! \brief Open and closes the current clamp switch for a specific channel.
+     *  \note Method used internally during clamping modalities changes.
+     *
+     * \param channelIndexes [in] Vector of indexes of the channel to control.
+     * \param onValues [in] Vector of on values: True to close the channel current clamp switch, false to open it.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t turnCcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+
+    /*! \brief Set the ADC multiplexer for a specific channel.
+     *  \note Method used internally during clamping modalities changes.
+     *
+     * \param channelIndexes [in] Vector of indexes of the channel to control.
+     * \param onValues [in] Vector of on values: True to use the data from the voltage clamp, false to use the data from the current clamp.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
     virtual ErrorCodes_t turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
     /*! \brief Enables or disables the stimulus in current clamp.
@@ -469,6 +671,14 @@ public:
      */
     virtual ErrorCodes_t enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
 
+    /*! \brief Select the clamping modality.
+     *  \note Method used internally. Used the overloaded method which takes ClampingModality_t as argument.
+     *
+     * \param idx [in] Index of the clamping modality to select.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \param stopProtocolFlag [in] true, to automatically stop the currently applied stimulation before changing modality.
+     * \return Error code.
+     */
     virtual ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag, bool stopProtocolFlag);
 
     /*! \brief Select the clamping modality.
@@ -497,8 +707,7 @@ public:
     virtual ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag);
 
     /*! \brief Execute digital offset compensation.
-     * Digital offset compensation tunes the offset of the applied voltage so that the
-     * acquired current is 0.
+     * Digital offset compensation tunes the offset of the applied voltage so that the acquired current is 0.
      *
      * \param channelIndexes [in] Channel indexes.
      * \param onValues [in] Array of booleans, one for each channel: True to turn the offset compensation on, false to turn it off.
@@ -506,8 +715,20 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag);
+
+    /*! \brief Command used by EMCR to keep track of the expanded traces in the main plot.
+     *
+     * \param channelIndexes [in] Channel indexes.
+     * \param onValues [in] Array of booleans, one for each channel: True to set a channel as expanded, false to set it as not expanded.
+     * \return Error code.
+     */
     ErrorCodes_t expandTraces(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues);
 
+    /*! \brief Update the ADC filter based on the current range and sampling rate configuration.
+     *  \note Method used internally to automatically correct the filtering during range or sampling rate changes.
+     *
+     * \return Error code.
+     */
     virtual ErrorCodes_t setAdcFilter();
 
     /*! \brief Set the sampling rate.
@@ -537,13 +758,9 @@ public:
      * \return Error code.
      */
     ErrorCodes_t setRawDataFilter(Measurement_t cutoffFrequency, bool lowPassFlag, bool activeFlag);
-    /*! \brief Set the downsampling ratio.
-     *
-     * \param ratio [in] Decimation ratio.
-     * \return Error code.
-     */
 
-    /*! \brief Set a debug bit
+    /*! \brief Set a debug bit.
+     *  \note Debug command.
      *
      * \param wordOffset [in] word of the debug bit to be modified.
      * \param bitOffset [in] debug bit to be modified.
@@ -552,7 +769,8 @@ public:
      */
     virtual ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
 
-    /*! \brief Set a debug word
+    /*! \brief Set a debug word.
+     *  \note Debug command.
      *
      * \param wordOffset [in] word of the debug bit to be modified.
      * \param word value [in] new value for the debug word.
@@ -605,7 +823,7 @@ public:
      * \param sweepsNum [in] Number of sweeps of the protocol.
      * \param vRest [in] Voltage that will be applied when the protocol ends.
      * \param stopProtocolFlag [in] true, to automatically stop the currently applied stimulation before applying the new one.
-     * \note Each sweep increases the stepped parameter by 1 step.
+     * \note Each sweep increases the stepped parameters by 1 step.
      * \return Error code.
      */
     virtual ErrorCodes_t setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest, bool stopProtocolFlag = true);
@@ -746,8 +964,37 @@ public:
      */
     virtual ErrorCodes_t setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag);
 
+    /*! \brief Describes the structure of an incoming state array.
+     *
+     * \param numberOfStates [in] Number of states.
+     * \param initialState [in] Index of the starting state.
+     * \param reactionTime [in] Duration of the averaging window used to prefilter the data.
+     * \return Error code.
+     */
     virtual ErrorCodes_t setStateArrayStructure(int numberOfStates, int initialState, Measurement_t reactionTime);
-    virtual ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag);
+
+    /*! \brief Sets a state array new state.
+     *
+     * \param stateIdx [in] Index of the state.
+     * \param voltage [in] Voltage to be applied.
+     * \param timeoutStateFlag [in] True if the state can be left after a timeout condition; false otherwise.
+     * \param timeout [in] Time to leave a timeout state.
+     * \param timeoutState [in] New state after timeout.
+     * \param minTriggerValue [in] Lower threshold for a trigger state.
+     * \param maxTriggerValue [in] Upper threshold for a trigger state.
+     * \param triggerState [in] New state after trigger.
+     * \param triggerFlag [in] True if the state can be left after a trigger condition; false otherwise.
+     * \param deltaFlag [in] True if the trigger thresholds are referred to the baseline; False if they are absolute values.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, Measurement_t timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag);
+
+    /*! \brief Enable state arrays for a given channel
+     *
+     * \param chIdx [in] Index of the channel.
+     * \param enabledFlag [in] True to run the state arrays on the selected channel; False to disable the state arrays for the selected channel.
+     * \return Error code.
+     */
     virtual ErrorCodes_t setStateArrayEnabled(int chIdx, bool enabledFlag);
 
     /*! \brief Turn on/off a specific compensation.
@@ -1508,7 +1755,6 @@ protected:
      *  Multi-thread synchronization variables  *
     \********************************************/
 
-    /*! \todo FCON non mi piace sta roba qui, dovrebbe stare inemcrdevice.h, però lo usa la procedura per la liquid junction */
     mutable std::mutex txMutex;
     std::condition_variable txMsgBufferNotEmpty;
     std::condition_variable txMsgBufferNotFull;

@@ -1536,7 +1536,7 @@ ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialS
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, double timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag){
+ErrorCodes_t EmcrDevice::setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, Measurement_t timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag){
     if (stateAppliedVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
     }
