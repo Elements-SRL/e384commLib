@@ -415,15 +415,24 @@ ErrorCodes_t setSamplingRate(
     return messageDispatcher->setSamplingRate(samplingRateIdx, applyFlagIn);
 }
 
-ErrorCodes_t setDigitalFilter(
-        E384CL_ARGIN double cutoffFrequency,
-        E384CL_ARGIN bool lowPassFlag,
-        E384CL_ARGIN bool activeFlag) {
+ErrorCodes_t setDownsamplingRatio(
+        uint32_t ratio) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    return ErrorFeatureNotImplemented;
-    //    return messageDispatcher->setDigitalFilter(cutoffFrequency, lowPassFlag, activeFlag);
+    return messageDispatcher->setDownsamplingRatio(ratio);
+}
+
+ErrorCodes_t setDigitalFilter(
+        CharMeasurement_t cutoffFrequencyIn,
+        bool lowPassFlag,
+        bool activeFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    Measurement_t cutoffFrequency;
+    input2Measurement(cutoffFrequencyIn, cutoffFrequency);
+    return messageDispatcher->setRawDataFilter(cutoffFrequency, lowPassFlag, activeFlag);
 }
 
 ErrorCodes_t digitalOffsetCompensation(

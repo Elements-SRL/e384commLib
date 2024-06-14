@@ -280,9 +280,21 @@ ErrorCodes_t setSamplingRate(
         E384CL_ARGIN uint16_t samplingRateIdx,
         E384CL_ARGIN bool applyFlagIn);
 
+/*! \brief Set the downsampling ratio, so that the final sampling rate is the value selected by the setSamplingRate method, divided by the downsampling ratio.
+ *  \note In order to avoid aliasing, any downsampling ratio other than 1 will automatically activate a low pass filter with cut off frequency SR/4,
+ *  were SR is the final sampling rate, after decimation.
+ *
+ * \param ratio [in] Decimation ratio.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setDownsamplingRatio(
+        E384CL_ARGIN uint32_t ratio);
+
 /*! \brief Set a digital filter.
  *
- * \param cutoffFrequency [in] The cut-off frequency in kHz of the filter.
+ * \param cutoffFrequencyIn [in] The cut-off frequency in kHz of the filter.
  * \param lowPassFlag [in] true: set a low pass filter; false: set a high pass filter.
  * \param activeFlag [in] true: enable the filter; false: disable the filter.
  * \return Error code.
@@ -290,7 +302,7 @@ ErrorCodes_t setSamplingRate(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setDigitalFilter(
-        E384CL_ARGIN double cutoffFrequency,
+        E384CL_ARGIN CharMeasurement_t cutoffFrequencyIn,
         E384CL_ARGIN bool lowPassFlag,
         E384CL_ARGIN bool activeFlag);
 

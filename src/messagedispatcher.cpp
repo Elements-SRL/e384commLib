@@ -462,6 +462,18 @@ ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratio) {
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::setRawDataFilter(Measurement_t cutoffFrequency, bool lowPassFlag, bool activeFlag) {
+    if ((cutoffFrequency.value <= 0.0) || (cutoffFrequency >= samplingRate*0.5)) {
+        return ErrorValueOutOfRange;
+    }
+    rawDataFilterCutoffFrequency = cutoffFrequency;
+    rawDataFilterLowPassFlag = lowPassFlag;
+    rawDataFilterActiveFlag = activeFlag;
+    this->computeRawDataFilterCoefficients();
+
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::setDebugBit(uint16_t, uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }

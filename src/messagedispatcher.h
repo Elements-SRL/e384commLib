@@ -516,12 +516,30 @@ public:
      */
     virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag);
 
-    /*! \brief Set the downsampling ratio.
+    /*! \brief Set the downsampling ratio, so that the final sampling rate is the value selected by the setSamplingRate method, divided by the downsampling ratio.
+     *  \note In order to avoid aliasing, any downsampling ratio other than 1 will automatically activate a low pass filter with cut off frequency SR/4,
+     *  were SR is the final sampling rate, after decimation.
      *
      * \param ratio [in] Decimation ratio.
      * \return Error code.
      */
     ErrorCodes_t setDownsamplingRatio(uint32_t ratio);
+
+    /*! \brief Set the raw data filter cut off frequency and type.
+     *  \note If a downsampling ratio other than 1 is set, the raw data filter is always active, it is always of type low pass, and only cutoff frequencies lower than
+     *  SR/4 are accepted.
+     *
+     * \param cutoffFrequency [in] Cut off frequency of the raw data filter.
+     * \param lowPassFlag [in] true: set a low pass filter; false: set a high pass filter.
+     * \param activeFlag [in] true: enable the filter; false: disable the filter.
+     * \return Error code.
+     */
+    ErrorCodes_t setRawDataFilter(Measurement_t cutoffFrequency, bool lowPassFlag, bool activeFlag);
+    /*! \brief Set the downsampling ratio.
+     *
+     * \param ratio [in] Decimation ratio.
+     * \return Error code.
+     */
 
     /*! \brief Set a debug bit
      *
@@ -1461,7 +1479,7 @@ protected:
      *  Filters variables  *
     \***********************/
 
-    Measurement_t rawDataFilterCutoffFrequency = {30.0, UnitPfxKilo, "Hz"};
+    Measurement_t rawDataFilterCutoffFrequency = {1.0, UnitPfxTera, "Hz"};
     bool rawDataFilterLowPassFlag = true;
     bool rawDataFilterActiveFlag = false;
     bool rawDataFilterVoltageFlag = false;
@@ -1471,7 +1489,7 @@ protected:
     uint32_t selectedDownsamplingRatio = 1;
     bool downsamplingFlag = false;
     uint32_t downsamplingOffset = 0;
-    Measurement_t rawDataFilterCutoffFrequencyOverride = {30.0, UnitPfxKilo, "Hz"};
+    Measurement_t rawDataFilterCutoffFrequencyOverride = {1.0, UnitPfxTera, "Hz"};
 
     double iirVNum[IIR_ORD+1];
     double iirVDen[IIR_ORD+1];
