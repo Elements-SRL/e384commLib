@@ -1492,6 +1492,7 @@ protected:
     bool downsamplingFlag = false;
     uint32_t downsamplingOffset = 0;
     Measurement_t rawDataFilterCutoffFrequencyOverride = {1.0, UnitPfxTera, "Hz"};
+    bool rawDataFilterLowPassFlagOverride = false;
 
     double iirVNum[IIR_ORD+1];
     double iirVDen[IIR_ORD+1];

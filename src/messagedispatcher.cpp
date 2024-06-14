@@ -1748,15 +1748,19 @@ void MessageDispatcher::deInitializeRawDataFilterVariables() {
 void MessageDispatcher::computeRawDataFilterCoefficients() {
     bool enableFilter;
     double cutoffFrequency;
+    bool lowPassFlag;
 
     if (downsamplingFlag) {
         rawDataFilterCutoffFrequencyOverride.convertValue(UnitPfxNone);
         rawDataFilterCutoffFrequencyOverride.value = samplingRate.getNoPrefixValue()*0.25/(double)selectedDownsamplingRatio;
+        rawDataFilterLowPassFlagOverride = true;
 
     } else {
         rawDataFilterCutoffFrequencyOverride.convertValue(UnitPfxTera);
         rawDataFilterCutoffFrequencyOverride.value = 1.0e9;
+        rawDataFilterLowPassFlagOverride = false;
     }
+    lowPassFlag = rawDataFilterLowPassFlag || rawDataFilterLowPassFlagOverride; // When the downsampling is enabled the filte rcan be set only as low pass
     rawDataFilterCutoffFrequency.convertValue(1.0/integrationStep.multiplier());
     rawDataFilterCutoffFrequencyOverride.convertValue(1.0/integrationStep.multiplier());
 
@@ -1811,7 +1815,7 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
 
             /*! Gains and numerators */
             double iirG;
-            if (rawDataFilterLowPassFlag) {
+            if (lowPassFlag) {
                 iirG = (1.0+iirVDen[1]+iirVDen[2])*0.25;
 
                 iirVNum[1] = 2.0*iirG;
@@ -1843,7 +1847,7 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
 
             /*! Gains and numerators */
             double iirG;
-            if (rawDataFilterLowPassFlag) {
+            if (lowPassFlag) {
                 iirG = (1.0+iirIDen[1]+iirIDen[2])*0.25;
 
                 iirINum[1] = 2.0*iirG;
@@ -1888,7 +1892,7 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
         double wT = 2.0*M_PI*cutoffFrequency*integrationStep.value;
         double ky = (2.0-wT)/(2.0+wT);
         double kx;
-        if (rawDataFilterLowPassFlag) {
+        if (lowPassFlag) {
             kx = 1.0-ky;
 
         } else {
@@ -1901,7 +1905,7 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
             iirVDen[1] = -ky;
 
             /*! Gains and numerators */
-            if (rawDataFilterLowPassFlag) {
+            if (lowPassFlag) {
                 iirVNum[0] = kx*0.5;
                 iirVNum[1] = kx*0.5;
 
@@ -1924,7 +1928,7 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
             iirIDen[1] = -ky;
 
             /*! Gains and numerators */
-            if (rawDataFilterLowPassFlag) {
+            if (lowPassFlag) {
                 iirINum[0] = kx*0.5;
                 iirINum[1] = kx*0.5;
 
@@ -2002,7 +2006,7 @@ ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t>, Compensatio
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCompRanges(std::vector<uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setCompRanges(std::vector<uint16_t>, CompensationUserParams_t, std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -2010,11 +2014,11 @@ ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t>, Compensati
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCustomFlag(uint16_t idx, bool flag, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setCustomFlag(uint16_t, bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCustomOption(uint16_t idx, uint16_t value, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setCustomOption(uint16_t, uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
