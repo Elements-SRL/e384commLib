@@ -38,6 +38,8 @@
 #define LINT32_MAX (static_cast <double> (0x7FFFFFFF))
 #define LINT32_MIN (-LINT32_MAX-1.0)
 
+//#define USE_2ND_ORDER_BUTTERWORTH
+
 #ifdef USE_2ND_ORDER_BUTTERWORTH
 #define IIR_ORD 2
 #define IIR_2_SIN_PI_4 (2.0*sin(M_PI/4.0))
