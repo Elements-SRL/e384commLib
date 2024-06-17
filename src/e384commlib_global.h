@@ -175,62 +175,63 @@ typedef enum{
  */
 typedef enum DeviceTypes {
     /*! EMCR devices */
-    Device384Nanopores,         /*!< 384 channels device for nanopores experiments */
-    Device384Nanopores_SR7p5kHz,/*!< 384 channels device for nanopores experiments */
+    Device384Nanopores,                         /*!< 384 channels device for nanopores experiments */
+    Device384Nanopores_SR7p5kHz,                /*!< 384 channels device for nanopores experiments */
     Device384PatchClamp_prot_v01_fw_v02,        /*!< Nanion's Syncropatch */
     Device384PatchClamp_prot_v04_fw_v03,
-    Device384PatchClamp_prot_v04_fw_v04,    /*!< Nanion's Syncropatch */
+    Device384PatchClamp_prot_v04_fw_v04,        /*!< Nanion's Syncropatch */
     Device384PatchClamp_prot_v04_fw_v05,
-    Device384PatchClamp_prot_v05_fw_v06,    /*! Header packet */
+    Device384PatchClamp_prot_v05_fw_v06,        /*! Header packet */
     DeviceTestBoardEL07ab,
     DeviceTestBoardEL07c,
     DeviceTestBoardEL07d,
-    Device2x10MHz_PCBV01,                   /*!< 2 channels 10MHz nanopore reader */
-    Device2x10MHz_PCBV02,                   /*!< 2 channels 10MHz nanopore reader */
-    Device4x10MHz_PCBV01,                   /*!< 4 channels 10MHz nanopore reader */
-    Device4x10MHz_PCBV03,                   /*!< 4 channels 10MHz nanopore reader */
-    Device4x10MHz_SB_PCBV01,                /*!< 4 channels 10MHz nanopore reader, single board */
-    Device4x10MHz_QuadAnalog_PCBV01,        /*!< 4 channels 10MHz nanopore reader, one analog board */
-    Device4x10MHz_QuadAnalog_PCBV01_DIGV01, /*!< 4 channels 10MHz nanopore reader, one analog board, digital board V01 */
-    Device10MHzOld,                         /*!< UDB based 10MHz nanopore reader, old firmware */
-    Device10MHzV01,                         /*!< UDB based 10MHz nanopore reader */
+    Device2x10MHz_PCBV01,                       /*!< 2 channels 10MHz nanopore reader */
+    Device2x10MHz_PCBV02,                       /*!< 2 channels 10MHz nanopore reader */
+    Device4x10MHz_PCBV01,                       /*!< 4 channels 10MHz nanopore reader */
+    Device4x10MHz_PCBV03,                       /*!< 4 channels 10MHz nanopore reader */
+    Device4x10MHz_SB_PCBV01,                    /*!< 4 channels 10MHz nanopore reader, single board */
+    Device4x10MHz_QuadAnalog_PCBV01,            /*!< 4 channels 10MHz nanopore reader, one analog board */
+    Device4x10MHz_QuadAnalog_PCBV01_DIGV01,     /*!< 4 channels 10MHz nanopore reader, one analog board, digital board V01 */
+    Device10MHzOld,                             /*!< UDB based 10MHz nanopore reader, old firmware */
+    Device10MHzV01,                             /*!< UDB based 10MHz nanopore reader */
     /*! EZ patch devices */
-    DeviceEPatchEL03D_V04,                  /*!< ePatch device with EL03D chip: digital repetitive trigger output. */
-    DeviceEPatchEL03D_V03,                  /*!< ePatch device with EL03D chip: increased maximum amount of digital trigger output events. */
-    DeviceEPatchEL03D_V02,                  /*!< ePatch device with EL03D chip: digital triggers limited to 21 */
-    DeviceEPatchEL03D_V01,                  /*!< ePatch device with EL03D chip: before voltage hold tuner implementation. */
-    DeviceEPatchEL03D_V00,                  /*!< ePatch device with EL03D chip: before digital trigger output implementation. */
-    DeviceEPatchEL03F_4D_PCBV03_V04,        /*!< ePatch device with EL03F and EL04D chips: digital repetitive trigger output. */
-    DeviceEPatchEL03F_4D_PCBV03_V03,        /*!< ePatch device with EL03F and EL04D chips: increased maximum amount of digital trigger output events. */
-    DeviceEPatchEL03F_4D_PCBV03_V02,        /*!< ePatch device with EL03F and EL04D chips: PCB V03 for master/slave configurability. */
-    DeviceEPatchEL03F_4D_PCBV02_V04,        /*!< ePatch device with EL03F and EL04D chips: increased maximum amount of digital trigger output events */
-    DeviceEPatchEL03F_4D_PCBV02_V03,        /*!< ePatch device with EL03F and EL04D chips: increased maximum amount of digital trigger output events */
-    DeviceEPatchEL03F_4D_PCBV02_V02,        /*!< ePatch device with EL03F and EL04D chips: voltage and current hold tuner implementation */
-    DeviceEPatchEL03F_4D_PCBV02_V01,        /*!< ePatch device with EL03F and EL04D chips: added digital trigger output before. */
-    DeviceEPatchEL04E,                      /*!< ePatch device with EL04E chip. */
-    DeviceEPatchEL03F_4E_PCBV03_V04,        /*!< ePatch device with EL03F and EL04E chips: digital repetitive trigger output. */
-    DeviceEPatchEL03F_4E_PCBV03_V03,        /*!< ePatch device with EL03F and EL04E chips: increased maximum amount of digital trigger output events. */
-    DeviceEPatchEL03F_4E_PCBV03_V02,        /*!< ePatch device with EL03F and EL04E chips: PCB V03 for master/slave configurability. */
-    DeviceEPatchEL03F_4E_PCBV02_V04,        /*!< ePatch device with EL03F and EL04E chips: digital repetitive trigger output. */
-    DeviceEPatchEL03F_4E_PCBV02_V03,        /*!< ePatch device with EL03F and EL04E chips: increased maximum amount of digital trigger output events */
-    DeviceEPatchEL03F_4E_PCBV02_V02,        /*!< ePatch device with EL03F and EL04E chips: voltage and current hold tuner implementation */
-    DeviceEPatchEL03F_4E_PCBV02_V01,        /*!< ePatch device with EL03F and EL04E chips: added digital trigger output before. */
-    DeviceEPatchEL03F_4E_PCBV02_V00,        /*!< ePatch device with EL03F and EL04E chips. */
-    DeviceEPatchEL04F,                      /*!< ePatch device with EL04F chip. */
-    DeviceEPatchEL03F_4F_PCBV01_AnalogOut,  /*!< ePatch device with EL03F and EL04F chips: added analog output. */
-    DeviceEPatchEL03F_4F_PCBV03_V04,        /*!< ePatch device with EL03F and EL04F chips: digital repetitive trigger output. */
-    DeviceEPatchEL03F_4F_PCBV02_V04,        /*!< ePatch device with EL03F and EL04F chips: digital repetitive trigger output. */
-    DeviceEPatchEL03F_4F_PCBV03_V03,        /*!< ePatch device with EL03F and EL04F chips: increased maximum amount of digital trigger output events. */
-    DeviceE4PEL04F,                         /*!< ePatch device with 4 EL04F chips. */
-    DeviceE4PPatchLiner,                    /*!< ePatch device with 4 EL04F chips for Nanion's Patchliner. */
-    DeviceE8PPatchLiner,                    /*!< ePatch device with 8 EL04F chips for Nanion's Patchliner. */
-    DeviceE4PPatchLinerEL07AB,              /*!< ePatch device with 4 EL07AB chips for Nanion's Patchliner. */
-    DeviceE8PPatchLinerEL07AB,              /*!< ePatch device with 8 EL07AB chips for Nanion's Patchliner. */
-    DeviceE8PPatchLinerEL07AB_artix7_PCBV01,/*!< ePatch device with 8 EL07AB PCB V01 chips for Nanion's Patchliner (FPGA artix7). */
-    DeviceE8PPatchLinerEL07AB_artix7_PCBV02,/*!< ePatch device with 8 EL07AB PCB V02 chips for Nanion's Patchliner (FPGA artix7). */
-    DeviceFakePatch,                        /*!< Fake ePatch device resembling EL04F chip. */
-    DeviceFakeP8,                           /*!< Fake patchliner device resembling EL07AB chip. */
-    DeviceEPatchDlp,                        /*!< ePatch device with dlp fpga. */
+    DeviceEPatchEL03D_V04,                      /*!< ePatch device with EL03D chip: digital repetitive trigger output. */
+    DeviceEPatchEL03D_V03,                      /*!< ePatch device with EL03D chip: increased maximum amount of digital trigger output events. */
+    DeviceEPatchEL03D_V02,                      /*!< ePatch device with EL03D chip: digital triggers limited to 21 */
+    DeviceEPatchEL03D_V01,                      /*!< ePatch device with EL03D chip: before voltage hold tuner implementation. */
+    DeviceEPatchEL03D_V00,                      /*!< ePatch device with EL03D chip: before digital trigger output implementation. */
+    DeviceEPatchEL03F_4D_PCBV03_V04,            /*!< ePatch device with EL03F and EL04D chips: digital repetitive trigger output. */
+    DeviceEPatchEL03F_4D_PCBV03_V03,            /*!< ePatch device with EL03F and EL04D chips: increased maximum amount of digital trigger output events. */
+    DeviceEPatchEL03F_4D_PCBV03_V02,            /*!< ePatch device with EL03F and EL04D chips: PCB V03 for master/slave configurability. */
+    DeviceEPatchEL03F_4D_PCBV02_V04,            /*!< ePatch device with EL03F and EL04D chips: increased maximum amount of digital trigger output events */
+    DeviceEPatchEL03F_4D_PCBV02_V03,            /*!< ePatch device with EL03F and EL04D chips: increased maximum amount of digital trigger output events */
+    DeviceEPatchEL03F_4D_PCBV02_V02,            /*!< ePatch device with EL03F and EL04D chips: voltage and current hold tuner implementation */
+    DeviceEPatchEL03F_4D_PCBV02_V01,            /*!< ePatch device with EL03F and EL04D chips: added digital trigger output before. */
+    DeviceEPatchEL04E,                          /*!< ePatch device with EL04E chip. */
+    DeviceEPatchEL03F_4E_PCBV03_V04,            /*!< ePatch device with EL03F and EL04E chips: digital repetitive trigger output. */
+    DeviceEPatchEL03F_4E_PCBV03_V03,            /*!< ePatch device with EL03F and EL04E chips: increased maximum amount of digital trigger output events. */
+    DeviceEPatchEL03F_4E_PCBV03_V02,            /*!< ePatch device with EL03F and EL04E chips: PCB V03 for master/slave configurability. */
+    DeviceEPatchEL03F_4E_PCBV02_V04,            /*!< ePatch device with EL03F and EL04E chips: digital repetitive trigger output. */
+    DeviceEPatchEL03F_4E_PCBV02_V03,            /*!< ePatch device with EL03F and EL04E chips: increased maximum amount of digital trigger output events */
+    DeviceEPatchEL03F_4E_PCBV02_V02,            /*!< ePatch device with EL03F and EL04E chips: voltage and current hold tuner implementation */
+    DeviceEPatchEL03F_4E_PCBV02_V01,            /*!< ePatch device with EL03F and EL04E chips: added digital trigger output before. */
+    DeviceEPatchEL03F_4E_PCBV02_V00,            /*!< ePatch device with EL03F and EL04E chips. */
+    DeviceEPatchEL04F,                          /*!< ePatch device with EL04F chip. */
+    DeviceEPatchEL03F_4F_PCBV01_AnalogOut,      /*!< ePatch device with EL03F and EL04F chips: added analog output. */
+    DeviceEPatchEL03F_4F_PCBV03_V04,            /*!< ePatch device with EL03F and EL04F chips: digital repetitive trigger output. */
+    DeviceEPatchEL03F_4F_PCBV02_V04,            /*!< ePatch device with EL03F and EL04F chips: digital repetitive trigger output. */
+    DeviceEPatchEL03F_4F_PCBV03_V03,            /*!< ePatch device with EL03F and EL04F chips: increased maximum amount of digital trigger output events. */
+    DeviceE4PEL04F,                             /*!< ePatch device with 4 EL04F chips. */
+    DeviceE4PPatchLiner,                        /*!< ePatch device with 4 EL04F chips for Nanion's Patchliner. */
+    DeviceE8PPatchLiner,                        /*!< ePatch device with 8 EL04F chips for Nanion's Patchliner. */
+    DeviceE4PPatchLinerEL07AB,                  /*!< ePatch device with 4 EL07AB chips for Nanion's Patchliner. */
+    DeviceE8PPatchLinerEL07AB,                  /*!< ePatch device with 8 EL07AB chips for Nanion's Patchliner. */
+    DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02,/*!< ePatch device with 8 EL07AB PCB V02 chips for Nanion's Patchliner (FPGA artix7). Increased protocol items to 256. */
+    DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V01,/*!< ePatch device with 8 EL07AB PCB V02 chips for Nanion's Patchliner (FPGA artix7). */
+    DeviceE8PPatchLinerEL07AB_artix7_PCBV01,    /*!< ePatch device with 8 EL07AB PCB V01 chips for Nanion's Patchliner (FPGA artix7). */
+    DeviceFakePatch,                            /*!< Fake ePatch device resembling EL04F chip. */
+    DeviceFakeP8,                               /*!< Fake patchliner device resembling EL07AB chip. */
+    DeviceEPatchDlp,                            /*!< ePatch device with dlp fpga. */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
     Device384FakePatchClamp,    /*!< Fake patch clamp device */

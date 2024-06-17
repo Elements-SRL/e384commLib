@@ -57,76 +57,77 @@ static const uint16_t crc16CcittTable[256] = {
 
 static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
     /*! ePatch EL03D */
-    {DeviceVersionEpatch, DeviceSubversionEl03D, 133, DeviceEPatchEL03D_V04},                                           //  7,  1,  133 : digital repetitive trigger
-    {DeviceVersionEpatch, DeviceSubversionEl03D, 132, DeviceEPatchEL03D_V03},                                           //  7,  1,  132 : increased digital triggers to 84
-    {DeviceVersionEpatch, DeviceSubversionEl03D, 131, DeviceEPatchEL03D_V02},                                           //  7,  1,  131 : implemented holding voltage tuner
-    {DeviceVersionEpatch, DeviceSubversionEl03D, 130, DeviceEPatchEL03D_V01},                                           //  7,  1,  130 : implemented trigger digital outputs
-    {DeviceVersionEpatch, DeviceSubversionEl03D, 129, DeviceEPatchEL03D_V00},                                           //  7,  1,  129 : reduction of SPI noise
-    {DeviceVersionEpatch, DeviceSubversionEl03D, 128, DeviceEPatchEL03D_V00},                                           //  7,  1,  128 : first version
-    {DeviceVersionEpatch, 2, 0, DeviceEPatchEL03D_V00},                                                                 //  7,  2,  0   : first version (legacy, to be removed)
+    {DeviceVersionEpatch, DeviceSubversionEl03D, 133, DeviceEPatchEL03D_V04},                                               //  7,  1,  133 : digital repetitive trigger
+    {DeviceVersionEpatch, DeviceSubversionEl03D, 132, DeviceEPatchEL03D_V03},                                               //  7,  1,  132 : increased digital triggers to 84
+    {DeviceVersionEpatch, DeviceSubversionEl03D, 131, DeviceEPatchEL03D_V02},                                               //  7,  1,  131 : implemented holding voltage tuner
+    {DeviceVersionEpatch, DeviceSubversionEl03D, 130, DeviceEPatchEL03D_V01},                                               //  7,  1,  130 : implemented trigger digital outputs
+    {DeviceVersionEpatch, DeviceSubversionEl03D, 129, DeviceEPatchEL03D_V00},                                               //  7,  1,  129 : reduction of SPI noise
+    {DeviceVersionEpatch, DeviceSubversionEl03D, 128, DeviceEPatchEL03D_V00},                                               //  7,  1,  128 : first version
+    {DeviceVersionEpatch, 2, 0, DeviceEPatchEL03D_V00},                                                                     //  7,  2,  0   : first version (legacy, to be removed)
     /*! ePatch EL03F-4D */
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV03, 140, DeviceEPatchEL03F_4D_PCBV03_V04},                       //  7,  5,  140 : digital repetitive trigger
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV03, 138, DeviceEPatchEL03F_4D_PCBV03_V03},                       //  7,  5,  138 : increased digital triggers to 84
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV03, 136, DeviceEPatchEL03F_4D_PCBV03_V02},                       //  7,  5,  136 : Slave/Master configurability
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 139, DeviceEPatchEL03F_4D_PCBV02_V04},                       //  7,  2,  139 : digital repetitive trigger
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 137, DeviceEPatchEL03F_4D_PCBV02_V03},                       //  7,  2,  137 : increased digital triggers to 84
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 135, DeviceEPatchEL03F_4D_PCBV02_V02},                       //  7,  5,  135 : improved current clamp noise at low sampling rates
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 135, DeviceEPatchEL03F_4D_PCBV02_V02},                       //  7,  2,  135 : improved current clamp noise at low sampling rates
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 134, DeviceEPatchEL03F_4D_PCBV02_V02},                       //  7,  2,  134 : implemented holding voltage and current tuner
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 133, DeviceEPatchEL03F_4D_PCBV02_V01},                       //  7,  2,  133 : implemented trigger digital outputs
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV03, 140, DeviceEPatchEL03F_4D_PCBV03_V04},                           //  7,  5,  140 : digital repetitive trigger
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV03, 138, DeviceEPatchEL03F_4D_PCBV03_V03},                           //  7,  5,  138 : increased digital triggers to 84
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV03, 136, DeviceEPatchEL03F_4D_PCBV03_V02},                           //  7,  5,  136 : Slave/Master configurability
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 139, DeviceEPatchEL03F_4D_PCBV02_V04},                           //  7,  2,  139 : digital repetitive trigger
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 137, DeviceEPatchEL03F_4D_PCBV02_V03},                           //  7,  2,  137 : increased digital triggers to 84
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 135, DeviceEPatchEL03F_4D_PCBV02_V02},                           //  7,  5,  135 : improved current clamp noise at low sampling rates
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 135, DeviceEPatchEL03F_4D_PCBV02_V02},                           //  7,  2,  135 : improved current clamp noise at low sampling rates
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 134, DeviceEPatchEL03F_4D_PCBV02_V02},                           //  7,  2,  134 : implemented holding voltage and current tuner
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4D_PCBV02, 133, DeviceEPatchEL03F_4D_PCBV02_V01},                           //  7,  2,  133 : implemented trigger digital outputs
     /*! ePatch EL03F-4E */
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV03, 137, DeviceEPatchEL03F_4E_PCBV03_V04},                       //  7,  6,  137 : digital repetitive trigger
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV03, 135, DeviceEPatchEL03F_4E_PCBV03_V03},                       //  7,  6,  135 : increased digital triggers to 84
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV03, 133, DeviceEPatchEL03F_4E_PCBV03_V02},                       //  7,  6,  133 : Slave/Master configurability
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 136, DeviceEPatchEL03F_4E_PCBV02_V04},                       //  7,  3,  136 : digital repetitive trigger
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 134, DeviceEPatchEL03F_4E_PCBV02_V03},                       //  7,  3,  134 : increased digital triggers to 84
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 132, DeviceEPatchEL03F_4E_PCBV02_V02},                       //  7,  6,  132 : improved current clamp noise at low sampling rates
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 132, DeviceEPatchEL03F_4E_PCBV02_V02},                       //  7,  3,  132 : improved current clamp noise at low sampling rates
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 131, DeviceEPatchEL03F_4E_PCBV02_V02},                       //  7,  3,  131 : implemented holding voltage and current tuner
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 130, DeviceEPatchEL03F_4E_PCBV02_V01},                       //  7,  3,  130 : implemented trigger digital outputs
-    {DeviceVersionPrototype, DeviceSubversionProtoEl03F_4E, 129, DeviceEPatchEL03F_4E_PCBV02_V00},                      //  254,10, 129 : VC-CC prototype 2 chips (EL03F, EL04E) (legacy, to be removed)
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV03, 137, DeviceEPatchEL03F_4E_PCBV03_V04},                           //  7,  6,  137 : digital repetitive trigger
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV03, 135, DeviceEPatchEL03F_4E_PCBV03_V03},                           //  7,  6,  135 : increased digital triggers to 84
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV03, 133, DeviceEPatchEL03F_4E_PCBV03_V02},                           //  7,  6,  133 : Slave/Master configurability
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 136, DeviceEPatchEL03F_4E_PCBV02_V04},                           //  7,  3,  136 : digital repetitive trigger
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 134, DeviceEPatchEL03F_4E_PCBV02_V03},                           //  7,  3,  134 : increased digital triggers to 84
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 132, DeviceEPatchEL03F_4E_PCBV02_V02},                           //  7,  6,  132 : improved current clamp noise at low sampling rates
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 132, DeviceEPatchEL03F_4E_PCBV02_V02},                           //  7,  3,  132 : improved current clamp noise at low sampling rates
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 131, DeviceEPatchEL03F_4E_PCBV02_V02},                           //  7,  3,  131 : implemented holding voltage and current tuner
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4E_PCBV02, 130, DeviceEPatchEL03F_4E_PCBV02_V01},                           //  7,  3,  130 : implemented trigger digital outputs
+    {DeviceVersionPrototype, DeviceSubversionProtoEl03F_4E, 129, DeviceEPatchEL03F_4E_PCBV02_V00},                          //  254,10, 129 : VC-CC prototype 2 chips (EL03F, EL04E) (legacy, to be removed)
     /*! ePatch EL03F-4F */
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV01_AnalogOut, 129, DeviceEPatchEL03F_4F_PCBV01_AnalogOut},       //  7,  9,  129 : added analog output.
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV03, 130, DeviceEPatchEL03F_4F_PCBV03_V04},                       //  7,  8,  130 : digital repetitive trigger
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV02, 131, DeviceEPatchEL03F_4F_PCBV02_V04},                       //  7, 10,  131 : digital repetitive trigger
-    {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV03, 129, DeviceEPatchEL03F_4F_PCBV03_V03},                       //  7,  8,  129 : increased digital triggers to 84
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV01_AnalogOut, 129, DeviceEPatchEL03F_4F_PCBV01_AnalogOut},           //  7,  9,  129 : added analog output.
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV03, 130, DeviceEPatchEL03F_4F_PCBV03_V04},                           //  7,  8,  130 : digital repetitive trigger
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV02, 131, DeviceEPatchEL03F_4F_PCBV02_V04},                           //  7, 10,  131 : digital repetitive trigger
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV03, 129, DeviceEPatchEL03F_4F_PCBV03_V03},                           //  7,  8,  129 : increased digital triggers to 84
     /*! ePatch EL04E */
-    {DeviceVersionPrototype, DeviceSubversionProtoEl04E, 128, DeviceEPatchEL04E},                                       //  254,9,  128 : VC-CC prototype 1 chip (EL04E)
+    {DeviceVersionPrototype, DeviceSubversionProtoEl04E, 128, DeviceEPatchEL04E},                                           //  254,9,  128 : VC-CC prototype 1 chip (EL04E)
     /*! ePatch EL04F */
-    {DeviceVersionEpatch, DeviceSubversionEl04F, 129, DeviceEPatchEL04F},                                               //  7,  4,  129 : VC-CC device with 1 chip (EL04F)
-    {DeviceVersionEpatch, DeviceSubversionEl04F, 131, DeviceEPatchEL04F},                                               //  7,  4,  131 : VC-CC device with 1 chip (EL04F)
+    {DeviceVersionEpatch, DeviceSubversionEl04F, 129, DeviceEPatchEL04F},                                                   //  7,  4,  129 : VC-CC device with 1 chip (EL04F)
+    {DeviceVersionEpatch, DeviceSubversionEl04F, 131, DeviceEPatchEL04F},                                                   //  7,  4,  131 : VC-CC device with 1 chip (EL04F)
     /*! e4P EL04F */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx4, 135, DeviceE4PEL04F},                                                   //  10, 1,  135 : VC-CC device with 4 channels (EL04F)
-    {DeviceVersionE4p, DeviceSubversionEl04Fx4PatchLiner, 134, DeviceE4PPatchLiner},                                    //  10, 2,  134 : VC-CC device with 4 channels (EL04F) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx4PatchLiner, 135, DeviceE4PPatchLiner},                                    //  10, 2,  135 : VC-CC device with 4 channels (EL04F) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 129, DeviceE8PPatchLiner},                                    //  10, 3,  129 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 135, DeviceE8PPatchLiner},                                    //  10, 3,  135 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp both in voltage and current clamp. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 134, DeviceE8PPatchLiner},                                    //  10, 3,  134 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp, only in current clamp (worked only in voltage clamp before). */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 133, DeviceE8PPatchLiner},                                    //  10, 3,  133 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp, fixed sampling of DC output. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 132, DeviceE8PPatchLiner},                                    //  10, 3,  132 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 131, DeviceE8PPatchLiner},                                    //  10, 3,  131 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner fix on digital pins mapping. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 130, DeviceE8PPatchLiner},                                    //  10, 3,  130 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 129, DeviceE8PPatchLiner},                                    //  10, 3,  129 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx4PatchLiner, 129, DeviceE4PPatchLinerEL07AB},                             //  10, 5,  129 : VC-CC device with 4 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 136, DeviceE8PPatchLinerEL07AB},                             //  10, 6,  136 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 135, DeviceE8PPatchLinerEL07AB},                             //  10, 6,  135 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 134, DeviceE8PPatchLinerEL07AB},                             //  10, 6,  134 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 133, DeviceE8PPatchLinerEL07AB},                             //  10, 6,  133 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 132, DeviceE8PPatchLinerEL07AB},                             //  10, 6,  132 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 131, DeviceE8PPatchLinerEL07AB},                             //  10, 6,  131 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 130, DeviceE8PPatchLinerEL07AB},                             //  10, 6,  130 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 129, DeviceE8PPatchLinerEL07AB},                             //  10, 6,  129 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV01, 129, DeviceE8PPatchLinerEL07AB_artix7_PCBV01}, //  10, 8,  129 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner (FPGA artix7) PCB V01. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV02, 129, DeviceE8PPatchLinerEL07AB_artix7_PCBV02}, //  10,10,  129 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner (FPGA artix7) PCB V02. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx4, 135, DeviceE4PEL04F},                                                       //  10, 1,  135 : VC-CC device with 4 channels (EL04F)
+    {DeviceVersionE4p, DeviceSubversionEl04Fx4PatchLiner, 134, DeviceE4PPatchLiner},                                        //  10, 2,  134 : VC-CC device with 4 channels (EL04F) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx4PatchLiner, 135, DeviceE4PPatchLiner},                                        //  10, 2,  135 : VC-CC device with 4 channels (EL04F) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 129, DeviceE8PPatchLiner},                                        //  10, 3,  129 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 135, DeviceE8PPatchLiner},                                        //  10, 3,  135 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp both in voltage and current clamp. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 134, DeviceE8PPatchLiner},                                        //  10, 3,  134 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp, only in current clamp (worked only in voltage clamp before). */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 133, DeviceE8PPatchLiner},                                        //  10, 3,  133 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp, fixed sampling of DC output. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 132, DeviceE8PPatchLiner},                                        //  10, 3,  132 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 131, DeviceE8PPatchLiner},                                        //  10, 3,  131 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner fix on digital pins mapping. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 130, DeviceE8PPatchLiner},                                        //  10, 3,  130 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 129, DeviceE8PPatchLiner},                                        //  10, 3,  129 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx4PatchLiner, 129, DeviceE4PPatchLinerEL07AB},                                 //  10, 5,  129 : VC-CC device with 4 channels (EL07AB) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 136, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  136 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 135, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  135 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 134, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  134 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 133, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  133 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 132, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  132 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 131, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  131 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 130, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  130 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 129, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  129 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV02, 131, DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02}, //  10,10,  131 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner (FPGA artix7) PCB V02. increased protocol items to 256. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV02, 129, DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V01}, //  10,10,  129 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner (FPGA artix7) PCB V02. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV01, 129, DeviceE8PPatchLinerEL07AB_artix7_PCBV01},     //  10, 8,  129 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner (FPGA artix7) PCB V01. */
     /*! Test boards */
-    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04d, 129, DeviceEPatchEL04E},                                   //  6,  9,  129 : test board for EL04d chips (only current clamp works)
-    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04e, 129, DeviceEPatchEL04E},                                   //  6, 10,  129 : test board for EL04e chips
-    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 131, DeviceEPatchEL04F},                                   //  6, 11,  131 : test board for EL04f chips
-    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 129, DeviceEPatchEL04F},                                   //  6, 11,  129 : test board for EL04f chips
+    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04d, 129, DeviceEPatchEL04E},                                       //  6,  9,  129 : test board for EL04d chips (only current clamp works)
+    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04e, 129, DeviceEPatchEL04E},                                       //  6, 10,  129 : test board for EL04e chips
+    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 131, DeviceEPatchEL04F},                                       //  6, 11,  131 : test board for EL04f chips
+    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 129, DeviceEPatchEL04F},                                       //  6, 11,  129 : test board for EL04f chips
     /*! ePatch fake */
-    {DeviceVersionDemo, DeviceSubversionDemo, 129, DeviceFakePatch},                                                    //  253,1,  129 : fake patch
+    {DeviceVersionDemo, DeviceSubversionDemo, 129, DeviceFakePatch},                                                        //  253,1,  129 : fake patch
     /*! eP4 fake */
-    {DeviceVersionDemo, DeviceSubversionDemox8, 129, DeviceFakeP8}                                                      //  253,2,  129 : fake patch 8 channels
+    {DeviceVersionDemo, DeviceSubversionDemox8, 129, DeviceFakeP8}                                                          //  253,2,  129 : fake patch 8 channels
 };
 
 EZPatchFtdiDevice::EZPatchFtdiDevice(std::string deviceId) :
@@ -392,8 +393,12 @@ ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispa
         messageDispatcher = new EZPatche8PPatchliner_el07ab_artix7_PCBV01(deviceId);
         break;
 
-    case DeviceE8PPatchLinerEL07AB_artix7_PCBV02:
-        messageDispatcher = new EZPatche8PPatchliner_el07ab_artix7_PCBV02(deviceId);
+    case DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02:
+        messageDispatcher = new EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02(deviceId);
+        break;
+
+    case DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V01:
+        messageDispatcher = new EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01(deviceId);
         break;
 
 #ifdef DEBUG

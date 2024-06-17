@@ -1387,12 +1387,22 @@ EZPatche8PPatchliner_el07ab_artix7_PCBV01::~EZPatche8PPatchliner_el07ab_artix7_P
 
 }
 
-EZPatche8PPatchliner_el07ab_artix7_PCBV02::EZPatche8PPatchliner_el07ab_artix7_PCBV02(std::string di) :
+EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01::EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01(std::string di) :
     EZPatche8PPatchliner_el07ab_artix7_PCBV01(di) {
 
     fpgaLoadType = FpgaFwLoadAutomatic;
 }
 
-EZPatche8PPatchliner_el07ab_artix7_PCBV02::~EZPatche8PPatchliner_el07ab_artix7_PCBV02() {
+EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01::~EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01() {
+
+}
+
+EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02::EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02(std::string di) :
+    EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01(di) {
+
+    protocolMaxItemsNum = 255;
+}
+
+EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02::~EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02() {
 
 }

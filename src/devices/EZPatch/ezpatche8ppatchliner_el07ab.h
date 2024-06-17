@@ -366,10 +366,16 @@ public:
     virtual ~EZPatche8PPatchliner_el07ab_artix7_PCBV01();
 };
 
-class EZPatche8PPatchliner_el07ab_artix7_PCBV02 : public EZPatche8PPatchliner_el07ab_artix7_PCBV01 {
+class EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01 : public EZPatche8PPatchliner_el07ab_artix7_PCBV01 {
 public:
-    EZPatche8PPatchliner_el07ab_artix7_PCBV02(std::string di);
-    virtual ~EZPatche8PPatchliner_el07ab_artix7_PCBV02();
+    EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01(std::string di);
+    virtual ~EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01();
+};
+
+class EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02 : public EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01 {
+public:
+    EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02(std::string di);
+    virtual ~EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02();
 };
 
 #endif // EZPATCHE8PPATCHLINER_EL07AB_H
