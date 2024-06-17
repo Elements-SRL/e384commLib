@@ -1558,10 +1558,6 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
     txStatus[2] = 0x0070; // fans on by default
 }
 
-Emcr384PatchClamp_prot_v04_fw_v04::~Emcr384PatchClamp_prot_v04_fw_v04() {
-
-}
-
 ErrorCodes_t Emcr384PatchClamp_prot_v04_fw_v04::initializeHW() {
     std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
 

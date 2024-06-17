@@ -10,7 +10,6 @@ public:
     \*****************/
 
     EZPatchFakeP8(std::string di);
-    ~EZPatchFakeP8();
 
     virtual void createCommunicationThreads() override;
     virtual void joinCommunicationThreads() override;

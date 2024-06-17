@@ -784,10 +784,6 @@ EZPatche4PPatchliner_el07ab::EZPatche4PPatchliner_el07ab(std::string di) :
     samplingRate = realSamplingRatesArray[SamplingRate6_25kHz];
 }
 
-EZPatche4PPatchliner_el07ab::~EZPatche4PPatchliner_el07ab() {
-
-}
-
 ErrorCodes_t EZPatche4PPatchliner_el07ab::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
     ErrorCodes_t ret;
 

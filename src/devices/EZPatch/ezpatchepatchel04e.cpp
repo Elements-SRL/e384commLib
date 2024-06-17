@@ -677,10 +677,6 @@ EZPatchePatchEL04E::EZPatchePatchEL04E(std::string di) :
     samplingRate = realSamplingRatesArray[SamplingRate1_25kHz];
 }
 
-EZPatchePatchEL04E::~EZPatchePatchEL04E() {
-
-}
-
 ErrorCodes_t EZPatchePatchEL04E::setResistancePredictionOptions(uint16_t optionIdx) {
     if (optionIdx < resistancePredictionOptions.size()) {
         if (optionIdx == 0) {

@@ -6,7 +6,6 @@
 class EZPatchePatchEL04E : public EZPatchFtdiDevice {
 public:
     EZPatchePatchEL04E(std::string di);
-    virtual ~EZPatchePatchEL04E();
 
     ErrorCodes_t setResistancePredictionOptions(uint16_t optionIdx) override;
     ErrorCodes_t getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) override;

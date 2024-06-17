@@ -6,7 +6,6 @@
 class EZPatche4PPatchliner : public EZPatchFtdiDevice {
 public:
     EZPatche4PPatchliner(std::string di);
-    virtual ~EZPatche4PPatchliner();
 
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 

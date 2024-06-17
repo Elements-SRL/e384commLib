@@ -722,10 +722,6 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-Emcr384NanoPores_V01::~Emcr384NanoPores_V01() {
-
-}
-
 ErrorCodes_t Emcr384NanoPores_V01::initializeHW() {
     minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stackOutgoingMessage(txStatus);

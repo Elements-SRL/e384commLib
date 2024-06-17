@@ -19,7 +19,6 @@ public:
     } InfoStruct_t;
 
     UdbProgrammer();
-    ~UdbProgrammer();
 
     void connect(int idx, bool flag);
     void getDeviceInfo(InfoStruct_t &info);

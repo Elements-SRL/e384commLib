@@ -24,10 +24,6 @@ Emcr4x10MHzFake::Emcr4x10MHzFake(std::string id) :
     integrationStepArray[SamplingRate1MHz].unit = "s";
 }
 
-Emcr4x10MHzFake::~Emcr4x10MHzFake() {
-
-}
-
 ErrorCodes_t Emcr4x10MHzFake::startCommunication(std::string fwPath) {
     /*! Nothing to be done */
     return Success;

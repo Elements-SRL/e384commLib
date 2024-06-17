@@ -6,7 +6,6 @@
 class EZPatchePatchEL04F : public EZPatchFtdiDevice {
 public:
     EZPatchePatchEL04F(std::string di);
-    virtual ~EZPatchePatchEL04F();
 
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 

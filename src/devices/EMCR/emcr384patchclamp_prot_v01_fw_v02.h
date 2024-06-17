@@ -6,7 +6,6 @@
 class Emcr384PatchClamp_prot_v01_fw_v02 : public EmcrOpalKellyDevice {
 public:
     Emcr384PatchClamp_prot_v01_fw_v02(std::string di);
-    virtual ~Emcr384PatchClamp_prot_v01_fw_v02();
 
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes_t type ,std::vector <std::string> &compOptionsArray) override;
     virtual ErrorCodes_t getCompensationEnables(std::vector<uint16_t> channelIndexes, uint16_t compTypeToEnable, std::vector<bool> &onValues) override;

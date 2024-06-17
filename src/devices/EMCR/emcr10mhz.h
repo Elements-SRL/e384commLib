@@ -6,7 +6,6 @@
 class Emcr10MHz_V01 : public EmcrUdbDevice {
 public:
     Emcr10MHz_V01(std::string di);
-    virtual ~Emcr10MHz_V01();
 
 protected:
     enum ClampingModalities {

@@ -6,7 +6,6 @@
 class FtdiEepromDemo : public FtdiEeprom {
 public:
     FtdiEepromDemo(std::string deviceId);
-    ~FtdiEepromDemo();
 
     ErrorCodes_t openConnection(char channel = 'A') override;
     ErrorCodes_t closeConnection() override;

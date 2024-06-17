@@ -6,10 +6,6 @@ FtdiEeprom56::FtdiEeprom56(std::string deviceId) :
     this->loadData();
 }
 
-FtdiEeprom56::~FtdiEeprom56() {
-
-}
-
 ErrorCodes_t FtdiEeprom56::loadData() {
     ErrorCodes_t ret;
     ret = this->openConnection();

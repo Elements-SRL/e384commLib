@@ -74,8 +74,3 @@ Emcr384NanoPores_SR7p5kHz_V01::Emcr384NanoPores_SR7p5kHz_V01(std::string di):
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 }
-
-Emcr384NanoPores_SR7p5kHz_V01::~Emcr384NanoPores_SR7p5kHz_V01() {
-
-}
-

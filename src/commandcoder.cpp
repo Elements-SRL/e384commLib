@@ -19,10 +19,6 @@ CommandCoder::CommandCoder(uint16_t initialWord, uint16_t initialBit, uint16_t b
     }
 }
 
-CommandCoder::~CommandCoder() {
-
-}
-
 void CommandCoder::encodeUint(uint32_t uintValue, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
     if (startingWord > initialWord) {
         startingWord = initialWord;
@@ -45,16 +41,8 @@ BoolCoder::BoolCoder(CoderConfig_t config) :
 
 }
 
-BoolCoder::~BoolCoder() {
-
-}
-
 BoolArrayCoder::BoolArrayCoder(CoderConfig_t config) :
     BoolCoder(config) {
-
-}
-
-BoolArrayCoder::~BoolArrayCoder() {
 
 }
 
@@ -67,10 +55,6 @@ BoolNegatedArrayCoder::BoolNegatedArrayCoder(CoderConfig_t config) :
 
 }
 
-BoolNegatedArrayCoder::~BoolNegatedArrayCoder() {
-
-}
-
 void BoolNegatedArrayCoder::encode(uint32_t value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
     this->encodeUint(~value, encodingWords, startingWord, endingWord);
 }
@@ -80,10 +64,6 @@ BoolRandomArrayCoder::BoolRandomArrayCoder(CoderConfig_t config) :
 
     tos.resize(0);
     toNum = 0;
-}
-
-BoolRandomArrayCoder::~BoolRandomArrayCoder() {
-
 }
 
 void BoolRandomArrayCoder::encode(uint32_t value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
@@ -104,10 +84,6 @@ uint32_t BoolRandomArrayCoder::map(uint32_t from) {
 
 BoolOneHotCoder::BoolOneHotCoder(CoderConfig_t config) :
     BoolCoder(config) {
-
-}
-
-BoolOneHotCoder::~BoolOneHotCoder() {
 
 }
 
@@ -135,20 +111,12 @@ DoubleCoder::DoubleCoder(CoderConfig_t config) :
     }
 }
 
-DoubleCoder::~DoubleCoder() {
-
-}
-
 double DoubleCoder::clip(double value) {
     return (value > maxValue ? maxValue : (value < minValue ? minValue : value));
 }
 
 DoubleTwosCompCoder::DoubleTwosCompCoder(CoderConfig_t config) :
     DoubleCoder(config) {
-
-}
-
-DoubleTwosCompCoder::~DoubleTwosCompCoder() {
 
 }
 
@@ -172,10 +140,6 @@ DoubleOffsetBinaryCoder::DoubleOffsetBinaryCoder(CoderConfig_t config) :
 
 }
 
-DoubleOffsetBinaryCoder::~DoubleOffsetBinaryCoder() {
-
-}
-
 double DoubleOffsetBinaryCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
     if (!invertedScale) {
         value = this->clip(value);
@@ -193,10 +157,6 @@ double DoubleOffsetBinaryCoder::encode(double value, std::vector <uint16_t> &enc
 
 DoubleSignAbsCoder::DoubleSignAbsCoder(CoderConfig_t config) :
     DoubleCoder(config) {
-
-}
-
-DoubleSignAbsCoder::~DoubleSignAbsCoder() {
 
 }
 
@@ -230,10 +190,6 @@ double DoubleSignAbsCoder::encode(double value, std::vector <uint16_t> &encoding
 FloatCoder::FloatCoder(CoderConfig_t config) :
     CommandCoder(config.initialWord, config.initialBit, 32),
     config(config) {
-
-}
-
-FloatCoder::~FloatCoder() {
 
 }
 

@@ -74,10 +74,6 @@ EZPatchePatchEL03F_4E_PCBV02_V00::EZPatchePatchEL03F_4E_PCBV02_V00(std::string d
     availableVoltageSourcesIdxsArray[0] = ChannelSourceVoltageFromCurrentClamp;
 }
 
-EZPatchePatchEL03F_4E_PCBV02_V00::~EZPatchePatchEL03F_4E_PCBV02_V00() {
-
-}
-
 void EZPatchePatchEL03F_4E_PCBV02_V00::selectChannelsResolutions() {
     if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
         rawDataFilterCurrentFlag = true;

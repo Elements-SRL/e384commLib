@@ -41,7 +41,6 @@ public:
 class EZPatchePatchEL03F_4E_PCBV02_V00 : public EZPatchePatchEL03F_4D_PCBV02_V01 {
 public:
     EZPatchePatchEL03F_4E_PCBV02_V00(std::string di);
-    virtual ~EZPatchePatchEL03F_4E_PCBV02_V00();
 
 protected:
     void selectChannelsResolutions() override;

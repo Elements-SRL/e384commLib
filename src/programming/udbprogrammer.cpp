@@ -9,10 +9,6 @@ UdbProgrammer::UdbProgrammer() {
 
 }
 
-UdbProgrammer::~UdbProgrammer() {
-
-}
-
 void UdbProgrammer::connect(int idx, bool flag) {
     if (flag) {
         CCyFX3Device bootDev;

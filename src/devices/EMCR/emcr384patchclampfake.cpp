@@ -25,10 +25,6 @@ Emcr384FakePatchClamp::Emcr384FakePatchClamp(std::string id) :
     integrationStepArray[SamplingRate6kHz].unit = "s";
 }
 
-Emcr384FakePatchClamp::~Emcr384FakePatchClamp() {
-
-}
-
 ErrorCodes_t Emcr384FakePatchClamp::startCommunication(std::string fwPath) {
     /*! Nothing to be done */
     return Success;

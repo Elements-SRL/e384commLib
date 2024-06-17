@@ -6,7 +6,6 @@
 class Emcr384FakePatchClamp: public Emcr384PatchClamp_prot_v04_fw_v04 {
 public:
     Emcr384FakePatchClamp(std::string id);
-    virtual ~Emcr384FakePatchClamp();
 
 protected:
 

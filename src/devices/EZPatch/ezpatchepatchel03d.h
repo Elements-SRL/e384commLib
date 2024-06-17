@@ -7,8 +7,6 @@ class EZPatchePatchEL03D_V04 : public EZPatchFtdiDevice {
 public:
     EZPatchePatchEL03D_V04(std::string di);
 
-    virtual ~EZPatchePatchEL03D_V04();
-
     ErrorCodes_t setChannelsSources(int16_t voltageSourcesIdxs, int16_t currentSourcesIdxs) override;
     virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
 
@@ -255,36 +253,26 @@ protected:
 class EZPatchePatchEL03D_V03 : public EZPatchePatchEL03D_V04 {
 public:
     EZPatchePatchEL03D_V03(std::string di);
-
-    virtual ~EZPatchePatchEL03D_V03();
 };
 
 class EZPatchePatchEL03D_V02 : public EZPatchePatchEL03D_V03 {
 public:
     EZPatchePatchEL03D_V02(std::string di);
-
-    virtual ~EZPatchePatchEL03D_V02();
 };
 
 class EZPatchePatchEL03D_V01 : public EZPatchePatchEL03D_V02 {
 public:
     EZPatchePatchEL03D_V01(std::string di);
-
-    virtual ~EZPatchePatchEL03D_V01();
 };
 
 class EZPatchePatchEL03D_V00 : public EZPatchePatchEL03D_V01 {
 public:
     EZPatchePatchEL03D_V00(std::string di);
-
-    virtual ~EZPatchePatchEL03D_V00();
 };
 
 class EZPatchePatchDlp : public EZPatchePatchEL03D_V03 {
 public:
     EZPatchePatchDlp(std::string di);
-
-    virtual ~EZPatchePatchDlp();
 };
 
 #endif // EZPATCHEPATCHEL03D_H

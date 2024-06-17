@@ -546,7 +546,3 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     txStatus[256] = 0x0400; /*! current gain 1 */
     txStatus[258] = 0x0400; /*! voltage gain 1 */
 }
-
-Emcr10MHz_V01::~Emcr10MHz_V01() {
-
-}

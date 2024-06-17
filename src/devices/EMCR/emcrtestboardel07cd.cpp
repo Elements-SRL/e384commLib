@@ -2438,3 +2438,9 @@ ErrorCodes_t EmcrTestBoardEl07c::getCompensationControl(CompensationUserParams_t
         return ErrorFeatureNotImplemented;
     }
 }
+
+EmcrTestBoardEl07d::EmcrTestBoardEl07d(std::string di) :
+    EmcrTestBoardEl07c(di) {
+
+    fwName = "TB_ELO7d_V01.bit";
+}

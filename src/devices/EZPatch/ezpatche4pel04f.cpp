@@ -857,10 +857,6 @@ EZPatche4PEL04F::EZPatche4PEL04F(std::string di) :
     samplingRate = realSamplingRatesArray[SamplingRate1_25kHz];
 }
 
-EZPatche4PEL04F::~EZPatche4PEL04F() {
-
-}
-
 ErrorCodes_t EZPatche4PEL04F::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
     ErrorCodes_t ret;
 

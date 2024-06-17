@@ -76,10 +76,6 @@ EZPatchFakeP8::EZPatchFakeP8(std::string di) :
     ledsColorsArray.resize(ledsNum);
 }
 
-EZPatchFakeP8::~EZPatchFakeP8() {
-
-}
-
 /************************\
  *  Connection methods  *
 \************************/

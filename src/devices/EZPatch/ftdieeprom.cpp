@@ -9,10 +9,6 @@ FtdiEeprom::FtdiEeprom(std::string deviceId) :
 
 }
 
-FtdiEeprom::~FtdiEeprom() {
-
-}
-
 FtdiEepromId_t FtdiEeprom::getFtdiEepromId(std::string deviceId) {
     if (deviceId == "ePatch Demo") {
         return FtdiEepromIdDemo;

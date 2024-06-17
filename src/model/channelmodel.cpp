@@ -4,10 +4,6 @@ ChannelModel::ChannelModel() {
 
 }
 
-ChannelModel::~ChannelModel(){
-
-}
-
 uint16_t ChannelModel::getId(){
     return this->id;
 }

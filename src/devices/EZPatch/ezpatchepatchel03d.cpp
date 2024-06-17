@@ -450,10 +450,6 @@ EZPatchePatchEL03D_V04::EZPatchePatchEL03D_V04(std::string di) :
     samplingRate = realSamplingRatesArray[SamplingRate1_25kHz];
 }
 
-EZPatchePatchEL03D_V04::~EZPatchePatchEL03D_V04() {
-
-}
-
 ErrorCodes_t EZPatchePatchEL03D_V04::setChannelsSources(int16_t, int16_t) {
     return ErrorFeatureNotImplemented;
 }
@@ -716,20 +712,12 @@ EZPatchePatchEL03D_V03::EZPatchePatchEL03D_V03(std::string di) :
     repetitiveTriggerAvailableFlag = false;
 }
 
-EZPatchePatchEL03D_V03::~EZPatchePatchEL03D_V03() {
-
-}
-
 EZPatchePatchEL03D_V02::EZPatchePatchEL03D_V02(std::string di) :
     EZPatchePatchEL03D_V03(di) {
     upgradeNotes += "- Increased maximum amout of output trigger events\n";
     notificationTag = deviceName + "_V02";
 
     maxDigitalTriggerOutputEvents = 21;
-}
-
-EZPatchePatchEL03D_V02::~EZPatchePatchEL03D_V02() {
-
 }
 
 EZPatchePatchEL03D_V01::EZPatchePatchEL03D_V01(std::string di) :
@@ -740,10 +728,6 @@ EZPatchePatchEL03D_V01::EZPatchePatchEL03D_V01(std::string di) :
     voltageHoldTunerImplemented = false;
 }
 
-EZPatchePatchEL03D_V01::~EZPatchePatchEL03D_V01() {
-
-}
-
 EZPatchePatchEL03D_V00::EZPatchePatchEL03D_V00(std::string di) :
     EZPatchePatchEL03D_V01(di) {
     upgradeNotes += "- Implemented programmable digital output\n";
@@ -752,17 +736,9 @@ EZPatchePatchEL03D_V00::EZPatchePatchEL03D_V00(std::string di) :
     maxDigitalTriggerOutputEvents = 1;
 }
 
-EZPatchePatchEL03D_V00::~EZPatchePatchEL03D_V00() {
-
-}
-
 EZPatchePatchDlp::EZPatchePatchDlp(std::string di) :
     EZPatchePatchEL03D_V03(di) {
     spiChannel = 'B';
     rxChannel = 'A';
     txChannel = 'A';
-}
-
-EZPatchePatchDlp::~EZPatchePatchDlp() {
-
 }

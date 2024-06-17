@@ -6,7 +6,6 @@
 class EZPatchePatchEL03F_4D_PCBV03_V04 : public EZPatchFtdiDevice {
 public:
     EZPatchePatchEL03F_4D_PCBV03_V04(std::string di);
-    virtual ~EZPatchePatchEL03F_4D_PCBV03_V04();
 
     ErrorCodes_t setResistancePredictionOptions(uint16_t optionIdx) override;
 
@@ -284,43 +283,31 @@ protected:
 class EZPatchePatchEL03F_4D_PCBV03_V03 : public EZPatchePatchEL03F_4D_PCBV03_V04 {
 public:
     EZPatchePatchEL03F_4D_PCBV03_V03(std::string di);
-
-    virtual ~EZPatchePatchEL03F_4D_PCBV03_V03();
 };
 
 class EZPatchePatchEL03F_4D_PCBV03_V02 : public EZPatchePatchEL03F_4D_PCBV03_V03 {
 public:
     EZPatchePatchEL03F_4D_PCBV03_V02(std::string di);
-
-    virtual ~EZPatchePatchEL03F_4D_PCBV03_V02();
 };
 
 class EZPatchePatchEL03F_4D_PCBV02_V04 : public EZPatchePatchEL03F_4D_PCBV03_V04 {
 public:
     EZPatchePatchEL03F_4D_PCBV02_V04(std::string di);
-
-    virtual ~EZPatchePatchEL03F_4D_PCBV02_V04();
 };
 
 class EZPatchePatchEL03F_4D_PCBV02_V03 : public EZPatchePatchEL03F_4D_PCBV03_V03 {
 public:
     EZPatchePatchEL03F_4D_PCBV02_V03(std::string di);
-
-    virtual ~EZPatchePatchEL03F_4D_PCBV02_V03();
 };
 
 class EZPatchePatchEL03F_4D_PCBV02_V02 : public EZPatchePatchEL03F_4D_PCBV03_V02 {
 public:
     EZPatchePatchEL03F_4D_PCBV02_V02(std::string di);
-
-    virtual ~EZPatchePatchEL03F_4D_PCBV02_V02();
 };
 
 class EZPatchePatchEL03F_4D_PCBV02_V01 : public EZPatchePatchEL03F_4D_PCBV02_V02 {
 public:
     EZPatchePatchEL03F_4D_PCBV02_V01(std::string di);
-
-    virtual ~EZPatchePatchEL03F_4D_PCBV02_V01();
 };
 
 #endif // EZPATCHEPATCHEL03F_4D_H

@@ -76,10 +76,6 @@ EZPatchFakePatch::EZPatchFakePatch(std::string di) :
     ledsColorsArray.resize(ledsNum);
 }
 
-EZPatchFakePatch::~EZPatchFakePatch() {
-
-}
-
 /************************\
  *  Connection methods  *
 \************************/

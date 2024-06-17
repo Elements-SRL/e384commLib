@@ -876,10 +876,6 @@ EZPatche8PPatchliner_el07ab::EZPatche8PPatchliner_el07ab(std::string di) :
     samplingRate = realSamplingRatesArray[SamplingRate6_25kHz];
 }
 
-EZPatche8PPatchliner_el07ab::~EZPatche8PPatchliner_el07ab() {
-
-}
-
 ErrorCodes_t EZPatche8PPatchliner_el07ab::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
     ErrorCodes_t ret;
 
@@ -1383,26 +1379,14 @@ EZPatche8PPatchliner_el07ab_artix7_PCBV01::EZPatche8PPatchliner_el07ab_artix7_PC
     fpgaLoadType = FpgaFwLoadPatchlinerArtix7_V01;
 }
 
-EZPatche8PPatchliner_el07ab_artix7_PCBV01::~EZPatche8PPatchliner_el07ab_artix7_PCBV01() {
-
-}
-
 EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01::EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01(std::string di) :
     EZPatche8PPatchliner_el07ab_artix7_PCBV01(di) {
 
     fpgaLoadType = FpgaFwLoadAutomatic;
 }
 
-EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01::~EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01() {
-
-}
-
 EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02::EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02(std::string di) :
     EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01(di) {
 
     protocolMaxItemsNum = 255;
-}
-
-EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02::~EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02() {
-
 }

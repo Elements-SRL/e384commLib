@@ -613,10 +613,6 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-Emcr2x10MHz_PCBV01_V01::~Emcr2x10MHz_PCBV01_V01() {
-
-}
-
 ErrorCodes_t Emcr2x10MHz_PCBV01_V01::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -651,10 +647,6 @@ Emcr2x10MHz_PCBV02_V01::Emcr2x10MHz_PCBV02_V01(std::string di) :
     Emcr2x10MHz_PCBV01_V01(di) {
 
     fwName = "2x10MHz_V08.bit";
-}
-
-Emcr2x10MHz_PCBV02_V01::~Emcr2x10MHz_PCBV02_V01() {
-
 }
 
 Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
@@ -1287,10 +1279,6 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-Emcr2x10MHz_PCBV01_V02::~Emcr2x10MHz_PCBV01_V02() {
-
-}
-
 ErrorCodes_t Emcr2x10MHz_PCBV01_V02::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1338,8 +1326,4 @@ Emcr2x10MHz_PCBV02_V02::Emcr2x10MHz_PCBV02_V02(std::string di) :
 
     /*! Voltage filter VC */
     vcVoltageFilterCoder = nullptr;
-}
-
-Emcr2x10MHz_PCBV02_V02::~Emcr2x10MHz_PCBV02_V02() {
-
 }

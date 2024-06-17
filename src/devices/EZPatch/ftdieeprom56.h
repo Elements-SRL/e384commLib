@@ -9,7 +9,6 @@
 class FtdiEeprom56 : public FtdiEeprom {
 public:
     FtdiEeprom56(std::string deviceId);
-    ~FtdiEeprom56();
 
 protected:
     /*! FtdiEeprom interface */

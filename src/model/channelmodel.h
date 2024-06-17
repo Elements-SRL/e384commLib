@@ -11,7 +11,6 @@ using namespace e384CommLib;
 class ChannelModel {
 public:
     ChannelModel();
-    ~ChannelModel();
 
     uint16_t getId();
     bool isOn();

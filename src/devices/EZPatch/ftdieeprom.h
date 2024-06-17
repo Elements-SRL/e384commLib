@@ -91,7 +91,6 @@ inline bool operator != (const DeviceTuple_t &a, const DeviceTuple_t &b) {
 class FtdiEeprom {
 public:
     FtdiEeprom(std::string deviceId);
-    virtual ~FtdiEeprom();
 
     static FtdiEepromId_t getFtdiEepromId(std::string deviceId);
     virtual ErrorCodes_t openConnection(char channel = 'A');

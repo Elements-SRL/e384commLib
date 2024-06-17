@@ -631,10 +631,6 @@ EZPatchePatchEL03F_4D_PCBV03_V04::EZPatchePatchEL03F_4D_PCBV03_V04(std::string d
     samplingRate = realSamplingRatesArray[SamplingRate1_25kHz];
 }
 
-EZPatchePatchEL03F_4D_PCBV03_V04::~EZPatchePatchEL03F_4D_PCBV03_V04() {
-
-}
-
 ErrorCodes_t EZPatchePatchEL03F_4D_PCBV03_V04::setResistancePredictionOptions(uint16_t optionIdx) {
     if (optionIdx < resistancePredictionOptions.size()) {
         if (optionIdx == 0) {
@@ -942,20 +938,12 @@ EZPatchePatchEL03F_4D_PCBV03_V03::EZPatchePatchEL03F_4D_PCBV03_V03(std::string d
     repetitiveTriggerAvailableFlag = false;
 }
 
-EZPatchePatchEL03F_4D_PCBV03_V03::~EZPatchePatchEL03F_4D_PCBV03_V03() {
-
-}
-
 EZPatchePatchEL03F_4D_PCBV03_V02::EZPatchePatchEL03F_4D_PCBV03_V02(std::string di) :
     EZPatchePatchEL03F_4D_PCBV03_V03(di) {
     upgradeNotes += "- Increased maximum amout of output trigger events\n";
     notificationTag = deviceName + "_PCBV03_V02";
 
     maxDigitalTriggerOutputEvents = 21;
-}
-
-EZPatchePatchEL03F_4D_PCBV03_V02::~EZPatchePatchEL03F_4D_PCBV03_V02() {
-
 }
 
 EZPatchePatchEL03F_4D_PCBV02_V04::EZPatchePatchEL03F_4D_PCBV02_V04(std::string di) :
@@ -966,20 +954,12 @@ EZPatchePatchEL03F_4D_PCBV02_V04::EZPatchePatchEL03F_4D_PCBV02_V04(std::string d
     slaveImplementedFlag = false;
 }
 
-EZPatchePatchEL03F_4D_PCBV02_V04::~EZPatchePatchEL03F_4D_PCBV02_V04() {
-
-}
-
 EZPatchePatchEL03F_4D_PCBV02_V03::EZPatchePatchEL03F_4D_PCBV02_V03(std::string di) :
     EZPatchePatchEL03F_4D_PCBV03_V03(di) {
 
     notificationTag = deviceName + "_PCBV02_V03";
 
     slaveImplementedFlag = false;
-}
-
-EZPatchePatchEL03F_4D_PCBV02_V03::~EZPatchePatchEL03F_4D_PCBV02_V03() {
-
 }
 
 EZPatchePatchEL03F_4D_PCBV02_V02::EZPatchePatchEL03F_4D_PCBV02_V02(std::string di) :
@@ -990,10 +970,6 @@ EZPatchePatchEL03F_4D_PCBV02_V02::EZPatchePatchEL03F_4D_PCBV02_V02(std::string d
     slaveImplementedFlag = false;
 }
 
-EZPatchePatchEL03F_4D_PCBV02_V02::~EZPatchePatchEL03F_4D_PCBV02_V02() {
-
-}
-
 EZPatchePatchEL03F_4D_PCBV02_V01::EZPatchePatchEL03F_4D_PCBV02_V01(std::string di) :
     EZPatchePatchEL03F_4D_PCBV02_V02(di) {
     upgradeNotes += "- Implemented holding voltage tuner\n";
@@ -1002,8 +978,4 @@ EZPatchePatchEL03F_4D_PCBV02_V01::EZPatchePatchEL03F_4D_PCBV02_V01(std::string d
 
     voltageHoldTunerImplemented = false;
     currentHoldTunerImplemented = false;
-}
-
-EZPatchePatchEL03F_4D_PCBV02_V01::~EZPatchePatchEL03F_4D_PCBV02_V01() {
-
 }

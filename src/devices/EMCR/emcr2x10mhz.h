@@ -6,7 +6,6 @@
 class Emcr2x10MHz_PCBV01_V01 : public EmcrOpalKellyDevice {
 public:
     Emcr2x10MHz_PCBV01_V01(std::string di);
-    virtual ~Emcr2x10MHz_PCBV01_V01();
 
 protected:
     enum ClampingModalities {
@@ -75,13 +74,11 @@ protected:
 class Emcr2x10MHz_PCBV02_V01 : public Emcr2x10MHz_PCBV01_V01 {
 public:
     Emcr2x10MHz_PCBV02_V01(std::string di);
-    virtual ~Emcr2x10MHz_PCBV02_V01();
 };
 
 class Emcr2x10MHz_PCBV01_V02 : public EmcrOpalKellyDevice {
 public:
     Emcr2x10MHz_PCBV01_V02(std::string di);
-    virtual ~Emcr2x10MHz_PCBV01_V02();
 
 protected:
     enum ClampingModalities {
@@ -150,7 +147,6 @@ protected:
 class Emcr2x10MHz_PCBV02_V02 : public Emcr2x10MHz_PCBV01_V02 {
 public:
     Emcr2x10MHz_PCBV02_V02(std::string di);
-    virtual ~Emcr2x10MHz_PCBV02_V02();
 
 protected:
     enum VCVoltageFilters {

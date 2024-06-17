@@ -6,7 +6,6 @@
 class Emcr384NanoPores_V01 : public EmcrOpalKellyDevice {
 public:
     Emcr384NanoPores_V01(std::string di);
-    virtual ~Emcr384NanoPores_V01();
 
 protected:
 
