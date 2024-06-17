@@ -1545,7 +1545,7 @@ ErrorCodes_t EmcrDevice::setSateArrayState(int stateIdx, Measurement_t voltage, 
     stateTimeoutFlagCoders[stateIdx]->encode(timeoutStateFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stateTriggerFlagCoders[stateIdx]->encode(triggerFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stateTriggerDeltaFlagCoders[stateIdx]->encode(deltaFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stateTimeoutValueCoders[stateIdx]->encode(timeout, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateTimeoutValueCoders[stateIdx]->encode(timeout.getNoPrefixValue(), txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stateTimeoutNextStateCoders[stateIdx]->encode(timeoutState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     minTriggerValue.convertValue(vcCurrentRangesArray[selectedVcCurrentRangeIdx].prefix);
     maxTriggerValue.convertValue(vcCurrentRangesArray[selectedVcCurrentRangeIdx].prefix);
