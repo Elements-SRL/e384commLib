@@ -3040,6 +3040,7 @@ void EZPatchDevice::deinitializeMemory() {
 void EZPatchDevice::deinitializeVariables() {
     /*! Nothing to be done */
     MessageDispatcher::deinitializeVariables();
+    this->deinitializeCalibration();
 }
 
 void EZPatchDevice::joinCommunicationThreads() {

@@ -567,6 +567,22 @@ ErrorCodes_t setCalibCcCurrentOffset(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+/*! \brief Write values on calibration eeprom.
+ *
+ * \param value [in] Values to be written.
+ * \param address [in] Addresses in the eeprom memory of the first byte to be written.
+ * \param size [in] Numbers of bytes to be written (max 4 if all the 32bits of argument value are used).
+ * \param vectorLength [in] Number of values to be written (it's the size of the arrays value, address and size)
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t writeCalibrationEeprom(
+        E384CL_ARGIN uint32_t * value,
+        E384CL_ARGIN uint32_t * address,
+        E384CL_ARGIN uint32_t * size,
+        E384CL_ARGIN uint32_t vectorLength);
+
 /*! \brief Set the gate voltage on a specific board.
  *
  * \param boardIndexesIn [in] Vector of Indexes for the boards to control.
@@ -2290,6 +2306,32 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getRsShuntConductanceCalibration(
         E384CL_ARGOUT LVecMeasHandle * meas);
+
+/*! \brief Get calibration eeprom size in bytes.
+ *
+ * \param size [out] Size of the calibration eeprom in bytes.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCalibrationEepromSize(
+        E384CL_ARGOUT uint32_t &size);
+
+/*! \brief Read values from calibration eeprom.
+ *
+ * \param value [out] Values to be read.
+ * \param address [in] Addresses in the eeprom memory of the first byte to be read.
+ * \param size [in] Numbers of bytes to be read (max 4 if the all the 32bits of argument value are used).
+ * \param vectorLength [in] Number of values to be written (it's the size of the arrays value, address and size).
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t readCalibrationEeprom(
+        E384CL_ARGOUT uint32_t * value,
+        E384CL_ARGIN uint32_t * address,
+        E384CL_ARGIN uint32_t * size,
+        E384CL_ARGIN uint32_t vectorLength);
 
 /*! \brief Set a debug bit
  *

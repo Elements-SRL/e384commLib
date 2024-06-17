@@ -33,7 +33,11 @@ public:
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
+    virtual ErrorCodes_t pauseConnection(bool pauseFlag);
     ErrorCodes_t disconnectDevice() override;
+    ErrorCodes_t getCalibrationEepromSize(uint32_t &size) override;
+    ErrorCodes_t writeCalibrationEeprom(std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size) override;
+    ErrorCodes_t readCalibrationEeprom(std::vector <uint32_t> &value, std::vector <uint32_t> address, std::vector <uint32_t> size) override;
 
 protected:
     typedef enum {
@@ -52,6 +56,8 @@ protected:
 
     virtual ErrorCodes_t startCommunication(std::string fwPath) override;
     virtual ErrorCodes_t stopCommunication() override;
+    virtual void initializeCalibration() override;
+    virtual void deinitializeCalibration() override;
 
     virtual void readAndParseMessages() override;
     virtual void unwrapAndSendMessages() override;
@@ -71,6 +77,7 @@ protected:
     \****************/
 
     FtdiEepromId_t ftdiEepromId = FtdiEepromId56;
+    CalibrationEeprom * calibrationEeprom = nullptr;
 
     char spiChannel;
     char rxChannel;

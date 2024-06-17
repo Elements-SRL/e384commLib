@@ -56,8 +56,6 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
-    src/devices/EMCR/emcrtestboardel07ab.cpp \
-    src/devices/EMCR/emcrtestboardel07cd.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
     src/devices/EMCR/emcropalkellydevice.cpp \
@@ -72,6 +70,8 @@ SOURCES += \
     src/devices/EMCR/emcr10mhz.cpp \
     src/devices/EMCR/emcr2x10mhz.cpp \
     src/devices/EMCR/emcr4x10mhz.cpp \
+    src/devices/EMCR/emcrtestboardel07ab.cpp \
+    src/devices/EMCR/emcrtestboardel07cd.cpp \
     src/devices/EZPatch/ezpatchdevice.cpp \
     src/devices/EZPatch/ezpatchftdidevice.cpp \
     src/devices/EZPatch/ftdieeprom.cpp \
@@ -91,12 +91,11 @@ SOURCES += \
     src/model/boardmodel.cpp \
     src/model/channelmodel.cpp \
     src/calibration/calibrationmanager.cpp \
+    src/calibration/calibrationeeprom.cpp \
     src/programming/udbprogrammer.cpp \
     src/udbutils.cpp
 
 HEADERS += \
-    src/devices/EMCR/emcrtestboardel07ab.h \
-    src/devices/EMCR/emcrtestboardel07cd.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
@@ -115,6 +114,8 @@ HEADERS += \
     src/devices/EMCR/emcr10mhz.h \
     src/devices/EMCR/emcr2x10mhz.h \
     src/devices/EMCR/emcr4x10mhz.h \
+    src/devices/EMCR/emcrtestboardel07ab.h \
+    src/devices/EMCR/emcrtestboardel07cd.h \
     src/devices/EZPatch/ezpatchdevice.h \
     src/devices/EZPatch/ezpatchftdidevice.h \
     src/devices/EZPatch/ftdieeprom.h \
@@ -134,6 +135,7 @@ HEADERS += \
     src/model/boardmodel.h \
     src/model/channelmodel.h \
     src/calibration/calibrationmanager.h \
+    src/calibration/calibrationeeprom.h \
     src/programming/udbprogrammer.h \
     src/udbutils.h \
     src/utils.h

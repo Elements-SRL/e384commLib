@@ -1410,6 +1410,10 @@ public:
     virtual ErrorCodes_t getCalibMappingFileDir(std::string &dir);
     virtual ErrorCodes_t getCalibMappingFilePath(std::string &path);
 
+    virtual ErrorCodes_t getCalibrationEepromSize(uint32_t &size);
+    virtual ErrorCodes_t writeCalibrationEeprom(std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size);
+    virtual ErrorCodes_t readCalibrationEeprom(std::vector <uint32_t> &value, std::vector <uint32_t> address, std::vector <uint32_t> size);
+
     ErrorCodes_t hasCompFeature(CompensationUserParams_t feature);
     virtual ErrorCodes_t getCompFeatures(CompensationUserParams_t feature, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue);
 
@@ -1489,6 +1493,7 @@ protected:
 
     void computeLiquidJunction();
     virtual void initializeCalibration();
+    virtual void deinitializeCalibration();
     void initializeLiquidJunction();
 
     bool checkProtocolValidity(std::string &message);
@@ -1754,6 +1759,8 @@ protected:
     /********************************************\
      *  Multi-thread synchronization variables  *
     \********************************************/
+
+    mutable std::mutex connectionMutex;
 
     mutable std::mutex txMutex;
     std::condition_variable txMsgBufferNotEmpty;

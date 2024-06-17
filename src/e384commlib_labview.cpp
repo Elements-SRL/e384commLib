@@ -134,238 +134,255 @@ ErrorCodes_t setChannelsSources(
 }
 
 ErrorCodes_t setVoltageHoldTuner(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * voltagesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * voltagesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> voltages;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* voltagesIn, voltages);
     return messageDispatcher->setVoltageHoldTuner(channelIndexes, voltages, applyFlagIn);
 }
 
 ErrorCodes_t setCurrentHoldTuner(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * currentsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * currentsIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> currents;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* currentsIn, currents);
     return messageDispatcher->setCurrentHoldTuner(channelIndexes, currents, true);
 }
 
 ErrorCodes_t setVoltageHalf(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * voltagesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * voltagesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> voltages;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* voltagesIn, voltages);
     return messageDispatcher->setVoltageHalf(channelIndexes, voltages, applyFlagIn);
 }
 
 ErrorCodes_t setCurrentHalf(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * currentsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * currentsIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> currents;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* currentsIn, currents);
     return messageDispatcher->setCurrentHalf(channelIndexes, currents, true);
 }
 
 ErrorCodes_t setLiquidJunctionVoltage(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * voltagesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * voltagesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> voltages;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* voltagesIn, voltages);
     return messageDispatcher->setLiquidJunctionVoltage(channelIndexes, voltages, true);
 }
 
 ErrorCodes_t resetLiquidJunctionVoltage(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     return messageDispatcher->resetLiquidJunctionVoltage(channelIndexes, true);
 }
 
 ErrorCodes_t setCalibVcCurrentGain(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * gainsIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> gains;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* gainsIn, gains);
     return messageDispatcher->setCalibVcCurrentGain(channelIndexes, gains, applyFlagIn);
 }
 
 ErrorCodes_t setCalibVcCurrentOffset(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * offsetsIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> offsets;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* offsetsIn, offsets);
     return messageDispatcher->setCalibVcCurrentOffset(channelIndexes, offsets, applyFlagIn);
 }
 
 ErrorCodes_t setCalibVcVoltageGain(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * gainsIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> gains;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* gainsIn, gains);
     return messageDispatcher->setCalibVcVoltageGain(channelIndexes, gains, applyFlagIn);
 }
 
 ErrorCodes_t setCalibVcVoltageOffset(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * offsetsIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> offsets;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* offsetsIn, offsets);
     return messageDispatcher->setCalibVcVoltageOffset(channelIndexes, offsets, applyFlagIn);
 }
 
 ErrorCodes_t setCalibCcVoltageGain(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * gainsIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> gains;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* gainsIn, gains);
     return messageDispatcher->setCalibCcVoltageGain(channelIndexes, gains, applyFlagIn);
 }
 
 ErrorCodes_t setCalibCcVoltageOffset(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * offsetsIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> offsets;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* offsetsIn, offsets);
     return messageDispatcher->setCalibCcVoltageOffset(channelIndexes, offsets, applyFlagIn);
 }
 
 ErrorCodes_t setCalibCcCurrentGain(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * gainsIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> gains;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* gainsIn, gains);
     return messageDispatcher->setCalibCcCurrentGain(channelIndexes, gains, applyFlagIn);
 }
 
 ErrorCodes_t setCalibCcCurrentOffset(
-        E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * channelIndexesIn,
+        LMeasHandle * offsetsIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<Measurement_t> offsets;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* offsetsIn, offsets);
     return messageDispatcher->setCalibCcCurrentOffset(channelIndexes, offsets, applyFlagIn);
 }
 
+ErrorCodes_t writeCalibrationEeprom(
+        uint32_t * valueIn,
+        uint32_t * addressIn,
+        uint32_t * sizeIn,
+        uint32_t vectorLength) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <uint32_t> value;
+    std::vector <uint32_t> address;
+    std::vector <uint32_t> size;
+    input2NumericVector(valueIn, value, vectorLength);
+    input2NumericVector(addressIn, address, vectorLength);
+    input2NumericVector(sizeIn, size, vectorLength);
+    return messageDispatcher->writeCalibrationEeprom(value, address, size);
+}
+
 ErrorCodes_t setGateVoltage(
-        E384CL_ARGIN uint16_t * boardIndexesIn,
-        E384CL_ARGIN LMeasHandle * gateVoltagesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * boardIndexesIn,
+        LMeasHandle * gateVoltagesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> boardIndexes;
     std::vector<Measurement_t> gateVoltages;
-    input2NumericVector<uint16_t>(boardIndexesIn, boardIndexes, vectorLengthIn);
+    input2NumericVector(boardIndexesIn, boardIndexes, vectorLengthIn);
     input2VectorMeasurement(* gateVoltagesIn, gateVoltages);
     return messageDispatcher->setGateVoltages(boardIndexes, gateVoltages, applyFlagIn);
 }
 
 ErrorCodes_t setSourceVoltage(
-        E384CL_ARGIN uint16_t * boardIndexesIn,
-        E384CL_ARGIN LMeasHandle * sourceVoltagesIn,
-        E384CL_ARGIN bool applyFlagIn,
-        E384CL_ARGIN int vectorLengthIn) {
+        uint16_t * boardIndexesIn,
+        LMeasHandle * sourceVoltagesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector<uint16_t> boardIndexes;
     std::vector<Measurement_t> sourceVoltages;
-    input2NumericVector<uint16_t>(boardIndexesIn, boardIndexes, vectorLengthIn);
+    input2NumericVector(boardIndexesIn, boardIndexes, vectorLengthIn);
     input2VectorMeasurement(* sourceVoltagesIn, sourceVoltages);
     return messageDispatcher->setSourceVoltages(boardIndexes, sourceVoltages, applyFlagIn);
 }
@@ -445,8 +462,8 @@ ErrorCodes_t digitalOffsetCompensation(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->digitalOffsetCompensation(channelIndexes, onValues, applyFlagIn);
 }
 
@@ -490,8 +507,8 @@ ErrorCodes_t enableStimulus(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableStimulus(channelIndexes, onValues, applyFlagIn);
 }
 
@@ -505,8 +522,8 @@ ErrorCodes_t turnChannelsOn(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->turnChannelsOn(channelIndexes, onValues, applyFlagIn);
 }
 
@@ -520,8 +537,8 @@ ErrorCodes_t turnCalSwOn(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->turnCalSwOn(channelIndexes, onValues, applyFlagIn);
 }
 
@@ -535,8 +552,8 @@ ErrorCodes_t enableCcStimulus(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableCcStimulus(channelIndexes, onValues, applyFlagIn);
 }
 
@@ -576,8 +593,8 @@ ErrorCodes_t turnPipetteCompensationOn(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompCfast, onValues, applyFlagIn);
 }
 
@@ -591,8 +608,8 @@ ErrorCodes_t turnCCPipetteCompensationOn(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompCcCfast, onValues, applyFlagIn);
 }
 
@@ -606,8 +623,8 @@ ErrorCodes_t turnMembraneCompensationOn(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompCslow, onValues, applyFlagIn);
 }
 
@@ -621,8 +638,8 @@ ErrorCodes_t turnAccessResistanceCompensationOn(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompRsComp, onValues, applyFlagIn);
 }
 
@@ -636,8 +653,8 @@ ErrorCodes_t turnAccessResistanceCorrectionOn(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompRsCorr, onValues, applyFlagIn);
 }
 
@@ -651,8 +668,8 @@ ErrorCodes_t turnAccessResistancePredictionOn(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompRsPred, onValues, applyFlagIn);
 }
 
@@ -666,8 +683,8 @@ ErrorCodes_t turnLeakConductanceCompensationOn(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompGLeak, onValues, applyFlagIn);
 }
 
@@ -681,8 +698,8 @@ ErrorCodes_t turnBridgeBalanceCompensationOn(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<bool> onValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<bool>(onValuesIn, onValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableCompensation(channelIndexes, MessageDispatcher::CompBridgeRes, onValues, applyFlagIn);
 }
 
@@ -696,8 +713,8 @@ ErrorCodes_t setPipetteCompensationOptions(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> optionIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(optionIndexesIn, optionIndexes, vectorLengthIn);
     return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompCfast, optionIndexes, applyFlagIn);
 }
 
@@ -711,8 +728,8 @@ ErrorCodes_t setCCPipetteCompensationOptions(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> optionIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(optionIndexesIn, optionIndexes, vectorLengthIn);
     return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompCcCfast, optionIndexes, applyFlagIn);
 }
 
@@ -726,8 +743,8 @@ ErrorCodes_t setMembraneCompensationOptions(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> optionIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(optionIndexesIn, optionIndexes, vectorLengthIn);
     return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompCslow, optionIndexes, applyFlagIn);
 }
 
@@ -741,8 +758,8 @@ ErrorCodes_t setAccessResistanceCompensationOptions(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> optionIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(optionIndexesIn, optionIndexes, vectorLengthIn);
     return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompRsComp, optionIndexes, applyFlagIn);
 }
 
@@ -756,8 +773,8 @@ ErrorCodes_t setAccessResistanceCorrectionOptions(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> optionIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(optionIndexesIn, optionIndexes, vectorLengthIn);
     return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompRsCorr, optionIndexes, applyFlagIn);
 }
 
@@ -771,8 +788,8 @@ ErrorCodes_t setAccessResistancePredictionOptions(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> optionIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(optionIndexesIn, optionIndexes, vectorLengthIn);
     return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompRsPred, optionIndexes, applyFlagIn);
 }
 
@@ -786,8 +803,8 @@ ErrorCodes_t setLeakConductanceCompensationOptions(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> optionIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(optionIndexesIn, optionIndexes, vectorLengthIn);
     return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompGLeak, optionIndexes, applyFlagIn);
 }
 
@@ -801,8 +818,8 @@ ErrorCodes_t setBridgeBalanceCompensationOptions(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> optionIndexes;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(optionIndexesIn, optionIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(optionIndexesIn, optionIndexes, vectorLengthIn);
     return messageDispatcher->setCompOptions(channelIndexes, MessageDispatcher::CompBridgeRes, optionIndexes, applyFlagIn);
 }
 
@@ -816,8 +833,8 @@ ErrorCodes_t setPipetteCapacitance(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelValuesIn, channelValues, vectorLengthIn);
 
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_CpVc, channelValues, applyFlagIn);
 }
@@ -832,8 +849,8 @@ ErrorCodes_t setCCPipetteCapacitance(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelValuesIn, channelValues, vectorLengthIn);
 
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_CpCc, channelValues, applyFlagIn);
 }
@@ -848,8 +865,8 @@ ErrorCodes_t setMembraneCapacitance(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelValuesIn, channelValues, vectorLengthIn);
 
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_Cm, channelValues, applyFlagIn);
 }
@@ -864,8 +881,8 @@ ErrorCodes_t setAccessResistance(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelValuesIn, channelValues, vectorLengthIn);
 
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_Rs, channelValues, applyFlagIn);
 }
@@ -880,8 +897,8 @@ ErrorCodes_t setAccessResistanceCorrectionPercentage(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelValuesIn, channelValues, vectorLengthIn);
 
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_RsCp, channelValues, applyFlagIn);
 }
@@ -896,8 +913,8 @@ ErrorCodes_t setAccessResistanceCorrectionLag(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelValuesIn, channelValues, vectorLengthIn);
 
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_RsCl, channelValues, applyFlagIn);
 }
@@ -912,8 +929,8 @@ ErrorCodes_t setAccessResistancePredictionGain(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelValuesIn, channelValues, vectorLengthIn);
 
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_RsPg, channelValues, applyFlagIn);
 }
@@ -928,8 +945,8 @@ ErrorCodes_t setAccessResistancePredictionPercentage(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelValuesIn, channelValues, vectorLengthIn);
 
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_RsPp, channelValues, applyFlagIn);
 }
@@ -944,8 +961,8 @@ ErrorCodes_t setAccessResistancePredictionTau(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelValuesIn, channelValues, vectorLengthIn);
 
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_RsPt, channelValues, applyFlagIn);
 }
@@ -960,8 +977,8 @@ ErrorCodes_t setLeakConductance(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelValuesIn, channelValues, vectorLengthIn);
 
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_LkG, channelValues, applyFlagIn);
 }
@@ -976,8 +993,8 @@ ErrorCodes_t setBridgeBalanceResistance(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<double>(channelValuesIn, channelValues, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelValuesIn, channelValues, vectorLengthIn);
 
     return messageDispatcher->setCompValues(channelIndexes, MessageDispatcher::U_BrB, channelValues, applyFlagIn);
 }
@@ -992,8 +1009,8 @@ ErrorCodes_t setPipetteCapacitanceRange(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> channelRanges;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_CpVc, channelRanges, applyFlagIn);
 }
@@ -1008,8 +1025,8 @@ ErrorCodes_t setCCPipetteCapacitanceRange(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> channelRanges;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_CpCc, channelRanges, applyFlagIn);
 }
@@ -1024,8 +1041,8 @@ ErrorCodes_t setMembraneCapacitanceRange(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> channelRanges;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_Cm, channelRanges, applyFlagIn);
 }
@@ -1040,8 +1057,8 @@ ErrorCodes_t setAccessResistanceRange(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> channelRanges;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_Rs, channelRanges, applyFlagIn);
 }
@@ -1056,8 +1073,8 @@ ErrorCodes_t setAccessResistanceCorrectionPercentageRange(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> channelRanges;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_RsCp, channelRanges, applyFlagIn);
 }
@@ -1072,8 +1089,8 @@ ErrorCodes_t setAccessResistanceCorrectionLagRange(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> channelRanges;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_RsCl, channelRanges, applyFlagIn);
 }
@@ -1088,8 +1105,8 @@ ErrorCodes_t setAccessResistancePredictionGainRange(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> channelRanges;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_RsPg, channelRanges, applyFlagIn);
 }
@@ -1104,8 +1121,8 @@ ErrorCodes_t setAccessResistancePredictionPercentageRange(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> channelRanges;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_RsPp, channelRanges, applyFlagIn);
 }
@@ -1120,8 +1137,8 @@ ErrorCodes_t setAccessResistancePredictionTauRange(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> channelRanges;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_RsPt, channelRanges, applyFlagIn);
 }
@@ -1136,8 +1153,8 @@ ErrorCodes_t setLeakConductanceRange(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> channelRanges;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_LkG, channelRanges, applyFlagIn);
 }
@@ -1152,8 +1169,8 @@ ErrorCodes_t setBridgeBalanceResistanceRange(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector<uint16_t> channelRanges;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2NumericVector<uint16_t>(channelRangesIn, channelRanges, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelRangesIn, channelRanges, vectorLengthIn);
 
     return messageDispatcher->setCompRanges(channelIndexes, MessageDispatcher::U_BrB, channelRanges, applyFlagIn);
 }
@@ -1393,7 +1410,7 @@ ErrorCodes_t getLiquidJunctionVoltages(
     }
     std::vector<uint16_t> channelIndexes;
     std::vector <Measurement_t> voltages;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     ErrorCodes_t ret = messageDispatcher->getLiquidJunctionVoltages(channelIndexes, voltages);
     vectorMeasurement2Output(voltages, voltagesOut);
     return ret;
@@ -1665,7 +1682,7 @@ ErrorCodes_t getFrequencyProtocolRange(
 }
 
 ErrorCodes_t getMaxProtocolItems(
-        E384CL_ARGOUT unsigned int &maxItemsNum) {
+        unsigned int &maxItemsNum) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1957,7 +1974,7 @@ ErrorCodes_t getPipetteCapacitance(
     uint16_t currChanNum;
     uint16_t voltChanNum;
     messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompCfast, activeNotActive);
     if(ret == ErrorFeatureNotImplemented){
@@ -1987,7 +2004,7 @@ ErrorCodes_t getCCPipetteCapacitance(
     uint16_t currChanNum;
     uint16_t voltChanNum;
     messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompCcCfast, activeNotActive);
     if(ret == ErrorFeatureNotImplemented){
@@ -2018,7 +2035,7 @@ ErrorCodes_t getMembraneCapacitance(
     uint16_t currChanNum;
     uint16_t voltChanNum;
     messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompCslow, activeNotActive);
     if(ret == ErrorFeatureNotImplemented){
@@ -2049,7 +2066,7 @@ ErrorCodes_t getAccessResistance(
     uint16_t currChanNum;
     uint16_t voltChanNum;
     messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompCslow, activeNotActive);
     if(ret == ErrorFeatureNotImplemented){
@@ -2080,7 +2097,7 @@ ErrorCodes_t getAccessResistanceCorrectionPercentage(
     uint16_t currChanNum;
     uint16_t voltChanNum;
     messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompRsCorr, activeNotActive);
     if(ret == ErrorFeatureNotImplemented){
@@ -2107,7 +2124,7 @@ ErrorCodes_t getAccessResistanceCorrectionLag(
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
     std::vector<bool> activeNotActive;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getAccessResistanceCorrectionLag(channelIndexes, channelValues, activeNotActive);
 
@@ -2131,7 +2148,7 @@ ErrorCodes_t getAccessResistancePredictionGain(
     uint16_t currChanNum;
     uint16_t voltChanNum;
     messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getCompensationEnables(channelIndexes, MessageDispatcher::CompRsPred, activeNotActive);
     if(ret == ErrorFeatureNotImplemented){
@@ -2158,7 +2175,7 @@ ErrorCodes_t getAccessResistancePredictionPercentage(
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
     std::vector<bool> activeNotActive;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getAccessResistancePredictionPercentage(channelIndexes, channelValues, activeNotActive);
 
@@ -2178,7 +2195,7 @@ ErrorCodes_t getAccessResistancePredictionTau(
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
     std::vector<bool> activeNotActive;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getAccessResistancePredictionTau(channelIndexes, channelValues, activeNotActive);
 
@@ -2198,7 +2215,7 @@ ErrorCodes_t getLeakConductance(
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
     std::vector<bool> activeNotActive;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getLeakConductance(channelIndexes, channelValues, activeNotActive);
 
@@ -2218,7 +2235,7 @@ ErrorCodes_t getBridgeBalanceResistance(
     std::vector<uint16_t> channelIndexes;
     std::vector<double> channelValues;
     std::vector<bool> activeNotActive;
-    input2NumericVector<uint16_t>(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
 
     ErrorCodes_t ret = messageDispatcher->getBridgeBalanceResistance(channelIndexes, channelValues, activeNotActive);
 
@@ -2357,10 +2374,36 @@ ErrorCodes_t getRsShuntConductanceCalibration(
     return ret;
 }
 
+ErrorCodes_t getCalibrationEepromSize(
+        uint32_t &size) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->getCalibrationEepromSize(size);
+}
+
+ErrorCodes_t readCalibrationEeprom(
+        uint32_t * valueOut,
+        uint32_t * addressIn,
+        uint32_t * sizeIn,
+        uint32_t vectorLength) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <uint32_t> value;
+    std::vector <uint32_t> address;
+    std::vector <uint32_t> size;
+    input2NumericVector(addressIn, address, vectorLength);
+    input2NumericVector(sizeIn, size, vectorLength);
+    ErrorCodes_t ret = messageDispatcher->writeCalibrationEeprom(value, address, size);
+    numericVector2Output(value, valueOut);
+    return ret;
+}
+
 ErrorCodes_t setDebugBit(
-        E384CL_ARGIN uint16_t wordOffset,
-        E384CL_ARGIN uint16_t bitOffset,
-        E384CL_ARGIN bool status){
+        uint16_t wordOffset,
+        uint16_t bitOffset,
+        bool status){
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -2368,8 +2411,8 @@ ErrorCodes_t setDebugBit(
 }
 
 ErrorCodes_t setDebugWord(
-        E384CL_ARGIN uint16_t wordOffset,
-        E384CL_ARGIN uint16_t wordValue){
+        uint16_t wordOffset,
+        uint16_t wordValue){
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }

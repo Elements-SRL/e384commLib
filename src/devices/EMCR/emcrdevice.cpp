@@ -2236,6 +2236,7 @@ void EmcrDevice::deinitializeMemory() {
 void EmcrDevice::deinitializeVariables() {
     /*! Nothing to be done */
     MessageDispatcher::deinitializeVariables();
+    this->deinitializeCalibration();
 }
 
 void EmcrDevice::joinCommunicationThreads() {

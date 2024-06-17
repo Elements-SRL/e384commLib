@@ -1130,6 +1130,18 @@ ErrorCodes_t MessageDispatcher::getCalibMappingFilePath(std::string &) {
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::getCalibrationEepromSize(uint32_t &) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::writeCalibrationEeprom(std::vector <uint32_t>, std::vector <uint32_t>, std::vector <uint32_t>) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::readCalibrationEeprom(std::vector <uint32_t> &, std::vector <uint32_t>, std::vector <uint32_t>) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range) {
     if (vcVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
@@ -1666,6 +1678,10 @@ void MessageDispatcher::computeLiquidJunction() {
 }
 
 void MessageDispatcher::initializeCalibration() {
+
+}
+
+void MessageDispatcher::deinitializeCalibration() {
 
 }
 

@@ -427,9 +427,159 @@ ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispa
     return ret;
 }
 
+ErrorCodes_t EZPatchFtdiDevice::pauseConnection(bool pauseFlag) {
+    ErrorCodes_t ret = Success;
+    if (pauseFlag) {
+        FT_STATUS ftRet;
+        ftRet = FT_Close(* ftdiRxHandle);
+        if (ftRet != FT_OK) {
+            return ErrorDeviceDisconnectionFailed;
+        }
+
+        if (rxChannel != txChannel) {
+            FT_STATUS ftRet;
+            ftRet = FT_Close(* ftdiTxHandle);
+            if (ftRet != FT_OK) {
+                return ErrorDeviceDisconnectionFailed;
+            }
+        }
+
+    } else {
+        /*! Initialize the ftdi Rx handle */
+        ret = this->initFtdiChannel(ftdiRxHandle, rxChannel);
+        if (ret != Success) {
+            return ret;
+        }
+
+        if (rxChannel == txChannel) {
+            ftdiTxHandle = ftdiRxHandle;
+
+        } else {
+            /*! Initialize the ftdi Tx handle */
+            ret = this->initFtdiChannel(ftdiTxHandle, txChannel);
+            if (ret != Success) {
+                return ret;
+            }
+        }
+    }
+    return ret;
+}
+
 ErrorCodes_t EZPatchFtdiDevice::disconnectDevice() {
     this->deinitialize();
     return Success;
+}
+
+ErrorCodes_t EZPatchFtdiDevice::getCalibrationEepromSize(uint32_t &size) {
+    if (calibrationEeprom == nullptr) {
+        size = 0;
+        return ErrorEepromNotConnected;
+    }
+    size = calibrationEeprom->getMemorySize();
+    return Success;
+}
+
+ErrorCodes_t EZPatchFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size) {
+    ErrorCodes_t ret;
+    if (calibrationEeprom == nullptr) {
+        ret = ErrorEepromNotConnected;
+    }
+    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
+
+    ret = this->pauseConnection(true);
+    calibrationEeprom->openConnection();
+
+    unsigned char eepromBuffer[4];
+    for (unsigned int itemIdx = 0; itemIdx < value.size(); itemIdx++) {
+        for (uint32_t bufferIdx = 0; bufferIdx < size[itemIdx]; bufferIdx++) {
+            eepromBuffer[size[itemIdx]-bufferIdx-1] = value[itemIdx] & 0x000000FF;
+            value[itemIdx] >>= 8;
+        }
+
+        ret = calibrationEeprom->writeBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
+    }
+
+    calibrationEeprom->closeConnection();
+    this->pauseConnection(false);
+
+    connectionMutexLock.unlock();
+
+    RxOutput_t rxOutput;
+    ret = ErrorUnknown;
+    rxOutput.msgTypeId = MsgDirectionDeviceToPc+MsgTypeIdInvalid;
+    int pingTries = 0;
+
+    while (ret != Success) {
+        if (pingTries++ > EZP_MAX_PING_TRIES) {
+            return ErrorConnectionPingFailed;
+        }
+
+        ret = this->ping();
+        if (ret != Success) {
+            ret = this->pauseConnection(true);
+            calibrationEeprom->openConnection();
+
+            calibrationEeprom->closeConnection();
+            this->pauseConnection(false);
+        }
+    }
+
+    /*! Make a chip reset to force resynchronization of chip states. This is important when the FPGA has just been reset */
+    this->resetAsic(true, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    this->resetAsic(false, true);
+
+    return ret;
+}
+
+ErrorCodes_t EZPatchFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value, std::vector <uint32_t> address, std::vector <uint32_t> size) {
+    ErrorCodes_t ret;
+    if (calibrationEeprom == nullptr) {
+        ret = ErrorEepromNotConnected;
+    }
+    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
+    ret = this->pauseConnection(true);
+    calibrationEeprom->openConnection();
+
+    if (value.size() != address.size()) {
+        value.resize(address.size());
+    }
+
+    unsigned char eepromBuffer[4];
+    for (unsigned int itemIdx = 0; itemIdx < value.size(); itemIdx++) {
+        ret = calibrationEeprom->readBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
+
+        value[itemIdx] = 0;
+        for (uint32_t bufferIdx = 0; bufferIdx < size[itemIdx]; bufferIdx++) {
+            value[itemIdx] <<= 8;
+            value[itemIdx] += static_cast <uint32_t> (eepromBuffer[bufferIdx]);
+        }
+    }
+
+    calibrationEeprom->closeConnection();
+    this->pauseConnection(false);
+
+    connectionMutexLock.unlock();
+
+    RxOutput_t rxOutput;
+    ret = ErrorUnknown;
+    rxOutput.msgTypeId = MsgDirectionDeviceToPc+MsgTypeIdInvalid;
+    int pingTries = 0;
+
+    while (ret != Success) {
+        if (pingTries++ > EZP_MAX_PING_TRIES) {
+            return ErrorConnectionPingFailed;
+        }
+
+        ret = this->ping();
+    }
+
+    /*! Make a chip reset to force resynchronization of chip states. This is important when the FPGA has just been reset */
+    this->resetAsic(true, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    this->resetAsic(false, true);
+
+    return ret;
 }
 
 int32_t EZPatchFtdiDevice::getDeviceIndex(std::string serial) {
@@ -538,6 +688,17 @@ ErrorCodes_t EZPatchFtdiDevice::stopCommunication() {
     return Success;
 }
 
+void EZPatchFtdiDevice::initializeCalibration() {
+    calibrationEeprom = new CalibrationEeprom(this->getDeviceIndex(deviceId+spiChannel));
+}
+
+void EZPatchFtdiDevice::deinitializeCalibration() {
+    if (calibrationEeprom != nullptr) {
+        delete calibrationEeprom;
+        calibrationEeprom = nullptr;
+    }
+}
+
 void EZPatchFtdiDevice::readAndParseMessages() {
     FT_STATUS ftRet;
     DWORD ftdiQueuedBytes = 0;
@@ -586,6 +747,9 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
     parsingFlag = true;
 
+    std::unique_lock <std::mutex> connectionMutexLock (connectionMutex);
+    connectionMutexLock.unlock();
+
     while ((!stopConnectionFlag) || (txWaitingOnAcks > 0)) {
 
         /******************\
@@ -594,16 +758,20 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
         /*! Read queue status to check the number of available bytes */
         ftRet = FT_GetQueueStatus(* ftdiRxHandle, &ftdiQueuedBytes);
+        connectionMutexLock.lock();
         if (ftRet != FT_OK) {
+            connectionMutexLock.unlock();
             continue;
         }
 
         if (ftdiQueuedBytes == 0) {
+            connectionMutexLock.unlock();
             /*! If there are no bytes in the queue skip to next iteration in the while loop */
             std::this_thread::sleep_for(longBytesWait);
             continue;
 
         } else if ((ftdiQueuedBytes < minQueuedBytes) && (readTries == 0)) {
+            connectionMutexLock.unlock();
             readTries++;
             std::this_thread::sleep_for(shortBytesWait);
             continue;
@@ -618,6 +786,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
         } else {
             ftRet = FT_Read(* ftdiRxHandle, rxRawBuffer+rxRawBufferWriteOffset, ftdiQueuedBytes, &ftdiReadBytes);
         }
+        connectionMutexLock.unlock();
 
         if ((ftRet != FT_OK) || (ftdiReadBytes == 0)) {
             continue;
@@ -807,18 +976,6 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                                 }
                             }
 
-                            if (rxDataWords >= E384CL_OUT_STRUCT_DATA_LEN) {
-                                rxParsePhase = RxParseLookForHeader;
-#ifdef DEBUG_RX_DATA_PRINT
-                                fprintf(rxFid,
-                                        "long data packet\n"
-                                        "words: \t%d\n\n",
-                                        rxDataWords);
-                                fflush(rxFid);
-#endif
-                                continue;
-                            }
-
                             if (rxEnabledTypesMap[rxMsgTypeId]) {
                                 /*! Update the message buffer only if the message is not filtered out */
                                 rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataWords;
@@ -954,6 +1111,8 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
 
     std::unique_lock <std::mutex> txMutexLock (txMutex);
     txMutexLock.unlock();
+    std::unique_lock <std::mutex> connectionMutexLock (connectionMutex);
+    connectionMutexLock.unlock();
 
     while ((!stopConnectionFlag) || (txWaitingOnAcks > 0)) {
 
@@ -976,11 +1135,9 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
         txRawBufferReadIdx = FTD_TX_SYNC_WORD_SIZE; /*! Sync word has already been written during initialization */
         * ((uint16_t *)(txRawBuffer+txRawBufferReadIdx)) = txMsgBuffer[txMsgBufferReadOffset].heartbeat;
         txRawBufferReadIdx += FTD_TX_WORD_SIZE;
-        unsigned short tempHb = txMsgBuffer[txMsgBufferReadOffset].heartbeat;
 
         * ((uint16_t *)(txRawBuffer+txRawBufferReadIdx)) = txMsgBuffer[txMsgBufferReadOffset].typeId;
         txRawBufferReadIdx += FTD_TX_WORD_SIZE;
-        unsigned short tempId = txMsgBuffer[txMsgBufferReadOffset].typeId;
 
         txDataBufferReadOffset = txMsgBuffer[txMsgBufferReadOffset].startDataPtr;
 
@@ -1043,7 +1200,9 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
         notSentTxData = true;
         bytesToWrite = ((DWORD)txDataBytes)+FTD_BYTES_TO_WRITE_ALWAYS;
         while (notSentTxData && (writeTries++ < EZP_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
+            connectionMutexLock.lock();
             ftRet = FT_Write(* ftdiTxHandle, txRawBuffer, bytesToWrite, &ftdiWrittenBytes);
+            connectionMutexLock.unlock();
 
             if (ftRet != FT_OK) {
                 continue;
@@ -1052,7 +1211,9 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
             /*! If less bytes than need are sent purge the buffer and retry */
             if (ftdiWrittenBytes < bytesToWrite) {
                 /*! Cleans TX buffer */
+                connectionMutexLock.lock();
                 ftRet = FT_Purge(* ftdiTxHandle, FT_PURGE_TX);
+                connectionMutexLock.unlock();
 
             } else {
                 notSentTxData = false;

@@ -11,6 +11,7 @@
 #include "ftdieeprom.h"
 #include "ftdieeprom56.h"
 #include "ftdieepromdemo.h"
+#include "calibrationeeprom.h"
 
 #define EZP_LSB_NOISE_ARRAY_SIZE 0x40000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~250k
 #define EZP_LSB_NOISE_ARRAY_MASK (EZP_LSB_NOISE_ARRAY_SIZE-1) // 0b11...1 for all bits of the array indexes
@@ -313,7 +314,7 @@ protected:
     bool vcCurrentOffsetDeltaImplemented = false;
     bool ccCurrentOffsetDeltaImplemented = false;
 
-    unsigned int maxDigitalTriggerOutputEvents = 1e6;
+    unsigned int maxDigitalTriggerOutputEvents = 1000000;
     unsigned int digitalTriggersNum = 0;
     bool repetitiveTriggerAvailableFlag = false;
 
