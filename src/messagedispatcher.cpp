@@ -685,22 +685,6 @@ ErrorCodes_t MessageDispatcher::getLiquidJunctionRangesFeatures(std::vector <Ran
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibVcCurrentGainFeatures(RangedMeasurement_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getCalibCcVoltageGainFeatures(RangedMeasurement_t &){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &){
-    return ErrorFeatureNotImplemented;
-}
-
 ErrorCodes_t MessageDispatcher::hasGateVoltages() {
     return ErrorFeatureNotImplemented;
 }
@@ -709,11 +693,11 @@ ErrorCodes_t MessageDispatcher::hasSourceVoltages() {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getGateVoltagesFeatures(RangedMeasurement_t &){
+ErrorCodes_t MessageDispatcher::getGateVoltagesFeatures(RangedMeasurement_t &range){
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getSourceVoltagesFeatures(RangedMeasurement_t &){
+ErrorCodes_t MessageDispatcher::getSourceVoltagesFeatures(RangedMeasurement_t &range){
     return ErrorFeatureNotImplemented;
 }
 

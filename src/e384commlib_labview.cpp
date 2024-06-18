@@ -2019,7 +2019,6 @@ ErrorCodes_t getCCPipetteCapacitance(
     return ret;
 }
 
-
 ErrorCodes_t getMembraneCapacitance(
         uint16_t * channelIndexesIn,
         double * channelValuesOut,
@@ -2049,7 +2048,6 @@ ErrorCodes_t getMembraneCapacitance(
     numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
     return ret;
 }
-
 
 ErrorCodes_t getAccessResistance(
         uint16_t * channelIndexesIn,
@@ -2081,7 +2079,6 @@ ErrorCodes_t getAccessResistance(
     return ret;
 }
 
-
 ErrorCodes_t getAccessResistanceCorrectionPercentage(
         uint16_t * channelIndexesIn,
         double * channelValuesOut,
@@ -2111,7 +2108,6 @@ ErrorCodes_t getAccessResistanceCorrectionPercentage(
     numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
     return ret;
 }
-
 
 ErrorCodes_t getAccessResistanceCorrectionLag(
         uint16_t * channelIndexesIn,
@@ -2162,7 +2158,6 @@ ErrorCodes_t getAccessResistancePredictionGain(
     numericVector2Output<std::vector <bool>, bool>(activeNotActive, activeNotActiveOut);
     return ret;
 }
-
 
 ErrorCodes_t getAccessResistancePredictionPercentage(
         uint16_t * channelIndexesIn,

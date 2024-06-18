@@ -1087,11 +1087,39 @@ public:
      *  Rx methods  *
     \****************/
 
+    /*! \brief Get the serial number of the connected device.
+     *
+     * \param serialNumber [out] Serial number of the connected device.
+     * \return Success if a device was succesfully connected via the connectDevice method.
+     */
     ErrorCodes_t getSerialNumber(std::string &serialNumber);
 
+    /*! \brief Get the device's boards models.
+     *
+     * \param boards [out] Vector of device's boards models.
+     * \return Error code.
+     */
     ErrorCodes_t getBoards(std::vector <BoardModel *> &boards);
+
+    /*! \brief Get the device's channels models.
+     *
+     * \param channels [out] Vector of device's channels models.
+     * \return Error code.
+     */
     ErrorCodes_t getChannels(std::vector <ChannelModel *> &channels);
+
+    /*! \brief Command used by EMCR to get the device's selected channels.
+     *
+     * \param selected [out] Vector of booleans. True if the correspnding channel is selected.
+     * \return Error code.
+     */
     ErrorCodes_t getSelectedChannels(std::vector <bool> &selected);
+
+    /*! \brief Command used by EMCR to get the device's selected channels.
+     *
+     * \param selected [out] Vector of indexes correspnding to the selected channels.
+     * \return Error code.
+     */
     ErrorCodes_t getSelectedChannelsIndexes(std::vector <uint16_t> &indexes);
 
     /*! \brief Get the size of the buffer to be passed to getNextMessage.
@@ -1100,7 +1128,24 @@ public:
      * \return Error code.
      */
     ErrorCodes_t getRxDataBufferSize(uint32_t &size);
+
+    /*! \brief Allocates the memory of the buffer to be passed to getNextMessage.
+     *  \note Call this method before using getNextMessage. Alternatively allocate a int16_t buffer
+     *  with the size returned by getRxDataBufferSize.
+     *
+     * \param data [out] Buffer to be passed to getNextMessage.
+     * \return Error code.
+     */
     ErrorCodes_t allocateRxDataBuffer(int16_t * &data);
+
+
+    /*! \brief Frees the memory of the buffer to be passed to getNextMessage.
+     *  \note Call this method after the last usage of getNextMessage. Alternatively free
+     *  the buffer used.
+     *
+     * \param data [out] Buffer to be passed to getNextMessage.
+     * \return Error code.
+     */
     ErrorCodes_t deallocateRxDataBuffer(int16_t * &data);
 
     /*! \brief Get the next message from the queue sent by the connected device.
@@ -1112,23 +1157,61 @@ public:
     virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data);
 
     /*! \brief Purge buffered data.
+     *  \note Purges the data stored in the library, but not necessarily the data buffered in the device's memory.
      *
      * \return Error code.
      */
     virtual ErrorCodes_t purgeData();
+
+    /*! \brief Convert a voltage value returned by getNextMessage from integer to floating point.
+     *
+     * \param intValue [in] Integer voltage value obtained with the getNextMessage method.
+     * \param fltValue [out] Floating point voltage value expressed in the unit of the selected voltage range.
+     * \return Error code.
+     */
     ErrorCodes_t convertVoltageValue(int16_t intValue, double &fltValue);
+
+    /*! \brief Convert a current value returned by getNextMessage from integer to floating point.
+     *
+     * \param intValue [in] Integer current value obtained with the getNextMessage method.
+     * \param fltValue [out] Floating point current value expressed in the unit of the selected current range.
+     * \return Error code.
+     */
     ErrorCodes_t convertCurrentValue(int16_t intValue, double &fltValue);
+
+    /*! \brief Convert an array of voltage values returned by getNextMessage from integer to floating point.
+     *
+     * \param intValue [in] Array of integer voltage values obtained with the getNextMessage method.
+     * \param fltValue [out] Array of floating point voltage values expressed in the unit of the selected voltage range.
+     * \param valuesNum [in] Number of values in the array.
+     * \return Error code.
+     */
     ErrorCodes_t convertVoltageValues(int16_t * intValue, double * fltValue, int valuesNum);
+
+    /*! \brief Convert an array of current values returned by getNextMessage from integer to floating point.
+     *
+     * \param intValue [in] Array of integer current values obtained with the getNextMessage method.
+     * \param fltValue [out] Array of floating point current values expressed in the unit of the selected current range.
+     * \param valuesNum [in] Number of values in the array.
+     * \return Error code.
+     */
     ErrorCodes_t convertCurrentValues(int16_t * intValue, double * fltValue, int valuesNum);
 
     /*! \brief Get the voltage currently corrected by liquid junction compensation.
      *
-     * \param channelIndexes [in] Vector of Indexes for the channels to get the votlage from.
-     * \param voltages [out] Array of compensated voltages.
+     * \param channelIndexes [in] Vector of channel indexes.
+     * \param voltages [out] Array of compensated voltages for the selected channels.
      * \return Error code.
      */
-    ErrorCodes_t getLiquidJunctionVoltages(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> &voltages);
-    ErrorCodes_t getLiquidJunctionStatuses(std::vector<uint16_t> channelIndexes, std::vector<LiquidJunctionStatus_t> &statuses);
+    ErrorCodes_t getLiquidJunctionVoltages(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> &voltages);
+
+    /*! \brief Get the current status of liquid junction compensation algorithm for each channel.
+     *
+     * \param channelIndexes [in] Vector of channel indexes.
+     * \param voltages [out] Array of algorithm status for the selected channels.
+     * \return Error code.
+     */
+    ErrorCodes_t getLiquidJunctionStatuses(std::vector <uint16_t> channelIndexes, std::vector <LiquidJunctionStatus_t> &statuses);
 
     /*! \brief Get the voltage hold tuner features, e.g. ranges, step, ...
      *
@@ -1157,15 +1240,41 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &currentHalfTuner);
+
+    /*! \brief Get the liquid junction voltage ranges.
+     *
+     * \param ranges [out] Vector of ranges for liquid junction compensation.
+     * \return Error code.
+     */
     virtual ErrorCodes_t getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges);
-    virtual ErrorCodes_t getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures);
-    virtual ErrorCodes_t getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures);
-    virtual ErrorCodes_t getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures);
-    virtual ErrorCodes_t getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures);
+
+    /*! \brief Get the availability of voltage stimulation for gate controls.
+     *  \param Only available for few devices.
+     *
+     * \return Sucecss if the device has the voltage stimulation for the gate controls.
+     */
     virtual ErrorCodes_t hasGateVoltages();
+
+    /*! \brief Get the availability of voltage stimulation for source controls.
+     *  \param Only available for few devices.
+     *
+     * \return Sucecss if the device has the voltage stimulation for the source controls.
+     */
     virtual ErrorCodes_t hasSourceVoltages();
-    virtual ErrorCodes_t getGateVoltagesFeatures(RangedMeasurement_t &gateVoltagesFeatures);
-    virtual ErrorCodes_t getSourceVoltagesFeatures(RangedMeasurement_t &sourceVoltagesFeatures);
+
+    /*! \brief Get the range of the voltage stimulation for gate controls.
+     *
+     * \param range [out] Range of the voltage stimulation for the gate controls.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t getGateVoltagesFeatures(RangedMeasurement_t &range);
+
+    /*! \brief Get the range of the voltage stimulation for source controls.
+     *
+     * \param range [out] Range of the voltage stimulation for the source controls.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t getSourceVoltagesFeatures(RangedMeasurement_t &range);
 
     /*! \brief Get the number of channels for the device.
      *
@@ -1211,8 +1320,20 @@ public:
      * \param clampingModalities [out] Array containing all the available clamping modalities.
      * \return Error code.
      */
-    ErrorCodes_t getClampingModalitiesFeatures(std::vector<ClampingModality_t> &clampingModalities);
+    ErrorCodes_t getClampingModalitiesFeatures(std::vector <ClampingModality_t> &clampingModalities);
+
+    /*! \brief Get the clamping modality currently set.
+     *
+     * \param clampingModality [out] Currently set clamping modality.
+     * \return Error code.
+     */
     ErrorCodes_t getClampingModality(ClampingModality_t &clampingModality);
+
+    /*! \brief Get the clamping modality currently set.
+     *
+     * \param idx [out] Index of the currently set clamping modality.
+     * \return Error code.
+     */
     ErrorCodes_t getClampingModalityIdx(uint32_t &idx);
 
     /*! \brief Get the current ranges available in voltage clamp for the device.
@@ -1257,6 +1378,12 @@ public:
      * \return Error code.
      */
     ErrorCodes_t getVCVoltageRange(RangedMeasurement_t &range);
+
+    /*! \brief Get the voltage range currently applied for the liquid junction in voltage clamp.
+     *
+     * \param range [out] Voltage range currently applied for the liquid junction in voltage clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getLiquidJunctionRange(RangedMeasurement_t &range);
 
     /*! \brief Get the current range currently applied for current clamp.

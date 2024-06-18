@@ -1960,38 +1960,6 @@ ErrorCodes_t EmcrDevice::getLiquidJunctionRangesFeatures(std::vector <RangedMeas
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::getCalibVcCurrentGainFeatures(RangedMeasurement_t &calibVcCurrentGainFeatures){
-    if (calibVcCurrentGainCoders.size() == 0) {
-        return ErrorFeatureNotImplemented;
-    }
-    calibVcCurrentGainFeatures = calibVcCurrentGainRange;
-    return Success;
-}
-
-ErrorCodes_t EmcrDevice::getCalibVcCurrentOffsetFeatures(std::vector<RangedMeasurement_t> &calibVcCurrentOffsetFeatures){
-    if (calibVcCurrentOffsetCoders.size() == 0) {
-        return ErrorFeatureNotImplemented;
-    }
-    calibVcCurrentOffsetFeatures = calibVcCurrentOffsetRanges;
-    return Success;
-}
-
-ErrorCodes_t EmcrDevice::getCalibCcVoltageGainFeatures(RangedMeasurement_t &calibCcVoltageGainFeatures){
-    if (calibCcVoltageGainCoders.size() == 0) {
-        return ErrorFeatureNotImplemented;
-    }
-    calibCcVoltageGainFeatures = calibCcVoltageGainRange;
-    return Success;
-}
-
-ErrorCodes_t EmcrDevice::getCalibCcVoltageOffsetFeatures(std::vector<RangedMeasurement_t> &calibCcVoltageOffsetFeatures){
-    if (calibCcVoltageOffsetCoders.size() == 0) {
-        return ErrorFeatureNotImplemented;
-    }
-    calibCcVoltageOffsetFeatures = calibCcVoltageOffsetRanges;
-    return Success;
-}
-
 ErrorCodes_t EmcrDevice::hasGateVoltages() {
     if (gateVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
