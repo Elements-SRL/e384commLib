@@ -2075,26 +2075,6 @@ ErrorCodes_t MessageDispatcher::getCompensationControl(CompensationUserParams_t,
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getAccessResistanceCorrectionLag(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getAccessResistancePredictionPercentage(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getAccessResistancePredictionTau(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getLeakConductance(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::getBridgeBalanceResistance(std::vector<uint16_t>, std::vector<double> channelValues, std::vector<bool> activeNotActive){
-    return ErrorFeatureNotImplemented;
-}
-
 ErrorCodes_t MessageDispatcher::getCustomFlags(std::vector <std::string> &customFlags, std::vector <bool> &customFlagsDefault) {
     if (customFlagsNum == 0) {
         return ErrorFeatureNotImplemented;
