@@ -638,14 +638,20 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     boolConfig.initialWord = 11;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    vcVoltageFilterCoder = new BoolArrayCoder(boolConfig);
+    vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0);
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(2);
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(3);
     coders.push_back(vcVoltageFilterCoder);
 
     /*! Current filter CC */
     boolConfig.initialWord = 11;
     boolConfig.initialBit = 8;
     boolConfig.bitsNum = 4;
-    ccCurrentFilterCoder = new BoolArrayCoder(boolConfig);
+    ccCurrentFilterCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (ccCurrentFilterCoder)->addMapItem(0);
+    static_cast <BoolRandomArrayCoder *> (ccCurrentFilterCoder)->addMapItem(2);
+    static_cast <BoolRandomArrayCoder *> (ccCurrentFilterCoder)->addMapItem(3);
     coders.push_back(ccCurrentFilterCoder);
 
     /*! Voltage filter CC */
