@@ -11,14 +11,14 @@
 #define UTL_DEFAULT_FX3_FW_VERSION (4)
 #define UTL_DEFAULT_FX3_FW_NAME (std::string("UDB-FX3_V04.img"))
 
-template<typename I_t> bool allLessThan(std::vector<I_t> myVector, I_t maxValue){
-    if(myVector.empty()){
+template<typename I_t> bool allLessThan(std::vector <I_t> myVector, I_t maxValue) {
+    if (myVector.empty()) {
         return false;
     }
     //auto iter = std::max_element(myVector.begin(), myVector.end());
     I_t myMax = *std::max_element(myVector.begin(), myVector.end());
 
-    if(myMax >= maxValue){
+    if (myMax >= maxValue) {
         return false;
     } else {
         return true;
@@ -26,14 +26,14 @@ template<typename I_t> bool allLessThan(std::vector<I_t> myVector, I_t maxValue)
 
 }
 
-template<typename I_t> bool allLessThanOrEqualTo(std::vector<I_t> myVector, I_t maxValue){
-    if(myVector.empty()){
+template<typename I_t> bool allLessThanOrEqualTo(std::vector <I_t> myVector, I_t maxValue) {
+    if (myVector.empty()) {
         return false;
     }
     //auto iter = std::max_element(myVector.begin(), myVector.end());
     I_t myMax = *std::max_element(myVector.begin(), myVector.end());
 
-    if(myMax > maxValue){
+    if (myMax > maxValue) {
         return false;
     } else {
         return true;
@@ -41,14 +41,14 @@ template<typename I_t> bool allLessThanOrEqualTo(std::vector<I_t> myVector, I_t 
 
 }
 
-template<typename I_t> bool allGreaterThan(std::vector<I_t> myVector, I_t minValue){
-    if(myVector.empty()){
+template<typename I_t> bool allGreaterThan(std::vector <I_t> myVector, I_t minValue) {
+    if (myVector.empty()) {
         return false;
     }
     //auto iter = std::max_element(myVector.begin(), myVector.end());
     I_t myMin = *std::min_element(myVector.begin(), myVector.end());
 
-    if(myMin <= minValue){
+    if (myMin <= minValue) {
         return false;
     } else {
         return true;
@@ -56,14 +56,14 @@ template<typename I_t> bool allGreaterThan(std::vector<I_t> myVector, I_t minVal
 
 }
 
-template<typename I_t> bool allGreaterThanOrEqualTo(std::vector<I_t> myVector, I_t minValue){
-    if(myVector.empty()){
+template<typename I_t> bool allGreaterThanOrEqualTo(std::vector <I_t> myVector, I_t minValue) {
+    if (myVector.empty()) {
         return false;
     }
     //auto iter = std::max_element(myVector.begin(), myVector.end());
     I_t myMin = *std::min_element(myVector.begin(), myVector.end());
 
-    if(myMin < minValue){
+    if (myMin < minValue) {
         return false;
     } else {
         return true;
@@ -71,7 +71,7 @@ template<typename I_t> bool allGreaterThanOrEqualTo(std::vector<I_t> myVector, I
 
 }
 
-template<typename I_t> bool allStrictlyInRange(std::vector<I_t> myVector, I_t minValue, I_t maxValue){
+template<typename I_t> bool allStrictlyInRange(std::vector <I_t> myVector, I_t minValue, I_t maxValue) {
     if (allLessThan<I_t>(myVector, maxValue)) {
         if (allGreaterThan<I_t>(myVector, minValue)) {
             return true;
@@ -85,7 +85,7 @@ template<typename I_t> bool allStrictlyInRange(std::vector<I_t> myVector, I_t mi
     }
 }
 
-template<typename I_t> bool allInRange(std::vector<I_t> myVector, I_t minValue, I_t maxValue){
+template<typename I_t> bool allInRange(std::vector <I_t> myVector, I_t minValue, I_t maxValue) {
     if (allLessThanOrEqualTo<I_t>(myVector, maxValue)) {
         if (allGreaterThanOrEqualTo<I_t>(myVector, minValue)) {
             return true;

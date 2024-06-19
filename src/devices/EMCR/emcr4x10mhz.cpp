@@ -616,14 +616,14 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     boolConfig.bitsNum = 1;
 
     enableStateArrayChannelsCoder.resize(currentChannelsNum);
-    for(int chNum = 0; chNum < currentChannelsNum; chNum++){
+    for (int chNum = 0; chNum < currentChannelsNum; chNum++) {
         boolConfig.initialBit = chNum;
         enableStateArrayChannelsCoder[chNum] = new BoolArrayCoder(boolConfig);
         coders.push_back(enableStateArrayChannelsCoder[chNum]);
     }
 
     stateAppliedVoltageCoders.resize(VCVoltageRangesNum);
-    for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
+    for (int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         stateAppliedVoltageCoders[rangeIdx].resize(stateMaxNum);
     }
 
@@ -635,18 +635,18 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     stateTimeoutNextStateCoders.resize(stateMaxNum);
     stateMinTriggerCurrentCoders.resize(VCCurrentRangesNum);
     stateMaxTriggerCurrentCoders.resize(VCCurrentRangesNum);
-    for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+    for (int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
         stateMinTriggerCurrentCoders[rangeIdx].resize(stateMaxNum);
         stateMaxTriggerCurrentCoders[rangeIdx].resize(stateMaxNum);
     }
 
     stateTriggerNextStateCoders.resize(stateMaxNum);
 
-    for(int stateIdx = 0; stateIdx < stateMaxNum; stateIdx++){
+    for (int stateIdx = 0; stateIdx < stateMaxNum; stateIdx++) {
         doubleConfig.initialWord = stateWordOffset;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
-        for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
+        for (int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
             doubleConfig.resolution = -vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
             doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
             doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
@@ -685,7 +685,7 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
 
         doubleConfig.initialWord = stateWordOffset+5;
         doubleConfig.initialBit = 0;
-        for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+        for (int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
             doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
             doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
             doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
@@ -695,7 +695,7 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
 
         doubleConfig.initialWord = stateWordOffset+6;
         doubleConfig.initialBit = 0;
-        for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+        for (int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
             doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
             doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
             doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
@@ -726,24 +726,24 @@ ErrorCodes_t Emcr4x10MHz_PCBV01_V02::initializeHW() {
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     dcmResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
     /*! After a short while the 10MHz clock starts */
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     this->resetFpga(true, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
     this->resetFpga(false, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -1399,14 +1399,14 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     boolConfig.bitsNum = 1;
 
     enableStateArrayChannelsCoder.resize(currentChannelsNum);
-    for(int chNum = 0; chNum < currentChannelsNum; chNum++){
+    for (int chNum = 0; chNum < currentChannelsNum; chNum++) {
         boolConfig.initialBit = chNum;
         enableStateArrayChannelsCoder[chNum] = new BoolArrayCoder(boolConfig);
         coders.push_back(enableStateArrayChannelsCoder[chNum]);
     }
 
     stateAppliedVoltageCoders.resize(VCVoltageRangesNum);
-    for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
+    for (int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         stateAppliedVoltageCoders[rangeIdx].resize(stateMaxNum);
     }
 
@@ -1418,7 +1418,7 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     stateTimeoutNextStateCoders.resize(stateMaxNum);
     stateMinTriggerCurrentCoders.resize(VCCurrentRangesNum);
     stateMaxTriggerCurrentCoders.resize(VCCurrentRangesNum);
-    for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+    for (int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
         stateMinTriggerCurrentCoders[rangeIdx].resize(stateMaxNum);
         stateMaxTriggerCurrentCoders[rangeIdx].resize(stateMaxNum);
     }
@@ -1429,7 +1429,7 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
         doubleConfig.initialWord = stateWordOffset;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
-        for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
+        for (int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
             doubleConfig.resolution = -vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
             doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
             doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
@@ -1468,7 +1468,7 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
 
         doubleConfig.initialWord = stateWordOffset+5;
         doubleConfig.initialBit = 0;
-        for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+        for (int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
             doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
             doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
             doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
@@ -1478,7 +1478,7 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
 
         doubleConfig.initialWord = stateWordOffset+6;
         doubleConfig.initialBit = 0;
-        for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+        for (int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
             doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
             doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
             doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
@@ -1509,24 +1509,24 @@ ErrorCodes_t Emcr4x10MHz_PCBV01_V03::initializeHW() {
     dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     dcmResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
     /*! After a short while the 10MHz clock starts */
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     this->resetFpga(true, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
     this->resetFpga(false, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     this->stackOutgoingMessage(txStatus);
@@ -1599,7 +1599,7 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     stateArrayMovingAverageLengthCoder = new DoubleOffsetBinaryCoder(doubleConfig);
 
     stateAppliedVoltageCoders.resize(VCVoltageRangesNum);
-    for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
+    for (int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         stateAppliedVoltageCoders[rangeIdx].resize(stateMaxNum);
     }
 
@@ -1611,7 +1611,7 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     stateTimeoutNextStateCoders.resize(stateMaxNum);
     stateMinTriggerCurrentCoders.resize(VCCurrentRangesNum);
     stateMaxTriggerCurrentCoders.resize(VCCurrentRangesNum);
-    for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+    for (int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
         stateMinTriggerCurrentCoders[rangeIdx].resize(stateMaxNum);
         stateMaxTriggerCurrentCoders[rangeIdx].resize(stateMaxNum);
     }
@@ -1622,7 +1622,7 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
         doubleConfig.initialWord = stateWordOffset;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
-        for(int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++){
+        for (int rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
             doubleConfig.resolution = -vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
             doubleConfig.maxValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
             doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
@@ -1661,7 +1661,7 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
 
         doubleConfig.initialWord = stateWordOffset+5;
         doubleConfig.initialBit = 0;
-        for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+        for (int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
             doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
             doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
             doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
@@ -1671,7 +1671,7 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
 
         doubleConfig.initialWord = stateWordOffset+6;
         doubleConfig.initialBit = 0;
-        for(int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++){
+        for (int rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
             doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
             doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
             doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;

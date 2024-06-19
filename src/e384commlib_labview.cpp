@@ -149,8 +149,8 @@ ErrorCodes_t setVoltageHoldTuner(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> voltages;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> voltages;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* voltagesIn, voltages);
     return messageDispatcher->setVoltageHoldTuner(channelIndexes, voltages, applyFlagIn);
@@ -164,8 +164,8 @@ ErrorCodes_t setCurrentHoldTuner(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> currents;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> currents;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* currentsIn, currents);
     return messageDispatcher->setCurrentHoldTuner(channelIndexes, currents, true);
@@ -179,8 +179,8 @@ ErrorCodes_t setVoltageHalf(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> voltages;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> voltages;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* voltagesIn, voltages);
     return messageDispatcher->setVoltageHalf(channelIndexes, voltages, applyFlagIn);
@@ -194,8 +194,8 @@ ErrorCodes_t setCurrentHalf(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> currents;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> currents;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* currentsIn, currents);
     return messageDispatcher->setCurrentHalf(channelIndexes, currents, true);
@@ -209,8 +209,8 @@ ErrorCodes_t setLiquidJunctionVoltage(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> voltages;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> voltages;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* voltagesIn, voltages);
     return messageDispatcher->setLiquidJunctionVoltage(channelIndexes, voltages, true);
@@ -223,7 +223,7 @@ ErrorCodes_t resetLiquidJunctionVoltage(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
+    std::vector <uint16_t> channelIndexes;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     return messageDispatcher->resetLiquidJunctionVoltage(channelIndexes, true);
 }
@@ -236,8 +236,8 @@ ErrorCodes_t setCalibVcCurrentGain(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> gains;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> gains;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* gainsIn, gains);
     return messageDispatcher->setCalibVcCurrentGain(channelIndexes, gains, applyFlagIn);
@@ -251,8 +251,8 @@ ErrorCodes_t setCalibVcCurrentOffset(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> offsets;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> offsets;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* offsetsIn, offsets);
     return messageDispatcher->setCalibVcCurrentOffset(channelIndexes, offsets, applyFlagIn);
@@ -266,8 +266,8 @@ ErrorCodes_t setCalibVcVoltageGain(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> gains;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> gains;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* gainsIn, gains);
     return messageDispatcher->setCalibVcVoltageGain(channelIndexes, gains, applyFlagIn);
@@ -281,8 +281,8 @@ ErrorCodes_t setCalibVcVoltageOffset(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> offsets;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> offsets;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* offsetsIn, offsets);
     return messageDispatcher->setCalibVcVoltageOffset(channelIndexes, offsets, applyFlagIn);
@@ -296,8 +296,8 @@ ErrorCodes_t setCalibCcVoltageGain(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> gains;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> gains;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* gainsIn, gains);
     return messageDispatcher->setCalibCcVoltageGain(channelIndexes, gains, applyFlagIn);
@@ -311,8 +311,8 @@ ErrorCodes_t setCalibCcVoltageOffset(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> offsets;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> offsets;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* offsetsIn, offsets);
     return messageDispatcher->setCalibCcVoltageOffset(channelIndexes, offsets, applyFlagIn);
@@ -326,8 +326,8 @@ ErrorCodes_t setCalibCcCurrentGain(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> gains;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> gains;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* gainsIn, gains);
     return messageDispatcher->setCalibCcCurrentGain(channelIndexes, gains, applyFlagIn);
@@ -341,8 +341,8 @@ ErrorCodes_t setCalibCcCurrentOffset(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<Measurement_t> offsets;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <Measurement_t> offsets;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* offsetsIn, offsets);
     return messageDispatcher->setCalibCcCurrentOffset(channelIndexes, offsets, applyFlagIn);
@@ -373,8 +373,8 @@ ErrorCodes_t setGateVoltage(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> boardIndexes;
-    std::vector<Measurement_t> gateVoltages;
+    std::vector <uint16_t> boardIndexes;
+    std::vector <Measurement_t> gateVoltages;
     input2NumericVector(boardIndexesIn, boardIndexes, vectorLengthIn);
     input2VectorMeasurement(* gateVoltagesIn, gateVoltages);
     return messageDispatcher->setGateVoltages(boardIndexes, gateVoltages, applyFlagIn);
@@ -388,8 +388,8 @@ ErrorCodes_t setSourceVoltage(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> boardIndexes;
-    std::vector<Measurement_t> sourceVoltages;
+    std::vector <uint16_t> boardIndexes;
+    std::vector <Measurement_t> sourceVoltages;
     input2NumericVector(boardIndexesIn, boardIndexes, vectorLengthIn);
     input2VectorMeasurement(* sourceVoltagesIn, sourceVoltages);
     return messageDispatcher->setSourceVoltages(boardIndexes, sourceVoltages, applyFlagIn);
@@ -468,8 +468,8 @@ ErrorCodes_t digitalOffsetCompensation(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <bool> onValues;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->digitalOffsetCompensation(channelIndexes, onValues, applyFlagIn);
@@ -513,8 +513,8 @@ ErrorCodes_t enableStimulus(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <bool> onValues;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableStimulus(channelIndexes, onValues, applyFlagIn);
@@ -528,8 +528,8 @@ ErrorCodes_t turnChannelsOn(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <bool> onValues;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->turnChannelsOn(channelIndexes, onValues, applyFlagIn);
@@ -543,8 +543,8 @@ ErrorCodes_t turnCalSwOn(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <bool> onValues;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->turnCalSwOn(channelIndexes, onValues, applyFlagIn);
@@ -558,8 +558,8 @@ ErrorCodes_t enableCcStimulus(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
-    std::vector<bool> onValues;
+    std::vector <uint16_t> channelIndexes;
+    std::vector <bool> onValues;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2NumericVector(onValuesIn, onValues, vectorLengthIn);
     return messageDispatcher->enableCcStimulus(channelIndexes, onValues, applyFlagIn);
@@ -1094,7 +1094,7 @@ ErrorCodes_t resetDigitalOffsetCompensation() {
     uint16_t vChNum;
     uint16_t cChNum;
     messageDispatcher->getChannelNumberFeatures(vChNum, cChNum);
-    std::vector<uint16_t> channelIndexes(cChNum);
+    std::vector <uint16_t> channelIndexes(cChNum);
     for (uint16_t chIdx = 0; chIdx < cChNum; cChNum++) {
         channelIndexes[chIdx] = chIdx;
     }
@@ -1128,7 +1128,7 @@ ErrorCodes_t getLiquidJunctionVoltages(
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    std::vector<uint16_t> channelIndexes;
+    std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> voltages;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     ErrorCodes_t ret = messageDispatcher->getLiquidJunctionVoltages(channelIndexes, voltages);
@@ -1179,7 +1179,7 @@ ErrorCodes_t getBoardsNumber(
 }
 
 ErrorCodes_t getVoltageHoldTunerFeatures(
-        LRangeHandle * voltageHoldTunerFeaturesOut){
+        LRangeHandle * voltageHoldTunerFeaturesOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1190,7 +1190,7 @@ ErrorCodes_t getVoltageHoldTunerFeatures(
 }
 
 ErrorCodes_t getCurrentHoldTunerFeatures(
-        LRangeHandle * currentHoldTunerFeaturesOut){
+        LRangeHandle * currentHoldTunerFeaturesOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1201,7 +1201,7 @@ ErrorCodes_t getCurrentHoldTunerFeatures(
 }
 
 ErrorCodes_t getVoltageHalfFeatures(
-        LRangeHandle * voltageHalfFeaturesOut){
+        LRangeHandle * voltageHalfFeaturesOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1212,7 +1212,7 @@ ErrorCodes_t getVoltageHalfFeatures(
 }
 
 ErrorCodes_t getCurrentHalfFeatures(
-        LRangeHandle * currentHalfFeaturesOut){
+        LRangeHandle * currentHalfFeaturesOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1428,7 +1428,7 @@ ErrorCodes_t getVoltageStimulusLpfs(
     std::vector <Measurement_t> vcVoltageFilters;
     ErrorCodes_t ret = messageDispatcher->getVCVoltageFilters(vcVoltageFilters);
     std::vector <std::string> filterOptions;
-    for(uint16_t i = 0; i < vcVoltageFilters.size(); i++){
+    for (uint16_t i = 0; i < vcVoltageFilters.size(); i++) {
         filterOptions[i] = vcVoltageFilters[i].niceLabel();
     }
     vectorString2Output(filterOptions, filterOptionsOut);
@@ -1444,7 +1444,7 @@ ErrorCodes_t getCurrentStimulusLpfs(
     std::vector <Measurement_t> ccCurrentFilters;
     ErrorCodes_t ret = messageDispatcher->getCCCurrentFilters(ccCurrentFilters);
     std::vector <std::string> filterOptions;
-    for(uint16_t i = 0; i < ccCurrentFilters.size(); i++){
+    for (uint16_t i = 0; i < ccCurrentFilters.size(); i++) {
         filterOptions[i] = ccCurrentFilters[i].niceLabel();
     }
     vectorString2Output(filterOptions, filterOptionsOut);
@@ -1793,7 +1793,7 @@ ErrorCodes_t readCalibrationEeprom(
 ErrorCodes_t setDebugBit(
         uint16_t wordOffset,
         uint16_t bitOffset,
-        bool status){
+        bool status) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1802,7 +1802,7 @@ ErrorCodes_t setDebugBit(
 
 ErrorCodes_t setDebugWord(
         uint16_t wordOffset,
-        uint16_t wordValue){
+        uint16_t wordValue) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1931,15 +1931,15 @@ void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeH
     }
 }
 
-template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t * o){
-    for(unsigned int i = 0; i<v.size(); i++){
+template<typename I_t, typename O_t> void numericVector2Output(I_t v, O_t * o) {
+    for (unsigned int i = 0; i<v.size(); i++) {
         o[i] = v[i];
     }
 }
 
-template<typename I_t, typename O_t> void input2NumericVector(I_t * v, O_t &o, int inputLength){
+template<typename I_t, typename O_t> void input2NumericVector(I_t * v, O_t &o, int inputLength) {
     o.resize(inputLength);
-    for(unsigned int i = 0; i<o.size(); i++){
+    for (unsigned int i = 0; i<o.size(); i++) {
         o[i] = v[i];
     }
 }

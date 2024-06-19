@@ -51,7 +51,7 @@ uint32_t Emcr4x10MHzFake::readDataFromDevice() {
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
 
     /*! No data to receive, just sleep */
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     while (bytesRead+(voltageChannelsNum+currentChannelsNum*packetsPerFrame+6)*RX_WORD_SIZE < OKY_RX_TRANSFER_SIZE) {
         rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;

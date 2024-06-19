@@ -531,7 +531,7 @@ ErrorCodes_t EZPatchFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> va
 
     /*! Make a chip reset to force resynchronization of chip states. This is important when the FPGA has just been reset */
     this->resetAsic(true, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for (std::chrono::milliseconds(1));
     this->resetAsic(false, true);
 
     return ret;
@@ -581,7 +581,7 @@ ErrorCodes_t EZPatchFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &va
 
     /*! Make a chip reset to force resynchronization of chip states. This is important when the FPGA has just been reset */
     this->resetAsic(true, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for (std::chrono::milliseconds(1));
     this->resetAsic(false, true);
 
     return ret;
@@ -772,13 +772,13 @@ void EZPatchFtdiDevice::readAndParseMessages() {
         if (ftdiQueuedBytes == 0) {
             connectionMutexLock.unlock();
             /*! If there are no bytes in the queue skip to next iteration in the while loop */
-            std::this_thread::sleep_for(longBytesWait);
+            std::this_thread::sleep_for (longBytesWait);
             continue;
 
         } else if ((ftdiQueuedBytes < minQueuedBytes) && (readTries == 0)) {
             connectionMutexLock.unlock();
             readTries++;
-            std::this_thread::sleep_for(shortBytesWait);
+            std::this_thread::sleep_for (shortBytesWait);
             continue;
         }
         readTries = 0;
@@ -1127,7 +1127,7 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
 
         txMutexLock.lock();
         while (txMsgBufferReadLength <= 0) {
-            txMsgBufferNotEmpty.wait_for(txMutexLock, std::chrono::milliseconds(100));
+            txMsgBufferNotEmpty.wait_for (txMutexLock, std::chrono::milliseconds(100));
             if (stopConnectionFlag && (txWaitingOnAcks == 0)) {
                 break;
             }
@@ -1362,7 +1362,7 @@ ErrorCodes_t EZPatchFtdiDevice::loadFpgaFw() {
         FT_WriteGPIO(spiHandle, xCbusDir, fpgaResetBit); // lower bits of the switches to select master mode and prog B to put FPGA in reset
         FT_WriteGPIO(spiHandle, xCbusDir, progBBit); // prog B high to start FPGA configuration (it reads the FLASH)
 
-        std::this_thread::sleep_for(std::chrono::seconds(35));
+        std::this_thread::sleep_for (std::chrono::seconds(35));
 
         SPI_CloseChannel(spiHandle);
         Cleanup_libMPSSE();

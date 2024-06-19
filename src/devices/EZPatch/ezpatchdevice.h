@@ -113,7 +113,7 @@ public:
     ErrorCodes_t setConstantSwitches();
 
     ErrorCodes_t setCompensationsChannel(uint16_t channelIdx);
-    ErrorCodes_t enableCompensation(std::vector<uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) override;
+    ErrorCodes_t enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) override;
     ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag) override;
     ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag) override;
     ErrorCodes_t turnPipetteCompensationOn(bool on);
@@ -262,9 +262,9 @@ protected:
     virtual void selectChannelsResolutions() = 0;
     virtual void selectVoltageOffsetResolution() = 0;
 
-    ErrorCodes_t setSecondaryDeviceSwitch(bool flag);
+    ErrorCodes_t setSecondaryDeviceswitch (bool flag);
 
-    ErrorCodes_t setDigitalOffsetCompensationOverrideSwitch(bool flag);
+    ErrorCodes_t setDigitalOffsetCompensationOverrideswitch (bool flag);
     ErrorCodes_t setDigitalOffsetCompensationOverrideValue(uint16_t channelIdx, Measurement_t value);
 
     bool checkVoltStepTimeStepParameters(double v0, double vStep, double t0, double tStep, uint16_t repsNum, uint16_t applySteps);

@@ -407,7 +407,7 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
         }
 
         if (!anyOperationPerformed) {
-            std::this_thread::sleep_for(std::chrono::microseconds(1));
+            std::this_thread::sleep_for (std::chrono::microseconds(1));
         }
     }
 }
@@ -467,13 +467,13 @@ bool EmcrUdbDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
 
     case TxTriggerStartProtocol:
 //        this->activateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for (std::chrono::milliseconds(5));
         return this->activateTriggerIn(UDB_START_PROTOCOL_TRIGGER_IN_ADDR, UDB_START_PROTOCOL_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerStartStateArray:
 //        this->activateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-//        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+//        std::this_thread::sleep_for (std::chrono::milliseconds(5));
 //        this->activateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
         break;
     }
@@ -550,7 +550,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
         /*! Since UDB_RX_TRANSFER_SIZE bytes are obtained each time from the UDB, wait that at least these many are available,
          *  Otherwise it means that no reads from the Opal kelly took place. */
         while (rxRawBufferReadLength < UDB_RX_TRANSFER_SIZE && !stopConnectionFlag) {
-            rxRawBufferNotEmpty.wait_for(rxRawMutexLock, std::chrono::milliseconds(3));
+            rxRawBufferNotEmpty.wait_for (rxRawMutexLock, std::chrono::milliseconds(3));
         }
         maxRxRawBytesRead = rxRawBufferReadLength;
         rxRawBytesAvailable = maxRxRawBytesRead;

@@ -873,7 +873,7 @@ ErrorCodes_t EZPatchDevice::setSamplingRate(uint16_t samplingRateIdx, bool apply
 
         /*! Make a chip reset to force resynchronization of chip states. This is important when the clock changes (SR slow to SR fast or vice versa) */
         this->resetAsic(true, true);
-        std::this_thread::sleep_for(std::chrono::milliseconds(resetDuration));
+        std::this_thread::sleep_for (std::chrono::milliseconds(resetDuration));
         this->resetAsic(false, true);
 
         selectedSamplingRateIdx = samplingRateIdx;
@@ -918,7 +918,7 @@ ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(uint16_t channelIdx) {
     ErrorCodes_t ret;
 
     if (channelIdx < currentChannelsNum) {
-        this->setDigitalOffsetCompensationOverrideSwitch(false);
+        this->setDigitalOffsetCompensationOverrideswitch (false);
         uint16_t dataLength = 1;
         std::vector <uint16_t> txDataMessage(dataLength);
         txDataMessage[0] = channelIdx;
@@ -937,7 +937,7 @@ ErrorCodes_t EZPatchDevice::digitalOffsetCompensationOverride(uint16_t channelId
 
     if (digitalOffsetCompensationOverrideImplemented) {
         if (channelIdx < currentChannelsNum) {
-            ret = this->setDigitalOffsetCompensationOverrideSwitch(true);
+            ret = this->setDigitalOffsetCompensationOverrideswitch (true);
             if (ret == Success) {
                 ret = this->setDigitalOffsetCompensationOverrideValue(channelIdx, value);
 
@@ -1125,11 +1125,11 @@ ErrorCodes_t EZPatchDevice::setCurrentStimulusLpf(uint16_t filterIdx, bool apply
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::enableStimulus(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
 //    if (!allLessThan(channelIndexes, currentChannelsNum)) {
 //        return ErrorValueOutOfRange;
 //    }
-    for(uint32_t i = 0; i < channelIndexes.size(); i++){
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         this->enableStimulus(channelIndexes[i], onValues[i]);
         channelModels[channelIndexes[i]]->setInStimActive(onValues[i]);
     }
@@ -1274,7 +1274,7 @@ ErrorCodes_t EZPatchDevice::setCompensationsChannel(uint16_t channelIdx) {
     return Success;
 }
 
-ErrorCodes_t EZPatchDevice::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector<bool> onValues, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
     int tempCompensationSettingChannel = compensationsSettingChannel;
     switch (compTypeToEnable) {
     case CompCfast:
@@ -2371,7 +2371,7 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
         std::chrono::steady_clock::time_point currentTime = startTime;
         while (((std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count()) < EZP_NO_DATA_WAIT_TIME_MS) &&
                (rxMsgBufferReadLength == 0)) {
-            rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(EZP_NO_DATA_WAIT_TIME_MS));
+            rxMsgBufferNotEmpty.wait_for (rxMutexLock, std::chrono::milliseconds(EZP_NO_DATA_WAIT_TIME_MS));
             currentTime = std::chrono::steady_clock::now();
         }
         if (rxMsgBufferReadLength == 0) {
@@ -2849,7 +2849,7 @@ ErrorCodes_t EZPatchDevice::initialize(std::string fwPath) {
         return ret;
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for (std::chrono::milliseconds(500));
 
     return this->initializeHW();
 }
@@ -2924,7 +2924,7 @@ void EZPatchDevice::initializeVariables() {
 }
 
 ErrorCodes_t EZPatchDevice::deviceConfiguration() {
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for (std::chrono::milliseconds(10));
     ErrorCodes_t ret = MessageDispatcher::deviceConfiguration();
     if (ret != Success) {
         return ret;
@@ -2995,14 +2995,14 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
         return ErrorConnectionChipResetFailed;
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(resetDuration));
+    std::this_thread::sleep_for (std::chrono::milliseconds(resetDuration));
 
     ret = this->resetAsic(false, true);
     if (ret != Success) {
         return ErrorConnectionChipResetFailed;
     }
 
-    this->setSecondaryDeviceSwitch(false); /*! \todo FCON questo va propriamente settato per gestire device main e secondary */
+    this->setSecondaryDeviceswitch (false); /*! \todo FCON questo va propriamente settato per gestire device main e secondary */
     for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
         this->setVcCurrentOffsetDelta(idx, {0.0, UnitPfxNone, "A"});
     }
@@ -3163,7 +3163,7 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
             currentTime = startTime;
             ackLock.lock();
             while (!txAckReceived && (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count()) < EZP_ACK_WAIT_TIME_MS) {
-                txAckCv.wait_for(ackLock, std::chrono::milliseconds(EZP_ACK_WAIT_TIME_MS));
+                txAckCv.wait_for (ackLock, std::chrono::milliseconds(EZP_ACK_WAIT_TIME_MS));
                 currentTime = std::chrono::steady_clock::now();
             }
             if (txAckReceived) {
@@ -3202,7 +3202,7 @@ void EZPatchDevice::uint322uint16(uint32_t from, std::vector <uint16_t> &to, siz
     to[offset+1] = (from >> 16) & 0xFFFF;
 }
 
-ErrorCodes_t EZPatchDevice::setDigitalOffsetCompensationOverrideSwitch(bool flag) {
+ErrorCodes_t EZPatchDevice::setDigitalOffsetCompensationOverrideswitch (bool flag) {
     ErrorCodes_t ret;
 
     if (digitalOffsetCompensationOverrideImplemented) {
@@ -3229,7 +3229,7 @@ ErrorCodes_t EZPatchDevice::setDigitalOffsetCompensationOverrideSwitch(bool flag
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setSecondaryDeviceSwitch(bool flag) {
+ErrorCodes_t EZPatchDevice::setSecondaryDeviceswitch (bool flag) {
     ErrorCodes_t ret;
 
     if (startProtocolCommandImplemented) {

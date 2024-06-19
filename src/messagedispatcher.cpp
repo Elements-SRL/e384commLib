@@ -192,7 +192,7 @@ ErrorCodes_t MessageDispatcher::setRowSelected(uint16_t rowIdx, bool newState) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getChannelsOnRow(uint16_t rowIdx, std::vector<ChannelModel *> &channels) {
+ErrorCodes_t MessageDispatcher::getChannelsOnRow(uint16_t rowIdx, std::vector <ChannelModel *> &channels) {
     if (rowIdx >= channelsPerBoard) {
         return ErrorValueOutOfRange;
     }
@@ -233,23 +233,23 @@ ErrorCodes_t MessageDispatcher::resetFpga(bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setVoltageHalf(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentHalf(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setCurrentHalf(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setLiquidJunctionVoltage(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -263,11 +263,11 @@ ErrorCodes_t MessageDispatcher::resetLiquidJunctionVoltage(std::vector <uint16_t
     return this->setLiquidJunctionVoltage(channelIndexes, voltages, applyFlag);
 }
 
-ErrorCodes_t MessageDispatcher::setGateVoltages(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setGateVoltages(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setSourceVoltages(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setSourceVoltages(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -275,75 +275,75 @@ ErrorCodes_t MessageDispatcher::setCalibParams(CalibrationParams_t) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setCalibVcCurrentGain(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibVcCurrentGain(std::vector<uint16_t>, bool){
+ErrorCodes_t MessageDispatcher::updateCalibVcCurrentGain(std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setCalibVcCurrentOffset(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibVcCurrentOffset(std::vector<uint16_t>, bool){
+ErrorCodes_t MessageDispatcher::updateCalibVcCurrentOffset(std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setCalibCcVoltageGain(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibCcVoltageGain(std::vector<uint16_t>, bool){
+ErrorCodes_t MessageDispatcher::updateCalibCcVoltageGain(std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setCalibCcVoltageOffset(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibCcVoltageOffset(std::vector<uint16_t>, bool){
+ErrorCodes_t MessageDispatcher::updateCalibCcVoltageOffset(std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setCalibVcVoltageGain(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibVcVoltageGain(std::vector<uint16_t>, bool){
+ErrorCodes_t MessageDispatcher::updateCalibVcVoltageGain(std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setCalibVcVoltageOffset(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibVcVoltageOffset(std::vector<uint16_t>, bool){
+ErrorCodes_t MessageDispatcher::updateCalibVcVoltageOffset(std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setCalibCcCurrentGain(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibCcCurrentGain(std::vector<uint16_t>, bool){
+ErrorCodes_t MessageDispatcher::updateCalibCcCurrentGain(std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibCcCurrentOffset(std::vector<uint16_t>, bool){
+ErrorCodes_t MessageDispatcher::updateCalibCcCurrentOffset(std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCalibRShuntConductance(std::vector<uint16_t>, std::vector<Measurement_t>, bool){
+ErrorCodes_t MessageDispatcher::setCalibRShuntConductance(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::updateCalibRShuntConductance(std::vector<uint16_t>, bool){
+ErrorCodes_t MessageDispatcher::updateCalibRShuntConductance(std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -375,35 +375,35 @@ ErrorCodes_t MessageDispatcher::setCurrentStimulusLpf(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::enableStimulus(std::vector<uint16_t>, std::vector<bool>, bool) {
+ErrorCodes_t MessageDispatcher::enableStimulus(std::vector <uint16_t>, std::vector <bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnChannelsOn(std::vector<uint16_t>, std::vector<bool>, bool) {
+ErrorCodes_t MessageDispatcher::turnChannelsOn(std::vector <uint16_t>, std::vector <bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::hasCalSw(){
+ErrorCodes_t MessageDispatcher::hasCalSw() {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnCalSwOn(std::vector<uint16_t>, std::vector<bool>, bool) {
+ErrorCodes_t MessageDispatcher::turnCalSwOn(std::vector <uint16_t>, std::vector <bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnVcSwOn(std::vector<uint16_t>, std::vector<bool>, bool){
+ErrorCodes_t MessageDispatcher::turnVcSwOn(std::vector <uint16_t>, std::vector <bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnCcSwOn(std::vector<uint16_t>, std::vector<bool>, bool){
+ErrorCodes_t MessageDispatcher::turnCcSwOn(std::vector <uint16_t>, std::vector <bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnVcCcSelOn(std::vector<uint16_t>, std::vector<bool>, bool){
+ErrorCodes_t MessageDispatcher::turnVcCcSelOn(std::vector <uint16_t>, std::vector <bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector<uint16_t>, std::vector<bool>, bool){
+ErrorCodes_t MessageDispatcher::enableCcStimulus(std::vector <uint16_t>, std::vector <bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -419,7 +419,7 @@ ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode, boo
     return this->setClampingModality((uint32_t)(iter-clampingModalitiesArray.begin()), applyFlag, stopProtocolFlag);
 }
 
-ErrorCodes_t MessageDispatcher::setSourceForVoltageChannel(uint16_t, bool){
+ErrorCodes_t MessageDispatcher::setSourceForVoltageChannel(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -427,11 +427,11 @@ ErrorCodes_t MessageDispatcher::setSourceForCurrentChannel(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector<uint16_t>, std::vector<bool>, bool) {
+ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector <uint16_t>, std::vector <bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::expandTraces(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues) {
+ErrorCodes_t MessageDispatcher::expandTraces(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues) {
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         channelModels[channelIndexes[i]]->setExpandedTrace(onValues[i]);
     }
@@ -482,19 +482,19 @@ ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t, uint16_t) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool, bool){
+ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool, bool){
+ErrorCodes_t MessageDispatcher::turnCurrentReaderOn(bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnVoltageStimulusOn(bool, bool){
+ErrorCodes_t MessageDispatcher::turnVoltageStimulusOn(bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnCurrentStimulusOn(bool, bool){
+ErrorCodes_t MessageDispatcher::turnCurrentStimulusOn(bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -538,7 +538,7 @@ ErrorCodes_t MessageDispatcher::setSateArrayState(int, Measurement_t, bool, Meas
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setStateArrayEnabled(int, bool){
+ErrorCodes_t MessageDispatcher::setStateArrayEnabled(int, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -637,7 +637,7 @@ ErrorCodes_t MessageDispatcher::convertCurrentValues(int16_t * intValues, double
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> &voltages) {
+ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> &voltages) {
     if (selectedLiquidJunctionVector.empty()) {
         return ErrorFeatureNotImplemented;
 
@@ -651,7 +651,7 @@ ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector<uint16_t> 
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getLiquidJunctionStatuses(std::vector<uint16_t> channelIndexes, std::vector<LiquidJunctionStatus_t> &statuses) {
+ErrorCodes_t MessageDispatcher::getLiquidJunctionStatuses(std::vector <uint16_t> channelIndexes, std::vector <LiquidJunctionStatus_t> &statuses) {
     if (liquidJunctionStatuses.empty()) {
         return ErrorFeatureNotImplemented;
 
@@ -665,19 +665,19 @@ ErrorCodes_t MessageDispatcher::getLiquidJunctionStatuses(std::vector<uint16_t> 
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &){
+ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &){
+ErrorCodes_t MessageDispatcher::getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &){
+ErrorCodes_t MessageDispatcher::getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &){
+ErrorCodes_t MessageDispatcher::getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -693,21 +693,21 @@ ErrorCodes_t MessageDispatcher::hasSourceVoltages() {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getGateVoltagesFeatures(RangedMeasurement_t &range){
+ErrorCodes_t MessageDispatcher::getGateVoltagesFeatures(RangedMeasurement_t &range) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getSourceVoltagesFeatures(RangedMeasurement_t &range){
+ErrorCodes_t MessageDispatcher::getSourceVoltagesFeatures(RangedMeasurement_t &range) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &currentChannelNumberFeatures){
+ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(uint16_t &voltageChannelNumberFeatures, uint16_t &currentChannelNumberFeatures) {
     voltageChannelNumberFeatures = voltageChannelsNum;
     currentChannelNumberFeatures = currentChannelsNum;
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(int &voltageChannelNumberFeatures, int &currentChannelNumberFeatures){
+ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(int &voltageChannelNumberFeatures, int &currentChannelNumberFeatures) {
     voltageChannelNumberFeatures = (int)voltageChannelsNum;
     currentChannelNumberFeatures = (int)currentChannelsNum;
     return Success;
@@ -754,7 +754,7 @@ ErrorCodes_t MessageDispatcher::getClampingModalityIdx(uint32_t &idx) {
 }
 
 ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultVcCurrRangeIdx) {
-    if (vcCurrentRangesArray.empty()){
+    if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     currentRanges = vcCurrentRangesArray;
@@ -763,7 +763,7 @@ ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasuremen
 }
 
 ErrorCodes_t MessageDispatcher::getVCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
-    if(vcVoltageRangesArray.empty()){
+    if (vcVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     voltageRanges = vcVoltageRangesArray;
@@ -771,7 +771,7 @@ ErrorCodes_t MessageDispatcher::getVCVoltageRanges(std::vector <RangedMeasuremen
 }
 
 ErrorCodes_t MessageDispatcher::getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
-    if(ccCurrentRangesArray.empty()){
+    if (ccCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     currentRanges = ccCurrentRangesArray;
@@ -779,7 +779,7 @@ ErrorCodes_t MessageDispatcher::getCCCurrentRanges(std::vector <RangedMeasuremen
 }
 
 ErrorCodes_t MessageDispatcher::getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
-    if(ccVoltageRangesArray.empty()){
+    if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     voltageRanges = ccVoltageRangesArray;
@@ -965,7 +965,7 @@ ErrorCodes_t MessageDispatcher::getSamplingRateIdx(uint32_t &idx) {
 }
 
 ErrorCodes_t MessageDispatcher::getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates) {
-    if(realSamplingRatesArray.empty()){
+    if (realSamplingRatesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     realSamplingRates = realSamplingRatesArray;
@@ -982,7 +982,7 @@ ErrorCodes_t MessageDispatcher::getDownsamplingRatio(uint32_t &ratio) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getVCVoltageFilters(std::vector <Measurement_t> &filters){
+ErrorCodes_t MessageDispatcher::getVCVoltageFilters(std::vector <Measurement_t> &filters) {
     if (vcVoltageFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -990,7 +990,7 @@ ErrorCodes_t MessageDispatcher::getVCVoltageFilters(std::vector <Measurement_t> 
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getVCCurrentFilters(std::vector <Measurement_t> &filters){
+ErrorCodes_t MessageDispatcher::getVCCurrentFilters(std::vector <Measurement_t> &filters) {
     if (vcCurrentFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -998,7 +998,7 @@ ErrorCodes_t MessageDispatcher::getVCCurrentFilters(std::vector <Measurement_t> 
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCCVoltageFilters(std::vector <Measurement_t> &filters){
+ErrorCodes_t MessageDispatcher::getCCVoltageFilters(std::vector <Measurement_t> &filters) {
     if (ccVoltageFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -1006,7 +1006,7 @@ ErrorCodes_t MessageDispatcher::getCCVoltageFilters(std::vector <Measurement_t> 
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCCCurrentFilters(std::vector <Measurement_t> &filters){
+ErrorCodes_t MessageDispatcher::getCCCurrentFilters(std::vector <Measurement_t> &filters) {
     if (ccCurrentFiltersArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -1098,11 +1098,11 @@ ErrorCodes_t MessageDispatcher::getCalibParams(CalibrationParams_t &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibFileNames(std::vector<std::string> &) {
+ErrorCodes_t MessageDispatcher::getCalibFileNames(std::vector <std::string> &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibFilesFlags(std::vector<std::vector <bool>> &) {
+ErrorCodes_t MessageDispatcher::getCalibFilesFlags(std::vector <std::vector <bool>> &) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -1293,7 +1293,7 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
     /*! Make sure that at the beginning all the constant values tha might not be written later on are sent to the FPGA */
     this->sendCommands();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     return Success;
 }
@@ -1342,7 +1342,7 @@ void MessageDispatcher::computeLiquidJunction() {
             voltages.clear();
             ljMutexLock.lock();
             for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-                switch(liquidJunctionStates[channelIdx]) {
+                switch (liquidJunctionStates[channelIdx]) {
                 case LiquidJunctionIdle:
                     break;
 
@@ -1634,7 +1634,7 @@ void MessageDispatcher::computeLiquidJunction() {
             if (!channelIndexes.empty()) {
                 std::unique_lock <std::mutex> txMutexLock (txMutex);
                 while (liquidJunctionControlPending && !stopConnectionFlag) {
-                    txMsgBufferNotFull.wait_for(txMutexLock, std::chrono::milliseconds(100));
+                    txMsgBufferNotFull.wait_for (txMutexLock, std::chrono::milliseconds(100));
                 }
                 txMutexLock.unlock();
             }
@@ -1650,14 +1650,14 @@ void MessageDispatcher::computeLiquidJunction() {
 #endif
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        std::this_thread::sleep_for (std::chrono::milliseconds(250));
 
         ljMutexLock.lock();
         liquidJunctionCurrentEstimatesNum = 0;
         std::fill(liquidJunctionCurrentSums.begin(), liquidJunctionCurrentSums.end(), 0);
         ljMutexLock.unlock();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for (std::chrono::milliseconds(100));
     }
 }
 
@@ -1990,27 +1990,27 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
     return y;
 }
 
-ErrorCodes_t MessageDispatcher::enableCompensation(std::vector<uint16_t>, CompensationTypes_t, std::vector<bool>, bool){
+ErrorCodes_t MessageDispatcher::enableCompensation(std::vector <uint16_t>, CompensationTypes_t, std::vector <bool>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::enableVcCompensations(bool, bool){
+ErrorCodes_t MessageDispatcher::enableVcCompensations(bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::enableCcCompensations(bool, bool){
+ErrorCodes_t MessageDispatcher::enableCcCompensations(bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCompValues(std::vector<uint16_t>, CompensationUserParams_t, std::vector<double>, bool){
+ErrorCodes_t MessageDispatcher::setCompValues(std::vector <uint16_t>, CompensationUserParams_t, std::vector <double>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCompRanges(std::vector<uint16_t>, CompensationUserParams_t, std::vector <uint16_t>, bool) {
+ErrorCodes_t MessageDispatcher::setCompRanges(std::vector <uint16_t>, CompensationUserParams_t, std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCompOptions(std::vector<uint16_t>, CompensationTypes_t, std::vector<uint16_t>, bool){
+ErrorCodes_t MessageDispatcher::setCompOptions(std::vector <uint16_t>, CompensationTypes_t, std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -2038,7 +2038,7 @@ ErrorCodes_t MessageDispatcher::hasCompFeature(CompensationUserParams_t feature)
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCompFeatures(CompensationUserParams_t feature, std::vector<RangedMeasurement_t> &compensationFeatures, double &defaultParamValue){
+ErrorCodes_t MessageDispatcher::getCompFeatures(CompensationUserParams_t feature, std::vector <RangedMeasurement_t> &compensationRanges, double &defaultParamValue) {
     if (compensationControls[feature].empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -2048,14 +2048,14 @@ ErrorCodes_t MessageDispatcher::getCompFeatures(CompensationUserParams_t feature
     }
 
     for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
-        compensationFeatures[chIdx] = compensationControls[feature][chIdx].getCompensableRange();
+        compensationRanges[chIdx] = compensationControls[feature][chIdx].getCompensableRange();
         defaultParamValue = compensationControls[feature][chIdx].value;
     }
 
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes_t, std::vector <std::string> &){
+ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes_t, std::vector <std::string> &) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -2067,11 +2067,11 @@ ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector <std::vector <dou
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCompensationEnables(std::vector<uint16_t>, uint16_t, std::vector<bool> &){
+ErrorCodes_t MessageDispatcher::getCompensationEnables(std::vector <uint16_t>, CompensationTypes_t, std::vector <bool> &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCompensationControl(CompensationUserParams_t, CompensationControl_t &){
+ErrorCodes_t MessageDispatcher::getCompensationControl(CompensationUserParams_t, CompensationControl_t &) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -2104,21 +2104,21 @@ ErrorCodes_t MessageDispatcher::getCustomDoubles(std::vector <std::string> &cust
     return Success;
 }
 
-std::vector<double> MessageDispatcher::user2AsicDomainTransform(int, std::vector<double>){
-    return std::vector<double>();
+std::vector <double> MessageDispatcher::user2AsicDomainTransform(int, std::vector <double>) {
+    return std::vector <double>();
 }
 
-std::vector<double> MessageDispatcher::asic2UserDomainTransform(int, std::vector<double>, double, double){
-    return std::vector<double>();
+std::vector <double> MessageDispatcher::asic2UserDomainTransform(int, std::vector <double>, double, double) {
+    return std::vector <double>();
 }
 
-ErrorCodes_t MessageDispatcher::asic2UserDomainCompensable(int, std::vector<double>, std::vector<double>){
+ErrorCodes_t MessageDispatcher::asic2UserDomainCompensable(int, std::vector <double>, std::vector <double>) {
     return ErrorFeatureNotImplemented;
 }
 
-void MessageDispatcher::fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
+void MessageDispatcher::fillBoardList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard) {
     this->boardModels.resize(numOfBoards);
-    for(uint16_t i = 0; i< numOfBoards; i++ ){
+    for (uint16_t i = 0; i< numOfBoards; i++ ) {
         BoardModel* board = new BoardModel;
         board->setId(i);
         board->fillChannelList(numOfChannelsOnBoard);
@@ -2126,14 +2126,14 @@ void MessageDispatcher::fillBoardList(uint16_t numOfBoards, uint16_t numOfChanne
     }
 }
 
-void MessageDispatcher::fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard){
-    if(this->boardModels.size() == 0){
+void MessageDispatcher::fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard) {
+    if (this->boardModels.size() == 0) {
         this->fillBoardList(numOfBoards, numOfChannelsOnBoard);
     }
     uint16_t newChannelId = 0;
     channelModels.resize(numOfChannelsOnBoard*numOfBoards);
-    for(uint16_t i = 0; i< numOfBoards; i++ ){
-        for(uint16_t j = 0; j< numOfChannelsOnBoard; j++){
+    for (uint16_t i = 0; i< numOfBoards; i++ ) {
+        for (uint16_t j = 0; j< numOfChannelsOnBoard; j++) {
             this->channelModels[newChannelId] = this->boardModels[i]->getChannelsOnBoard()[j];
             newChannelId++;
         }
@@ -2142,7 +2142,7 @@ void MessageDispatcher::fillChannelList(uint16_t numOfBoards, uint16_t numOfChan
 
 void MessageDispatcher::flushBoardList() {
     size_t numOfBoards = this->boardModels.size();
-    for(uint16_t i = 0; i< numOfBoards; i++ ){
+    for (uint16_t i = 0; i< numOfBoards; i++ ) {
         if (this->boardModels[i] != nullptr) {
             delete this->boardModels[i];
         }

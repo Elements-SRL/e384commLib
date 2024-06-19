@@ -33,25 +33,25 @@ public:
     ErrorCodes_t setSourceVoltages(std::vector <uint16_t> boardIndexes, std::vector <Measurement_t> sourceVoltages, bool applyFlag) override;
 
     ErrorCodes_t setCalibParams(CalibrationParams_t calibParams) override;
-    ErrorCodes_t setCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag) override;
-    ErrorCodes_t updateCalibVcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
-    ErrorCodes_t setCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag) override;
-    ErrorCodes_t updateCalibVcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
-    ErrorCodes_t setCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag) override;
-    ErrorCodes_t updateCalibCcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
-    ErrorCodes_t setCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag) override;
-    ErrorCodes_t updateCalibCcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
-    ErrorCodes_t setCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag) override;
-    ErrorCodes_t updateCalibVcVoltageGain(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
-    ErrorCodes_t setCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag) override;
-    ErrorCodes_t updateCalibVcVoltageOffset(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
-    ErrorCodes_t setCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> gains, bool applyFlag) override;
-    ErrorCodes_t updateCalibCcCurrentGain(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
-    ErrorCodes_t setCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> offsets, bool applyFlag) override;
-    ErrorCodes_t updateCalibCcCurrentOffset(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
-    ErrorCodes_t setCalibRShuntConductance(std::vector<uint16_t> channelIndexes, std::vector<Measurement_t> conductances, bool applyFlag) override;
-    ErrorCodes_t updateCalibRShuntConductance(std::vector<uint16_t> channelIndexes, bool applyFlag) override;
-    ErrorCodes_t resetCalibRShuntConductance(std::vector<uint16_t> channelIndexes, bool applyFlag);
+    ErrorCodes_t setCalibVcCurrentGain(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> gains, bool applyFlag) override;
+    ErrorCodes_t updateCalibVcCurrentGain(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t setCalibVcCurrentOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) override;
+    ErrorCodes_t updateCalibVcCurrentOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t setCalibCcVoltageGain(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> gains, bool applyFlag) override;
+    ErrorCodes_t updateCalibCcVoltageGain(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t setCalibCcVoltageOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) override;
+    ErrorCodes_t updateCalibCcVoltageOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t setCalibVcVoltageGain(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> gains, bool applyFlag) override;
+    ErrorCodes_t updateCalibVcVoltageGain(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t setCalibVcVoltageOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) override;
+    ErrorCodes_t updateCalibVcVoltageOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t setCalibCcCurrentGain(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> gains, bool applyFlag) override;
+    ErrorCodes_t updateCalibCcCurrentGain(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t setCalibCcCurrentOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) override;
+    ErrorCodes_t updateCalibCcCurrentOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t setCalibRShuntConductance(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> conductances, bool applyFlag) override;
+    ErrorCodes_t updateCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t resetCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag);
 
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
@@ -62,21 +62,21 @@ public:
     ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag) override;
     ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlag) override;
 
-    ErrorCodes_t enableStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
-    ErrorCodes_t turnChannelsOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
-    ErrorCodes_t turnCalSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
+    ErrorCodes_t enableStimulus(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t turnChannelsOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t turnCalSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     ErrorCodes_t hasCalSw() override;
 
-    ErrorCodes_t turnVcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
-    ErrorCodes_t turnCcSwOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
-    ErrorCodes_t turnVcCcSelOn(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
-    ErrorCodes_t enableCcStimulus(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
+    ErrorCodes_t turnVcSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t turnCcSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t turnVcCcSelOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t enableCcStimulus(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
 
     ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag, bool stopProtocolFlag) override;
     ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag) override;
     ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag) override;
 
-    ErrorCodes_t digitalOffsetCompensation(std::vector<uint16_t> channelIndexes, std::vector<bool> onValues, bool applyFlag) override;
+    ErrorCodes_t digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
 
     ErrorCodes_t setAdcFilter() override;
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
@@ -130,8 +130,8 @@ public:
     ErrorCodes_t isStateArrayAvailable() override;
 
     ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams) override;
-    ErrorCodes_t getCalibFileNames(std::vector<std::string> &calibFileNames) override;
-    ErrorCodes_t getCalibFilesFlags(std::vector<std::vector <bool>> &calibFilesFlags) override;
+    ErrorCodes_t getCalibFileNames(std::vector <std::string> &calibFileNames) override;
+    ErrorCodes_t getCalibFilesFlags(std::vector <std::vector <bool>> &calibFilesFlags) override;
     ErrorCodes_t getCalibMappingFileDir(std::string &dir) override;
     ErrorCodes_t getCalibMappingFilePath(std::string &path) override;
 
@@ -237,8 +237,8 @@ protected:
 
     ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
     CalibrationParams_t calibrationParams;
-    std::vector<std::string> calibrationFileNames;
-    std::vector<std::vector<bool>> calibrationFilesOkFlags;
+    std::vector <std::string> calibrationFileNames;
+    std::vector <std::vector <bool>> calibrationFilesOkFlags;
     std::string calibrationMappingFileDir;
     std::string calibrationMappingFilePath;
 

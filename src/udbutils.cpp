@@ -263,7 +263,7 @@ void UdbUtils::writeFlash(CCyUSBDevice * dev, unsigned int address, unsigned int
         /*! unhandled error */
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for (std::chrono::milliseconds(500));
 }
 
 void UdbUtils::readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int &length) {
@@ -290,7 +290,7 @@ void UdbUtils::readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int 
     while (ctrept->XferData((PUCHAR)payload, ctrlen) == false && ++ tries <= 3) {
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 }
 
 long UdbUtils::getRequiredLength(FlashBlock_t block) {

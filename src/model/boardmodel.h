@@ -13,12 +13,12 @@ public:
     ~BoardModel();
 
     uint16_t getId();
-    std::vector<ChannelModel*> getChannelsOnBoard();
+    std::vector <ChannelModel*> getChannelsOnBoard();
     Measurement_t getGateVoltage();
     Measurement_t getSourceVoltage();
 
     void setId(uint16_t id);
-    void setChannelsOnBoard (std::vector<ChannelModel*> channelsOnBoard);
+    void setChannelsOnBoard (std::vector <ChannelModel*> channelsOnBoard);
     void setGateVoltage(Measurement_t gateVoltage);
     void setSourceVoltage(Measurement_t sourceVoltage);
 
@@ -26,7 +26,7 @@ public:
 
 private:
     uint16_t id = 65535;
-    std::vector<ChannelModel*> channelsOnBoard;
+    std::vector <ChannelModel*> channelsOnBoard;
     Measurement_t gateVoltage = {0.0, UnitPfxMilli, "V"};
     Measurement_t sourceVoltage = {0.0, UnitPfxMilli, "V"};
 };

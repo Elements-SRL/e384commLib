@@ -40,7 +40,7 @@ CalibrationParams_t CalibrationManager::getCalibrationParams(ErrorCodes_t &error
     return calibrationParams;
 }
 
-std::vector <std::string> CalibrationManager::getCalibrationFileNames(){
+std::vector <std::string> CalibrationManager::getCalibrationFileNames() {
     std::vector <std::string> calibFileNames;
     for (int i = 0; i < calibrationFileNames.size(); i++) {
         calibFileNames.push_back(calibrationFileNames[i][1]);
@@ -97,11 +97,11 @@ bool CalibrationManager::loadMappingFile() {
     }
 }
 
-std::string CalibrationManager::getMappingFileDir(){
+std::string CalibrationManager::getMappingFileDir() {
     return this->mappingFileDir;
 }
 
-std::string CalibrationManager::getMappingFilePath(){
+std::string CalibrationManager::getMappingFilePath() {
     return this->mappingFilePath;
 }
 

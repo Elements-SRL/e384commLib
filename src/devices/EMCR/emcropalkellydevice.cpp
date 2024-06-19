@@ -377,7 +377,7 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         }
 
         if (!anyOperationPerformed) {
-            std::this_thread::sleep_for(std::chrono::microseconds(1));
+            std::this_thread::sleep_for (std::chrono::microseconds(1));
         }
     }
 }
@@ -436,13 +436,13 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
 
     case TxTriggerStartProtocol:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for (std::chrono::milliseconds(5));
         dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerStartStateArray:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for (std::chrono::milliseconds(5));
         dev.ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
         break;
     }
@@ -473,13 +473,13 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
         if (bytesRead == ok_Timeout || bytesRead == ok_Failed) {
             /*! The device cannot recover from timeout condition */
             dev.Close();
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            std::this_thread::sleep_for (std::chrono::milliseconds(1000));
             txModifiedStartingWord = 0;
             txModifiedEndingWord = txMaxWords;
             this->sendCommands();
             dev.OpenBySerial(deviceId);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for (std::chrono::milliseconds(100));
 #ifdef DEBUG_RX_PROCESSING_PRINT
         fprintf(rxProcFid, "Error %x\n", bytesRead);
         fflush(rxProcFid);
@@ -533,7 +533,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
         /*! Since OKY_RX_TRANSFER_SIZE bytes are obtained each time from the opal kelly, wait that at least these many are available,
          *  Otherwise it means that no reads from the Opal kelly took place. */
         while (rxRawBufferReadLength < okTransferSize && !stopConnectionFlag) {
-            rxRawBufferNotEmpty.wait_for(rxRawMutexLock, std::chrono::milliseconds(3));
+            rxRawBufferNotEmpty.wait_for (rxRawMutexLock, std::chrono::milliseconds(3));
         }
         maxRxRawBytesRead = rxRawBufferReadLength;
         rxRawBytesAvailable = maxRxRawBytesRead;

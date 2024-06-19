@@ -1098,7 +1098,7 @@ bool EZPatche8PPatchliner_el07ab::checkCompensationsValues() {
             additionalPipetteCapacitanceFromMembrane = 0.0;
         }
 
-        if (compensationsEnableFlags[CompCfast][compensationsSettingChannel]){
+        if (compensationsEnableFlags[CompCfast][compensationsSettingChannel]) {
             ret &= (compensationControls[U_CpVc][compensationsSettingChannel].value+additionalPipetteCapacitanceFromMembrane > (minPipetteCapacitance-0.5*pipetteCapacitanceStep) &&
                     compensationControls[U_CpVc][compensationsSettingChannel].value+additionalPipetteCapacitanceFromMembrane < (maxPipetteCapacitance+0.5*pipetteCapacitanceStep));
         }

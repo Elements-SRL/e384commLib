@@ -282,7 +282,7 @@ void EZPatchFakeP8::readAndParseMessagesForGenerator() {
 
         genRxMutexLock.lock();
         while ((!ackFromGenAvailable) && (genRxMsgBufferLen <= 0)) {
-            genRxMsgBufferNotEmpty.wait_for(genRxMutexLock, std::chrono::milliseconds(1000));
+            genRxMsgBufferNotEmpty.wait_for (genRxMutexLock, std::chrono::milliseconds(1000));
             if (stopConnectionFlag && (txWaitingOnAcks == 0)) {
                 break;
             }
@@ -344,7 +344,7 @@ void EZPatchFakeP8::unwrapAndSendMessagesForGenerator() {
 
         txMutexLock.lock();
         while (txMsgBufferReadLength <= 0) {
-            txMsgBufferNotEmpty.wait_for(txMutexLock, std::chrono::milliseconds(100));
+            txMsgBufferNotEmpty.wait_for (txMutexLock, std::chrono::milliseconds(100));
             if (stopConnectionFlag && (txWaitingOnAcks == 0)) {
                 break;
             }
@@ -565,7 +565,7 @@ void EZPatchFakeP8::generateData() {
     while (!stopConnectionFlag) {
         genTxMutexLock.lock();
         while (!protocolAvailable) {
-            genTxProtocolAvailable.wait_for(genTxMutexLock, std::chrono::milliseconds(1000));
+            genTxProtocolAvailable.wait_for (genTxMutexLock, std::chrono::milliseconds(1000));
             if (stopConnectionFlag) {
                 break;
             }

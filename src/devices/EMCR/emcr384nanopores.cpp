@@ -726,19 +726,19 @@ ErrorCodes_t Emcr384NanoPores_V01::initializeHW() {
     minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stackOutgoingMessage(txStatus);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for (std::chrono::milliseconds(1000));
 
     plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     stackOutgoingMessage(txStatus);
 
-    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
+    std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));
 
     this->resetFpga(true, true);
     this->resetFpga(false, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for (std::chrono::milliseconds(1000));
 
     this->resetAsic(true, true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
     this->resetAsic(false, true);
 
     return Success;

@@ -4,7 +4,7 @@ ChannelModel::ChannelModel() {
 
 }
 
-uint16_t ChannelModel::getId(){
+uint16_t ChannelModel::getId() {
     return this->id;
 }
 
@@ -16,59 +16,59 @@ bool ChannelModel::isExpanded() {
     return expanded;
 }
 
-bool ChannelModel::isCompensatingLiquidJunction(){
+bool ChannelModel::isCompensatingLiquidJunction() {
     return compensatingLiquidJunction;
 }
 
-bool ChannelModel::isCompensatingCfast(){
+bool ChannelModel::isCompensatingCfast() {
     return this->compensatingCfast;
 }
 
-bool ChannelModel::isCompensatingCslowRs(){
+bool ChannelModel::isCompensatingCslowRs() {
     return this->compensatingCslowRs;
 }
 
-bool ChannelModel::isCompensatingRsCp(){
+bool ChannelModel::isCompensatingRsCp() {
     return this->compensatingRsCp;
 }
 
-bool ChannelModel::isCompensatingRsPg(){
+bool ChannelModel::isCompensatingRsPg() {
     return this->compensatingRSPg;
 }
 
-bool ChannelModel::isInStimActive(){
+bool ChannelModel::isInStimActive() {
     return this->inStimActive;
 }
 
-bool ChannelModel::isSelected(){
+bool ChannelModel::isSelected() {
     return this->selected;
 }
 
-Measurement_t ChannelModel::getVhold(){
+Measurement_t ChannelModel::getVhold() {
     return this->vHold;
 }
 
-Measurement_t ChannelModel::getChold(){
+Measurement_t ChannelModel::getChold() {
     return this->cHold;
 }
 
-Measurement_t ChannelModel::getVhalf(){
+Measurement_t ChannelModel::getVhalf() {
     return this->vHalf;
 }
 
-Measurement_t ChannelModel::getChalf(){
+Measurement_t ChannelModel::getChalf() {
     return this->cHalf;
 }
 
-Measurement_t ChannelModel::getLiquidJunctionVoltage(){
+Measurement_t ChannelModel::getLiquidJunctionVoltage() {
     return this->liquidJunctionVoltage;
 }
 
-void ChannelModel::setId(uint16_t id){
+void ChannelModel::setId(uint16_t id) {
     this->id = id;
 }
 
-void ChannelModel::setOn(bool on){
+void ChannelModel::setOn(bool on) {
     this->on = on;
 }
 
@@ -76,54 +76,54 @@ void ChannelModel::setExpandedTrace(bool expanded) {
     this->expanded = expanded;
 }
 
-void ChannelModel::setCompensatingLiquidJunction(bool compensating){
+void ChannelModel::setCompensatingLiquidJunction(bool compensating) {
     compensatingLiquidJunction = compensating;
 }
 
-void ChannelModel::setCompensatingCfast(bool compensating){
+void ChannelModel::setCompensatingCfast(bool compensating) {
     this->compensatingCfast = compensating;
 }
 
-void ChannelModel::setCompensatingCslowRs(bool compensating){
+void ChannelModel::setCompensatingCslowRs(bool compensating) {
     this->compensatingCslowRs = compensating;
 }
 
-void ChannelModel::setCompensatingRsCp(bool compensating){
+void ChannelModel::setCompensatingRsCp(bool compensating) {
     this->compensatingRsCp = compensating;
 }
 
-void ChannelModel::setCompensatingRsPg(bool compensating){
+void ChannelModel::setCompensatingRsPg(bool compensating) {
     this->compensatingRSPg = compensating;
 }
 
-void ChannelModel::setCompensatingCcCfast(bool compensating){
+void ChannelModel::setCompensatingCcCfast(bool compensating) {
     this->compensatingCcCfast = compensating;
 }
 
-void ChannelModel::setInStimActive(bool active){
+void ChannelModel::setInStimActive(bool active) {
     this->inStimActive = active;
 }
 
-void ChannelModel::setSelected(bool selected){
+void ChannelModel::setSelected(bool selected) {
     this->selected = selected;
 }
 
-void ChannelModel::setVhold(Measurement_t vHold){
+void ChannelModel::setVhold(Measurement_t vHold) {
     this->vHold = vHold;
 }
 
-void ChannelModel::setChold(Measurement_t cHold){
+void ChannelModel::setChold(Measurement_t cHold) {
     this->cHold = cHold;
 }
 
-void ChannelModel::setVhalf(Measurement_t vHalf){
+void ChannelModel::setVhalf(Measurement_t vHalf) {
     this->vHalf = vHalf;
 }
 
-void ChannelModel::setChalf(Measurement_t cHalf){
+void ChannelModel::setChalf(Measurement_t cHalf) {
     this->cHalf = cHalf;
 }
 
-void ChannelModel::setLiquidJunctionVoltage(Measurement_t voltage){
+void ChannelModel::setLiquidJunctionVoltage(Measurement_t voltage) {
     this->liquidJunctionVoltage = voltage;
 }

@@ -60,7 +60,7 @@ uint32_t Emcr384FakeNanopores::readDataFromDevice() {
     }
 #else
     /*! No data to receive, just sleep */
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     while (bytesRead+(totalChannelsNum+3)*RX_WORD_SIZE < OKY_RX_TRANSFER_SIZE) {
         rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
