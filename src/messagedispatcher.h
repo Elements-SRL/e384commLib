@@ -1400,23 +1400,110 @@ public:
      */
     ErrorCodes_t getCCVoltageRange(RangedMeasurement_t &range);
 
+    /*! \brief Get the current range currently applied for voltage clamp.
+     *
+     * \param idx [out] Index of the current range currently applied for voltage clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getVCCurrentRangeIdx(uint32_t &idx);
+
+    /*! \brief Get the voltage range currently applied for voltage clamp.
+     *
+     * \param idx [out] Index of the voltage range currently applied for voltage clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getVCVoltageRangeIdx(uint32_t &idx);
+
+    /*! \brief Get the current range currently applied for current clamp.
+     *
+     * \param idx [out] Index of the current range currently applied for current clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getCCCurrentRangeIdx(uint32_t &idx);
+
+    /*! \brief Get the voltage range currently applied for current clamp.
+     *
+     * \param idx [out] Index of the voltage range currently applied for current clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getCCVoltageRangeIdx(uint32_t &idx);
 
-    // Get the voltage in use (could be any clamping modality)
+    /*! \brief Get the voltage range currently applied independently of the clamping modality.
+     *
+     * \param range [out] Voltage range currently applied.
+     * \return Error code.
+     */
     ErrorCodes_t getVoltageRange(RangedMeasurement_t &range);
-    // Get the current range in use (could be any clamping modality)
+
+    /*! \brief Get the current range currently applied independently of the clamping modality.
+     *
+     * \param range [out] Current range currently applied.
+     * \return Error code.
+     */
     ErrorCodes_t getCurrentRange(RangedMeasurement_t &range);
 
+    /*! \brief Get the max current range for voltage clamp.
+     *
+     * \param range [out] Max current range for voltage clamp.
+     * \param idx [out] Index of the max current range for voltage clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getMaxVCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+
+    /*! \brief Get the min current range for voltage clamp.
+     *
+     * \param range [out] Min current range for voltage clamp.
+     * \param idx [out] Index of the min current range for voltage clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getMinVCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+
+    /*! \brief Get the max voltage range for voltage clamp.
+     *
+     * \param range [out] Max voltage range for voltage clamp.
+     * \param idx [out] Index of the max voltage range for voltage clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getMaxVCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+
+    /*! \brief Get the min voltage range for voltage clamp.
+     *
+     * \param range [out] Min voltage range for voltage clamp.
+     * \param idx [out] Index of the min voltage range for voltage clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getMinVCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+
+    /*! \brief Get the max current range for current clamp.
+     *
+     * \param range [out] Max current range for current clamp.
+     * \param idx [out] Index of the max current range for current clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getMaxCCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+
+    /*! \brief Get the min current range for current clamp.
+     *
+     * \param range [out] Min current range for current clamp.
+     * \param idx [out] Index of the min current range for current clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getMinCCCurrentRange(RangedMeasurement_t &range, uint32_t &idx);
+
+    /*! \brief Get the max voltage range for current clamp.
+     *
+     * \param range [out] Max voltage range for current clamp.
+     * \param idx [out] Index of the max voltage range for current clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getMaxCCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+
+    /*! \brief Get the min voltage range for current clamp.
+     *
+     * \param range [out] Min voltage range for current clamp.
+     * \param idx [out] Index of the min voltage range for current clamp.
+     * \return Error code.
+     */
     ErrorCodes_t getMinCCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
 
     /*! \brief Get the sampling rates available for the device.
@@ -1425,7 +1512,19 @@ public:
      * \return Error code.
      */
     ErrorCodes_t getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates);
+
+    /*! \brief Get the currently applied sampling rate.
+     *
+     * \param samplingRate [out] Currently applied sampling rate.
+     * \return Error code.
+     */
     ErrorCodes_t getSamplingRate(Measurement_t &samplingRate);
+
+    /*! \brief Get the currently applied sampling rate.
+     *
+     * \param idx [out] Index of the currently applied sampling rate.
+     * \return Error code.
+     */
     ErrorCodes_t getSamplingRateIdx(uint32_t &idx);
 
     /*! \brief Get the real sampling rates available for the device.
@@ -1435,7 +1534,19 @@ public:
      * \return Error code.
      */
     ErrorCodes_t getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates);
+
+    /*! \brief Get the max downsampling ratio.
+     *
+     * \param ratio [out] Max downsampling ratio.
+     * \return Error code.
+     */
     ErrorCodes_t getMaxDownsamplingRatioFeature(uint32_t &ratio);
+
+    /*! \brief Get the currently applied downsampling ratio.
+     *
+     * \param ratio [out] Currently applied downsampling ratio.
+     * \return Error code.
+     */
     ErrorCodes_t getDownsamplingRatio(uint32_t &ratio);
 
     /*! \brief Get the available options for the voltage stimulus low pass filter.
@@ -1444,7 +1555,21 @@ public:
      * \return Error code.
      */
     ErrorCodes_t getVCVoltageFilters(std::vector <Measurement_t> &filters);
+
+    /*! \brief Get the available options for the current readout low pass filter.
+     *
+     * \param filters [out] Available options for the current readout low pass filter.
+     * \note This option is usually optimally set by the commlib depending on the selected sampling rate.
+     * \return Error code.
+     */
     ErrorCodes_t getVCCurrentFilters(std::vector <Measurement_t> &filters);
+
+    /*! \brief Get the available options for the voltage readout low pass filter.
+     *
+     * \param filters [out] Available options for the voltage readout low pass filter.
+     * \note This option is usually optimally set by the commlib depending on the selected sampling rate.
+     * \return Error code.
+     */
     ErrorCodes_t getCCVoltageFilters(std::vector <Measurement_t> &filters);
 
     /*! \brief Get the available options for the current stimulus low pass filter.
@@ -1454,19 +1579,84 @@ public:
      */
     ErrorCodes_t getCCCurrentFilters(std::vector <Measurement_t> &filters);
 
+    /*! \brief Get the currently applied low pass filter for the voltage stimulus.
+     *
+     * \param filter [out] Currently applied low pass filter for the voltage stimulus.
+     * \return Error code.
+     */
     ErrorCodes_t getVCVoltageFilter(Measurement_t &filter);
+
+    /*! \brief Get the currently applied low pass filter for the current readout.
+     *
+     * \param filter [out] Currently applied low pass filter for the current readout.
+     * \return Error code.
+     */
     ErrorCodes_t getVCCurrentFilter(Measurement_t &filter);
+
+    /*! \brief Get the currently applied low pass filter for the voltage readout.
+     *
+     * \param filter [out] Currently applied low pass filter for the voltage readout.
+     * \return Error code.
+     */
     ErrorCodes_t getCCVoltageFilter(Measurement_t &filter);
+
+    /*! \brief Get the currently applied low pass filter for the current stimulus.
+     *
+     * \param filter [out] Currently applied low pass filter for the current stimulus.
+     * \return Error code.
+     */
     ErrorCodes_t getCCCurrentFilter(Measurement_t &filter);
 
+    /*! \brief Get the currently applied low pass filter for the voltage stimulus.
+     *
+     * \param idx [out] Index of the currently applied low pass filter for the voltage stimulus.
+     * \return Error code.
+     */
     ErrorCodes_t getVCVoltageFilterIdx(uint32_t &idx);
+
+    /*! \brief Get the currently applied low pass filter for the current readout.
+     *
+     * \param idx [out] Index of the currently applied low pass filter for the current readout.
+     * \return Error code.
+     */
     ErrorCodes_t getVCCurrentFilterIdx(uint32_t &idx);
+
+    /*! \brief Get the currently applied low pass filter for the voltage readout.
+     *
+     * \param idx [out] Index of the currently applied low pass filter for the voltage readout.
+     * \return Error code.
+     */
     ErrorCodes_t getCCVoltageFilterIdx(uint32_t &idx);
+
+    /*! \brief Get the currently applied low pass filter for the current stimulus.
+     *
+     * \param idx [out] Index of the currently applied low pass filter for the current stimulus.
+     * \return Error code.
+     */
     ErrorCodes_t getCCCurrentFilterIdx(uint32_t &idx);
 
+    /*! \brief Check if the channels have controllable input switches.
+     *
+     * \return Success if the device has controllable input switches.
+     */
     virtual ErrorCodes_t hasChannelSwitches();
+
+    /*! \brief Check if the device can selectively stop the stimulation on channels.
+     *
+     * \return Success if the device can selectively stop the stimulation on channels.
+     */
     virtual ErrorCodes_t hasStimulusSwitches();
+
+    /*! \brief Check if the channels have controllable input switches.
+     *
+     * \return Success if the device has controllable input switches.
+     */
     virtual ErrorCodes_t hasOffsetCompensation();
+
+    /*! \brief Check if the device can selectively apply the half stimulation value on channels.
+     *
+     * \return Success if the device can selectively apply the half stimulation value on channels.
+     */
     virtual ErrorCodes_t hasStimulusHalf();
 
     /*! \brief Get the voltage range for voltage protocols.
@@ -1505,6 +1695,11 @@ public:
      * \return Error code.
      */
     ErrorCodes_t getMaxProtocolItemsFeature(uint32_t &num);
+
+    /*! \brief Check if the device can apply stimulation protocols.
+     *
+     * \return Success if the device can apply stimulation protocols.
+     */
     ErrorCodes_t hasProtocols();
 
     /*! \brief Tell if the device implements step protocol items.
@@ -1524,6 +1719,11 @@ public:
      * \return Success if the device implements sin protocol items.
      */
     ErrorCodes_t hasProtocolSinFeature();
+
+    /*! \brief Check if the device implements stateArrays.
+     *
+     * \return Success if the device implements stateArrays.
+     */
     virtual ErrorCodes_t isStateArrayAvailable();
 
     /*! \brief Get a structure containing the calibration parameters.
@@ -1532,13 +1732,59 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams);
+
+    /*! \brief Get a list of the filenames of the calibration files.
+     *
+     * \param calibFileNames [out] Calibration file names.
+     * \return Error code.
+     */
     virtual ErrorCodes_t getCalibFileNames(std::vector <std::string> &calibFileNames);
+
+    /*! \brief Get flags indicating if the calibration files were correctly loaded.
+     *
+     * \param calibFilesFlags [out] Vector of vector of flags indicating if the calibration files were correctly parsed.
+     * The external vector has an item for each clamping modality, the internal vectors has an item for each calibration parameters family, e.g. voltage clamp current gains.
+     * \return Error code.
+     */
     virtual ErrorCodes_t getCalibFilesFlags(std::vector <std::vector <bool>> &calibFilesFlags);
+
+    /*! \brief Get the directory of the calibration mapping file.
+     *
+     * \param dir [out] Directory of the calibration mapping file.
+     * \return Error code.
+     */
     virtual ErrorCodes_t getCalibMappingFileDir(std::string &dir);
+
+    /*! \brief Get the full path of the calibration mapping file.
+     *
+     * \param dir [out] Full path of the calibration mapping file.
+     * \return Error code.
+     */
     virtual ErrorCodes_t getCalibMappingFilePath(std::string &path);
 
+    /*! \brief Get calibration eeprom size in bytes.
+     *
+     * \param size [out] Size of the calibration eeprom in bytes.
+     * \return Error code.
+     */
     virtual ErrorCodes_t getCalibrationEepromSize(uint32_t &size);
+
+    /*! \brief Write values on calibration eeprom.
+     *
+     * \param value [in] Values to be written.
+     * \param address [in] Addresses in the eeprom memory of the first byte to be written.
+     * \param size [in] Numbers of bytes to be written.
+     * \return Error code.
+     */
     virtual ErrorCodes_t writeCalibrationEeprom(std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size);
+
+    /*! \brief Read values from calibration eeprom.
+     *
+     * \param value [out] Values to be read.
+     * \param address [in] Addresses in the eeprom memory of the first byte to be read.
+     * \param size [in] Numbers of bytes to be read.
+     * \return Error code.
+     */
     virtual ErrorCodes_t readCalibrationEeprom(std::vector <uint32_t> &value, std::vector <uint32_t> address, std::vector <uint32_t> size);
 
     /*! \brief Check if the device has a specific compensation parameter.
