@@ -72,6 +72,12 @@ using namespace e384CommLib;
 class E384COMMLIBSHARED_EXPORT MessageDispatcher {
 public:
 
+    typedef struct FwUpgradeInfo { /*! Defaults to "no upgrades available" */
+        bool available = false;
+        unsigned char fwVersion = 0xFF;
+        std::string fwName = "";
+    } FwUpgradeInfo_t;
+
     /*****************\
      *  Ctor / Dtor  *
     \*****************/
@@ -79,7 +85,7 @@ public:
     /*! \brief Constructor.
      *  \note Don't call directly, the connectDevice should be used to get a MessageDispatcher.
      *
-     * \param deviceId [out] Serial number of the device.
+     * \param deviceId [in] Serial number of the device.
      */
     MessageDispatcher(std::string deviceId);
 
@@ -114,19 +120,6 @@ public:
         U_BrB,      // CCBridgeBalance
         CompensationUserParamsNum
     } CompensationUserParams_t;
-
-    typedef struct MsgResume {
-        uint16_t typeId;
-        uint16_t heartbeat;
-        uint32_t dataLength;
-        uint32_t startDataPtr;
-    } MsgResume_t;
-
-    typedef struct FwUpgradeInfo { /*! Defaults to "no upgrades available" */
-        bool available = false;
-        unsigned char fwVersion = 0xFF;
-        std::string fwName = "";
-    } FwUpgradeInfo_t;
 
     /************************\
      *  Connection methods  *
@@ -1877,6 +1870,13 @@ protected:
         RxMessageStatus,
         RxMessageNum
     } RxMessageTypes_t;
+
+    typedef struct MsgResume {
+        uint16_t typeId;
+        uint16_t heartbeat;
+        uint32_t dataLength;
+        uint32_t startDataPtr;
+    } MsgResume_t;
 
     typedef enum LiquidJunctionState {
         LiquidJunctionIdle,
