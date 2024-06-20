@@ -16,6 +16,10 @@ bool ChannelModel::isExpanded() {
     return expanded;
 }
 
+bool ChannelModel::isRecalibratingReadoutOffset() {
+    return recalibratingReadoutOffset;
+}
+
 bool ChannelModel::isCompensatingLiquidJunction() {
     return compensatingLiquidJunction;
 }
@@ -74,6 +78,10 @@ void ChannelModel::setOn(bool on) {
 
 void ChannelModel::setExpandedTrace(bool expanded) {
     this->expanded = expanded;
+}
+
+void ChannelModel::setRecalibratingReadoutOffset(bool recalibrating) {
+    recalibratingReadoutOffset = recalibrating;
 }
 
 void ChannelModel::setCompensatingLiquidJunction(bool compensating) {

@@ -182,6 +182,7 @@ typedef enum DeviceTypes {
     Device384PatchClamp_prot_v04_fw_v04,        /*!< Nanion's Syncropatch */
     Device384PatchClamp_prot_v04_fw_v05,
     Device384PatchClamp_prot_v05_fw_v06,        /*! Header packet */
+    Device384VoltageClamp_prot_v04_fw_v03,
     DeviceTestBoardEL07ab,
     DeviceTestBoardEL07c,
     DeviceTestBoardEL07d,
