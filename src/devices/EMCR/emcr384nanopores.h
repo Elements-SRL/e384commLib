@@ -65,11 +65,6 @@ protected:
         SamplingRatesNum
     };
 
-    enum Leds {
-        LedBlue,
-        LedsNum
-    };
-
     BoolArrayCoder * minus24VCoder = nullptr;
     BoolArrayCoder * plus24VCoder = nullptr;
     

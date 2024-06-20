@@ -9,6 +9,7 @@
 #include "emcr384patchclamp_prot_v04_fw_v04.h"
 #include "emcr384patchclamp_prot_v04_fw_v05.h"
 #include "emcr384patchclamp_prot_v05_fw_v06.h"
+#include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
@@ -28,7 +29,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"23210014UP", Device384Nanopores},
     {"23190014UX", Device384PatchClamp_prot_v04_fw_v05},
     {"2210001076", Device384PatchClamp_prot_v05_fw_v06},
-    {"221000106B", Device384PatchClamp_prot_v04_fw_v03},
+    {"221000106B", Device384VoltageClamp_prot_v04_fw_v03},
     {"221000106C", Device384PatchClamp_prot_v01_fw_v02},
     {"23210014UF", Device384PatchClamp_prot_v01_fw_v02},
     {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
@@ -161,6 +162,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device384PatchClamp_prot_v05_fw_v06:
         messageDispatcher = new Emcr384PatchClamp_prot_v05_fw_v06(deviceId);
+        break;
+
+    case Device384VoltageClamp_prot_v04_fw_v03:
+        messageDispatcher = new Emcr384VoltageClamp_prot_v04_fw_v03(deviceId);
         break;
 
     case DeviceTestBoardEL07ab:
