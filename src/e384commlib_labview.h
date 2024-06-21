@@ -307,11 +307,11 @@ ErrorCodes_t setDigitalFilter(
         E384CL_ARGIN bool activeFlag);
 
 /*! \brief Execute digital offset compensation.
- * Digital offset compensation tunes the offset of the applied voltage so that the
- * acquired current is 0.
+ * \note Digital offset compensation tunes the offset of the applied voltage so that the acquired current is 0.
+ * \note Do not use in open circuit: if there's a current offset in open circuit use the readoutOffsetRecalibration to fix it.
  *
  * \param channelIndexesIn [in] Channel indexes.
- * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the pipette compensation on, false to turn it off.
+ * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the digital offset compensation on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.

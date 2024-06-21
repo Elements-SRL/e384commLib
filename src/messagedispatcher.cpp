@@ -640,8 +640,8 @@ ErrorCodes_t MessageDispatcher::convertCurrentValues(int16_t * intValues, double
 ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> &voltages) {
     if (selectedLiquidJunctionVector.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     voltages.resize(channelIndexes.size());
@@ -654,8 +654,8 @@ ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector <uint16_t>
 ErrorCodes_t MessageDispatcher::getLiquidJunctionStatuses(std::vector <uint16_t> channelIndexes, std::vector <LiquidJunctionStatus_t> &statuses) {
     if (liquidJunctionStatuses.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     statuses.resize(channelIndexes.size());
@@ -1334,10 +1334,14 @@ void MessageDispatcher::computeLiquidJunction() {
 
     Measurement_t voltage;
     double estimatedResistance;
+    bool activeFlag;
 
     while (!stopConnectionFlag) {
+        /*! Liquid junction */
+
         if (anyLiquidJunctionActive && liquidJunctionCurrentEstimatesNum > 0) {
-            anyLiquidJunctionActive = false;
+
+            activeFlag = false;
             channelIndexes.clear();
             voltages.clear();
             ljMutexLock.lock();
@@ -1347,7 +1351,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionStarting:
-                    anyLiquidJunctionActive = true;
+                    activeFlag = true;
                     channelIndexes.push_back(channelIdx);
                     liquidJunctionVoltagesBackup[channelIdx] = selectedLiquidJunctionVector[channelIdx];
                     voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
@@ -1380,7 +1384,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionFirstStep:
-                    anyLiquidJunctionActive = true;
+                    activeFlag = true;
                     liquidJunctionCurrentEstimates[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum;
                     if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) { /*! More or less 10% from saturation */
                         liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
@@ -1429,7 +1433,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionConverge:
-                    anyLiquidJunctionActive = true;
+                    activeFlag = true;
                     liquidJunctionDeltaCurrents[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum-liquidJunctionCurrentEstimates[channelIdx];
                     liquidJunctionCurrentEstimates[channelIdx] += liquidJunctionDeltaCurrents[channelIdx];
 
@@ -1567,7 +1571,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionSuccess:
-                    anyLiquidJunctionActive = true;
+                    activeFlag = true;
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
                     liquidJunctionStatuses[channelIdx] = LiquidJunctionSucceded;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
@@ -1579,7 +1583,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionFailOpenCircuit:
-                    anyLiquidJunctionActive = true;
+                    activeFlag = true;
                     channelIndexes.push_back(channelIdx);
                     voltages.push_back(liquidJunctionVoltagesBackup[channelIdx]);
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
@@ -1593,7 +1597,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionFailTooManySteps:
-                    anyLiquidJunctionActive = true;
+                    activeFlag = true;
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
                     liquidJunctionStatuses[channelIdx] = LiquidJunctionFailedTooManySteps;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
@@ -1605,7 +1609,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionFailSaturation:
-                    anyLiquidJunctionActive = true;
+                    activeFlag = true;
                     channelIndexes.push_back(channelIdx);
                     voltages.push_back(liquidJunctionVoltagesBackup[channelIdx]);
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
@@ -1619,7 +1623,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionTerminate:
-                    anyLiquidJunctionActive = true;
+                    activeFlag = true;
                     liquidJunctionSmallestCurrentChange[channelIdx] = 10.0;
                     liquidJunctionStates[channelIdx] = LiquidJunctionIdle;
                     break;
@@ -1649,6 +1653,8 @@ void MessageDispatcher::computeLiquidJunction() {
             }
 #endif
         }
+
+        anyLiquidJunctionActive = activeFlag;
 
         std::this_thread::sleep_for (std::chrono::milliseconds(250));
 
