@@ -911,6 +911,7 @@ ErrorCodes_t EZPatchDevice::liquidJunctionCompensation(std::vector <uint16_t> ch
     }
 
     anyLiquidJunctionActive = true;
+    computeCurrentOffsetFlag = true;
     return Success;
 }
 

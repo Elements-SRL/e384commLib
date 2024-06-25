@@ -2135,6 +2135,7 @@ protected:
 
     bool anyOffsetRecalibrationActive = false;
     bool anyLiquidJunctionActive = false;
+    bool computeCurrentOffsetFlag = false;
 
     std::vector <OffsetRecalibStatus_t> offsetRecalibStatuses;
     std::vector <OffsetRecalibState_t> offsetRecalibStates;

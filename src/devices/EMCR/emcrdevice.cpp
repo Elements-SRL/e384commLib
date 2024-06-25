@@ -1159,6 +1159,7 @@ ErrorCodes_t EmcrDevice::readoutOffsetRecalibration(std::vector <uint16_t> chann
     ljMutexLock.unlock();
 
     anyOffsetRecalibrationActive = true;
+    computeCurrentOffsetFlag = true;
 
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1192,6 +1193,7 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
     ljMutexLock.unlock();
 
     anyLiquidJunctionActive = true;
+    computeCurrentOffsetFlag = true;
 
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1739,13 +1741,13 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 #else
                                 data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
 #endif
-                                if (anyLiquidJunctionActive) {
+                                if (computeCurrentOffsetFlag) {
                                     liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
                                 }
                                 sampleIdx++;
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
-                            if (anyLiquidJunctionActive) {
+                            if (computeCurrentOffsetFlag) {
                                 liquidJunctionCurrentEstimatesNum++;
                             }
 
@@ -1759,12 +1761,12 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                             for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
                                 rawFloat = (int16_t)rxDataBuffer[dataOffset];
                                 xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                                if (anyLiquidJunctionActive) {
+                                if (computeCurrentOffsetFlag) {
                                     liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)round(xFlt);
                                 }
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
-                            if (anyLiquidJunctionActive) {
+                            if (computeCurrentOffsetFlag) {
                                 liquidJunctionCurrentEstimatesNum++;
                             }
                         }
@@ -1802,13 +1804,13 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 #else
                             data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
 #endif
-                            if (anyLiquidJunctionActive) {
+                            if (computeCurrentOffsetFlag) {
                                 liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
                             }
                             sampleIdx++;
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
-                        if (anyLiquidJunctionActive) {
+                        if (computeCurrentOffsetFlag) {
                             liquidJunctionCurrentEstimatesNum++;
                         }
 
@@ -1831,13 +1833,13 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
                         for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
                             data[dataWritten+sampleIdx] = rxDataBuffer[dataOffset];
-                            if (anyLiquidJunctionActive) {
+                            if (computeCurrentOffsetFlag) {
                                 liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
                             }
                             sampleIdx++;
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
-                        if (anyLiquidJunctionActive) {
+                        if (computeCurrentOffsetFlag) {
                             liquidJunctionCurrentEstimatesNum++;
                         }
                     }
