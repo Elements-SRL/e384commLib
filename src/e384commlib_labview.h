@@ -306,12 +306,49 @@ ErrorCodes_t setDigitalFilter(
         E384CL_ARGIN bool lowPassFlag,
         E384CL_ARGIN bool activeFlag);
 
-/*! \brief Execute digital offset compensation.
- * \note Digital offset compensation tunes the offset of the applied voltage so that the acquired current is 0.
+/*! \brief Execute the readout offset recalibration.
+ * \note The readout offset recalibration needs to be run in open circuit in voltage clamp and in short circuit in current clamp.
+ * This way the readout is guaranteed to be zero and the recalibration can be performed.
+ *
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param Array of booleans, one for each channel: True to turn the recalibration on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t readoutOffsetRecalibration(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Execute liquid junction compensation.
+ * \note The liquid junction compensation tunes the offset of the applied voltage so that the acquired current is 0.
  * \note Do not use in open circuit: if there's a current offset in open circuit use the readoutOffsetRecalibration to fix it.
  *
  * \param channelIndexesIn [in] Channel indexes.
- * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the digital offset compensation on, false to turn it off.
+ * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the algorithm compensation on, false to turn it off.
+ * \param applyFlagIn [in] Flag for instant application of this setting.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t liquidJunctionCompensation(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool * onValuesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Execute liquid junction compensation.
+ * \note The liquid junction compensation tunes the offset of the applied voltage so that the acquired current is 0.
+ * \note Do not use in open circuit: if there's a current offset in open circuit use the readoutOffsetRecalibration to fix it.
+ * \deprecated Use liquidJunctionCompensation instead.
+ *
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param onValuesIn [in] Array of booleans, one for each channel: True to turn the algorithm compensation on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
@@ -1494,9 +1531,20 @@ ErrorCodes_t resetFpga(
         E384CL_ARGIN bool reset,
         E384CL_ARGIN bool applyFlagIn = true);
 
-/*! \brief Reset the device's digital offset compensation.
+/*! \brief Reset the device's liquid junction compensation.
  *
- * \param reset [in] False sets the digital offset compensation in normal operation state, true sets in reset state.
+ * \param reset [in] False sets the liquid junction compensation in normal operation state, true sets in reset state.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t resetLiquidJunctionCompensation(
+        E384CL_ARGIN bool reset);
+
+/*! \brief Reset the device's liquid junction compensation.
+ *  \deprecated Use resetLiquidJunctionCompensation instead.
+ *
+ * \param reset [in] False sets the liquid junction compensation in normal operation state, true sets in reset state.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING

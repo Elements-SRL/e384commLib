@@ -562,10 +562,10 @@ EZPatchePatchEL04E::EZPatchePatchEL04E(std::string di) :
 
     /*! Reset commands */
     resetWord[ResetIndexChip] = 1;
-    resetWord[ResetIndexDigitalOffsetCompensation] = 1;
+    resetWord[ResetIndexLiquidJunctionCompensation] = 1;
 
     resetByte[ResetIndexChip] = 0x0400;
-    resetByte[ResetIndexDigitalOffsetCompensation] = 0x0800;
+    resetByte[ResetIndexLiquidJunctionCompensation] = 0x0800;
 
     /*! Stimulus */
     /*! VC */

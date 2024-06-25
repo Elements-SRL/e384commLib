@@ -15,7 +15,7 @@ EZPatchDevice::EZPatchDevice(std::string deviceId) :
     rxExpectAckMap[MsgDirectionDeviceToPc+MsgTypeIdNack] = false;
     rxExpectAckMap[MsgDirectionDeviceToPc+MsgTypeIdPing] = true;
     rxExpectAckMap[MsgDirectionDeviceToPc+MsgTypeIdFpgaReset] = false;
-    rxExpectAckMap[MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp] = true;
+    rxExpectAckMap[MsgDirectionDeviceToPc+MsgTypeIdLiquidJunctionComp] = true;
     rxExpectAckMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader] = false;
     rxExpectAckMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData] = false;
     rxExpectAckMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail] = true;
@@ -25,7 +25,7 @@ EZPatchDevice::EZPatchDevice(std::string deviceId) :
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdNack] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdPing] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdFpgaReset] = true;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp] = true;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdLiquidJunctionComp] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail] = true;
@@ -48,8 +48,8 @@ EZPatchDevice::EZPatchDevice(std::string deviceId) :
     txExpectAckMap[MsgDirectionPcToDevice+MsgTypeIdCurrentStepTimeStep] = true;
     txExpectAckMap[MsgDirectionPcToDevice+MsgTypeIdCurrentRamp] = true;
     txExpectAckMap[MsgDirectionPcToDevice+MsgTypeIdCurrentSin] = true;
-    txExpectAckMap[MsgDirectionPcToDevice+MsgTypeIdDigitalOffsetComp] = true;
-    txExpectAckMap[MsgDirectionPcToDevice+MsgTypeIdDigitalOffsetCompInquiry] = true;
+    txExpectAckMap[MsgDirectionPcToDevice+MsgTypeIdLiquidJunctionComp] = true;
+    txExpectAckMap[MsgDirectionPcToDevice+MsgTypeIdLiquidJunctionCompInquiry] = true;
     txExpectAckMap[MsgDirectionPcToDevice+MsgTypeIdZap] = true;
     txExpectAckMap[MsgDirectionPcToDevice+MsgTypeIdDigitalTriggerOutput] = true;
     txExpectAckMap[MsgDirectionPcToDevice+MsgTypeIdInvalid] = false;
@@ -890,7 +890,7 @@ ErrorCodes_t EZPatchDevice::setSamplingRate(uint16_t samplingRateIdx, bool apply
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
+ErrorCodes_t EZPatchDevice::liquidJunctionCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
@@ -914,16 +914,16 @@ ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(std::vector <uint16_t> cha
     return Success;
 }
 
-ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(uint16_t channelIdx) {
+ErrorCodes_t EZPatchDevice::liquidJunctionCompensation(uint16_t channelIdx) {
     ErrorCodes_t ret;
 
     if (channelIdx < currentChannelsNum) {
-        this->setDigitalOffsetCompensationOverrideswitch (false);
+        this->setLiquidJunctionCompensationOverrideSwitch(false);
         uint16_t dataLength = 1;
         std::vector <uint16_t> txDataMessage(dataLength);
         txDataMessage[0] = channelIdx;
 
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdDigitalOffsetComp, txDataMessage, dataLength);
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdLiquidJunctionComp, txDataMessage, dataLength);
 
     } else {
         ret = ErrorValueOutOfRange;
@@ -932,21 +932,21 @@ ErrorCodes_t EZPatchDevice::digitalOffsetCompensation(uint16_t channelIdx) {
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::digitalOffsetCompensationOverride(uint16_t channelIdx, Measurement_t value) {
+ErrorCodes_t EZPatchDevice::liquidJunctionCompensationOverride(uint16_t channelIdx, Measurement_t value) {
     ErrorCodes_t ret;
 
-    if (digitalOffsetCompensationOverrideImplemented) {
+    if (liquidJunctionCompensationOverrideImplemented) {
         if (channelIdx < currentChannelsNum) {
-            ret = this->setDigitalOffsetCompensationOverrideswitch (true);
+            ret = this->setLiquidJunctionCompensationOverrideSwitch(true);
             if (ret == Success) {
-                ret = this->setDigitalOffsetCompensationOverrideValue(channelIdx, value);
+                ret = this->setLiquidJunctionCompensationOverrideValue(channelIdx, value);
 
                 if (ret == Success) {
                     uint16_t dataLength = 1;
                     std::vector <uint16_t> txDataMessage(dataLength);
                     txDataMessage[0] = channelIdx;
 
-                    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdDigitalOffsetComp, txDataMessage, dataLength);
+                    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdLiquidJunctionComp, txDataMessage, dataLength);
                 }
             }
 
@@ -1015,7 +1015,7 @@ ErrorCodes_t EZPatchDevice::setCcVoltageOffsetDelta(uint16_t channelIdx, Measure
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::digitalOffsetCompensationInquiry(uint16_t channelIdx) {
+ErrorCodes_t EZPatchDevice::liquidJunctionCompensationInquiry(uint16_t channelIdx) {
     ErrorCodes_t ret;
 
     if (channelIdx < currentChannelsNum) {
@@ -1023,7 +1023,7 @@ ErrorCodes_t EZPatchDevice::digitalOffsetCompensationInquiry(uint16_t channelIdx
         std::vector <uint16_t> txDataMessage(dataLength);
         txDataMessage[0] = channelIdx;
 
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdDigitalOffsetCompInquiry, txDataMessage, dataLength);
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdLiquidJunctionCompInquiry, txDataMessage, dataLength);
 
     } else {
         ret = ErrorValueOutOfRange;
@@ -2252,13 +2252,13 @@ ErrorCodes_t EZPatchDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nex
     return this->currSin(i0, iAmp, f0, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
 }
 
-ErrorCodes_t EZPatchDevice::resetDigitalOffsetCompensation(bool reset) {
+ErrorCodes_t EZPatchDevice::resetLiquidJunctionCompensation(bool reset) {
     ErrorCodes_t ret;
     uint16_t dataLength = switchesStatusLength;
     std::vector <uint16_t> txDataMessage(dataLength);
     this->switches2DataMessage(txDataMessage);
 
-    unsigned int resetIdx = ResetIndexDigitalOffsetCompensation;
+    unsigned int resetIdx = ResetIndexLiquidJunctionCompensation;
 
     if (reset) {
         txDataMessage[resetWord[resetIdx]] |= resetByte[resetIdx];
@@ -2414,7 +2414,7 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                 break;
 
             case (MsgDirectionDeviceToPc+MsgTypeIdFpgaReset):
-            case (MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp):
+            case (MsgDirectionDeviceToPc+MsgTypeIdLiquidJunctionComp):
             case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
             default:
                 /*! Messages of these types can't be merged. */
@@ -2454,7 +2454,7 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                 lastParsedMsgType = MsgTypeIdFpgaReset;
                 break;
 
-            case (MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp):
+            case (MsgDirectionDeviceToPc+MsgTypeIdLiquidJunctionComp):
                 rxOutput.dataLen = 1;
                 rxOutput.channelIdx = * (rxDataBuffer+dataOffset);
                 rawFloat = * (rxDataBuffer+((dataOffset+1)&EZP_RX_DATA_BUFFER_MASK));
@@ -2463,7 +2463,7 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                 data[0] = (int16_t)(rawFloat-liquidJunctionOffsetBinary);
                 lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToPc;
 
-//                this->setDigitalOffsetCompensationOverrideValue(rxOutput.channelIdx, {voltageOffsetCorrected, liquidJunctionControl.prefix, "V"}); /*! \todo FCON capire perchè stato messo questo comando durante il porting su e384commlib */
+//                this->setLiquidJunctionCompensationOverrideValue(rxOutput.channelIdx, {voltageOffsetCorrected, liquidJunctionControl.prefix, "V"}); /*! \todo FCON capire perchè stato messo questo comando durante il porting su e384commlib */
                 break;
 
             case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
@@ -3202,19 +3202,19 @@ void EZPatchDevice::uint322uint16(uint32_t from, std::vector <uint16_t> &to, siz
     to[offset+1] = (from >> 16) & 0xFFFF;
 }
 
-ErrorCodes_t EZPatchDevice::setDigitalOffsetCompensationOverrideswitch (bool flag) {
+ErrorCodes_t EZPatchDevice::setLiquidJunctionCompensationOverrideSwitch (bool flag) {
     ErrorCodes_t ret;
 
-    if (digitalOffsetCompensationOverrideImplemented) {
+    if (liquidJunctionCompensationOverrideImplemented) {
         uint16_t dataLength = switchesStatusLength;
         std::vector <uint16_t> txDataMessage(dataLength);
         this->switches2DataMessage(txDataMessage);
 
         if (flag) {
-            txDataMessage[digitalOffsetCompensationOverrideSwitchWord] |= digitalOffsetCompensationOverrideSwitchByte;
+            txDataMessage[liquidJunctionCompensationOverrideSwitchWord] |= liquidJunctionCompensationOverrideSwitchByte;
 
         } else {
-            txDataMessage[digitalOffsetCompensationOverrideSwitchWord] &= ~digitalOffsetCompensationOverrideSwitchByte;
+            txDataMessage[liquidJunctionCompensationOverrideSwitchWord] &= ~liquidJunctionCompensationOverrideSwitchByte;
         }
 
         ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
@@ -3256,14 +3256,14 @@ ErrorCodes_t EZPatchDevice::setSecondaryDeviceswitch (bool flag) {
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setDigitalOffsetCompensationOverrideValue(uint16_t channelIdx, Measurement_t value) {
+ErrorCodes_t EZPatchDevice::setLiquidJunctionCompensationOverrideValue(uint16_t channelIdx, Measurement_t value) {
     ErrorCodes_t ret;
 
     value.convertValue(liquidJunctionControl.prefix);
     uint16_t dataLength = 2;
     std::vector <uint16_t> txDataMessage(dataLength);
 
-    txDataMessage[0] = digitalOffsetCompensationOverrideRegisterOffset+channelIdx*coreSpecificRegistersNum;
+    txDataMessage[0] = liquidJunctionCompensationOverrideRegisterOffset+channelIdx*coreSpecificRegistersNum;
     /*! In some devices (EL04e/f based devices) we need to keep some LSBs to 0, because the resolution of the lj is just too small, a few uV */
     uint16_t uintValue = (uint16_t)((int16_t)round(-value.value/liquidJunctionResolution/liquidJunctionRounding)*liquidJunctionRounding);
     txDataMessage[1] = uintValue;

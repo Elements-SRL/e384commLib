@@ -740,10 +740,10 @@ EZPatche4PEL04F::EZPatche4PEL04F(std::string di) :
 
     /*! Reset commands */
     resetWord[ResetIndexChip] = 0;
-    resetWord[ResetIndexDigitalOffsetCompensation] = 0;
+    resetWord[ResetIndexLiquidJunctionCompensation] = 0;
 
     resetByte[ResetIndexChip] = 0x4000;
-    resetByte[ResetIndexDigitalOffsetCompensation] = 0x8000;
+    resetByte[ResetIndexLiquidJunctionCompensation] = 0x8000;
 
     resetDuration = 20;
 

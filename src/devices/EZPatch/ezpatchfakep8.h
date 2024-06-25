@@ -28,7 +28,7 @@ public:
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
     ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
-    ErrorCodes_t digitalOffsetCompensation(uint16_t channelIdx) override;
+    ErrorCodes_t liquidJunctionCompensation(uint16_t channelIdx) override;
     ErrorCodes_t resetFpga() override;
 
 protected:

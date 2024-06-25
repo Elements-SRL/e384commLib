@@ -228,6 +228,13 @@ ErrorCodes_t resetLiquidJunctionVoltage(
     return messageDispatcher->resetLiquidJunctionVoltage(channelIndexes, true);
 }
 
+ErrorCodes_t resetLiquidJunctionVoltage(
+        uint16_t * channelIndexesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
+    return resetLiquidJunctionCompensation(channelIndexesIn, applyFlagIn, vectorLengthIn);
+}
+
 ErrorCodes_t setCalibVcCurrentGain(
         uint16_t * channelIndexesIn,
         LMeasHandle * gainsIn,
@@ -460,7 +467,7 @@ ErrorCodes_t setDigitalFilter(
     return messageDispatcher->setRawDataFilter(cutoffFrequency, lowPassFlag, activeFlag);
 }
 
-ErrorCodes_t digitalOffsetCompensation(
+ErrorCodes_t readoutOffsetRecalibration(
         uint16_t * channelIndexesIn,
         bool * onValuesIn,
         bool applyFlagIn,
@@ -472,7 +479,30 @@ ErrorCodes_t digitalOffsetCompensation(
     std::vector <bool> onValues;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2NumericVector(onValuesIn, onValues, vectorLengthIn);
-    return messageDispatcher->digitalOffsetCompensation(channelIndexes, onValues, applyFlagIn);
+    return messageDispatcher->readoutOffsetRecalibration(channelIndexes, onValues, applyFlagIn);
+}
+
+ErrorCodes_t liquidJunctionCompensation(
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <uint16_t> channelIndexes;
+    std::vector <bool> onValues;
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    input2NumericVector(onValuesIn, onValues, vectorLengthIn);
+    return messageDispatcher->liquidJunctionCompensation(channelIndexes, onValues, applyFlagIn);
+}
+
+ErrorCodes_t digitalOffsetCompensation(
+        uint16_t * channelIndexesIn,
+        bool * onValuesIn,
+        bool applyFlagIn,
+        int vectorLengthIn) {
+    return liquidJunctionCompensation(channelIndexesIn, applyFlagIn, vectorLengthIn);
 }
 
 ErrorCodes_t zap(
@@ -1087,7 +1117,7 @@ ErrorCodes_t resetFpga(bool reset) {
     return messageDispatcher->resetFpga(reset);
 }
 
-ErrorCodes_t resetDigitalOffsetCompensation() {
+ErrorCodes_t resetLiquidJunctionCompensation() {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }

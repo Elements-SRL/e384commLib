@@ -524,10 +524,10 @@ EZPatche4PPatchliner::EZPatche4PPatchliner(std::string di) :
         }
     }
 
-    digitalOffsetCompensationOverrideImplemented = true;
-    digitalOffsetCompensationOverrideSwitchWord = 2;
-    digitalOffsetCompensationOverrideSwitchByte = 0x0010;
-    digitalOffsetCompensationOverrideRegisterOffset = 16;
+    liquidJunctionCompensationOverrideImplemented = true;
+    liquidJunctionCompensationOverrideSwitchWord = 2;
+    liquidJunctionCompensationOverrideSwitchByte = 0x0010;
+    liquidJunctionCompensationOverrideRegisterOffset = 16;
 
     vcCurrentOffsetDeltaImplemented = true;
     vcCurrentOffsetDeltaRegisterOffset = 17;
@@ -755,10 +755,10 @@ EZPatche4PPatchliner::EZPatche4PPatchliner(std::string di) :
 
     /*! Reset commands */
     resetWord[ResetIndexChip] = 0;
-    resetWord[ResetIndexDigitalOffsetCompensation] = 0;
+    resetWord[ResetIndexLiquidJunctionCompensation] = 0;
 
     resetByte[ResetIndexChip] = 0x4000;
-    resetByte[ResetIndexDigitalOffsetCompensation] = 0x8000;
+    resetByte[ResetIndexLiquidJunctionCompensation] = 0x8000;
 
     resetDuration = 20;
 

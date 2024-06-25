@@ -191,7 +191,7 @@ ErrorCodes_t EZPatchFakePatch::setSamplingRate(uint16_t samplingRateIdx, bool ap
     return ret;
 }
 
-ErrorCodes_t EZPatchFakePatch::digitalOffsetCompensation(uint16_t channelIdx) {
+ErrorCodes_t EZPatchFakePatch::liquidJunctionCompensation(uint16_t channelIdx) {
     std::unique_lock <std::mutex> genRxMutexLock(genRxMutex);
     std::unique_lock <std::mutex> rxMutexLock(rxMutex);
     while (rxMsgBufferReadLength >= EZP_RX_MSG_BUFFER_SIZE) { /*! \todo FCON bloccare la ricezione potrebbe essere controproducente */
@@ -200,7 +200,7 @@ ErrorCodes_t EZPatchFakePatch::digitalOffsetCompensation(uint16_t channelIdx) {
     rxMutexLock.unlock();
 
     rxMsgBuffer[rxMsgBufferWriteOffset].heartbeat = rxHeartbeat++;
-    rxMsgBuffer[rxMsgBufferWriteOffset].typeId = MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp;
+    rxMsgBuffer[rxMsgBufferWriteOffset].typeId = MsgDirectionDeviceToPc+MsgTypeIdLiquidJunctionComp;
     rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
     rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = 2;
 

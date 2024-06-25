@@ -1095,14 +1095,14 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     /*! Voltage filter CC */
     // undefined
 
-    /*! Digital offset compensation */
+    /*! Liquid junction compensation */
     boolConfig.initialWord = 13;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
-    digitalOffsetCompensationCoders.resize(currentChannelsNum);
+    liquidJunctionCompensationCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        digitalOffsetCompensationCoders[idx] = new BoolNegatedArrayCoder(boolConfig);
-        coders.push_back(digitalOffsetCompensationCoders[idx]);
+        liquidJunctionCompensationCoders[idx] = new BoolNegatedArrayCoder(boolConfig);
+        coders.push_back(liquidJunctionCompensationCoders[idx]);
         boolConfig.initialBit++;
         if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
             boolConfig.initialBit = 0;

@@ -76,7 +76,8 @@ public:
     ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag) override;
     ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag) override;
 
-    ErrorCodes_t digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t readoutOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t liquidJunctionCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
 
     ErrorCodes_t setAdcFilter() override;
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
@@ -236,7 +237,6 @@ protected:
     std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
 
     ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
-    CalibrationParams_t calibrationParams;
     std::vector <std::string> calibrationFileNames;
     std::vector <std::vector <bool>> calibrationFilesOkFlags;
     std::string calibrationMappingFileDir;
@@ -344,7 +344,7 @@ protected:
     std::vector <BoolArrayCoder *> protocolStimHalfCoders;
     std::vector <BoolArrayCoder *> protocolItemTypeCoders;
 
-    std::vector <BoolCoder *> digitalOffsetCompensationCoders;
+    std::vector <BoolCoder *> liquidJunctionCompensationCoders;
 
     /*! Compensations coders (all in asic domain) */
     std::vector <BoolCoder*> pipetteCapEnCompensationCoders;

@@ -37,7 +37,7 @@
 
 typedef enum {
     ResetIndexChip,
-    ResetIndexDigitalOffsetCompensation,
+    ResetIndexLiquidJunctionCompensation,
     ResetIndexNum
 } ResetIndex_t;
 
@@ -96,10 +96,10 @@ public:
     ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
     virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
-    virtual ErrorCodes_t digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
-    virtual ErrorCodes_t digitalOffsetCompensation(uint16_t channelIdx);
-    ErrorCodes_t digitalOffsetCompensationOverride(uint16_t channelIdx, Measurement value);
-    ErrorCodes_t digitalOffsetCompensationInquiry(uint16_t channelIdx);
+    virtual ErrorCodes_t liquidJunctionCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    virtual ErrorCodes_t liquidJunctionCompensation(uint16_t channelIdx);
+    ErrorCodes_t liquidJunctionCompensationOverride(uint16_t channelIdx, Measurement value);
+    ErrorCodes_t liquidJunctionCompensationInquiry(uint16_t channelIdx);
     ErrorCodes_t setVcCurrentOffsetDelta(uint16_t channelIdx, Measurement value);
     ErrorCodes_t setCcVoltageOffsetDelta(uint16_t channelIdx, Measurement value);
     ErrorCodes_t zap(Measurement_t duration, uint16_t channelIdx);
@@ -176,7 +176,7 @@ public:
     ErrorCodes_t setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool iHalfFlag) override;
     ErrorCodes_t setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool iHalfFlag) override;
 
-    ErrorCodes_t resetDigitalOffsetCompensation(bool reset);
+    ErrorCodes_t resetLiquidJunctionCompensation(bool reset);
 
     ErrorCodes_t getSwitchesStatus(std::vector <uint16_t> &words, std::vector <std::vector <std::string>> &names);
     ErrorCodes_t singleSwitchDebug(uint16_t word, uint16_t bit, bool flag);
@@ -264,8 +264,8 @@ protected:
 
     ErrorCodes_t setSecondaryDeviceswitch (bool flag);
 
-    ErrorCodes_t setDigitalOffsetCompensationOverrideswitch (bool flag);
-    ErrorCodes_t setDigitalOffsetCompensationOverrideValue(uint16_t channelIdx, Measurement_t value);
+    ErrorCodes_t setLiquidJunctionCompensationOverrideSwitch (bool flag);
+    ErrorCodes_t setLiquidJunctionCompensationOverrideValue(uint16_t channelIdx, Measurement_t value);
 
     bool checkVoltStepTimeStepParameters(double v0, double vStep, double t0, double tStep, uint16_t repsNum, uint16_t applySteps);
     bool checkVoltRampParameters(double v0, double vFinal, double t);
@@ -327,7 +327,7 @@ protected:
     uint16_t zapDurationHwRegisterOffset = 0;
     uint16_t vcHoldTunerHwRegisterOffset = 0;
     uint16_t ccHoldTunerHwRegisterOffset = 0;
-    uint16_t digitalOffsetCompensationOverrideRegisterOffset = 0;
+    uint16_t liquidJunctionCompensationOverrideRegisterOffset = 0;
     uint16_t vcCurrentOffsetDeltaRegisterOffset = 0;
     uint16_t ccVoltageOffsetDeltaRegisterOffset = 0;
 
@@ -415,9 +415,9 @@ protected:
     std::vector <uint16_t> ccVoltageRangesSwitchesByte;
     std::vector <std::vector <bool>> ccVoltageRangesSwitchesLut;
 
-    bool digitalOffsetCompensationOverrideImplemented = false;
-    uint16_t digitalOffsetCompensationOverrideSwitchWord;
-    uint16_t digitalOffsetCompensationOverrideSwitchByte;
+    bool liquidJunctionCompensationOverrideImplemented = false;
+    uint16_t liquidJunctionCompensationOverrideSwitchWord;
+    uint16_t liquidJunctionCompensationOverrideSwitchByte;
 
     bool startProtocolCommandImplemented = false;
     uint16_t startProtocolSwitchWord;

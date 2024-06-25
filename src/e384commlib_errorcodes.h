@@ -77,6 +77,7 @@ typedef enum ErrorCodes {
                                                                                              but differently from the ErrorValueOutOfRange, the command is still applied but clipped,
                                                                                          *   e.g. a voltage offset bigger then the DAC range. */
     ErrorCompensationNotEnabled =           ErrorGroupDeviceCommands +      0x0000000C, /*!< Error returned when trying setting a compensation that is not enabled */
+    ErrorLiquidJunctionAndRecalibration =   ErrorGroupDeviceCommands +      0x0000000D, /*!< Error returned when trying activate the digital offset compensation and the readout offset recalibration together */
 
     ErrorFeatureNotImplemented =            ErrorGroupDeviceFeatures +      0x00000000, /*!< Error returned when trying to use a feature that is not implemented for the current device. */
     ErrorUpgradesNotAvailable =             ErrorGroupDeviceFeatures +      0x00000001, /*!< Error returned when there are no upgrades available for the current device. */

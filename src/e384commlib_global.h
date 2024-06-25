@@ -143,8 +143,12 @@ typedef enum MsgTypeId {
     MsgTypeIdAcquisitionSaturation =            MsgGroupAcquiredData+0x0004, /*!< Message that notifies the saturation of the front-end. */
 
     /*! Features messages */
-    MsgTypeIdDigitalOffsetComp =                MsgGroupFeatures+0x0001, /*!< Message used to apply the digital offset compensation. */
-    MsgTypeIdDigitalOffsetCompInquiry =         MsgGroupFeatures+0x0002, /*!< Message used to request the liquid junction potential following the digital offset compensation. */
+    MsgTypeIdLiquidJunctionComp =               MsgGroupFeatures+0x0001, /*!< Message used to apply the liquid junction  compensation. */
+    MsgTypeIdLiquidJunctionCompInquiry =        MsgGroupFeatures+0x0002, /*!< Message used to request the liquid junction potential following its compensation. */
+    MsgTypeIdDigitalOffsetComp =                MsgGroupFeatures+0x0001, /*!< Message used to apply the liquid junction  compensation.
+                                                                              \deprecated Use MsgTypeIdLiquidJunctionComp instead */
+    MsgTypeIdDigitalOffsetCompInquiry =         MsgGroupFeatures+0x0002, /*!< Message used to request the liquid junction potential following its compensation.
+                                                                              \deprecated Use MsgTypeIdLiquidJunctionCompInquiry instead */
     MsgTypeIdZap =                              MsgGroupFeatures+0x0003, /*!< Message used to generate a cell breaking zap. */
     MsgTypeIdDigitalTriggerOutput =             MsgGroupFeatures+0x0004, /*!< Message used to configure the digital trigger output. */
     MsgTypeIdLockIn =                           MsgGroupFeatures+0x0005, /*!< Message used to enter lock in mode for impendance estimation. */
@@ -283,8 +287,20 @@ typedef enum TxTriggerType_t {
     TxTriggerStartStateArray,
 } TxTriggerType_t;
 
+/*! \enum OffsetRecalibStatus_t
+ * \brief Enumerates the possible statuses of the readout offset recalibration algorithm.
+ */
+typedef enum OffsetRecalibStatus {
+    OffsetRecalibNotPerformed,
+    OffsetRecalibInterrupted,
+    OffsetRecalibSucceded,
+    OffsetRecalibFailed,
+    OffsetRecalibResetted,
+    OffsetRecalibStatusesNum
+} OffsetRecalibStatus_t;
+
 /*! \enum LiquidJunctionStatus_t
- * \brief Enumerates the possible status of the liquid junction compensation (aka digital offset compensation) algorithm.
+ * \brief Enumerates the possible statuses of the liquid junction compensation (aka digital offset compensation) algorithm.
  */
 typedef enum LiquidJunctionStatus {
     LiquidJunctionNotPerformed,

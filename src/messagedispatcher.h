@@ -699,11 +699,35 @@ public:
      */
     virtual ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag);
 
-    /*! \brief Execute digital offset compensation.
-     * Digital offset compensation tunes the offset of the applied voltage so that the acquired current is 0.
+    /*! \brief Execute the readout offset recalibration.
+     * \note The readout offset recalibration needs to be run in open circuit in voltage clamp and in short circuit in current clamp.
+     * This way the readout is guaranteed to be zero and the recalibration can be performed.
      *
      * \param channelIndexes [in] Channel indexes.
-     * \param onValues [in] Array of booleans, one for each channel: True to turn the offset compensation on, false to turn it off.
+     * \param onValues [in] Array of booleans, one for each channel: True to turn the recalibration on, false to turn it off.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t readoutOffsetRecalibration(std::vector <uint16_t>, std::vector <bool>, bool);
+
+    /*! \brief Execute liquid junction compensation.
+     * \note The liquid junction compensation tunes the offset of the applied voltage so that the acquired current is 0.
+     * \note Do not use in open circuit: if there's a current offset in open circuit use the readoutOffsetRecalibration to fix it.
+     *
+     * \param channelIndexes [in] Channel indexes.
+     * \param onValues [in] Array of booleans, one for each channel: True to turn the compensation algorithm on, false to turn it off.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t liquidJunctionCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag);
+
+    /*! \brief Execute liquid junction compensation.
+     * \note The liquid junction compensation tunes the offset of the applied voltage so that the acquired current is 0.
+     * \note Do not use in open circuit: if there's a current offset in open circuit use the readoutOffsetRecalibration to fix it.
+     * \deprecated Use liquidJunctionCompensation instead.
+     *
+     * \param channelIndexes [in] Channel indexes.
+     * \param onValues [in] Array of booleans, one for each channel: True to turn the compensation algorithm on, false to turn it off.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
@@ -1189,6 +1213,14 @@ public:
      * \return Error code.
      */
     ErrorCodes_t convertCurrentValues(int16_t * intValue, double * fltValue, int valuesNum);
+
+    /*! \brief Get the current status of the readout offset recalibration algorithm for each channel.
+     *
+     * \param channelIndexes [in] Vector of channel indexes.
+     * \param voltages [out] Array of algorithm status for the selected channels.
+     * \return Error code.
+     */
+    ErrorCodes_t getReadoutOffsetRecalibrationStatuses(std::vector <uint16_t> channelIndexes, std::vector <OffsetRecalibStatus_t> &statuses);
 
     /*! \brief Get the voltage currently corrected by liquid junction compensation.
      *
@@ -1878,6 +1910,17 @@ protected:
         uint32_t startDataPtr;
     } MsgResume_t;
 
+    typedef enum OffsetRecalibState {
+        OffsetRecalibIdle,
+        OffsetRecalibStarting,
+        OffsetRecalibFirstStep,
+        OffsetRecalibCheck,
+        OffsetRecalibSuccess,
+        OffsetRecalibFail,
+        OffsetRecalibTerminate,
+        OffsetRecalibStatesNum
+    } OffsetRecalibState_t;
+
     typedef enum LiquidJunctionState {
         LiquidJunctionIdle,
         LiquidJunctionStarting,
@@ -2039,7 +2082,6 @@ protected:
     unsigned int defaultSamplingRateIdx = 0;
     std::unordered_map <uint16_t, uint16_t> sr2LpfVcCurrentMap;
     std::unordered_map <uint16_t, uint16_t> sr2LpfCcVoltageMap;
-    std::unordered_map <uint16_t, uint16_t> vcCurrRange2CalibResMap;
 
     std::vector <Measurement_t> selectedVoltageHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector <Measurement_t> selectedCurrentHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
@@ -2062,6 +2104,7 @@ protected:
     uint16_t selectedSourceForVoltageChannelIdx;
     uint16_t selectedSourceForCurrentChannelIdx;
 
+    CalibrationParams_t calibrationParams;
     std::vector <RangedMeasurement_t> rRShuntConductanceCalibRange;
 
     /*! Compensation options*/
@@ -2090,7 +2133,12 @@ protected:
     bool vcCompensationsActivated = false;
     bool ccCompensationsActivated = false;
 
+    bool anyOffsetRecalibrationActive = false;
     bool anyLiquidJunctionActive = false;
+
+    std::vector <OffsetRecalibStatus_t> offsetRecalibStatuses;
+    std::vector <OffsetRecalibState_t> offsetRecalibStates;
+    std::vector <Measurement_t> offsetRecalibCorrection;
 
     std::vector <LiquidJunctionStatus_t> liquidJunctionStatuses;
     std::vector <LiquidJunctionState_t> liquidJunctionStates;

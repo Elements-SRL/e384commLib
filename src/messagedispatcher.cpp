@@ -427,8 +427,16 @@ ErrorCodes_t MessageDispatcher::setSourceForCurrentChannel(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector <uint16_t>, std::vector <bool>, bool) {
+ErrorCodes_t MessageDispatcher::readoutOffsetRecalibration(std::vector <uint16_t>, std::vector <bool>, bool) {
     return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::liquidJunctionCompensation(std::vector <uint16_t>, std::vector <bool>, bool) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
+    return liquidJunctionCompensation(channelIndexes, onValues, applyFlag);
 }
 
 ErrorCodes_t MessageDispatcher::expandTraces(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues) {
@@ -634,6 +642,20 @@ ErrorCodes_t MessageDispatcher::convertCurrentValues(int16_t * intValues, double
         fltValues[idx] = currentResolution*(double)intValues[idx];
     }
 
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getReadoutOffsetRecalibrationStatuses(std::vector <uint16_t> channelIndexes, std::vector <OffsetRecalibStatus_t> &statuses) {
+    if (offsetRecalibStatuses.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    statuses.resize(channelIndexes.size());
+    for (auto channel : channelIndexes) {
+        statuses[channel] = offsetRecalibStatuses[channel];
+    }
     return Success;
 }
 
@@ -1271,7 +1293,7 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
         this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
         this->setGateVoltages(boardIndexes, selectedGateVoltageVector, false);
         this->setSourceVoltages(boardIndexes, selectedSourceVoltageVector, false);
-        this->digitalOffsetCompensation(allChannelIndexes, allFalse, false);
+        this->liquidJunctionCompensation(allChannelIndexes, allFalse, false);
         this->turnCalSwOn(allChannelIndexes, allFalse, false);
 
         if (vcCurrentRangesNum > 0) {
@@ -1334,9 +1356,89 @@ void MessageDispatcher::computeLiquidJunction() {
 
     Measurement_t voltage;
     double estimatedResistance;
+    int16_t readoutOffsetInt;
+    double readoutOffset;
     bool activeFlag;
 
     while (!stopConnectionFlag) {
+
+        /*! Offset recalibration */
+
+        if (anyOffsetRecalibrationActive && liquidJunctionCurrentEstimatesNum > 0) {
+            activeFlag = false;
+            channelIndexes.clear();
+            ljMutexLock.lock();
+            for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+                switch (offsetRecalibStates[channelIdx]) {
+                case OffsetRecalibIdle:
+                    break;
+
+                case OffsetRecalibStarting:
+                    activeFlag = true;
+                    channelIndexes.push_back(channelIdx);
+                    offsetRecalibStates[channelIdx] = OffsetRecalibFirstStep;
+                    offsetRecalibStatuses[channelIdx] = OffsetRecalibInterrupted;
+                    break;
+
+                case OffsetRecalibFirstStep:
+                    activeFlag = true;
+                    readoutOffsetInt = (int16_t)(((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum);
+                    this->convertCurrentValue(readoutOffsetInt, readoutOffset);
+                    offsetRecalibCorrection[channelIdx] = calibrationParams.vcOffsetAdc[selectedVcCurrentRangeIdx][channelIdx];
+                    offsetRecalibCorrection[channelIdx].value -= readoutOffset;
+                    offsetRecalibStates[channelIdx] = OffsetRecalibCheck;
+                    channelIndexes.push_back(channelIdx);
+                    break;
+
+                case OffsetRecalibCheck:
+                    activeFlag = true;
+                    readoutOffset = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum;
+
+                    if (abs(readoutOffset) < 5.0) { /*! current offset smaller than 5 LSB */
+                        offsetRecalibStates[channelIdx] = OffsetRecalibSuccess;
+
+                    } else { /*! current offset greater than 5 LSB */
+                        offsetRecalibStates[channelIdx] = OffsetRecalibFail;
+                    }
+                    break;
+
+                case OffsetRecalibSuccess:
+                    activeFlag = true;
+                    offsetRecalibStates[channelIdx] = OffsetRecalibTerminate;
+                    offsetRecalibStatuses[channelIdx] = OffsetRecalibSucceded;
+                    break;
+
+                case OffsetRecalibFail:
+                    activeFlag = true;
+                    channelIndexes.push_back(channelIdx);
+                    voltages.push_back(liquidJunctionVoltagesBackup[channelIdx]);
+                    offsetRecalibStates[channelIdx] = OffsetRecalibTerminate;
+                    offsetRecalibStatuses[channelIdx] = OffsetRecalibFailed;
+                    break;
+
+                case OffsetRecalibTerminate:
+                    activeFlag = true;
+                    offsetRecalibStates[channelIdx] = OffsetRecalibIdle;
+                    break;
+                }
+            }
+            ljMutexLock.unlock();
+
+            liquidJunctionControlPending = true;
+            this->setCalibVcCurrentOffset(channelIndexes, offsetRecalibCorrection, true);
+
+            /*! This is to ensure that the calibration command has been submitted to the FPGA */
+            if (!channelIndexes.empty()) {
+                std::unique_lock <std::mutex> txMutexLock (txMutex);
+                while (liquidJunctionControlPending && !stopConnectionFlag) {
+                    txMsgBufferNotFull.wait_for (txMutexLock, std::chrono::milliseconds(100));
+                }
+                txMutexLock.unlock();
+            }
+        }
+
+        anyOffsetRecalibrationActive = activeFlag;
+
         /*! Liquid junction */
 
         if (anyLiquidJunctionActive && liquidJunctionCurrentEstimatesNum > 0) {
@@ -1676,6 +1778,14 @@ void MessageDispatcher::deinitializeCalibration() {
 }
 
 void MessageDispatcher::initializeLiquidJunction() {
+    offsetRecalibStatuses.resize(currentChannelsNum);
+    std::fill(offsetRecalibStatuses.begin(), offsetRecalibStatuses.end(), OffsetRecalibNotPerformed);
+    offsetRecalibStates.resize(currentChannelsNum);
+    std::fill(offsetRecalibStates.begin(), offsetRecalibStates.end(), OffsetRecalibIdle);
+    offsetRecalibCorrection.resize(currentChannelsNum);
+    Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
+    std::fill(offsetRecalibCorrection.begin(), offsetRecalibCorrection.end(), zeroA);
+
     liquidJunctionCurrentEstimatesNum = 0;
     liquidJunctionStatuses.resize(currentChannelsNum);
     std::fill(liquidJunctionStatuses.begin(), liquidJunctionStatuses.end(), LiquidJunctionNotPerformed);

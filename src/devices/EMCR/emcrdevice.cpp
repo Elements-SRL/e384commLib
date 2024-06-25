@@ -13,7 +13,7 @@ EmcrDevice::EmcrDevice(std::string deviceId) :
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdNack] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdPing] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdFpgaReset] = true;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdDigitalOffsetComp] = true;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdLiquidJunctionComp] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail] = true;
@@ -1133,18 +1133,54 @@ ErrorCodes_t EmcrDevice::setSourceForCurrentChannel(uint16_t source, bool applyF
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
-    if (digitalOffsetCompensationCoders.empty()) {
+ErrorCodes_t EmcrDevice::readoutOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
+    if (liquidJunctionCompensationCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
+    }
+    if (anyLiquidJunctionActive) {
+        return ErrorLiquidJunctionAndRecalibration;
     }
 
     std::unique_lock <std::mutex> ljMutexLock (ljMutex);
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
-        digitalOffsetCompensationCoders[chIdx]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord); /*!< Disables protocols and vhold */
+        liquidJunctionCompensationCoders[chIdx]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord); /*!< Disables protocols and vhold */
+        channelModels[chIdx]->setRecalibratingReadoutOffset(onValues[i]);
+        if (onValues[i] && (offsetRecalibStates[chIdx] == OffsetRecalibIdle)) {
+            offsetRecalibStates[chIdx] = OffsetRecalibStarting;
+
+        } else if (!onValues[i] && (offsetRecalibStates[chIdx] != OffsetRecalibIdle)) {
+            offsetRecalibStates[chIdx] = OffsetRecalibTerminate;
+        }
+    }
+    ljMutexLock.unlock();
+
+    anyOffsetRecalibrationActive = true;
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
+    if (liquidJunctionCompensationCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    if (anyOffsetRecalibrationActive) {
+        return ErrorLiquidJunctionAndRecalibration;
+    }
+
+    std::unique_lock <std::mutex> ljMutexLock(ljMutex);
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+        uint16_t chIdx = channelIndexes[i];
+        liquidJunctionCompensationCoders[chIdx]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord); /*!< Disables protocols and vhold */
         channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
