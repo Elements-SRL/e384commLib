@@ -207,6 +207,7 @@ ErrorCodes_t setLiquidJunctionVoltage(
         E384CL_ARGIN int vectorLengthIn = 0);
 
 /*! \brief Set the liquid junction voltage to 0.
+ *  \deprecated Use setLiquidJunctionVoltage instead.
  *
  * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
  * \param applyFlagIn [in] Flag for instant application of this setting.
@@ -215,7 +216,7 @@ ErrorCodes_t setLiquidJunctionVoltage(
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t resetLiquidJunctionVoltage(
+ErrorCodes_t setDigitalOffsetVoltage(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);

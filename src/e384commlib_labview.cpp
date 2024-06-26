@@ -216,7 +216,7 @@ ErrorCodes_t setLiquidJunctionVoltage(
     return messageDispatcher->setLiquidJunctionVoltage(channelIndexes, voltages, true);
 }
 
-ErrorCodes_t resetLiquidJunctionVoltage(
+ErrorCodes_t setLiquidJunctionVoltage(
         uint16_t * channelIndexesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
@@ -228,11 +228,11 @@ ErrorCodes_t resetLiquidJunctionVoltage(
     return messageDispatcher->resetLiquidJunctionVoltage(channelIndexes, true);
 }
 
-ErrorCodes_t resetLiquidJunctionVoltage(
+ErrorCodes_t setDigitalOffsetVoltage(
         uint16_t * channelIndexesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
-    return resetLiquidJunctionCompensation(channelIndexesIn, applyFlagIn, vectorLengthIn);
+    return setLiquidJunctionVoltage(channelIndexesIn, applyFlagIn, vectorLengthIn);
 }
 
 ErrorCodes_t setCalibVcCurrentGain(
@@ -502,7 +502,7 @@ ErrorCodes_t digitalOffsetCompensation(
         bool * onValuesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
-    return liquidJunctionCompensation(channelIndexesIn, applyFlagIn, vectorLengthIn);
+    return liquidJunctionCompensation(channelIndexesIn, onValuesIn, applyFlagIn, vectorLengthIn);
 }
 
 ErrorCodes_t zap(

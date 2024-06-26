@@ -332,6 +332,14 @@ public:
      */
     virtual ErrorCodes_t setCurrentHalf(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag);
 
+    /*! \brief Set the current offset to the default value.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to control.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t resetOffsetRecalibration(std::vector <uint16_t> channelIndexes, bool applyFlag);
+
     /*! \brief Set the liquid junction voltage. Contrarily to the voltage hold tuner, this voltage contribute is not reflected in the voltage readout
      *
      * \param channelIndexes [in] Vector of Indexes for the channels to control.
@@ -2105,6 +2113,7 @@ protected:
     uint16_t selectedSourceForCurrentChannelIdx;
 
     CalibrationParams_t calibrationParams;
+    CalibrationParams_t originalCalibrationParams;
     std::vector <RangedMeasurement_t> rRShuntConductanceCalibRange;
 
     /*! Compensation options*/
@@ -2139,7 +2148,6 @@ protected:
 
     std::vector <OffsetRecalibStatus_t> offsetRecalibStatuses;
     std::vector <OffsetRecalibState_t> offsetRecalibStates;
-    std::vector <Measurement_t> offsetRecalibCorrection;
 
     std::vector <LiquidJunctionStatus_t> liquidJunctionStatuses;
     std::vector <LiquidJunctionState_t> liquidJunctionStates;

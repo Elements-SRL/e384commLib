@@ -7,7 +7,7 @@ Emcr384VoltageClamp_prot_v04_fw_v03::Emcr384VoltageClamp_prot_v04_fw_v03(std::st
 
     fwName = "384PatchClamp_V03.1.bit";
 
-    fwSize_B = 4975044;
+    fwSize_B = 5534352;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
     waitingTimeBeforeReadingData = 2; //s
 

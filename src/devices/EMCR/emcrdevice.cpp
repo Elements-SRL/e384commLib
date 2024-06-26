@@ -2260,6 +2260,7 @@ void EmcrDevice::initializeCalibration() {
     CalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum);
 
     calibrationParams = calibrationManager.getCalibrationParams(calibrationLoadingError);
+    originalCalibrationParams = calibrationParams;
     calibrationFileNames = calibrationManager.getCalibrationFileNames();
     calibrationFilesOkFlags = calibrationManager.getCalibrationFilesOkFlags();
     calibrationMappingFileDir = calibrationManager.getMappingFileDir();
