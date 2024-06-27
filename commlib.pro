@@ -24,8 +24,6 @@ CONFIG(release, debug|release) {
 #    DEFINES += DEBUG_MAX_SPEED
 }
 
-#DEFINES += E384PATCH_ADDITIONAL_SR_FLAG
-
 TEMPLATE = lib
 CONFIG += c++14
 
