@@ -9,8 +9,10 @@
 #include "emcr384patchclamp_prot_v04_fw_v04.h"
 #include "emcr384patchclamp_prot_v04_fw_v05.h"
 #include "emcr384patchclamp_prot_v05_fw_v06.h"
+#include "emcr384patchclamp_el07c_prot_v06_fw_v01.h"
 #include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
+#include "emcrtestboardel07cd.h"
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
 #ifdef DEBUG
@@ -28,20 +30,20 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"23210014U9", Device384Nanopores},
     {"23210014UP", Device384Nanopores},
     {"23190014UX", Device384PatchClamp_prot_v04_fw_v05},
-    {"2210001076", Device384PatchClamp_prot_v05_fw_v06},
-    {"221000106B", Device384VoltageClamp_prot_v04_fw_v03},
+    {"2210001076", Device384PatchClamp_prot_el07c_v06_fw_v01},
     {"221000106C", Device384PatchClamp_prot_v01_fw_v02},
     {"23210014UF", Device384PatchClamp_prot_v01_fw_v02},
-    {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
+    {"221000106B", Device384VoltageClamp_prot_v04_fw_v03},
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
-    {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
-    {"233600165Q", DeviceTestBoardEL07ab},//DeviceTestBoardEL07d},
     {"233600161X", Device4x10MHz_PCBV03},
     {"224800130Y", Device4x10MHz_PCBV03},
-    {"2336001642", DeviceTestBoardEL07ab},
+    {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
+    {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
     {"23230014TO", Device4x10MHz_SB_PCBV01},
-    {"23230014TE", Device4x10MHz_SB_PCBV01}
+    {"23230014TE", Device4x10MHz_SB_PCBV01},
+    {"233600165Q", DeviceTestBoardEL07c},
+    {"2336001642", DeviceTestBoardEL07d}
     #ifdef DEBUG
     ,{"FAKE_Nanopores", Device384Fake},
     {"FAKE_PATCH_CLAMP", Device384FakePatchClamp},
@@ -164,12 +166,24 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr384PatchClamp_prot_v05_fw_v06(deviceId);
         break;
 
+    case Device384PatchClamp_prot_el07c_v06_fw_v01:
+        messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v06_fw_v01(deviceId);
+        break;
+
     case Device384VoltageClamp_prot_v04_fw_v03:
         messageDispatcher = new Emcr384VoltageClamp_prot_v04_fw_v03(deviceId);
         break;
 
     case DeviceTestBoardEL07ab:
         messageDispatcher = new EmcrTestBoardEl07ab(deviceId);
+        break;
+
+    case DeviceTestBoardEL07c:
+        messageDispatcher = new EmcrTestBoardEl07c(deviceId);
+        break;
+
+    case DeviceTestBoardEL07d:
+        messageDispatcher = new EmcrTestBoardEl07d(deviceId);
         break;
 
     case Device2x10MHz_PCBV01:
