@@ -6,7 +6,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
 
     deviceName = "TestBoardEL07cd";
 
-    fwName = "TB_ELO7c_V01.bit";
+    fwName = "TB_EL07c_V01.bit";
 
     fwSize_B = 0;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+2;
@@ -434,7 +434,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
 
     membraneCapValueInjCapacitance = {100.0/33.0, 400.0/33.0, 1600.0/33.0, 1600.0/11.0};
     membraneCapValueRange.resize(membraneCapacitanceValuesNum);
-    for (int idx = 0; idx < membraneCapacitanceValuesNum; idx++) {
+    for (int idx = 0; idx < membraneCapValueRanges; idx++) {
         membraneCapValueRange[idx].step = membraneVarConductance/membraneCapacitanceValuesNum*membraneFixedResistance9*membraneCapValueInjCapacitance[idx];
         membraneCapValueRange[idx].min = (membraneVarConductance/membraneCapacitanceValuesNum+1.0/membraneFixedResistance8)*membraneFixedResistance9*membraneCapValueInjCapacitance[idx];
         membraneCapValueRange[idx].max = membraneCapValueRange[idx].min+(membraneCapacitanceValuesNum-1.0)*membraneCapValueRange[idx].step;
@@ -1616,7 +1616,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         doubleConfig.maxValue = customDoublesRanges[idx].max;
         doubleConfig.resolution = customDoublesRanges[idx].step;
         customDoublesCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
-        coders.push_back(customOptionsCoders[idx]);
+        coders.push_back(customDoublesCoders[idx]);
 
         doubleConfig.initialBit += 8;
         if (doubleConfig.initialBit > 8) {
@@ -2448,5 +2448,5 @@ ErrorCodes_t EmcrTestBoardEl07c::getCompensationControl(CompensationUserParams_t
 EmcrTestBoardEl07d::EmcrTestBoardEl07d(std::string di) :
     EmcrTestBoardEl07c(di) {
 
-    fwName = "TB_ELO7d_V01.bit";
+    fwName = "TB_EL07d_V01.bit";
 }

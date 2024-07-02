@@ -1,4 +1,4 @@
-#include "emcr384patchclamp_el07c_prot_v06_fw_v01.h"
+#include "emcr384patchclamp_el07cd_prot_v06_fw_v01.h"
 
 Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01(std::string di) :
     EmcrOpalKellyDevice(di) {
@@ -423,7 +423,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
 
     membraneCapValueInjCapacitance = {100.0/33.0, 400.0/33.0, 1600.0/33.0, 1600.0/11.0};
     membraneCapValueRange.resize(membraneCapacitanceValuesNum);
-    for (int idx = 0; idx < membraneCapacitanceValuesNum; idx++) {
+    for (int idx = 0; idx < membraneCapValueRanges; idx++) {
         membraneCapValueRange[idx].step = membraneVarConductance/membraneCapacitanceValuesNum*membraneFixedResistance9*membraneCapValueInjCapacitance[idx];
         membraneCapValueRange[idx].min = (membraneVarConductance/membraneCapacitanceValuesNum+1.0/membraneFixedResistance8)*membraneFixedResistance9*membraneCapValueInjCapacitance[idx];
         membraneCapValueRange[idx].max = membraneCapValueRange[idx].min+(membraneCapacitanceValuesNum-1.0)*membraneCapValueRange[idx].step;
@@ -1598,7 +1598,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         doubleConfig.maxValue = customDoublesRanges[idx].max;
         doubleConfig.resolution = customDoublesRanges[idx].step;
         customDoublesCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
-        coders.push_back(customOptionsCoders[idx]);
+        coders.push_back(customDoublesCoders[idx]);
 
         doubleConfig.initialBit += 8;
         if (doubleConfig.initialBit > 8) {

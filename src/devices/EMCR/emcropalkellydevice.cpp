@@ -9,7 +9,7 @@
 #include "emcr384patchclamp_prot_v04_fw_v04.h"
 #include "emcr384patchclamp_prot_v04_fw_v05.h"
 #include "emcr384patchclamp_prot_v05_fw_v06.h"
-#include "emcr384patchclamp_el07c_prot_v06_fw_v01.h"
+#include "emcr384patchclamp_el07cd_prot_v06_fw_v01.h"
 #include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
 #include "emcrtestboardel07cd.h"
@@ -42,8 +42,8 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
     {"23230014TO", Device4x10MHz_SB_PCBV01},
     {"23230014TE", Device4x10MHz_SB_PCBV01},
-    {"233600165Q", DeviceTestBoardEL07c},
-    {"2336001642", DeviceTestBoardEL07d}
+    {"2336001642", DeviceTestBoardEL07c},
+    {"233600165Q", DeviceTestBoardEL07d}
     #ifdef DEBUG
     ,{"FAKE_Nanopores", Device384Fake},
     {"FAKE_PATCH_CLAMP", Device384FakePatchClamp},
