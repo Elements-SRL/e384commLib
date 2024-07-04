@@ -157,31 +157,31 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     /*! VC */
     vcCurrentFiltersNum = VCCurrentFiltersNum;
     vcCurrentFiltersArray.resize(vcCurrentFiltersNum);
-    vcCurrentFiltersArray[VCCurrentFilter3kHz].value = 3.0;
-    vcCurrentFiltersArray[VCCurrentFilter3kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter3kHz].unit = "Hz";
-    vcCurrentFiltersArray[VCCurrentFilter3_6kHz].value = 3.6;
-    vcCurrentFiltersArray[VCCurrentFilter3_6kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter3_6kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].value = 5.0;
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter6kHz].value = 6;
+    vcCurrentFiltersArray[VCCurrentFilter6kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter6kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter10kHz].value = 10.0;
     vcCurrentFiltersArray[VCCurrentFilter10kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter10kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter12kHz].value = 12.0;
     vcCurrentFiltersArray[VCCurrentFilter12kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter12kHz].unit = "Hz";
-    vcCurrentFiltersArray[VCCurrentFilter25kHz].value = 25.0;
-    vcCurrentFiltersArray[VCCurrentFilter25kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter25kHz].unit = "Hz";
-    vcCurrentFiltersArray[VCCurrentFilter30kHz].value = 30.0;
-    vcCurrentFiltersArray[VCCurrentFilter30kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter30kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter40kHz].value = 40.0;
+    vcCurrentFiltersArray[VCCurrentFilter40kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter40kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter48kHz].value = 48.0;
+    vcCurrentFiltersArray[VCCurrentFilter48kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter48kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter100kHz].value = 100.0;
     vcCurrentFiltersArray[VCCurrentFilter100kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter100kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter120kHz].value = 120.0;
     vcCurrentFiltersArray[VCCurrentFilter120kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter120kHz].unit = "Hz";
-    defaultVcCurrentFilterIdx = VCCurrentFilter3kHz;
+    defaultVcCurrentFilterIdx = VCCurrentFilter5kHz;
 
     /*! Voltage filters */
     /*! VC */
@@ -217,31 +217,31 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     /*! CC */
     ccVoltageFiltersNum = CCVoltageFiltersNum;
     ccVoltageFiltersArray.resize(ccVoltageFiltersNum);
-    ccVoltageFiltersArray[CCVoltageFilter3kHz].value = 3.0;
-    ccVoltageFiltersArray[CCVoltageFilter3kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter3kHz].unit = "Hz";
-    ccVoltageFiltersArray[CCVoltageFilter3_6kHz].value = 3.6;
-    ccVoltageFiltersArray[CCVoltageFilter3_6kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter3_6kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter5kHz].value = 5.0;
+    ccVoltageFiltersArray[CCVoltageFilter5kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter5kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter6kHz].value = 6;
+    ccVoltageFiltersArray[CCVoltageFilter6kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter6kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter10kHz].value = 10.0;
     ccVoltageFiltersArray[CCVoltageFilter10kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter10kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter12kHz].value = 12.0;
     ccVoltageFiltersArray[CCVoltageFilter12kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter12kHz].unit = "Hz";
-    ccVoltageFiltersArray[CCVoltageFilter25kHz].value = 25.0;
-    ccVoltageFiltersArray[CCVoltageFilter25kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter25kHz].unit = "Hz";
-    ccVoltageFiltersArray[CCVoltageFilter30kHz].value = 30.0;
-    ccVoltageFiltersArray[CCVoltageFilter30kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter30kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter40kHz].value = 40.0;
+    ccVoltageFiltersArray[CCVoltageFilter40kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter40kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter48kHz].value = 48.0;
+    ccVoltageFiltersArray[CCVoltageFilter48kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter48kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter100kHz].value = 100.0;
     ccVoltageFiltersArray[CCVoltageFilter100kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter100kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter120kHz].value = 120.0;
     ccVoltageFiltersArray[CCVoltageFilter120kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter120kHz].unit = "Hz";
-    defaultCcVoltageFilterIdx = CCVoltageFilter3kHz;
+    defaultCcVoltageFilterIdx = CCVoltageFilter5kHz;
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
@@ -299,15 +299,21 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-        {SamplingRate5kHz, VCCurrentFilter3_6kHz},
-        {SamplingRate10kHz, VCCurrentFilter10kHz},
-        {SamplingRate20kHz, VCCurrentFilter25kHz},
-        {SamplingRate40kHz, VCCurrentFilter30kHz},
-        {SamplingRate80kHz, VCCurrentFilter100kHz}
+        {SamplingRate5kHz, VCCurrentFilter5kHz},
+        {SamplingRate10kHz, VCCurrentFilter6kHz},
+        {SamplingRate20kHz, VCCurrentFilter12kHz},
+        {SamplingRate40kHz, VCCurrentFilter40kHz},
+        {SamplingRate80kHz, VCCurrentFilter48kHz}
     };
 
     // mapping ADC Current Clamp
-    // undefined
+    sr2LpfCcVoltageMap = {
+        {SamplingRate5kHz,  CCVoltageFilter5kHz},
+        {SamplingRate10kHz, CCVoltageFilter6kHz},
+        {SamplingRate20kHz, CCVoltageFilter12kHz},
+        {SamplingRate40kHz, CCVoltageFilter40kHz},
+        {SamplingRate80kHz, CCVoltageFilter48kHz}
+    };
 
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
     defaultCurrentHoldTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};

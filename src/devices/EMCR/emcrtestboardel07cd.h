@@ -21,8 +21,8 @@ public:
     virtual ErrorCodes_t turnCurrentStimulusOn(bool onValue, bool applyFlag) override;
 
 protected:
-    const double nominalClock = 102.4; //MHz
-    const double actualClock = 102.4; //MHz
+    const double nominalClock = 81.92; //MHz
+    const double actualClock = 81.92; //MHz
     const double clockRatio = actualClock / nominalClock;
     std::vector <double> membraneCapValueInjCapacitance;
 
@@ -68,12 +68,12 @@ protected:
     };
 
     enum VCCurrentFilters {
-        VCCurrentFilter3kHz,
-        VCCurrentFilter3_6kHz,
+        VCCurrentFilter5kHz,
+        VCCurrentFilter6kHz,
         VCCurrentFilter10kHz,
         VCCurrentFilter12kHz,
-        VCCurrentFilter25kHz,
-        VCCurrentFilter30kHz,
+        VCCurrentFilter40kHz,
+        VCCurrentFilter48kHz,
         VCCurrentFilter100kHz,
         VCCurrentFilter120kHz,
         VCCurrentFiltersNum
@@ -94,24 +94,24 @@ protected:
     };
 
     enum CCVoltageFilters {
-        CCVoltageFilter3kHz,
-        CCVoltageFilter3_6kHz,
+        CCVoltageFilter5kHz,
+        CCVoltageFilter6kHz,
         CCVoltageFilter10kHz,
         CCVoltageFilter12kHz,
-        CCVoltageFilter25kHz,
-        CCVoltageFilter30kHz,
+        CCVoltageFilter40kHz,
+        CCVoltageFilter48kHz,
         CCVoltageFilter100kHz,
         CCVoltageFilter120kHz,
         CCVoltageFiltersNum
     };
 
     enum SamplingRates {
-        SamplingRate6_25kHz,
-        SamplingRate12_5kHz,
-        SamplingRate25kHz,
-        SamplingRate50kHz,
-        SamplingRate100kHz,
-        SamplingRate200kHz,
+        SamplingRate5kHz,
+        SamplingRate10kHz,
+        SamplingRate20kHz,
+        SamplingRate40kHz,
+        SamplingRate80kHz,
+        SamplingRate160kHz,
         SamplingRatesNum
     };
 

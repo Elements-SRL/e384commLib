@@ -2224,7 +2224,7 @@ ErrorCodes_t MessageDispatcher::getCustomDoubles(std::vector <std::string> &cust
     if (customDoublesNum == 0) {
         return ErrorFeatureNotImplemented;
     }
-    customDoubles.resize(customDoublesNum);
+    customDoubles = customDoublesNames;
     customDoublesRanges = this->customDoublesRanges;
     customDoublesDefault = this->customDoublesDefault;
     return Success;

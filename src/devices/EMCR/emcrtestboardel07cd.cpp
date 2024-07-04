@@ -159,31 +159,31 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     /*! VC */
     vcCurrentFiltersNum = VCCurrentFiltersNum;
     vcCurrentFiltersArray.resize(vcCurrentFiltersNum);
-    vcCurrentFiltersArray[VCCurrentFilter3kHz].value = 3.0;
-    vcCurrentFiltersArray[VCCurrentFilter3kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter3kHz].unit = "Hz";
-    vcCurrentFiltersArray[VCCurrentFilter3_6kHz].value = 3.6;
-    vcCurrentFiltersArray[VCCurrentFilter3_6kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter3_6kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].value = 5.0;
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter6kHz].value = 6;
+    vcCurrentFiltersArray[VCCurrentFilter6kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter6kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter10kHz].value = 10.0;
     vcCurrentFiltersArray[VCCurrentFilter10kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter10kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter12kHz].value = 12.0;
     vcCurrentFiltersArray[VCCurrentFilter12kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter12kHz].unit = "Hz";
-    vcCurrentFiltersArray[VCCurrentFilter25kHz].value = 25.0;
-    vcCurrentFiltersArray[VCCurrentFilter25kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter25kHz].unit = "Hz";
-    vcCurrentFiltersArray[VCCurrentFilter30kHz].value = 30.0;
-    vcCurrentFiltersArray[VCCurrentFilter30kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter30kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter40kHz].value = 40.0;
+    vcCurrentFiltersArray[VCCurrentFilter40kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter40kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter48kHz].value = 48.0;
+    vcCurrentFiltersArray[VCCurrentFilter48kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter48kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter100kHz].value = 100.0;
     vcCurrentFiltersArray[VCCurrentFilter100kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter100kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter120kHz].value = 120.0;
     vcCurrentFiltersArray[VCCurrentFilter120kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter120kHz].unit = "Hz";
-    defaultVcCurrentFilterIdx = VCCurrentFilter3kHz;
+    defaultVcCurrentFilterIdx = VCCurrentFilter5kHz;
 
     /*! Voltage filters */
     /*! VC */
@@ -219,107 +219,114 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     /*! CC */
     ccVoltageFiltersNum = CCVoltageFiltersNum;
     ccVoltageFiltersArray.resize(ccVoltageFiltersNum);
-    ccVoltageFiltersArray[CCVoltageFilter3kHz].value = 3.0;
-    ccVoltageFiltersArray[CCVoltageFilter3kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter3kHz].unit = "Hz";
-    ccVoltageFiltersArray[CCVoltageFilter3_6kHz].value = 3.6;
-    ccVoltageFiltersArray[CCVoltageFilter3_6kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter3_6kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter5kHz].value = 5.0;
+    ccVoltageFiltersArray[CCVoltageFilter5kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter5kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter6kHz].value = 6;
+    ccVoltageFiltersArray[CCVoltageFilter6kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter6kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter10kHz].value = 10.0;
     ccVoltageFiltersArray[CCVoltageFilter10kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter10kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter12kHz].value = 12.0;
     ccVoltageFiltersArray[CCVoltageFilter12kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter12kHz].unit = "Hz";
-    ccVoltageFiltersArray[CCVoltageFilter25kHz].value = 25.0;
-    ccVoltageFiltersArray[CCVoltageFilter25kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter25kHz].unit = "Hz";
-    ccVoltageFiltersArray[CCVoltageFilter30kHz].value = 30.0;
-    ccVoltageFiltersArray[CCVoltageFilter30kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter30kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter40kHz].value = 40.0;
+    ccVoltageFiltersArray[CCVoltageFilter40kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter40kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter48kHz].value = 48.0;
+    ccVoltageFiltersArray[CCVoltageFilter48kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter48kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter100kHz].value = 100.0;
     ccVoltageFiltersArray[CCVoltageFilter100kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter100kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter120kHz].value = 120.0;
     ccVoltageFiltersArray[CCVoltageFilter120kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter120kHz].unit = "Hz";
-    defaultCcVoltageFilterIdx = CCVoltageFilter3kHz;
+    defaultCcVoltageFilterIdx = CCVoltageFilter5kHz;
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate6_25kHz].value = 6.25;
-    samplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate12_5kHz].value = 12.5;
-    samplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate25kHz].value = 25.0;
-    samplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate25kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate50kHz].value = 50.0;
-    samplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate50kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate100kHz].value = 100.0;
-    samplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate100kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate200kHz].value = 200.0;
-    samplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate200kHz].unit = "Hz";
-    defaultSamplingRateIdx = SamplingRate6_25kHz;
+    samplingRatesArray[SamplingRate5kHz].value = 5.0;
+    samplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate5kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate10kHz].value = 10.0;
+    samplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate10kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate20kHz].value = 20.0;
+    samplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate20kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate40kHz].value = 40.0;
+    samplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate40kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate80kHz].value = 80.0;
+    samplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate80kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate160kHz].value = 160.0;
+    samplingRatesArray[SamplingRate160kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate160kHz].unit = "Hz";
+    defaultSamplingRateIdx = SamplingRate5kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate6_25kHz].value = 6.25;
-    realSamplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate12_5kHz].value = 12.5;
-    realSamplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate25kHz].value = 25.0;
-    realSamplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate25kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate50kHz].value = 50.0;
-    realSamplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate50kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate100kHz].value = 100.0;
-    realSamplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate100kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate200kHz].value = 200.0;
-    realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate5kHz].value = 5.0;
+    realSamplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate5kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate10kHz].value = 10.0;
+    realSamplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate10kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate20kHz].value = 20.0;
+    realSamplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate20kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate40kHz].value = 40.0;
+    realSamplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate40kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate80kHz].value = 80.0;
+    realSamplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate80kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate160kHz].value = 160.0;
+    realSamplingRatesArray[SamplingRate160kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate160kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate6_25kHz].value = 160.0;
-    integrationStepArray[SamplingRate6_25kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate6_25kHz].unit = "s";
-    integrationStepArray[SamplingRate12_5kHz].value = 80.0;
-    integrationStepArray[SamplingRate12_5kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate12_5kHz].unit = "s";
-    integrationStepArray[SamplingRate25kHz].value = 40.0;
-    integrationStepArray[SamplingRate25kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate25kHz].unit = "s";
-    integrationStepArray[SamplingRate50kHz].value = 20.0;
-    integrationStepArray[SamplingRate50kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate50kHz].unit = "s";
-    integrationStepArray[SamplingRate100kHz].value = 10.0;
-    integrationStepArray[SamplingRate100kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate100kHz].unit = "s";
-    integrationStepArray[SamplingRate200kHz].value = 5.0;
-    integrationStepArray[SamplingRate200kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate200kHz].unit = "s";
+    integrationStepArray[SamplingRate5kHz].value = 200.0;
+    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate5kHz].unit = "s";
+    integrationStepArray[SamplingRate10kHz].value = 100.0;
+    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate10kHz].unit = "s";
+    integrationStepArray[SamplingRate20kHz].value = 50.0;
+    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate20kHz].unit = "s";
+    integrationStepArray[SamplingRate40kHz].value = 25.0;
+    integrationStepArray[SamplingRate40kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate40kHz].unit = "s";
+    integrationStepArray[SamplingRate80kHz].value = 12.5;
+    integrationStepArray[SamplingRate80kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate80kHz].unit = "s";
+    integrationStepArray[SamplingRate160kHz].value = 6.25;
+    integrationStepArray[SamplingRate160kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate160kHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-        {SamplingRate6_25kHz, VCCurrentFilter3_6kHz},
-        {SamplingRate12_5kHz, VCCurrentFilter10kHz},
-        {SamplingRate25kHz, VCCurrentFilter25kHz},
-        {SamplingRate50kHz, VCCurrentFilter30kHz},
-        {SamplingRate100kHz, VCCurrentFilter100kHz},
-        {SamplingRate200kHz, VCCurrentFilter120kHz}
+        {SamplingRate5kHz, VCCurrentFilter5kHz},
+        {SamplingRate10kHz, VCCurrentFilter6kHz},
+        {SamplingRate20kHz, VCCurrentFilter12kHz},
+        {SamplingRate40kHz, VCCurrentFilter40kHz},
+        {SamplingRate80kHz, VCCurrentFilter48kHz},
+        {SamplingRate160kHz, VCCurrentFilter100kHz}
     };
 
     // mapping ADC Current Clamp
-    // undefined
+    sr2LpfCcVoltageMap = {
+        {SamplingRate5kHz,  CCVoltageFilter5kHz},
+        {SamplingRate10kHz, CCVoltageFilter6kHz},
+        {SamplingRate20kHz, CCVoltageFilter12kHz},
+        {SamplingRate40kHz, CCVoltageFilter40kHz},
+        {SamplingRate80kHz, CCVoltageFilter48kHz},
+        {SamplingRate160kHz,  CCVoltageFilter100kHz}
+    };
 
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
     defaultCurrentHoldTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
@@ -1996,11 +2003,11 @@ ErrorCodes_t EmcrTestBoardEl07c::setCompOptions(std::vector <uint16_t> channelIn
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
-    switch (type)
-    {
+    switch (type) {
     case CompRsCorr:
         if (rsCorrBwCompensationCoders.size() == 0) {
             return ErrorFeatureNotImplemented;
+
         } else {
             for (uint32_t i = 0; i < channelIndexes.size(); i++) {
                 selectedRsCorrBws[i] = options[i];
@@ -2015,7 +2022,7 @@ ErrorCodes_t EmcrTestBoardEl07c::setCompOptions(std::vector <uint16_t> channelIn
             }
             return Success;
         }
-    break;
+        break;
     }
 }
 
