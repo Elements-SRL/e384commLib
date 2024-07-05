@@ -1,9 +1,9 @@
 #ifndef EMCR384PATCHCLAMPFAKE_H
 #define EMCR384PATCHCLAMPFAKE_H
 
-#include "emcr384patchclamp_prot_v04_fw_v04.h"
+#include "emcr384patchclamp_el07cd_prot_v06_fw_v01.h"
 
-class Emcr384FakePatchClamp: public Emcr384PatchClamp_prot_v04_fw_v04 {
+class Emcr384FakePatchClamp: public Emcr384PatchClamp_EL07c_prot_v06_fw_v01 {
 public:
     Emcr384FakePatchClamp(std::string id);
 

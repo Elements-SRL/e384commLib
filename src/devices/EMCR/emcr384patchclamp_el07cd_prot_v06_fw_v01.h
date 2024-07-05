@@ -82,14 +82,16 @@ protected:
     enum VCVoltageFilters {
         VCVoltageFilter1kHz,
         VCVoltageFilter10kHz,
-        VCVoltageFilter35kHz,
+        VCVoltageFilter20kHz,
+        VCVoltageFilter50kHz,
         VCVoltageFiltersNum
     };
 
     enum CCCurrentFilters {
         CCCurrentFilter1kHz,
         CCCurrentFilter10kHz,
-        CCCurrentFilter35kHz,
+        CCCurrentFilter20kHz,
+        CCCurrentFilter50kHz,
         CCCurrentFiltersNum
     };
 
@@ -124,15 +126,14 @@ protected:
         CompensationAsicParamsNum
     };
 
-    enum CompensationRsCorrBws{
-        CompensationRsCorrBw39_789kHz,
-        CompensationRsCorrBw19_894kHz,
-        CompensationRsCorrBw9_947kHz,
-        CompensationRsCorrBw4_974kHz,
-        CompensationRsCorrBw2_487kHz,
-        CompensationRsCorrBw1_243kHz,
-        CompensationRsCorrBw0_622kHz,
-        CompensationRsCorrBw0_311kHz,
+    enum CompensationRsCorrBws {
+        CompensationRsCorrBw53_1kHz,
+        CompensationRsCorrBw31_8kHz,
+        CompensationRsCorrBw17_7kHz,
+        CompensationRsCorrBw9_36kHz,
+        CompensationRsCorrBw4_82kHz,
+        CompensationRsCorrBw2_45kHz,
+        CompensationRsCorrBw1_23kHz,
         CompensationRsCorrBwNum
     };
 
