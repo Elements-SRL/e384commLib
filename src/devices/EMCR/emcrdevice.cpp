@@ -1156,10 +1156,10 @@ ErrorCodes_t EmcrDevice::readoutOffsetRecalibration(std::vector <uint16_t> chann
             offsetRecalibStates[chIdx] = OffsetRecalibTerminate;
         }
     }
-    ljMutexLock.unlock();
-
     anyOffsetRecalibrationActive = true;
     computeCurrentOffsetFlag = true;
+
+    ljMutexLock.unlock();
 
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1190,10 +1190,10 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
         }
     }
-    ljMutexLock.unlock();
-
     anyLiquidJunctionActive = true;
     computeCurrentOffsetFlag = true;
+
+    ljMutexLock.unlock();
 
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
