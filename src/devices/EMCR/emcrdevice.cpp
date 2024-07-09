@@ -1645,10 +1645,14 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
     std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
     if (rxMsgBufferReadLength <= 0) {
+#ifdef NEXT_MESSAGE_NO_WAIT
+        return ErrorNoDataAvailable;
+#else
         rxMsgBufferNotEmpty.wait_for (rxMutexLock, std::chrono::milliseconds(3));
         if (rxMsgBufferReadLength <= 0) {
             return ErrorNoDataAvailable;
         }
+#endif
     }
     uint32_t maxMsgRead = rxMsgBufferReadLength;
     gettingNextDataFlag = true;
