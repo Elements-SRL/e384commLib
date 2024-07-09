@@ -760,6 +760,21 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         }
     }
 
+    /*! GR_En */
+    boolConfig.initialWord = 132;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    grEnCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        grEnCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(grEnCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
     /*! VC_SW */
     boolConfig.initialWord = 204;
     boolConfig.initialBit = 0;
@@ -797,8 +812,8 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     vcCcSelCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         vcCcSelCoders[idx] = new BoolRandomArrayCoder(boolConfig);
-        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x0);
-        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x3); // set also the Cfast_SW
+        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x2); // set only the Cfast_SW
+        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x1); // set only the VC_CC_sel
         coders.push_back(vcCcSelCoders[idx]);
         // VC_CC_sel unified
     }
@@ -1619,7 +1634,10 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x0070; // fans on by default
+    txStatus[2] = 0x0070; // fans on
+    for (int idx = 132; idx < 156; idx++) {
+        txStatus[idx] = 0x1111; // GR_EN active
+    }
     for (int idx = 4384; idx < 4480; idx++) {
         txStatus[idx] = 0x1111; // rs bw avoid configuration with all zeros
     }
@@ -2026,6 +2044,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::turnVoltageReaderOn(bool o
     if (onValueIn) {
         this->turnCcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheFalseIneed, false);
+        this->setGrEn(false, false);
         this->updateCalibCcVoltageGain(allChannelIndexes, false);
         this->updateCalibCcVoltageOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
@@ -2049,6 +2068,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::turnCurrentReaderOn(bool o
     if (onValueIn) {
         this->turnVcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheTrueIneed, false);
+        this->setGrEn(true, false);
         this->updateCalibVcCurrentGain(allChannelIndexes, false);
         this->updateCalibVcCurrentOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
@@ -2437,6 +2457,15 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::getCompensationControl(Com
 
     default:
         return ErrorFeatureNotImplemented;
+    }
+}
+
+void Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setGrEn(bool flag, bool applyFlag) {
+    for (auto coder : grEnCoders) {
+        coder->encode(flag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
     }
 }
 

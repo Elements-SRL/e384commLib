@@ -779,6 +779,21 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         }
     }
 
+    /*! GR_En */
+    boolConfig.initialWord = 17;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    grEnCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        grEnCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(grEnCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
     /*! VC_SW */
     boolConfig.initialWord = 20;
     boolConfig.initialBit = 0;
@@ -816,8 +831,8 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     vcCcSelCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         vcCcSelCoders[idx] = new BoolRandomArrayCoder(boolConfig);
-        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x0);
-        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x3); // set also the Cfast_SW
+        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x2); // set only the Cfast_SW
+        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x1); // set only the VC_CC_sel
         coders.push_back(vcCcSelCoders[idx]);
         // VC_CC_sel unified
     }
@@ -1638,6 +1653,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
+    txStatus[17] = 0x00FF; // GR_EN active
     txStatus[350] = 0x1111; // rs bw avoid configuration with all zeros
     txStatus[351] = 0x1111;
 }
@@ -2035,7 +2051,7 @@ ErrorCodes_t EmcrTestBoardEl07c::turnVoltageReaderOn(bool onValueIn, bool applyF
     std::vector <bool> allTheTrueIneed;
     std::vector <bool> allTheFalseIneed;
 
-    for (int i = 0; i< currentChannelsNum; i++) {
+    for (int i = 0; i < currentChannelsNum; i++) {
         allTheTrueIneed.push_back(true);
         allTheFalseIneed.push_back(false);
     }
@@ -2043,6 +2059,7 @@ ErrorCodes_t EmcrTestBoardEl07c::turnVoltageReaderOn(bool onValueIn, bool applyF
     if (onValueIn) {
         this->turnCcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheFalseIneed, false);
+        this->setGrEn(false, false);
         this->updateCalibCcVoltageGain(allChannelIndexes, false);
         this->updateCalibCcVoltageOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
@@ -2066,6 +2083,7 @@ ErrorCodes_t EmcrTestBoardEl07c::turnCurrentReaderOn(bool onValueIn, bool applyF
     if (onValueIn) {
         this->turnVcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheTrueIneed, false);
+        this->setGrEn(true, false);
         this->updateCalibVcCurrentGain(allChannelIndexes, false);
         this->updateCalibVcCurrentOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
@@ -2454,6 +2472,15 @@ ErrorCodes_t EmcrTestBoardEl07c::getCompensationControl(CompensationUserParams_t
 
     default:
         return ErrorFeatureNotImplemented;
+    }
+}
+
+void EmcrTestBoardEl07c::setGrEn(bool flag, bool applyFlag) {
+    for (auto coder : grEnCoders) {
+        coder->encode(flag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
     }
 }
 

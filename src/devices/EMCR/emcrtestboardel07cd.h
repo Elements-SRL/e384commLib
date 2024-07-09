@@ -26,6 +26,8 @@ protected:
     const double clockRatio = actualClock / nominalClock;
     std::vector <double> membraneCapValueInjCapacitance;
 
+    std::vector <BoolArrayCoder *> grEnCoders;
+
     enum ClampingModalities {
         VoltageClamp,
         CurrentClamp,
@@ -162,6 +164,8 @@ protected:
     virtual ErrorCodes_t asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams) override;
 
     virtual ErrorCodes_t getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) override;
+
+    void setGrEn(bool flag, bool applyFlag);
 };
 
 class EmcrTestBoardEl07d : public EmcrTestBoardEl07c {
