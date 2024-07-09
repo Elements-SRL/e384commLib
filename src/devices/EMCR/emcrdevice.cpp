@@ -1645,6 +1645,10 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
     std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
     if (rxMsgBufferReadLength <= 0) {
+        if (parsingStatus == ParsingNone) {
+            gettingNextDataFlag = false; /*! I still need this variable to be changed */
+            return ErrorDeviceNotConnected;
+        }
 #ifdef NEXT_MESSAGE_NO_WAIT
         return ErrorNoDataAvailable;
 #else
@@ -1657,11 +1661,6 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     uint32_t maxMsgRead = rxMsgBufferReadLength;
     gettingNextDataFlag = true;
     rxMutexLock.unlock();
-
-    if (!parsingFlag) {
-        gettingNextDataFlag = false;
-        return ErrorDeviceNotConnected;
-    }
 
     uint32_t msgReadCount = 0;
 
@@ -2148,6 +2147,7 @@ ErrorCodes_t EmcrDevice::initialize(std::string fwPath) {
     }
 
     stopConnectionFlag = false;
+    parsingStatus = ParsingPreparing;
     this->createCommunicationThreads();
 
     std::this_thread::sleep_for (std::chrono::milliseconds(500));

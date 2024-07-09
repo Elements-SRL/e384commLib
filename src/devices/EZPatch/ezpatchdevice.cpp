@@ -2368,6 +2368,9 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
 
     std::unique_lock <std::mutex> rxMutexLock (rxMutex);
     if (rxMsgBufferReadLength == 0) {
+        if (parsingStatus == ParsingNone) {
+            return ErrorDeviceNotConnected;
+        }
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
         std::chrono::steady_clock::time_point currentTime = startTime;
         while (((std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count()) < EZP_NO_DATA_WAIT_TIME_MS) &&
@@ -2381,10 +2384,6 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
     }
     uint32_t maxMsgRead = rxMsgBufferReadLength;
     rxMutexLock.unlock();
-
-    if (!parsingFlag) {
-        return ErrorDeviceNotConnected;
-    }
 
     uint32_t msgReadCount = 0;
     bool headerSet = false;

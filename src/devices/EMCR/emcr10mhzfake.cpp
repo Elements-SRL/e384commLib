@@ -42,7 +42,7 @@ void Emcr10MHzFake::initializeVariables() {
 
 ErrorCodes_t Emcr10MHzFake::initializeHW() {
     fwLoadedFlag = true;
-    parsingFlag = true;
+    parsingStatus = ParsingParsing;
     return Success;
 }
 

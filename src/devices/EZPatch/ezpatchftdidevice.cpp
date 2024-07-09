@@ -750,7 +750,9 @@ void EZPatchFtdiDevice::readAndParseMessages() {
     uint16_t rxComputedCrc = 0x0000;
     bool rxCrcOk;
 
-    parsingFlag = true;
+    std::unique_lock <std::mutex> rxMutexLock(rxMutex);
+    parsingStatus = ParsingParsing;
+    rxMutexLock.unlock();
 
     std::unique_lock <std::mutex> connectionMutexLock (connectionMutex);
     connectionMutexLock.unlock();
@@ -1081,12 +1083,10 @@ void EZPatchFtdiDevice::readAndParseMessages() {
         }
     }
 
-    if (rxMsgBufferReadLength == 0) {
-        std::unique_lock <std::mutex> rxMutexLock (rxMutex);
-        parsingFlag = false;
-        rxMsgBufferReadLength++;
-        rxMsgBufferNotEmpty.notify_all();
-    }
+    rxMutexLock.lock();
+    parsingStatus = ParsingNone;
+    rxMsgBufferReadLength++; /*! In my opinion it is better to leave this increment, because other threads might hang forever on disconnection waiting for rxMsgBufferReadLength to be greater than 0 */
+    rxMsgBufferNotEmpty.notify_all();
 }
 
 void EZPatchFtdiDevice::unwrapAndSendMessages() {

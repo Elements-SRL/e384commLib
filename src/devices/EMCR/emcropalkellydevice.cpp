@@ -377,7 +377,11 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
             long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
             if (t > waitingTimeBeforeReadingData*1e6) {
                 waitingTimeForReadingPassed = true;
-                parsingFlag = true;
+                std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
+                if (parsingStatus == ParsingPreparing) {
+                    parsingStatus = ParsingParsing;
+                }
+                rxMutexLock.unlock();
             }
         }
 
@@ -673,13 +677,10 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
         rxRawBufferNotFull.notify_all();
     }
 
-    if (rxMsgBufferReadLength <= 0) {
-        std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-        parsingFlag = false;
-        rxMsgBufferReadLength++;
-        rxMutexLock.unlock();
-        rxMsgBufferNotEmpty.notify_all();
-    }
+    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
+    parsingStatus = ParsingNone;
+    rxMsgBufferReadLength++; /*! In my opinion it is better to leave this increment, because other threads might hang forever on disconnection waiting for rxMsgBufferReadLength to be greater than 0 */
+    rxMsgBufferNotEmpty.notify_all();
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {

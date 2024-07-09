@@ -336,7 +336,7 @@ ErrorCodes_t EmcrUdbDevice::initializeHW() {
                       *   when the FPGA is still executing the starting procedures */
     }
     fwLoadedFlag = true;
-    parsingFlag = true;
+    parsingStatus = ParsingParsing;
 
     this->sendCommands();
 
@@ -688,13 +688,10 @@ void EmcrUdbDevice::parseDataFromDevice() {
         rxRawBufferNotFull.notify_all();
     }
 
-    if (rxMsgBufferReadLength <= 0) {
-        std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-        parsingFlag = false;
-        rxMsgBufferReadLength++;
-        rxMutexLock.unlock();
-        rxMsgBufferNotEmpty.notify_all();
-    }
+    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
+    parsingStatus = ParsingNone;
+    rxMsgBufferReadLength++; /*! In my opinion it is better to leave this increment, because other threads might hang forever on disconnection waiting for rxMsgBufferReadLength to be greater than 0 */
+    rxMsgBufferNotEmpty.notify_all();
 }
 
 ErrorCodes_t EmcrUdbDevice::initializeMemory() {

@@ -269,7 +269,9 @@ void EZPatchFakeP8::selectChannelsResolutions() {
 }
 
 void EZPatchFakeP8::readAndParseMessagesForGenerator() {
-    parsingFlag = true;
+    std::unique_lock <std::mutex> rxMutexLock(rxMutex);
+    parsingStatus = ParsingParsing;
+    rxMutexLock.unlock();
 
     std::unique_lock <std::mutex> genRxMutexLock(genRxMutex);
     genRxMutexLock.unlock();
@@ -304,13 +306,10 @@ void EZPatchFakeP8::readAndParseMessagesForGenerator() {
         genRxMutexLock.unlock();
     }
 
-    if (rxMsgBufferReadLength <= 0) {
-        rxMutex.lock();
-        parsingFlag = false;
-        rxMsgBufferReadLength++;
-        rxMsgBufferNotEmpty.notify_all();
-        rxMutex.unlock();
-    }
+    rxMutexLock.lock();
+    parsingStatus = ParsingNone;
+    rxMsgBufferReadLength++; /*! In my opinion it is better to leave this increment, because other threads might hang forever on disconnection waiting for rxMsgBufferReadLength to be greater than 0 */
+    rxMsgBufferNotEmpty.notify_all();
 }
 
 void EZPatchFakeP8::unwrapAndSendMessagesForGenerator() {

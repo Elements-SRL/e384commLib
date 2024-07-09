@@ -440,8 +440,6 @@ protected:
     FT_HANDLE * ftdiRxHandle = nullptr;
     FT_HANDLE * ftdiTxHandle = nullptr;
 
-    bool parsingFlag = false;
-
     uint32_t rxMsgOffset;
 
     uint16_t rxMsgBytes;

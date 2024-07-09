@@ -1942,6 +1942,12 @@ protected:
         LiquidJunctionStatesNum
     } LiquidJunctionState_t;
 
+    typedef enum ParsingStatus {
+        ParsingNone,
+        ParsingPreparing,
+        ParsingParsing
+    } ParsingStatus_t;
+
     /*************\
      *  Methods  *
     \*************/
@@ -2169,7 +2175,7 @@ protected:
 
     bool threadsStarted = false;
     bool stopConnectionFlag = false;
-    bool parsingFlag = false;
+    ParsingStatus_t parsingStatus = ParsingNone;
 
     std::vector <BoardModel *> boardModels;
     std::vector <ChannelModel *> channelModels;
