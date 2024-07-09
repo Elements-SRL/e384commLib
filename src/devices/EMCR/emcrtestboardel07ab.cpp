@@ -6,7 +6,7 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
 
     deviceName = "TestBoardEL07ab";
 
-    fwName = "TB_EL07ab_V01.bit";
+    fwName = "TB_EL07ab_V02.bit";
 
     fwSize_B = 0;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+2;
