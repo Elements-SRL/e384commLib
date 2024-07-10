@@ -867,7 +867,7 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     vcReaderSwitchesByte[VCReaderSwitch_CfastSw] = 0x0400;
     vcReaderSwitchesByte[VCReaderSwitch_ClampingMode0] = 0x2000;
 
-    vcReaderSwitchesLutStrings = "101";
+    vcReaderSwitchesLutStrings = "100";
 
     for (unsigned int readerSwitchesIdx = 0; readerSwitchesIdx < vcReaderSwitchesNum; readerSwitchesIdx++) {
         if (vcReaderSwitchesLutStrings[readerSwitchesIdx] == '1') {
