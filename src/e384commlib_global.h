@@ -235,6 +235,7 @@ typedef enum DeviceTypes {
     DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02,/*!< ePatch device with 8 EL07AB PCB V02 chips for Nanion's Patchliner (FPGA artix7). Increased protocol items to 256. */
     DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V01,/*!< ePatch device with 8 EL07AB PCB V02 chips for Nanion's Patchliner (FPGA artix7). */
     DeviceE8PPatchLinerEL07AB_artix7_PCBV01,    /*!< ePatch device with 8 EL07AB PCB V01 chips for Nanion's Patchliner (FPGA artix7). */
+    DeviceE8PPatchLinerEL07CD_artix7_PCBV01,    /*!< ePatch device with 8 EL07CD PCB V01 chips for Nanion's Patchliner (FPGA artix7). */
     DeviceFakePatch,                            /*!< Fake ePatch device resembling EL04F chip. */
     DeviceFakeP8,                               /*!< Fake patchliner device resembling EL07AB chip. */
     DeviceEPatchDlp,                            /*!< ePatch device with dlp fpga. */

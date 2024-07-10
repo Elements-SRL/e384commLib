@@ -1,6 +1,6 @@
 #include "ezpatche8ppatchliner_el07cd.h"
 
-EZPatche8PPatchliner_el07cd::EZPatche8PPatchliner_el07cd(std::string di) :
+EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PCBV01(std::string di) :
     EZPatchFtdiDevice(di) {
 
     spiChannel = 'B';
@@ -922,7 +922,7 @@ EZPatche8PPatchliner_el07cd::EZPatche8PPatchliner_el07cd(std::string di) :
     samplingRate = realSamplingRatesArray[SamplingRate5kHz];
 }
 
-ErrorCodes_t EZPatche8PPatchliner_el07cd::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
+ErrorCodes_t EZPatche8PPatchliner_el07cd_artix7_PCBV01::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
     ErrorCodes_t ret;
 
     if (samplingRateIdx < samplingRatesNum) {
@@ -954,7 +954,7 @@ ErrorCodes_t EZPatche8PPatchliner_el07cd::setSamplingRate(uint16_t samplingRateI
     return ret;
 }
 
-void EZPatche8PPatchliner_el07cd::selectChannelsResolutions() {
+void EZPatche8PPatchliner_el07cd_artix7_PCBV01::selectChannelsResolutions() {
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
             currentTunerCorrection[channelIdx] = 0.0;
@@ -981,7 +981,7 @@ void EZPatche8PPatchliner_el07cd::selectChannelsResolutions() {
     this->computeRawDataFilterCoefficients();
 }
 
-void EZPatche8PPatchliner_el07cd::selectVoltageOffsetResolution() {
+void EZPatche8PPatchliner_el07cd_artix7_PCBV01::selectVoltageOffsetResolution() {
     if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
         voltageOffsetCorrection = 0.0;
 
@@ -994,7 +994,7 @@ void EZPatche8PPatchliner_el07cd::selectVoltageOffsetResolution() {
     }
 }
 
-void EZPatche8PPatchliner_el07cd::initializeCompensations() {
+void EZPatche8PPatchliner_el07cd_artix7_PCBV01::initializeCompensations() {
     EZPatchDevice::initializeCompensations();
 
     /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
@@ -1110,7 +1110,7 @@ void EZPatche8PPatchliner_el07cd::initializeCompensations() {
     }
 }
 
-bool EZPatche8PPatchliner_el07cd::checkCompensationsValues() {
+bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::checkCompensationsValues() {
     bool ret = true;
     if (vcCompensationsActivated) {
         if (compensationsEnableFlags[CompCfast][compensationsSettingChannel]){
@@ -1177,7 +1177,7 @@ bool EZPatche8PPatchliner_el07cd::checkCompensationsValues() {
     return ret;
 }
 
-bool EZPatche8PPatchliner_el07cd::fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) {
+bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) {
     bool anythingChanged = false;
 
     double pipetteValue;
@@ -1352,7 +1352,7 @@ bool EZPatche8PPatchliner_el07cd::fillCompensationsRegistersTxData(std::vector <
     return anythingChanged;
 }
 
-void EZPatche8PPatchliner_el07cd::updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) {
+void EZPatche8PPatchliner_el07cd_artix7_PCBV01::updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) {
     if (vcCompensationsActivated) {
         pipetteCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[1];
 

@@ -3,9 +3,9 @@
 
 #include "ezpatchftdidevice.h"
 
-class EZPatche8PPatchliner_el07cd : public EZPatchFtdiDevice {
+class EZPatche8PPatchliner_el07cd_artix7_PCBV01 : public EZPatchFtdiDevice {
 public:
-    EZPatche8PPatchliner_el07cd(std::string di);
+    EZPatche8PPatchliner_el07cd_artix7_PCBV01(std::string di);
 
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
