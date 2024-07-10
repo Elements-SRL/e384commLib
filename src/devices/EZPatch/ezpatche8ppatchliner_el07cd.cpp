@@ -1111,6 +1111,19 @@ void EZPatche8PPatchliner_el07cd_artix7_PCBV01::initializeCompensations() {
     control.name = ccPipetteCapacitanceName;
     std::fill(compensationControls[U_CpCc].begin(), compensationControls[U_CpCc].end(), control);
 
+    compValueMatrix.resize(currentChannelsNum, std::vector <double> (CompensationUserParamsNum));
+    int compIdx = 0;
+    int channelIdx = 0;
+    for (auto controls : compensationControls) {
+        if (controls[0].implemented) {
+            for (auto control : controls) {
+                compValueMatrix[channelIdx++][compIdx] = control.value;
+            }
+            channelIdx = 0;
+            compIdx++;
+        }
+    }
+
     pipetteCapacitanceRegValue.resize(currentChannelsNum);
     ccPipetteCapacitanceRegValue.resize(currentChannelsNum);
     membraneCapacitanceRegValue.resize(currentChannelsNum);
