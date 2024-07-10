@@ -287,6 +287,7 @@ ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
     if (error != okCFrontPanel::NoError) {
         return ErrorDeviceConnectionFailed;
     }
+    fwPath = (!fwPath.empty() && fwPath.back() == '\\')?fwPath : fwPath + '\\';
 
     std::ifstream file(fwPath + fwName);
     if (file.good()) {
