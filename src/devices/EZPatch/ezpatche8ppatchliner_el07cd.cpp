@@ -216,6 +216,26 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     realSamplingRatesArray[SamplingRate160kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate160kHz].unit = "Hz";
 
+    integrationStepArray.resize(samplingRatesNum);
+    integrationStepArray[SamplingRate5kHz].value = 200.0;
+    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate5kHz].unit = "s";
+    integrationStepArray[SamplingRate10kHz].value = 100.0;
+    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate10kHz].unit = "s";
+    integrationStepArray[SamplingRate20kHz].value = 50.0;
+    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate20kHz].unit = "s";;
+    integrationStepArray[SamplingRate40kHz].value = 25.0;
+    integrationStepArray[SamplingRate40kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate40kHz].unit = "s";
+    integrationStepArray[SamplingRate80kHz].value = 12.5;
+    integrationStepArray[SamplingRate80kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate80kHz].unit = "s";
+    integrationStepArray[SamplingRate160kHz].value = 6.25;
+    integrationStepArray[SamplingRate160kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate160kHz].unit = "s";
+
     samplingRatesSwitchesLut.resize(samplingRatesNum);
 
     samplingRatesSwitchesNum = SamplingRatesSwitchesNum;
