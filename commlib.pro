@@ -88,6 +88,7 @@ SOURCES += \
     src/devices/EZPatch/ezpatche8ppatchliner.cpp \
     src/devices/EZPatch/ezpatche4ppatchliner_el07ab.cpp \
     src/devices/EZPatch/ezpatche8ppatchliner_el07ab.cpp \
+    src/devices/EZPatch/ezpatche8ppatchliner_el07cd.cpp \
     src/model/boardmodel.cpp \
     src/model/channelmodel.cpp \
     src/calibration/calibrationmanager.cpp \
@@ -134,6 +135,7 @@ HEADERS += \
     src/devices/EZPatch/ezpatche8ppatchliner.h \
     src/devices/EZPatch/ezpatche4ppatchliner_el07ab.h \
     src/devices/EZPatch/ezpatche8ppatchliner_el07ab.h \
+    src/devices/EZPatch/ezpatche8ppatchliner_el07cd.h \
     src/model/boardmodel.h \
     src/model/channelmodel.h \
     src/calibration/calibrationmanager.h \
