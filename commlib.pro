@@ -2,7 +2,7 @@ QT     -= core gui
 CONFIG -= qt
 
 CONFIG(debug, debug|release) {
-    QMAKE_CXXFLAGS += -O0 # No optimization for debug
+    QMAKE_CXXFLAGS += /Od
     TARGET = e384commlibd
     DEFINES += DEBUG
     # comment or uncomment depending on the desired verbosity
@@ -15,7 +15,7 @@ CONFIG(debug, debug|release) {
 }
 
 CONFIG(release, debug|release) {
-    QMAKE_CXXFLAGS += -O2
+    QMAKE_CXXFLAGS += /O2
     TARGET = e384commlib
     # comment or uncomment depending on the desired verbosity
 #    DEFINES += DEBUG_RX_RAW_DATA_PRINT
@@ -145,17 +145,19 @@ HEADERS += \
     src/utils.h
 
 contains(DEFINES, DEBUG) {
-    SOURCES += \
+SOURCES += \
     src/devices/EMCR/emcr384nanoporesfake.cpp \
     src/devices/EMCR/emcr384patchclampfake.cpp \
+    src/devices/EMCR/emcrtestboardel07abfake.cpp \
     src/devices/EMCR/emcr10mhzfake.cpp \
     src/devices/EMCR/emcr2x10mhzfake.cpp \
     src/devices/EMCR/emcr4x10mhzfake.cpp \
     src/devices/EZPatch/ezpatchfakepatch.cpp \
     src/devices/EZPatch/ezpatchfakep8.cpp
-    HEADERS += \
+HEADERS += \
     src/devices/EMCR/emcr384nanoporesfake.h \
     src/devices/EMCR/emcr384patchclampfake.h \
+    src/devices/EMCR/emcrtestboardel07abfake.h \
     src/devices/EMCR/emcr10mhzfake.h \
     src/devices/EMCR/emcr2x10mhzfake.h \
     src/devices/EMCR/emcr4x10mhzfake.h \
