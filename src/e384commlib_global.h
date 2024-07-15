@@ -141,6 +141,8 @@ typedef enum MsgTypeId {
     MsgTypeIdAcquisitionData =                  MsgGroupAcquiredData+0x0002, /*!< Message containing current and voltage data. */
     MsgTypeIdAcquisitionTail =                  MsgGroupAcquiredData+0x0003, /*!< Message that notifies the end of data stream. */
     MsgTypeIdAcquisitionSaturation =            MsgGroupAcquiredData+0x0004, /*!< Message that notifies the saturation of the front-end. */
+    MsgTypeIdAcquisitionDataLoss =              MsgGroupAcquiredData+0x0005, /*!< Message that notifies the loss of data. */
+    MsgTypeIdAcquisitionDataOverflow =          MsgGroupAcquiredData+0x0006, /*!< Message that notifies the overflow of data. */
 
     /*! Features messages */
     MsgTypeIdLiquidJunctionComp =               MsgGroupFeatures+0x0001, /*!< Message used to apply the liquid junction  compensation. */
@@ -265,7 +267,11 @@ typedef struct RxOutput {
     uint16_t protocolSweepIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the sweep index of the following data in the current protocol */
     uint32_t itemFirstSampleDistance = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the distance from the end to the first sample of a new item */
     uint32_t firstSampleOffset = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionData this field holds the data offset wrt the protocol first sample */
-    uint32_t dataLen = 0; /*!< Number of data samples available in field data */
+    uint32_t dataLen = 0; /*!< Number of data samples available in field data.
+                           * \note In case msgTypeId = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionDataLoss this equals 2, and the 2 values in data has to be converted into a single uint32_t value
+                           * which equals the unmber of times some data was lost, using the formula uint32_t samplesLost = (uint32_t)(uint16_t)data[0] + (uint32_t)(uint16_t)data[1] << 16.
+                           * \note In case msgTypeId = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionDataOverflow this equals 2, and the 2 values in data has to be converted into a single uint32_t value
+                           * which equals the amount of samples overwritten due to the buffer overflow, using the formula uint32_t samplesLost = (uint32_t)(uint16_t)data[0] + (uint32_t)(uint16_t)data[1] << 16. */
 } RxOutput_t;
 
 /*! \enum ProtocolItemTypes_t

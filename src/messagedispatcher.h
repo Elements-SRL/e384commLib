@@ -1948,6 +1948,12 @@ protected:
         ParsingParsing
     } ParsingStatus_t;
 
+    typedef enum DataLossStatus {
+        NoSuccessfulReadsYet,
+        AllDataCorrectlyObtained,
+        DataLossDetected
+    } DataLossStatus_t;
+
     /*************\
      *  Methods  *
     \*************/

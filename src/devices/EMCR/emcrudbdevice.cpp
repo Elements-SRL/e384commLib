@@ -535,6 +535,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
     uint16_t rxWordsLength; /*!< Number of words in the received frame */
     uint32_t rxDataBytes; /*!< Number of bytes in the received frame */
     uint32_t rxCandidateHeader;
+    DataLossStatus_t dataLossStatus = NoSuccessfulReadsYet;
 
     bool notEnoughRxData;
 
@@ -586,6 +587,9 @@ void EmcrUdbDevice::parseDataFromDevice() {
                         /*! If not all the bytes match the sync word restore three of the removed bytes and recheck */
                         rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & UDB_RX_BUFFER_MASK;
                         rxRawBytesAvailable += 3;
+                        if (dataLossStatus == AllDataCorrectlyObtained) {
+                            dataLossStatus = DataLossDetected;
+                        }
                     }
                 }
                 break;
@@ -641,6 +645,8 @@ void EmcrUdbDevice::parseDataFromDevice() {
                     rxCandidateHeader = readUint32FromRxRawBuffer(rxDataBytes);
 
                     if (rxCandidateHeader == rxSyncWord) {
+                        /*! valid frame data and reset rxDataLoss */
+                        dataLossStatus = AllDataCorrectlyObtained;
                         if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
 
@@ -676,10 +682,21 @@ void EmcrUdbDevice::parseDataFromDevice() {
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
                         rxParsePhase = RxParseLookForHeader;
+                        if (dataLossStatus == AllDataCorrectlyObtained) {
+                            dataLossStatus = DataLossDetected;
+                        }
                     }
                 }
                 break;
             }
+
+#ifdef STRICT_DATA_CONSISTENCY
+            if (dataLossStatus == DataLossDetected) {
+                std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
+                bufferDataLossCount += 1;
+                rxMutexLock.unlock();
+            }
+#endif
         }
 
         rxRawMutexLock.lock();

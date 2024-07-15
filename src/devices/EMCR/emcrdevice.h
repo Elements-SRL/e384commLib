@@ -202,6 +202,7 @@ protected:
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
 
     uint16_t * rxDataBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's data */
+    uint32_t bufferDataLossCount = 0; /*!< Set to 1+ by a loss of data, reset by a status read by the user */
 
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer = nullptr; /*!< Buffer of arrays of bytes to communicate to the device */

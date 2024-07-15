@@ -1644,6 +1644,16 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     rxOutput.dataLen = 0; /*! Initialize data length in case more messages are merged or if an error is returned before this can be set to its proper value */
 
     std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
+#ifdef STRICT_DATA_CONSISTENCY
+    if (bufferDataLossCount > 0) {
+        rxOutput.dataLen = 2;
+        rxOutput.msgTypeId = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionDataLoss;
+        data[0] = (int16_t)(bufferDataLossCount & (0x00FF));
+        data[1] = (int16_t)((bufferDataLossCount >> 16) & (0x00FF));
+        bufferDataLossCount = 0;
+        return Success;
+    }
+#endif
     if (rxMsgBufferReadLength <= 0) {
         if (parsingStatus == ParsingNone) {
             gettingNextDataFlag = false; /*! I still need this variable to be changed */
@@ -1659,6 +1669,19 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 #endif
     }
     uint32_t maxMsgRead = rxMsgBufferReadLength;
+#ifdef STRICT_DATA_CONSISTENCY
+    if (maxMsgRead > RX_MSG_BUFFER_SIZE) {
+        rxOutput.dataLen = 2;
+        rxOutput.msgTypeId = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionDataOverflow;
+        rxOutput.itemFirstSampleDistance = maxMsgRead;
+        uint32_t skipped = maxMsgRead - RX_MSG_BUFFER_SIZE;
+        rxMsgBufferReadOffset = (rxMsgBufferReadOffset + skipped) & RX_MSG_BUFFER_MASK;
+        rxMsgBufferReadLength -= skipped;
+        data[0] = (int16_t)(skipped & (0x00FF));
+        data[1] = (int16_t)((skipped >> 16) & (0x00FF));
+        return Success;
+    }
+#endif
     gettingNextDataFlag = true;
     rxMutexLock.unlock();
 
@@ -1956,6 +1979,7 @@ ErrorCodes_t EmcrDevice::purgeData() {
     }
     rxMsgBufferReadOffset = (rxMsgBufferReadOffset+rxMsgBufferReadLength) & RX_MSG_BUFFER_MASK;
     rxMsgBufferReadLength = 0;
+    bufferDataLossCount = 0;
     rxMutexLock.unlock();
     rxMsgBufferNotFull.notify_all();
 
