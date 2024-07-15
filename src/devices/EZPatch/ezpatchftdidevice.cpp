@@ -125,11 +125,13 @@ static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04d, 129, DeviceEPatchEL04E},                                       //  6,  9,  129 : test board for EL04d chips (only current clamp works)
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04e, 129, DeviceEPatchEL04E},                                       //  6, 10,  129 : test board for EL04e chips
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 131, DeviceEPatchEL04F},                                       //  6, 11,  131 : test board for EL04f chips
-    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 129, DeviceEPatchEL04F},                                       //  6, 11,  129 : test board for EL04f chips
+    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 129, DeviceEPatchEL04F}                                        //  6, 11,  129 : test board for EL04f chips
+#ifdef DEBUG
     /*! ePatch fake */
-    {DeviceVersionDemo, DeviceSubversionDemo, 129, DeviceFakePatch},                                                        //  253,1,  129 : fake patch
+    ,{DeviceVersionDemo, DeviceSubversionDemo, 129, DeviceFakePatch},                                                        //  253,1,  129 : fake patch
     /*! eP4 fake */
     {DeviceVersionDemo, DeviceSubversionDemox8, 129, DeviceFakeP8}                                                          //  253,2,  129 : fake patch 8 channels
+#endif
 };
 
 EZPatchFtdiDevice::EZPatchFtdiDevice(std::string deviceId) :
