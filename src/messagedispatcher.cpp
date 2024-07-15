@@ -1377,11 +1377,11 @@ void MessageDispatcher::computeLiquidJunction() {
 
         /*! Offset recalibration */
 
+        ljMutexLock.lock();
         if (anyOffsetRecalibrationActive && liquidJunctionCurrentEstimatesNum > 0) {
             activeFlag = false;
             channelIndexes.clear();
             offsetRecalibCorrection.clear();
-            ljMutexLock.lock();
             for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                 switch (offsetRecalibStates[channelIdx]) {
                 case OffsetRecalibIdle:
@@ -1449,16 +1449,18 @@ void MessageDispatcher::computeLiquidJunction() {
                 txMutexLock.unlock();
             }
             anyOffsetRecalibrationActive = activeFlag;
+
+        } else {
+            ljMutexLock.unlock();
         }
 
         /*! Liquid junction */
 
+        ljMutexLock.lock();
         if (anyLiquidJunctionActive && liquidJunctionCurrentEstimatesNum > 0) {
-
             activeFlag = false;
             channelIndexes.clear();
             voltages.clear();
-            ljMutexLock.lock();
             for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                 switch (liquidJunctionStates[channelIdx]) {
                 case LiquidJunctionIdle:
@@ -1757,8 +1759,9 @@ void MessageDispatcher::computeLiquidJunction() {
                 txMutexLock.unlock();
             }
 
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
         } else {
+            ljMutexLock.unlock();
+#ifdef DEBUG_LIQUID_JUNCTION_PRINT
             if (anyLiquidJunctionActive) {
                 fprintf(ljFid,
                         "not performing: %lld.\n",
