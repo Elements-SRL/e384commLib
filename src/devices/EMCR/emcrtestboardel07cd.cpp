@@ -137,11 +137,11 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     ccCurrentRangesArray[CCCurrentRange8nA].step = ccCurrentRangesArray[CCCurrentRange8nA].max/(INT13_MAX+1.0);
     ccCurrentRangesArray[CCCurrentRange8nA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange8nA].unit = "A";
-    ccCurrentRangesArray[CCCurrentRange8nA].max = 2000.0;
-    ccCurrentRangesArray[CCCurrentRange8nA].min = -2000.0;
-    ccCurrentRangesArray[CCCurrentRange8nA].step = ccCurrentRangesArray[CCCurrentRange2nA].max/(INT13_MAX+1.0);
-    ccCurrentRangesArray[CCCurrentRange8nA].prefix = UnitPfxPico;
-    ccCurrentRangesArray[CCCurrentRange8nA].unit = "A";
+    ccCurrentRangesArray[CCCurrentRange2nA].max = 2000.0;
+    ccCurrentRangesArray[CCCurrentRange2nA].min = -2000.0;
+    ccCurrentRangesArray[CCCurrentRange2nA].step = ccCurrentRangesArray[CCCurrentRange2nA].max/(INT13_MAX+1.0);
+    ccCurrentRangesArray[CCCurrentRange2nA].prefix = UnitPfxPico;
+    ccCurrentRangesArray[CCCurrentRange2nA].unit = "A";
     defaultCcCurrentRangeIdx = CCCurrentRange8nA;
 
     /*! Voltage ranges */
