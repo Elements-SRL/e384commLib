@@ -202,6 +202,10 @@ ErrorCodes_t MessageDispatcher::getChannelsOnRow(uint16_t rowIdx, std::vector <C
     return Success;
 }
 
+std::string MessageDispatcher::getDeviceName() {
+    return this->deviceName;
+}
+
 ErrorCodes_t MessageDispatcher::setAllChannelsSelected(bool newState) {
     for (auto ch : channelModels) {
         ch->setSelected(newState);
@@ -2275,8 +2279,4 @@ void MessageDispatcher::flushBoardList() {
     }
     boardModels.clear();
     channelModels.clear();
-}
-
-std::string MessageDispatcher::getDeviceName() {
-    return this->deviceName;
 }

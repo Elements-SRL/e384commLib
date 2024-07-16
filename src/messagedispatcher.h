@@ -254,6 +254,12 @@ public:
      */
     ErrorCodes_t getChannelsOnRow(uint16_t rowIdx, std::vector <ChannelModel *> &channels);
 
+    /*! \brief Command used by EMCR to get the name of the connected device.
+     *
+     * \return The name as a std::string.
+     */
+    std::string getDeviceName();
+
     /****************\
      *  Tx methods  *
     \****************/
@@ -1987,8 +1993,6 @@ protected:
     void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
 
     void flushBoardList();
-    std::string getDeviceName();
-
     /************\
      *  Fields  *
     \************/
