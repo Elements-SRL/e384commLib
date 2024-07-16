@@ -1307,7 +1307,10 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        multiCoderConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x0);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x1);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x3);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
             doubleConfig.minValue = pipetteCapacitanceRange[rangeIdx].min;
@@ -1369,7 +1372,6 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     multiCoderConfig.thresholdVector.resize(membraneCapValueRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
         multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapValueRanges; rangeIdx++) {
@@ -1585,8 +1587,10 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
-        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        multiCoderConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x0);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x1);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x3);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
             doubleConfig.minValue = pipetteCapacitanceRange[rangeIdx].min;

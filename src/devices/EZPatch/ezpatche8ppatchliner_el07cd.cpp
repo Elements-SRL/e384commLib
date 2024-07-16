@@ -1223,7 +1223,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             pipetteValue = (totalPipetteCapacitance-minPipetteCapacitance3)/pipetteCapacitanceStep3;
         }
-        pipetteRange = 0x0080;
+        pipetteRange = 0x0300;
 
     } else if (totalPipetteCapacitance > maxPipetteCapacitance1) {
         if (totalPipetteCapacitance < minPipetteCapacitance2) {
@@ -1232,7 +1232,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             pipetteValue = (totalPipetteCapacitance-minPipetteCapacitance2)/pipetteCapacitanceStep2;
         }
-        pipetteRange = 0x0040;
+        pipetteRange = 0x0100;
 
     } else {
         if (totalPipetteCapacitance < minPipetteCapacitance1) {
@@ -1253,7 +1253,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             membraneValue = (compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance4)/membraneCapacitanceStep4;
         }
-        membraneRange = 0x00C0;
+        membraneRange = 0x0300;
 
     } else if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance2) {
         if (compensationControls[U_Cm][compensationsSettingChannel].value < minMembraneCapacitance3) {
@@ -1262,7 +1262,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             membraneValue = (compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance3)/membraneCapacitanceStep3;
         }
-        membraneRange = 0x0080;
+        membraneRange = 0x0200;
 
     } else if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance1) {
         if (compensationControls[U_Cm][compensationsSettingChannel].value < minMembraneCapacitance2) {
@@ -1271,7 +1271,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             membraneValue = (compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance2)/membraneCapacitanceStep2;
         }
-        membraneRange = 0x0040;
+        membraneRange = 0x0100;
 
     } else {
         if (compensationControls[U_Cm][compensationsSettingChannel].value < minMembraneCapacitance1) {
@@ -1322,7 +1322,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             ccPipetteValue = (compensationControls[U_CpCc][compensationsSettingChannel].value-minPipetteCapacitance3)/pipetteCapacitanceStep3;
         }
-        ccPipetteRange = 0x0080;
+        ccPipetteRange = 0x0300;
 
     } else if (compensationControls[U_CpCc][compensationsSettingChannel].value > maxPipetteCapacitance1) {
         if (compensationControls[U_CpCc][compensationsSettingChannel].value < minPipetteCapacitance2) {
@@ -1331,7 +1331,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             ccPipetteValue = (compensationControls[U_CpCc][compensationsSettingChannel].value-minPipetteCapacitance2)/pipetteCapacitanceStep2;
         }
-        ccPipetteRange = 0x0040;
+        ccPipetteRange = 0x0100;
 
     } else {
         if (compensationControls[U_CpCc][compensationsSettingChannel].value < minPipetteCapacitance1) {
