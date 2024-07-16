@@ -303,7 +303,13 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     };
 
     // mapping ADC Current Clamp
-    // undefined
+    sr2LpfCcVoltageMap = {
+        {SamplingRate5kHz,  CCVoltageFilter3_6kHz},
+        {SamplingRate10kHz, CCVoltageFilter10kHz},
+        {SamplingRate20kHz, CCVoltageFilter25kHz},
+        {SamplingRate40kHz, CCVoltageFilter30kHz},
+        {SamplingRate80kHz, CCVoltageFilter100kHz}
+    };
 
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
     defaultCurrentHoldTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};

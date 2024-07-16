@@ -1,11 +1,11 @@
-#ifndef EMCRTESTBOARDEL07CD_H
-#define EMCRTESTBOARDEL07CD_H
+#ifndef EMCR384PATCHCLAMP_EL07CD_PROT_V06_FW_V01_H
+#define EMCR384PATCHCLAMP_EL07CD_PROT_V06_FW_V01_H
 
 #include "emcropalkellydevice.h"
 
-class EmcrTestBoardEl07c : public EmcrOpalKellyDevice {
+class Emcr384PatchClamp_EL07c_prot_v06_fw_v01 : public EmcrOpalKellyDevice {
 public:
-    EmcrTestBoardEl07c(std::string di);
+    Emcr384PatchClamp_EL07c_prot_v06_fw_v01(std::string di);
 
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) override;
     virtual ErrorCodes_t getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) override;
@@ -115,7 +115,6 @@ protected:
         SamplingRate20kHz,
         SamplingRate40kHz,
         SamplingRate80kHz,
-        SamplingRate160kHz,
         SamplingRatesNum
     };
 
@@ -168,9 +167,9 @@ protected:
     void setGrEn(bool flag, bool applyFlag);
 };
 
-class EmcrTestBoardEl07d : public EmcrTestBoardEl07c {
+class Emcr384PatchClamp_EL07d_prot_v06_fw_v01 : public Emcr384PatchClamp_EL07c_prot_v06_fw_v01 {
 public:
-    EmcrTestBoardEl07d(std::string di);
+    Emcr384PatchClamp_EL07d_prot_v06_fw_v01(std::string di);
 };
 
-#endif // EMCRTESTBOARDEL07CD_H
+#endif // EMCR384PATCHCLAMP_EL07CD_PROT_V06_FW_V01_H

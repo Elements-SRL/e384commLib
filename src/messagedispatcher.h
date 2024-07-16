@@ -1,7 +1,9 @@
 #ifndef MESSAGEDISPATCHER_H
 #define MESSAGEDISPATCHER_H
 
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
+#endif
 
 #include <string>
 #include <mutex>
@@ -281,6 +283,7 @@ public:
     virtual ErrorCodes_t startStateArray();
 
     /*! \brief Reset the device's ASIC.
+     *  \note This should be used if the readout seems unreliable, e.g. heady drifts, increased noise, saturation, etc.
      *
      * \param reset [in] False sets the ASIC in normal operation state, true sets in reset state.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
@@ -289,6 +292,7 @@ public:
     virtual ErrorCodes_t resetAsic(bool resetFlag, bool applyFlag = true);
 
     /*! \brief Reset the device's FPGA.
+     *  \note This should be used if the device seems unresponsive.
      *
      * \param reset [in] False sets the FPGA in normal operation state, true sets in reset state.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
@@ -721,6 +725,7 @@ public:
     /*! \brief Execute liquid junction compensation.
      * \note The liquid junction compensation tunes the offset of the applied voltage so that the acquired current is 0.
      * \note Do not use in open circuit: if there's a current offset in open circuit use the readoutOffsetRecalibration to fix it.
+     * \note This is a recalibartion procedure of the voltage offset, so the value is not added to the returned current trace.
      *
      * \param channelIndexes [in] Channel indexes.
      * \param onValues [in] Array of booleans, one for each channel: True to turn the compensation algorithm on, false to turn it off.
@@ -732,6 +737,7 @@ public:
     /*! \brief Execute liquid junction compensation.
      * \note The liquid junction compensation tunes the offset of the applied voltage so that the acquired current is 0.
      * \note Do not use in open circuit: if there's a current offset in open circuit use the readoutOffsetRecalibration to fix it.
+     * \note This is a recalibartion procedure of the voltage offset, so the value is not added to the returned current trace.
      * \deprecated Use liquidJunctionCompensation instead.
      *
      * \param channelIndexes [in] Channel indexes.

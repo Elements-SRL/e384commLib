@@ -1,7 +1,7 @@
 #include "emcr384patchclampfake.h"
 
 Emcr384FakePatchClamp::Emcr384FakePatchClamp(std::string id) :
-    Emcr384PatchClamp_prot_v04_fw_v04(id) {
+    Emcr384PatchClamp_EL07c_prot_v06_fw_v01(id) {
 
     waitingTimeBeforeReadingData = 0;
     motherboardBootTime_s = 0;
@@ -40,7 +40,7 @@ ErrorCodes_t Emcr384FakePatchClamp::stopCommunication() {
     return Success;
 }
 
-bool Emcr384FakePatchClamp::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
+bool Emcr384FakePatchClamp::writeRegistersAndActivateTriggers(TxTriggerType_t) {
     return true;
 }
 

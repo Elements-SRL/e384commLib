@@ -9,14 +9,17 @@
 #include "emcr384patchclamp_prot_v04_fw_v04.h"
 #include "emcr384patchclamp_prot_v04_fw_v05.h"
 #include "emcr384patchclamp_prot_v05_fw_v06.h"
+#include "emcr384patchclamp_el07cd_prot_v06_fw_v01.h"
 #include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
+#include "emcrtestboardel07cd.h"
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
 #ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "emcr384nanoporesfake.h"
 #include "emcr384patchclampfake.h"
+#include "emcrtestboardel07abfake.h"
 #include "emcr4x10mhzfake.h"
 #include "emcr2x10mhzfake.h"
 #endif
@@ -28,25 +31,26 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"23210014U9", Device384Nanopores},
     {"23210014UP", Device384Nanopores},
     {"23190014UX", Device384PatchClamp_prot_v04_fw_v05},
-    {"2210001076", Device384PatchClamp_prot_v05_fw_v06},
-    {"221000106B", Device384VoltageClamp_prot_v04_fw_v03},
+    {"2210001076", Device384PatchClamp_prot_el07c_v06_fw_v01},
     {"221000106C", Device384PatchClamp_prot_v01_fw_v02},
     {"23210014UF", Device384PatchClamp_prot_v01_fw_v02},
-    {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
+    {"221000106B", Device384VoltageClamp_prot_v04_fw_v03},
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
-    {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
-    {"233600165Q", DeviceTestBoardEL07ab},//DeviceTestBoardEL07d},
     {"233600161X", Device4x10MHz_PCBV03},
     {"224800130Y", Device4x10MHz_PCBV03},
-    {"2336001642", DeviceTestBoardEL07ab},
+    {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
+    {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
     {"23230014TO", Device4x10MHz_SB_PCBV01},
-    {"23230014TE", Device4x10MHz_SB_PCBV01}
+    {"23230014TE", Device4x10MHz_SB_PCBV01},
+    {"2336001642", DeviceTestBoardEL07c},
+    {"233600165Q", DeviceTestBoardEL07d}
     #ifdef DEBUG
-    ,{"FAKE_Nanopores", Device384Fake},
-    {"FAKE_PATCH_CLAMP", Device384FakePatchClamp},
-    {"FAKE_4x10MHz", Device4x10MHzFake},
-    {"FAKE_2x10MHz", Device2x10MHzFake}
+    ,{"DEMO_384_SSN", Device384Fake},
+    {"DEMO_384_Patch", Device384FakePatchClamp},
+    {"DEMO_TB_EL07ab", DeviceTbEl07abFake},
+    {"DEMO_4x10MHz", Device4x10MHzFake},
+    {"DEMO_2x10MHz", Device2x10MHzFake}
     #endif
 }; /*! \todo FCON queste info dovrebbero risiedere nel DB */
 
@@ -84,13 +88,15 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
 
 #ifdef DEBUG
     numDevs++;
-    deviceIds.push_back("FAKE_Nanopores");
+    deviceIds.push_back("DEMO_384_SSN");
     numDevs++;
-    deviceIds.push_back("FAKE_PATCH_CLAMP");
+    deviceIds.push_back("DEMO_384_Patch");
     numDevs++;
-    deviceIds.push_back("FAKE_4x10MHz");
+    deviceIds.push_back("DEMO_TB_EL07ab");
     numDevs++;
-    deviceIds.push_back("FAKE_2x10MHz");
+    deviceIds.push_back("DEMO_4x10MHz");
+    numDevs++;
+    deviceIds.push_back("DEMO_2x10MHz");
 #endif
 
     return Success;
@@ -164,12 +170,24 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr384PatchClamp_prot_v05_fw_v06(deviceId);
         break;
 
+    case Device384PatchClamp_prot_el07c_v06_fw_v01:
+        messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v06_fw_v01(deviceId);
+        break;
+
     case Device384VoltageClamp_prot_v04_fw_v03:
         messageDispatcher = new Emcr384VoltageClamp_prot_v04_fw_v03(deviceId);
         break;
 
     case DeviceTestBoardEL07ab:
         messageDispatcher = new EmcrTestBoardEl07ab(deviceId);
+        break;
+
+    case DeviceTestBoardEL07c:
+        messageDispatcher = new EmcrTestBoardEl07c(deviceId);
+        break;
+
+    case DeviceTestBoardEL07d:
+        messageDispatcher = new EmcrTestBoardEl07d(deviceId);
         break;
 
     case Device2x10MHz_PCBV01:
@@ -207,6 +225,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device384FakePatchClamp:
         messageDispatcher = new Emcr384FakePatchClamp(deviceId);
+        break;
+
+    case DeviceTbEl07abFake:
+        messageDispatcher = new EmcrTestBoardEl07abFake(deviceId);
         break;
 
     case Device4x10MHzFake:

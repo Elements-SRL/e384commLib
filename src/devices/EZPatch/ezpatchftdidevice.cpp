@@ -14,6 +14,7 @@
 #include "ezpatche8ppatchliner.h"
 #include "ezpatche4ppatchliner_el07ab.h"
 #include "ezpatche8ppatchliner_el07ab.h"
+#include "ezpatche8ppatchliner_el07cd.h"
 #ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "ezpatchfakepatch.h"
@@ -119,15 +120,18 @@ static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV02, 131, DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02}, //  10,10,  131 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner (FPGA artix7) PCB V02. increased protocol items to 256. */
     {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV02, 129, DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V01}, //  10,10,  129 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner (FPGA artix7) PCB V02. */
     {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV01, 129, DeviceE8PPatchLinerEL07AB_artix7_PCBV01},     //  10, 8,  129 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV01, 129, DeviceE8PPatchLinerEL07CD_artix7_PCBV01},     //  10,12,  129 : VC-CC device with 8 channels (EL07CD) for Nanion's Patchliner (FPGA artix7) PCB V01. */
     /*! Test boards */
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04d, 129, DeviceEPatchEL04E},                                       //  6,  9,  129 : test board for EL04d chips (only current clamp works)
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04e, 129, DeviceEPatchEL04E},                                       //  6, 10,  129 : test board for EL04e chips
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 131, DeviceEPatchEL04F},                                       //  6, 11,  131 : test board for EL04f chips
-    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 129, DeviceEPatchEL04F},                                       //  6, 11,  129 : test board for EL04f chips
+    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 129, DeviceEPatchEL04F}                                        //  6, 11,  129 : test board for EL04f chips
+#ifdef DEBUG
     /*! ePatch fake */
-    {DeviceVersionDemo, DeviceSubversionDemo, 129, DeviceFakePatch},                                                        //  253,1,  129 : fake patch
+    ,{DeviceVersionDemo, DeviceSubversionDemo, 129, DeviceFakePatch},                                                        //  253,1,  129 : fake patch
     /*! eP4 fake */
     {DeviceVersionDemo, DeviceSubversionDemox8, 129, DeviceFakeP8}                                                          //  253,2,  129 : fake patch 8 channels
+#endif
 };
 
 EZPatchFtdiDevice::EZPatchFtdiDevice(std::string deviceId) :
@@ -391,6 +395,10 @@ ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispa
 
     case DeviceE8PPatchLinerEL07AB_artix7_PCBV01:
         messageDispatcher = new EZPatche8PPatchliner_el07ab_artix7_PCBV01(deviceId);
+        break;
+
+    case DeviceE8PPatchLinerEL07CD_artix7_PCBV01:
+        messageDispatcher = new EZPatche8PPatchliner_el07cd_artix7_PCBV01(deviceId);
         break;
 
     case DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02:

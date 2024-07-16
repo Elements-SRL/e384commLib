@@ -186,6 +186,7 @@ typedef enum DeviceTypes {
     Device384PatchClamp_prot_v04_fw_v04,        /*!< Nanion's Syncropatch */
     Device384PatchClamp_prot_v04_fw_v05,
     Device384PatchClamp_prot_v05_fw_v06,        /*! Header packet */
+    Device384PatchClamp_prot_el07c_v06_fw_v01,
     Device384VoltageClamp_prot_v04_fw_v03,
     DeviceTestBoardEL07ab,
     DeviceTestBoardEL07c,
@@ -234,15 +235,17 @@ typedef enum DeviceTypes {
     DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02,/*!< ePatch device with 8 EL07AB PCB V02 chips for Nanion's Patchliner (FPGA artix7). Increased protocol items to 256. */
     DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V01,/*!< ePatch device with 8 EL07AB PCB V02 chips for Nanion's Patchliner (FPGA artix7). */
     DeviceE8PPatchLinerEL07AB_artix7_PCBV01,    /*!< ePatch device with 8 EL07AB PCB V01 chips for Nanion's Patchliner (FPGA artix7). */
-    DeviceFakePatch,                            /*!< Fake ePatch device resembling EL04F chip. */
-    DeviceFakeP8,                               /*!< Fake patchliner device resembling EL07AB chip. */
+    DeviceE8PPatchLinerEL07CD_artix7_PCBV01,    /*!< ePatch device with 8 EL07CD PCB V01 chips for Nanion's Patchliner (FPGA artix7). */
     DeviceEPatchDlp,                            /*!< ePatch device with dlp fpga. */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
     Device384FakePatchClamp,    /*!< Fake patch clamp device */
+    DeviceTbEl07abFake,         /*!< Fake test board for EL07ab */
     Device4x10MHzFake,          /*!< Fake 4x10MHz device */
     Device2x10MHzFake,          /*!< Fake 2x10MHz device */
     Device10MHzFake,            /*!< Fake 10MHz device */
+    DeviceFakePatch,            /*!< Fake ePatch device resembling EL04F chip. */
+    DeviceFakeP8,               /*!< Fake patchliner device resembling EL07AB chip. */
 #endif
     DeviceUnknown,              /*!< Invalid item used only for initiliazation purposes. */
     DevicesNum

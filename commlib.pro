@@ -2,7 +2,7 @@ QT     -= core gui
 CONFIG -= qt
 
 CONFIG(debug, debug|release) {
-    QMAKE_CXXFLAGS += -O0 # No optimization for debug
+    QMAKE_CXXFLAGS += /Od
     TARGET = e384commlibd
     DEFINES += DEBUG
     # comment or uncomment depending on the desired verbosity
@@ -15,7 +15,7 @@ CONFIG(debug, debug|release) {
 }
 
 CONFIG(release, debug|release) {
-    QMAKE_CXXFLAGS += -O2
+    QMAKE_CXXFLAGS += /O2
     TARGET = e384commlib
     # comment or uncomment depending on the desired verbosity
 #    DEFINES += DEBUG_RX_RAW_DATA_PRINT
@@ -65,6 +65,7 @@ SOURCES += \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v04.cpp \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v05.cpp \
     src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.cpp \
+    src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v01.cpp \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.cpp \
     src/devices/EMCR/emcr10mhz.cpp \
     src/devices/EMCR/emcr2x10mhz.cpp \
@@ -87,6 +88,7 @@ SOURCES += \
     src/devices/EZPatch/ezpatche8ppatchliner.cpp \
     src/devices/EZPatch/ezpatche4ppatchliner_el07ab.cpp \
     src/devices/EZPatch/ezpatche8ppatchliner_el07ab.cpp \
+    src/devices/EZPatch/ezpatche8ppatchliner_el07cd.cpp \
     src/model/boardmodel.cpp \
     src/model/channelmodel.cpp \
     src/calibration/calibrationmanager.cpp \
@@ -110,6 +112,7 @@ HEADERS += \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v04.h \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v05.h \
     src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.h \
+    src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v01.h \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.h \
     src/devices/EMCR/emcr10mhz.h \
     src/devices/EMCR/emcr2x10mhz.h \
@@ -132,6 +135,7 @@ HEADERS += \
     src/devices/EZPatch/ezpatche8ppatchliner.h \
     src/devices/EZPatch/ezpatche4ppatchliner_el07ab.h \
     src/devices/EZPatch/ezpatche8ppatchliner_el07ab.h \
+    src/devices/EZPatch/ezpatche8ppatchliner_el07cd.h \
     src/model/boardmodel.h \
     src/model/channelmodel.h \
     src/calibration/calibrationmanager.h \
@@ -141,17 +145,19 @@ HEADERS += \
     src/utils.h
 
 contains(DEFINES, DEBUG) {
-    SOURCES += \
+SOURCES += \
     src/devices/EMCR/emcr384nanoporesfake.cpp \
     src/devices/EMCR/emcr384patchclampfake.cpp \
+    src/devices/EMCR/emcrtestboardel07abfake.cpp \
     src/devices/EMCR/emcr10mhzfake.cpp \
     src/devices/EMCR/emcr2x10mhzfake.cpp \
     src/devices/EMCR/emcr4x10mhzfake.cpp \
     src/devices/EZPatch/ezpatchfakepatch.cpp \
     src/devices/EZPatch/ezpatchfakep8.cpp
-    HEADERS += \
+HEADERS += \
     src/devices/EMCR/emcr384nanoporesfake.h \
     src/devices/EMCR/emcr384patchclampfake.h \
+    src/devices/EMCR/emcrtestboardel07abfake.h \
     src/devices/EMCR/emcr10mhzfake.h \
     src/devices/EMCR/emcr2x10mhzfake.h \
     src/devices/EMCR/emcr4x10mhzfake.h \

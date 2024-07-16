@@ -6,7 +6,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
 
     deviceName = "TestBoardEL07cd";
 
-    fwName = "TB_ELO7c_V01.bit";
+    fwName = "TB_EL07c_V01.bit";
 
     fwSize_B = 0;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+2;
@@ -137,11 +137,11 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     ccCurrentRangesArray[CCCurrentRange8nA].step = ccCurrentRangesArray[CCCurrentRange8nA].max/(INT13_MAX+1.0);
     ccCurrentRangesArray[CCCurrentRange8nA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange8nA].unit = "A";
-    ccCurrentRangesArray[CCCurrentRange8nA].max = 2000.0;
-    ccCurrentRangesArray[CCCurrentRange8nA].min = -2000.0;
-    ccCurrentRangesArray[CCCurrentRange8nA].step = ccCurrentRangesArray[CCCurrentRange2nA].max/(INT13_MAX+1.0);
-    ccCurrentRangesArray[CCCurrentRange8nA].prefix = UnitPfxPico;
-    ccCurrentRangesArray[CCCurrentRange8nA].unit = "A";
+    ccCurrentRangesArray[CCCurrentRange2nA].max = 2000.0;
+    ccCurrentRangesArray[CCCurrentRange2nA].min = -2000.0;
+    ccCurrentRangesArray[CCCurrentRange2nA].step = ccCurrentRangesArray[CCCurrentRange2nA].max/(INT13_MAX+1.0);
+    ccCurrentRangesArray[CCCurrentRange2nA].prefix = UnitPfxPico;
+    ccCurrentRangesArray[CCCurrentRange2nA].unit = "A";
     defaultCcCurrentRangeIdx = CCCurrentRange8nA;
 
     /*! Voltage ranges */
@@ -159,31 +159,31 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     /*! VC */
     vcCurrentFiltersNum = VCCurrentFiltersNum;
     vcCurrentFiltersArray.resize(vcCurrentFiltersNum);
-    vcCurrentFiltersArray[VCCurrentFilter3kHz].value = 3.0;
-    vcCurrentFiltersArray[VCCurrentFilter3kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter3kHz].unit = "Hz";
-    vcCurrentFiltersArray[VCCurrentFilter3_6kHz].value = 3.6;
-    vcCurrentFiltersArray[VCCurrentFilter3_6kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter3_6kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].value = 5.0;
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter6kHz].value = 6;
+    vcCurrentFiltersArray[VCCurrentFilter6kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter6kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter10kHz].value = 10.0;
     vcCurrentFiltersArray[VCCurrentFilter10kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter10kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter12kHz].value = 12.0;
     vcCurrentFiltersArray[VCCurrentFilter12kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter12kHz].unit = "Hz";
-    vcCurrentFiltersArray[VCCurrentFilter25kHz].value = 25.0;
-    vcCurrentFiltersArray[VCCurrentFilter25kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter25kHz].unit = "Hz";
-    vcCurrentFiltersArray[VCCurrentFilter30kHz].value = 30.0;
-    vcCurrentFiltersArray[VCCurrentFilter30kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter30kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter40kHz].value = 40.0;
+    vcCurrentFiltersArray[VCCurrentFilter40kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter40kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter48kHz].value = 48.0;
+    vcCurrentFiltersArray[VCCurrentFilter48kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter48kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter100kHz].value = 100.0;
     vcCurrentFiltersArray[VCCurrentFilter100kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter100kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter120kHz].value = 120.0;
     vcCurrentFiltersArray[VCCurrentFilter120kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter120kHz].unit = "Hz";
-    defaultVcCurrentFilterIdx = VCCurrentFilter3kHz;
+    defaultVcCurrentFilterIdx = VCCurrentFilter5kHz;
 
     /*! Voltage filters */
     /*! VC */
@@ -195,9 +195,12 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     vcVoltageFiltersArray[VCVoltageFilter10kHz].value = 10.0;
     vcVoltageFiltersArray[VCVoltageFilter10kHz].prefix = UnitPfxKilo;
     vcVoltageFiltersArray[VCVoltageFilter10kHz].unit = "Hz";
-    vcVoltageFiltersArray[VCVoltageFilter35kHz].value = 35.0;
-    vcVoltageFiltersArray[VCVoltageFilter35kHz].prefix = UnitPfxKilo;
-    vcVoltageFiltersArray[VCVoltageFilter35kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter20kHz].value = 20.0;
+    vcVoltageFiltersArray[VCVoltageFilter20kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter20kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter50kHz].value = 50.0;
+    vcVoltageFiltersArray[VCVoltageFilter50kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter50kHz].unit = "Hz";
     defaultVcVoltageFilterIdx = VCVoltageFilter1kHz;
 
     /*! Current filters */
@@ -210,116 +213,126 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     ccCurrentFiltersArray[CCCurrentFilter10kHz].value = 10.0;
     ccCurrentFiltersArray[CCCurrentFilter10kHz].prefix = UnitPfxKilo;
     ccCurrentFiltersArray[CCCurrentFilter10kHz].unit = "Hz";
-    ccCurrentFiltersArray[CCCurrentFilter35kHz].value = 35.0;
-    ccCurrentFiltersArray[CCCurrentFilter35kHz].prefix = UnitPfxKilo;
-    ccCurrentFiltersArray[CCCurrentFilter35kHz].unit = "Hz";
+    ccCurrentFiltersArray[CCCurrentFilter20kHz].value = 20.0;
+    ccCurrentFiltersArray[CCCurrentFilter20kHz].prefix = UnitPfxKilo;
+    ccCurrentFiltersArray[CCCurrentFilter20kHz].unit = "Hz";
+    ccCurrentFiltersArray[CCCurrentFilter50kHz].value = 50.0;
+    ccCurrentFiltersArray[CCCurrentFilter50kHz].prefix = UnitPfxKilo;
+    ccCurrentFiltersArray[CCCurrentFilter50kHz].unit = "Hz";
     defaultCcCurrentFilterIdx = CCCurrentFilter1kHz;
 
     /*! Voltage filters */
     /*! CC */
     ccVoltageFiltersNum = CCVoltageFiltersNum;
     ccVoltageFiltersArray.resize(ccVoltageFiltersNum);
-    ccVoltageFiltersArray[CCVoltageFilter3kHz].value = 3.0;
-    ccVoltageFiltersArray[CCVoltageFilter3kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter3kHz].unit = "Hz";
-    ccVoltageFiltersArray[CCVoltageFilter3_6kHz].value = 3.6;
-    ccVoltageFiltersArray[CCVoltageFilter3_6kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter3_6kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter5kHz].value = 5.0;
+    ccVoltageFiltersArray[CCVoltageFilter5kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter5kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter6kHz].value = 6;
+    ccVoltageFiltersArray[CCVoltageFilter6kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter6kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter10kHz].value = 10.0;
     ccVoltageFiltersArray[CCVoltageFilter10kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter10kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter12kHz].value = 12.0;
     ccVoltageFiltersArray[CCVoltageFilter12kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter12kHz].unit = "Hz";
-    ccVoltageFiltersArray[CCVoltageFilter25kHz].value = 25.0;
-    ccVoltageFiltersArray[CCVoltageFilter25kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter25kHz].unit = "Hz";
-    ccVoltageFiltersArray[CCVoltageFilter30kHz].value = 30.0;
-    ccVoltageFiltersArray[CCVoltageFilter30kHz].prefix = UnitPfxKilo;
-    ccVoltageFiltersArray[CCVoltageFilter30kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter40kHz].value = 40.0;
+    ccVoltageFiltersArray[CCVoltageFilter40kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter40kHz].unit = "Hz";
+    ccVoltageFiltersArray[CCVoltageFilter48kHz].value = 48.0;
+    ccVoltageFiltersArray[CCVoltageFilter48kHz].prefix = UnitPfxKilo;
+    ccVoltageFiltersArray[CCVoltageFilter48kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter100kHz].value = 100.0;
     ccVoltageFiltersArray[CCVoltageFilter100kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter100kHz].unit = "Hz";
     ccVoltageFiltersArray[CCVoltageFilter120kHz].value = 120.0;
     ccVoltageFiltersArray[CCVoltageFilter120kHz].prefix = UnitPfxKilo;
     ccVoltageFiltersArray[CCVoltageFilter120kHz].unit = "Hz";
-    defaultCcVoltageFilterIdx = CCVoltageFilter3kHz;
+    defaultCcVoltageFilterIdx = CCVoltageFilter5kHz;
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
     samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate6_25kHz].value = 6.25;
-    samplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate12_5kHz].value = 12.5;
-    samplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate25kHz].value = 25.0;
-    samplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate25kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate50kHz].value = 50.0;
-    samplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate50kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate100kHz].value = 100.0;
-    samplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate100kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate200kHz].value = 200.0;
-    samplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate200kHz].unit = "Hz";
-    defaultSamplingRateIdx = SamplingRate6_25kHz;
+    samplingRatesArray[SamplingRate5kHz].value = 5.0;
+    samplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate5kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate10kHz].value = 10.0;
+    samplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate10kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate20kHz].value = 20.0;
+    samplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate20kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate40kHz].value = 40.0;
+    samplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate40kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate80kHz].value = 80.0;
+    samplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate80kHz].unit = "Hz";
+    samplingRatesArray[SamplingRate160kHz].value = 160.0;
+    samplingRatesArray[SamplingRate160kHz].prefix = UnitPfxKilo;
+    samplingRatesArray[SamplingRate160kHz].unit = "Hz";
+    defaultSamplingRateIdx = SamplingRate5kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate6_25kHz].value = 6.25;
-    realSamplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate12_5kHz].value = 12.5;
-    realSamplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate25kHz].value = 25.0;
-    realSamplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate25kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate50kHz].value = 50.0;
-    realSamplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate50kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate100kHz].value = 100.0;
-    realSamplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate100kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate200kHz].value = 200.0;
-    realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate5kHz].value = 5.0;
+    realSamplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate5kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate10kHz].value = 10.0;
+    realSamplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate10kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate20kHz].value = 20.0;
+    realSamplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate20kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate40kHz].value = 40.0;
+    realSamplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate40kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate80kHz].value = 80.0;
+    realSamplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate80kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate160kHz].value = 160.0;
+    realSamplingRatesArray[SamplingRate160kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate160kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate6_25kHz].value = 160.0;
-    integrationStepArray[SamplingRate6_25kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate6_25kHz].unit = "s";
-    integrationStepArray[SamplingRate12_5kHz].value = 80.0;
-    integrationStepArray[SamplingRate12_5kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate12_5kHz].unit = "s";
-    integrationStepArray[SamplingRate25kHz].value = 40.0;
-    integrationStepArray[SamplingRate25kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate25kHz].unit = "s";
-    integrationStepArray[SamplingRate50kHz].value = 20.0;
-    integrationStepArray[SamplingRate50kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate50kHz].unit = "s";
-    integrationStepArray[SamplingRate100kHz].value = 10.0;
-    integrationStepArray[SamplingRate100kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate100kHz].unit = "s";
-    integrationStepArray[SamplingRate200kHz].value = 5.0;
-    integrationStepArray[SamplingRate200kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate200kHz].unit = "s";
+    integrationStepArray[SamplingRate5kHz].value = 200.0;
+    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate5kHz].unit = "s";
+    integrationStepArray[SamplingRate10kHz].value = 100.0;
+    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate10kHz].unit = "s";
+    integrationStepArray[SamplingRate20kHz].value = 50.0;
+    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate20kHz].unit = "s";
+    integrationStepArray[SamplingRate40kHz].value = 25.0;
+    integrationStepArray[SamplingRate40kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate40kHz].unit = "s";
+    integrationStepArray[SamplingRate80kHz].value = 12.5;
+    integrationStepArray[SamplingRate80kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate80kHz].unit = "s";
+    integrationStepArray[SamplingRate160kHz].value = 6.25;
+    integrationStepArray[SamplingRate160kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate160kHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-        {SamplingRate6_25kHz, VCCurrentFilter3_6kHz},
-        {SamplingRate12_5kHz, VCCurrentFilter10kHz},
-        {SamplingRate25kHz, VCCurrentFilter25kHz},
-        {SamplingRate50kHz, VCCurrentFilter30kHz},
-        {SamplingRate100kHz, VCCurrentFilter100kHz},
-        {SamplingRate200kHz, VCCurrentFilter120kHz}
+        {SamplingRate5kHz, VCCurrentFilter5kHz},
+        {SamplingRate10kHz, VCCurrentFilter6kHz},
+        {SamplingRate20kHz, VCCurrentFilter12kHz},
+        {SamplingRate40kHz, VCCurrentFilter40kHz},
+        {SamplingRate80kHz, VCCurrentFilter48kHz},
+        {SamplingRate160kHz, VCCurrentFilter100kHz}
     };
 
     // mapping ADC Current Clamp
-    // undefined
+    sr2LpfCcVoltageMap = {
+        {SamplingRate5kHz,  CCVoltageFilter5kHz},
+        {SamplingRate10kHz, CCVoltageFilter6kHz},
+        {SamplingRate20kHz, CCVoltageFilter12kHz},
+        {SamplingRate40kHz, CCVoltageFilter40kHz},
+        {SamplingRate80kHz, CCVoltageFilter48kHz},
+        {SamplingRate160kHz,  CCVoltageFilter100kHz}
+    };
 
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
     defaultCurrentHoldTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
@@ -432,9 +445,9 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     const int membraneCapValueRanges = 4;
     const double membraneCapacitanceValuesNum = 256.0;
 
-    membraneCapValueInjCapacitance = {3.030303030303, 12.121212121212, 48.484848484848, 145.454545454545};
-    membraneCapValueRange.resize(membraneCapacitanceValuesNum);
-    for (int idx = 0; idx < membraneCapacitanceValuesNum; idx++) {
+    membraneCapValueInjCapacitance = {100.0/33.0, 400.0/33.0, 1600.0/33.0, 1600.0/11.0};
+    membraneCapValueRange.resize(membraneCapValueRanges);
+    for (int idx = 0; idx < membraneCapValueRanges; idx++) {
         membraneCapValueRange[idx].step = membraneVarConductance/membraneCapacitanceValuesNum*membraneFixedResistance9*membraneCapValueInjCapacitance[idx];
         membraneCapValueRange[idx].min = (membraneVarConductance/membraneCapacitanceValuesNum+1.0/membraneFixedResistance8)*membraneFixedResistance9*membraneCapValueInjCapacitance[idx];
         membraneCapValueRange[idx].max = membraneCapValueRange[idx].min+(membraneCapacitanceValuesNum-1.0)*membraneCapValueRange[idx].step;
@@ -495,40 +508,36 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     compensationOptionStrings[CompRsCorr].resize(CompensationRsCorrBwNum);
 
     rsCorrBwArray.resize(CompensationRsCorrBwNum);
-    rsCorrBwArray[CompensationRsCorrBw39_789kHz].value = 39.789 / this->clockRatio;
-    rsCorrBwArray[CompensationRsCorrBw39_789kHz].prefix = UnitPfxKilo;
-    rsCorrBwArray[CompensationRsCorrBw39_789kHz].unit = "Hz";
-    rsCorrBwArray[CompensationRsCorrBw19_894kHz].value = 19.894 / this->clockRatio;
-    rsCorrBwArray[CompensationRsCorrBw19_894kHz].prefix = UnitPfxKilo;
-    rsCorrBwArray[CompensationRsCorrBw19_894kHz].unit = "Hz";
-    rsCorrBwArray[CompensationRsCorrBw9_947kHz].value = 9.947 / this->clockRatio;
-    rsCorrBwArray[CompensationRsCorrBw9_947kHz].prefix = UnitPfxKilo;
-    rsCorrBwArray[CompensationRsCorrBw9_947kHz].unit = "Hz";
-    rsCorrBwArray[CompensationRsCorrBw4_974kHz].value = 4.974 / this->clockRatio;
-    rsCorrBwArray[CompensationRsCorrBw4_974kHz].prefix = UnitPfxKilo;
-    rsCorrBwArray[CompensationRsCorrBw4_974kHz].unit = "Hz";
-    rsCorrBwArray[CompensationRsCorrBw2_487kHz].value = 2.487 / this->clockRatio;
-    rsCorrBwArray[CompensationRsCorrBw2_487kHz].prefix = UnitPfxKilo;
-    rsCorrBwArray[CompensationRsCorrBw2_487kHz].unit = "Hz";
-    rsCorrBwArray[CompensationRsCorrBw1_243kHz].value = 1.243 / this->clockRatio;
-    rsCorrBwArray[CompensationRsCorrBw1_243kHz].prefix = UnitPfxKilo;
-    rsCorrBwArray[CompensationRsCorrBw1_243kHz].unit = "Hz";
-    rsCorrBwArray[CompensationRsCorrBw0_622kHz].value = 0.622 / this->clockRatio;
-    rsCorrBwArray[CompensationRsCorrBw0_622kHz].prefix = UnitPfxKilo;
-    rsCorrBwArray[CompensationRsCorrBw0_622kHz].unit = "Hz";
-    rsCorrBwArray[CompensationRsCorrBw0_311kHz].value = 0.311 / this->clockRatio;
-    rsCorrBwArray[CompensationRsCorrBw0_311kHz].prefix = UnitPfxKilo;
-    rsCorrBwArray[CompensationRsCorrBw0_311kHz].unit = "Hz";
-    defaultRsCorrBwIdx = CompensationRsCorrBw39_789kHz;
+    rsCorrBwArray[CompensationRsCorrBw53_1kHz].value = 53.1 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw53_1kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw53_1kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw31_8kHz].value = 31.8 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw31_8kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw31_8kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw17_7kHz].value = 17.7 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw17_7kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw17_7kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw9_36kHz].value = 9.36 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw9_36kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw9_36kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw4_82kHz].value = 4.82 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw4_82kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw4_82kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw2_45kHz].value = 2.45 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw2_45kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw2_45kHz].unit = "Hz";
+    rsCorrBwArray[CompensationRsCorrBw1_23kHz].value = 1.23 / this->clockRatio;
+    rsCorrBwArray[CompensationRsCorrBw1_23kHz].prefix = UnitPfxKilo;
+    rsCorrBwArray[CompensationRsCorrBw1_23kHz].unit = "Hz";
+    defaultRsCorrBwIdx = CompensationRsCorrBw53_1kHz;
 
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw39_789kHz] = rsCorrBwArray[CompensationRsCorrBw39_789kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw19_894kHz] = rsCorrBwArray[CompensationRsCorrBw19_894kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_947kHz] = rsCorrBwArray[CompensationRsCorrBw9_947kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw4_974kHz] = rsCorrBwArray[CompensationRsCorrBw4_974kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw2_487kHz] = rsCorrBwArray[CompensationRsCorrBw2_487kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw1_243kHz] = rsCorrBwArray[CompensationRsCorrBw1_243kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw0_622kHz] = rsCorrBwArray[CompensationRsCorrBw0_622kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw0_311kHz] = rsCorrBwArray[CompensationRsCorrBw0_311kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw53_1kHz] = rsCorrBwArray[CompensationRsCorrBw53_1kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw31_8kHz] = rsCorrBwArray[CompensationRsCorrBw31_8kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw17_7kHz] = rsCorrBwArray[CompensationRsCorrBw17_7kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_36kHz] = rsCorrBwArray[CompensationRsCorrBw9_36kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw4_82kHz] = rsCorrBwArray[CompensationRsCorrBw4_82kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw2_45kHz] = rsCorrBwArray[CompensationRsCorrBw2_45kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw1_23kHz] = rsCorrBwArray[CompensationRsCorrBw1_23kHz].niceLabel();
 
     customOptionsNum = CustomOptionsNum;
     customOptionsNames.resize(customOptionsNum);
@@ -693,20 +702,14 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     boolConfig.initialWord = 11;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0);
-    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(2);
-    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(3);
+    vcVoltageFilterCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(vcVoltageFilterCoder);
 
     /*! Current filter CC */
     boolConfig.initialWord = 11;
     boolConfig.initialBit = 8;
     boolConfig.bitsNum = 4;
-    ccCurrentFilterCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (ccCurrentFilterCoder)->addMapItem(0);
-    static_cast <BoolRandomArrayCoder *> (ccCurrentFilterCoder)->addMapItem(2);
-    static_cast <BoolRandomArrayCoder *> (ccCurrentFilterCoder)->addMapItem(3);
+    ccCurrentFilterCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(ccCurrentFilterCoder);
 
     /*! Voltage filter CC */
@@ -776,6 +779,21 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         }
     }
 
+    /*! GR_En */
+    boolConfig.initialWord = 17;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    grEnCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        grEnCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(grEnCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
     /*! VC_SW */
     boolConfig.initialWord = 20;
     boolConfig.initialBit = 0;
@@ -813,8 +831,8 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     vcCcSelCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         vcCcSelCoders[idx] = new BoolRandomArrayCoder(boolConfig);
-        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x0);
-        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x3); // set also the Cfast_SW
+        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x2); // set only the Cfast_SW
+        static_cast <BoolRandomArrayCoder *> (vcCcSelCoders[idx])->addMapItem(0x1); // set only the VC_CC_sel
         coders.push_back(vcCcSelCoders[idx]);
         // VC_CC_sel unified
     }
@@ -1289,7 +1307,10 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        multiCoderConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x0);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x1);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x3);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
             doubleConfig.minValue = pipetteCapacitanceRange[rangeIdx].min;
@@ -1351,7 +1372,6 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     multiCoderConfig.thresholdVector.resize(membraneCapValueRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
         multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapValueRanges; rangeIdx++) {
@@ -1470,7 +1490,14 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     boolConfig.bitsNum = 3;
     rsCorrBwCompensationCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        rsCorrBwCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
+        rsCorrBwCompensationCoders[idx] = new BoolRandomArrayCoder(boolConfig);
+        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(1);
+        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(2);
+        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(3);
+        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(4);
+        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(5);
+        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(6);
+        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(7);
         coders.push_back(rsCorrBwCompensationCoders[idx]);
         boolConfig.initialBit += 4;
         if (boolConfig.initialBit >12) {
@@ -1560,8 +1587,10 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
-        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        multiCoderConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x0);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x1);
+        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x3);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
             doubleConfig.minValue = pipetteCapacitanceRange[rangeIdx].min;
@@ -1616,7 +1645,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         doubleConfig.maxValue = customDoublesRanges[idx].max;
         doubleConfig.resolution = customDoublesRanges[idx].step;
         customDoublesCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
-        coders.push_back(customOptionsCoders[idx]);
+        coders.push_back(customDoublesCoders[idx]);
 
         doubleConfig.initialBit += 8;
         if (doubleConfig.initialBit > 8) {
@@ -1628,6 +1657,9 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
+    txStatus[17] = 0x00FF; // GR_EN active
+    txStatus[350] = 0x1111; // rs bw avoid configuration with all zeros
+    txStatus[351] = 0x1111;
 }
 
 ErrorCodes_t EmcrTestBoardEl07c::initializeHW() {
@@ -1996,11 +2028,11 @@ ErrorCodes_t EmcrTestBoardEl07c::setCompOptions(std::vector <uint16_t> channelIn
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
-    switch (type)
-    {
+    switch (type) {
     case CompRsCorr:
         if (rsCorrBwCompensationCoders.size() == 0) {
             return ErrorFeatureNotImplemented;
+
         } else {
             for (uint32_t i = 0; i < channelIndexes.size(); i++) {
                 selectedRsCorrBws[i] = options[i];
@@ -2015,7 +2047,7 @@ ErrorCodes_t EmcrTestBoardEl07c::setCompOptions(std::vector <uint16_t> channelIn
             }
             return Success;
         }
-    break;
+        break;
     }
 }
 
@@ -2023,7 +2055,7 @@ ErrorCodes_t EmcrTestBoardEl07c::turnVoltageReaderOn(bool onValueIn, bool applyF
     std::vector <bool> allTheTrueIneed;
     std::vector <bool> allTheFalseIneed;
 
-    for (int i = 0; i< currentChannelsNum; i++) {
+    for (int i = 0; i < currentChannelsNum; i++) {
         allTheTrueIneed.push_back(true);
         allTheFalseIneed.push_back(false);
     }
@@ -2031,6 +2063,7 @@ ErrorCodes_t EmcrTestBoardEl07c::turnVoltageReaderOn(bool onValueIn, bool applyF
     if (onValueIn) {
         this->turnCcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheFalseIneed, false);
+        this->setGrEn(false, false);
         this->updateCalibCcVoltageGain(allChannelIndexes, false);
         this->updateCalibCcVoltageOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
@@ -2054,6 +2087,7 @@ ErrorCodes_t EmcrTestBoardEl07c::turnCurrentReaderOn(bool onValueIn, bool applyF
     if (onValueIn) {
         this->turnVcSwOn(allChannelIndexes, allTheTrueIneed, false);
         this->turnVcCcSelOn(allChannelIndexes, allTheTrueIneed, false);
+        this->setGrEn(true, false);
         this->updateCalibVcCurrentGain(allChannelIndexes, false);
         this->updateCalibVcCurrentOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
@@ -2445,8 +2479,17 @@ ErrorCodes_t EmcrTestBoardEl07c::getCompensationControl(CompensationUserParams_t
     }
 }
 
+void EmcrTestBoardEl07c::setGrEn(bool flag, bool applyFlag) {
+    for (auto coder : grEnCoders) {
+        coder->encode(flag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+}
+
 EmcrTestBoardEl07d::EmcrTestBoardEl07d(std::string di) :
     EmcrTestBoardEl07c(di) {
 
-    fwName = "TB_ELO7d_V01.bit";
+    fwName = "TB_EL07d_V01.bit";
 }
