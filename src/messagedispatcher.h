@@ -1987,6 +1987,7 @@ protected:
     void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
 
     void flushBoardList();
+    std::string getDeviceName();
 
     /************\
      *  Fields  *
@@ -2171,7 +2172,7 @@ protected:
     std::vector <uint16_t> liquidJunctionOpenCircuitCount;
 
     std::string deviceId;
-    std::string deviceName;
+    std::string deviceName = "undefined";
 
     bool threadsStarted = false;
     bool stopConnectionFlag = false;

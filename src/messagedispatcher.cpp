@@ -2276,3 +2276,7 @@ void MessageDispatcher::flushBoardList() {
     boardModels.clear();
     channelModels.clear();
 }
+
+std::string MessageDispatcher::getDeviceName() {
+    return this->deviceName;
+}
