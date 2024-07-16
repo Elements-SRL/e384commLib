@@ -78,6 +78,7 @@ ErrorCodes_t disconnectDevice() {
         delete messageDispatcher;
         messageDispatcher = nullptr;
     }
+    return ret;
 }
 
 ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag) {
