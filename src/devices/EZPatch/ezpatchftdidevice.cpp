@@ -749,6 +749,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
     uint16_t rxReadCrc1;
     uint16_t rxComputedCrc = 0x0000;
     bool rxCrcOk;
+    int32_t dataLossCount = INT32_MIN; /*!< No data loss at the start of parsing */
 
     std::unique_lock <std::mutex> rxMutexLock(rxMutex);
     parsingStatus = ParsingParsing;
@@ -843,6 +844,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                     } else {
                         rxRawBufferReadOffset = (rxRawBufferReadOffset+rxRawBufferReadIdx+1)&FTD_RX_RAW_BUFFER_MASK;
                         rxRawBufferReadLength -= rxRawBufferReadIdx+1;
+                        dataLossCount += 1;
                     }
                 }
                 break;
@@ -903,6 +905,25 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                     rxCrcOk = (rxReadCrc1 == rxComputedCrc);
 
                     if (rxCrcOk) {
+                        /*! valid frame data and reset rxDataLoss */
+                        if (dataLossCount > 0 && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss]) {
+                            rxMsgBuffer[rxMsgBufferWriteOffset].typeId = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss;
+                            rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
+                            rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = 2;
+
+                            rxDataBuffer[(rxDataBufferWriteOffset) & EZP_RX_DATA_BUFFER_MASK] = (uint16_t)(dataLossCount & (0xFFFF));
+                            rxDataBuffer[(rxDataBufferWriteOffset+1) & EZP_RX_DATA_BUFFER_MASK] = (uint16_t)((dataLossCount >> 16) & (0xFFFF));
+                            rxDataBufferWriteOffset = (rxDataBufferWriteOffset+2) & EZP_RX_DATA_BUFFER_MASK;
+
+                            rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & EZP_RX_MSG_BUFFER_MASK;
+                            /*! change the message buffer length */
+                            std::unique_lock <std::mutex> rxMutexLock(rxMutex);
+                            rxMsgBufferReadLength++;
+                            rxMutexLock.unlock();
+                            rxMsgBufferNotEmpty.notify_all();
+                        }
+                        dataLossCount = 0;
+
                         if (rxMsgTypeId == MsgDirectionDeviceToPc+MsgTypeIdAck) {
                             txAckMutex.lock();
                             txAckReceived = true;
@@ -1077,6 +1098,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                         }
                     }
                     rxParsePhase = RxParseLookForHeader;
+                    dataLossCount += 1;
                 }
                 break;
             }

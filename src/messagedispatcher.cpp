@@ -1758,6 +1758,7 @@ void MessageDispatcher::computeLiquidJunction() {
                 }
                 txMutexLock.unlock();
             }
+            anyLiquidJunctionActive = activeFlag;
 
         } else {
             ljMutexLock.unlock();
@@ -1769,7 +1770,6 @@ void MessageDispatcher::computeLiquidJunction() {
                 fflush(ljFid);
             }
 #endif
-            anyLiquidJunctionActive = activeFlag;
         }
 
         computeCurrentOffsetFlag = anyOffsetRecalibrationActive || anyLiquidJunctionActive;

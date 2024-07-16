@@ -535,7 +535,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
     uint16_t rxWordsLength; /*!< Number of words in the received frame */
     uint32_t rxDataBytes; /*!< Number of bytes in the received frame */
     uint32_t rxCandidateHeader;
-    DataLossStatus_t dataLossStatus = NoSuccessfulReadsYet;
+    int32_t dataLossCount = INT32_MIN; /*!< No data loss at the start of parsing */
 
     bool notEnoughRxData;
 
@@ -587,9 +587,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
                         /*! If not all the bytes match the sync word restore three of the removed bytes and recheck */
                         rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & UDB_RX_BUFFER_MASK;
                         rxRawBytesAvailable += 3;
-                        if (dataLossStatus == AllDataCorrectlyObtained) {
-                            dataLossStatus = DataLossDetected;
-                        }
+                        dataLossCount += 1;
                     }
                 }
                 break;
@@ -646,7 +644,24 @@ void EmcrUdbDevice::parseDataFromDevice() {
 
                     if (rxCandidateHeader == rxSyncWord) {
                         /*! valid frame data and reset rxDataLoss */
-                        dataLossStatus = AllDataCorrectlyObtained;
+                        if (dataLossCount > 0 && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss]) {
+                            rxMsgBuffer[rxMsgBufferWriteOffset].typeId = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss;
+                            rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
+                            rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = 2;
+
+                            rxDataBuffer[(rxDataBufferWriteOffset) & RX_DATA_BUFFER_MASK] = (uint16_t)(dataLossCount & (0xFFFF));
+                            rxDataBuffer[(rxDataBufferWriteOffset+1) & RX_DATA_BUFFER_MASK] = (uint16_t)((dataLossCount >> 16) & (0xFFFF));
+                            rxDataBufferWriteOffset = (rxDataBufferWriteOffset+2) & RX_DATA_BUFFER_MASK;
+
+                            rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
+                            /*! change the message buffer length */
+                            std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
+                            rxMsgBufferReadLength++;
+                            rxMutexLock.unlock();
+                            rxMsgBufferNotEmpty.notify_all();
+                        }
+                        dataLossCount = 0;
+
                         if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
 
@@ -682,21 +697,11 @@ void EmcrUdbDevice::parseDataFromDevice() {
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
                         rxParsePhase = RxParseLookForHeader;
-                        if (dataLossStatus == AllDataCorrectlyObtained) {
-                            dataLossStatus = DataLossDetected;
-                        }
+                        dataLossCount += 1;
                     }
                 }
                 break;
             }
-
-#ifdef STRICT_DATA_CONSISTENCY
-            if (dataLossStatus == DataLossDetected) {
-                std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-                bufferDataLossCount += 1;
-                rxMutexLock.unlock();
-            }
-#endif
         }
 
         rxRawMutexLock.lock();
