@@ -2241,20 +2241,6 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::asic2UserDomainCompensable
 
     potentialMaxs.push_back(membraneCapTauValueRange.back().max/userDomainParams[U_Rs]);
 
-    if (vcCompensationsActivated && compensationsEnableFlags[CompCfast][chIdx]) {
-        double zzz1;
-        double zzz2;
-        for (int i = 0; i < membraneCapValueInjCapacitance.size(); i++) {
-            zzz1 = membraneCapValueInjCapacitance[i] + userDomainParams[U_CpVc];
-            if (zzz1 <= pipetteCapacitanceRange.back().max) {
-                zzz2 = zzz1;
-            }
-        }
-        potentialMaxs.push_back(zzz2);
-    } else {
-        potentialMaxs.push_back(myInfinity);
-    }
-
     if (vcCompensationsActivated && compensationsEnableFlags[CompRsPred][chIdx]) {
         potentialMaxs.push_back(rsPredTauRange.max*(userDomainParams[U_RsPg]+1)/userDomainParams[U_Rs]);
     } else {
