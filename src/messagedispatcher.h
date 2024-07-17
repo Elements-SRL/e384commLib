@@ -254,6 +254,12 @@ public:
      */
     ErrorCodes_t getChannelsOnRow(uint16_t rowIdx, std::vector <ChannelModel *> &channels);
 
+    /*! \brief Command used by EMCR to get the name of the connected device.
+     *
+     * \return The name as a std::string.
+     */
+    std::string getDeviceName();
+
     /****************\
      *  Tx methods  *
     \****************/
@@ -1987,7 +1993,6 @@ protected:
     void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
 
     void flushBoardList();
-
     /************\
      *  Fields  *
     \************/
@@ -2171,7 +2176,7 @@ protected:
     std::vector <uint16_t> liquidJunctionOpenCircuitCount;
 
     std::string deviceId;
-    std::string deviceName;
+    std::string deviceName = "undefined";
 
     bool threadsStarted = false;
     bool stopConnectionFlag = false;
