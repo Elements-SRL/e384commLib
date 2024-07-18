@@ -3,6 +3,7 @@
  */
 #ifndef E384COMMLIB_LABVIEW_H
 #define E384COMMLIB_LABVIEW_H
+
 #include "e384commlib_global.h"
 #include "e384commlib_errorcodes.h"
 
