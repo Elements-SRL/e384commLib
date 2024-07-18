@@ -36,6 +36,56 @@ static ErrorCodes_t getCompensationOptions(LStrHandle * optionsOut, MessageDispa
 static ErrorCodes_t getCompensationControl(CharCompensationControl_t &controlOut, MessageDispatcher::CompensationUserParams_t param);
 static ErrorCodes_t getCompensationValues(uint16_t * channelIndexesIn, double * channelValuesOut, bool * activeNotActiveOut, int vectorLengthIn, MessageDispatcher::CompensationTypes_t type, MessageDispatcher::CompensationUserParams_t param);
 
+//createRange
+//createRangeVector
+
+ErrorCodes_t createMeas(
+        double value,
+        UnitPfx_t prefix,
+        LStrHandle unitIn,
+        CharMeasurement_t &measOut) {
+
+    std::string unit;
+    input2String(unitIn, unit);
+    Measurement_t meas = {value, prefix, unit};
+    measurement2Output(meas, measOut);
+//    * meas = (CharMeasurement_t *)DSNewPtr(sizeof(CharMeasurement_t));
+//    if (* meas == nullptr) {
+//        return ErrorMemoryInitialization; // Replace with actual error code for memory allocation failure
+//    }
+
+//    // Initialize the value and prefix fields
+//    (* meas)->value = value;
+//    (* meas)->prefix = prefix;
+//    input2String(unit, (* meas)->unit);
+
+//    // Allocate memory for the LStrHandle
+//    int32 len = (int32)strlen((char *)(unit->str));
+//    (* meas)->unit = (LStrHandle)DSNewHClr(sizeof(int32) + len);
+//    if ((* meas)->unit == nullptr) {
+//        DSDisposePtr(* meas); // Clean up previously allocated memory
+//        return ErrorMemoryInitialization; // Replace with actual error code for memory allocation failure
+//    }
+
+//    // Set the length of the LStrHandle and copy the string data
+//    LStrLen((* meas)->unit) = len;
+//    memcpy(LStrBuf((* meas)->unit), LStrBuf(unit), len);
+
+//    return Success;
+}
+
+ErrorCodes_t createMeasVector(
+        CharMeasurement_t * measArray[],
+        uint32_t sizeIn,
+        LMeasHandle * measVectorOut) {
+
+    std::vector <Measurement_t> measVector(sizeIn);
+    for (uint32_t idx = 0; idx < sizeIn; idx++) {
+        input2Measurement(* measArray[idx], measVector[idx]);
+    }
+    vectorMeasurement2Output(measVector, measVectorOut);
+}
+
 /************************\
  *  Connection methods  *
 \************************/

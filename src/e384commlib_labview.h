@@ -6,6 +6,40 @@
 #include "e384commlib_global.h"
 #include "e384commlib_errorcodes.h"
 
+/**********************\
+ *  Helper functions  *
+\**********************/
+
+/*! \brief Create a CharMeasurment_t from its fields.
+ *
+ * \param value [in] Value of the measurement.
+ * \param prefix [in] Prefic of the measurement unit.
+ * \param unit [in] Unit of the measurement.
+ * \param value [out] Value of the measurement.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t createMeas(
+        E384CL_ARGIN double value,
+        E384CL_ARGIN UnitPfx_t prefix,
+        E384CL_ARGIN LStrHandle unitIn,
+        E384CL_ARGOUT CharMeasurement_t &measOut);
+
+/*! \brief Create a CharMeasurment_t vector from an array of CharMeasurement_t.
+ *
+ * \param measArray [in] Array of measurements.
+ * \param sizeIn [in] Number of the measurements in the array.
+ * \param measVectorOut [out] Vector of measurements returned as a handle.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t createMeasVector(
+        E384CL_ARGIN CharMeasurement_t * measArray[],
+        E384CL_ARGIN uint32_t sizeIn,
+        E384CL_ARGOUT LMeasHandle * measVectorOut);
+
 /************************\
  *  Connection methods  *
 \************************/
