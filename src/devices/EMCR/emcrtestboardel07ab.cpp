@@ -1828,7 +1828,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::enableCcCompensations(bool enable, bool applyF
 ErrorCodes_t EmcrTestBoardEl07ab::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
     std::string debugString = "";
     // make local copy of the user domain param vectors
-    std::vector <std::vector <double>> localCompValueSubMatrix;
+    std::vector <std::vector <double> > localCompValueSubMatrix;
     localCompValueSubMatrix.resize(channelIndexes.size());
     for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
         localCompValueSubMatrix[chIdx] = this->compValueMatrix[channelIndexes[chIdx]];

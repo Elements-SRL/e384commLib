@@ -132,7 +132,7 @@ public:
 
     ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams) override;
     ErrorCodes_t getCalibFileNames(std::vector <std::string> &calibFileNames) override;
-    ErrorCodes_t getCalibFilesFlags(std::vector <std::vector <bool>> &calibFilesFlags) override;
+    ErrorCodes_t getCalibFilesFlags(std::vector <std::vector <bool> > &calibFilesFlags) override;
     ErrorCodes_t getCalibMappingFileDir(std::string &dir) override;
     ErrorCodes_t getCalibMappingFilePath(std::string &path) override;
 
@@ -238,7 +238,7 @@ protected:
 
     ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
     std::vector <std::string> calibrationFileNames;
-    std::vector <std::vector <bool>> calibrationFilesOkFlags;
+    std::vector <std::vector <bool> > calibrationFilesOkFlags;
     std::string calibrationMappingFileDir;
     std::string calibrationMappingFilePath;
 
@@ -265,21 +265,21 @@ protected:
     std::vector <BoolCoder *> turnChannelsOnCoders;
     BoolCoder * samplingRateCoder = nullptr;
 
-    std::vector <std::vector <DoubleCoder *>> vHoldTunerCoders;
-    std::vector <std::vector <DoubleCoder *>> vHalfTunerCoders;
-    std::vector <std::vector <DoubleCoder *>> cHoldTunerCoders;
-    std::vector <std::vector <DoubleCoder *>> cHalfTunerCoders;
+    std::vector <std::vector <DoubleCoder *> > vHoldTunerCoders;
+    std::vector <std::vector <DoubleCoder *> > vHalfTunerCoders;
+    std::vector <std::vector <DoubleCoder *> > cHoldTunerCoders;
+    std::vector <std::vector <DoubleCoder *> > cHalfTunerCoders;
 
-    std::vector <std::vector <DoubleCoder *>> liquidJunctionVoltageCoders;
+    std::vector <std::vector <DoubleCoder *> > liquidJunctionVoltageCoders;
     std::vector <DoubleCoder *> calibCcCurrentGainCoders;
-    std::vector <std::vector <DoubleCoder *>> calibCcCurrentOffsetCoders;
+    std::vector <std::vector <DoubleCoder *> > calibCcCurrentOffsetCoders;
     std::vector <DoubleCoder *> calibVcVoltageGainCoders;
-    std::vector <std::vector <DoubleCoder *>> calibVcVoltageOffsetCoders;
+    std::vector <std::vector <DoubleCoder *> > calibVcVoltageOffsetCoders;
     std::vector <DoubleCoder *> calibVcCurrentGainCoders;
-    std::vector <std::vector <DoubleCoder *>> calibVcCurrentOffsetCoders;
+    std::vector <std::vector <DoubleCoder *> > calibVcCurrentOffsetCoders;
     std::vector <DoubleCoder *> calibCcVoltageGainCoders;
-    std::vector <std::vector <DoubleCoder *>> calibCcVoltageOffsetCoders;
-    std::vector <std::vector <DoubleCoder *>> calibRShuntConductanceCoders;
+    std::vector <std::vector <DoubleCoder *> > calibCcVoltageOffsetCoders;
+    std::vector <std::vector <DoubleCoder *> > calibRShuntConductanceCoders;
     std::vector <DoubleCoder *> gateVoltageCoders;
     std::vector <DoubleCoder *> sourceVoltageCoders;
 
@@ -296,15 +296,15 @@ protected:
     DoubleCoder * stateArrayMovingAverageLengthCoder = nullptr;
     std::vector <BoolCoder *> enableStateArrayChannelsCoder;
 
-    std::vector <std::vector <DoubleCoder *>> stateAppliedVoltageCoders;
+    std::vector <std::vector <DoubleCoder *> > stateAppliedVoltageCoders;
 
     std::vector <BoolArrayCoder *> stateTimeoutFlagCoders;
     std::vector <BoolArrayCoder *> stateTriggerFlagCoders;
     std::vector <BoolArrayCoder *> stateTriggerDeltaFlagCoders;
     std::vector <DoubleCoder *> stateTimeoutValueCoders;
     std::vector <BoolCoder *> stateTimeoutNextStateCoders;
-    std::vector <std::vector <DoubleCoder *>> stateMinTriggerCurrentCoders;
-    std::vector <std::vector <DoubleCoder *>> stateMaxTriggerCurrentCoders;
+    std::vector <std::vector <DoubleCoder *> > stateMinTriggerCurrentCoders;
+    std::vector <std::vector <DoubleCoder *> > stateMaxTriggerCurrentCoders;
     std::vector <BoolCoder *> stateTriggerNextStateCoders;
 
     DoubleCoder * stimRestCoder = nullptr;
@@ -321,15 +321,15 @@ protected:
     std::vector <DoubleCoder *> voltageProtocolRestCoders;
     std::vector <DoubleCoder *> currentProtocolRestCoders;
 
-    std::vector <std::vector <DoubleCoder *>> voltageProtocolStim0Coders;
-    std::vector <std::vector <DoubleCoder *>> voltageProtocolStim0StepCoders;
-    std::vector <std::vector <DoubleCoder *>> voltageProtocolStim1Coders;
-    std::vector <std::vector <DoubleCoder *>> voltageProtocolStim1StepCoders;
+    std::vector <std::vector <DoubleCoder *> > voltageProtocolStim0Coders;
+    std::vector <std::vector <DoubleCoder *> > voltageProtocolStim0StepCoders;
+    std::vector <std::vector <DoubleCoder *> > voltageProtocolStim1Coders;
+    std::vector <std::vector <DoubleCoder *> > voltageProtocolStim1StepCoders;
 
-    std::vector <std::vector <DoubleCoder *>> currentProtocolStim0Coders;
-    std::vector <std::vector <DoubleCoder *>> currentProtocolStim0StepCoders;
-    std::vector <std::vector <DoubleCoder *>> currentProtocolStim1Coders;
-    std::vector <std::vector <DoubleCoder *>> currentProtocolStim1StepCoders;
+    std::vector <std::vector <DoubleCoder *> > currentProtocolStim0Coders;
+    std::vector <std::vector <DoubleCoder *> > currentProtocolStim0StepCoders;
+    std::vector <std::vector <DoubleCoder *> > currentProtocolStim1Coders;
+    std::vector <std::vector <DoubleCoder *> > currentProtocolStim1StepCoders;
 
     std::vector <DoubleCoder *> protocolTime0Coders;
     std::vector <DoubleCoder *> protocolTime0StepCoders;

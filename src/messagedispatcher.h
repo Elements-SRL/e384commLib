@@ -1791,7 +1791,7 @@ public:
      * The external vector has an item for each clamping modality, the internal vectors has an item for each calibration parameters family, e.g. voltage clamp current gains.
      * \return Error code.
      */
-    virtual ErrorCodes_t getCalibFilesFlags(std::vector <std::vector <bool>> &calibFilesFlags);
+    virtual ErrorCodes_t getCalibFilesFlags(std::vector <std::vector <bool> > &calibFilesFlags);
 
     /*! \brief Get the directory of the calibration mapping file.
      *
@@ -1864,7 +1864,7 @@ public:
      * \note the values might differ from the values set by user because of rounding factors, clipping and interactions with other compensations.
      * \return Success if the device implements any compensation.
      */
-    ErrorCodes_t getCompValueMatrix(std::vector <std::vector <double>> &matrix);
+    ErrorCodes_t getCompValueMatrix(std::vector <std::vector <double> > &matrix);
 
     /*! \brief Get the state of a compensation type for some channels.
      *
@@ -1900,7 +1900,7 @@ public:
      * \param customOptionsDefault [out] Deafault options.
      * \return Success if the device implements any custom enumerator control.
      */
-    ErrorCodes_t getCustomOptions(std::vector <std::string> &customOptions, std::vector <std::vector <std::string>> &customOptionsDescriptions, std::vector <uint16_t> &customOptionsDefault);
+    ErrorCodes_t getCustomOptions(std::vector <std::string> &customOptions, std::vector <std::vector <std::string> > &customOptionsDescriptions, std::vector <uint16_t> &customOptionsDefault);
 
     /*! \brief Get the specifications of the custom controls of type value.
      *
@@ -2146,9 +2146,9 @@ protected:
     std::vector <double> defaultUserDomainParams;
 
     std::vector <double> membraneCapValueInjCapacitance;
-    std::vector <std::vector <std::string>> compensationOptionStrings;
+    std::vector <std::vector <std::string> > compensationOptionStrings;
 
-    std::vector <std::vector <double>> compValueMatrix;
+    std::vector <std::vector <double> > compValueMatrix;
     std::vector <bool> compensationsEnableFlags[CompensationTypesNum];
     bool vcCompensationsActivated = false;
     bool ccCompensationsActivated = false;
@@ -2208,7 +2208,7 @@ protected:
 
     uint16_t customOptionsNum = 0;
     std::vector <std::string> customOptionsNames;
-    std::vector <std::vector <std::string>> customOptionsDescriptions;
+    std::vector <std::vector <std::string> > customOptionsDescriptions;
     std::vector <uint16_t> customOptionsDefault;
 
     uint16_t customDoublesNum = 0;

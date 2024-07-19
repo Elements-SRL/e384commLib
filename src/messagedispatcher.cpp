@@ -68,7 +68,7 @@ ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int
         deviceVersion = -1;
         deviceSubVersion = -1;
         fwVersion = -1;
-        return Success;
+        return ErrorFeatureNotImplemented;
     }
 
     if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
@@ -1140,7 +1140,7 @@ ErrorCodes_t MessageDispatcher::getCalibFileNames(std::vector <std::string> &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCalibFilesFlags(std::vector <std::vector <bool>> &) {
+ErrorCodes_t MessageDispatcher::getCalibFilesFlags(std::vector <std::vector <bool> > &) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -2189,7 +2189,7 @@ ErrorCodes_t MessageDispatcher::getCompOptionsFeatures(CompensationTypes_t, std:
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector <std::vector <double>> &matrix) {
+ErrorCodes_t MessageDispatcher::getCompValueMatrix(std::vector <std::vector <double> > &matrix) {
     if (compValueMatrix.empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -2214,7 +2214,7 @@ ErrorCodes_t MessageDispatcher::getCustomFlags(std::vector <std::string> &custom
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCustomOptions(std::vector <std::string> &customOptions, std::vector <std::vector <std::string>> &customOptionsDescriptions, std::vector <uint16_t> &customOptionsDefault) {
+ErrorCodes_t MessageDispatcher::getCustomOptions(std::vector <std::string> &customOptions, std::vector <std::vector <std::string> > &customOptionsDescriptions, std::vector <uint16_t> &customOptionsDefault) {
     if (customOptionsNum == 0) {
         return ErrorFeatureNotImplemented;
     }

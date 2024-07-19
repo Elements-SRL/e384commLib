@@ -56,7 +56,7 @@ static const uint16_t crc16CcittTable[256] = {
     0x6E17U, 0x7E36U, 0x4E55U, 0x5E74U, 0x2E93U, 0x3EB2U, 0x0ED1U, 0x1EF0U
 };
 
-static const std::vector <std::vector <uint32_t>> deviceTupleMapping = {
+static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     /*! ePatch EL03D */
     {DeviceVersionEpatch, DeviceSubversionEl03D, 133, DeviceEPatchEL03D_V04},                                               //  7,  1,  133 : digital repetitive trigger
     {DeviceVersionEpatch, DeviceSubversionEl03D, 132, DeviceEPatchEL03D_V03},                                               //  7,  1,  132 : increased digital triggers to 84

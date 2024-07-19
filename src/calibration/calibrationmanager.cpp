@@ -48,7 +48,7 @@ std::vector <std::string> CalibrationManager::getCalibrationFileNames() {
     return calibFileNames;
 }
 
-std::vector <std::vector <bool>> CalibrationManager::getCalibrationFilesOkFlags() {
+std::vector <std::vector <bool> > CalibrationManager::getCalibrationFilesOkFlags() {
     /*! First vector has 2 items, one for Voltage clamp one for Current clamp
      *  Inner vectors have one item per board
      *  True means the file is found and ok
@@ -105,8 +105,8 @@ std::string CalibrationManager::getMappingFilePath() {
     return this->mappingFilePath;
 }
 
-std::vector <std::vector <bool>> CalibrationManager::loadCalibrationFiles() {
-    std::vector <std::vector <bool>> rets;
+std::vector <std::vector <bool> > CalibrationManager::loadCalibrationFiles() {
+    std::vector <std::vector <bool> > rets;
     rets.resize(2);
     vcCalibrationFileStreams.resize(boardsNum);
     rsCorrCalibrationFileStreams.resize(boardsNum);
@@ -302,9 +302,9 @@ bool CalibrationManager::loadCcDac(std::fstream &stream, uint32_t boardIdx, bool
     }
 }
 
-bool CalibrationManager::loadSetOfParams(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t>> &outGains, std::vector <std::vector <Measurement_t>> &outOffsets, std::string offsetUnit) {
+bool CalibrationManager::loadSetOfParams(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
     bool ret = true;
-    std::vector <std::vector <std::string>> strings;
+    std::vector <std::vector <std::string> > strings;
     strings.resize(2);
     strings[0].resize(channelsPerBoard);
     strings[1].resize(channelsPerBoard);
@@ -326,7 +326,7 @@ bool CalibrationManager::loadSetOfParams(std::fstream &stream, uint32_t boardIdx
     return ret;
 }
 
-void CalibrationManager::loadSetOfDefaultParams(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t>> &outGains, std::vector <std::vector <Measurement_t>> &outOffsets, std::string offsetUnit) {
+void CalibrationManager::loadSetOfDefaultParams(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
     for (uint32_t rangeIdx = 0; rangeIdx < rangesNum; rangeIdx++) {
         Measurement_t one = {1.0, UnitPfxNone, ""};
         Measurement_t zero = {0.0, UnitPfxNone, offsetUnit};
@@ -335,9 +335,9 @@ void CalibrationManager::loadSetOfDefaultParams(uint32_t boardIdx, uint32_t rang
     }
 }
 
-bool CalibrationManager::loadSetOfOffsets(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t>> &outOffsets, std::string offsetUnit) {
+bool CalibrationManager::loadSetOfOffsets(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
     bool ret = true;
-    std::vector <std::vector <std::string>> strings;
+    std::vector <std::vector <std::string> > strings;
     strings.resize(1);
     strings[0].resize(channelsPerBoard);
     for (uint32_t rangeIdx = 0; rangeIdx < rangesNum && ret; rangeIdx++) {
@@ -357,16 +357,16 @@ bool CalibrationManager::loadSetOfOffsets(std::fstream &stream, uint32_t boardId
     return ret;
 }
 
-void CalibrationManager::loadSetOfDefaultOffsets(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t>> &outOffsets, std::string offsetUnit) {
+void CalibrationManager::loadSetOfDefaultOffsets(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
     for (uint32_t rangeIdx = 0; rangeIdx < rangesNum; rangeIdx++) {
         Measurement_t zero = {0.0, UnitPfxNone, offsetUnit};
         std::fill(outOffsets[rangeIdx].begin()+boardIdx*channelsPerBoard, outOffsets[rangeIdx].begin()+(boardIdx+1)*channelsPerBoard, zero);
     }
 }
 
-bool CalibrationManager::loadSetOfMeas(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t>> &outMeas, std::string unit) {
+bool CalibrationManager::loadSetOfMeas(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outMeas, std::string unit) {
     bool ret = true;
-    std::vector <std::vector <std::string>> strings;
+    std::vector <std::vector <std::string> > strings;
     strings.resize(1);
     strings[0].resize(channelsPerBoard);
     for (uint32_t rangeIdx = 0; rangeIdx < rangesNum && ret; rangeIdx++) {
@@ -386,14 +386,14 @@ bool CalibrationManager::loadSetOfMeas(std::fstream &stream, uint32_t boardIdx, 
     return ret;
 }
 
-void CalibrationManager::loadSetOfDefaultMeas(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t>> &outMeas, std::string unit) {
+void CalibrationManager::loadSetOfDefaultMeas(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outMeas, std::string unit) {
     for (uint32_t rangeIdx = 0; rangeIdx < rangesNum; rangeIdx++) {
         Measurement_t zero = {0.0, UnitPfxNone, unit};
         std::fill(outMeas[rangeIdx].begin()+boardIdx*channelsPerBoard, outMeas[rangeIdx].begin()+(boardIdx+1)*channelsPerBoard, zero);
     }
 }
 
-bool CalibrationManager::readCsvPortion(std::fstream &stream, std::vector <std::vector <std::string>> &out) {
+bool CalibrationManager::readCsvPortion(std::fstream &stream, std::vector <std::vector <std::string> > &out) {
     uint32_t rowsNum = out.size();
     uint32_t colsNum = 0;
     if (rowsNum > 0) {

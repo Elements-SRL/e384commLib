@@ -1898,7 +1898,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableCcCompensations(bool
 ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
     std::string debugString = "";
     // make local copy of the user domain param vectors
-    std::vector <std::vector <double>> localCompValueSubMatrix;
+    std::vector <std::vector <double> > localCompValueSubMatrix;
     localCompValueSubMatrix.resize(channelIndexes.size());
     for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
         localCompValueSubMatrix[chIdx] = this->compValueMatrix[channelIndexes[chIdx]];

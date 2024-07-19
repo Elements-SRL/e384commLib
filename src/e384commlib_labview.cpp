@@ -22,7 +22,7 @@ static void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasuremen
 static void compensationControl2Output(CompensationControl_t c, CharCompensationControl_t &o);
 static void vectorString2Output(std::vector <std::string> v, LStrHandle * o);
 static void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o);
-static void matrixMeasurement2Output(std::vector <std::vector <Measurement_t>> v, LVecMeasHandle * o);
+static void matrixMeasurement2Output(std::vector <std::vector <Measurement_t> > v, LVecMeasHandle * o);
 static void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeHandle * o);
 
 template <typename I_t, typename O_t> void numericVector2Output(I_t v, O_t * o);
@@ -1971,7 +1971,7 @@ void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o) {
     }
 }
 
-void matrixMeasurement2Output(std::vector <std::vector <Measurement_t>> v2, LVecMeasHandle * o) {
+void matrixMeasurement2Output(std::vector <std::vector <Measurement_t> > v2, LVecMeasHandle * o) {
     int offset = 0;
     MgErr err = 0;
     if (o == nullptr) {
@@ -2101,7 +2101,7 @@ ErrorCodes_t getCompensationValues(uint16_t * channelIndexesIn, double * channel
     std::vector <uint16_t> channelIndexes;
     std::vector <double> channelValues;
     std::vector <bool> activeNotActive;
-    std::vector <std::vector <double>> thisCompValueMatrix;
+    std::vector <std::vector <double> > thisCompValueMatrix;
     uint16_t currChanNum;
     uint16_t voltChanNum;
     messageDispatcher->getChannelNumberFeatures(currChanNum, voltChanNum);

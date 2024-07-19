@@ -220,7 +220,7 @@ protected:
     uint16_t samplingRatesSwitchesNum = 0;
     std::vector <uint16_t> samplingRatesSwitchesWord;
     std::vector <uint16_t> samplingRatesSwitchesByte;
-    std::vector <std::vector <bool>> samplingRatesSwitchesLut;
+    std::vector <std::vector <bool> > samplingRatesSwitchesLut;
 
     std::string vcCurrentRangesSwitchesLutStrings[VCCurrentRangesNum];
     std::string ccCurrentRangesSwitchesLutStrings[CCCurrentRangesNum];

@@ -12,8 +12,8 @@ static int16_t * data;
 static int voltageChannelsNum;
 static int currentChannelsNum;
 static int totalChannelsNum;
-static std::vector <std::vector <double>> voltageDataOut;
-static std::vector <std::vector <double>> currentDataOut;
+static std::vector <std::vector <double> > voltageDataOut;
+static std::vector <std::vector <double> > currentDataOut;
 PYBIND11_MODULE(e384CommLibPython, m) {
     m.doc() = "Typical order of calls\n"
               "detectDevices();\n"
@@ -280,7 +280,7 @@ PYBIND11_MODULE(e384CommLibPython, m) {
     });
 
     m.def("getCompValueMatrix",[]() {
-        std::vector <std::vector <double>> compValues;
+        std::vector <std::vector <double> > compValues;
         auto err = md->getCompValueMatrix(compValues);
         return std::make_tuple(err, compValues);
     });

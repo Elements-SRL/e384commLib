@@ -178,7 +178,10 @@ public:
 
     ErrorCodes_t resetLiquidJunctionCompensation(bool reset);
 
-    ErrorCodes_t getSwitchesStatus(std::vector <uint16_t> &words, std::vector <std::vector <std::string>> &names);
+    ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) override;
+    ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue) override;
+
+    ErrorCodes_t getSwitchesStatus(std::vector <uint16_t> &words, std::vector <std::vector <std::string> > &names);
     ErrorCodes_t singleSwitchDebug(uint16_t word, uint16_t bit, bool flag);
     ErrorCodes_t multiSwitchDebug(std::vector <uint16_t> words);
     ErrorCodes_t singleRegisterDebug(uint16_t index, uint16_t value);
@@ -333,7 +336,7 @@ protected:
 
     uint16_t switchesStatusLength = 0;
     std::vector <uint16_t> switchesStatus;
-    std::vector <std::vector <std::string>> switchesNames;
+    std::vector <std::vector <std::string> > switchesNames;
 
     uint16_t ledsNum = 0;
     std::vector <uint16_t> ledsWord;
@@ -377,13 +380,13 @@ protected:
     uint16_t vcStimulusLpfSwitchesNum = 0;
     std::vector <uint16_t> vcStimulusLpfSwitchesWord;
     std::vector <uint16_t> vcStimulusLpfSwitchesByte;
-    std::vector <std::vector <bool>> vcStimulusLpfSwitchesLut;
+    std::vector <std::vector <bool> > vcStimulusLpfSwitchesLut;
     uint16_t vcStimulusLpfOptionsNum = 0;
 
     uint16_t ccStimulusLpfSwitchesNum = 0;
     std::vector <uint16_t> ccStimulusLpfSwitchesWord;
     std::vector <uint16_t> ccStimulusLpfSwitchesByte;
-    std::vector <std::vector <bool>> ccStimulusLpfSwitchesLut;
+    std::vector <std::vector <bool> > ccStimulusLpfSwitchesLut;
     uint16_t ccStimulusLpfOptionsNum = 0;
 
     bool stimulusEnableImplemented = false;
@@ -398,22 +401,22 @@ protected:
     uint16_t vcCurrentRangesSwitchesNum = 0;
     std::vector <uint16_t> vcCurrentRangesSwitchesWord;
     std::vector <uint16_t> vcCurrentRangesSwitchesByte;
-    std::vector <std::vector <bool>> vcCurrentRangesSwitchesLut;
+    std::vector <std::vector <bool> > vcCurrentRangesSwitchesLut;
 
     uint16_t ccCurrentRangesSwitchesNum = 0;
     std::vector <uint16_t> ccCurrentRangesSwitchesWord;
     std::vector <uint16_t> ccCurrentRangesSwitchesByte;
-    std::vector <std::vector <bool>> ccCurrentRangesSwitchesLut;
+    std::vector <std::vector <bool> > ccCurrentRangesSwitchesLut;
 
     uint16_t vcVoltageRangesSwitchesNum = 0;
     std::vector <uint16_t> vcVoltageRangesSwitchesWord;
     std::vector <uint16_t> vcVoltageRangesSwitchesByte;
-    std::vector <std::vector <bool>> vcVoltageRangesSwitchesLut;
+    std::vector <std::vector <bool> > vcVoltageRangesSwitchesLut;
 
     uint16_t ccVoltageRangesSwitchesNum = 0;
     std::vector <uint16_t> ccVoltageRangesSwitchesWord;
     std::vector <uint16_t> ccVoltageRangesSwitchesByte;
-    std::vector <std::vector <bool>> ccVoltageRangesSwitchesLut;
+    std::vector <std::vector <bool> > ccVoltageRangesSwitchesLut;
 
     bool liquidJunctionCompensationOverrideImplemented = false;
     uint16_t liquidJunctionCompensationOverrideSwitchWord;

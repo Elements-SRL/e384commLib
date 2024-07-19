@@ -1513,7 +1513,7 @@ ErrorCodes_t EmcrDevice::setCompRanges(std::vector <uint16_t> channelIndexes, Co
         return ErrorValueOutOfRange;
     }
 
-    std::vector <std::vector <double>> localCompValueSubMatrix(channelIndexes.size());
+    std::vector <std::vector <double> > localCompValueSubMatrix(channelIndexes.size());
     std::vector <double> newParams(channelIndexes.size());
     for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
         localCompValueSubMatrix[chIdx] = this->compValueMatrix[channelIndexes[chIdx]];
@@ -2104,7 +2104,7 @@ ErrorCodes_t EmcrDevice::getCalibFileNames(std::vector <std::string> &calibFileN
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::getCalibFilesFlags(std::vector <std::vector <bool>> &calibFilesFlags) {
+ErrorCodes_t EmcrDevice::getCalibFilesFlags(std::vector <std::vector <bool> > &calibFilesFlags) {
     calibFilesFlags = calibrationFilesOkFlags;
     return Success;
 }

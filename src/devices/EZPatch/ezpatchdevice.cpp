@@ -2275,8 +2275,18 @@ ErrorCodes_t EZPatchDevice::resetLiquidJunctionCompensation(bool reset) {
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::getSwitchesStatus(std::vector <uint16_t> &words, std::vector <std::vector <std::string>> &names) {
-    ErrorCodes_t ret = Success;
+ErrorCodes_t EZPatchDevice::setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) {
+    if (wordOffset >= switchesStatusLength) {
+        return ErrorValueOutOfRange;
+    }
+    return this->singleSwitchDebug(wordOffset, bitOffset, status);
+}
+
+ErrorCodes_t EZPatchDevice::setDebugWord(uint16_t wordOffset, uint16_t wordValue) {
+    return this->singleRegisterDebug(wordOffset, wordValue);
+}
+
+ErrorCodes_t EZPatchDevice::getSwitchesStatus(std::vector <uint16_t> &words, std::vector <std::vector <std::string> > &names) {
     words.resize(switchesStatusLength);
     names.resize(switchesStatusLength);
     switches2DataMessage(words);
@@ -2286,7 +2296,7 @@ ErrorCodes_t EZPatchDevice::getSwitchesStatus(std::vector <uint16_t> &words, std
             names[wordIdx][stringIdx] = switchesNames[wordIdx][stringIdx];
         }
     }
-    return ret;
+    return Success;
 }
 
 ErrorCodes_t EZPatchDevice::singleSwitchDebug(uint16_t word, uint16_t bit, bool flag) {
