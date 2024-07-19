@@ -79,6 +79,9 @@ public:
     ErrorCodes_t setVoltageHoldTuner(uint16_t channelIdx, Measurement_t voltage);
     ErrorCodes_t setCurrentHoldTuner(uint16_t channelIdx, Measurement_t current);
 
+    ErrorCodes_t turnChannelsOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t turnCalSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+
     ErrorCodes_t turnVoltageStimulusOn(bool on, bool applyFlag) override;
     ErrorCodes_t turnCurrentStimulusOn(bool on, bool applyFlag) override;
     ErrorCodes_t turnVoltageReaderOn(bool on, bool applyFlag) override;
@@ -194,6 +197,9 @@ public:
     /*! \todo FCON fare il metodo statico per il get device info */
     ErrorCodes_t getDeviceInfo(std::string &deviceId, std::string &deviceName, uint32_t &deviceVersion, uint32_t &deviceSubversion, uint32_t &firmwareVersion);
     virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data) override; /*!< overidden by eP4 device because it needs a custom data interleaving */
+
+    ErrorCodes_t hasChannelSwitches() override;
+    ErrorCodes_t hasCalSw() override;
 
     ErrorCodes_t hasVoltageHoldTuner();
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageRanges) override;
@@ -352,6 +358,16 @@ protected:
     uint16_t slaveByte;
 
     bool multimeterStuckHazardFlag = false;
+
+    uint16_t inputSwitchesNum = 0;
+    std::vector <uint16_t> inputSwitchesWord;
+    std::vector <uint16_t> inputSwitchesByte;
+    std::vector <bool> inputSwitchesLut;
+
+    uint16_t calSwitchesNum = 0;
+    std::vector <uint16_t> calSwitchesWord;
+    std::vector <uint16_t> calSwitchesByte;
+    std::vector <bool> calSwitchesLut;
 
     uint16_t vcStimulusSwitchesNum = 0;
     std::vector <uint16_t> vcStimulusSwitchesWord;

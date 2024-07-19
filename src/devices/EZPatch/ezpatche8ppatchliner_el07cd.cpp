@@ -679,15 +679,15 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     constantSwitchesByte[ConstantSwitchCh8RingEn] = 0x2000;
     constantSwitchesByte[ConstantSwitchCh8PIn_En] = 0x8000;
 
-    constantSwitchesLutStrings = "10100"
-                                 "0001"
-                                 "0001"
-                                 "0001"
-                                 "0001"
-                                 "0001"
-                                 "0001"
-                                 "0001"
-                                 "0001";
+    constantSwitchesLutStrings = "10110"
+                                 "1000"
+                                 "1000"
+                                 "1000"
+                                 "1000"
+                                 "1000"
+                                 "1000"
+                                 "1000"
+                                 "1000";
 
     for (unsigned int constantSwitchIdx = 0; constantSwitchIdx < constantSwitchesNum; constantSwitchIdx++) {
         if (constantSwitchesLutStrings[constantSwitchIdx] == '1') {
@@ -807,6 +807,48 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     resetByte[ResetIndexLiquidJunctionCompensation] = 0x0002;
 
     resetDuration = 20;
+
+    /*! Input */
+    inputSwitchesNum = InputSwitchesNum;
+    inputSwitchesLut.resize(inputSwitchesNum);
+    inputSwitchesWord.resize(inputSwitchesNum);
+    inputSwitchesByte.resize(inputSwitchesNum);
+
+    inputSwitchesWord[InputSw] = 2;
+
+    inputSwitchesByte[InputSw] = 0x0001;
+
+    inputSwitchesLutStrings = "1";
+
+    for (unsigned int stimulusSwitchesIdx = 0; stimulusSwitchesIdx < inputSwitchesNum; stimulusSwitchesIdx++) {
+        if (inputSwitchesLutStrings[stimulusSwitchesIdx] == '1') {
+            inputSwitchesLut[stimulusSwitchesIdx] = true;
+
+        } else {
+            inputSwitchesLut[stimulusSwitchesIdx] = false;
+        }
+    }
+
+    /*! Calibration input */
+    calSwitchesNum = CalSwitchesNum;
+    calSwitchesLut.resize(calSwitchesNum);
+    calSwitchesWord.resize(calSwitchesNum);
+    calSwitchesByte.resize(calSwitchesNum);
+
+    calSwitchesWord[CalSw] = 2;
+
+    calSwitchesByte[CalSw] = 0x0002;
+
+    calSwitchesLutStrings = "1";
+
+    for (unsigned int stimulusSwitchesIdx = 0; stimulusSwitchesIdx < calSwitchesNum; stimulusSwitchesIdx++) {
+        if (calSwitchesLutStrings[stimulusSwitchesIdx] == '1') {
+            calSwitchesLut[stimulusSwitchesIdx] = true;
+
+        } else {
+            calSwitchesLut[stimulusSwitchesIdx] = false;
+        }
+    }
 
     /*! Stimulus */
     /*! VC */
@@ -943,32 +985,30 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
 }
 
 ErrorCodes_t EZPatche8PPatchliner_el07cd_artix7_PCBV01::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
+    if (samplingRateIdx >= samplingRatesNum) {
+        return ErrorValueOutOfRange;
+    }
+
     ErrorCodes_t ret;
+    uint16_t dataLength = switchesStatusLength;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    this->switches2DataMessage(txDataMessage);
 
-    if (samplingRateIdx < samplingRatesNum) {
-        uint16_t dataLength = switchesStatusLength;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        this->switches2DataMessage(txDataMessage);
+    for (unsigned int samplingRatesSwitchIdx = 0; samplingRatesSwitchIdx < samplingRatesSwitchesNum; samplingRatesSwitchIdx++) {
+        if (samplingRatesSwitchesLut[samplingRateIdx][samplingRatesSwitchIdx]) {
+            txDataMessage[samplingRatesSwitchesWord[samplingRatesSwitchIdx]] |=
+                    samplingRatesSwitchesByte[samplingRatesSwitchIdx]; // 1
 
-        for (unsigned int samplingRatesSwitchIdx = 0; samplingRatesSwitchIdx < samplingRatesSwitchesNum; samplingRatesSwitchIdx++) {
-            if (samplingRatesSwitchesLut[samplingRateIdx][samplingRatesSwitchIdx]) {
-                txDataMessage[samplingRatesSwitchesWord[samplingRatesSwitchIdx]] |=
-                        samplingRatesSwitchesByte[samplingRatesSwitchIdx]; // 1
-
-            } else {
-                txDataMessage[samplingRatesSwitchesWord[samplingRatesSwitchIdx]] &=
-                        ~samplingRatesSwitchesByte[samplingRatesSwitchIdx]; // 0
-            }
+        } else {
+            txDataMessage[samplingRatesSwitchesWord[samplingRatesSwitchIdx]] &=
+                    ~samplingRatesSwitchesByte[samplingRatesSwitchIdx]; // 0
         }
+    }
 
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
-        if (ret == Success) {
-            this->dataMessage2Switches(txDataMessage);
-            ret = EZPatchDevice::setSamplingRate(samplingRateIdx, applyFlag);
-        }
-
-    } else {
-        ret = ErrorValueOutOfRange;
+    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+    if (ret == Success) {
+        this->dataMessage2Switches(txDataMessage);
+        ret = EZPatchDevice::setSamplingRate(samplingRateIdx, applyFlag);
     }
 
     return ret;

@@ -60,6 +60,16 @@ protected:
         CCVoltageRangesSwitchesNum = 0
     };
 
+    enum InputSwitches {
+        InputSw,
+        InputSwitchesNum
+    };
+
+    enum CalSwitches {
+        CalSw,
+        CalSwitchesNum
+    };
+
     enum VCStimulusSwitches {
         VCStimulusSwitch_VcSW,
         VCStimulusSwitchesNum
@@ -226,6 +236,8 @@ protected:
     std::string vcStimulusLpfSwitchesLutStrings[VCStimulusLpfsNum];
     std::string ccStimulusLpfSwitchesLutStrings[CCStimulusLpfsNum];
     std::string constantSwitchesLutStrings;
+    std::string inputSwitchesLutStrings;
+    std::string calSwitchesLutStrings;
     std::string vcStimulusSwitchesLutStrings;
     std::string vcReaderSwitchesLutStrings;
     std::string ccStimulusSwitchesLutStrings;

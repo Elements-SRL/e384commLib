@@ -345,48 +345,116 @@ ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(uint16_t channelIdx, Measurement
     return ret;
 }
 
+ErrorCodes_t EZPatchDevice::turnChannelsOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
+    ErrorCodes_t ret;
+
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    if (inputSwitchesNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    uint16_t dataLength = switchesStatusLength;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    this->switches2DataMessage(txDataMessage);
+
+    for (unsigned int channelIdx = 0; channelIdx < channelIndexes.size(); channelIdx++) {
+        unsigned int ch = channelIndexes[channelIdx];
+        for (unsigned int switchIdx = 0; switchIdx < inputSwitchesNum; switchIdx++) {
+            if (inputSwitchesLut[switchIdx] == onValues[channelIdx]) {
+                txDataMessage[inputSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] |=
+                        inputSwitchesByte[switchIdx]; // 1
+
+            } else {
+                txDataMessage[inputSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] &=
+                        ~inputSwitchesByte[switchIdx]; // 0
+            }
+        }
+    }
+
+    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+    if (ret == Success) {
+        this->dataMessage2Switches(txDataMessage);
+    }
+
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::turnCalSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
+    ErrorCodes_t ret;
+
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    if (calSwitchesNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    uint16_t dataLength = switchesStatusLength;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    this->switches2DataMessage(txDataMessage);
+
+    for (unsigned int channelIdx = 0; channelIdx < channelIndexes.size(); channelIdx++) {
+        unsigned int ch = channelIndexes[channelIdx];
+        for (unsigned int switchIdx = 0; switchIdx < calSwitchesNum; switchIdx++) {
+            if (calSwitchesLut[switchIdx] == onValues[channelIdx]) {
+                txDataMessage[calSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] |=
+                        calSwitchesByte[switchIdx]; // 1
+
+            } else {
+                txDataMessage[calSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] &=
+                        ~calSwitchesByte[switchIdx]; // 0
+            }
+        }
+    }
+
+    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+    if (ret == Success) {
+        this->dataMessage2Switches(txDataMessage);
+    }
+
+    return ret;
+}
+
 ErrorCodes_t EZPatchDevice::turnVoltageStimulusOn(bool on, bool applyFlag) {
     ErrorCodes_t ret;
 
-    if (vcStimulusSwitchesNum > 0) {
-        uint16_t dataLength = switchesStatusLength;
-        std::vector <uint16_t> txDataMessage(dataLength);
-        this->switches2DataMessage(txDataMessage);
+    if (vcStimulusSwitchesNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    uint16_t dataLength = switchesStatusLength;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    this->switches2DataMessage(txDataMessage);
 
-        if (vcStimulusSwitchChannelIndependent) {
-            for (unsigned int channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
-                for (unsigned int stimulusSwitchIdx = 0; stimulusSwitchIdx < vcStimulusSwitchesNum; stimulusSwitchIdx++) {
-                    if (vcStimulusSwitchesLut[stimulusSwitchIdx] == on) {
-                        txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] |=
-                                vcStimulusSwitchesByte[stimulusSwitchIdx]; // 1
-
-                    } else {
-                        txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] &=
-                                ~vcStimulusSwitchesByte[stimulusSwitchIdx]; // 0
-                    }
-                }
-            }
-
-        } else {
+    if (vcStimulusSwitchChannelIndependent) {
+        for (unsigned int channelIdx = 0; channelIdx < voltageChannelsNum; channelIdx++) {
             for (unsigned int stimulusSwitchIdx = 0; stimulusSwitchIdx < vcStimulusSwitchesNum; stimulusSwitchIdx++) {
                 if (vcStimulusSwitchesLut[stimulusSwitchIdx] == on) {
-                    txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]] |=
+                    txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] |=
                             vcStimulusSwitchesByte[stimulusSwitchIdx]; // 1
 
                 } else {
-                    txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]] &=
+                    txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] &=
                             ~vcStimulusSwitchesByte[stimulusSwitchIdx]; // 0
                 }
             }
         }
 
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
-        if (ret == Success) {
-            this->dataMessage2Switches(txDataMessage);
-        }
-
     } else {
-        return ErrorFeatureNotImplemented;
+        for (unsigned int stimulusSwitchIdx = 0; stimulusSwitchIdx < vcStimulusSwitchesNum; stimulusSwitchIdx++) {
+            if (vcStimulusSwitchesLut[stimulusSwitchIdx] == on) {
+                txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]] |=
+                        vcStimulusSwitchesByte[stimulusSwitchIdx]; // 1
+
+            } else {
+                txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]] &=
+                        ~vcStimulusSwitchesByte[stimulusSwitchIdx]; // 0
+            }
+        }
+    }
+
+    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+    if (ret == Success) {
+        this->dataMessage2Switches(txDataMessage);
     }
 
     return ret;
@@ -2592,6 +2660,20 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
     rxMutexLock.unlock();
 
     return ret;
+}
+
+ErrorCodes_t EZPatchDevice::hasChannelSwitches() {
+    if (inputSwitchesNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    return Success;
+}
+
+ErrorCodes_t EZPatchDevice::hasCalSw() {
+    if (calSwitchesNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    return Success;
 }
 
 ErrorCodes_t EZPatchDevice::hasVoltageHoldTuner() {
