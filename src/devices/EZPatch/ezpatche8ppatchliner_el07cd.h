@@ -107,6 +107,8 @@ protected:
         SamplingRateSwitchVcAdcFilter2,
         SamplingRateSwitchVcAdcFilter1,
         SamplingRateSwitchVcAdcFilter0,
+        SamplingRateSwitchClockDiv0,
+        SamplingRateSwitchClockDiv1,
         SamplingRatesSwitchesNum
     };
 
@@ -153,8 +155,6 @@ protected:
         ConstantSwitchEnableSpiDac,
         ConstantSwitchSelectUnusedChannels,
         ConstantSwitchCalibrateDacData,
-        ConstantSwitchClockDiv1,
-        ConstantSwitchClockDiv0,
         ConstantSwitchCh1InSW,
         ConstantSwitchCh1CalibEn,
         ConstantSwitchCh1RingEn,

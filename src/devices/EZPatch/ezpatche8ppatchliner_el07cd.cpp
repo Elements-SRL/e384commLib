@@ -245,17 +245,21 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     samplingRatesSwitchesWord[SamplingRateSwitchVcAdcFilter2] = 0;
     samplingRatesSwitchesWord[SamplingRateSwitchVcAdcFilter1] = 0;
     samplingRatesSwitchesWord[SamplingRateSwitchVcAdcFilter0] = 0;
+    samplingRatesSwitchesWord[SamplingRateSwitchClockDiv1] = 1;
+    samplingRatesSwitchesWord[SamplingRateSwitchClockDiv0] = 1;
 
     samplingRatesSwitchesByte[SamplingRateSwitchVcAdcFilter2] = 0x0040;
     samplingRatesSwitchesByte[SamplingRateSwitchVcAdcFilter1] = 0x0020;
     samplingRatesSwitchesByte[SamplingRateSwitchVcAdcFilter0] = 0x0010;
+    samplingRatesSwitchesByte[SamplingRateSwitchClockDiv1] = 0x4000;
+    samplingRatesSwitchesByte[SamplingRateSwitchClockDiv0] = 0x8000;
 
-    samplingRatesSwitchesLutStrings[SamplingRate5kHz] = "000";       // BW  5kHz
-    samplingRatesSwitchesLutStrings[SamplingRate10kHz] = "001";      // BW  6kHz
-    samplingRatesSwitchesLutStrings[SamplingRate20kHz] = "011";      // BW  12kHz
-    samplingRatesSwitchesLutStrings[SamplingRate40kHz] = "100";      // BW  40kHz
-    samplingRatesSwitchesLutStrings[SamplingRate80kHz] = "101";      // BW  48kHz
-    samplingRatesSwitchesLutStrings[SamplingRate160kHz] = "110";     // BW 100kHz
+    samplingRatesSwitchesLutStrings[SamplingRate5kHz] = "00010";       // BW  5kHz    Clock div 4
+    samplingRatesSwitchesLutStrings[SamplingRate10kHz] = "00110";      // BW  6kHz    Clock div 4
+    samplingRatesSwitchesLutStrings[SamplingRate20kHz] = "01110";      // BW  12kHz   Clock div 4
+    samplingRatesSwitchesLutStrings[SamplingRate40kHz] = "10001";      // BW  40kHz   Clock div 2
+    samplingRatesSwitchesLutStrings[SamplingRate80kHz] = "10101";      // BW  48kHz   Clock div 2
+    samplingRatesSwitchesLutStrings[SamplingRate160kHz] = "11000";     // BW 100kHz   Clock div 1
 
     for (unsigned int samplingRatesIdx = 0; samplingRatesIdx < samplingRatesNum; samplingRatesIdx++) {
         samplingRatesSwitchesLut[samplingRatesIdx].resize(samplingRatesSwitchesNum);
@@ -511,8 +515,8 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     vcVoltageFiltersArray[VCStimulusLpf50kHz].unit = "Hz";
 
     vcStimulusLpfSwitchesLutStrings[VCStimulusLpf1kHz] = "00";
-    vcStimulusLpfSwitchesLutStrings[VCStimulusLpf10kHz] = "01";
-    vcStimulusLpfSwitchesLutStrings[VCStimulusLpf20kHz] = "10";
+    vcStimulusLpfSwitchesLutStrings[VCStimulusLpf10kHz] = "10";
+    vcStimulusLpfSwitchesLutStrings[VCStimulusLpf20kHz] = "01";
     vcStimulusLpfSwitchesLutStrings[VCStimulusLpf50kHz] = "11";
 
     vcStimulusLpfSwitchesNum = VCStimulusLpfSwitchesNum;
@@ -554,8 +558,8 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     ccCurrentFiltersArray[CCStimulusLpf50kHz].unit = "Hz";
 
     ccStimulusLpfSwitchesLutStrings[CCStimulusLpf1kHz] = "00";
-    ccStimulusLpfSwitchesLutStrings[CCStimulusLpf10kHz] = "01";
-    ccStimulusLpfSwitchesLutStrings[CCStimulusLpf20kHz] = "10";
+    ccStimulusLpfSwitchesLutStrings[CCStimulusLpf10kHz] = "10";
+    ccStimulusLpfSwitchesLutStrings[CCStimulusLpf20kHz] = "01";
     ccStimulusLpfSwitchesLutStrings[CCStimulusLpf50kHz] = "11";
 
     ccStimulusLpfSwitchesNum = CCStimulusLpfSwitchesNum;
@@ -606,8 +610,6 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     constantSwitchesWord[ConstantSwitchEnableSpiDac] = 1;
     constantSwitchesWord[ConstantSwitchSelectUnusedChannels] = 1;
     constantSwitchesWord[ConstantSwitchCalibrateDacData] = 1;
-    constantSwitchesWord[ConstantSwitchClockDiv1] = 1;
-    constantSwitchesWord[ConstantSwitchClockDiv0] = 1;
     constantSwitchesWord[ConstantSwitchCh1InSW] = 2;
     constantSwitchesWord[ConstantSwitchCh1CalibEn] = 2;
     constantSwitchesWord[ConstantSwitchCh1RingEn] = 2;
@@ -644,8 +646,6 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     constantSwitchesByte[ConstantSwitchEnableSpiDac] = 0x0001;
     constantSwitchesByte[ConstantSwitchSelectUnusedChannels] = 0x0002;
     constantSwitchesByte[ConstantSwitchCalibrateDacData] = 0x0004;
-    constantSwitchesByte[ConstantSwitchClockDiv1] = 0x4000;
-    constantSwitchesByte[ConstantSwitchClockDiv0] = 0x8000;
     constantSwitchesByte[ConstantSwitchCh1InSW] = 0x0001;
     constantSwitchesByte[ConstantSwitchCh1CalibEn] = 0x0002;
     constantSwitchesByte[ConstantSwitchCh1RingEn] = 0x2000;
@@ -679,7 +679,7 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     constantSwitchesByte[ConstantSwitchCh8RingEn] = 0x2000;
     constantSwitchesByte[ConstantSwitchCh8PIn_En] = 0x8000;
 
-    constantSwitchesLutStrings = "10110"
+    constantSwitchesLutStrings = "101"
                                  "1000"
                                  "1000"
                                  "1000"
