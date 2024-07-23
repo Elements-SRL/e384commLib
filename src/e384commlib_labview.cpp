@@ -49,6 +49,7 @@ ErrorCodes_t createMeas(
     input2String(unitIn, unit);
     Measurement_t meas = {value, prefix, unit};
     measurement2Output(meas, measOut);
+    return Success;
 //    * meas = (CharMeasurement_t *)DSNewPtr(sizeof(CharMeasurement_t));
 //    if (* meas == nullptr) {
 //        return ErrorMemoryInitialization; // Replace with actual error code for memory allocation failure
