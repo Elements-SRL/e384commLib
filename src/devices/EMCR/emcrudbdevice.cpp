@@ -68,14 +68,14 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
 
 #ifdef DEBUG
     numDevs++;
-    deviceIds.push_back("FAKE_10MHz");
+    deviceIds.push_back("DEMO_10MHz");
 #endif
 
     return Success;
 }
 
 ErrorCodes_t EmcrUdbDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
-    if (deviceId != "FAKE_10MHz") {
+    if (deviceId != "DEMO_10MHz") {
         DeviceTuple_t tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
         deviceVersion = tuple.version;
         deviceSubVersion = tuple.subversion;
@@ -91,7 +91,7 @@ ErrorCodes_t EmcrUdbDevice::getDeviceInfo(std::string deviceId, unsigned int &de
 
 ErrorCodes_t EmcrUdbDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
     DeviceTuple_t tuple;
-    if (deviceId != "FAKE_10MHz") {
+    if (deviceId != "DEMO_10MHz") {
         tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
 
     } else {
