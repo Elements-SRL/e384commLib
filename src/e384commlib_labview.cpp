@@ -84,6 +84,7 @@ ErrorCodes_t createMeasVector(
         input2Measurement(* measArray[idx], measVector[idx]);
     }
     vectorMeasurement2Output(measVector, measVectorOut);
+    return Success;
 }
 
 /************************\
