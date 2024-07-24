@@ -1311,7 +1311,10 @@ ErrorCodes_t EZPatchDevice::setSlave(bool on) {
 }
 
 ErrorCodes_t EZPatchDevice::setConstantSwitches() {
-    ErrorCodes_t ret;
+    if (constantSwitchesNum == 0) {
+        return Success;
+    }
+    ErrorCodes_t ret = Success;
 
     uint16_t dataLength = switchesStatusLength;
     std::vector <uint16_t> txDataMessage(dataLength);
@@ -1333,6 +1336,26 @@ ErrorCodes_t EZPatchDevice::setConstantSwitches() {
         this->dataMessage2Switches(txDataMessage);
     }
 
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setConstantRegisters() {
+    if (constantRegistersNum == 0) {
+        return Success;
+    }
+    ErrorCodes_t ret = Success;
+    uint16_t dataLength = 2;
+    std::vector <uint16_t> txDataMessage(dataLength);
+
+    for (uint16_t idx = 0; idx < constantRegistersNum; idx++) {
+        txDataMessage[0] = constantRegistersWord[idx];
+        txDataMessage[1] = constantRegistersValues[idx];
+
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+        if (ret != Success) {
+            return ret;
+        }
+    }
     return ret;
 }
 
@@ -3024,7 +3047,12 @@ ErrorCodes_t EZPatchDevice::deviceConfiguration() {
         return ret;
     }
 
-    return this->setConstantSwitches();
+    ret = this->setConstantSwitches();
+    if (ret != Success) {
+        return ret;
+    }
+
+    return this->setConstantRegisters();
 }
 
 void EZPatchDevice::createCommunicationThreads() {

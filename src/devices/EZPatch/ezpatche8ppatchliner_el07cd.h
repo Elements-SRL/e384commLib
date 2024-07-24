@@ -190,6 +190,18 @@ protected:
         ConstantSwitchesNum
     };
 
+    enum ConstantRegisters {
+        ConstantRegisterOffsetCh1,
+        ConstantRegisterOffsetCh2,
+        ConstantRegisterOffsetCh3,
+        ConstantRegisterOffsetCh4,
+        ConstantRegisterOffsetCh5,
+        ConstantRegisterOffsetCh6,
+        ConstantRegisterOffsetCh7,
+        ConstantRegisterOffsetCh8,
+        ConstantRegistersNum
+    };
+
     enum CompensationsSwitches {
         CompensationsSwitchCFastEn,
         CompensationsSwitchCSlowEn,

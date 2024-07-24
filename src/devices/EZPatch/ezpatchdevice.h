@@ -114,6 +114,7 @@ public:
     ErrorCodes_t setAnalogOut(bool on);
     ErrorCodes_t setSlave(bool on);
     ErrorCodes_t setConstantSwitches();
+    ErrorCodes_t setConstantRegisters();
 
     ErrorCodes_t setCompensationsChannel(uint16_t channelIdx);
     ErrorCodes_t enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) override;
@@ -413,6 +414,10 @@ protected:
     std::vector <uint16_t> constantSwitchesWord;
     std::vector <uint16_t> constantSwitchesByte;
     std::vector <bool> constantSwitchesLut;
+
+    uint16_t constantRegistersNum = 0;
+    std::vector <uint16_t> constantRegistersWord;
+    std::vector <uint16_t> constantRegistersValues;
 
     uint16_t vcCurrentRangesSwitchesNum = 0;
     std::vector <uint16_t> vcCurrentRangesSwitchesWord;

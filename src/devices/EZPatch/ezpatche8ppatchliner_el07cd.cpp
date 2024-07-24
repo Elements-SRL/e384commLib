@@ -698,6 +698,16 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
         }
     }
 
+    /*! Constant registers */
+    constantRegistersNum = ConstantRegistersNum;
+    constantRegistersWord.resize(constantRegistersNum);
+    constantRegistersValues.resize(constantRegistersNum);
+
+    for (uint16_t idx = 0; idx < constantRegistersNum; idx++) {
+        constantRegistersWord[idx] = coreSpecificRegistersNum*idx+17;
+        constantRegistersValues[idx] = 0x0040;
+    }
+
     /*! Compensations switches */
     pipetteCompensationImplemented = true;
     membraneCompensationImplemented = true;
