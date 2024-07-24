@@ -3009,6 +3009,7 @@ ErrorCodes_t EZPatchDevice::initializeMemory() {
 
 void EZPatchDevice::initializeVariables() {
     MessageDispatcher::initializeVariables();
+
     /*! Calculate the LSB noise std::vector */
     this->initializeLsbNoise();
 

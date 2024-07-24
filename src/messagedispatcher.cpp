@@ -1279,6 +1279,8 @@ void MessageDispatcher::initializeVariables() {
     this->initializeRawDataFilterVariables();
 
     this->initializeLiquidJunction();
+
+    this->initializeCalibration();
 }
 
 ErrorCodes_t MessageDispatcher::deviceConfiguration() {

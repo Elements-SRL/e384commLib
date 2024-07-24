@@ -2206,7 +2206,6 @@ ErrorCodes_t EmcrDevice::initializeMemory() {
 
 void EmcrDevice::initializeVariables() {
     MessageDispatcher::initializeVariables();
-    this->initializeCalibration();
 }
 
 ErrorCodes_t EmcrDevice::deviceConfiguration() {
