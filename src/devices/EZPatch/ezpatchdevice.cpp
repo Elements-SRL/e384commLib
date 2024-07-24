@@ -2965,7 +2965,7 @@ ErrorCodes_t EZPatchDevice::initialize(std::string fwPath) {
         return ret;
     }
 
-    std::this_thread::sleep_for (std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     ret = this->initializeHW();
     if (ret != Success) {
@@ -2976,8 +2976,9 @@ ErrorCodes_t EZPatchDevice::initialize(std::string fwPath) {
     const Measurement m0 = {0, UnitPfx::UnitPfxMilli, "V"};
     const Measurement t0 = {100, UnitPfx::UnitPfxKilo, "s"};
     const Measurement t1 = {0, UnitPfx::UnitPfxTera, "s"};
-    setVoltageProtocolStructure(-1, 1, 1, m0, true);
-    ret = setVoltageProtocolStep(0, 0, 0, false, m0, m0, t0, t1, false);
+    setVoltageProtocolStructure(-1, 2, 1, m0, true);
+    setVoltageProtocolStep(0, 1, 0, false, m0, m0, t0, t1, false);
+    ret = setVoltageProtocolStep(1, 0, 0, false, m0, m0, t0, t1, false);
     if (startProtocolCommandImplemented) {
         return startProtocol();
 
