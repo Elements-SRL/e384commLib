@@ -2043,8 +2043,8 @@ protected:
     uint32_t clampingModalitiesNum = 0;
     uint32_t selectedClampingModalityIdx = 0;
     bool clampingModalitySetFlag = false;
-    uint32_t selectedClampingModality = VOLTAGE_CLAMP;
-    uint32_t previousClampingModality = VOLTAGE_CLAMP;
+    uint32_t selectedClampingModality = UNDEFINED_CLAMP;
+    uint32_t previousClampingModality = UNDEFINED_CLAMP;
     std::vector <ClampingModality_t> clampingModalitiesArray;
     uint16_t defaultClampingModalityIdx = 0;
 
@@ -2126,7 +2126,6 @@ protected:
     CalibrationParams_t calibrationParams;
     CalibrationParams_t originalCalibrationParams;
     std::vector <RangedMeasurement_t> rRShuntConductanceCalibRange;
-
     /*! Compensation options*/
     std::vector <uint16_t> selectedRsCorrBws;
     std::vector <Measurement_t> rsCorrBwArray;

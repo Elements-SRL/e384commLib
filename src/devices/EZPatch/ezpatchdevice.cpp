@@ -2967,7 +2967,18 @@ ErrorCodes_t EZPatchDevice::initialize(std::string fwPath) {
 
     std::this_thread::sleep_for (std::chrono::milliseconds(500));
 
-    return this->initializeHW();
+    ret = this->initializeHW();
+    if (ret != Success) {
+        return ret;
+    }
+
+//    send a protocol to force the device to send data
+    const Measurement m0 = {0, UnitPfx::UnitPfxMilli, "V"};
+    const Measurement t0 = {100, UnitPfx::UnitPfxKilo, "s"};
+    const Measurement t1 = {0, UnitPfx::UnitPfxTera, "s"};
+    setVoltageProtocolStructure(-1, 1, 1, m0, true);
+    setVoltageProtocolStep(0, 0, 0, false, m0, m0, t0, t1, false);
+    return startProtocol();
 }
 
 void EZPatchDevice::deinitialize() {
