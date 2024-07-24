@@ -107,8 +107,8 @@ protected:
         SamplingRateSwitchVcAdcFilter2,
         SamplingRateSwitchVcAdcFilter1,
         SamplingRateSwitchVcAdcFilter0,
-        SamplingRateSwitchClockDiv0,
         SamplingRateSwitchClockDiv1,
+        SamplingRateSwitchClockDiv0,
         SamplingRatesSwitchesNum
     };
 
