@@ -495,7 +495,7 @@ ErrorCodes_t EZPatchFtdiDevice::getCalibrationEepromSize(uint32_t &size) {
 ErrorCodes_t EZPatchFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size) {
     ErrorCodes_t ret;
     if (calibrationEeprom == nullptr) {
-        ret = ErrorEepromNotConnected;
+        return ErrorEepromNotConnected;
     }
     std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
 

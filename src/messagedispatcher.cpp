@@ -428,6 +428,11 @@ ErrorCodes_t MessageDispatcher::setClampingModality(uint32_t, bool, bool) {
 }
 
 ErrorCodes_t MessageDispatcher::setClampingModality(ClampingModality_t mode, bool applyFlag, bool stopProtocolFlag) {
+    ClampingModality_t currentMode;
+    const auto ret = getClampingModality(currentMode);
+    if (currentMode == mode) {
+        return ret;
+    }
     auto iter = std::find(clampingModalitiesArray.begin(), clampingModalitiesArray.end(), mode);
     if (iter == clampingModalitiesArray.end()) {
         return ErrorValueOutOfRange;
@@ -777,6 +782,7 @@ ErrorCodes_t MessageDispatcher::getClampingModalitiesFeatures(std::vector <Clamp
 
 ErrorCodes_t MessageDispatcher::getClampingModality(ClampingModality_t &clampingModality) {
     if (clampingModalitiesArray.empty()) {
+        clampingModality = ClampingModality_t::UNDEFINED_CLAMP;
         return ErrorFeatureNotImplemented;
     }
     clampingModality = (ClampingModality_t)selectedClampingModality;
