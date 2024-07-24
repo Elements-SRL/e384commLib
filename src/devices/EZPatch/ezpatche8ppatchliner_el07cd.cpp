@@ -11,6 +11,8 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
 
     deviceName = "e8PPatchliner";
 
+    coreSpecificRegistersNum = 14; /*! compensations (6) VC (2) and CC (2) hold tuner, VC dig off start (1), VC (1) and CC (1) offset delta, DAC offset (1) */
+
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
@@ -772,7 +774,6 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
 
     /*! Compensations values */
     compensationsRegistersNum = CompensationsRegistersNum;
-    coreSpecificRegistersNum = compensationsRegistersNum+8; /*! additional 7 words are for VC (2) and CC (2) hold tuner, VC dig off start (1), VC (1) and CC (1) offset delta, DAC offset (1) */
 
     liquidJunctionOffsetBinary = SHORT_OFFSET_BINARY;
     liquidJunctionResolution = liquidJunctionStep;
