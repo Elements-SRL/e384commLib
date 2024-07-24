@@ -2977,8 +2977,13 @@ ErrorCodes_t EZPatchDevice::initialize(std::string fwPath) {
     const Measurement t0 = {100, UnitPfx::UnitPfxKilo, "s"};
     const Measurement t1 = {0, UnitPfx::UnitPfxTera, "s"};
     setVoltageProtocolStructure(-1, 1, 1, m0, true);
-    setVoltageProtocolStep(0, 0, 0, false, m0, m0, t0, t1, false);
-    return startProtocol();
+    ret = setVoltageProtocolStep(0, 0, 0, false, m0, m0, t0, t1, false);
+    if (startProtocolCommandImplemented) {
+        return startProtocol();
+
+    } else {
+        return ret;
+    }
 }
 
 void EZPatchDevice::deinitialize() {
