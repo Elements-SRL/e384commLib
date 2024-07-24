@@ -706,7 +706,7 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     constantRegistersValues.resize(constantRegistersNum);
 
     for (uint16_t idx = 0; idx < constantRegistersNum; idx++) {
-        constantRegistersWord[idx] = coreSpecificRegistersNum*idx+17;
+        constantRegistersWord[idx] = 17+coreSpecificRegistersNum*idx;
         constantRegistersValues[idx] = 0x0040;
     }
 
@@ -759,15 +759,12 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     }
 
     /*! Compensations options */
-    resistanceCorrectionOptions.resize(8);
+    resistanceCorrectionOptions.resize(5);
     resistanceCorrectionOptions[0] = "DONT USE";
     resistanceCorrectionOptions[1] = "BW 53.1kHz";
     resistanceCorrectionOptions[2] = "BW 31.8kHz";
     resistanceCorrectionOptions[3] = "BW 17.7kHz";
     resistanceCorrectionOptions[4] = "BW 9.36kHz";
-    resistanceCorrectionOptions[5] = "BW 4.82kHz";
-    resistanceCorrectionOptions[6] = "BW 2.45Hz";
-    resistanceCorrectionOptions[7] = "BW 1.23Hz";
     resistanceCorrectionOptionWord = 2;
     resistanceCorrectionOptionMask = 0x0700;
     resistanceCorrectionOptionOffset = 8;

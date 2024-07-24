@@ -133,9 +133,6 @@ protected:
         CompensationRsCorrBw31_8kHz,
         CompensationRsCorrBw17_7kHz,
         CompensationRsCorrBw9_36kHz,
-        CompensationRsCorrBw4_82kHz,
-        CompensationRsCorrBw2_45kHz,
-        CompensationRsCorrBw1_23kHz,
         CompensationRsCorrBwNum
     };
 

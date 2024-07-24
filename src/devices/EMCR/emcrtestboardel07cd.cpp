@@ -520,24 +520,12 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     rsCorrBwArray[CompensationRsCorrBw9_36kHz].value = 9.36 / this->clockRatio;
     rsCorrBwArray[CompensationRsCorrBw9_36kHz].prefix = UnitPfxKilo;
     rsCorrBwArray[CompensationRsCorrBw9_36kHz].unit = "Hz";
-    rsCorrBwArray[CompensationRsCorrBw4_82kHz].value = 4.82 / this->clockRatio;
-    rsCorrBwArray[CompensationRsCorrBw4_82kHz].prefix = UnitPfxKilo;
-    rsCorrBwArray[CompensationRsCorrBw4_82kHz].unit = "Hz";
-    rsCorrBwArray[CompensationRsCorrBw2_45kHz].value = 2.45 / this->clockRatio;
-    rsCorrBwArray[CompensationRsCorrBw2_45kHz].prefix = UnitPfxKilo;
-    rsCorrBwArray[CompensationRsCorrBw2_45kHz].unit = "Hz";
-    rsCorrBwArray[CompensationRsCorrBw1_23kHz].value = 1.23 / this->clockRatio;
-    rsCorrBwArray[CompensationRsCorrBw1_23kHz].prefix = UnitPfxKilo;
-    rsCorrBwArray[CompensationRsCorrBw1_23kHz].unit = "Hz";
     defaultRsCorrBwIdx = CompensationRsCorrBw53_1kHz;
 
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw53_1kHz] = rsCorrBwArray[CompensationRsCorrBw53_1kHz].niceLabel();
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw31_8kHz] = rsCorrBwArray[CompensationRsCorrBw31_8kHz].niceLabel();
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw17_7kHz] = rsCorrBwArray[CompensationRsCorrBw17_7kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_36kHz] = rsCorrBwArray[CompensationRsCorrBw9_36kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw4_82kHz] = rsCorrBwArray[CompensationRsCorrBw4_82kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw2_45kHz] = rsCorrBwArray[CompensationRsCorrBw2_45kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw1_23kHz] = rsCorrBwArray[CompensationRsCorrBw1_23kHz].niceLabel();
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_36kHz] = rsCorrBwArray[CompensationRsCorrBw9_36kHz].niceLabel();;
 
     customOptionsNum = CustomOptionsNum;
     customOptionsNames.resize(customOptionsNum);
