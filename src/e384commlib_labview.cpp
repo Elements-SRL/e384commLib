@@ -18,6 +18,7 @@ static void input2VectorMeasurement(LMeasHandle i, std::vector <Measurement_t> &
 
 static void string2Output(std::string s, LStrHandle * o);
 static void measurement2Output(Measurement_t m, CharMeasurement_t &o);
+static void measurement2Output(Measurement_t m, CharMeasurement_t * &o);
 static void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o);
 static void compensationControl2Output(CompensationControl_t c, CharCompensationControl_t &o);
 static void vectorString2Output(std::vector <std::string> v, LStrHandle * o);
@@ -43,12 +44,13 @@ ErrorCodes_t createMeas(
         double value,
         UnitPfx_t prefix,
         LStrHandle unitIn,
-        CharMeasurement_t &measOut) {
+        CharMeasurement_t * measOut) {
 
     std::string unit;
     input2String(unitIn, unit);
     Measurement_t meas = {value, prefix, unit};
-    measurement2Output(meas, measOut);
+    measOut = (CharMeasurement_t *)DSNewPtr(sizeof(CharMeasurement_t));
+    measurement2Output(meas, * measOut);
     return Success;
 //    * meas = (CharMeasurement_t *)DSNewPtr(sizeof(CharMeasurement_t));
 //    if (* meas == nullptr) {
@@ -1922,6 +1924,19 @@ void measurement2Output(Measurement_t m, CharMeasurement_t &o) {
     o.value = m.value;
     o.prefix = m.prefix;
     string2Output(m.unit, &o.unit);
+}
+
+void measurement2Output(Measurement_t m, CharMeasurement_t * &o) {
+    MgErr err = 0;
+    if (o == nullptr) {
+        o = (CharMeasurement_t *)DSNewHClr(sizeof(CharMeasurement_t));
+
+    } else {
+        err = DSSetHSzClr(o, sizeof(CharMeasurement_t));
+    }
+    if (!err) {
+        measurement2Output(m, * o);
+    }
 }
 
 void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o) {
