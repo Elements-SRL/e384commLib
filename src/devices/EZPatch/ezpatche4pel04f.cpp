@@ -726,9 +726,10 @@ EZPatche4PEL04F::EZPatche4PEL04F(std::string di) :
     selectableTotalChannelsNum = ChannelSourcesNum;
     selectableCurrentChannelsNum = 1;
     selectableVoltageChannelsNum = 1;
-    channelSourcesRegisters.resize(selectableTotalChannelsNum);
-    channelSourcesRegisters[ChannelSourceVoltage0] = channelSourceHwRegisterOffset;
-    channelSourcesRegisters[ChannelSourceCurrent0] = channelSourceHwRegisterOffset+1;
+    voltageChannelSourcesRegisters.resize(selectableVoltageChannelsNum);
+    voltageChannelSourcesRegisters[ChannelSourceVoltage0] = channelSourceHwRegisterOffset;
+    currentChannelSourcesRegisters.resize(selectableVoltageChannelsNum);
+    currentChannelSourcesRegisters[ChannelSourceCurrent0] = channelSourceHwRegisterOffset+1;
 
     /*! Voltage holding tuner command */
     voltageHoldTunerImplemented = false;
@@ -931,20 +932,20 @@ ErrorCodes_t EZPatche4PEL04F::getCompensationControl(CompensationUserParams_t pa
 
 void EZPatche4PEL04F::selectChannelsResolutions() {
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
+        if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromVoltageClamp) {
             currentTunerCorrection[channelIdx] = 0.0;
             rawDataFilterCurrentFlag = true;
 
-        } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
+        } else if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromCurrentClamp) {
             currentTunerCorrection[channelIdx] = selectedCurrentHoldVector[channelIdx].value;
             rawDataFilterCurrentFlag = false;
         }
 
-        if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
+        if (selectedSourceForVoltageChannelIdx == ChannelSourceVoltageFromVoltageClamp) {
             voltageTunerCorrection[channelIdx] = selectedVoltageHoldVector[channelIdx].value;
             rawDataFilterVoltageFlag = false;
 
-        } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
+        } else if (selectedSourceForVoltageChannelIdx == ChannelSourceVoltageFromCurrentClamp) {
             voltageTunerCorrection[channelIdx] = 0.0;
             rawDataFilterVoltageFlag = true;
         }
@@ -957,7 +958,7 @@ void EZPatche4PEL04F::selectChannelsResolutions() {
 }
 
 void EZPatche4PEL04F::selectVoltageOffsetResolution() {
-    if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
+    if (selectedSourceForVoltageChannelIdx == ChannelSourceVoltageFromVoltageClamp) {
         voltageOffsetCorrection = 0.0;
 
     } else {

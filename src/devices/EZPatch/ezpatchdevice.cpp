@@ -730,58 +730,45 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
 }
 
 ErrorCodes_t EZPatchDevice::setSourceForVoltageChannel(uint16_t source, bool applyFlag) {
-    ErrorCodes_t ret;
-    if ((ret = this->setChannelsSources((int16_t)source, selectedSourceForCurrentChannelIdx)) != Success) {
-        return ret;
+    if (selectableVoltageChannelsNum == 0) {
+        return ErrorFeatureNotImplemented;
     }
-    selectedSourceForVoltageChannelIdx = (int16_t)source;
-    return Success;
+    uint16_t dataLength = selectableVoltageChannelsNum*2;
+    std::vector <uint16_t> txDataMessage(dataLength);
+
+    for (uint16_t channelIdx = 0; channelIdx < selectableVoltageChannelsNum; channelIdx++) {
+        if (find(availableVoltageSourcesIdxsArray.begin(), availableVoltageSourcesIdxsArray.end(), source) == availableVoltageSourcesIdxsArray.end()) {
+            return ErrorValueOutOfRange;
+        }
+        txDataMessage[2*channelIdx] = voltageChannelSourcesRegisters[channelIdx];
+        txDataMessage[2*channelIdx+1] = source;
+    }
+
+    ErrorCodes_t ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+    selectedSourceForVoltageChannelIdx = source;
+    this->selectChannelsResolutions();
+
+    return ret;
 }
 
 ErrorCodes_t EZPatchDevice::setSourceForCurrentChannel(uint16_t source, bool applyFlag) {
-    ErrorCodes_t ret;
-    if ((ret = this->setChannelsSources(selectedSourceForVoltageChannelIdx, (int16_t)source)) != Success) {
-        return ret;
+    if (selectableCurrentChannelsNum == 0) {
+        return ErrorFeatureNotImplemented;
     }
-    selectedSourceForCurrentChannelIdx = (int16_t)source;
-    return Success;
-}
-
-ErrorCodes_t EZPatchDevice::setChannelsSources(int16_t voltageSourcesIdx, int16_t currentSourcesIdx) {
-    ErrorCodes_t ret = Success;
-
-    uint16_t dataLength = selectableTotalChannelsNum*2;
+    uint16_t dataLength = selectableCurrentChannelsNum*2;
     std::vector <uint16_t> txDataMessage(dataLength);
 
-    unsigned short channelIdx = 0;
-    for (; channelIdx < selectableVoltageChannelsNum; channelIdx++) {
-        if (find(availableVoltageSourcesIdxsArray.begin(), availableVoltageSourcesIdxsArray.end(), voltageSourcesIdx) != availableVoltageSourcesIdxsArray.end()) {
-            txDataMessage[2*channelIdx] = channelSourcesRegisters[channelIdx];
-            txDataMessage[2*channelIdx+1] = (uint16_t)voltageSourcesIdx;
-
-        } else {
-            ret = ErrorValueOutOfRange;
-            break;
+    for (uint16_t channelIdx = 0; channelIdx < selectableCurrentChannelsNum; channelIdx++) {
+        if (find(availableCurrentSourcesIdxsArray.begin(), availableCurrentSourcesIdxsArray.end(), source) == availableCurrentSourcesIdxsArray.end()) {
+            return ErrorValueOutOfRange;
         }
+        txDataMessage[2*channelIdx] = currentChannelSourcesRegisters[channelIdx];
+        txDataMessage[2*channelIdx+1] = source;
     }
 
-    for (; channelIdx < selectableVoltageChannelsNum+selectableCurrentChannelsNum; channelIdx++) {
-        if (find(availableCurrentSourcesIdxsArray.begin(), availableCurrentSourcesIdxsArray.end(), currentSourcesIdx) != availableCurrentSourcesIdxsArray.end()) {
-            txDataMessage[2*channelIdx] = channelSourcesRegisters[channelIdx];
-            txDataMessage[2*channelIdx+1] = (uint16_t)currentSourcesIdx;
-
-        } else {
-            ret = ErrorValueOutOfRange;
-            break;
-        }
-    }
-
-    if (ret == Success) {
-        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-        selectedVoltageSourceIdx = voltageSourcesIdx;
-        selectedCurrentSourceIdx = currentSourcesIdx;
-        this->selectChannelsResolutions();
-    }
+    ErrorCodes_t ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+    selectedSourceForVoltageChannelIdx = source;
+    this->selectChannelsResolutions();
 
     return ret;
 }

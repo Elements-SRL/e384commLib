@@ -41,7 +41,7 @@ void EmcrTestBoardEl07abFake::initializeVariables() {
 }
 
 ErrorCodes_t EmcrTestBoardEl07abFake::initializeHW() {
-    parsingFlag = true;
+    parsingStatus = ParsingParsing;
     return Success;
 }
 

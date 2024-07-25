@@ -248,20 +248,20 @@ ErrorCodes_t EZPatchFakeP8::resetFpga() {
 void EZPatchFakeP8::selectChannelsResolutions() {
     EZPatche8PPatchliner_el07ab::selectChannelsResolutions();
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
+        if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromVoltageClamp) {
             genCurrentNorm = 1.0/genVcCurrentRange.step;
             currentTunerCorrection[channelIdx] = 0.0;
 
-        } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
+        } else if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromCurrentClamp) {
             genCurrentNorm = 1.0/genCcCurrentRange.step;
             currentTunerCorrection[channelIdx] = selectedCurrentHoldVector[channelIdx].value;
         }
 
-        if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
+        if (selectedSourceForVoltageChannelIdx == ChannelSourceVoltageFromVoltageClamp) {
             genVoltageNorm = 1.0/genVcVoltageRange.step;
             voltageTunerCorrection[channelIdx] = selectedVoltageHoldVector[channelIdx].value;
 
-        } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
+        } else if (selectedSourceForVoltageChannelIdx == ChannelSourceVoltageFromCurrentClamp) {
             genVoltageNorm = 1.0/genCcVoltageRange.step;
             voltageTunerCorrection[channelIdx] = 0.0;
         }

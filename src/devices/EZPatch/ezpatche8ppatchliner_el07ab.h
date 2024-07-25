@@ -177,7 +177,7 @@ protected:
 
     enum ChannelSources {
         ChannelSourceVoltage0 = 0,
-        ChannelSourceCurrent0 = 1,
+        ChannelSourceCurrent0 = 0,
         ChannelSourcesNum
     };
 

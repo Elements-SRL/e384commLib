@@ -122,7 +122,7 @@ ErrorCodes_t turnCurrentStimulusOn(
 /*! \brief Turn on/off the voltage reader for each channel.
  *  \note The voltage is read by the current clamp ADC.
  *  \note In some devices the ADC can't be turned on independently of the DAC.
- *  \note This only activates the circuitry: in order to have the device return the desired channels use #setChannelsSources.
+ *  \note This only activates the circuitry: in order to have the device return the desired channels use #setSourceForVoltageChannel.
  *
  * \param onValueIn [in] True to turn the voltage reader on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.
@@ -137,7 +137,7 @@ ErrorCodes_t turnVoltageReaderOn(
 /*! \brief Turn on/off the current reader for each channel.
  *  \note The current is read by the current clamp ADC.
  *  \note In some devices the ADC can't be turned on independently of the DAC.
- *  \note This only activates the circuitry: in order to have the device return the desired channels use #setChannelsSources.
+ *  \note This only activates the circuitry: in order to have the device return the desired channels use #setSourceForCurrentChannel.
  *
  * \param onValueIn [in] True to turn the current reader on, false to turn it off.
  * \param applyFlagIn [in] Flag for instant application of this setting.

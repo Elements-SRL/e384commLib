@@ -75,10 +75,10 @@ EZPatchePatchEL03F_4E_PCBV02_V00::EZPatchePatchEL03F_4E_PCBV02_V00(std::string d
 }
 
 void EZPatchePatchEL03F_4E_PCBV02_V00::selectChannelsResolutions() {
-    if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
+    if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromVoltageClamp) {
         rawDataFilterCurrentFlag = true;
 
-    } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
+    } else if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromCurrentClamp) {
         rawDataFilterCurrentFlag = false;
     }
 

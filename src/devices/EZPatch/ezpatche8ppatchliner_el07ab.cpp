@@ -727,9 +727,10 @@ EZPatche8PPatchliner_el07ab::EZPatche8PPatchliner_el07ab(std::string di) :
     selectableTotalChannelsNum = ChannelSourcesNum;
     selectableCurrentChannelsNum = 1;
     selectableVoltageChannelsNum = 1;
-    channelSourcesRegisters.resize(selectableTotalChannelsNum);
-    channelSourcesRegisters[ChannelSourceVoltage0] = channelSourceHwRegisterOffset;
-    channelSourcesRegisters[ChannelSourceCurrent0] = channelSourceHwRegisterOffset+1;
+    voltageChannelSourcesRegisters.resize(selectableVoltageChannelsNum);
+    voltageChannelSourcesRegisters[ChannelSourceVoltage0] = channelSourceHwRegisterOffset;
+    currentChannelSourcesRegisters.resize(selectableVoltageChannelsNum);
+    currentChannelSourcesRegisters[ChannelSourceCurrent0] = channelSourceHwRegisterOffset+1;
 
     /*! Voltage holding tuner command */
     voltageHoldTunerImplemented = true;
@@ -910,20 +911,20 @@ ErrorCodes_t EZPatche8PPatchliner_el07ab::setSamplingRate(uint16_t samplingRateI
 
 void EZPatche8PPatchliner_el07ab::selectChannelsResolutions() {
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-        if (selectedCurrentSourceIdx == ChannelSourceCurrentFromVoltageClamp) {
+        if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromVoltageClamp) {
             currentTunerCorrection[channelIdx] = 0.0;
             rawDataFilterCurrentFlag = true;
 
-        } else if (selectedCurrentSourceIdx == ChannelSourceCurrentFromCurrentClamp) {
+        } else if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromCurrentClamp) {
             currentTunerCorrection[channelIdx] = selectedCurrentHoldVector[channelIdx].value;
             rawDataFilterCurrentFlag = false;
         }
 
-        if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
+        if (selectedSourceForVoltageChannelIdx == ChannelSourceVoltageFromVoltageClamp) {
             voltageTunerCorrection[channelIdx] = selectedVoltageHoldVector[channelIdx].value;
             rawDataFilterVoltageFlag = false;
 
-        } else if (selectedVoltageSourceIdx == ChannelSourceVoltageFromCurrentClamp) {
+        } else if (selectedSourceForVoltageChannelIdx == ChannelSourceVoltageFromCurrentClamp) {
             voltageTunerCorrection[channelIdx] = 0.0;
             rawDataFilterVoltageFlag = true;
         }
@@ -936,7 +937,7 @@ void EZPatche8PPatchliner_el07ab::selectChannelsResolutions() {
 }
 
 void EZPatche8PPatchliner_el07ab::selectVoltageOffsetResolution() {
-    if (selectedVoltageSourceIdx == ChannelSourceVoltageFromVoltageClamp) {
+    if (selectedSourceForVoltageChannelIdx == ChannelSourceVoltageFromVoltageClamp) {
         voltageOffsetCorrection = 0.0;
 
     } else {

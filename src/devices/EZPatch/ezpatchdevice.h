@@ -90,7 +90,6 @@ public:
     ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag, bool stopProtocolFlag) override;
     ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag) override;
     ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag) override;
-    virtual ErrorCodes_t setChannelsSources(int16_t voltageSourcesIdxs, int16_t currentSourcesIdxs);
 
     ErrorCodes_t turnOnLsbNoise(bool flag);
     virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
@@ -315,9 +314,8 @@ protected:
 
     std::vector <uint16_t> availableVoltageSourcesIdxsArray;
     std::vector <uint16_t> availableCurrentSourcesIdxsArray;
-    std::vector <uint16_t> channelSourcesRegisters;
-    int selectedVoltageSourceIdx = 0;
-    int selectedCurrentSourceIdx = 0;
+    std::vector <uint16_t> voltageChannelSourcesRegisters;
+    std::vector <uint16_t> currentChannelSourcesRegisters;
 
     bool voltageHoldTunerImplemented = false;
     bool currentHoldTunerImplemented = false;

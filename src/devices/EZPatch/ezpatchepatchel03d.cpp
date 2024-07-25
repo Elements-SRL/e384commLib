@@ -375,7 +375,8 @@ EZPatchePatchEL03D_V04::EZPatchePatchEL03D_V04(std::string di) :
     selectableTotalChannelsNum = 0;
     selectableCurrentChannelsNum = 0;
     selectableVoltageChannelsNum = 0;
-    channelSourcesRegisters.resize(selectableTotalChannelsNum);
+    voltageChannelSourcesRegisters.resize(selectableVoltageChannelsNum);
+    currentChannelSourcesRegisters.resize(selectableVoltageChannelsNum);
 
     /*! Voltage holding tuner command */
     voltageHoldTunerImplemented = true;
@@ -448,10 +449,6 @@ EZPatchePatchEL03D_V04::EZPatchePatchEL03D_V04(std::string di) :
     currentResolution = currentRange.step;
     voltageResolution = voltageRange.step;
     samplingRate = realSamplingRatesArray[SamplingRate1_25kHz];
-}
-
-ErrorCodes_t EZPatchePatchEL03D_V04::setChannelsSources(int16_t, int16_t) {
-    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t EZPatchePatchEL03D_V04::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {

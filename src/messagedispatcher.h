@@ -818,7 +818,7 @@ public:
     /*! \brief Turn on/off the voltage reader for each channel.
      *  \note The voltage is read by the current clamp ADC.
      *  \note In some devices the ADC can't be turned on independently of the DAC.
-     *  \note This only activates the circuitry: in order to have the device return the desired channels use #setChannelsSources.
+     *  \note This only activates the circuitry: in order to have the device return the desired channels use #setSourceForVoltageChannel.
      *
      * \param onValue [in] True to turn the voltage reader on, false to turn it off.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
@@ -829,7 +829,7 @@ public:
     /*! \brief Turn on/off the current reader for each channel.
      *  \note The current is read by the current clamp ADC.
      *  \note In some devices the ADC can't be turned on independently of the DAC.
-     *  \note This only activates the circuitry: in order to have the device return the desired channels use #setChannelsSources.
+     *  \note This only activates the circuitry: in order to have the device return the desired channels use #setSourceForCurrentChannel.
      *
      * \param onValue [in] True to turn the current reader on, false to turn it off.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
