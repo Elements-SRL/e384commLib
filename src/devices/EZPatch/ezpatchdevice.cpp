@@ -2177,12 +2177,14 @@ ErrorCodes_t EZPatchDevice::startProtocol() {
 ErrorCodes_t EZPatchDevice::stopProtocol() {
     bool stopProtocolFlag = false; /*! We're already commiting a stop protocol, so commiting another one on the protocol structure will create an infinite recursion */
     if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-        this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest, stopProtocolFlag);
-        this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+        this->setVoltageProtocolStructure(selectedProtocolId-1, 2, 1, selectedProtocolVrest, stopProtocolFlag);
+        this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {2.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+        this->setVoltageProtocolStep(1, 2, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {2.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
 
     } else {
-        this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest, stopProtocolFlag);
-        this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+        this->setCurrentProtocolStructure(selectedProtocolId-1, 2, 1, selectedProtocolIrest, stopProtocolFlag);
+        this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {2.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+        this->setCurrentProtocolStep(1, 2, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {2.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
     }
     return this->startProtocol();
 }
@@ -2481,9 +2483,11 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
         }
     }
     uint32_t maxMsgRead = rxMsgBufferReadLength;
+    gettingNextDataFlag = true;
     rxMutexLock.unlock();
 
     if (!parsingFlag) {
+        gettingNextDataFlag = false;
         return ErrorDeviceNotConnected;
     }
 
@@ -2679,8 +2683,25 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
 
     rxMutexLock.lock();
     rxMsgBufferReadLength -= msgReadCount;
+    gettingNextDataFlag = false;
     rxMsgBufferNotFull.notify_all();
     rxMutexLock.unlock();
+
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::purgeData() {
+    ErrorCodes_t ret = Success;
+
+    std::unique_lock <std::mutex> rxMutexLock(rxMutex);
+    while (gettingNextDataFlag) {
+        /*! Wait for the getNextMessage method to be outside of its loop, because the rxMsgBufferReadLength and rxMsgBufferReadOffset variables must not change during its execution */
+        rxMsgBufferNotFull.wait_for (rxMutexLock, std::chrono::milliseconds(1));
+    }
+    rxMsgBufferReadOffset = (rxMsgBufferReadOffset+rxMsgBufferReadLength) & RX_MSG_BUFFER_MASK;
+    rxMsgBufferReadLength = 0;
+    rxMutexLock.unlock();
+    rxMsgBufferNotFull.notify_all();
 
     return ret;
 }

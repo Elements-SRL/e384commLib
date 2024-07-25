@@ -18,14 +18,14 @@
 
 #define EZP_RX_MSG_BUFFER_SIZE 0x10000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~65k
 #define EZP_RX_MSG_BUFFER_MASK (EZP_RX_MSG_BUFFER_SIZE-1)
-#define EZP_RX_DATA_BUFFER_SIZE 0x100000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~1M
+#define EZP_RX_DATA_BUFFER_SIZE 0x1000000 /*! \todo FCON valutare che questo numero sia adeguato */ // 16M
 #define EZP_RX_DATA_BUFFER_MASK (EZP_RX_DATA_BUFFER_SIZE-1)
 #define EZP_RX_MIN_DATA_PACKET_LEN 3
 #define EZP_RX_MIN_DATA_PACKET_VALID_LEN (EZP_RX_MIN_DATA_PACKET_LEN-1)
 
 #define EZP_TX_MSG_BUFFER_SIZE 0x1000 /*! \todo FCON valutare che questo numero sia adeguato */ // 4096
 #define EZP_TX_MSG_BUFFER_MASK (EZP_TX_MSG_BUFFER_SIZE-1)
-#define EZP_TX_DATA_BUFFER_SIZE 0x10000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~65k
+#define EZP_TX_DATA_BUFFER_SIZE 0x100000 /*! \todo FCON valutare che questo numero sia adeguato */ // 1M
 #define EZP_TX_DATA_BUFFER_MASK (EZP_TX_DATA_BUFFER_SIZE-1)
 
 #define EZP_MAX_RESEND_TRIES 5
@@ -197,7 +197,8 @@ public:
     ErrorCodes_t isDeviceUpgradable(std::string &upgradeNotes, std::string &notificationTag);
     /*! \todo FCON fare il metodo statico per il get device info */
     ErrorCodes_t getDeviceInfo(std::string &deviceId, std::string &deviceName, uint32_t &deviceVersion, uint32_t &deviceSubversion, uint32_t &firmwareVersion);
-    virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data) override; /*!< overidden by eP4 device because it needs a custom data interleaving */
+    virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data) override;
+    ErrorCodes_t purgeData() override;
 
     ErrorCodes_t hasChannelSwitches() override;
     ErrorCodes_t hasCalSw() override;
@@ -485,6 +486,7 @@ protected:
     uint32_t rxMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be written */
     uint32_t rxMsgBufferReadLength = 0; /*!< Lenght of the part of the buffer to be processed */
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
+    bool gettingNextDataFlag = false;
 
     uint16_t * rxDataBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's data */
 
