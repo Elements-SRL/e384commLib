@@ -29,6 +29,8 @@ EZPatchDevice::EZPatchDevice(std::string deviceId) :
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail] = true;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss] = false;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation] = true;
 
     txExpectAckMap[MsgDirectionPcToDevice+MsgTypeIdAck]  = false;
@@ -2471,6 +2473,10 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
 
     std::unique_lock <std::mutex> rxMutexLock (rxMutex);
     if (rxMsgBufferReadLength == 0) {
+        if (parsingStatus == ParsingNone) {
+            gettingNextDataFlag = false;
+            return ErrorDeviceNotConnected;
+        }
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
         std::chrono::steady_clock::time_point currentTime = startTime;
         while (((std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count()) < EZP_NO_DATA_WAIT_TIME_MS) &&
@@ -2483,13 +2489,19 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
         }
     }
     uint32_t maxMsgRead = rxMsgBufferReadLength;
+    if (maxMsgRead > RX_MSG_BUFFER_SIZE && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow]) {
+        rxOutput.dataLen = 2;
+        rxOutput.msgTypeId = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionDataOverflow;
+        rxOutput.itemFirstSampleDistance = maxMsgRead;
+        uint32_t skipped = maxMsgRead - RX_MSG_BUFFER_SIZE;
+        rxMsgBufferReadOffset = (rxMsgBufferReadOffset + skipped) & RX_MSG_BUFFER_MASK;
+        rxMsgBufferReadLength -= skipped;
+        data[0] = (int16_t)(skipped & (0xFFFF));
+        data[1] = (int16_t)((skipped >> 16) & (0xFFFF));
+        return Success;
+    }
     gettingNextDataFlag = true;
     rxMutexLock.unlock();
-
-    if (!parsingFlag) {
-        gettingNextDataFlag = false;
-        return ErrorDeviceNotConnected;
-    }
 
     uint32_t msgReadCount = 0;
     bool headerSet = false;
@@ -2522,6 +2534,8 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
             case (MsgDirectionDeviceToPc+MsgTypeIdFpgaReset):
             case (MsgDirectionDeviceToPc+MsgTypeIdLiquidJunctionComp):
             case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
+            case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss):
+            case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow):
             default:
                 /*! Messages of these types can't be merged. */
                 if (msgReadCount == 0) {
@@ -2665,10 +2679,23 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
             case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
                 rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
                 for (uint16_t dataIdx = 0; dataIdx < rxOutput.dataLen; dataIdx++) {
+                    rxOutput.dataLen = 1;
 //                    rxOutput.uintData[dataIdx] = * (rxDataBuffer+dataOffset); /* \todo FCON al momento della saturazione non frega niente a nessuno */
                     dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
                 }
                 lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToPc;
+                break;
+
+            case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss):
+                if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
+                    lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss;
+                    rxOutput.dataLen = 2;
+                    data[0] = (int16_t)rxDataBuffer[dataOffset];
+                    data[1] = (int16_t)rxDataBuffer[(dataOffset+1) & EZP_RX_DATA_BUFFER_MASK];
+                    dataOffset = (dataOffset+2)&EZP_RX_DATA_BUFFER_MASK;
+
+                    lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToPc;
+                }
                 break;
 
             default:

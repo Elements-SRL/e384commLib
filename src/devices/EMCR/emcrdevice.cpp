@@ -18,6 +18,8 @@ EmcrDevice::EmcrDevice(std::string deviceId) :
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation] = false;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss] = false;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdInvalid] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus] = false;
 
@@ -1156,10 +1158,10 @@ ErrorCodes_t EmcrDevice::readoutOffsetRecalibration(std::vector <uint16_t> chann
             offsetRecalibStates[chIdx] = OffsetRecalibTerminate;
         }
     }
-    ljMutexLock.unlock();
-
     anyOffsetRecalibrationActive = true;
     computeCurrentOffsetFlag = true;
+
+    ljMutexLock.unlock();
 
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1190,10 +1192,10 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
         }
     }
-    ljMutexLock.unlock();
-
     anyLiquidJunctionActive = true;
     computeCurrentOffsetFlag = true;
+
+    ljMutexLock.unlock();
 
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1645,19 +1647,33 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
     std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
     if (rxMsgBufferReadLength <= 0) {
+        if (parsingStatus == ParsingNone) {
+            gettingNextDataFlag = false;
+            return ErrorDeviceNotConnected;
+        }
+#ifdef NEXT_MESSAGE_NO_WAIT
+        return ErrorNoDataAvailable;
+#else
         rxMsgBufferNotEmpty.wait_for (rxMutexLock, std::chrono::milliseconds(3));
         if (rxMsgBufferReadLength <= 0) {
             return ErrorNoDataAvailable;
         }
+#endif
     }
     uint32_t maxMsgRead = rxMsgBufferReadLength;
+    if (maxMsgRead > RX_MSG_BUFFER_SIZE && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow]) {
+        rxOutput.dataLen = 2;
+        rxOutput.msgTypeId = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionDataOverflow;
+        rxOutput.itemFirstSampleDistance = maxMsgRead;
+        uint32_t skipped = maxMsgRead - RX_MSG_BUFFER_SIZE;
+        rxMsgBufferReadOffset = (rxMsgBufferReadOffset + skipped) & RX_MSG_BUFFER_MASK;
+        rxMsgBufferReadLength -= skipped;
+        data[0] = (int16_t)(skipped & (0xFFFF));
+        data[1] = (int16_t)((skipped >> 16) & (0xFFFF));
+        return Success;
+    }
     gettingNextDataFlag = true;
     rxMutexLock.unlock();
-
-    if (!parsingFlag) {
-        gettingNextDataFlag = false;
-        return ErrorDeviceNotConnected;
-    }
 
     uint32_t msgReadCount = 0;
 
@@ -1886,6 +1902,27 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
         case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
             if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
                 lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation;
+                rxOutput.dataLen = 0;
+
+                /*! This message cannot be merged, leave anyway */
+                exitLoop = true;
+                messageReadFlag = true;
+
+            } else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
+
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss):
+            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
+                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss;
+                rxOutput.dataLen = 2;
+                data[0] = (int16_t)rxDataBuffer[dataOffset];
+                data[1] = (int16_t)rxDataBuffer[(dataOffset+1) & RX_DATA_BUFFER_MASK];
+                dataOffset = (dataOffset+2) & RX_DATA_BUFFER_MASK;
 
                 /*! This message cannot be merged, leave anyway */
                 exitLoop = true;
@@ -1903,6 +1940,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
             //            not really managed, ignore it
             if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
                 lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus;
+                rxOutput.dataLen = 0;
                 /*! This message cannot be merged, leave anyway */
                 exitLoop = true;
                 messageReadFlag = true;
@@ -2144,6 +2182,7 @@ ErrorCodes_t EmcrDevice::initialize(std::string fwPath) {
     }
 
     stopConnectionFlag = false;
+    parsingStatus = ParsingPreparing;
     this->createCommunicationThreads();
 
     std::this_thread::sleep_for (std::chrono::milliseconds(500));
