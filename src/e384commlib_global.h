@@ -297,6 +297,7 @@ typedef enum TxTriggerType_t {
  */
 typedef enum OffsetRecalibStatus {
     OffsetRecalibNotPerformed,
+    OffsetRecalibExecuting,
     OffsetRecalibInterrupted,
     OffsetRecalibSucceded,
     OffsetRecalibFailed,
@@ -309,6 +310,7 @@ typedef enum OffsetRecalibStatus {
  */
 typedef enum LiquidJunctionStatus {
     LiquidJunctionNotPerformed,
+    LiquidJunctionExecuting,
     LiquidJunctionInterrupted,
     LiquidJunctionSucceded,
     LiquidJunctionFailedOpenCircuit,

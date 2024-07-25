@@ -1402,7 +1402,7 @@ void MessageDispatcher::computeLiquidJunction() {
                 case OffsetRecalibStarting:
                     activeFlag = true;
                     offsetRecalibStates[channelIdx] = OffsetRecalibFirstStep;
-                    offsetRecalibStatuses[channelIdx] = OffsetRecalibInterrupted;
+                    offsetRecalibStatuses[channelIdx] = OffsetRecalibExecuting;
                     break;
 
                 case OffsetRecalibFirstStep:
@@ -1444,6 +1444,9 @@ void MessageDispatcher::computeLiquidJunction() {
                 case OffsetRecalibTerminate:
                     activeFlag = true;
                     offsetRecalibStates[channelIdx] = OffsetRecalibIdle;
+                    if (offsetRecalibStatuses[channelIdx] == OffsetRecalibExecuting) {
+                        offsetRecalibStatuses[channelIdx] = OffsetRecalibInterrupted;
+                    }
                     break;
                 }
             }
@@ -1482,7 +1485,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     liquidJunctionVoltagesBackup[channelIdx] = selectedLiquidJunctionVector[channelIdx];
                     voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
                     liquidJunctionStates[channelIdx] = LiquidJunctionFirstStep;
-                    liquidJunctionStatuses[channelIdx] = LiquidJunctionInterrupted;
+                    liquidJunctionStatuses[channelIdx] = LiquidJunctionExecuting;
                     liquidJunctionConvergingCount[channelIdx] = 0;
                     liquidJunctionConvergedCount[channelIdx] = 0;
                     liquidJunctionPositiveSaturationCount[channelIdx] = 0;
@@ -1752,6 +1755,9 @@ void MessageDispatcher::computeLiquidJunction() {
                     activeFlag = true;
                     liquidJunctionSmallestCurrentChange[channelIdx] = 10.0;
                     liquidJunctionStates[channelIdx] = LiquidJunctionIdle;
+                    if (liquidJunctionStatuses[channelIdx] == LiquidJunctionExecuting) {
+                        liquidJunctionStatuses[channelIdx] = LiquidJunctionInterrupted;
+                    }
                     break;
                 }
             }
