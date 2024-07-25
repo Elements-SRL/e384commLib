@@ -400,4 +400,9 @@ protected:
     std::vector <uint16_t> ccPipetteCapacitanceRegValue;
 };
 
+class EZPatche8PPatchliner_el07cd_artix7_PCBV02 : public EZPatche8PPatchliner_el07cd_artix7_PCBV01 {
+public:
+    EZPatche8PPatchliner_el07cd_artix7_PCBV02(std::string di);
+};
+
 #endif // EZPATCHE8PPATCHLINER_EL07CD_H

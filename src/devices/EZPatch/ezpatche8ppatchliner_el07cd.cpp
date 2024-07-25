@@ -1446,3 +1446,8 @@ void EZPatche8PPatchliner_el07cd_artix7_PCBV01::updateWrittenCompensationValues(
     predictionGainRegValue[compensationsSettingChannel] = txDataMessage[9];
     predictionTauRegValue[compensationsSettingChannel] = txDataMessage[11];
 }
+
+EZPatche8PPatchliner_el07cd_artix7_PCBV02::EZPatche8PPatchliner_el07cd_artix7_PCBV02(std::string di) :
+    EZPatche8PPatchliner_el07cd_artix7_PCBV01(di) {
+    fpgaLoadType = FpgaFwLoadAutomatic;
+}

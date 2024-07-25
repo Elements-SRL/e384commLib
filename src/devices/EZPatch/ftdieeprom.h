@@ -62,6 +62,7 @@ typedef enum {
     DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV01 = 8,
     DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV02 = 10,
     DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV01 = 12,
+    DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV02 = 14,
 
     /*! Subversions used for ver = FD */
     DeviceSubversionDemo = 1,
