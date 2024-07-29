@@ -1950,6 +1950,10 @@ ErrorCodes_t EZPatchDevice::setVoltageProtocolStructure(uint16_t protId, uint16_
         this->stopProtocol();
     }
 
+    Measurement zeroSeconds = {0, UnitPfx::UnitPfxNone, "s"};
+    this->setDigitalTriggerOutput(0, true, true, 0, zeroSeconds);
+    this->setDigitalRepetitiveTriggerOutput(0, false, false, 0, zeroSeconds, zeroSeconds, zeroSeconds, zeroSeconds);
+
     selectedProtocolId = protId;
     selectedProtocolItemsNum = itemsNum;
     selectedProtocolVrest = vRest;
