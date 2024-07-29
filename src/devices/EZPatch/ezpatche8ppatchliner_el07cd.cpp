@@ -253,8 +253,8 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     samplingRatesSwitchesByte[SamplingRateSwitchVcAdcFilter2] = 0x0040;
     samplingRatesSwitchesByte[SamplingRateSwitchVcAdcFilter1] = 0x0020;
     samplingRatesSwitchesByte[SamplingRateSwitchVcAdcFilter0] = 0x0010;
-    samplingRatesSwitchesByte[SamplingRateSwitchClockDiv1] = 0x4000;
-    samplingRatesSwitchesByte[SamplingRateSwitchClockDiv0] = 0x8000;
+    samplingRatesSwitchesByte[SamplingRateSwitchClockDiv1] = 0x8000;
+    samplingRatesSwitchesByte[SamplingRateSwitchClockDiv0] = 0x4000;
 
     samplingRatesSwitchesLutStrings[SamplingRate5kHz] = "00010";       // BW  5kHz    Clock div 4
     samplingRatesSwitchesLutStrings[SamplingRate10kHz] = "00110";      // BW  6kHz    Clock div 4
@@ -338,10 +338,10 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     switchesNames[1][9] = "CC_DAC_Range";
     switchesNames[1][10] = "CFast_SW";
     switchesNames[1][11] = "free";
-    switchesNames[1][12] = "Clamping mode 1";
-    switchesNames[1][13] = "Clamping mode 0";
-    switchesNames[1][14] = "ClockDiv 1";
-    switchesNames[1][15] = "ClockDiv 0";
+    switchesNames[1][12] = "Clamping mode 0";
+    switchesNames[1][13] = "Clamping mode 1";
+    switchesNames[1][14] = "ClockDiv 0";
+    switchesNames[1][15] = "ClockDiv 1";
 
     switchesNames[2].resize(16);
     switchesNames[2][0] = "CH1_Input_SW";
@@ -916,7 +916,7 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
 
     vcReaderSwitchesByte[VCReaderSwitch_VcSel] = 0x0004;
     vcReaderSwitchesByte[VCReaderSwitch_CfastSw] = 0x0400;
-    vcReaderSwitchesByte[VCReaderSwitch_ClampingMode0] = 0x2000;
+    vcReaderSwitchesByte[VCReaderSwitch_ClampingMode0] = 0x1000;
 
     vcReaderSwitchesLutStrings = "100";
 
