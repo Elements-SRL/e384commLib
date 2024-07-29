@@ -76,8 +76,6 @@ public:
 
     ErrorCodes_t setVoltageHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) override;
     ErrorCodes_t setCurrentHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag) override;
-    ErrorCodes_t setVoltageHoldTuner(uint16_t channelIdx, Measurement_t voltage);
-    ErrorCodes_t setCurrentHoldTuner(uint16_t channelIdx, Measurement_t current);
 
     ErrorCodes_t turnChannelsOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     ErrorCodes_t turnCalSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
