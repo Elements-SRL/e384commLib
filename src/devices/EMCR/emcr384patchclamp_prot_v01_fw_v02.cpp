@@ -1916,60 +1916,52 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompOptions(std::vector <uint
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
-    std::vector <bool> allTheTrueIneed;
-    std::vector <bool> allTheFalseIneed;
+    std::vector <bool> trues(currentChannelsNum);
+    std::vector <bool> falses(currentChannelsNum);
+    std::vector <ClampingModality_t> clamps(currentChannelsNum);
 
-    for (int i = 0; i< currentChannelsNum; i++) {
-        allTheTrueIneed.push_back(true);
-        allTheFalseIneed.push_back(false);
-    }
+    std::fill(trues.begin(), trues.end(), true);
+    std::fill(falses.begin(), falses.end(), false);
+    std::fill(clamps.begin(), clamps.end(), ClampingModality_t::CURRENT_CLAMP);
 
     if (onValueIn) {
-        this->turnCcSwOn(allChannelIndexes, allTheTrueIneed, false);
-        this->turnVcCcSelOn(allChannelIndexes, allTheFalseIneed, false);
+        this->turnCcSwOn(allChannelIndexes, trues, false);
+        this->setAdcCore(allChannelIndexes, clamps, false);
         this->updateCalibCcVoltageGain(allChannelIndexes, false);
         this->updateCalibCcVoltageOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
 
     } else {
-        this->turnCcSwOn(allChannelIndexes, allTheFalseIneed, applyFlag);
+        this->turnCcSwOn(allChannelIndexes, falses, applyFlag);
     }
 
     return Success;
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnCurrentReaderOn(bool onValueIn, bool applyFlag) {
-    std::vector <bool> allTheTrueIneed;
-    std::vector <bool> allTheFalseIneed;
+    std::vector <bool> trues(currentChannelsNum);
+    std::vector <bool> falses(currentChannelsNum);
+    std::vector <ClampingModality_t> clamps(currentChannelsNum);
 
-    for (int i = 0; i< currentChannelsNum; i++) {
-        allTheTrueIneed.push_back(true);
-        allTheFalseIneed.push_back(false);
-    }
+    std::fill(trues.begin(), trues.end(), true);
+    std::fill(falses.begin(), falses.end(), false);
+    std::fill(clamps.begin(), clamps.end(), ClampingModality_t::VOLTAGE_CLAMP);
 
     if (onValueIn) {
-        this->turnVcSwOn(allChannelIndexes, allTheTrueIneed, false);
-        this->turnVcCcSelOn(allChannelIndexes, allTheTrueIneed, false);
+        this->turnVcSwOn(allChannelIndexes, trues, false);
+        this->setAdcCore(allChannelIndexes, clamps, false);
         this->updateCalibVcCurrentGain(allChannelIndexes, false);
         this->updateCalibVcCurrentOffset(allChannelIndexes, applyFlag);
         this->setAdcFilter();
 
     }else{
-        this->turnVcSwOn(allChannelIndexes, allTheFalseIneed, applyFlag);
+        this->turnVcSwOn(allChannelIndexes, falses, applyFlag);
     }
 
     return Success;
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnVoltageStimulusOn(bool onValue, bool applyFlag) {
-    std::vector <bool> allTheTrueIneed;
-    std::vector <bool> allTheFalseIneed;
-
-    for (int i = 0; i< currentChannelsNum; i++) {
-        allTheTrueIneed.push_back(true);
-        allTheFalseIneed.push_back(false);
-    }
-
     if (onValue) {
         this->updateCalibVcVoltageGain(allChannelIndexes, false);
         this->updateCalibVcVoltageOffset(allChannelIndexes, applyFlag);
@@ -1981,21 +1973,19 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnVoltageStimulusOn(bool onVal
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnCurrentStimulusOn(bool onValue, bool applyFlag) {
-    std::vector <bool> allTheTrueIneed;
-    std::vector <bool> allTheFalseIneed;
+    std::vector <bool> trues(currentChannelsNum);
+    std::vector <bool> falses(currentChannelsNum);
 
-    for (int i = 0; i< currentChannelsNum; i++) {
-        allTheTrueIneed.push_back(true);
-        allTheFalseIneed.push_back(false);
-    }
+    std::fill(trues.begin(), trues.end(), true);
+    std::fill(falses.begin(), falses.end(), false);
 
     if (onValue) {
-        this->enableCcStimulus(allChannelIndexes, allTheTrueIneed, false);
+        this->enableCcStimulus(allChannelIndexes, trues, false);
         this->updateCalibCcCurrentGain(allChannelIndexes, false);
         this->updateCalibCcCurrentOffset(allChannelIndexes, applyFlag);
 
     } else {
-        this->enableCcStimulus(allChannelIndexes, allTheFalseIneed, applyFlag);
+        this->enableCcStimulus(allChannelIndexes, falses, applyFlag);
     }
 
     return Success;

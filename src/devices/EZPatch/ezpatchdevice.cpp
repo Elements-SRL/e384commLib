@@ -334,8 +334,6 @@ ErrorCodes_t EZPatchDevice::turnChannelsOn(std::vector <uint16_t> channelIndexes
 }
 
 ErrorCodes_t EZPatchDevice::turnCalSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
-    ErrorCodes_t ret;
-
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
@@ -360,7 +358,7 @@ ErrorCodes_t EZPatchDevice::turnCalSwOn(std::vector <uint16_t> channelIndexes, s
         }
     }
 
-    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+    ErrorCodes_t ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
     if (ret == Success) {
         this->dataMessage2Switches(txDataMessage);
     }
@@ -368,9 +366,159 @@ ErrorCodes_t EZPatchDevice::turnCalSwOn(std::vector <uint16_t> channelIndexes, s
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::turnVoltageStimulusOn(bool on, bool applyFlag) {
-    ErrorCodes_t ret;
+ErrorCodes_t EZPatchDevice::turnVcSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    if (vcSwitchesNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    uint16_t dataLength = switchesStatusLength;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    this->switches2DataMessage(txDataMessage);
 
+    for (unsigned int channelIdx = 0; channelIdx < channelIndexes.size(); channelIdx++) {
+        unsigned int ch = channelIndexes[channelIdx];
+        for (unsigned int switchIdx = 0; switchIdx < vcSwitchesNum; switchIdx++) {
+            if (vcSwitchesLut[switchIdx] == onValues[channelIdx]) {
+                txDataMessage[vcSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] |=
+                        vcSwitchesByte[switchIdx]; // 1
+
+            } else {
+                txDataMessage[vcSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] &=
+                        ~vcSwitchesByte[switchIdx]; // 0
+            }
+        }
+    }
+
+    ErrorCodes_t ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+    if (ret == Success) {
+        this->dataMessage2Switches(txDataMessage);
+    }
+
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::turnCcSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    if (ccSwitchesNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    uint16_t dataLength = switchesStatusLength;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    this->switches2DataMessage(txDataMessage);
+
+    for (unsigned int channelIdx = 0; channelIdx < channelIndexes.size(); channelIdx++) {
+        unsigned int ch = channelIndexes[channelIdx];
+        for (unsigned int switchIdx = 0; switchIdx < ccSwitchesNum; switchIdx++) {
+            if (ccSwitchesLut[switchIdx] == onValues[channelIdx]) {
+                txDataMessage[ccSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] |=
+                        ccSwitchesByte[switchIdx]; // 1
+
+            } else {
+                txDataMessage[ccSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] &=
+                        ~ccSwitchesByte[switchIdx]; // 0
+            }
+        }
+    }
+
+    ErrorCodes_t ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+    if (ret == Success) {
+        this->dataMessage2Switches(txDataMessage);
+    }
+
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::setAdcCore(std::vector <uint16_t> channelIndexes, std::vector <ClampingModality_t> clampingModes, bool applyFlag) {
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    if (adcCoreSwitchesNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    uint16_t dataLength = switchesStatusLength;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    this->switches2DataMessage(txDataMessage);
+    bool ctrl;
+
+    if (adcCoreSwitchChannelIndependent) {
+        for (unsigned int channelIdx = 0; channelIdx < channelIndexes.size(); channelIdx++) {
+            unsigned int ch = channelIndexes[channelIdx];
+            switch (clampingModes[ch]) {
+            case VOLTAGE_CLAMP:
+                ctrl = true;
+                break;
+
+            case ZERO_CURRENT_CLAMP:
+                ctrl = false;
+                break;
+
+            case CURRENT_CLAMP:
+                ctrl = false;
+                break;
+
+            case DYNAMIC_CLAMP:
+                return ErrorFeatureNotImplemented;
+
+            case UNDEFINED_CLAMP:
+                return ErrorFeatureNotImplemented;
+            }
+            for (unsigned int switchIdx = 0; switchIdx < adcCoreSwitchesNum; switchIdx++) {
+                if (adcCoreSwitchesLut[switchIdx] == ctrl) {
+                    txDataMessage[adcCoreSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] |=
+                            adcCoreSwitchesByte[switchIdx]; // 1
+
+                } else {
+                    txDataMessage[adcCoreSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] &=
+                            ~adcCoreSwitchesByte[switchIdx]; // 0
+                }
+            }
+        }
+
+    } else {
+        unsigned int ch = channelIndexes[0]; // Use the first item for all channels
+        switch (clampingModes[ch]) {
+        case VOLTAGE_CLAMP:
+            ctrl = true;
+            break;
+
+        case ZERO_CURRENT_CLAMP:
+            ctrl = false;
+            break;
+
+        case CURRENT_CLAMP:
+            ctrl = false;
+            break;
+
+        case DYNAMIC_CLAMP:
+            return ErrorFeatureNotImplemented;
+
+        case UNDEFINED_CLAMP:
+            return ErrorFeatureNotImplemented;
+        }
+        for (unsigned int switchIdx = 0; switchIdx < adcCoreSwitchesNum; switchIdx++) {
+            if (adcCoreSwitchesLut[switchIdx] == ctrl) {
+                txDataMessage[adcCoreSwitchesWord[switchIdx]] |=
+                        adcCoreSwitchesByte[switchIdx]; // 1
+
+            } else {
+                txDataMessage[adcCoreSwitchesWord[switchIdx]] &=
+                        ~adcCoreSwitchesByte[switchIdx]; // 0
+            }
+        }
+    }
+
+    ErrorCodes_t ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+    if (ret == Success) {
+        this->dataMessage2Switches(txDataMessage);
+    }
+    return ret;
+}
+
+ErrorCodes_t EZPatchDevice::turnVoltageStimulusOn(bool on, bool applyFlag) {
     if (vcStimulusSwitchesNum == 0) {
         return ErrorFeatureNotImplemented;
     }
@@ -405,7 +553,7 @@ ErrorCodes_t EZPatchDevice::turnVoltageStimulusOn(bool on, bool applyFlag) {
         }
     }
 
-    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+    ErrorCodes_t ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
     if (ret == Success) {
         this->dataMessage2Switches(txDataMessage);
     }
@@ -1354,7 +1502,6 @@ ErrorCodes_t EZPatchDevice::enableCompensation(std::vector <uint16_t> channelInd
             compensationsSettingChannel = channelIndexes[i];
             this->turnResistanceCorrectionOn(onValues[i]);
             channelModels[compensationsSettingChannel]->setCompensatingRsCp(onValues[i]);
-            this->updateLiquidJunctionVoltage(compensationsSettingChannel, false);
         }
         break;
 

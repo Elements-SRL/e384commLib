@@ -947,7 +947,7 @@ ErrorCodes_t EmcrDevice::turnCcSwOn(std::vector <uint16_t> channelIndexes, std::
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::turnVcCcSelOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
+ErrorCodes_t EmcrDevice::setAdcCore(std::vector <uint16_t> channelIndexes, std::vector <ClampingModality_t> clampingModes, bool applyFlag) {
     if (vcCcSelCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
@@ -955,7 +955,25 @@ ErrorCodes_t EmcrDevice::turnVcCcSelOn(std::vector <uint16_t> channelIndexes, st
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        vcCcSelCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        switch (clampingModes[i]) {
+        case VOLTAGE_CLAMP:
+            vcCcSelCoders[channelIndexes[i]]->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            break;
+
+        case ZERO_CURRENT_CLAMP:
+            vcCcSelCoders[channelIndexes[i]]->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            break;
+
+        case CURRENT_CLAMP:
+            vcCcSelCoders[channelIndexes[i]]->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            break;
+
+        case DYNAMIC_CLAMP:
+            return ErrorFeatureNotImplemented;
+
+        case UNDEFINED_CLAMP:
+            return ErrorFeatureNotImplemented;
+        }
     }
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);

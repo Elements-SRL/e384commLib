@@ -415,7 +415,7 @@ ErrorCodes_t MessageDispatcher::turnCcSwOn(std::vector <uint16_t>, std::vector <
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::turnVcCcSelOn(std::vector <uint16_t>, std::vector <bool>, bool) {
+ErrorCodes_t MessageDispatcher::setAdcCore(std::vector <uint16_t>, std::vector <ClampingModality_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 

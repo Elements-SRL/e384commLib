@@ -670,7 +670,7 @@ public:
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t turnVcCcSelOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag);
+    virtual ErrorCodes_t setAdcCore(std::vector <uint16_t> channelIndexes, std::vector <ClampingModality_t> clampingModes, bool applyFlag);
 
     /*! \brief Enables or disables the stimulus in current clamp.
      *  \note The stimulus is disabled via a physical switch, not by digital means, so this allows the I0 current clamp mode

@@ -70,6 +70,22 @@ protected:
         CalSwitchesNum
     };
 
+    enum VcSwitches {
+        VcSw,
+        VcSwitchesNum
+    };
+
+    enum CcSwitches {
+        CcSw,
+        GrEn,
+        CcSwitchesNum
+    };
+
+    enum AdcCoreSwitches {
+        VcSelAdc,
+        AdcCoreSwitchesNum
+    };
+
     enum VCStimulusSwitches {
         VCStimulusSwitch_VcSW,
         VCStimulusSwitchesNum
@@ -250,6 +266,9 @@ protected:
     std::string constantSwitchesLutStrings;
     std::string inputSwitchesLutStrings;
     std::string calSwitchesLutStrings;
+    std::string vcSwitchesLutStrings;
+    std::string ccSwitchesLutStrings;
+    std::string adcCoreSwitchesLutStrings;
     std::string vcStimulusSwitchesLutStrings;
     std::string vcReaderSwitchesLutStrings;
     std::string ccStimulusSwitchesLutStrings;

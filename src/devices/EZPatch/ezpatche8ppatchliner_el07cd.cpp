@@ -859,6 +859,71 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
         }
     }
 
+    /*! Voltage clamp input */
+    vcSwitchesNum = VcSwitchesNum;
+    vcSwitchesLut.resize(vcSwitchesNum);
+    vcSwitchesWord.resize(vcSwitchesNum);
+    vcSwitchesByte.resize(vcSwitchesNum);
+
+    vcSwitchesWord[VcSw] = 2;
+
+    vcSwitchesByte[VcSw] = 0x0004;
+
+    vcSwitchesLutStrings = "1";
+
+    for (unsigned int stimulusSwitchesIdx = 0; stimulusSwitchesIdx < vcSwitchesNum; stimulusSwitchesIdx++) {
+        if (vcSwitchesLutStrings[stimulusSwitchesIdx] == '1') {
+            vcSwitchesLut[stimulusSwitchesIdx] = true;
+
+        } else {
+            vcSwitchesLut[stimulusSwitchesIdx] = false;
+        }
+    }
+
+    /*! Current clamp input */
+    ccSwitchesNum = CcSwitchesNum;
+    ccSwitchesLut.resize(ccSwitchesNum);
+    ccSwitchesWord.resize(ccSwitchesNum);
+    ccSwitchesByte.resize(ccSwitchesNum);
+
+    ccSwitchesWord[CcSw] = 2;
+    ccSwitchesWord[GrEn] = 2;
+
+    ccSwitchesByte[CcSw] = 0x0008;
+    ccSwitchesByte[GrEn] = 0x4000;
+
+    ccSwitchesLutStrings = "10";
+
+    for (unsigned int stimulusSwitchesIdx = 0; stimulusSwitchesIdx < ccSwitchesNum; stimulusSwitchesIdx++) {
+        if (ccSwitchesLutStrings[stimulusSwitchesIdx] == '1') {
+            ccSwitchesLut[stimulusSwitchesIdx] = true;
+
+        } else {
+            ccSwitchesLut[stimulusSwitchesIdx] = false;
+        }
+    }
+
+    /*! ADC core selection */
+    adcCoreSwitchesNum = AdcCoreSwitchesNum;
+    adcCoreSwitchesLut.resize(adcCoreSwitchesNum);
+    adcCoreSwitchesWord.resize(adcCoreSwitchesNum);
+    adcCoreSwitchesByte.resize(adcCoreSwitchesNum);
+
+    adcCoreSwitchesWord[VcSelAdc] = 0;
+
+    adcCoreSwitchesByte[VcSelAdc] = 0x0004;
+
+    adcCoreSwitchesLutStrings = "1";
+
+    for (unsigned int stimulusSwitchesIdx = 0; stimulusSwitchesIdx < adcCoreSwitchesNum; stimulusSwitchesIdx++) {
+        if (adcCoreSwitchesLutStrings[stimulusSwitchesIdx] == '1') {
+            adcCoreSwitchesLut[stimulusSwitchesIdx] = true;
+
+        } else {
+            adcCoreSwitchesLut[stimulusSwitchesIdx] = false;
+        }
+    }
+
     /*! Stimulus */
     /*! VC */
     vcStimulusSwitchesNum = VCStimulusSwitchesNum;

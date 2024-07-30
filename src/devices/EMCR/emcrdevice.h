@@ -68,7 +68,7 @@ public:
 
     ErrorCodes_t turnVcSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     ErrorCodes_t turnCcSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
-    ErrorCodes_t turnVcCcSelOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t setAdcCore(std::vector <uint16_t> channelIndexes, std::vector <ClampingModality_t> clampingModes, bool applyFlag) override;
     ErrorCodes_t enableCcStimulus(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
 
     ErrorCodes_t setClampingModality(uint32_t idx, bool applyFlag, bool stopProtocolFlag) override;

@@ -80,6 +80,10 @@ public:
     ErrorCodes_t turnChannelsOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     ErrorCodes_t turnCalSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
 
+    ErrorCodes_t turnVcSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t turnCcSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t setAdcCore(std::vector <uint16_t> channelIndexes, std::vector <ClampingModality_t> clampingModes, bool applyFlag) override;
+
     ErrorCodes_t turnVoltageStimulusOn(bool on, bool applyFlag) override;
     ErrorCodes_t turnCurrentStimulusOn(bool on, bool applyFlag) override;
     ErrorCodes_t turnVoltageReaderOn(bool on, bool applyFlag) override;
@@ -366,6 +370,22 @@ protected:
     std::vector <uint16_t> calSwitchesWord;
     std::vector <uint16_t> calSwitchesByte;
     std::vector <bool> calSwitchesLut;
+
+    uint16_t vcSwitchesNum = 0;
+    std::vector <uint16_t> vcSwitchesWord;
+    std::vector <uint16_t> vcSwitchesByte;
+    std::vector <bool> vcSwitchesLut;
+
+    uint16_t ccSwitchesNum = 0;
+    std::vector <uint16_t> ccSwitchesWord;
+    std::vector <uint16_t> ccSwitchesByte;
+    std::vector <bool> ccSwitchesLut;
+
+    uint16_t adcCoreSwitchesNum = 0;
+    std::vector <uint16_t> adcCoreSwitchesWord;
+    std::vector <uint16_t> adcCoreSwitchesByte;
+    std::vector <bool> adcCoreSwitchesLut;
+    bool adcCoreSwitchChannelIndependent = false;
 
     uint16_t vcStimulusSwitchesNum = 0;
     std::vector <uint16_t> vcStimulusSwitchesWord;
