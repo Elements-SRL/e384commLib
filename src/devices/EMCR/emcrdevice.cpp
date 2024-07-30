@@ -387,8 +387,8 @@ ErrorCodes_t EmcrDevice::setCalibParams(CalibrationParams_t calibParams) {
 ErrorCodes_t EmcrDevice::setCalibVcCurrentGain(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> gains, bool applyFlag) {
     if (calibVcCurrentGainCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -403,8 +403,8 @@ ErrorCodes_t EmcrDevice::setCalibVcCurrentGain(std::vector <uint16_t> channelInd
 ErrorCodes_t EmcrDevice::updateCalibVcCurrentGain(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibVcCurrentGainCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -422,8 +422,8 @@ ErrorCodes_t EmcrDevice::updateCalibVcCurrentGain(std::vector <uint16_t> channel
 ErrorCodes_t EmcrDevice::setCalibVcCurrentOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) {
     if (calibVcCurrentOffsetCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -438,8 +438,8 @@ ErrorCodes_t EmcrDevice::setCalibVcCurrentOffset(std::vector <uint16_t> channelI
 ErrorCodes_t EmcrDevice::updateCalibVcCurrentOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibVcCurrentOffsetCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -457,8 +457,8 @@ ErrorCodes_t EmcrDevice::updateCalibVcCurrentOffset(std::vector <uint16_t> chann
 ErrorCodes_t EmcrDevice::setCalibCcVoltageGain(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> gains, bool applyFlag) {
     if (calibCcVoltageGainCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -473,8 +473,8 @@ ErrorCodes_t EmcrDevice::setCalibCcVoltageGain(std::vector <uint16_t> channelInd
 ErrorCodes_t EmcrDevice::updateCalibCcVoltageGain(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibCcVoltageGainCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -492,8 +492,8 @@ ErrorCodes_t EmcrDevice::updateCalibCcVoltageGain(std::vector <uint16_t> channel
 ErrorCodes_t EmcrDevice::setCalibCcVoltageOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) {
     if (calibCcVoltageOffsetCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -508,8 +508,8 @@ ErrorCodes_t EmcrDevice::setCalibCcVoltageOffset(std::vector <uint16_t> channelI
 ErrorCodes_t EmcrDevice::updateCalibCcVoltageOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibCcVoltageOffsetCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -527,8 +527,8 @@ ErrorCodes_t EmcrDevice::updateCalibCcVoltageOffset(std::vector <uint16_t> chann
 ErrorCodes_t EmcrDevice::setCalibVcVoltageGain(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> gains, bool applyFlag) {
     if (calibVcVoltageGainCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -543,8 +543,8 @@ ErrorCodes_t EmcrDevice::setCalibVcVoltageGain(std::vector <uint16_t> channelInd
 ErrorCodes_t EmcrDevice::updateCalibVcVoltageGain(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibVcVoltageGainCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -562,8 +562,8 @@ ErrorCodes_t EmcrDevice::updateCalibVcVoltageGain(std::vector <uint16_t> channel
 ErrorCodes_t EmcrDevice::setCalibVcVoltageOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) {
     if (calibVcVoltageOffsetCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -578,8 +578,8 @@ ErrorCodes_t EmcrDevice::setCalibVcVoltageOffset(std::vector <uint16_t> channelI
 ErrorCodes_t EmcrDevice::updateCalibVcVoltageOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibVcVoltageOffsetCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -597,8 +597,8 @@ ErrorCodes_t EmcrDevice::updateCalibVcVoltageOffset(std::vector <uint16_t> chann
 ErrorCodes_t EmcrDevice::setCalibCcCurrentGain(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> gains, bool applyFlag) {
     if (calibCcCurrentGainCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -613,8 +613,8 @@ ErrorCodes_t EmcrDevice::setCalibCcCurrentGain(std::vector <uint16_t> channelInd
 ErrorCodes_t EmcrDevice::updateCalibCcCurrentGain(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibCcCurrentGainCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -632,8 +632,8 @@ ErrorCodes_t EmcrDevice::updateCalibCcCurrentGain(std::vector <uint16_t> channel
 ErrorCodes_t EmcrDevice::setCalibCcCurrentOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) {
     if (calibCcCurrentOffsetCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -648,8 +648,8 @@ ErrorCodes_t EmcrDevice::setCalibCcCurrentOffset(std::vector <uint16_t> channelI
 ErrorCodes_t EmcrDevice::updateCalibCcCurrentOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibCcCurrentOffsetCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -667,8 +667,8 @@ ErrorCodes_t EmcrDevice::updateCalibCcCurrentOffset(std::vector <uint16_t> chann
 ErrorCodes_t EmcrDevice::setCalibRShuntConductance(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> conductances, bool applyFlag) {
     if (calibRShuntConductanceCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -683,8 +683,8 @@ ErrorCodes_t EmcrDevice::setCalibRShuntConductance(std::vector <uint16_t> channe
 ErrorCodes_t EmcrDevice::updateCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibRShuntConductanceCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -702,8 +702,8 @@ ErrorCodes_t EmcrDevice::updateCalibRShuntConductance(std::vector <uint16_t> cha
 ErrorCodes_t EmcrDevice::resetCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibRShuntConductanceCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -719,8 +719,8 @@ ErrorCodes_t EmcrDevice::resetCalibRShuntConductance(std::vector <uint16_t> chan
 ErrorCodes_t EmcrDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {
     if (vcCurrentRangeCoder == nullptr) {
         return ErrorFeatureNotImplemented;
-
-    } else if (currentRangeIdx >= vcCurrentRangesNum) {
+    }
+    if (currentRangeIdx >= vcCurrentRangesNum) {
         return ErrorValueOutOfRange;
     }
     vcCurrentRangeCoder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -744,8 +744,8 @@ ErrorCodes_t EmcrDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool applyF
 ErrorCodes_t EmcrDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) {
     if (vcVoltageRangeCoder == nullptr) {
         return ErrorFeatureNotImplemented;
-
-    } else if (voltageRangeIdx >= vcVoltageRangesNum) {
+    }
+    if (voltageRangeIdx >= vcVoltageRangesNum) {
         return ErrorValueOutOfRange;
     }
     vcVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -772,8 +772,8 @@ ErrorCodes_t EmcrDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyF
 ErrorCodes_t EmcrDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {
     if (ccCurrentRangeCoder == nullptr) {
         return ErrorFeatureNotImplemented;
-
-    } else if (currentRangeIdx >= ccCurrentRangesNum) {
+    }
+    if (currentRangeIdx >= ccCurrentRangesNum) {
         return ErrorValueOutOfRange;
     }
     ccCurrentRangeCoder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -795,8 +795,8 @@ ErrorCodes_t EmcrDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool applyF
 ErrorCodes_t EmcrDevice::setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) {
     if (ccVoltageRangeCoder == nullptr) {
         return ErrorFeatureNotImplemented;
-
-    } else if (voltageRangeIdx >= ccVoltageRangesNum) {
+    }
+    if (voltageRangeIdx >= ccVoltageRangesNum) {
         return ErrorValueOutOfRange;
     }
     ccVoltageRangeCoder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -829,8 +829,8 @@ ErrorCodes_t EmcrDevice::setLiquidJunctionRange(uint16_t idx) {
 ErrorCodes_t EmcrDevice::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag) {
     if (vcVoltageFilterCoder == nullptr) {
         return ErrorFeatureNotImplemented;
-
-    } else if (filterIdx >= vcVoltageFiltersNum) {
+    }
+    if (filterIdx >= vcVoltageFiltersNum) {
         return ErrorValueOutOfRange;
     }
     vcVoltageFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -844,8 +844,8 @@ ErrorCodes_t EmcrDevice::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFla
 ErrorCodes_t EmcrDevice::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlag) {
     if (ccCurrentFilterCoder == nullptr) {
         return ErrorFeatureNotImplemented;
-
-    } else if (filterIdx >= ccCurrentFiltersNum) {
+    }
+    if (filterIdx >= ccCurrentFiltersNum) {
         return ErrorValueOutOfRange;
     }
     ccCurrentFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -859,8 +859,8 @@ ErrorCodes_t EmcrDevice::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFla
 ErrorCodes_t EmcrDevice::enableStimulus(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
     if (enableStimulusCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -877,8 +877,8 @@ ErrorCodes_t EmcrDevice::enableStimulus(std::vector <uint16_t> channelIndexes, s
 ErrorCodes_t EmcrDevice::turnChannelsOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
     if (turnChannelsOnCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -895,8 +895,8 @@ ErrorCodes_t EmcrDevice::turnChannelsOn(std::vector <uint16_t> channelIndexes, s
 ErrorCodes_t EmcrDevice::turnCalSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
     if (calSwCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -918,8 +918,8 @@ ErrorCodes_t EmcrDevice::hasCalSw() {
 ErrorCodes_t EmcrDevice::turnVcSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
     if (vcSwCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -934,8 +934,8 @@ ErrorCodes_t EmcrDevice::turnVcSwOn(std::vector <uint16_t> channelIndexes, std::
 ErrorCodes_t EmcrDevice::turnCcSwOn(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
     if (ccSwCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -950,8 +950,8 @@ ErrorCodes_t EmcrDevice::turnCcSwOn(std::vector <uint16_t> channelIndexes, std::
 ErrorCodes_t EmcrDevice::setAdcCore(std::vector <uint16_t> channelIndexes, std::vector <ClampingModality_t> clampingModes, bool applyFlag) {
     if (vcCcSelCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -984,8 +984,8 @@ ErrorCodes_t EmcrDevice::setAdcCore(std::vector <uint16_t> channelIndexes, std::
 ErrorCodes_t EmcrDevice::enableCcStimulus(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
     if (ccStimEnCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {

@@ -247,6 +247,13 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
 
+    /*! Null coder (doesn't do anything if set to 0 */
+    boolConfig.initialWord = 0;
+    boolConfig.initialBit = 15;
+    boolConfig.bitsNum = 1;
+    BoolArrayCoder * nullCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(nullCoder);
+
     /*! FPGA reset */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 0;
@@ -272,7 +279,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     // undefined
 
     /*! Voltage range VC */
-    // undefined
+    vcVoltageRangeCoder = nullCoder;
 
     /*! Current range CC */
     // undefined
