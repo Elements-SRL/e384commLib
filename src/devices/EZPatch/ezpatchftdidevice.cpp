@@ -964,11 +964,13 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                             this->ack(rxHeartbeat);
 
                         } else {
+#ifdef LOCK_EZPATCH_ON_RX_BUFFER_FULL
                             std::unique_lock <std::mutex> rxMutexLock (rxMutex);
-                            while (rxMsgBufferReadLength >= EZP_RX_MSG_BUFFER_SIZE) { /*! \todo FCON bloccare la ricezione potrebbe essere controproducente */
+                            while (rxMsgBufferReadLength >= EZP_RX_MSG_BUFFER_SIZE) {
                                 txMsgBufferNotFull.wait(rxMutexLock);
                             }
                             rxMutexLock.unlock();
+#endif
 
                             rxMsgBuffer[rxMsgBufferWriteOffset].heartbeat = rxHeartbeat;
                             rxMsgBuffer[rxMsgBufferWriteOffset].typeId = rxMsgTypeId;
@@ -1120,7 +1122,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
     rxMutexLock.lock();
     parsingStatus = ParsingNone;
-    rxMsgBufferReadLength++; /*! In my opinion it is better to leave this increment, because other threads might hang forever on disconnection waiting for rxMsgBufferReadLength to be greater than 0 */
+    rxMsgBufferReadLength++;
     rxMsgBufferNotEmpty.notify_all();
 }
 

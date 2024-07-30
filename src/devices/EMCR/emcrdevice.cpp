@@ -1686,6 +1686,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
         uint32_t skipped = maxMsgRead - RX_MSG_BUFFER_SIZE;
         rxMsgBufferReadOffset = (rxMsgBufferReadOffset + skipped) & RX_MSG_BUFFER_MASK;
         rxMsgBufferReadLength -= skipped;
+        maxMsgRead = rxMsgBufferReadLength;
         data[0] = (int16_t)(skipped & (0xFFFF));
         data[1] = (int16_t)((skipped >> 16) & (0xFFFF));
         return Success;

@@ -724,7 +724,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
     std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     parsingStatus = ParsingNone;
-    rxMsgBufferReadLength++; /*! In my opinion it is better to leave this increment, because other threads might hang forever on disconnection waiting for rxMsgBufferReadLength to be greater than 0 */
+    rxMsgBufferReadLength++;
     rxMsgBufferNotEmpty.notify_all();
 }
 
