@@ -16,7 +16,7 @@
  * \param value [in] Value of the measurement.
  * \param prefix [in] Prefic of the measurement unit.
  * \param unit [in] Unit of the measurement.
- * \param value [out] Value of the measurement.
+ * \param measOut [out] Pointer to the measurement memory location.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
@@ -25,7 +25,7 @@ ErrorCodes_t createMeas(
         E384CL_ARGIN double value,
         E384CL_ARGIN UnitPfx_t prefix,
         E384CL_ARGIN LStrHandle unitIn,
-        E384CL_ARGOUT CharMeasurement_t * measOut);
+        E384CL_ARGOUT CharMeasurement_t ** measOut);
 
 /*! \brief Create a CharMeasurment_t vector from an array of CharMeasurement_t.
  *

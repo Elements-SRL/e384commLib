@@ -44,37 +44,15 @@ ErrorCodes_t createMeas(
         double value,
         UnitPfx_t prefix,
         LStrHandle unitIn,
-        CharMeasurement_t * measOut) {
+        CharMeasurement_t ** measOut) {
 
     std::string unit;
     input2String(unitIn, unit);
-    Measurement_t meas = {value, prefix, unit};
-    measOut = (CharMeasurement_t *)DSNewPtr(sizeof(CharMeasurement_t));
-    measurement2Output(meas, * measOut);
+    std::vector <Measurement_t> meas = {{value, prefix, unit}};
+    LMeasHandle * lMeas;
+    vectorMeasurement2Output(meas, lMeas);
+    * measOut = &(** lMeas)->item[0];
     return Success;
-//    * meas = (CharMeasurement_t *)DSNewPtr(sizeof(CharMeasurement_t));
-//    if (* meas == nullptr) {
-//        return ErrorMemoryInitialization; // Replace with actual error code for memory allocation failure
-//    }
-
-//    // Initialize the value and prefix fields
-//    (* meas)->value = value;
-//    (* meas)->prefix = prefix;
-//    input2String(unit, (* meas)->unit);
-
-//    // Allocate memory for the LStrHandle
-//    int32 len = (int32)strlen((char *)(unit->str));
-//    (* meas)->unit = (LStrHandle)DSNewHClr(sizeof(int32) + len);
-//    if ((* meas)->unit == nullptr) {
-//        DSDisposePtr(* meas); // Clean up previously allocated memory
-//        return ErrorMemoryInitialization; // Replace with actual error code for memory allocation failure
-//    }
-
-//    // Set the length of the LStrHandle and copy the string data
-//    LStrLen((* meas)->unit) = len;
-//    memcpy(LStrBuf((* meas)->unit), LStrBuf(unit), len);
-
-//    return Success;
 }
 
 ErrorCodes_t createMeasVector(
