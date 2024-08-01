@@ -1546,26 +1546,22 @@ ErrorCodes_t currSin(
 /*! \brief Reset the device's ASIC.
  *
  * \param reset [in] False sets the ASIC in normal operation state, true sets in reset state.
- * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t resetAsic(
-        E384CL_ARGIN bool reset,
-        E384CL_ARGIN bool applyFlagIn = true);
+        E384CL_ARGIN bool reset);
 
 /*! \brief Reset the device's FPGA.
  *
  * \param reset [in] False sets the FPGA in normal operation state, true sets in reset state.
- * \param applyFlagIn [in] Flag for instant application of this setting.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t resetFpga(
-        E384CL_ARGIN bool reset,
-        E384CL_ARGIN bool applyFlagIn = true);
+        E384CL_ARGIN bool reset);
 
 /*! \brief Reset the device's liquid junction compensation.
  *
