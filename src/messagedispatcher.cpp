@@ -1481,6 +1481,7 @@ void MessageDispatcher::computeLiquidJunction() {
                 case LiquidJunctionIdle:
                     break;
 
+                    /*! Initialization and start data collection */
                 case LiquidJunctionStarting:
                     activeFlag = true;
                     channelIndexes.push_back(channelIdx);
@@ -1514,22 +1515,27 @@ void MessageDispatcher::computeLiquidJunction() {
 #endif
                     break;
 
+                    /*! First impedance estimation */
                 case LiquidJunctionFirstStep:
                     activeFlag = true;
                     liquidJunctionCurrentEstimates[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum;
-                    if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) { /*! More or less 10% from saturation */
+                    /*! More or less 10% from saturation */
+                    if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) {
                         liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
                         liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
 
-                    } else if (liquidJunctionCurrentEstimates[channelIdx] > 0.0) { /*! Positive but not saturating */
+                        /*! Positive but not saturating */
+                    } else if (liquidJunctionCurrentEstimates[channelIdx] > 0.0) {
                         liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*10.0;
                         liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
 
-                    } else if (liquidJunctionCurrentEstimates[channelIdx] < -30000.0) { /*! More or less 10% from saturation */
+                        /*! More or less 10% from saturation */
+                    } else if (liquidJunctionCurrentEstimates[channelIdx] < -30000.0) {
                         liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
                         liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
 
-                    } else { /*! Negative but not saturating */
+                        /*! Negative but not saturating */
+                    } else {
                         liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*10.0;
                         liquidJunctionStates[channelIdx] = LiquidJunctionConverge;
                     }
@@ -1563,97 +1569,67 @@ void MessageDispatcher::computeLiquidJunction() {
 #endif
                     break;
 
+                    /*! Steps towards convergence */
                 case LiquidJunctionConverge:
                     activeFlag = true;
                     liquidJunctionDeltaCurrents[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum-liquidJunctionCurrentEstimates[channelIdx];
                     liquidJunctionCurrentEstimates[channelIdx] += liquidJunctionDeltaCurrents[channelIdx];
 
-                    if (abs(liquidJunctionDeltaCurrents[channelIdx]) < 2.0*liquidJunctionSmallestCurrentChange[channelIdx]) { /*! current change smaller than 10 LSB */
-                        if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) { /*! More or less 10% from saturation */
-                            liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
-                            liquidJunctionConvergedCount[channelIdx] = 0;
-                            liquidJunctionPositiveSaturationCount[channelIdx]++;
-                            liquidJunctionNegativeSaturationCount[channelIdx] = 0;
-                            liquidJunctionOpenCircuitCount[channelIdx] = 0;
+                    /*! More or less 10% from saturation,
+                     *  change DAC by 100 LSB in the opposite direction */
+                    if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) {
+                        liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
+                        liquidJunctionConvergedCount[channelIdx] = 0;
+                        liquidJunctionPositiveSaturationCount[channelIdx]++;
+                        liquidJunctionNegativeSaturationCount[channelIdx] = 0;
+                        liquidJunctionOpenCircuitCount[channelIdx] = 0;
 
-                        } else if (liquidJunctionCurrentEstimates[channelIdx] < -30000.0) { /*! More or less 10% from saturation */
-                            liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
-                            liquidJunctionConvergedCount[channelIdx] = 0;
-                            liquidJunctionPositiveSaturationCount[channelIdx] = 0;
-                            liquidJunctionNegativeSaturationCount[channelIdx]++;
-                            liquidJunctionOpenCircuitCount[channelIdx] = 0;
+                        /*! More or less 10% from saturation,
+                         *  change DAC by 100 LSB in the opposite direction */
+                    } else if (liquidJunctionCurrentEstimates[channelIdx] < -30000.0) {
+                        liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
+                        liquidJunctionConvergedCount[channelIdx] = 0;
+                        liquidJunctionPositiveSaturationCount[channelIdx] = 0;
+                        liquidJunctionNegativeSaturationCount[channelIdx]++;
+                        liquidJunctionOpenCircuitCount[channelIdx] = 0;
 
-                        } else { /*! Not saturating */
-                            if (liquidJunctionDeltaCurrents[channelIdx]*liquidJunctionDeltaVoltages[channelIdx] > 0.0) { /*! Current change consistent with voltage change */
-                                estimatedResistance = liquidJunctionDeltaVoltages[channelIdx]/liquidJunctionDeltaCurrents[channelIdx];
-                                liquidJunctionSmallestCurrentChange[channelIdx] = liquidJunctionResolution/estimatedResistance;
-                                liquidJunctionDeltaVoltages[channelIdx] = round(-liquidJunctionCurrentEstimates[channelIdx]*estimatedResistance/liquidJunctionResolution)*liquidJunctionResolution;
-                                liquidJunctionConvergedCount[channelIdx] = 0;
-                                liquidJunctionPositiveSaturationCount[channelIdx] = 0;
-                                liquidJunctionNegativeSaturationCount[channelIdx] = 0;
-                                liquidJunctionOpenCircuitCount[channelIdx] = 0;
+                        /*! Current very close to 0,
+                         *  change DAC by 1 LSB to find the optimal value */
+                    } else if (abs(liquidJunctionCurrentEstimates[channelIdx]) < 2.0*liquidJunctionSmallestCurrentChange[channelIdx]) {
+                        if (liquidJunctionDeltaCurrents[channelIdx] > 0.0) {
+                            liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution;
 
-                            } else if (abs(liquidJunctionCurrentEstimates[channelIdx]) < 2.0*liquidJunctionSmallestCurrentChange[channelIdx]) { /*! Current already very small, converging */
-                                if (abs(liquidJunctionCurrentEstimates[channelIdx]) > 0.5*liquidJunctionSmallestCurrentChange[channelIdx]) {
-                                    if (liquidJunctionDeltaCurrents[channelIdx] > 0.0) {
-                                        liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution;
-
-                                    } else {
-                                        liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution;
-                                    }
-                                }
-                                liquidJunctionConvergedCount[channelIdx]++;
-                                liquidJunctionPositiveSaturationCount[channelIdx] = 0;
-                                liquidJunctionNegativeSaturationCount[channelIdx] = 0;
-                                liquidJunctionOpenCircuitCount[channelIdx] = 0;
-
-                            } else { /*! Current not so small, probable open circuit */
-                                if (liquidJunctionDeltaCurrents[channelIdx] > 0.0) {
-                                    liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
-
-                                } else {
-                                    liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
-                                }
-                                liquidJunctionConvergedCount[channelIdx] = 0;
-                                liquidJunctionPositiveSaturationCount[channelIdx] = 0;
-                                liquidJunctionNegativeSaturationCount[channelIdx] = 0;
-                                liquidJunctionOpenCircuitCount[channelIdx]++;
-                            }
+                        } else {
+                            liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution;
                         }
+                        liquidJunctionConvergedCount[channelIdx]++;
+                        liquidJunctionPositiveSaturationCount[channelIdx] = 0;
+                        liquidJunctionNegativeSaturationCount[channelIdx] = 0;
+                        liquidJunctionOpenCircuitCount[channelIdx] = 0;
 
-                    } else { /*! current change greater than 10 LSB */
-                        if (liquidJunctionDeltaCurrents[channelIdx]*liquidJunctionDeltaVoltages[channelIdx] > 0.0) { /*! Current change consistent with voltage change */
-                            estimatedResistance = liquidJunctionDeltaVoltages[channelIdx]/liquidJunctionDeltaCurrents[channelIdx];
-                            liquidJunctionSmallestCurrentChange[channelIdx] = liquidJunctionResolution/estimatedResistance;
-                            liquidJunctionDeltaVoltages[channelIdx] = round(-liquidJunctionCurrentEstimates[channelIdx]*estimatedResistance/liquidJunctionResolution)*liquidJunctionResolution;
-                            liquidJunctionOpenCircuitCount[channelIdx] = 0;
-
-                        } else if (abs(liquidJunctionCurrentEstimates[channelIdx]) < 2.0*liquidJunctionSmallestCurrentChange[channelIdx]) { /*! Current already very small, converging */
-                            if (abs(liquidJunctionCurrentEstimates[channelIdx]) > 0.5*liquidJunctionSmallestCurrentChange[channelIdx]) {
-                                if (liquidJunctionDeltaCurrents[channelIdx] > 0.0) {
-                                    liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution;
-
-                                } else {
-                                    liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution;
-                                }
-                            }
-                            liquidJunctionConvergedCount[channelIdx]++;
-                            liquidJunctionPositiveSaturationCount[channelIdx] = 0;
-                            liquidJunctionNegativeSaturationCount[channelIdx] = 0;
-                            liquidJunctionOpenCircuitCount[channelIdx] = 0;
-
-                        } else { /*! Current not so small, probable open circuit */
-                            if (liquidJunctionDeltaCurrents[channelIdx] > 0.0) {
-                                liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
-
-                            } else {
-                                liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
-                            }
+                        /*! Current value not small enough, but current change consistent with voltage change,
+                         *  estimate resistance and estimate the next DAC value */
+                    } else if (liquidJunctionDeltaCurrents[channelIdx]*liquidJunctionDeltaVoltages[channelIdx] > 0.0) {
+                        estimatedResistance = liquidJunctionDeltaVoltages[channelIdx]/liquidJunctionDeltaCurrents[channelIdx];
+                        liquidJunctionSmallestCurrentChange[channelIdx] = liquidJunctionResolution/estimatedResistance;
+                        liquidJunctionDeltaVoltages[channelIdx] = round(-liquidJunctionCurrentEstimates[channelIdx]*estimatedResistance/liquidJunctionResolution)*liquidJunctionResolution;
+                        if (abs(liquidJunctionCurrentEstimates[channelIdx]) > 5.0*liquidJunctionSmallestCurrentChange[channelIdx]) {
                             liquidJunctionConvergedCount[channelIdx] = 0;
-                            liquidJunctionPositiveSaturationCount[channelIdx] = 0;
-                            liquidJunctionNegativeSaturationCount[channelIdx] = 0;
-                            liquidJunctionOpenCircuitCount[channelIdx]++;
                         }
+                        liquidJunctionPositiveSaturationCount[channelIdx] = 0;
+                        liquidJunctionNegativeSaturationCount[channelIdx] = 0;
+                        liquidJunctionOpenCircuitCount[channelIdx] = 0;
+
+                        /*! Current not so small and delta current inconsistent with delta voltage, probable open circuit,
+                         *  Perform another step without updating the estimated resistance value */
+                    } else {
+                        liquidJunctionDeltaVoltages[channelIdx] = round(-liquidJunctionCurrentEstimates[channelIdx]*estimatedResistance/liquidJunctionResolution)*liquidJunctionResolution;
+                        if (abs(liquidJunctionCurrentEstimates[channelIdx]) > 5.0*liquidJunctionSmallestCurrentChange[channelIdx]) {
+                            liquidJunctionConvergedCount[channelIdx] = 0;
+                        }
+                        liquidJunctionPositiveSaturationCount[channelIdx] = 0;
+                        liquidJunctionNegativeSaturationCount[channelIdx] = 0;
+                        liquidJunctionOpenCircuitCount[channelIdx]++;
                     }
 
                     selectedLiquidJunctionVector[channelIdx].value += liquidJunctionDeltaVoltages[channelIdx];
@@ -1687,16 +1663,16 @@ void MessageDispatcher::computeLiquidJunction() {
                     fflush(ljFid);
 #endif
 
-                    if (liquidJunctionConvergingCount[channelIdx] > 50) {
+                    if (liquidJunctionConvergingCount[channelIdx] > 20) {
                         liquidJunctionStates[channelIdx] = LiquidJunctionFailTooManySteps;
 
                     } else if (liquidJunctionConvergedCount[channelIdx] > 2) {
                         liquidJunctionStates[channelIdx] = LiquidJunctionSuccess;
 
-                    } else if (liquidJunctionOpenCircuitCount[channelIdx] > 10) {
+                    } else if (liquidJunctionOpenCircuitCount[channelIdx] > 5) {
                         liquidJunctionStates[channelIdx] = LiquidJunctionFailOpenCircuit;
 
-                    } else if (liquidJunctionPositiveSaturationCount[channelIdx] > 20 || liquidJunctionNegativeSaturationCount[channelIdx] > 20) {
+                    } else if (liquidJunctionPositiveSaturationCount[channelIdx] > 10 || liquidJunctionNegativeSaturationCount[channelIdx] > 20) {
                         liquidJunctionStates[channelIdx] = LiquidJunctionFailSaturation;
                     }
                     break;
@@ -1755,7 +1731,7 @@ void MessageDispatcher::computeLiquidJunction() {
 
                 case LiquidJunctionTerminate:
                     activeFlag = true;
-                    liquidJunctionSmallestCurrentChange[channelIdx] = 10.0;
+                    liquidJunctionSmallestCurrentChange[channelIdx] = 1.0;
                     liquidJunctionStates[channelIdx] = LiquidJunctionIdle;
                     if (liquidJunctionStatuses[channelIdx] == LiquidJunctionExecuting) {
                         liquidJunctionStatuses[channelIdx] = LiquidJunctionInterrupted;
@@ -1833,7 +1809,7 @@ void MessageDispatcher::initializeLiquidJunction() {
     liquidJunctionDeltaCurrents.resize(currentChannelsNum);
     std::fill(liquidJunctionDeltaCurrents.begin(), liquidJunctionDeltaCurrents.end(), 0.0);
     liquidJunctionSmallestCurrentChange.resize(currentChannelsNum);
-    std::fill(liquidJunctionSmallestCurrentChange.begin(), liquidJunctionSmallestCurrentChange.end(), 10.0);
+    std::fill(liquidJunctionSmallestCurrentChange.begin(), liquidJunctionSmallestCurrentChange.end(), 1.0); /*! Start assuming the smallest current change is 1 current LSB */
     liquidJunctionConvergingCount.resize(currentChannelsNum);
     std::fill(liquidJunctionConvergingCount.begin(), liquidJunctionConvergingCount.end(), 0);
     liquidJunctionConvergedCount.resize(currentChannelsNum);
