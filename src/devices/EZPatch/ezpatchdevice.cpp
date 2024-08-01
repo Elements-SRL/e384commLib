@@ -3783,33 +3783,29 @@ ErrorCodes_t EZPatchDevice::setCompensationsOptions() {
 ErrorCodes_t EZPatchDevice::setCompensationValue(CompensationControl_t &control, Measurement_t newValue) {
     ErrorCodes_t ret;
 
-    if (control.implemented) {
-        newValue.convertValue(control.prefix);
-        double originalValue = control.value;
-        control.value = newValue.value;
+    if (!control.implemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    newValue.convertValue(control.prefix);
+    double originalValue = control.value;
+    control.value = newValue.value;
 
-        if (this->checkCompensationsValues()) {
-            uint16_t dataLength = compensationsRegistersNum*2;
-            std::vector <uint16_t> txDataMessage(dataLength);
-            if (this->fillCompensationsRegistersTxData(txDataMessage)) {
-                ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-                if (ret == Success) {
-                    this->updateWrittenCompensationValues(txDataMessage);
+    if (!(this->checkCompensationsValues())) {
+        return ErrorValueOutOfRange;
+    }
+    uint16_t dataLength = compensationsRegistersNum*2;
+    std::vector <uint16_t> txDataMessage(dataLength);
+    if (this->fillCompensationsRegistersTxData(txDataMessage)) {
+        /*! Uncheanged value */
+        return Success;
+    }
 
-                } else {
-                    control.value = originalValue;
-                }
-
-            } else {
-                ret = ErrorUnchangedValue;
-            }
-
-        } else {
-            ret = ErrorValueOutOfRange;
-        }
+    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+    if (ret == Success) {
+        this->updateWrittenCompensationValues(txDataMessage);
 
     } else {
-        ret = ErrorFeatureNotImplemented;
+        control.value = originalValue;
     }
 
     return ret;
