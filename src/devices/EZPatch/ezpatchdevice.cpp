@@ -1050,20 +1050,20 @@ ErrorCodes_t EZPatchDevice::liquidJunctionCompensation(std::vector <uint16_t> ch
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
-    bool stopProtocolFlag = false;
+    bool zeroProtocolFlag = false;
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
         channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
-            stopProtocolFlag = true;
+            zeroProtocolFlag = true;
 
         } else if (!onValues[i]) {
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
         }
     }
-    if (stopProtocolFlag) {
-        this->stopProtocol();
+    if (zeroProtocolFlag) {
+        this->zeroProtocol();
     }
 
     anyLiquidJunctionActive = true;
@@ -2276,6 +2276,21 @@ ErrorCodes_t EZPatchDevice::stopProtocol() {
         this->setCurrentProtocolStructure(selectedProtocolId-1, 2, 1, selectedProtocolIrest, stopProtocolFlag);
         this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {2.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
         this->setCurrentProtocolStep(1, 2, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {2.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
+    }
+    return this->startProtocol();
+}
+
+ErrorCodes_t EZPatchDevice::zeroProtocol() {
+    bool stopProtocolFlag = false; /*! We're want to apply this instead of the stop protocol */
+    if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+        this->setVoltageProtocolStructure(selectedProtocolId-1, 2, 1, selectedProtocolVrest, stopProtocolFlag);
+        this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {100.0, UnitPfxKilo, "s"}, {0.0, UnitPfxNone, "s"}, false);
+        this->setVoltageProtocolStep(1, 0, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {100.0, UnitPfxKilo, "s"}, {0.0, UnitPfxNone, "s"}, false);
+
+    } else {
+        this->setCurrentProtocolStructure(selectedProtocolId-1, 2, 1, selectedProtocolIrest, stopProtocolFlag);
+        this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {100.0, UnitPfxKilo, "s"}, {0.0, UnitPfxNone, "s"}, false);
+        this->setCurrentProtocolStep(1, 0, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {100.0, UnitPfxKilo, "s"}, {0.0, UnitPfxNone, "s"}, false);
     }
     return this->startProtocol();
 }
