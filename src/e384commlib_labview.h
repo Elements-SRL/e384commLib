@@ -24,7 +24,7 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t createMeas(
         E384CL_ARGIN double value,
         E384CL_ARGIN UnitPfx_t prefix,
-        E384CL_ARGIN LStrHandle unitIn,
+        E384CL_ARGIN char * unitIn,
         E384CL_ARGOUT CharMeasurement_t ** measOut);
 
 /*! \brief Create a CharMeasurment_t vector from an array of CharMeasurement_t.

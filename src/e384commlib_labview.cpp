@@ -43,15 +43,18 @@ static ErrorCodes_t getCompensationValues(uint16_t * channelIndexesIn, double * 
 ErrorCodes_t createMeas(
         double value,
         UnitPfx_t prefix,
-        LStrHandle unitIn,
+        char * unitIn,
         CharMeasurement_t ** measOut) {
 
-    std::string unit;
-    input2String(unitIn, unit);
-    std::vector <Measurement_t> meas = {{value, prefix, unit}};
-    LMeasHandle * lMeas;
-    vectorMeasurement2Output(meas, lMeas);
-    * measOut = &(** lMeas)->item[0];
+    std::string unit = unitIn;
+    CharMeasurement_t * d = new CharMeasurement_t;
+    (* d).value = value;
+    (* d).prefix = prefix;
+//    LStrHandle * h;
+//    string2Output(unit, h);
+//    (* d).unit = * h;
+
+    * measOut = d;
     return Success;
 }
 
