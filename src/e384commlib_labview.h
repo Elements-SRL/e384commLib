@@ -225,6 +225,20 @@ ErrorCodes_t setCurrentHalf(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+/*! \brief Set the current offset to the default value.
+ *
+ * \param channelIndexes [in] Vector of Indexes for the channels to control.
+ * \param applyFlagIn [in] true: immediately submit the command to the device; false: submit together with the next command.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t resetOffsetRecalibration(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN bool applyFlagIn,
+        E384CL_ARGIN int vectorLengthIn = 0);
+
 /*! \brief Set the liquid junction voltage.
  *
  * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
@@ -241,17 +255,16 @@ ErrorCodes_t setLiquidJunctionVoltage(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
-/*! \brief Set the liquid junction voltage to 0.
- *  \deprecated Use setLiquidJunctionVoltage instead.
+/*! \brief Reset the liquid junction voltage.
  *
- * \param channelIndexesIn [in] Vector of Indexes for the channels to control.
+ * \param channelIndexesIn [in] Vector of Indexes for the channels to reset.
  * \param applyFlagIn [in] Flag for instant application of this setting.
  * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setDigitalOffsetVoltage(
+ErrorCodes_t resetLiquidJunctionVoltage(
         E384CL_ARGIN uint16_t * channelIndexesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);

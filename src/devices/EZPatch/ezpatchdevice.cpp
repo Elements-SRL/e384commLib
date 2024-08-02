@@ -872,6 +872,96 @@ ErrorCodes_t EZPatchDevice::setSourceForCurrentChannel(uint16_t source, bool app
     return ret;
 }
 
+ErrorCodes_t EZPatchDevice::setCalibVcCurrentOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) {
+    if (!vcCurrentOffsetDeltaImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    RangedMeasurement_t range = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
+    if (!allInRange(offsets, range.getMin(), range.getMax())) {
+        return ErrorValueOutOfRange;
+    }
+    std::map <uint16_t, Measurement_t> m;
+    for (size_t i = 0; i < channelIndexes.size(); ++i) {
+        m[channelIndexes[i]] = offsets[i];
+    }
+    for (auto e : m) {
+        uint16_t chIdx = e.first;
+        Measurement_t current = e.second;
+
+        current.convertValue(range.prefix);
+        calibrationParams.vcOffsetAdc[selectedVcCurrentRangeIdx][chIdx] = current;
+    }
+    return this->updateCalibVcCurrentOffset(channelIndexes, applyFlag);
+}
+
+ErrorCodes_t EZPatchDevice::updateCalibVcCurrentOffset(std::vector <uint16_t> channelIndexes, bool) {
+    if (!vcCurrentOffsetDeltaImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    RangedMeasurement_t range = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
+    uint16_t dataLength = 2*channelIndexes.size();
+    std::vector <uint16_t> txDataMessage(dataLength);
+    for (auto chIdx : channelIndexes) {
+        calibrationParams.vcOffsetAdc[selectedVcCurrentRangeIdx][chIdx].convertValue(range.prefix);
+
+        txDataMessage[0+chIdx*2] = vcCurrentOffsetDeltaRegisterOffset+chIdx*coreSpecificRegistersNum;
+        txDataMessage[1+chIdx*2] = (uint16_t)((int16_t)round(calibrationParams.vcOffsetAdc[selectedVcCurrentRangeIdx][chIdx].value*SHORT_MAX/range.max));
+    }
+
+    return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+}
+
+ErrorCodes_t EZPatchDevice::setCalibCcVoltageOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) {
+    if (!ccVoltageOffsetDeltaImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, voltageChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    RangedMeasurement_t range = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
+    if (!allInRange(offsets, range.getMin(), range.getMax())) {
+        return ErrorValueOutOfRange;
+    }
+    std::map <uint16_t, Measurement_t> m;
+    for (size_t i = 0; i < channelIndexes.size(); ++i) {
+        m[channelIndexes[i]] = offsets[i];
+    }
+    for (auto e : m) {
+        uint16_t chIdx = e.first;
+        Measurement_t voltage = e.second;
+
+        voltage.convertValue(range.prefix);
+        calibrationParams.ccOffsetAdc[selectedCcVoltageRangeIdx][chIdx] = voltage;
+    }
+    return this->updateCalibCcVoltageOffset(channelIndexes, applyFlag);
+}
+
+ErrorCodes_t EZPatchDevice::updateCalibCcVoltageOffset(std::vector <uint16_t> channelIndexes, bool) {
+    if (!ccVoltageOffsetDeltaImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, voltageChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    RangedMeasurement_t range = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
+    uint16_t dataLength = 2*channelIndexes.size();
+    std::vector <uint16_t> txDataMessage(dataLength);
+    for (auto chIdx : channelIndexes) {
+        calibrationParams.ccOffsetAdc[selectedCcVoltageRangeIdx][chIdx].convertValue(range.prefix);
+
+        txDataMessage[0+chIdx*2] = ccVoltageOffsetDeltaRegisterOffset+chIdx*coreSpecificRegistersNum;
+        txDataMessage[1+chIdx*2] = (uint16_t)((int16_t)round(calibrationParams.ccOffsetAdc[selectedCcVoltageRangeIdx][chIdx].value*SHORT_MAX/range.max));
+    }
+
+    return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
+}
+
 ErrorCodes_t EZPatchDevice::turnOnLsbNoise(bool flag) {
     this->initializeLsbNoise(!flag);
     return Success;
@@ -1046,10 +1136,50 @@ ErrorCodes_t EZPatchDevice::setSamplingRate(uint16_t samplingRateIdx, bool apply
     return ret;
 }
 
+ErrorCodes_t EZPatchDevice::readoutOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
+    if (!vcCurrentOffsetDeltaImplemented) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    if (anyLiquidJunctionActive) {
+        return ErrorLiquidJunctionAndRecalibration;
+    }
+
+    std::unique_lock <std::mutex> ljMutexLock (ljMutex);
+    bool zeroProtocolFlag = false;
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+        uint16_t chIdx = channelIndexes[i];
+        channelModels[chIdx]->setRecalibratingReadoutOffset(onValues[i]);
+        if (onValues[i] && (offsetRecalibStates[chIdx] == OffsetRecalibIdle)) {
+            offsetRecalibStates[chIdx] = OffsetRecalibStarting;
+            zeroProtocolFlag = true;
+
+        } else if (!onValues[i] && (offsetRecalibStates[chIdx] != OffsetRecalibIdle)) {
+            offsetRecalibStates[chIdx] = OffsetRecalibTerminate;
+        }
+    }
+    anyOffsetRecalibrationActive = true;
+    computeCurrentOffsetFlag = true;
+    ljMutexLock.unlock();
+
+    if (zeroProtocolFlag) {
+        this->zeroProtocol();
+    }
+
+    return Success;
+}
+
 ErrorCodes_t EZPatchDevice::liquidJunctionCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
+    if (anyOffsetRecalibrationActive) {
+        return ErrorLiquidJunctionAndRecalibration;
+    }
+
+    std::unique_lock <std::mutex> ljMutexLock(ljMutex);
     bool zeroProtocolFlag = false;
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
@@ -1062,12 +1192,14 @@ ErrorCodes_t EZPatchDevice::liquidJunctionCompensation(std::vector <uint16_t> ch
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
         }
     }
+    anyLiquidJunctionActive = true;
+    computeCurrentOffsetFlag = true;
+    ljMutexLock.unlock();
+
     if (zeroProtocolFlag) {
         this->zeroProtocol();
     }
 
-    anyLiquidJunctionActive = true;
-    computeCurrentOffsetFlag = true;
     return Success;
 }
 
@@ -1106,60 +1238,6 @@ ErrorCodes_t EZPatchDevice::liquidJunctionCompensationOverride(uint16_t channelI
                     ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdLiquidJunctionComp, txDataMessage, dataLength);
                 }
             }
-
-        } else {
-            ret = ErrorValueOutOfRange;
-        }
-
-    } else {
-        return ErrorFeatureNotImplemented;
-    }
-
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::setVcCurrentOffsetDelta(uint16_t channelIdx, Measurement_t value) {
-    ErrorCodes_t ret;
-
-    if (vcCurrentOffsetDeltaImplemented) {
-        if (channelIdx < currentChannelsNum) {
-            value.convertValue(currentRange.prefix);
-            uint16_t dataLength = 2;
-            std::vector <uint16_t> txDataMessage(dataLength);
-
-            txDataMessage[0] = vcCurrentOffsetDeltaRegisterOffset+channelIdx*coreSpecificRegistersNum;
-            txDataMessage[1] = (uint16_t)((int16_t)round(value.value*SHORT_MAX/currentRange.max));
-
-            ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-
-            return ret;
-
-        } else {
-            ret = ErrorValueOutOfRange;
-        }
-
-    } else {
-        return ErrorFeatureNotImplemented;
-    }
-
-    return ret;
-}
-
-ErrorCodes_t EZPatchDevice::setCcVoltageOffsetDelta(uint16_t channelIdx, Measurement_t value) {
-    ErrorCodes_t ret;
-
-    if (vcCurrentOffsetDeltaImplemented) {
-        if (channelIdx < currentChannelsNum) {
-            value.convertValue(voltageRange.prefix);
-            uint16_t dataLength = 2;
-            std::vector <uint16_t> txDataMessage(dataLength);
-
-            txDataMessage[0] = ccVoltageOffsetDeltaRegisterOffset+channelIdx*coreSpecificRegistersNum;
-            txDataMessage[1] = (uint16_t)((int16_t)round(value.value*SHORT_MAX/voltageRange.max));
-
-            ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-
-            return ret;
 
         } else {
             ret = ErrorValueOutOfRange;
@@ -2742,14 +2820,14 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
                             lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
 
-                            if (anyLiquidJunctionActive) {
+                            if (computeCurrentOffsetFlag) {
                                 liquidJunctionCurrentSums[channelIdx] += (int64_t)data[dataWritten+sampleIdx+voltageChannelsNum];
                             }
 
                             sampleIdx++;
                         }
 
-                        if (anyLiquidJunctionActive) {
+                        if (computeCurrentOffsetFlag) {
                             liquidJunctionCurrentEstimatesNum++;
                         }
                         sampleIdx += currentChannelsNum;
@@ -3222,6 +3300,22 @@ ErrorCodes_t EZPatchDevice::deviceConfiguration() {
         return ret;
     }
 
+    this->setSecondaryDeviceswitch (false);
+
+    std::vector <uint16_t> ch(currentChannelsNum);
+    std::vector <Measurement_t> offsetsA(currentChannelsNum);
+    std::vector <Measurement_t> offsetsV(currentChannelsNum);
+    Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
+    Measurement_t zeroV = {0.0, UnitPfxNone, "V"};
+
+    for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
+        ch[idx] = idx;
+        offsetsA[idx] = zeroA;
+        offsetsV[idx] = zeroV;
+    }
+    this->setCalibVcCurrentOffset(ch, offsetsA, true);
+    this->setCalibCcVoltageOffset(ch, offsetsV, true);
+
     return this->setConstantRegisters();
 }
 
@@ -3292,11 +3386,6 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
     ret = this->resetAsic(false, true);
     if (ret != Success) {
         return ErrorConnectionChipResetFailed;
-    }
-
-    this->setSecondaryDeviceswitch (false); /*! \todo FCON questo va propriamente settato per gestire device main e secondary */
-    for (uint16_t idx = 0; idx < currentChannelsNum; idx++) {
-        this->setVcCurrentOffsetDelta(idx, {0.0, UnitPfxNone, "A"});
     }
 
     return ret;
@@ -3810,7 +3899,7 @@ ErrorCodes_t EZPatchDevice::setCompensationValue(CompensationControl_t &control,
     }
     uint16_t dataLength = compensationsRegistersNum*2;
     std::vector <uint16_t> txDataMessage(dataLength);
-    if (this->fillCompensationsRegistersTxData(txDataMessage)) {
+    if (!(this->fillCompensationsRegistersTxData(txDataMessage))) {
         /*! Uncheanged value */
         return Success;
     }

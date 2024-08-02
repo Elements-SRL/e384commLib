@@ -93,6 +93,11 @@ public:
     ErrorCodes_t setSourceForVoltageChannel(uint16_t source, bool applyFlag) override;
     ErrorCodes_t setSourceForCurrentChannel(uint16_t source, bool applyFlag) override;
 
+    ErrorCodes_t setCalibVcCurrentOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) override;
+    ErrorCodes_t updateCalibVcCurrentOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t setCalibCcVoltageOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) override;
+    ErrorCodes_t updateCalibCcVoltageOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+
     ErrorCodes_t turnOnLsbNoise(bool flag);
     virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
     virtual ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
@@ -100,12 +105,11 @@ public:
     ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
     virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
+    ErrorCodes_t readoutOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     virtual ErrorCodes_t liquidJunctionCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     virtual ErrorCodes_t liquidJunctionCompensation(uint16_t channelIdx);
-    ErrorCodes_t liquidJunctionCompensationOverride(uint16_t channelIdx, Measurement value);
+    ErrorCodes_t liquidJunctionCompensationOverride(uint16_t channelIdx, Measurement_t value);
     ErrorCodes_t liquidJunctionCompensationInquiry(uint16_t channelIdx);
-    ErrorCodes_t setVcCurrentOffsetDelta(uint16_t channelIdx, Measurement value);
-    ErrorCodes_t setCcVoltageOffsetDelta(uint16_t channelIdx, Measurement value);
     ErrorCodes_t zap(Measurement_t duration, uint16_t channelIdx);
     ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag) override;
     ErrorCodes_t setCurrentStimulusLpf(uint16_t filterIdx, bool applyFlag) override;
@@ -324,14 +328,13 @@ protected:
     bool currentHoldTunerImplemented = false;
 
     bool vcCurrentOffsetDeltaImplemented = false;
-    bool ccCurrentOffsetDeltaImplemented = false;
+    bool ccVoltageOffsetDeltaImplemented = false;
 
     unsigned int maxDigitalTriggerOutputEvents = 1000000;
     unsigned int digitalTriggersNum = 0;
     bool repetitiveTriggerAvailableFlag = false;
 
     CompensationControl_t liquidJunctionControl;
-    double liquidJunctionResolution = 1.0;
     double liquidJunctionOffsetBinary = 0.0;
     double liquidJunctionRounding = 1.0; /*! In some case the 4 LSBs are fixed at 0. Since the automatic compensation does not set these bits in EL04e/f device,
                                              this bits must not be set, otherwise the FW fails to check against the upper and lower limits */

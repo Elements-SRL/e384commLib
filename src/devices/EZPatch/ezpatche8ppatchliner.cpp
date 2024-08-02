@@ -611,7 +611,7 @@ EZPatche8PPatchliner::EZPatche8PPatchliner(std::string di) :
 
     vcCurrentOffsetDeltaImplemented = true;
     vcCurrentOffsetDeltaRegisterOffset = 17;
-    ccCurrentOffsetDeltaImplemented = true;
+    ccVoltageOffsetDeltaImplemented = true;
     ccVoltageOffsetDeltaRegisterOffset = 18;
 
     startProtocolCommandImplemented = true;

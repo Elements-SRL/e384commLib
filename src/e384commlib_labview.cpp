@@ -252,7 +252,7 @@ ErrorCodes_t setLiquidJunctionVoltage(
     return messageDispatcher->setLiquidJunctionVoltage(channelIndexes, voltages, true);
 }
 
-ErrorCodes_t setLiquidJunctionVoltage(
+ErrorCodes_t resetLiquidJunctionVoltage(
         uint16_t * channelIndexesIn,
         bool applyFlagIn,
         int vectorLengthIn) {
@@ -262,13 +262,6 @@ ErrorCodes_t setLiquidJunctionVoltage(
     std::vector <uint16_t> channelIndexes;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     return messageDispatcher->resetLiquidJunctionVoltage(channelIndexes, true);
-}
-
-ErrorCodes_t setDigitalOffsetVoltage(
-        uint16_t * channelIndexesIn,
-        bool applyFlagIn,
-        int vectorLengthIn) {
-    return setLiquidJunctionVoltage(channelIndexesIn, applyFlagIn, vectorLengthIn);
 }
 
 ErrorCodes_t setCalibVcCurrentGain(

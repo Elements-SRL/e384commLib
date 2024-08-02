@@ -708,6 +708,22 @@ ErrorCodes_t EZPatchFtdiDevice::stopCommunication() {
 
 void EZPatchFtdiDevice::initializeCalibration() {
     calibrationEeprom = new CalibrationEeprom(this->getDeviceIndex(deviceId+spiChannel));
+    if (vcCurrentOffsetDeltaImplemented) {
+        Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
+        calibrationParams.vcOffsetAdc.resize(vcCurrentRangesNum);
+        for (auto &v : calibrationParams.vcOffsetAdc) {
+            v.resize(currentChannelsNum);
+            std::fill(v.begin(), v.end(), zeroA);
+        }
+    }
+    if (ccVoltageOffsetDeltaImplemented) {
+        Measurement_t zeroV = {0.0, UnitPfxNone, "V"};
+        calibrationParams.ccOffsetAdc.resize(ccVoltageRangesNum);
+        for (auto &v : calibrationParams.ccOffsetAdc) {
+            v.resize(voltageChannelsNum);
+            std::fill(v.begin(), v.end(), zeroV);
+        }
+    }
 }
 
 void EZPatchFtdiDevice::deinitializeCalibration() {

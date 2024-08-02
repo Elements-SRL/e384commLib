@@ -348,7 +348,7 @@ public:
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t resetOffsetRecalibration(std::vector <uint16_t> channelIndexes, bool applyFlag);
+    ErrorCodes_t resetOffsetRecalibration(std::vector <uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set the liquid junction voltage. Contrarily to the voltage hold tuner, this voltage contribute is not reflected in the voltage readout
      *
@@ -365,7 +365,7 @@ public:
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t resetLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, bool applyFlag);
+    ErrorCodes_t resetLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set the gate voltage on a specific board.
      *
