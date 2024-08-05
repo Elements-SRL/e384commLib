@@ -11,35 +11,146 @@
  *  Helper functions  *
 \**********************/
 
-/*! \brief Create a CharMeasurment_t from its fields.
+/*! \todo Find a way to return the content of the vectors of measurement and rangeMeasurement */
+
+/*! \brief Get the size of the internal vector of Measurement_t.
+ * \note Increases size by 1
+ *
+ * \param size [out] Size of the vector.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getMeasVecSize(
+        E384CL_ARGOUT uint16_t &size);
+
+/*! \brief Resize the internal vector of Measurement_t.
+ * \todo NOT IMPLEMENTED
+ *
+ * \param size [in] New size of the vector.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t measVecResize(
+        E384CL_ARGIN uint16_t &size);
+
+/*! \brief Clears the internal vector of Measurement_t.
+ *
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t measVecClear(
+        E384CL_ARGVOID);
+
+/*! \brief Append a Measurment_t to the internal vector.
+ * \note Increases size by 1
  *
  * \param value [in] Value of the measurement.
  * \param prefix [in] Prefic of the measurement unit.
  * \param unit [in] Unit of the measurement.
- * \param measOut [out] Pointer to the measurement memory location.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t createMeas(
+ErrorCodes_t appendMeasToVec(
         E384CL_ARGIN double value,
         E384CL_ARGIN UnitPfx_t prefix,
-        E384CL_ARGIN char * unitIn,
-        E384CL_ARGOUT CharMeasurement_t ** measOut);
+        E384CL_ARGIN char * unitIn);
 
-/*! \brief Create a CharMeasurment_t vector from an array of CharMeasurement_t.
+/*! \brief Set a Measurment_t in the internal vector.
+ * \note The size of the vector must be greater than idx.
+ * \todo NOT IMPLEMENTED
  *
- * \param measArray [in] Array of measurements.
- * \param sizeIn [in] Number of the measurements in the array.
- * \param measVectorOut [out] Vector of measurements returned as a handle.
+ * \param idx [in] Index of the vector to set.
+ * \param value [in] Value of the measurement.
+ * \param prefix [in] Prefic of the measurement unit.
+ * \param unit [in] Unit of the measurement.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t createMeasVector(
-        E384CL_ARGIN CharMeasurement_t * measArray[],
-        E384CL_ARGIN uint32_t sizeIn,
-        E384CL_ARGOUT LMeasHandle * measVectorOut);
+ErrorCodes_t setMeasInVec(
+        E384CL_ARGIN uint16_t idx,
+        E384CL_ARGIN double value,
+        E384CL_ARGIN UnitPfx_t prefix,
+        E384CL_ARGIN char * unitIn);
+
+/*! \brief Get the size of the internal vector of RangedMeasurement_t.
+ * \note Increases size by 1
+ * \todo NOT IMPLEMENTED
+ *
+ * \param size [out] Size of the vector.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getRangeVecSize(
+        E384CL_ARGOUT uint16_t &size);
+
+/*! \brief Clears the internal vector of RangedMeasurement_t.
+ * \todo NOT IMPLEMENTED
+ *
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t rangeVecClear(
+        E384CL_ARGVOID);
+
+/*! \brief Resize the internal vector of RangedMeasurement_t.
+ * \todo NOT IMPLEMENTED
+ *
+ * \param size [in] New size of the vector.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t rangeVecResize(
+        E384CL_ARGIN uint16_t &size);
+
+/*! \brief Append a RangedMeasurment_t to the internal vector.
+ * \note Increases size by 1
+ * \todo NOT IMPLEMENTED
+ *
+ * \param max [in] Max value of the rangedMeasurement.
+ * \param min [in] Min value of the rangedMeasurement.
+ * \param step [in] Step of the rangedMeasurement.
+ * \param prefix [in] Prefic of the measurement unit.
+ * \param unit [in] Unit of the measurement.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t appendRangeToVec(
+        E384CL_ARGIN double max,
+        E384CL_ARGIN double min,
+        E384CL_ARGIN double step,
+        E384CL_ARGIN UnitPfx_t prefix,
+        E384CL_ARGIN char * unitIn);
+
+/*! \brief Set a RangedMeasurment_t in the internal vector.
+ * \note The size of the vector must be greater than idx.
+ * \todo NOT IMPLEMENTED
+ *
+ * \param idx [in] Index of the vector to set.
+ * \param max [in] Max value of the rangedMeasurement.
+ * \param min [in] Min value of the rangedMeasurement.
+ * \param step [in] Step of the rangedMeasurement.
+ * \param prefix [in] Prefic of the rangedMeasurement unit.
+ * \param unit [in] Unit of the rangedMeasurement.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setRangeInVec(
+        E384CL_ARGIN uint16_t idx,
+        E384CL_ARGIN double max,
+        E384CL_ARGIN double min,
+        E384CL_ARGIN double step,
+        E384CL_ARGIN UnitPfx_t prefix,
+        E384CL_ARGIN char * unitIn);
 
 /************************\
  *  Connection methods  *

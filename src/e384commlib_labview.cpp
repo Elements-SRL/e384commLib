@@ -9,6 +9,8 @@
 #endif
 
 static MessageDispatcher * messageDispatcher = nullptr;
+static std::vector <Measurement_t> internalMeasVec;
+static std::vector <RangedMeasurement_t> internalRangeVec;
 
 /*! Private functions prototypes */
 
@@ -37,39 +39,137 @@ static ErrorCodes_t getCompensationOptions(LStrHandle * optionsOut, MessageDispa
 static ErrorCodes_t getCompensationControl(CharCompensationControl_t &controlOut, MessageDispatcher::CompensationUserParams_t param);
 static ErrorCodes_t getCompensationValues(uint16_t * channelIndexesIn, double * channelValuesOut, bool * activeNotActiveOut, int vectorLengthIn, MessageDispatcher::CompensationTypes_t type, MessageDispatcher::CompensationUserParams_t param);
 
-//createRange
-//createRangeVector
+#ifdef HELPERLOG
+#include <fstream>
+#include <iostream>
 
-ErrorCodes_t createMeas(
+static std::fstream logFile;
+#endif
+
+ErrorCodes_t getMeasVecSize(
+        uint16_t &size) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+#ifdef HELPERLOG
+    logFile << "getting size" << std::endl;
+#endif
+    size = internalMeasVec.size();
+#ifdef HELPERLOG
+    logFile << "done, size: " << internalMeasVec.size() << std::endl;
+#endif
+    return Success;
+}
+
+ErrorCodes_t measVecClear(
+        E384CL_ARGVOID) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+#ifdef HELPERLOG
+    logFile << "clearing" << std::endl;
+#endif
+    internalMeasVec.clear();
+#ifdef HELPERLOG
+    logFile << "done, size: " << internalMeasVec.size() << std::endl;
+#endif
+
+    return Success;
+}
+
+ErrorCodes_t appendMeasToVec(
         double value,
         UnitPfx_t prefix,
-        char * unitIn,
-        CharMeasurement_t ** measOut) {
+        char * unitIn) {
 
-    std::string unit = unitIn;
-    CharMeasurement_t * d = new CharMeasurement_t;
-    (* d).value = value;
-    (* d).prefix = prefix;
-//    LStrHandle * h;
-//    string2Output(unit, h);
-//    (* d).unit = * h;
-
-    * measOut = d;
-    return Success;
-}
-
-ErrorCodes_t createMeasVector(
-        CharMeasurement_t * measArray[],
-        uint32_t sizeIn,
-        LMeasHandle * measVectorOut) {
-
-    std::vector <Measurement_t> measVector(sizeIn);
-    for (uint32_t idx = 0; idx < sizeIn; idx++) {
-        input2Measurement(* measArray[idx], measVector[idx]);
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
     }
-    vectorMeasurement2Output(measVector, measVectorOut);
+
+#ifdef HELPERLOG
+    logFile << "creating meas" << std::endl;
+#endif
+    Measurement_t meas = {value, prefix, std::string(unitIn)};
+#ifdef HELPERLOG
+    logFile << "appending meas: {" << meas.value << ", " << meas.prefix << ", " << meas.unit << std::endl;
+#endif
+    internalMeasVec.push_back(meas);
+#ifdef HELPERLOG
+    logFile << "done, measVec[" <<
+               internalMeasVec.size()-1 << "]: {" <<
+               internalMeasVec.back().value << ", " <<
+               internalMeasVec.back().prefix << ", " <<
+               internalMeasVec.back().unit << std::endl;
+#endif
     return Success;
 }
+
+
+///*! \brief Create a CharMeasurment_t from its fields.
+// *
+// * \param value [in] Value of the measurement.
+// * \param prefix [in] Prefic of the measurement unit.
+// * \param unit [in] Unit of the measurement.
+// * \param measOut [out] Pointer to the measurement memory location.
+// * \return Error code.
+// */
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t createMeas(
+//        E384CL_ARGIN double value,
+//        E384CL_ARGIN UnitPfx_t prefix,
+//        E384CL_ARGIN char * unitIn,
+//        E384CL_ARGOUT CharMeasurement_t ** measOut);
+
+///*! \brief Create a CharMeasurment_t vector from an array of CharMeasurement_t.
+// *
+// * \param measArray [in] Array of measurements.
+// * \param sizeIn [in] Number of the measurements in the array.
+// * \param measVectorOut [out] Vector of measurements returned as a handle.
+// * \return Error code.
+// */
+//E384COMMLIB_NAME_MANGLING
+//E384COMMLIBSHARED_EXPORT
+//ErrorCodes_t createMeasVector(
+//        E384CL_ARGIN CharMeasurement_t * measArray[],
+//        E384CL_ARGIN uint32_t sizeIn,
+//        E384CL_ARGOUT LMeasHandle * measVectorOut);
+
+
+//ErrorCodes_t createMeas(
+//        double value,
+//        UnitPfx_t prefix,
+//        char * unitIn,
+//        CharMeasurement_t ** measOut) {
+
+//    std::string unit = unitIn;
+//    CharMeasurement_t * d = new CharMeasurement_t;
+//    (* d).value = value;
+//    (* d).prefix = prefix;
+////    LStrHandle * h;
+////    string2Output(unit, h);
+////    (* d).unit = * h;
+
+//    * measOut = d;
+//    return Success;
+//}
+
+//ErrorCodes_t createMeasVector(
+//        CharMeasurement_t * measArray[],
+//        uint32_t sizeIn,
+//        LMeasHandle * measVectorOut) {
+
+//    std::vector <Measurement_t> measVector(sizeIn);
+//    for (uint32_t idx = 0; idx < sizeIn; idx++) {
+//        input2Measurement(* measArray[idx], measVector[idx]);
+//    }
+//    vectorMeasurement2Output(measVector, measVectorOut);
+//    return Success;
+//}
 
 /************************\
  *  Connection methods  *
@@ -100,6 +200,12 @@ ErrorCodes_t connectDevice(
     input2String(deviceIdIn, deviceId);
     input2String(fwPathIn, fwPath);
 
+    internalMeasVec.clear();
+    internalRangeVec.clear();
+#ifdef HELPERLOG
+    logFile.open("C:\\log.txt", std::ios_base::trunc | std::ios_base::trunc);
+#endif
+
     return MessageDispatcher::connectDevice(deviceId, messageDispatcher, fwPath);
 }
 
@@ -108,6 +214,9 @@ ErrorCodes_t disconnectDevice() {
         return ErrorDeviceNotConnected;
     }
 
+#ifdef HELPERLOG
+    logFile.close();
+#endif
     ErrorCodes_t ret = messageDispatcher->disconnectDevice();
     if (ret == Success) {
         delete messageDispatcher;
@@ -188,7 +297,18 @@ ErrorCodes_t setVoltageHoldTuner(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> voltages;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* voltagesIn, voltages);
+    if (voltagesIn == nullptr) {
+#ifdef HELPERLOG
+        logFile << "nullptr, using internal vector" << std::endl;
+#endif
+        voltages = internalMeasVec;
+
+    } else {
+#ifdef HELPERLOG
+        logFile << "not nullptr, crashing" << std::endl;
+#endif
+        input2VectorMeasurement(* voltagesIn, voltages);
+    }
     return messageDispatcher->setVoltageHoldTuner(channelIndexes, voltages, applyFlagIn);
 }
 
