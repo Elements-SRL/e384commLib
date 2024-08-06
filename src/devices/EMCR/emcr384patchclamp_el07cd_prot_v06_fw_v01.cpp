@@ -25,13 +25,13 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     rxWordLengths[RxMessageDataLoad] = (voltageChannelsNum+currentChannelsNum)*packetsPerFrame;
 
     rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
-    rxWordLengths[RxMessageDataHeader] = 4;
+    rxWordLengths[RxMessageDataHeader] = 6;
 
-    rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
-    rxWordLengths[RxMessageDataTail] = 1;
+    rxWordOffsets[RxMessageDataTail] = 0xFFFF;
+    rxWordLengths[RxMessageDataTail] = 0xFFFF;
 
-    rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
-    rxWordLengths[RxMessageStatus] = 1;
+    rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
+    rxWordLengths[RxMessageStatus] = 2;
 
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;

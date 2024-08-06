@@ -7,7 +7,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
 
     fwName = "192Blm_EL03c_V01.bit";
 
-    fwSize_B = ;
+    fwSize_B = 3775052;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
     waitingTimeBeforeReadingData = 2; //s
 
@@ -109,6 +109,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     vcVoltageRangesArray[VCVoltageRange500mV].unit = "V";
     defaultVcVoltageRangeIdx = VCVoltageRange500mV;
 
+    liquidJunctionSameRangeAsVcDac = false;
     liquidJunctionRangesNum = LJVoltageRangesNum;
     liquidJunctionRangesArray.resize(vcVoltageRangesNum);
     liquidJunctionRangesArray[LJVoltageRange50mV].max = 50.0;

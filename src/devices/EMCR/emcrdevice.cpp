@@ -786,7 +786,7 @@ ErrorCodes_t EmcrDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyF
     }
     /*! Most of the times the liquid junction (aka digital offset compensation) will be performed by the same DAC that appliese the voltage sitmulus
             Voltage clamp, so by default the same range is selected for the liquid junction
-            When this isnot the case the boolean variable below is set properly by the corresponding derived class of the messagedispatcher */
+            When this is not the case the boolean variable below is set properly by the corresponding derived class of the messagedispatcher */
     if (liquidJunctionSameRangeAsVcDac) {
         this->setLiquidJunctionRange(voltageRangeIdx);
     }
