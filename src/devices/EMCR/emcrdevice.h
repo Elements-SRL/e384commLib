@@ -19,6 +19,7 @@ public:
     ErrorCodes_t startProtocol() override;
     ErrorCodes_t stopProtocol() override;
     ErrorCodes_t startStateArray() override;
+    ErrorCodes_t zap(std::vector <uint16_t> channelIndexes, Measurement_t duration) override;
 
     ErrorCodes_t resetAsic(bool resetFlag, bool applyFlag = true) override;
     ErrorCodes_t resetFpga(bool resetFlag, bool applyFlag = true) override;
@@ -129,6 +130,7 @@ public:
     ErrorCodes_t hasOffsetCompensation() override;
     ErrorCodes_t hasStimulusHalf() override;
     ErrorCodes_t isStateArrayAvailable() override;
+    ErrorCodes_t getZapFeatures(RangedMeasurement_t &durationRange) override;
 
     ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams) override;
     ErrorCodes_t getCalibFileNames(std::vector <std::string> &calibFileNames) override;
@@ -306,6 +308,9 @@ protected:
     std::vector <std::vector <DoubleCoder *> > stateMinTriggerCurrentCoders;
     std::vector <std::vector <DoubleCoder *> > stateMaxTriggerCurrentCoders;
     std::vector <BoolCoder *> stateTriggerNextStateCoders;
+
+    std::vector <BoolArrayCoder *> zapCoders;
+    DoubleCoder * zapDurationCoder = nullptr;
 
     DoubleCoder * stimRestCoder = nullptr;
 

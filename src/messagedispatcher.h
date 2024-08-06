@@ -288,6 +288,14 @@ public:
      */
     virtual ErrorCodes_t startStateArray();
 
+    /*! \brief Start a zap pulse.
+     *
+     * \param channelIndexes [in] Channels to be zapped.
+     * \param duration [in] Duration of the zap pulse.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t zap(std::vector <uint16_t> channelIndexes, Measurement_t duration);
+
     /*! \brief Reset the device's ASIC.
      *  \note This should be used if the readout seems unreliable, e.g. heady drifts, increased noise, saturation, etc.
      *
@@ -1771,6 +1779,13 @@ public:
      */
     virtual ErrorCodes_t isStateArrayAvailable();
 
+    /*! \brief Get information on zap pulses implementation.
+     *
+     * \param durationRange [out] Duraton range for the zap pulse
+     * \return Success if the device implements zap pulses.
+     */
+    virtual ErrorCodes_t getZapFeatures(RangedMeasurement_t &durationRange);
+
     /*! \brief Get a structure containing the calibration parameters.
      *
      * \param calibParams [out] calibration parameters.
@@ -2045,6 +2060,8 @@ protected:
     uint16_t selectedProtocolId = 0;
     Measurement_t selectedProtocolVrest = {0.0, UnitPfxNone, "V"};
     Measurement_t selectedProtocolIrest = {0.0, UnitPfxNone, "A"};
+
+    RangedMeasurement_t zapDurationRange = {0.0, 0.0, 1.0, UnitPfxNone, "s"};
 
     uint32_t clampingModalitiesNum = 0;
     uint32_t selectedClampingModalityIdx = 0;

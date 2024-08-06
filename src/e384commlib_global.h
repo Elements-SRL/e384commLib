@@ -296,6 +296,7 @@ typedef enum TxTriggerType_t {
     TxTriggerParameteresUpdated,
     TxTriggerStartProtocol,
     TxTriggerStartStateArray,
+    TxTriggerZap
 } TxTriggerType_t;
 
 /*! \enum OffsetRecalibStatus_t

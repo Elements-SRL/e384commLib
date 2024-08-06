@@ -229,6 +229,10 @@ ErrorCodes_t MessageDispatcher::startStateArray() {
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::zap(std::vector <uint16_t>, Measurement_t) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::resetAsic(bool, bool) {
     return ErrorFeatureNotImplemented;
 }
@@ -1234,6 +1238,10 @@ ErrorCodes_t MessageDispatcher::hasProtocolSinFeature() {
 }
 
 ErrorCodes_t MessageDispatcher::isStateArrayAvailable() {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getZapFeatures(RangedMeasurement_t &) {
     return ErrorFeatureNotImplemented;
 }
 

@@ -31,6 +31,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"23210014U9", Device384Nanopores},
     {"23210014UP", Device384Nanopores},
     {"23190014UX", Device384PatchClamp_prot_v05_fw_v06},
+    {"23210014U6", Device384PatchClamp_prot_v05_fw_v06},
     {"2210001076", Device384PatchClamp_prot_el07c_v06_fw_v01},
     {"221000106C", Device384PatchClamp_prot_v01_fw_v02},
     {"23210014UF", Device384PatchClamp_prot_v01_fw_v02},
@@ -476,6 +477,10 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for (std::chrono::milliseconds(5));
         dev.ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerZap:
+        dev.ActivateTriggerIn(OKY_ZAP_PULSE_TRIGGER_IN_ADDR, OKY_ZAP_PULSE_TRIGGER_IN_BIT);
         break;
     }
     return true;

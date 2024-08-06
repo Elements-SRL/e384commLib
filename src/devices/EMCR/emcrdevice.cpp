@@ -110,6 +110,30 @@ ErrorCodes_t EmcrDevice::startStateArray() {
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::zap(std::vector <uint16_t> channelIndexes, Measurement_t duration) {
+    if (zapCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    if (duration > zapDurationRange.getMax()) {
+        return ErrorValueOutOfRange;
+    }
+    duration.convertValue(zapDurationRange.prefix);
+    zapDurationCoder->encode(duration.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    for (auto chIdx : channelIndexes) {
+        zapCoders[chIdx]->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    this->stackOutgoingMessage(txStatus, TxTriggerZap);
+
+    for (auto chIdx : channelIndexes) {
+        zapCoders[chIdx]->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    return Success;
+}
+
 ErrorCodes_t EmcrDevice::resetAsic(bool resetFlag, bool applyFlag) {
     if (asicResetCoder == nullptr) {
         return ErrorFeatureNotImplemented;
@@ -2118,6 +2142,15 @@ ErrorCodes_t EmcrDevice::isStateArrayAvailable() {
     if (numberOfStatesCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
+    return Success;
+}
+
+
+ErrorCodes_t EmcrDevice::getZapFeatures(RangedMeasurement_t &durationRange) {
+    if (zapCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    durationRange = zapDurationRange;
     return Success;
 }
 
