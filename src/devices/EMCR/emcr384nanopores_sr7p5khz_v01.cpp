@@ -6,22 +6,6 @@ Emcr384NanoPores_SR7p5kHz_V01::Emcr384NanoPores_SR7p5kHz_V01(std::string di):
     rxWordLengths[RxMessageStatus] = 1;
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate7_5kHz].value = 7.5;
-    samplingRatesArray[SamplingRate7_5kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate7_5kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate15kHz].value = 15.0;
-    samplingRatesArray[SamplingRate15kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate15kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate30kHz].value = 30.0;
-    samplingRatesArray[SamplingRate30kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate30kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate60kHz].value = 60.0;
-    samplingRatesArray[SamplingRate60kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate60kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate120kHz].value = 120.0;
-    samplingRatesArray[SamplingRate120kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate120kHz].unit = "Hz";
     defaultSamplingRateIdx = SamplingRate7_5kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);

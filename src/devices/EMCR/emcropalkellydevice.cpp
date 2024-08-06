@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "emcr192blm_el03c_prot_v01_fw_v01.h"
 #include "emcr384nanopores.h"
 #include "emcr384nanopores_sr7p5khz_v01.h"
 #include "emcr384patchclamp_prot_v01_fw_v02.h"
@@ -143,6 +144,9 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
     messageDispatcher = nullptr;
 
     switch (deviceType) {
+    case Device192Blm_el03c_prot_v01_fw_v01:
+        messageDispatcher = new Emcr192Blm_EL03c_prot_v01_fw_v01(deviceId);
+
     case Device384Nanopores:
         messageDispatcher = new Emcr384NanoPores_V01(deviceId);
         break;

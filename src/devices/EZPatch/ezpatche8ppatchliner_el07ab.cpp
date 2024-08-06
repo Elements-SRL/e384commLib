@@ -160,25 +160,6 @@ EZPatche8PPatchliner_el07ab::EZPatche8PPatchliner_el07ab(std::string di) :
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate6_25kHz].value = 6.25;
-    samplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate12_5kHz].value = 12.5;
-    samplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate25kHz].value = 25.0;
-    samplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate25kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate50kHz].value = 50.0;
-    samplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate50kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate100kHz].value = 100.0;
-    samplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate100kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate200kHz].value = 200.0;
-    samplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate200kHz].unit = "Hz";
 
     realSamplingRatesArray.resize(samplingRatesNum);
     realSamplingRatesArray[SamplingRate6_25kHz].value = 6.25;

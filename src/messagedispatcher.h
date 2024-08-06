@@ -1580,10 +1580,10 @@ public:
      */
     ErrorCodes_t getSamplingRateIdx(uint32_t &idx);
 
-    /*! \brief Get the real sampling rates available for the device.
+    /*! \brief Get the sampling rates available for the device.
+     *  \deprecated Use getSamplingRatesFeatures instead
      *
-     * \param samplingRates [out] Array containing all the available real sampling rates
-     *                            (may slightly differ from displayed sampling rates).
+     * \param samplingRates [out] Array containing all the available sampling rates
      * \return Error code.
      */
     ErrorCodes_t getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates);
@@ -2118,7 +2118,6 @@ protected:
     uint16_t defaultCcVoltageFilterIdx = 0;
 
     uint32_t samplingRatesNum;
-    std::vector <Measurement_t> samplingRatesArray;
     std::vector <Measurement_t> realSamplingRatesArray;
     std::vector <Measurement_t> integrationStepArray;
     unsigned int defaultSamplingRateIdx = 0;

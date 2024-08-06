@@ -1,25 +1,34 @@
-#include "emcr10mhz.h"
+#include "emcr192blm_el03c_prot_v01_fw_v01.h"
 
-Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
-    EmcrUdbDevice(di) {
+Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string di) :
+    EmcrOpalKellyDevice(di) {
 
-    deviceName = "10MHz";
+    deviceName = "192Blm";
 
-    rxSyncWord = 0x5aa55aa5;
+    fwName = "192Blm_EL03c_V01.bit";
 
-    packetsPerFrame = 1024;
+    fwSize_B = ;
+    motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
+    waitingTimeBeforeReadingData = 2; //s
 
-    voltageChannelsNum = 1;
-    currentChannelsNum = 1;
+    rxSyncWord = 0x5aa5;
+
+    packetsPerFrame = 1;
+
+    voltageChannelsNum = 192;
+    currentChannelsNum = 192;
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
-    totalBoardsNum = 1;
+    totalBoardsNum = 24;
 
-    rxWordOffsets[RxMessageVoltageThenCurrentDataLoad] = 0;
-    rxWordLengths[RxMessageVoltageThenCurrentDataLoad] = totalChannelsNum*packetsPerFrame;
+    rxWordOffsets[RxMessageDataLoad] = 0;
+    rxWordLengths[RxMessageDataLoad] = (voltageChannelsNum+currentChannelsNum)*packetsPerFrame;
 
-    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageVoltageThenCurrentDataLoad] + rxWordLengths[RxMessageVoltageThenCurrentDataLoad];
+    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
     rxWordLengths[RxMessageDataHeader] = 6;
+
+    rxWordOffsets[RxMessageDataTail] = 0xFFFF;
+    rxWordLengths[RxMessageDataTail] = 0xFFFF;
 
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
     rxWordLengths[RxMessageStatus] = 2;
@@ -27,7 +36,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 260; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 1660;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
@@ -55,156 +64,185 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     positiveProtocolTimeRange = protocolTimeRange;
     positiveProtocolTimeRange.min = 0.0;
 
-    protocolFrequencyRange.step = protocolFpgaClockFrequencyHz/(256.0*(UINT24_MAX+1.0)); /*! 10.0kHz / 256 / 2^24 */
-    protocolFrequencyRange.min = INT24_MIN*protocolFrequencyRange.step;
-    protocolFrequencyRange.max = INT24_MAX*protocolFrequencyRange.step;
-    protocolFrequencyRange.prefix = UnitPfxNone;
-    protocolFrequencyRange.unit = "Hz";
-
-    positiveProtocolFrequencyRange = protocolFrequencyRange;
-    positiveProtocolFrequencyRange.min = 0.0;
-
     voltageProtocolStepImplemented = true;
     voltageProtocolRampImplemented = true;
     voltageProtocolSinImplemented = false;
 
     protocolMaxItemsNum = 15;
-    protocolWordOffset = 10;
+    protocolWordOffset = 72;
     protocolItemsWordsNum = 16;
 
     /*! Current ranges */
     /*! VC */
     vcCurrentRangesNum = VCCurrentRangesNum;
     vcCurrentRangesArray.resize(vcCurrentRangesNum);
-    vcCurrentRangesArray[VCCurrentRange100nA].min = -100.0;
-    vcCurrentRangesArray[VCCurrentRange100nA].max = 100.0;
-    vcCurrentRangesArray[VCCurrentRange100nA].step = vcCurrentRangesArray[VCCurrentRange100nA].max/SHORT_MAX;
-    vcCurrentRangesArray[VCCurrentRange100nA].prefix = UnitPfxNano;
-    vcCurrentRangesArray[VCCurrentRange100nA].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange100nA;
+    vcCurrentRangesArray[VCCurrentRange200pA].max = 200.0;
+    vcCurrentRangesArray[VCCurrentRange200pA].min = -200.0;
+    vcCurrentRangesArray[VCCurrentRange200pA].step = vcCurrentRangesArray[VCCurrentRange200pA].max/(SHORT_MAX+1.0);
+    vcCurrentRangesArray[VCCurrentRange200pA].prefix = UnitPfxPico;
+    vcCurrentRangesArray[VCCurrentRange200pA].unit = "A";
+    vcCurrentRangesArray[VCCurrentRange2nA].max = 2.0;
+    vcCurrentRangesArray[VCCurrentRange2nA].min = -2.0;
+    vcCurrentRangesArray[VCCurrentRange2nA].step = vcCurrentRangesArray[VCCurrentRange2nA].max/(SHORT_MAX+1.0);
+    vcCurrentRangesArray[VCCurrentRange2nA].prefix = UnitPfxNano;
+    vcCurrentRangesArray[VCCurrentRange2nA].unit = "A";
+    vcCurrentRangesArray[VCCurrentRange20nA].max = 20.0;
+    vcCurrentRangesArray[VCCurrentRange20nA].min = -20.0;
+    vcCurrentRangesArray[VCCurrentRange20nA].step = vcCurrentRangesArray[VCCurrentRange20nA].max/(SHORT_MAX+1.0);
+    vcCurrentRangesArray[VCCurrentRange20nA].prefix = UnitPfxNano;
+    vcCurrentRangesArray[VCCurrentRange20nA].unit = "A";
+    vcCurrentRangesArray[VCCurrentRange200nA].max = 200.0;
+    vcCurrentRangesArray[VCCurrentRange200nA].min = -200.0;
+    vcCurrentRangesArray[VCCurrentRange200nA].step = vcCurrentRangesArray[VCCurrentRange200nA].max/(SHORT_MAX+1.0);
+    vcCurrentRangesArray[VCCurrentRange200nA].prefix = UnitPfxNano;
+    vcCurrentRangesArray[VCCurrentRange200nA].unit = "A";
+    defaultVcCurrentRangeIdx = VCCurrentRange200pA;
 
     /*! Voltage ranges */
     /*! VC */
     vcVoltageRangesNum = VCVoltageRangesNum;
     vcVoltageRangesArray.resize(vcVoltageRangesNum);
-    vcVoltageRangesArray[VCVoltageRange1600mV].min = -1600.0;
-    vcVoltageRangesArray[VCVoltageRange1600mV].max = 1600.0;
-    vcVoltageRangesArray[VCVoltageRange1600mV].step = 0.0625;
-    vcVoltageRangesArray[VCVoltageRange1600mV].prefix = UnitPfxMilli;
-    vcVoltageRangesArray[VCVoltageRange1600mV].unit = "V";
-    defaultVcVoltageRangeIdx = VCVoltageRange1600mV;
+    vcVoltageRangesArray[VCVoltageRange500mV].max = 512.0;
+    vcVoltageRangesArray[VCVoltageRange500mV].min = -512.0;
+    vcVoltageRangesArray[VCVoltageRange500mV].step = 0.125;
+    vcVoltageRangesArray[VCVoltageRange500mV].prefix = UnitPfxMilli;
+    vcVoltageRangesArray[VCVoltageRange500mV].unit = "V";
+    defaultVcVoltageRangeIdx = VCVoltageRange500mV;
 
-    liquidJunctionRangesNum = vcVoltageRangesNum;
-    liquidJunctionRangesArray = vcVoltageRangesArray;
-    defaultLiquidJunctionRangeIdx = defaultVcVoltageRangeIdx;
+    liquidJunctionRangesNum = LJVoltageRangesNum;
+    liquidJunctionRangesArray.resize(vcVoltageRangesNum);
+    liquidJunctionRangesArray[LJVoltageRange50mV].max = 50.0;
+    liquidJunctionRangesArray[LJVoltageRange50mV].min = -50.0;
+    liquidJunctionRangesArray[LJVoltageRange50mV].step = liquidJunctionRangesArray[LJVoltageRange50mV].delta()/1024.0;
+    liquidJunctionRangesArray[LJVoltageRange50mV].prefix = UnitPfxMilli;
+    liquidJunctionRangesArray[LJVoltageRange50mV].unit = "V";
+    defaultLiquidJunctionRangeIdx = LJVoltageRange50mV;
 
     /*! Current ranges */
     /*! CC */
-    ccCurrentRangesNum = CCCurrentRangesNum;
 
     /*! Voltage ranges */
     /*! CC */
-    ccVoltageRangesNum = CCVoltageRangesNum;
 
     /*! Current filters */
     /*! VC */
     vcCurrentFiltersNum = VCCurrentFiltersNum;
+    vcCurrentFiltersArray.resize(vcCurrentFiltersNum);
+    vcCurrentFiltersArray[VCCurrentFilter16kHz].value = 16.0;
+    vcCurrentFiltersArray[VCCurrentFilter16kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter16kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter100kHz].value = 100.0;
+    vcCurrentFiltersArray[VCCurrentFilter100kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter100kHz].unit = "Hz";
+    defaultVcCurrentFilterIdx = VCCurrentFilter16kHz;
 
     /*! Voltage filters */
     /*! VC */
     vcVoltageFiltersNum = VCVoltageFiltersNum;
     vcVoltageFiltersArray.resize(vcVoltageFiltersNum);
-    vcVoltageFiltersArray[VCVoltageFilter16Hz].value = 16.0;
-    vcVoltageFiltersArray[VCVoltageFilter16Hz].prefix = UnitPfxNone;
-    vcVoltageFiltersArray[VCVoltageFilter16Hz].unit = "Hz";
-    defaultVcVoltageFilterIdx = VCVoltageFilter16Hz;
+    vcVoltageFiltersArray[VCVoltageFilter10Hz].value = 10.0;
+    vcVoltageFiltersArray[VCVoltageFilter10Hz].prefix = UnitPfxNone;
+    vcVoltageFiltersArray[VCVoltageFilter10Hz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter10kHz].value = 10.0;
+    vcVoltageFiltersArray[VCVoltageFilter10kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter10kHz].unit = "Hz";
+    defaultVcVoltageFilterIdx = VCVoltageFilter10Hz;
 
     /*! Current filters */
     /*! CC */
-    ccCurrentFiltersNum = CCCurrentFiltersNum;
 
     /*! Voltage filters */
     /*! CC */
-    ccVoltageFiltersNum = CCVoltageFiltersNum;
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    defaultSamplingRateIdx = SamplingRate40MHz;
+    defaultSamplingRateIdx = SamplingRate1_25kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate40MHz].value = 80.0/2.0;
-    realSamplingRatesArray[SamplingRate40MHz].prefix = UnitPfxMega;
-    realSamplingRatesArray[SamplingRate40MHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate20MHz].value = 80.0/4.0;
-    realSamplingRatesArray[SamplingRate20MHz].prefix = UnitPfxMega;
-    realSamplingRatesArray[SamplingRate20MHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate10MHz].value = 80.0/8.0;
-    realSamplingRatesArray[SamplingRate10MHz].prefix = UnitPfxMega;
-    realSamplingRatesArray[SamplingRate10MHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate5MHz].value = 80.0/16.0;
-    realSamplingRatesArray[SamplingRate5MHz].prefix = UnitPfxMega;
-    realSamplingRatesArray[SamplingRate5MHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate2_5MHz].value = 80.0/32.0;
-    realSamplingRatesArray[SamplingRate2_5MHz].prefix = UnitPfxMega;
-    realSamplingRatesArray[SamplingRate2_5MHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate1_25kHz].value = 80.0/64.0;
-    realSamplingRatesArray[SamplingRate1_25kHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate1_25kHz].value = 1250.0/1024.0;
+    realSamplingRatesArray[SamplingRate1_25kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate1_25kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate5kHz].value = 1250.0/256.0;
+    realSamplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate5kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate10kHz].value = 1250.0/128.0;
+    realSamplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate10kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate20kHz].value = 1250.0/64.0;
+    realSamplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate20kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate50kHz].value = 50.0;
+    realSamplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate50kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate100kHz].value = 100.0;
+    realSamplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate100kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate200kHz].value = 200.0;
+    realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate40MHz].value = 2.0/80.0;
-    integrationStepArray[SamplingRate40MHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate40MHz].unit = "s";
-    integrationStepArray[SamplingRate20MHz].value = 4.0/80.0;
-    integrationStepArray[SamplingRate20MHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate20MHz].unit = "s";
-    integrationStepArray[SamplingRate10MHz].value = 8.0/80.0;
-    integrationStepArray[SamplingRate10MHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate10MHz].unit = "s";
-    integrationStepArray[SamplingRate5MHz].value = 16.0/80.0;
-    integrationStepArray[SamplingRate5MHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate5MHz].unit = "s";
-    integrationStepArray[SamplingRate2_5MHz].value = 32.0/80.0;
-    integrationStepArray[SamplingRate2_5MHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate2_5MHz].unit = "s";
-    integrationStepArray[SamplingRate1_25kHz].value = 64.0/80.0;
+    integrationStepArray[SamplingRate1_25kHz].value = 1024.0/1.250;
     integrationStepArray[SamplingRate1_25kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate1_25kHz].unit = "s";
+    integrationStepArray[SamplingRate5kHz].value = 256.0/1.250;
+    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate5kHz].unit = "s";
+    integrationStepArray[SamplingRate10kHz].value = 128.0/1.250;
+    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate10kHz].unit = "s";
+    integrationStepArray[SamplingRate20kHz].value = 64.0/1.250;
+    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMilli;
+    integrationStepArray[SamplingRate20kHz].unit = "s";
+    integrationStepArray[SamplingRate50kHz].value = 20.0;
+    integrationStepArray[SamplingRate50kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate50kHz].unit = "s";
+    integrationStepArray[SamplingRate100kHz].value = 10.0;
+    integrationStepArray[SamplingRate100kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate100kHz].unit = "s";
+    integrationStepArray[SamplingRate200kHz].value = 5.0;
+    integrationStepArray[SamplingRate200kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate200kHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-        {SamplingRate40MHz, -1},
-        {SamplingRate20MHz, -1},
-        {SamplingRate10MHz, -1},
-        {SamplingRate5MHz, -1},
-        {SamplingRate2_5MHz, -1},
-        {SamplingRate1_25kHz, -1}
+        {SamplingRate1_25kHz, VCCurrentFilter16kHz},
+        {SamplingRate5kHz, VCCurrentFilter16kHz},
+        {SamplingRate10kHz, VCCurrentFilter16kHz},
+        {SamplingRate20kHz, VCCurrentFilter16kHz},
+        {SamplingRate50kHz, VCCurrentFilter100kHz},
+        {SamplingRate100kHz, VCCurrentFilter100kHz},
+        {SamplingRate200kHz, VCCurrentFilter100kHz}
     };
 
-    // mapping ADC Current Clamp
-    // undefined
+    defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
 
-    defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange1600mV].prefix, vcVoltageRangesArray[VCVoltageRange1600mV].unit};
+    /*! Zap */
+    zapDurationRange.step = 0.1;
+    zapDurationRange.min = 00;
+    zapDurationRange.max = zapDurationRange.min+zapDurationRange.step*(double)UINT16_MAX;
+    zapDurationRange.min = 0.0;
+    zapDurationRange.min = 0.0;
 
-    /*! Calib VC current gain */
-    calibVcCurrentGainRange.step = 1.0/1024.0;
-    calibVcCurrentGainRange.min = 0;
-    calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
-    calibVcCurrentGainRange.prefix = UnitPfxNone;
-    calibVcCurrentGainRange.unit = "";
-
-    /*! Calib VC current offset */
-    calibVcCurrentOffsetRanges = vcCurrentRangesArray;
-
-    /*! Calib VC voltage gain */
+    /*! VC voltage calib gain (DAC) */
     calibVcVoltageGainRange.step = 1.0/1024.0;
     calibVcVoltageGainRange.min = 0;
     calibVcVoltageGainRange.max = SHORT_MAX * calibVcVoltageGainRange.step;
     calibVcVoltageGainRange.prefix = UnitPfxNone;
     calibVcVoltageGainRange.unit = "";
 
-    /*! Calib VC voltage offset */
+    /*! VC current calib gain (ADC) */
+    calibVcCurrentGainRange.step = 1.0/1024.0;
+    calibVcCurrentGainRange.min = 0;
+    calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
+    calibVcCurrentGainRange.prefix = UnitPfxNone;
+    calibVcCurrentGainRange.unit = "";
+
+    /*! VC Voltage calib offset (DAC)*/
     calibVcVoltageOffsetRanges = vcVoltageRangesArray;
+
+    /*! VC current calib offset (ADC)*/
+    calibVcCurrentOffsetRanges = vcCurrentRangesArray;
 
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
@@ -214,12 +252,6 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
-    // Selected default Idx
-    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
-
     /**********\
      * Coders *
     \**********/
@@ -227,62 +259,68 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     /*! Input controls */
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
+    MultiCoder::MultiCoderConfig_t multiCoderConfig;
 
-    /*! Null coder (doesn't do anything if set to 0 */
+    /*! Asic reset */
     boolConfig.initialWord = 0;
-    boolConfig.initialBit = 15;
+    boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
-    BoolArrayCoder * nullCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(nullCoder);
+    asicResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(asicResetCoder);
 
     /*! FPGA reset */
     boolConfig.initialWord = 0;
-    boolConfig.initialBit = 0;
+    boolConfig.initialBit = 1;
     boolConfig.bitsNum = 1;
     fpgaResetCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(fpgaResetCoder);
 
     /*! Sampling rate */
     boolConfig.initialWord = 0;
-    boolConfig.initialBit = 1;
+    boolConfig.initialBit = 3;
     boolConfig.bitsNum = 4;
     samplingRateCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(samplingRateCoder);
 
-    /*! Protocol reset */
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 6;
-    boolConfig.bitsNum = 1;
-    protocolResetCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(protocolResetCoder);
-
     /*! Current range VC */
-    // undefined
+    boolConfig.initialWord = 10;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 4;
+    vcCurrentRangeCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(vcCurrentRangeCoder);
 
     /*! Voltage range VC */
-    vcVoltageRangeCoder = nullCoder;
+    boolConfig.initialWord = 10;
+    boolConfig.initialBit = 4;
+    boolConfig.bitsNum = 4;
+    vcVoltageRangeCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(vcVoltageRangeCoder);
 
     /*! Current range CC */
-    // undefined
 
     /*! Voltage range CC */
-    // undefined
 
     /*! Current filter VC */
-    // undefined
+    boolConfig.initialWord = 11;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 4;
+    vcCurrentFilterCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(vcCurrentFilterCoder);
 
     /*! Voltage filter VC */
-    // undefined
+    boolConfig.initialWord = 11;
+    boolConfig.initialBit = 4;
+    boolConfig.bitsNum = 4;
+    vcVoltageFilterCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(vcVoltageFilterCoder);
 
     /*! Current filter CC */
-    // undefined
 
     /*! Voltage filter CC */
-    // undefined
 
     /*! Liquid junction compensation */
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 5;
+    boolConfig.initialWord = 12;
+    boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     liquidJunctionCompensationCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
@@ -294,6 +332,43 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
             boolConfig.initialWord++;
         }
     }
+
+    /*! Enable stimulus */
+    boolConfig.initialWord = 24;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    enableStimulusCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        enableStimulusCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(enableStimulusCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    /*! Zap */
+    boolConfig.initialWord = 60;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    zapCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        zapCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(zapCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    doubleConfig.initialWord = 3;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = zapDurationRange.step;
+    doubleConfig.minValue = zapDurationRange.min;
+    doubleConfig.maxValue = zapDurationRange.max;
 
     /*! Protocol structure */
     boolConfig.initialWord = protocolWordOffset;
@@ -434,9 +509,8 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     vHoldTunerCoders.resize(VCVoltageRangesNum);
-
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 254;
+        doubleConfig.initialWord = 508;
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
         doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
@@ -453,7 +527,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     doubleConfig.bitsNum = 16;
     liquidJunctionVoltageCoders.resize(liquidJunctionRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < liquidJunctionRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 255;
+        doubleConfig.initialWord = 700;
         doubleConfig.resolution = liquidJunctionRangesArray[rangeIdx].step;
         doubleConfig.minValue = liquidJunctionRangesArray[rangeIdx].min;
         doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
@@ -465,39 +539,9 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
         }
     }
 
-    /*! VC current gain calibration */
-    doubleConfig.initialWord = 256;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibVcCurrentGainRange.step;
-    doubleConfig.minValue = calibVcCurrentGainRange.min;
-    doubleConfig.maxValue = calibVcCurrentGainRange.max;
-    calibVcCurrentGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibVcCurrentGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
-
-    /*! VC current offset calibration */
-    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 257;
-        doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
-        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
-        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
-        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
-        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
-        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
-            doubleConfig.initialWord++;
-        }
-    }
-
-    /*! VC voltage gain calibration */
-    doubleConfig.initialWord = 258;
+    /*! DAC gain e offset */
+    /*! VC Voltage gain */
+    doubleConfig.initialWord = 892;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcVoltageGainRange.step;
@@ -510,10 +554,10 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
         doubleConfig.initialWord++;
     }
 
-    /*! VC voltage offset calibration */
+    /*! VC Voltage offset */
     calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 259;
+        doubleConfig.initialWord = 1084;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
@@ -527,10 +571,40 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
         }
     }
 
+    /*! ADC gain e offset */
+    /*! VC current gain */
+    doubleConfig.initialWord = 1276;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = calibVcCurrentGainRange.step;
+    doubleConfig.minValue = calibVcCurrentGainRange.min;
+    doubleConfig.maxValue = calibVcCurrentGainRange.max;
+    calibVcCurrentGainCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(calibVcCurrentGainCoders[idx]);
+        doubleConfig.initialWord++;
+    }
+
+    /*! VC current offset */
+    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 1468;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
+        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
+        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
+        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[1] = 0x0002; /*! ADC power enable override */
-    txStatus[256] = 0x0400; /*! current gain 1 */
-    txStatus[258] = 0x0400; /*! voltage gain 1 */
+    txStatus[2] = 0x0070; // fans on
 }

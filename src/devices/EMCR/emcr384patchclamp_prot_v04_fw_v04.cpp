@@ -241,22 +241,6 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate5kHz].value = 5.0;
-    samplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate5kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate10kHz].value = 10.0;
-    samplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate10kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate20kHz].value = 20.0;
-    samplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate20kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate40kHz].value = 40.0;
-    samplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate40kHz].unit = "Hz";
-    samplingRatesArray[SamplingRate80kHz].value = 80.0;
-    samplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate80kHz].unit = "Hz";
     defaultSamplingRateIdx = SamplingRate5kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);

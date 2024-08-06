@@ -154,25 +154,6 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate26_7MHz].value = 80.0/6.0/0.5;
-    samplingRatesArray[SamplingRate26_7MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate26_7MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate13_3MHz].value = 80.0/6.0/1.0;
-    samplingRatesArray[SamplingRate13_3MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate13_3MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate6_67MHz].value = 80.0/6.0/2.0;
-    samplingRatesArray[SamplingRate6_67MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate6_67MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate3_33MHz].value = 80.0/6.0/4.0;
-    samplingRatesArray[SamplingRate3_33MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate3_33MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate1_67MHz].value = 80.0/6.0/8.0;
-    samplingRatesArray[SamplingRate1_67MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate1_67MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate833kHz].value = 80.0/6.0/16.0;
-    samplingRatesArray[SamplingRate833kHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate833kHz].unit = "Hz";
     defaultSamplingRateIdx = SamplingRate26_7MHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
@@ -905,25 +886,6 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate26_7MHz].value = 80.0/6.0/0.5;
-    samplingRatesArray[SamplingRate26_7MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate26_7MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate13_3MHz].value = 80.0/6.0/1.0;
-    samplingRatesArray[SamplingRate13_3MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate13_3MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate6_67MHz].value = 80.0/6.0/2.0;
-    samplingRatesArray[SamplingRate6_67MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate6_67MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate3_33MHz].value = 80.0/6.0/4.0;
-    samplingRatesArray[SamplingRate3_33MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate3_33MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate1_67MHz].value = 80.0/6.0/8.0;
-    samplingRatesArray[SamplingRate1_67MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate1_67MHz].unit = "Hz";
-    samplingRatesArray[SamplingRate833kHz].value = 80.0/6.0/16.0;
-    samplingRatesArray[SamplingRate833kHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate833kHz].unit = "Hz";
     defaultSamplingRateIdx = SamplingRate26_7MHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
