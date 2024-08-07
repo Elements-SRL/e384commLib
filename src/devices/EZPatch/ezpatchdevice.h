@@ -475,7 +475,8 @@ protected:
 
     uint16_t resetWord[ResetIndexNum];
     uint16_t resetByte[ResetIndexNum];
-    int resetDuration = 1;
+    int waitTimeBeforeAsicResetMs = 50;
+    int resetDurationMs = 10;
 
     /***************\
      *  Variables  *

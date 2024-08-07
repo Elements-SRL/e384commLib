@@ -3376,17 +3376,23 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
     }
     this->deallocateRxDataBuffer(datain);
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeBeforeAsicResetMs));
+
     ret = this->resetAsic(true, true);
     if (ret != Success) {
         return ErrorConnectionChipResetFailed;
     }
 
-    std::this_thread::sleep_for (std::chrono::milliseconds(resetDuration));
+    this->stopProtocol();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(resetDurationMs));
 
     ret = this->resetAsic(false, true);
     if (ret != Success) {
         return ErrorConnectionChipResetFailed;
     }
+
+    this->stopProtocol();
 
     return ret;
 }
