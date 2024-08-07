@@ -609,3 +609,22 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[2] = 0x0070; // fans on
 }
+
+ErrorCodes_t Emcr192Blm_EL03c_prot_v01_fw_v01::initializeHW() {
+    std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));
+
+    this->resetFpga(true, true);
+    this->resetFpga(false, true);
+    std::this_thread::sleep_for (std::chrono::milliseconds(1000));
+
+    this->resetAsic(true, true);
+    // resetAsicClock(true, true);
+    // resetFpgaFifo(true, true);
+    std::this_thread::sleep_for (std::chrono::milliseconds(1));
+    // resetFpgaFifo(false, true);
+    this->resetAsic(false, true); /*! Not synchronous across MB's FGPAs */
+    std::this_thread::sleep_for (std::chrono::milliseconds(10));
+    // resetAsicClock(false, true); /*! Synchronous across MB's FGPAs, the wait time ensures that all asic resets have been offed */
+
+    return Success;
+}
