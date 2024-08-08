@@ -1119,7 +1119,7 @@ ErrorCodes_t EZPatchDevice::setSamplingRate(uint16_t samplingRateIdx, bool apply
 
         /*! Make a chip reset to force resynchronization of chip states. This is important when the clock changes (SR slow to SR fast or vice versa) */
         this->resetAsic(true, true);
-        std::this_thread::sleep_for (std::chrono::milliseconds(resetDuration));
+        std::this_thread::sleep_for (std::chrono::milliseconds(resetDurationMs));
         this->resetAsic(false, true);
 
         selectedSamplingRateIdx = samplingRateIdx;
@@ -3300,7 +3300,7 @@ ErrorCodes_t EZPatchDevice::deviceConfiguration() {
         return ret;
     }
 
-    this->setSecondaryDeviceswitch (false);
+    this->setSecondaryDeviceswitch(false);
 
     std::vector <uint16_t> ch(currentChannelsNum);
     std::vector <Measurement_t> offsetsA(currentChannelsNum);
@@ -3383,7 +3383,7 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
         return ErrorConnectionChipResetFailed;
     }
 
-    this->stopProtocol();
+    this->stopProtocol(); /*! Force a write of the ASIC's SPI, so that the reset is sent to the secondary board in case of multi board devices */
 
     std::this_thread::sleep_for(std::chrono::milliseconds(resetDurationMs));
 
@@ -3392,7 +3392,7 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
         return ErrorConnectionChipResetFailed;
     }
 
-    this->stopProtocol();
+    this->stopProtocol(); /*! Force a write of the ASIC's SPI, so that the reset is sent to the secondary board in case of multi board devices */
 
     return ret;
 }

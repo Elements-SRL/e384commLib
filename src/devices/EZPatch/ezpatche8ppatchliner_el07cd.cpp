@@ -796,7 +796,7 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     resetByte[ResetIndexChip] = 0x0001;
     resetByte[ResetIndexLiquidJunctionCompensation] = 0x0002;
 
-    resetDuration = 20;
+    resetDurationMs = 20;
 
     /*! Input */
     inputSwitchesNum = InputSwitchesNum;

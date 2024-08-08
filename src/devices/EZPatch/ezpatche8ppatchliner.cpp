@@ -847,7 +847,7 @@ EZPatche8PPatchliner::EZPatche8PPatchliner(std::string di) :
     resetByte[ResetIndexChip] = 0x4000;
     resetByte[ResetIndexLiquidJunctionCompensation] = 0x8000;
 
-    resetDuration = 20;
+    resetDurationMs = 20;
 
     /*! Stimulus */
     /*! VC */
