@@ -75,9 +75,6 @@ SOURCES += \
     src/devices/EMCR/emcrtestboardel07cd.cpp \
     src/devices/EZPatch/ezpatchdevice.cpp \
     src/devices/EZPatch/ezpatchftdidevice.cpp \
-    src/devices/EZPatch/ftdieeprom.cpp \
-    src/devices/EZPatch/ftdieeprom56.cpp \
-    src/devices/EZPatch/ftdieepromdemo.cpp \
     src/devices/EZPatch/ezpatchepatchel03d.cpp \
     src/devices/EZPatch/ezpatchepatchel03f_4d.cpp \
     src/devices/EZPatch/ezpatchepatchel04e.cpp \
@@ -94,10 +91,14 @@ SOURCES += \
     src/model/channelmodel.cpp \
     src/calibration/calibrationmanager.cpp \
     src/calibration/calibrationeeprom.cpp \
-    src/programming/udbprogrammer.cpp \
-    src/udbutils.cpp
+    src/peripherals/ftdieeprom.cpp \
+    src/peripherals/ftdieeprom56.cpp \
+    src/peripherals/ftdieepromdemo.cpp \
+    src/peripherals/udbprogrammer.cpp \
+    src/peripherals/udbutils.cpp
 
 HEADERS += \
+    src/devices/EMCR/emcrftdidevice.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
@@ -123,9 +124,6 @@ HEADERS += \
     src/devices/EMCR/emcrtestboardel07cd.h \
     src/devices/EZPatch/ezpatchdevice.h \
     src/devices/EZPatch/ezpatchftdidevice.h \
-    src/devices/EZPatch/ftdieeprom.h \
-    src/devices/EZPatch/ftdieeprom56.h \
-    src/devices/EZPatch/ftdieepromdemo.h \
     src/devices/EZPatch/ezpatchepatchel03d.h \
     src/devices/EZPatch/ezpatchepatchel03f_4d.h \
     src/devices/EZPatch/ezpatchepatchel04e.h \
@@ -142,8 +140,12 @@ HEADERS += \
     src/model/channelmodel.h \
     src/calibration/calibrationmanager.h \
     src/calibration/calibrationeeprom.h \
-    src/programming/udbprogrammer.h \
-    src/udbutils.h \
+    src/peripherals/ftdiutils.h \
+    src/peripherals/udbprogrammer.h \
+    src/peripherals/ftdieeprom.h \
+    src/peripherals/ftdieeprom56.h \
+    src/peripherals/ftdieepromdemo.h \
+    src/peripherals/udbutils.h \
     src/utils.h
 
 contains(DEFINES, DEBUG) {
@@ -174,7 +176,7 @@ INCLUDEPATH += \
     ./src/devices/EZPatch \
     ./src/model \
     ./src/calibration \
-    ./src/programming
+    ./src/peripherals
 DEPENDPATH += \
     ./src \
     ./src/devices \
@@ -182,7 +184,7 @@ DEPENDPATH += \
     ./src/devices/EZPatch \
     ./src/model \
     ./src/calibration \
-    ./src/programming
+    ./src/peripherals
 
 include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
