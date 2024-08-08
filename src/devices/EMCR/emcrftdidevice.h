@@ -1,18 +1,25 @@
-#ifndef EZPATCHFTDIDEVICE_H
-#define EZPATCHFTDIDEVICE_H
+#ifndef EMCRFTDIDEVICE_H
+#define EMCRFTDIDEVICE_H
 
-#include "ezpatchdevice.h"
-#include "utils.h"
+#define EMF_MIN_QUEUED_BYTES 8 /*! hdr (4) + offset (2) + length (2), assuming no payload */
+#define EMF_START_PROTOCOL_TRIGGER_IN_ADDR 0x40
+#define EMF_START_PROTOCOL_TRIGGER_IN_BIT 0
+#define EMF_ZAP_PULSE_TRIGGER_IN_ADDR 0x40
+#define EMF_ZAP_PULSE_TRIGGER_IN_BIT 1
+#define EMF_TX_TRIGGER_BUFFER_SIZE 5 // header, type, length = 1, payload[2]
+#define EMF_MAX_WRITE_TRIES 3
+
+#include "emcrdevice.h"
+#include "calibrationeeprom.h"
 #include "ftdiutils.h"
 
-class EZPatchFtdiDevice : public EZPatchDevice {
+class EmcrFtdiDevice : public EmcrDevice {
 public:
-    EZPatchFtdiDevice(std::string deviceId);
-    virtual ~EZPatchFtdiDevice();
+    EmcrFtdiDevice(std::string deviceId);
+    virtual ~EmcrFtdiDevice();
 
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
-    ErrorCodes_t getDeviceInfo(std::string &deviceId, std::string &deviceName, uint32_t &deviceVersion, uint32_t &deviceSubversion, uint32_t &firmwareVersion);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
@@ -26,7 +33,7 @@ protected:
     typedef enum {
         RxParseLookForHeader,
         RxParseLookForLength,
-        RxParseLookForCrc
+        RxParseCheckNextHeader
     } RxParsePhase_t;
 
     /*************\
@@ -42,12 +49,11 @@ protected:
     virtual void initializeCalibration() override;
     virtual void deinitializeCalibration() override;
 
-    virtual void readAndParseMessages() override;
-    virtual void unwrapAndSendMessages() override;
-    void wrapOutgoingMessage(uint16_t msgTypeId, std::vector <uint16_t> &txDataMessage, uint16_t dataLen) override;
-
-    uint16_t rxCrc16Ccitt(uint32_t offset, uint16_t len, uint16_t crc);
-    uint16_t txCrc16Ccitt(uint32_t offset, uint16_t len, uint16_t crc);
+    virtual void handleCommunicationWithDevice() override;
+    void sendCommandsToDevice();
+    virtual bool writeRegistersAndActivateTriggers(TxTriggerType_t type);
+    virtual uint32_t readDataFromDevice() override;
+    virtual void parseDataFromDevice() override;
 
     virtual ErrorCodes_t initializeMemory() override;
     virtual void deinitializeMemory() override;
@@ -59,8 +65,6 @@ protected:
      *  Parameters  *
     \****************/
 
-    FtdiFpgaLoadType_t fpgaLoadType = FtdiFpgaFwLoadAutomatic;
-
     FtdiEepromId_t ftdiEepromId = FtdiEepromId56;
     CalibrationEeprom * calibrationEeprom = nullptr;
 
@@ -71,13 +75,39 @@ protected:
     char rxChannel;
     char txChannel;
 
-    uint8_t rxSyncWord[FTD_RX_SYNC_WORD_SIZE];
+    uint32_t rxSyncWord;
 
-    uint16_t rxCrcInitialValue = 0xFFFF;
+    /***************\
+     *  Variables  *
+    \***************/
 
-    uint8_t txSyncWord[FTD_TX_SYNC_WORD_SIZE];
+    FtdiFpgaLoadType_t fpgaLoadType = FtdiFpgaFwLoadAutomatic;
 
-    uint16_t txCrcInitialValue = 0xFFFF;
+    uint32_t * txRawBulkBuffer = nullptr;
+    uint32_t * txRawTriggerBuffer = nullptr;
+
+    bool fwLoadedFlag = true; /*! \todo FCON verificare se va messa a zero e settata dopo o se si può solo togliere, così è inutile */
+    uint32_t readTries = 0;
+
+    /*! Variables used to access the tx msg buffer */
+    uint32_t txMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be processed */
+
+private:
+    typedef struct OutputPacket {
+        uint32_t header = 0x5aa55aa5;
+        uint32_t type = 0;
+        uint32_t valuesNum = 0;
+        std::vector <uint32_t> addresses;
+        std::vector <uint32_t> values;
+    } OutputPacket_t;
+
+    /*************\
+     *  Methods  *
+    \*************/
+
+    bool writeRegisters();
+    bool activateTriggerIn(int address, int bit);
+    bool writeToBulkOut(uint32_t * buffer);
 };
 
-#endif // EZPATCHFTDIDEVICE_H
+#endif // EMCRFTDIDEVICE_H

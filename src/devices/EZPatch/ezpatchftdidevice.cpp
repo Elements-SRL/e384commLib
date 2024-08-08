@@ -1,5 +1,4 @@
 #include "ezpatchftdidevice.h"
-#include "utils.h"
 
 #include "libMPSSE_spi.h"
 
@@ -205,6 +204,19 @@ ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int
     deviceSubVersion = tuple.subversion;
     fwVersion = tuple.fwVersion;
     return Success;
+}
+
+ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string &deviceId, std::string &deviceName, uint32_t &deviceVersion, uint32_t &deviceSubversion, uint32_t &firmwareVersion) {
+    ErrorCodes_t ret = Success;
+
+    deviceId = this->deviceId;
+    deviceName = this->deviceName;
+    DeviceTuple_t tuple = FtdiEeprom56(deviceId).getDeviceTuple();
+    deviceVersion = tuple.version;
+    deviceSubversion = tuple.subversion;
+    firmwareVersion = tuple.fwVersion;
+
+    return ret;
 }
 
 ErrorCodes_t EZPatchFtdiDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
@@ -784,7 +796,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
     parsingStatus = ParsingParsing;
     rxMutexLock.unlock();
 
-    std::unique_lock <std::mutex> connectionMutexLock (connectionMutex);
+    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
     connectionMutexLock.unlock();
 
     while ((!stopConnectionFlag) || (txWaitingOnAcks > 0)) {
@@ -804,13 +816,13 @@ void EZPatchFtdiDevice::readAndParseMessages() {
         if (ftdiQueuedBytes == 0) {
             connectionMutexLock.unlock();
             /*! If there are no bytes in the queue skip to next iteration in the while loop */
-            std::this_thread::sleep_for (longBytesWait);
+            std::this_thread::sleep_for(longBytesWait);
             continue;
 
         } else if ((ftdiQueuedBytes < minQueuedBytes) && (readTries == 0)) {
             connectionMutexLock.unlock();
             readTries++;
-            std::this_thread::sleep_for (shortBytesWait);
+            std::this_thread::sleep_for(shortBytesWait);
             continue;
         }
         readTries = 0;
@@ -1167,9 +1179,9 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
     /*! Tx message crc variables */
     uint16_t txComputedCrc;
 
-    std::unique_lock <std::mutex> txMutexLock (txMutex);
+    std::unique_lock <std::mutex> txMutexLock(txMutex);
     txMutexLock.unlock();
-    std::unique_lock <std::mutex> connectionMutexLock (connectionMutex);
+    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
     connectionMutexLock.unlock();
 
     while ((!stopConnectionFlag) || (txWaitingOnAcks > 0)) {
@@ -1372,11 +1384,11 @@ void EZPatchFtdiDevice::deinitializeMemory() {
 
 ErrorCodes_t EZPatchFtdiDevice::loadFpgaFw() {
     switch (fpgaLoadType) {
-    case FpgaFwLoadAutomatic:
+    case FtdiFpgaFwLoadAutomatic:
         /*! Nothing to be done, the FPGA will handle itself */
         break;
 
-    case FpgaFwLoadPatchlinerArtix7_V01:
+    case FtdiFpgaFwLoadPatchlinerArtix7_V01:
         /*! Need to set some pins low to select FW loading from FLASH and then pulse Spi_Prog low to start FPGA configuration */
         FT_STATUS status;
         FT_HANDLE spiHandle;

@@ -7,7 +7,7 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     rxChannel = 'A';
     txChannel = 'A';
 
-    fpgaLoadType = FpgaFwLoadPatchlinerArtix7_V01;
+    fpgaLoadType = FtdiFpgaFwLoadPatchlinerArtix7_V01;
 
     deviceName = "e8PPatchliner";
 
@@ -1496,5 +1496,5 @@ void EZPatche8PPatchliner_el07cd_artix7_PCBV01::updateWrittenCompensationValues(
 
 EZPatche8PPatchliner_el07cd_artix7_PCBV02::EZPatche8PPatchliner_el07cd_artix7_PCBV02(std::string di) :
     EZPatche8PPatchliner_el07cd_artix7_PCBV01(di) {
-    fpgaLoadType = FpgaFwLoadAutomatic;
+    fpgaLoadType = FtdiFpgaFwLoadAutomatic;
 }

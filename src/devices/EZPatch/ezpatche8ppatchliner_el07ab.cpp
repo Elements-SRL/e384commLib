@@ -1123,13 +1123,13 @@ bool EZPatche8PPatchliner_el07ab::checkCompensationsValues() {
 
         double d1 = maxMembraneCapacitance;
         double d2 = maxMembraneTau/rs;
-        double d3 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(rs*rp) : std::numeric_limits <double>::max());
+        double d3 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(rs*rp) : (std::numeric_limits <double>::max)());
         compensationControls[U_Cm][compensationsSettingChannel].maxCompensable = fmin(fmin(d1, d2), d3);
 
         d1 = compensationControls[U_Rs][compensationsSettingChannel].max;
         d2 = maxMembraneTau/compensationControls[U_Cm][compensationsSettingChannel].value;
         d3 = maxResistanceCorrection*maxResistanceCorrectionPercentage/rc;
-        double d4 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(compensationControls[U_Cm][compensationsSettingChannel].value*rp) : std::numeric_limits <double>::max());
+        double d4 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(compensationControls[U_Cm][compensationsSettingChannel].value*rp) : (std::numeric_limits <double>::max)());
         compensationControls[U_Rs][compensationsSettingChannel].maxCompensable = fmin(fmin(fmin(d1, d2), d3), d4);
 
         d1 = compensationControls[U_RsCp][compensationsSettingChannel].max;
@@ -1358,13 +1358,13 @@ EZPatche8PPatchliner_el07ab_artix7_PCBV01::EZPatche8PPatchliner_el07ab_artix7_PC
     rxChannel = 'A';
     txChannel = 'A';
 
-    fpgaLoadType = FpgaFwLoadPatchlinerArtix7_V01;
+    fpgaLoadType = FtdiFpgaFwLoadPatchlinerArtix7_V01;
 }
 
 EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01::EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01(std::string di) :
     EZPatche8PPatchliner_el07ab_artix7_PCBV01(di) {
 
-    fpgaLoadType = FpgaFwLoadAutomatic;
+    fpgaLoadType = FtdiFpgaFwLoadAutomatic;
 }
 
 EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02::EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02(std::string di) :

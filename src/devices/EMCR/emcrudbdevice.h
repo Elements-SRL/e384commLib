@@ -10,12 +10,8 @@
 #define UDB_RX_EXTENDED_BUFFER_SIZE (UDB_RX_BUFFER_SIZE+UDB_RX_TRANSFER_SIZE) /*!< Add space to be able to always store data from the XferData */
 #define UDB_TX_TRIGGER_BUFFER_SIZE 5 // header, type, length = 1, payload[2]
 #define UDB_PACKETS_PER_TRANSFER ((int)64)
-//#define UDB_REGISTERS_CHANGED_TRIGGER_IN_ADDR 0x53
-//#define UDB_REGISTERS_CHANGED_TRIGGER_IN_BIT 0
 #define UDB_START_PROTOCOL_TRIGGER_IN_ADDR 0x40
 #define UDB_START_PROTOCOL_TRIGGER_IN_BIT 0
-//#define UDB_START_STATE_ARRAY_TRIGGER_IN_ADDR 0x53
-//#define UDB_START_STATE_ARRAY_TRIGGER_IN_BIT 3
 
 #include "emcrdevice.h"
 #include "utils.h"
@@ -95,8 +91,6 @@ protected:
 
     /*! Rx consts */
     uint32_t readDataTransferSize = UDB_RX_TRANSFER_SIZE;
-
-    mutable std::mutex deviceMtx;
 
     /***************\
      *  Variables  *

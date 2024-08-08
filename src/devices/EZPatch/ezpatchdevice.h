@@ -8,9 +8,6 @@
 #include <unordered_map>
 
 #include "messagedispatcher.h"
-#include "ftdieeprom.h"
-#include "ftdieeprom56.h"
-#include "ftdieepromdemo.h"
 #include "calibrationeeprom.h"
 
 #define EZP_LSB_NOISE_ARRAY_SIZE 0x40000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~250k
@@ -56,7 +53,6 @@ public:
     \************************/
 
     virtual ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag) override;
-    static ErrorCodes_t getDeviceType(DeviceTuple_t tuple, DeviceTypes_t &type);
 
     /****************\
      *  Tx methods  *
@@ -201,8 +197,6 @@ public:
     \****************/
 
     ErrorCodes_t isDeviceUpgradable(std::string &upgradeNotes, std::string &notificationTag);
-    /*! \todo FCON fare il metodo statico per il get device info */
-    ErrorCodes_t getDeviceInfo(std::string &deviceId, std::string &deviceName, uint32_t &deviceVersion, uint32_t &deviceSubversion, uint32_t &firmwareVersion);
     virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data) override;
     ErrorCodes_t purgeData() override;
 
@@ -242,10 +236,6 @@ public:
     virtual ErrorCodes_t getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) override;
 
 protected:
-    typedef enum {
-        FpgaFwLoadAutomatic,
-        FpgaFwLoadPatchlinerArtix7_V01
-    } FpgaLoadType_t;
 
     /*************\
      *  Methods  *
@@ -481,10 +471,6 @@ protected:
     /***************\
      *  Variables  *
     \***************/
-
-    FpgaLoadType_t fpgaLoadType = FpgaFwLoadAutomatic;
-    FT_HANDLE * ftdiRxHandle = nullptr;
-    FT_HANDLE * ftdiTxHandle = nullptr;
 
     uint32_t rxMsgOffset;
 

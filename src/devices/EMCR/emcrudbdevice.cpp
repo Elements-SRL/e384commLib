@@ -461,20 +461,9 @@ bool EmcrUdbDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
         return false;
     }
     switch (type) {
-    case TxTriggerParameteresUpdated:
-//        this->activateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        break;
-
     case TxTriggerStartProtocol:
-//        this->activateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for (std::chrono::milliseconds(5));
         return this->activateTriggerIn(UDB_START_PROTOCOL_TRIGGER_IN_ADDR, UDB_START_PROTOCOL_TRIGGER_IN_BIT);
-        break;
-
-    case TxTriggerStartStateArray:
-//        this->activateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-//        std::this_thread::sleep_for (std::chrono::milliseconds(5));
-//        this->activateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
         break;
     }
     return true;
@@ -482,7 +471,7 @@ bool EmcrUdbDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
 
 uint32_t EmcrUdbDevice::readDataFromDevice() {
     /*! Declare variables to manage buffers indexing */
-    long bytesRead; /*!< Bytes read during last transfer from Opal Kelly */
+    long bytesRead;
 
     /******************\
      *  Reading part  *
@@ -802,21 +791,10 @@ bool EmcrUdbDevice::activateTriggerIn(int address, int bit) {
 
 bool EmcrUdbDevice::writeToBulkOut(uint32_t * buffer) {
     long bytesNum = sizeof(uint32_t)*(3+2*buffer[2]);
-    std::unique_lock <std::mutex> deviceMtxLock (deviceMtx);
 
     if (!(eptBulkout->XferData((PUCHAR)buffer, bytesNum))) {
         eptBulkout->Abort();
         return false;
     }
-
-//#ifdef DEBUG_PRINT
-//    fprintf(fid, "config sent:");
-//    for (int i = 0; i < bytesNum/bytesNum; i++) {
-//        fprintf(fid, "0x%08x ", *(buffer+i));
-//    }
-//    fprintf(fid, "\n");
-//    fflush(fid);
-//#endif
-
     return true;
 }

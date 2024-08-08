@@ -1031,13 +1031,13 @@ bool EZPatche4PPatchliner_el07ab::checkCompensationsValues() {
 
         double d1 = maxMembraneCapacitance;
         double d2 = maxMembraneTau/rs;
-        double d3 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(rs*rp) : std::numeric_limits <double>::max());
+        double d3 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(rs*rp) : (std::numeric_limits <double>::max)());
         compensationControls[U_Cm][compensationsSettingChannel].maxCompensable = fmin(fmin(d1, d2), d3);
 
         d1 = compensationControls[U_Rs][compensationsSettingChannel].max;
         d2 = maxMembraneTau/compensationControls[U_Cm][compensationsSettingChannel].value;
         d3 = maxResistanceCorrection*maxResistanceCorrectionPercentage/rc;
-        double d4 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(compensationControls[U_Cm][compensationsSettingChannel].value*rp) : std::numeric_limits <double>::max());
+        double d4 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(compensationControls[U_Cm][compensationsSettingChannel].value*rp) : (std::numeric_limits <double>::max)());
         compensationControls[U_Rs][compensationsSettingChannel].maxCompensable = fmin(fmin(fmin(d1, d2), d3), d4);
 
         d1 = compensationControls[U_RsCp][compensationsSettingChannel].max;

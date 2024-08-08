@@ -2636,19 +2636,6 @@ ErrorCodes_t EZPatchDevice::isDeviceUpgradable(std::string &upgradeNotes, std::s
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::getDeviceInfo(std::string &deviceId, std::string &deviceName, uint32_t &deviceVersion, uint32_t &deviceSubversion, uint32_t &firmwareVersion) {
-    ErrorCodes_t ret = Success;
-
-    deviceId = this->deviceId;
-    deviceName = this->deviceName;
-    DeviceTuple_t tuple = FtdiEeprom56(deviceId).getDeviceTuple();
-    deviceVersion = tuple.version;
-    deviceSubversion = tuple.subversion;
-    firmwareVersion = tuple.fwVersion;
-
-    return ret;
-}
-
 ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     ErrorCodes_t ret = Success;
     double xFlt;
