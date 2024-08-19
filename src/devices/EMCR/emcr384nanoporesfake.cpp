@@ -8,10 +8,6 @@ Emcr384FakeNanopores::Emcr384FakeNanopores(std::string id) :
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate6kHz].value = 6.0;
-    samplingRatesArray[SamplingRate6kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate6kHz].unit = "Hz";
     defaultSamplingRateIdx = SamplingRate6kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);

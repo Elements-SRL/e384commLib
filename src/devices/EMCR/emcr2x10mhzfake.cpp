@@ -7,10 +7,6 @@ Emcr2x10MHzFake::Emcr2x10MHzFake(std::string id) :
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate2MHz].value = 2.0;
-    samplingRatesArray[SamplingRate2MHz].prefix = UnitPfxMega;
-    samplingRatesArray[SamplingRate2MHz].unit = "Hz";
     defaultSamplingRateIdx = SamplingRate2MHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);

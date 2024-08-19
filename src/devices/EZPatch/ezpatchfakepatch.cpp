@@ -15,7 +15,6 @@ EZPatchFakePatch::EZPatchFakePatch(std::string di) :
 
     /*! Sampling rates */
     samplingRatesNum = 4;
-    samplingRatesArray.resize(samplingRatesNum);
 
     realSamplingRatesArray.resize(samplingRatesNum);
     realSamplingRatesArray[SamplingRate1_25kHz].value = 1.25;

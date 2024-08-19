@@ -5,11 +5,6 @@ EmcrTestBoardEl07abFake::EmcrTestBoardEl07abFake(std::string id) :
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    samplingRatesArray.resize(samplingRatesNum);
-    samplingRatesArray[SamplingRate5kHz].value = 5.0;
-    samplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
-    samplingRatesArray[SamplingRate5kHz].unit = "Hz";
-    defaultSamplingRateIdx = SamplingRate5kHz;
     defaultSamplingRateIdx = SamplingRate5kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
