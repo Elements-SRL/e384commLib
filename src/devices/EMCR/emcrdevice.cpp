@@ -1195,6 +1195,7 @@ ErrorCodes_t EmcrDevice::readoutOffsetRecalibration(std::vector <uint16_t> chann
         channelModels[chIdx]->setRecalibratingReadoutOffset(onValues[i]);
         if (onValues[i] && (offsetRecalibStates[chIdx] == OffsetRecalibIdle)) {
             offsetRecalibStates[chIdx] = OffsetRecalibStarting;
+            offsetRecalibStatuses[chIdx] = OffsetRecalibNotPerformed;
 
         } else if (!onValues[i] && (offsetRecalibStates[chIdx] != OffsetRecalibIdle)) {
             offsetRecalibStates[chIdx] = OffsetRecalibTerminate;
@@ -1229,6 +1230,7 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
         channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
+            liquidJunctionStatuses[chIdx] = LiquidJunctionNotPerformed;
 
         } else if (!onValues[i] && (liquidJunctionStates[chIdx] != LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;

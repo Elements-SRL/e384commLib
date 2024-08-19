@@ -1154,6 +1154,7 @@ ErrorCodes_t EZPatchDevice::readoutOffsetRecalibration(std::vector <uint16_t> ch
         channelModels[chIdx]->setRecalibratingReadoutOffset(onValues[i]);
         if (onValues[i] && (offsetRecalibStates[chIdx] == OffsetRecalibIdle)) {
             offsetRecalibStates[chIdx] = OffsetRecalibStarting;
+            offsetRecalibStatuses[chIdx] = OffsetRecalibNotPerformed;
             zeroProtocolFlag = true;
 
         } else if (!onValues[i] && (offsetRecalibStates[chIdx] != OffsetRecalibIdle)) {
@@ -1186,6 +1187,7 @@ ErrorCodes_t EZPatchDevice::liquidJunctionCompensation(std::vector <uint16_t> ch
         channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
+            liquidJunctionStatuses[chIdx] = LiquidJunctionNotPerformed;
             zeroProtocolFlag = true;
 
         } else if (!onValues[i]) {
