@@ -324,7 +324,7 @@ ErrorCodes_t setCurrentHoldTuner(
     std::vector <Measurement_t> currents;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* currentsIn, currents);
-    return messageDispatcher->setCurrentHoldTuner(channelIndexes, currents, true);
+    return messageDispatcher->setCurrentHoldTuner(channelIndexes, currents, applyFlagIn);
 }
 
 ErrorCodes_t setVoltageHalf(
@@ -354,7 +354,7 @@ ErrorCodes_t setCurrentHalf(
     std::vector <Measurement_t> currents;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* currentsIn, currents);
-    return messageDispatcher->setCurrentHalf(channelIndexes, currents, true);
+    return messageDispatcher->setCurrentHalf(channelIndexes, currents, applyFlagIn);
 }
 
 ErrorCodes_t setLiquidJunctionVoltage(
@@ -369,7 +369,7 @@ ErrorCodes_t setLiquidJunctionVoltage(
     std::vector <Measurement_t> voltages;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     input2VectorMeasurement(* voltagesIn, voltages);
-    return messageDispatcher->setLiquidJunctionVoltage(channelIndexes, voltages, true);
+    return messageDispatcher->setLiquidJunctionVoltage(channelIndexes, voltages, applyFlagIn);
 }
 
 ErrorCodes_t resetLiquidJunctionVoltage(
@@ -381,7 +381,7 @@ ErrorCodes_t resetLiquidJunctionVoltage(
     }
     std::vector <uint16_t> channelIndexes;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    return messageDispatcher->resetLiquidJunctionVoltage(channelIndexes, true);
+    return messageDispatcher->resetLiquidJunctionVoltage(channelIndexes, applyFlagIn);
 }
 
 ErrorCodes_t setCalibVcCurrentGain(

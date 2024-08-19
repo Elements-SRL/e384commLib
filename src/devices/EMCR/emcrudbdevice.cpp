@@ -20,14 +20,15 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 6, Device10MHzOld},                  //   11,  1,  6 : UDB V02
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 7, Device10MHzOld},                  //   11,  1,  7 : UDB V02
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 8, Device10MHzOld},                  //   11,  1,  8 : UDB V02
-    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 9, Device10MHzV01}                   //   11,  1,  9 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 9, Device10MHzV01},                  //   11,  1,  9 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02,11, Device10MHzV01}                   //   11,  1, 11 : UDB V02
     #ifdef DEBUG
     ,{EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_FAKE, 254, Device10MHzFake}                 //   11,254,254 : UDB FAKE
     #endif
 };
 
 static std::unordered_map <DeviceTypes_t, MessageDispatcher::FwUpgradeInfo_t> fwUpgradeInfo = {
-    {Device10MHzOld, {true, 9, "10MHz_V09.bin"}},
+    {Device10MHzOld, {true, 11, "10MHz_V11.bin"}},
     {Device10MHzV01, MessageDispatcher::FwUpgradeInfo_t()}
     #ifdef DEBUG
     ,{Device10MHzFake, MessageDispatcher::FwUpgradeInfo_t()}
