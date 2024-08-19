@@ -18,7 +18,7 @@ CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS += /O2
     TARGET = e384commlib
     # comment or uncomment depending on the desired verbosity
-    DEFINES += DEBUG
+#    DEFINES += DEBUG
 #    DEFINES += DEBUG_RX_RAW_DATA_PRINT
 #    DEFINES += DEBUG_RX_DATA_PRINT
 #    DEFINES += DEBUG_TX_DATA_PRINT
