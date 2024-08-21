@@ -734,7 +734,7 @@ public:
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t readoutOffsetRecalibration(std::vector <uint16_t>, std::vector <bool>, bool);
+    virtual ErrorCodes_t readoutOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag);
 
     /*! \brief Execute liquid junction compensation.
      * \note The liquid junction compensation tunes the offset of the applied voltage so that the acquired current is 0.
