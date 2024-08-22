@@ -74,10 +74,12 @@ typedef enum ErrorCodes {
     ErrorWrongClampModality =               ErrorGroupDeviceCommands +      0x0000000A, /*!< Error returned a command is used in the wrong clamp modality
                                                                                              e.g. set holding voltage in current clamp. */
     WarningValueClipped =                   ErrorGroupDeviceCommands +      0x8000000B, /*!< Warning returned when trying to set a value that is out of range for the current device,
-                                                                                             but differently from the ErrorValueOutOfRange, the command is still applied but clipped,
+                                                                                         *    but differently from the ErrorValueOutOfRange, the command is still applied but clipped,
                                                                                          *   e.g. a voltage offset bigger then the DAC range. */
     ErrorCompensationNotEnabled =           ErrorGroupDeviceCommands +      0x0000000C, /*!< Error returned when trying setting a compensation that is not enabled */
     ErrorLiquidJunctionAndRecalibration =   ErrorGroupDeviceCommands +      0x0000000D, /*!< Error returned when trying activate the digital offset compensation and the readout offset recalibration together */
+    ErrorWrongInputLength =                 ErrorGroupDeviceCommands +      0x0000000E, /*!< Error returned when an input vector does not have the right size,
+                                                                                         *   e.g. the vector of channels and the corresponding vector of measurements do not match in size */
 
     ErrorFeatureNotImplemented =            ErrorGroupDeviceFeatures +      0x00000000, /*!< Error returned when trying to use a feature that is not implemented for the current device. */
     ErrorUpgradesNotAvailable =             ErrorGroupDeviceFeatures +      0x00000001, /*!< Error returned when there are no upgrades available for the current device. */

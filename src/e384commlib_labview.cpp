@@ -46,6 +46,17 @@ static ErrorCodes_t getCompensationValues(uint16_t * channelIndexesIn, double * 
 static std::fstream logFile;
 #endif
 
+#define SELECT_MEAS_VECTOR(o, i, l) {\
+    if (i == nullptr) {\
+    if (l != internalMeasVec.size()) {\
+    return ErrorWrongInputLength;\
+    }\
+    o = internalMeasVec; \
+    } else { \
+    input2VectorMeasurement(* i, o); \
+    } \
+    }
+
 ErrorCodes_t getMeasVecSize(
         uint16_t &size) {
 
@@ -63,8 +74,19 @@ ErrorCodes_t getMeasVecSize(
     return Success;
 }
 
-ErrorCodes_t measVecClear(
-        E384CL_ARGVOID) {
+
+ErrorCodes_t measVecResize(
+        uint16_t &size) {
+
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+
+    internalMeasVec.resize(size);
+    return Success;
+}
+
+ErrorCodes_t measVecClear() {
 
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
@@ -108,68 +130,23 @@ ErrorCodes_t appendMeasToVec(
     return Success;
 }
 
+ErrorCodes_t setMeasInVec(
+        uint16_t idx,
+        double value,
+        UnitPfx_t prefix,
+        char * unitIn) {
 
-///*! \brief Create a CharMeasurment_t from its fields.
-// *
-// * \param value [in] Value of the measurement.
-// * \param prefix [in] Prefic of the measurement unit.
-// * \param unit [in] Unit of the measurement.
-// * \param measOut [out] Pointer to the measurement memory location.
-// * \return Error code.
-// */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t createMeas(
-//        E384CL_ARGIN double value,
-//        E384CL_ARGIN UnitPfx_t prefix,
-//        E384CL_ARGIN char * unitIn,
-//        E384CL_ARGOUT CharMeasurement_t ** measOut);
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
 
-///*! \brief Create a CharMeasurment_t vector from an array of CharMeasurement_t.
-// *
-// * \param measArray [in] Array of measurements.
-// * \param sizeIn [in] Number of the measurements in the array.
-// * \param measVectorOut [out] Vector of measurements returned as a handle.
-// * \return Error code.
-// */
-//E384COMMLIB_NAME_MANGLING
-//E384COMMLIBSHARED_EXPORT
-//ErrorCodes_t createMeasVector(
-//        E384CL_ARGIN CharMeasurement_t * measArray[],
-//        E384CL_ARGIN uint32_t sizeIn,
-//        E384CL_ARGOUT LMeasHandle * measVectorOut);
-
-
-//ErrorCodes_t createMeas(
-//        double value,
-//        UnitPfx_t prefix,
-//        char * unitIn,
-//        CharMeasurement_t ** measOut) {
-
-//    std::string unit = unitIn;
-//    CharMeasurement_t * d = new CharMeasurement_t;
-//    (* d).value = value;
-//    (* d).prefix = prefix;
-////    LStrHandle * h;
-////    string2Output(unit, h);
-////    (* d).unit = * h;
-
-//    * measOut = d;
-//    return Success;
-//}
-
-//ErrorCodes_t createMeasVector(
-//        CharMeasurement_t * measArray[],
-//        uint32_t sizeIn,
-//        LMeasHandle * measVectorOut) {
-
-//    std::vector <Measurement_t> measVector(sizeIn);
-//    for (uint32_t idx = 0; idx < sizeIn; idx++) {
-//        input2Measurement(* measArray[idx], measVector[idx]);
-//    }
-//    vectorMeasurement2Output(measVector, measVectorOut);
-//    return Success;
-//}
+    if (idx >= internalMeasVec.size()) {
+        return ErrorValueOutOfRange;
+    }
+    Measurement_t meas = {value, prefix, std::string(unitIn)};
+    internalMeasVec[idx]  = meas;
+    return Success;
+}
 
 /************************\
  *  Connection methods  *
@@ -297,18 +274,7 @@ ErrorCodes_t setVoltageHoldTuner(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> voltages;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    if (voltagesIn == nullptr) {
-#ifdef HELPERLOG
-        logFile << "nullptr, using internal vector" << std::endl;
-#endif
-        voltages = internalMeasVec;
-
-    } else {
-#ifdef HELPERLOG
-        logFile << "not nullptr, crashing" << std::endl;
-#endif
-        input2VectorMeasurement(* voltagesIn, voltages);
-    }
+    SELECT_MEAS_VECTOR(voltages, voltagesIn, channelIndexes.size())
     return messageDispatcher->setVoltageHoldTuner(channelIndexes, voltages, applyFlagIn);
 }
 
@@ -323,7 +289,7 @@ ErrorCodes_t setCurrentHoldTuner(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> currents;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* currentsIn, currents);
+    SELECT_MEAS_VECTOR(currents, currentsIn, channelIndexes.size())
     return messageDispatcher->setCurrentHoldTuner(channelIndexes, currents, applyFlagIn);
 }
 
@@ -338,7 +304,7 @@ ErrorCodes_t setVoltageHalf(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> voltages;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* voltagesIn, voltages);
+    SELECT_MEAS_VECTOR(voltages, voltagesIn, channelIndexes.size())
     return messageDispatcher->setVoltageHalf(channelIndexes, voltages, applyFlagIn);
 }
 
@@ -353,7 +319,7 @@ ErrorCodes_t setCurrentHalf(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> currents;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* currentsIn, currents);
+    SELECT_MEAS_VECTOR(currents, currentsIn, channelIndexes.size())
     return messageDispatcher->setCurrentHalf(channelIndexes, currents, applyFlagIn);
 }
 
@@ -368,7 +334,7 @@ ErrorCodes_t setLiquidJunctionVoltage(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> voltages;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* voltagesIn, voltages);
+    SELECT_MEAS_VECTOR(voltages, voltagesIn, channelIndexes.size())
     return messageDispatcher->setLiquidJunctionVoltage(channelIndexes, voltages, applyFlagIn);
 }
 
@@ -395,7 +361,7 @@ ErrorCodes_t setCalibVcCurrentGain(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> gains;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* gainsIn, gains);
+    SELECT_MEAS_VECTOR(gains, gainsIn, channelIndexes.size())
     return messageDispatcher->setCalibVcCurrentGain(channelIndexes, gains, applyFlagIn);
 }
 
@@ -410,7 +376,7 @@ ErrorCodes_t setCalibVcCurrentOffset(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> offsets;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* offsetsIn, offsets);
+    SELECT_MEAS_VECTOR(offsets, offsetsIn, channelIndexes.size())
     return messageDispatcher->setCalibVcCurrentOffset(channelIndexes, offsets, applyFlagIn);
 }
 
@@ -425,7 +391,7 @@ ErrorCodes_t setCalibVcVoltageGain(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> gains;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* gainsIn, gains);
+    SELECT_MEAS_VECTOR(gains, gainsIn, channelIndexes.size())
     return messageDispatcher->setCalibVcVoltageGain(channelIndexes, gains, applyFlagIn);
 }
 
@@ -440,7 +406,7 @@ ErrorCodes_t setCalibVcVoltageOffset(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> offsets;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* offsetsIn, offsets);
+    SELECT_MEAS_VECTOR(offsets, offsetsIn, channelIndexes.size())
     return messageDispatcher->setCalibVcVoltageOffset(channelIndexes, offsets, applyFlagIn);
 }
 
@@ -455,7 +421,7 @@ ErrorCodes_t setCalibCcVoltageGain(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> gains;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* gainsIn, gains);
+    SELECT_MEAS_VECTOR(gains, gainsIn, channelIndexes.size())
     return messageDispatcher->setCalibCcVoltageGain(channelIndexes, gains, applyFlagIn);
 }
 
@@ -470,7 +436,7 @@ ErrorCodes_t setCalibCcVoltageOffset(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> offsets;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* offsetsIn, offsets);
+    SELECT_MEAS_VECTOR(offsets, offsetsIn, channelIndexes.size())
     return messageDispatcher->setCalibCcVoltageOffset(channelIndexes, offsets, applyFlagIn);
 }
 
@@ -485,7 +451,7 @@ ErrorCodes_t setCalibCcCurrentGain(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> gains;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* gainsIn, gains);
+    SELECT_MEAS_VECTOR(gains, gainsIn, channelIndexes.size())
     return messageDispatcher->setCalibCcCurrentGain(channelIndexes, gains, applyFlagIn);
 }
 
@@ -500,7 +466,7 @@ ErrorCodes_t setCalibCcCurrentOffset(
     std::vector <uint16_t> channelIndexes;
     std::vector <Measurement_t> offsets;
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
-    input2VectorMeasurement(* offsetsIn, offsets);
+    SELECT_MEAS_VECTOR(offsets, offsetsIn, channelIndexes.size())
     return messageDispatcher->setCalibCcCurrentOffset(channelIndexes, offsets, applyFlagIn);
 }
 
@@ -532,7 +498,7 @@ ErrorCodes_t setGateVoltage(
     std::vector <uint16_t> boardIndexes;
     std::vector <Measurement_t> gateVoltages;
     input2NumericVector(boardIndexesIn, boardIndexes, vectorLengthIn);
-    input2VectorMeasurement(* gateVoltagesIn, gateVoltages);
+    SELECT_MEAS_VECTOR(gateVoltages, gateVoltagesIn, boardIndexes.size())
     return messageDispatcher->setGateVoltages(boardIndexes, gateVoltages, applyFlagIn);
 }
 
@@ -547,7 +513,7 @@ ErrorCodes_t setSourceVoltage(
     std::vector <uint16_t> boardIndexes;
     std::vector <Measurement_t> sourceVoltages;
     input2NumericVector(boardIndexesIn, boardIndexes, vectorLengthIn);
-    input2VectorMeasurement(* sourceVoltagesIn, sourceVoltages);
+    SELECT_MEAS_VECTOR(sourceVoltages, sourceVoltagesIn, boardIndexes.size())
     return messageDispatcher->setSourceVoltages(boardIndexes, sourceVoltages, applyFlagIn);
 }
 

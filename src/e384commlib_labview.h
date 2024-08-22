@@ -25,7 +25,6 @@ ErrorCodes_t getMeasVecSize(
         E384CL_ARGOUT uint16_t &size);
 
 /*! \brief Resize the internal vector of Measurement_t.
- * \todo NOT IMPLEMENTED
  *
  * \param size [in] New size of the vector.
  * \return Error code.
@@ -61,7 +60,6 @@ ErrorCodes_t appendMeasToVec(
 
 /*! \brief Set a Measurment_t in the internal vector.
  * \note The size of the vector must be greater than idx.
- * \todo NOT IMPLEMENTED
  *
  * \param idx [in] Index of the vector to set.
  * \param value [in] Value of the measurement.
@@ -74,81 +72,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setMeasInVec(
         E384CL_ARGIN uint16_t idx,
         E384CL_ARGIN double value,
-        E384CL_ARGIN UnitPfx_t prefix,
-        E384CL_ARGIN char * unitIn);
-
-/*! \brief Get the size of the internal vector of RangedMeasurement_t.
- * \note Increases size by 1
- * \todo NOT IMPLEMENTED
- *
- * \param size [out] Size of the vector.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getRangeVecSize(
-        E384CL_ARGOUT uint16_t &size);
-
-/*! \brief Clears the internal vector of RangedMeasurement_t.
- * \todo NOT IMPLEMENTED
- *
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t rangeVecClear(
-        E384CL_ARGVOID);
-
-/*! \brief Resize the internal vector of RangedMeasurement_t.
- * \todo NOT IMPLEMENTED
- *
- * \param size [in] New size of the vector.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t rangeVecResize(
-        E384CL_ARGIN uint16_t &size);
-
-/*! \brief Append a RangedMeasurment_t to the internal vector.
- * \note Increases size by 1
- * \todo NOT IMPLEMENTED
- *
- * \param max [in] Max value of the rangedMeasurement.
- * \param min [in] Min value of the rangedMeasurement.
- * \param step [in] Step of the rangedMeasurement.
- * \param prefix [in] Prefic of the measurement unit.
- * \param unit [in] Unit of the measurement.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t appendRangeToVec(
-        E384CL_ARGIN double max,
-        E384CL_ARGIN double min,
-        E384CL_ARGIN double step,
-        E384CL_ARGIN UnitPfx_t prefix,
-        E384CL_ARGIN char * unitIn);
-
-/*! \brief Set a RangedMeasurment_t in the internal vector.
- * \note The size of the vector must be greater than idx.
- * \todo NOT IMPLEMENTED
- *
- * \param idx [in] Index of the vector to set.
- * \param max [in] Max value of the rangedMeasurement.
- * \param min [in] Min value of the rangedMeasurement.
- * \param step [in] Step of the rangedMeasurement.
- * \param prefix [in] Prefic of the rangedMeasurement unit.
- * \param unit [in] Unit of the rangedMeasurement.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setRangeInVec(
-        E384CL_ARGIN uint16_t idx,
-        E384CL_ARGIN double max,
-        E384CL_ARGIN double min,
-        E384CL_ARGIN double step,
         E384CL_ARGIN UnitPfx_t prefix,
         E384CL_ARGIN char * unitIn);
 
@@ -215,8 +138,8 @@ ErrorCodes_t enableRxMessageType(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageStimulusOn(
-        bool onValueIn,
-        bool applyFlagIn);
+        E384CL_ARGIN bool onValueIn,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Turn on/off the current stimulus for each channel.
  *
@@ -227,8 +150,8 @@ ErrorCodes_t turnVoltageStimulusOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentStimulusOn(
-        bool onValueIn,
-        bool applyFlagIn);
+        E384CL_ARGIN bool onValueIn,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Turn on/off the voltage reader for each channel.
  *  \note The voltage is read by the current clamp ADC.
@@ -284,7 +207,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setVoltageHoldTuner(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * voltagesIn,
+        E384CL_ARGIN LMeasHandle * voltagesIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -300,7 +223,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentHoldTuner(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * currentsIn,
+        E384CL_ARGIN LMeasHandle * currentsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -316,7 +239,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setVoltageHalf(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * voltagesIn,
+        E384CL_ARGIN LMeasHandle * voltagesIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -332,7 +255,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentHalf(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * currentsIn,
+        E384CL_ARGIN LMeasHandle * currentsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -362,7 +285,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setLiquidJunctionVoltage(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * voltagesIn,
+        E384CL_ARGIN LMeasHandle * voltagesIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -648,7 +571,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcCurrentGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -664,7 +587,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcCurrentOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -680,7 +603,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcVoltageGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -696,7 +619,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcVoltageOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -712,7 +635,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcVoltageGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -728,7 +651,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcVoltageOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -744,7 +667,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcCurrentGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -760,7 +683,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcCurrentOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -792,7 +715,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setGateVoltage(
         E384CL_ARGIN uint16_t * boardIndexesIn,
-        E384CL_ARGIN LMeasHandle * gateVoltagesIn,
+        E384CL_ARGIN LMeasHandle * gateVoltagesIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -808,7 +731,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setSourceVoltage(
         E384CL_ARGIN uint16_t * boardIndexesIn,
-        E384CL_ARGIN LMeasHandle * sourceVoltagesIn,
+        E384CL_ARGIN LMeasHandle * sourceVoltagesIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
