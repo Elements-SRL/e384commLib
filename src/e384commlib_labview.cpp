@@ -582,6 +582,18 @@ ErrorCodes_t setDigitalFilter(
     return messageDispatcher->setRawDataFilter(cutoffFrequency, lowPassFlag, activeFlag);
 }
 
+ErrorCodes_t setDigitalFilterVec(
+        LMeasHandle * vecIn,
+        bool lowPassFlag,
+        bool activeFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <Measurement_t> vec;
+    SELECT_MEAS_VECTOR(vec, vecIn, 1)
+    return messageDispatcher->setRawDataFilter(vec[0], lowPassFlag, activeFlag);
+}
+
 ErrorCodes_t readoutOffsetRecalibration(
         uint16_t * channelIndexesIn,
         bool * onValuesIn,
@@ -622,14 +634,30 @@ ErrorCodes_t digitalOffsetCompensation(
 
 ErrorCodes_t zap(
         CharMeasurement_t durationIn,
-        uint16_t channelIdx) {
+        uint16_t * channelIndexesIn,
+        uint16_t vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    return ErrorFeatureNotImplemented;
-    //        Measurement_t duration;
-    //        input2Measurement(durationIn, duration);
-    //    return messageDispatcher->zap(duration, channelIdx);
+    std::vector <uint16_t> channelIndexes;
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    Measurement_t duration;
+    input2Measurement(durationIn, duration);
+    return messageDispatcher->zap(channelIndexes, duration);
+}
+
+ErrorCodes_t zap(
+        LMeasHandle * vecIn,
+        uint16_t * channelIndexesIn,
+        uint16_t vectorLengthIn) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <uint16_t> channelIndexes;
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    std::vector <Measurement_t> vec;
+    SELECT_MEAS_VECTOR(vec, vecIn, 1)
+    return messageDispatcher->zap(channelIndexes, vec[0]);
 }
 
 ErrorCodes_t setVoltageStimulusLpf(
@@ -1052,6 +1080,18 @@ ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
     return messageDispatcher->setVoltageProtocolStructure(protId, itemsNum, sweepsNum, vRest, true);
 }
 
+ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
+                                         uint16_t itemsNum,
+                                         uint16_t sweepsNum,
+                                         LMeasHandle * vecIn) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <Measurement_t> vec;
+    SELECT_MEAS_VECTOR(vec, vecIn, 1)
+    return messageDispatcher->setVoltageProtocolStructure(protId, itemsNum, sweepsNum, vec[0], true);
+}
+
 ErrorCodes_t voltStepTimeStep(
         CharMeasurement_t v0In,
         CharMeasurement_t vStepIn,
@@ -1074,6 +1114,21 @@ ErrorCodes_t voltStepTimeStep(
     input2Measurement(t0In, t0);
     input2Measurement(tStepIn, tStep);
     return messageDispatcher->setVoltageProtocolStep(currentItem, nextItem, repsNum, applySteps, v0, vStep, t0, tStep, vHalfFlag);
+}
+
+ErrorCodes_t voltStepTimeStepVec(
+        LMeasHandle * vecIn,
+        uint16_t currentItem,
+        uint16_t nextItem,
+        uint16_t repsNum,
+        uint16_t applySteps,
+        uint16_t vHalfFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <Measurement_t> vec;
+    SELECT_MEAS_VECTOR(vec, vecIn, 4)
+    return messageDispatcher->setVoltageProtocolStep(currentItem, nextItem, repsNum, applySteps, vec[0], vec[1], vec[2], vec[3], vHalfFlag);
 }
 
 ErrorCodes_t voltRamp(
@@ -1099,6 +1154,21 @@ ErrorCodes_t voltRamp(
     return messageDispatcher->setVoltageProtocolRamp(currentItem, nextItem, repsNum, applySteps, v0, vStep, vFinal, vStep, t, tStep, vHalfFlag);
 }
 
+ErrorCodes_t voltRampVec(
+        LMeasHandle * vecIn,
+        uint16_t currentItem,
+        uint16_t nextItem,
+        uint16_t repsNum,
+        uint16_t applySteps,
+        uint16_t vHalfFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <Measurement_t> vec;
+    SELECT_MEAS_VECTOR(vec, vecIn, 3)
+    return messageDispatcher->setVoltageProtocolRamp(currentItem, nextItem, repsNum, applySteps, vec[0], vec[0]*0.0, vec[1], vec[1]*0.0, vec[2], vec[2]*0.0, vHalfFlag);
+}
+
 ErrorCodes_t voltSin(
         CharMeasurement_t v0In,
         CharMeasurement_t vAmpIn,
@@ -1120,6 +1190,21 @@ ErrorCodes_t voltSin(
     Measurement_t vStep = v0*0.0;
     Measurement_t fStep = freq*0.0;
     return messageDispatcher->setVoltageProtocolSin(currentItem, nextItem, repsNum, applySteps, v0, vStep, vAmp, vStep, freq, fStep, vHalfFlag);
+}
+
+ErrorCodes_t voltSinVec(
+        LMeasHandle * vecIn,
+        uint16_t currentItem,
+        uint16_t nextItem,
+        uint16_t repsNum,
+        uint16_t applySteps,
+        uint16_t vHalfFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <Measurement_t> vec;
+    SELECT_MEAS_VECTOR(vec, vecIn, 3)
+    return messageDispatcher->setVoltageProtocolSin(currentItem, nextItem, repsNum, applySteps, vec[0], vec[0]*0.0, vec[1], vec[1]*0.0, vec[2], vec[2]*0.0, vHalfFlag);
 }
 
 ErrorCodes_t startProtocol() {
@@ -1148,6 +1233,18 @@ ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
     return messageDispatcher->setCurrentProtocolStructure(protId, itemsNum, sweepsNum, iRest, true);
 }
 
+ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
+                                         uint16_t itemsNum,
+                                         uint16_t sweepsNum,
+                                         LMeasHandle * vecIn) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <Measurement_t> vec;
+    SELECT_MEAS_VECTOR(vec, vecIn, 1)
+    return messageDispatcher->setCurrentProtocolStructure(protId, itemsNum, sweepsNum, vec[0], true);
+}
+
 ErrorCodes_t currStepTimeStep(
         CharMeasurement_t i0In,
         CharMeasurement_t iStepIn,
@@ -1170,6 +1267,21 @@ ErrorCodes_t currStepTimeStep(
     input2Measurement(t0In, t0);
     input2Measurement(tStepIn, tStep);
     return messageDispatcher->setCurrentProtocolStep(currentItem, nextItem, repsNum, applySteps, i0, iStep, t0, tStep, cHalfFlag);
+}
+
+ErrorCodes_t currStepTimeStepVec(
+        LMeasHandle * vecIn,
+        uint16_t currentItem,
+        uint16_t nextItem,
+        uint16_t repsNum,
+        uint16_t applySteps,
+        uint16_t cHalfFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <Measurement_t> vec;
+    SELECT_MEAS_VECTOR(vec, vecIn, 4)
+    return messageDispatcher->setCurrentProtocolStep(currentItem, nextItem, repsNum, applySteps, vec[0], vec[1], vec[2], vec[3], cHalfFlag);
 }
 
 ErrorCodes_t currRamp(
@@ -1195,6 +1307,21 @@ ErrorCodes_t currRamp(
     return messageDispatcher->setCurrentProtocolRamp(currentItem, nextItem, repsNum, applySteps, i0, iStep, iFinal, iStep, t, tStep, cHalfFlag);
 }
 
+ErrorCodes_t currRampVec(
+        LMeasHandle * vecIn,
+        uint16_t currentItem,
+        uint16_t nextItem,
+        uint16_t repsNum,
+        uint16_t applySteps,
+        uint16_t cHalfFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <Measurement_t> vec;
+    SELECT_MEAS_VECTOR(vec, vecIn, 3)
+    return messageDispatcher->setCurrentProtocolRamp(currentItem, nextItem, repsNum, applySteps, vec[0], vec[0]*0.0, vec[1], vec[1]*0.0, vec[2], vec[2]*0.0, cHalfFlag);
+}
+
 ErrorCodes_t currSin(
         CharMeasurement_t i0In,
         CharMeasurement_t iAmpIn,
@@ -1216,6 +1343,21 @@ ErrorCodes_t currSin(
     Measurement_t iStep = i0*0.0;
     Measurement_t fStep = freq*0.0;
     return messageDispatcher->setCurrentProtocolSin(currentItem, nextItem, repsNum, applySteps, i0, iStep, iAmp, iStep, freq, fStep, cHalfFlag);
+}
+
+ErrorCodes_t currSinVec(
+        LMeasHandle * vecIn,
+        uint16_t currentItem,
+        uint16_t nextItem,
+        uint16_t repsNum,
+        uint16_t applySteps,
+        uint16_t cHalfFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <Measurement_t> vec;
+    SELECT_MEAS_VECTOR(vec, vecIn, 3)
+    return messageDispatcher->setCurrentProtocolSin(currentItem, nextItem, repsNum, applySteps, vec[0], vec[0]*0.0, vec[1], vec[1]*0.0, vec[2], vec[2]*0.0, cHalfFlag);
 }
 
 ErrorCodes_t resetAsic(bool reset) {
