@@ -16,7 +16,14 @@ namespace e384CommLib {
 #endif
 class CalibrationManager {
 public:
-    CalibrationManager(std::string serialNumber, uint16_t currentChannelsNum, uint16_t boardsNum, uint16_t vcCurrentRangesNum, uint16_t vcVoltageRangesNum, uint16_t ccVoltageRangesNum, uint16_t ccCurrentRangesNum);
+    CalibrationManager(std::string serialNumber,
+                       uint16_t currentChannelsNum,
+                       uint16_t boardsNum,
+                       uint16_t vcCurrentRangesNum,
+                       uint16_t vcVoltageRangesNum,
+                       uint16_t ccVoltageRangesNum,
+                       uint16_t ccCurrentRangesNum,
+                       uint16_t samplingRatesNum);
 
     CalibrationParams_t getCalibrationParams(ErrorCodes_t &error);
     std::vector <std::string> getCalibrationFileNames();
@@ -55,6 +62,7 @@ private:
     uint16_t vcVoltageRangesNum;
     uint16_t ccVoltageRangesNum;
     uint16_t ccCurrentRangesNum;
+    uint16_t samplingRatesNum;
 
     std::string mappingFileDir;
     std::string mappingFilePath;
