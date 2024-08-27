@@ -379,11 +379,11 @@ typedef struct ChannelSources {
 /*! \struct CharMeasurement_t
  * \brief Structure used manage physical quantities that define a value with its unit and unit prefix.
  */
-typedef struct CharMeasurement {
+typedef struct LVMeasurement {
     double value; /*!< Numerical value. */
     UnitPfx_t prefix; /*!< Unit prefix in the range [femto, Peta]. */
     LStrHandle unit; /*!< Unit. \note Can be any string, the library is not aware of real units meaning. */
-} CharMeasurement_t;
+} LVMeasurement_t;
 
 /*! \typedef CharRangedMeasurement_t
  */
@@ -391,18 +391,18 @@ typedef struct CharMeasurement {
 /*! \struct CharRangedMeasurement_t
  * \brief Structure used manage physical ranges that define a range with its unit and unit prefix.
  */
-typedef struct CharRangedMeasurement {
+typedef struct LVRangedMeasurement {
     double min; /*!< Minimum value. */
     double max; /*!< Maximum value. */
     double step; /*!< Resolution. */
     UnitPfx_t prefix = UnitPfxNone; /*!< Unit prefix in the range [femto, Peta]. */
     LStrHandle unit; /*!< Unit. \note Can be any string, the library is not aware of real units meaning. */
-} CharRangedMeasurement_t;
+} LVRangedMeasurement_t;
 
 /*! \struct CharCompensationControl_t
  * \brief Structure used to return detailed information on a specific compensation implemented by the HW.
  */
-typedef struct CharCompensationControl {
+typedef struct LVCompensationControl {
     bool implemented = false; /*!< True if the corresponding compensation is implemented by the device. */
     double min = 0.0; /*!< Minimum compensable value. */
     double max = 1.0; /*!< Maximum compensable value globally. */
@@ -414,27 +414,27 @@ typedef struct CharCompensationControl {
     UnitPfx_t prefix = UnitPfxNone; /*!< Unit prefix in the range [femto, Peta]. */
     LStrHandle unit; /*!< Unit. \note Can be any string, the library is not aware of real units meaning. */
     LStrHandle name; /*!< Name of the compensation. */
-} CharCompensationControl_t;
+} LVCompensationControl_t;
 
 #include "lv_prolog.h"
 typedef struct {
-    int32 cnt;                              /* number of measurements that follow */
-    CharMeasurement_t item[1];              /* cnt measurements */
+    int32 cnt;                            /* number of measurements that follow */
+    LVMeasurement_t item[1];              /* cnt measurements */
 } LMeas, *LMeasPtr, **LMeasHandle;
 
 typedef struct {
-    int32 cnt[2];                           /* size of matrix of measurements that follow */
-    CharMeasurement_t item[1];              /* cnt vector of measurements */
+    int32 cnt[2];                         /* size of matrix of measurements that follow */
+    LVMeasurement_t item[1];              /* cnt vector of measurements */
 } LVecMeas, *LVecMeasPtr, **LVecMeasHandle;
 
 typedef struct {
     int32 cnt;                              /* number of ranged measurements that follow */
-    CharRangedMeasurement_t	item[1];        /* cnt ranged measurements */
+    LVRangedMeasurement_t	item[1];        /* cnt ranged measurements */
 } LRange, *LRangePtr, **LRangeHandle;
 
 typedef struct {
-    int32 cnt;                              /* number of compensation controls that follow */
-    CharCompensationControl_t item[1];      /* cnt compensation control */
+    int32 cnt;                            /* number of compensation controls that follow */
+    LVCompensationControl_t item[1];      /* cnt compensation control */
 } LComp, *LCompPtr, **LCompHandle;
 
 #define LVecBuf(sp)	(&((sp))->item[0])                          /* pointer to first item of vector */

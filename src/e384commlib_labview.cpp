@@ -15,14 +15,14 @@ static std::vector <RangedMeasurement_t> internalRangeVec;
 /*! Private functions prototypes */
 
 static void input2String(LStrHandle i, std::string &s);
-static void input2Measurement(CharMeasurement_t i, Measurement_t &m);
+static void input2Measurement(LVMeasurement_t i, Measurement_t &m);
 static void input2VectorMeasurement(LMeasHandle i, std::vector <Measurement_t> &m);
 
 static void string2Output(std::string s, LStrHandle * o);
-static void measurement2Output(Measurement_t m, CharMeasurement_t &o);
-static void measurement2Output(Measurement_t m, CharMeasurement_t * &o);
-static void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o);
-static void compensationControl2Output(CompensationControl_t c, CharCompensationControl_t &o);
+static void measurement2Output(Measurement_t m, LVMeasurement_t &o);
+static void measurement2Output(Measurement_t m, LVMeasurement_t * &o);
+static void rangedMeasurement2Output(RangedMeasurement_t r, LVRangedMeasurement_t &o);
+static void compensationControl2Output(CompensationControl_t c, LVCompensationControl_t &o);
 static void vectorString2Output(std::vector <std::string> v, LStrHandle * o);
 static void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o);
 static void matrixMeasurement2Output(std::vector <std::vector <Measurement_t> > v, LVecMeasHandle * o);
@@ -36,7 +36,7 @@ static ErrorCodes_t setCompensationOptions(uint16_t * channelIndexesIn, uint16_t
 static ErrorCodes_t setCompensationValues(uint16_t * channelIndexesIn, double * channelValuesIn, bool applyFlagIn, int vectorLengthIn, MessageDispatcher::CompensationUserParams_t param);
 static ErrorCodes_t setCompensationRanges(uint16_t * channelIndexesIn, uint16_t * channelRangesIn, bool applyFlagIn, int vectorLengthIn, MessageDispatcher::CompensationUserParams_t param);
 static ErrorCodes_t getCompensationOptions(LStrHandle * optionsOut, MessageDispatcher::CompensationTypes_t type);
-static ErrorCodes_t getCompensationControl(CharCompensationControl_t &controlOut, MessageDispatcher::CompensationUserParams_t param);
+static ErrorCodes_t getCompensationControl(LVCompensationControl_t &controlOut, MessageDispatcher::CompensationUserParams_t param);
 static ErrorCodes_t getCompensationValues(uint16_t * channelIndexesIn, double * channelValuesOut, bool * activeNotActiveOut, int vectorLengthIn, MessageDispatcher::CompensationTypes_t type, MessageDispatcher::CompensationUserParams_t param);
 
 #ifdef HELPERLOG
@@ -571,7 +571,7 @@ ErrorCodes_t setDownsamplingRatio(
 }
 
 ErrorCodes_t setDigitalFilter(
-        CharMeasurement_t cutoffFrequencyIn,
+        LVMeasurement_t cutoffFrequencyIn,
         bool lowPassFlag,
         bool activeFlag) {
     if (messageDispatcher == nullptr) {
@@ -633,7 +633,7 @@ ErrorCodes_t digitalOffsetCompensation(
 }
 
 ErrorCodes_t zap(
-        CharMeasurement_t durationIn,
+        LVMeasurement_t durationIn,
         uint16_t * channelIndexesIn,
         uint16_t vectorLengthIn) {
     if (messageDispatcher == nullptr) {
@@ -1071,7 +1071,7 @@ ErrorCodes_t setBridgeBalanceResistanceRange(
 ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
                                          uint16_t itemsNum,
                                          uint16_t sweepsNum,
-                                         CharMeasurement_t vRestIn) {
+                                         LVMeasurement_t vRestIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1093,10 +1093,10 @@ ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
 }
 
 ErrorCodes_t voltStepTimeStep(
-        CharMeasurement_t v0In,
-        CharMeasurement_t vStepIn,
-        CharMeasurement_t t0In,
-        CharMeasurement_t tStepIn,
+        LVMeasurement_t v0In,
+        LVMeasurement_t vStepIn,
+        LVMeasurement_t t0In,
+        LVMeasurement_t tStepIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1132,9 +1132,9 @@ ErrorCodes_t voltStepTimeStepVec(
 }
 
 ErrorCodes_t voltRamp(
-        CharMeasurement_t v0In,
-        CharMeasurement_t vFinalIn,
-        CharMeasurement_t tIn,
+        LVMeasurement_t v0In,
+        LVMeasurement_t vFinalIn,
+        LVMeasurement_t tIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1170,9 +1170,9 @@ ErrorCodes_t voltRampVec(
 }
 
 ErrorCodes_t voltSin(
-        CharMeasurement_t v0In,
-        CharMeasurement_t vAmpIn,
-        CharMeasurement_t freqIn,
+        LVMeasurement_t v0In,
+        LVMeasurement_t vAmpIn,
+        LVMeasurement_t freqIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1224,7 +1224,7 @@ ErrorCodes_t stopProtocol() {
 ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
                                          uint16_t itemsNum,
                                          uint16_t sweepsNum,
-                                         CharMeasurement_t iRestIn) {
+                                         LVMeasurement_t iRestIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1246,10 +1246,10 @@ ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
 }
 
 ErrorCodes_t currStepTimeStep(
-        CharMeasurement_t i0In,
-        CharMeasurement_t iStepIn,
-        CharMeasurement_t t0In,
-        CharMeasurement_t tStepIn,
+        LVMeasurement_t i0In,
+        LVMeasurement_t iStepIn,
+        LVMeasurement_t t0In,
+        LVMeasurement_t tStepIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1285,9 +1285,9 @@ ErrorCodes_t currStepTimeStepVec(
 }
 
 ErrorCodes_t currRamp(
-        CharMeasurement_t i0In,
-        CharMeasurement_t iFinalIn,
-        CharMeasurement_t tIn,
+        LVMeasurement_t i0In,
+        LVMeasurement_t iFinalIn,
+        LVMeasurement_t tIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1323,9 +1323,9 @@ ErrorCodes_t currRampVec(
 }
 
 ErrorCodes_t currSin(
-        CharMeasurement_t i0In,
-        CharMeasurement_t iAmpIn,
-        CharMeasurement_t freqIn,
+        LVMeasurement_t i0In,
+        LVMeasurement_t iAmpIn,
+        LVMeasurement_t freqIn,
         uint16_t currentItem,
         uint16_t nextItem,
         uint16_t repsNum,
@@ -1544,7 +1544,7 @@ ErrorCodes_t getCCCurrentRanges(
 }
 
 ErrorCodes_t getVCCurrentRange(
-        CharRangedMeasurement_t &rangeOut) {
+        LVRangedMeasurement_t &rangeOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1555,7 +1555,7 @@ ErrorCodes_t getVCCurrentRange(
 }
 
 ErrorCodes_t getCCCurrentRange(
-        CharRangedMeasurement_t &rangeOut) {
+        LVRangedMeasurement_t &rangeOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1588,7 +1588,7 @@ ErrorCodes_t getCCVoltageRanges(
 }
 
 ErrorCodes_t getVCVoltageRange(
-        CharRangedMeasurement_t &rangeOut) {
+        LVRangedMeasurement_t &rangeOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1599,7 +1599,7 @@ ErrorCodes_t getVCVoltageRange(
 }
 
 ErrorCodes_t getCCVoltageRange(
-        CharRangedMeasurement_t &rangeOut) {
+        LVRangedMeasurement_t &rangeOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1633,7 +1633,7 @@ ErrorCodes_t getRealSamplingRates(
 
 ErrorCodes_t getVoltageProtocolRange(
         unsigned int rangeIdx,
-        CharRangedMeasurement_t &rangeOut) {
+        LVRangedMeasurement_t &rangeOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1645,7 +1645,7 @@ ErrorCodes_t getVoltageProtocolRange(
 
 ErrorCodes_t getCurrentProtocolRange(
         unsigned int rangeIdx,
-        CharRangedMeasurement_t &rangeOut) {
+        LVRangedMeasurement_t &rangeOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1656,7 +1656,7 @@ ErrorCodes_t getCurrentProtocolRange(
 }
 
 ErrorCodes_t getTimeProtocolRange(
-        CharRangedMeasurement_t &rangeOut) {
+        LVRangedMeasurement_t &rangeOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1667,7 +1667,7 @@ ErrorCodes_t getTimeProtocolRange(
 }
 
 ErrorCodes_t getFrequencyProtocolRange(
-        CharRangedMeasurement_t &rangeOut) {
+        LVRangedMeasurement_t &rangeOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1779,57 +1779,57 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
 }
 
 ErrorCodes_t getPipetteCapacitanceControl(
-        CharCompensationControl_t &controlOut) {
+        LVCompensationControl_t &controlOut) {
     return getCompensationControl(controlOut, MessageDispatcher::U_CpVc);
 }
 
 ErrorCodes_t getCCPipetteCapacitanceControl(
-        CharCompensationControl_t &controlOut) {
+        LVCompensationControl_t &controlOut) {
     return getCompensationControl(controlOut, MessageDispatcher::U_CpCc);
 }
 
 ErrorCodes_t getMembraneCapacitanceControl(
-        CharCompensationControl_t &controlOut) {
+        LVCompensationControl_t &controlOut) {
     return getCompensationControl(controlOut, MessageDispatcher::U_Cm);
 }
 
 ErrorCodes_t getAccessResistanceControl(
-        CharCompensationControl_t &controlOut) {
+        LVCompensationControl_t &controlOut) {
     return getCompensationControl(controlOut, MessageDispatcher::U_Rs);
 }
 
 ErrorCodes_t getResistanceCorrectionPercentageControl(
-        CharCompensationControl_t &controlOut) {
+        LVCompensationControl_t &controlOut) {
     return getCompensationControl(controlOut, MessageDispatcher::U_RsCp);
 }
 
 ErrorCodes_t getResistanceCorrectionLagControl(
-        CharCompensationControl_t &controlOut) {
+        LVCompensationControl_t &controlOut) {
     return getCompensationControl(controlOut, MessageDispatcher::U_RsCl);
 }
 
 ErrorCodes_t getResistancePredictionGainControl(
-        CharCompensationControl_t &controlOut) {
+        LVCompensationControl_t &controlOut) {
     return getCompensationControl(controlOut, MessageDispatcher::U_RsPg);
 }
 
 ErrorCodes_t getResistancePredictionPercentageControl(
-        CharCompensationControl_t &controlOut) {
+        LVCompensationControl_t &controlOut) {
     return getCompensationControl(controlOut, MessageDispatcher::U_RsPp);
 }
 
 ErrorCodes_t getResistancePredictionTauControl(
-        CharCompensationControl_t &controlOut) {
+        LVCompensationControl_t &controlOut) {
     return getCompensationControl(controlOut, MessageDispatcher::U_RsPt);
 }
 
 ErrorCodes_t getLeakConductanceControl(
-        CharCompensationControl_t &controlOut) {
+        LVCompensationControl_t &controlOut) {
     return getCompensationControl(controlOut, MessageDispatcher::U_LkG);
 }
 
 ErrorCodes_t getBridgeBalanceResistanceControl(
-        CharCompensationControl_t &controlOut) {
+        LVCompensationControl_t &controlOut) {
     return getCompensationControl(controlOut, MessageDispatcher::U_BrB);
 }
 
@@ -2101,7 +2101,7 @@ void input2String(LStrHandle i, std::string &s) {
     s = std::string((char *)LStrBuf(* i), LStrLen(* i));
 }
 
-void input2Measurement(CharMeasurement_t i, Measurement_t &m) {
+void input2Measurement(LVMeasurement_t i, Measurement_t &m) {
     m.value = i.value;
     m.prefix = i.prefix;
     input2String(i.unit, m.unit);
@@ -2122,26 +2122,26 @@ void string2Output(std::string s, LStrHandle * o) {
     }
 }
 
-void measurement2Output(Measurement_t m, CharMeasurement_t &o) {
+void measurement2Output(Measurement_t m, LVMeasurement_t &o) {
     o.value = m.value;
     o.prefix = m.prefix;
     string2Output(m.unit, &o.unit);
 }
 
-void measurement2Output(Measurement_t m, CharMeasurement_t * &o) {
+void measurement2Output(Measurement_t m, LVMeasurement_t * &o) {
     MgErr err = 0;
     if (o == nullptr) {
-        o = (CharMeasurement_t *)DSNewHClr(sizeof(CharMeasurement_t));
+        o = (LVMeasurement_t *)DSNewHClr(sizeof(LVMeasurement_t));
 
     } else {
-        err = DSSetHSzClr(o, sizeof(CharMeasurement_t));
+        err = DSSetHSzClr(o, sizeof(LVMeasurement_t));
     }
     if (!err) {
         measurement2Output(m, * o);
     }
 }
 
-void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o) {
+void rangedMeasurement2Output(RangedMeasurement_t r, LVRangedMeasurement_t &o) {
     o.min = r.min;
     o.max = r.max;
     o.step = r.step;
@@ -2149,7 +2149,7 @@ void rangedMeasurement2Output(RangedMeasurement_t r, CharRangedMeasurement_t &o)
     string2Output(r.unit, &o.unit);
 }
 
-void compensationControl2Output(CompensationControl_t c, CharCompensationControl_t &o) {
+void compensationControl2Output(CompensationControl_t c, LVCompensationControl_t &o) {
     o.implemented = c.implemented;
     o.min = c.min;
     o.max = c.max;
@@ -2175,14 +2175,14 @@ void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o) {
     int offset = 0;
     MgErr err = 0;
     if (o == nullptr) {
-        * o = (LMeasHandle)DSNewHClr(Offset(LMeas, item)+sizeof(CharMeasurement_t)*v.size());
+        * o = (LMeasHandle)DSNewHClr(Offset(LMeas, item)+sizeof(LVMeasurement_t)*v.size());
 
     } else {
-        err = DSSetHSzClr(* o, Offset(LMeas, item)+sizeof(CharMeasurement_t)*v.size());
+        err = DSSetHSzClr(* o, Offset(LMeas, item)+sizeof(LVMeasurement_t)*v.size());
     }
     if (!err) {
         for (auto m : v) {
-            CharMeasurement_t * meas = LVecItem(** o, offset);
+            LVMeasurement_t * meas = LVecItem(** o, offset);
             measurement2Output(m, * meas);
             offset++;
         }
@@ -2194,15 +2194,15 @@ void matrixMeasurement2Output(std::vector <std::vector <Measurement_t> > v2, LVe
     int offset = 0;
     MgErr err = 0;
     if (o == nullptr) {
-        * o = (LVecMeasHandle)DSNewHClr(Offset(LVecMeas, item)+sizeof(CharMeasurement_t)*v2.size()*v2[0].size());
+        * o = (LVecMeasHandle)DSNewHClr(Offset(LVecMeas, item)+sizeof(LVMeasurement_t)*v2.size()*v2[0].size());
 
     } else {
-        err = DSSetHSzClr(* o, Offset(LVecMeas, item)+sizeof(CharMeasurement_t)*v2.size()*v2[0].size());
+        err = DSSetHSzClr(* o, Offset(LVecMeas, item)+sizeof(LVMeasurement_t)*v2.size()*v2[0].size());
     }
     if (!err) {
         for (auto v : v2) {
             for (auto m : v) {
-                CharMeasurement_t * meas = LVecItem(** o, offset);
+                LVMeasurement_t * meas = LVecItem(** o, offset);
                 measurement2Output(m, * meas);
                 offset++;
             }
@@ -2216,14 +2216,14 @@ void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeH
     int offset = 0;
     MgErr err = 0;
     if (o == nullptr) {
-        * o = (LRangeHandle)DSNewHClr(Offset(LRange, item)+sizeof(CharRangedMeasurement_t)*v.size());
+        * o = (LRangeHandle)DSNewHClr(Offset(LRange, item)+sizeof(LVRangedMeasurement_t)*v.size());
 
     } else {
-        err = DSSetHSzClr(* o, Offset(LRange, item)+sizeof(CharRangedMeasurement_t)*v.size());
+        err = DSSetHSzClr(* o, Offset(LRange, item)+sizeof(LVRangedMeasurement_t)*v.size());
     }
     if (!err) {
         for (auto r : v) {
-            CharRangedMeasurement_t * range = LVecItem(** o, offset);
+            LVRangedMeasurement_t * range = LVecItem(** o, offset);
             rangedMeasurement2Output(r, * range);
             offset++;
         }
@@ -2302,7 +2302,7 @@ ErrorCodes_t getCompensationOptions(LStrHandle * optionsOut, MessageDispatcher::
     return ret;
 }
 
-ErrorCodes_t getCompensationControl(CharCompensationControl_t &controlOut, MessageDispatcher::CompensationUserParams_t param) {
+ErrorCodes_t getCompensationControl(LVCompensationControl_t &controlOut, MessageDispatcher::CompensationUserParams_t param) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
