@@ -1247,19 +1247,25 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setAdcFilter() {
-    // Still to be properly implemented
-    if (selectedClampingModality == VOLTAGE_CLAMP) {
+ErrorCodes_t EmcrDevice::setAdcFilter(bool applyFlag) {
+    switch (selectedClampingModality) {
+    case VOLTAGE_CLAMP:
         if (vcCurrentFilterCoder != nullptr) {
             vcCurrentFilterCoder->encode(sr2LpfVcCurrentMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedVcCurrentFilterIdx = sr2LpfVcCurrentMap[selectedSamplingRateIdx];
         }
+        break;
 
-    } else {
+    case CURRENT_CLAMP:
+    case ZERO_CURRENT_CLAMP:
         if (ccVoltageFilterCoder != nullptr) {
             ccVoltageFilterCoder->encode(sr2LpfCcVoltageMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedCcVoltageFilterIdx = sr2LpfCcVoltageMap[selectedSamplingRateIdx];
         }
+        break;
+    }
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }
@@ -1277,6 +1283,18 @@ ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFla
     integrationStep = integrationStepArray[selectedSamplingRateIdx];
     this->setAdcFilter();
     this->computeRawDataFilterCoefficients();
+    switch (selectedClampingModality) {
+    case VOLTAGE_CLAMP:
+        this->updateCalibVcCurrentGain(allChannelIndexes, false);
+        this->updateCalibVcCurrentOffset(allChannelIndexes, false);
+        break;
+
+    case CURRENT_CLAMP:
+    case ZERO_CURRENT_CLAMP:
+        this->updateCalibCcVoltageGain(allChannelIndexes, false);
+        this->updateCalibCcVoltageOffset(allChannelIndexes, false);
+        break;
+    }
     if (stateArrayMovingAverageLengthCoder != nullptr) {
         stateArrayMovingAverageLengthCoder->encode(stateArrayReactionTime.getNoPrefixValue()*samplingRate.getNoPrefixValue(), txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
@@ -2349,7 +2367,7 @@ void EmcrDevice::joinCommunicationThreads() {
 }
 
 void EmcrDevice::initializeCalibration() {
-    CalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum, samplingRatesNum);
+    CsvCalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum, samplingRatesNum);
 
     calibrationParams = calibrationManager.getCalibrationParams(calibrationLoadingError);
     originalCalibrationParams = calibrationParams;

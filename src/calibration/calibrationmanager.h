@@ -1,5 +1,5 @@
-#ifndef CALIBRATIONMANAGER_H
-#define CALIBRATIONMANAGER_H
+#ifndef CSVCALIBRATIONMANAGER_H
+#define CSVCALIBRATIONMANAGER_H
 
 #include <vector>
 #include <fstream>
@@ -8,22 +8,22 @@
 #include "e384commlib_errorcodes.h"
 #include "utils.h"
 
-#define CAL_ROOT_FOLDER (std::string("C:") + UTL_SEPARATOR + "EMCR_calib_folder" + UTL_SEPARATOR)
-#define CAL_MAPPING_FILE_NAME "boardMapping.csv"
+#define CSV_CAL_ROOT_FOLDER (std::string("C:") + UTL_SEPARATOR + "EMCR_calib_folder" + UTL_SEPARATOR)
+#define CSV_CAL_MAPPING_FILE_NAME "boardMapping.csv"
 
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
 namespace e384CommLib {
 #endif
-class CalibrationManager {
+class CsvCalibrationManager {
 public:
-    CalibrationManager(std::string serialNumber,
-                       uint16_t currentChannelsNum,
-                       uint16_t boardsNum,
-                       uint16_t vcCurrentRangesNum,
-                       uint16_t vcVoltageRangesNum,
-                       uint16_t ccVoltageRangesNum,
-                       uint16_t ccCurrentRangesNum,
-                       uint16_t samplingRatesNum);
+    CsvCalibrationManager(std::string serialNumber,
+                          uint16_t currentChannelsNum,
+                          uint16_t boardsNum,
+                          uint16_t vcCurrentRangesNum,
+                          uint16_t vcVoltageRangesNum,
+                          uint16_t ccVoltageRangesNum,
+                          uint16_t ccCurrentRangesNum,
+                          uint16_t samplingRatesNum);
 
     CalibrationParams_t getCalibrationParams(ErrorCodes_t &error);
     std::vector <std::string> getCalibrationFileNames();

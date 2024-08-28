@@ -79,7 +79,7 @@ public:
     ErrorCodes_t readoutOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     ErrorCodes_t liquidJunctionCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
 
-    ErrorCodes_t setAdcFilter() override;
+    ErrorCodes_t setAdcFilter(bool applyFlag = false) override;
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
     ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) override;

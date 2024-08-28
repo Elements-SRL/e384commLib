@@ -471,7 +471,7 @@ ErrorCodes_t MessageDispatcher::expandTraces(std::vector <uint16_t> channelIndex
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::setAdcFilter() {
+ErrorCodes_t MessageDispatcher::setAdcFilter(bool) {
     return ErrorFeatureNotImplemented;
 }
 
