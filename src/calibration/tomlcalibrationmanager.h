@@ -37,6 +37,10 @@ private:
     bool loadRShuntConductance(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
     bool loadCcAdc(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
     bool loadCcDac(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
+    bool loadSetOfParams(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
+    void loadSetOfDefaultParams(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
+    bool loadSetOfOffsets(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
+    void loadSetOfDefaultOffsets(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
 
     ErrorCodes_t status = Success;
 
@@ -53,7 +57,7 @@ private:
 
     std::string calibrationFileName;
 
-    std::vector <std::vector <bool>> calibrationFilesOkFlags;
+    bool calibrationFilesOkFlag;
 
     std::vector <int> correctBoardsNumbering;
 

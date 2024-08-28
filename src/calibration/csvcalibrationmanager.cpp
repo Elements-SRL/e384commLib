@@ -56,7 +56,7 @@ std::vector <std::string> CsvCalibrationManager::getCalibrationFileNames() {
     return calibFileNames;
 }
 
-std::vector <std::vector <bool>> CsvCalibrationManager::getCalibrationFilesOkFlags() {
+std::vector <std::vector <bool> > CsvCalibrationManager::getCalibrationFilesOkFlags() {
     /*! First vector has 2 items, one for Voltage clamp one for Current clamp
      *  Inner vectors have one item per board
      *  True means the file is found and ok
@@ -113,7 +113,7 @@ std::string CsvCalibrationManager::getMappingFilePath() {
     return this->mappingFilePath;
 }
 
-std::vector <std::vector <bool>> CsvCalibrationManager::loadCalibrationFiles() {
+std::vector <std::vector <bool> > CsvCalibrationManager::loadCalibrationFiles() {
     std::vector <std::vector <bool> > rets;
     rets.resize(2);
     vcCalibrationFileStreams.resize(boardsNum);
@@ -310,11 +310,11 @@ bool CsvCalibrationManager::loadRsCorrOffset(std::fstream &stream, uint32_t boar
 bool CsvCalibrationManager::loadRShuntConductance(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
     bool ret;
     if (defaultFlag) {
-        this->loadSetOfDefaultMeas(boardIdx, vcCurrentRangesNum, calibrationParams.rShuntConductance[0], "S");
+        this->loadSetOfDefaultOffsets(boardIdx, vcCurrentRangesNum, calibrationParams.rShuntConductance[0], "S");
         ret = true;
 
     } else {
-        ret = loadSetOfMeas(stream, boardIdx, vcCurrentRangesNum, calibrationParams.rShuntConductance[0], "S");
+        ret = loadSetOfOffsets(stream, boardIdx, vcCurrentRangesNum, calibrationParams.rShuntConductance[0], "S");
     }
     return ret;
 }
@@ -409,35 +409,6 @@ void CsvCalibrationManager::loadSetOfDefaultOffsets(uint32_t boardIdx, uint32_t 
     for (uint32_t rangeIdx = 0; rangeIdx < rangesNum; rangeIdx++) {
         Measurement_t zero = {0.0, UnitPfxNone, offsetUnit};
         std::fill(outOffsets[rangeIdx].begin()+boardIdx*channelsPerBoard, outOffsets[rangeIdx].begin()+(boardIdx+1)*channelsPerBoard, zero);
-    }
-}
-
-bool CsvCalibrationManager::loadSetOfMeas(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outMeas, std::string unit) {
-    bool ret = true;
-    std::vector <std::vector <std::string> > strings;
-    strings.resize(1);
-    strings[0].resize(channelsPerBoard);
-    for (uint32_t rangeIdx = 0; rangeIdx < rangesNum && ret; rangeIdx++) {
-        this->discardCsvLine(stream); /*! Discard line including range name */
-        ret = this->readCsvPortion(stream, strings);
-        if (ret) {
-            for (uint32_t idx = 0; idx < channelsPerBoard; idx++) {
-                outMeas[rangeIdx][idx+boardIdx*channelsPerBoard] = {std::stod(strings[0][idx]), UnitPfxNone, unit};
-            }
-        }
-    }
-
-    if (!ret) {
-        this->loadSetOfDefaultMeas(boardIdx, rangesNum, outMeas, unit);
-    }
-
-    return ret;
-}
-
-void CsvCalibrationManager::loadSetOfDefaultMeas(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outMeas, std::string unit) {
-    for (uint32_t rangeIdx = 0; rangeIdx < rangesNum; rangeIdx++) {
-        Measurement_t zero = {0.0, UnitPfxNone, unit};
-        std::fill(outMeas[rangeIdx].begin()+boardIdx*channelsPerBoard, outMeas[rangeIdx].begin()+(boardIdx+1)*channelsPerBoard, zero);
     }
 }
 

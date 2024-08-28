@@ -925,16 +925,16 @@ typedef struct CompensationControl {
  *       - the third range indexes channels
  */
 typedef struct CalibrationParams {
-    std::vector <std::vector <std::vector <Measurement_t>>> vcGainAdc;
-    std::vector <std::vector <std::vector <Measurement_t>>> vcOffsetAdc;
-    std::vector <std::vector <std::vector <Measurement_t>>> vcGainDac;
-    std::vector <std::vector <std::vector <Measurement_t>>> vcOffsetDac;
-    std::vector <std::vector <std::vector <Measurement_t>>> rsCorrOffsetDac;
-    std::vector <std::vector <std::vector <Measurement_t>>> rShuntConductance;
-    std::vector <std::vector <std::vector <Measurement_t>>> ccGainAdc;
-    std::vector <std::vector <std::vector <Measurement_t>>> ccOffsetAdc;
-    std::vector <std::vector <std::vector <Measurement_t>>> ccGainDac;
-    std::vector <std::vector <std::vector <Measurement_t>>> ccOffsetDac;
+    std::vector <std::vector <std::vector <Measurement_t> > > vcGainAdc;
+    std::vector <std::vector <std::vector <Measurement_t> > > vcOffsetAdc;
+    std::vector <std::vector <std::vector <Measurement_t> > > vcGainDac;
+    std::vector <std::vector <std::vector <Measurement_t> > > vcOffsetDac;
+    std::vector <std::vector <std::vector <Measurement_t> > > rsCorrOffsetDac;
+    std::vector <std::vector <std::vector <Measurement_t> > > rShuntConductance;
+    std::vector <std::vector <std::vector <Measurement_t> > > ccGainAdc;
+    std::vector <std::vector <std::vector <Measurement_t> > > ccOffsetAdc;
+    std::vector <std::vector <std::vector <Measurement_t> > > ccGainDac;
+    std::vector <std::vector <std::vector <Measurement_t> > > ccOffsetDac;
 } CalibrationParams_t;
 
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
