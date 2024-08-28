@@ -33,7 +33,7 @@ public:
 
 private:
     bool loadMappingFile();
-    std::vector <std::vector <bool> > loadCalibrationFiles();
+    std::vector <std::vector <bool>> loadCalibrationFiles();
     void loadDefaultParams();
     bool loadVcAdc(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
     bool loadVcDac(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
@@ -67,12 +67,12 @@ private:
     std::string mappingFileDir;
     std::string mappingFilePath;
     std::fstream mappingFileStream;
-    std::vector <std::vector <std::string> > calibrationFileNames;
+    std::vector <std::vector <std::string>> calibrationFileNames;
     std::vector <std::fstream> vcCalibrationFileStreams;
     std::vector <std::fstream> rsCorrCalibrationFileStreams;
     std::vector <std::fstream> rShuntCalibrationFileStreams;
     std::vector <std::fstream> ccCalibrationFileStreams;
-    std::vector <std::vector <bool> > calibrationFilesOkFlags;
+    std::vector <std::vector <bool>> calibrationFilesOkFlags;
 
     std::vector <int> correctBoardsNumbering;
 
@@ -82,4 +82,4 @@ private:
 }
 #endif
 
-#endif // CALIBRATIONMANAGER_H
+#endif // CSVCALIBRATIONMANAGER_H

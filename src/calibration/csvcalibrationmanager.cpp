@@ -4,13 +4,13 @@
 namespace e384CommLib {
 #endif
 CsvCalibrationManager::CsvCalibrationManager(std::string serialNumber,
-                                       uint16_t currentChannelsNum,
-                                       uint16_t boardsNum,
-                                       uint16_t vcCurrentRangesNum,
-                                       uint16_t vcVoltageRangesNum,
-                                       uint16_t ccVoltageRangesNum,
-                                       uint16_t ccCurrentRangesNum,
-                                       uint16_t samplingRatesNum) :
+                                             uint16_t currentChannelsNum,
+                                             uint16_t boardsNum,
+                                             uint16_t vcCurrentRangesNum,
+                                             uint16_t vcVoltageRangesNum,
+                                             uint16_t ccVoltageRangesNum,
+                                             uint16_t ccCurrentRangesNum,
+                                             uint16_t samplingRatesNum) :
     serialNumber(serialNumber),
     currentChannelsNum(currentChannelsNum),
     boardsNum(boardsNum),

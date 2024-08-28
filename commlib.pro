@@ -26,7 +26,7 @@ CONFIG(release, debug|release) {
 }
 
 TEMPLATE = lib
-CONFIG += c++14
+CONFIG += c++17
 
 #DEFINES += E384COMMLIB_LABVIEW_WRAPPER
 #DEFINES += E384COMMLIB_LIBRARY
@@ -91,6 +91,7 @@ SOURCES += \
     src/devices/EZPatch/ezpatche8ppatchliner_el07cd.cpp \
     src/model/boardmodel.cpp \
     src/model/channelmodel.cpp \
+    src/calibration/tomlcalibrationmanager.cpp \
     src/calibration/csvcalibrationmanager.cpp \
     src/calibration/calibrationeeprom.cpp \
     src/peripherals/ftdieeprom.cpp \
@@ -140,6 +141,7 @@ HEADERS += \
     src/devices/EZPatch/ezpatche8ppatchliner_el07cd.h \
     src/model/boardmodel.h \
     src/model/channelmodel.h \
+    src/calibration/tomlcalibrationmanager.h \
     src/calibration/csvcalibrationmanager.h \
     src/calibration/calibrationeeprom.h \
     src/peripherals/ftdiutils.h \
@@ -191,3 +193,4 @@ DEPENDPATH += \
 include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
 include($$(FTD2XX_PATH)includeftd2xx.pri)
+include($$(TOML_PP_PATH)includetoml++.pri)
