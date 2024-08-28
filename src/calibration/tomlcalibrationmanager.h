@@ -31,16 +31,22 @@ public:
 private:
     bool loadCalibrationFile();
     void loadDefaultParams();
-    bool loadVcAdc(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadVcDac(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadRsCorrOffset(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadRShuntConductance(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadCcAdc(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadCcDac(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadSetOfParams(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
-    void loadSetOfDefaultParams(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
-    bool loadSetOfOffsets(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
-    void loadSetOfDefaultOffsets(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
+    bool loadVcAdc(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
+    bool loadVcDac(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
+    bool loadRsCorrOffset(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
+    bool loadRShuntConductance(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
+    bool loadCcAdc(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
+    bool loadCcDac(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
+    bool loadSetOfParams(toml::node_view <toml::node> node, uint32_t boardIdx,
+                         std::vector <std::vector <std::vector <Measurement_t> > > &outGains,
+                         std::vector <std::vector <std::vector <Measurement_t> > > &outOffsets, std::string offsetUnit);
+    void loadSetOfDefaultParams(uint32_t boardIdx,
+                                std::vector <std::vector <std::vector <Measurement_t> > > &outGains,
+                                std::vector <std::vector <std::vector <Measurement_t> > > &outOffsets, std::string offsetUnit);
+    bool loadSetOfOffsets(toml::node_view <toml::node> node, uint32_t boardIdx,
+                          std::vector <std::vector <std::vector <Measurement_t> > > &outOffsets, std::string offsetUnit);
+    void loadSetOfDefaultOffsets(uint32_t boardIdx,
+                                 std::vector <std::vector <std::vector <Measurement_t>  >> &outOffsets, std::string offsetUnit);
 
     ErrorCodes_t status = Success;
 
