@@ -1,5 +1,5 @@
 #include "emcrdevice.h"
-#include "calibrationmanager.h"
+#include "csvcalibrationmanager.h"
 
 /*****************\
  *  Ctor / Dtor  *
