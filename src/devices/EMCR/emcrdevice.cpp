@@ -1,4 +1,5 @@
 #include "emcrdevice.h"
+#include "tomlcalibrationmanager.h"
 #include "csvcalibrationmanager.h"
 
 /*****************\
@@ -2367,14 +2368,22 @@ void EmcrDevice::joinCommunicationThreads() {
 }
 
 void EmcrDevice::initializeCalibration() {
-    CsvCalibrationManager calibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum, samplingRatesNum);
+    TomlCalibrationManager tomlCalibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum, samplingRatesNum);
+    calibrationParams = tomlCalibrationManager.getCalibrationParams(calibrationLoadingError);
+    if (calibrationLoadingError == Success) {
+        calibrationFileNames = {tomlCalibrationManager.getCalibrationFileName()};
+        calibrationFilesOkFlags = {{tomlCalibrationManager.getCalibrationFilesOkFlag()}};
 
-    calibrationParams = calibrationManager.getCalibrationParams(calibrationLoadingError);
-    originalCalibrationParams = calibrationParams;
-    calibrationFileNames = calibrationManager.getCalibrationFileNames();
-    calibrationFilesOkFlags = calibrationManager.getCalibrationFilesOkFlags();
-    calibrationMappingFileDir = calibrationManager.getMappingFileDir();
-    calibrationMappingFilePath = calibrationManager.getMappingFilePath();
+    } else {
+        CsvCalibrationManager csvCalibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum, samplingRatesNum);
+
+        calibrationParams = csvCalibrationManager.getCalibrationParams(calibrationLoadingError);
+        originalCalibrationParams = calibrationParams;
+        calibrationFileNames = csvCalibrationManager.getCalibrationFileNames();
+        calibrationFilesOkFlags = csvCalibrationManager.getCalibrationFilesOkFlags();
+        calibrationMappingFileDir = csvCalibrationManager.getMappingFileDir();
+        calibrationMappingFilePath = csvCalibrationManager.getMappingFilePath();
+    }
 }
 
 void EmcrDevice::forceOutMessage() {

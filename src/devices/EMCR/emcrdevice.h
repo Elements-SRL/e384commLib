@@ -239,10 +239,10 @@ protected:
     std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
 
     ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
-    std::vector <std::string> calibrationFileNames;
-    std::vector <std::vector <bool> > calibrationFilesOkFlags;
-    std::string calibrationMappingFileDir;
-    std::string calibrationMappingFilePath;
+    std::vector <std::string> calibrationFileNames = {""};
+    std::vector <std::vector <bool> > calibrationFilesOkFlags = {{false}};
+    std::string calibrationMappingFileDir = "";
+    std::string calibrationMappingFilePath = "";
 
     /************\
      *  Coders  *
