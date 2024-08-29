@@ -53,6 +53,13 @@ bool TomlCalibrationManager::loadCalibrationFile() {
 
     auto tbl = std::move(result).table();
 
+    if (!tbl.contains("sampling_rates")) {
+        this->loadDefaultSamplingRatesModeMapping();
+
+    } else {
+        this->loadSamplingRatesModeMapping(tbl["sampling_rates"]);
+    }
+
     if (!tbl.contains("boards")) {
         status = ErrorCalibrationFileCorrupted;
         return false;
@@ -109,6 +116,33 @@ bool TomlCalibrationManager::loadCalibrationFile() {
         }
     }
 
+    return true;
+}
+
+void TomlCalibrationManager::loadDefaultSamplingRatesModeMapping() {
+    for (int srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
+        srModeMapping[srIdx] = 0;
+    }
+}
+
+bool TomlCalibrationManager::loadSamplingRatesModeMapping(toml::node_view <toml::node> node) {
+    int modeNum = node.as_array()->size();
+    int srOffset = 0;
+    for (int modeIdx = 0; modeIdx < modeNum; modeIdx++) {
+        auto modeNode = node[modeIdx];
+        if (!modeNode.as_table()->contains("values")) {
+            this->loadDefaultSamplingRatesModeMapping();
+            return false;
+        }
+        int srNum = modeNode["values"].as_array()->size();
+        for (int srIdx = 0; srIdx < srNum; srIdx++) {
+            srModeMapping[srOffset++] = modeIdx;
+        }
+    }
+    if (srOffset != samplingRatesNum) {
+        this->loadDefaultSamplingRatesModeMapping();
+        return false;
+    }
     return true;
 }
 
@@ -265,13 +299,13 @@ bool TomlCalibrationManager::loadSetOfParams(toml::node_view <toml::node> node, 
             break;
         }
 
-        if (rangeNode["sampling_rates"].as_array()->size() < outGains.size()) {
-            ret = false;
-            break;
-        }
-
         for (uint32_t srIdx = 0; srIdx < outGains.size() && ret; srIdx++) {
-            auto srNode = rangeNode["sampling_rates"][srIdx];
+            if (rangeNode["sampling_rates"].as_array()->size() <= srModeMapping[srIdx]) {
+                ret = false;
+                break;
+            }
+
+            auto srNode = rangeNode["sampling_rates"][srModeMapping[srIdx]];
 
             if (!srNode.as_table()->contains("calibrations")) {
                 ret = false;

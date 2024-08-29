@@ -1,8 +1,6 @@
 #ifndef TOMLCALIBRATIONMANAGER_H
 #define TOMLCALIBRATIONMANAGER_H
 
-#include <vector>
-
 #include "e384commlib_global_addendum.h"
 #include "e384commlib_errorcodes.h"
 #include "utils.h"
@@ -30,6 +28,8 @@ public:
 
 private:
     bool loadCalibrationFile();
+    void loadDefaultSamplingRatesModeMapping();
+    bool loadSamplingRatesModeMapping(toml::node_view <toml::node> node);
     void loadDefaultParams();
     bool loadVcAdc(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
     bool loadVcDac(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
@@ -54,6 +54,8 @@ private:
     uint16_t currentChannelsNum;
     uint16_t boardsNum;
     uint16_t channelsPerBoard;
+
+    std::map <int, int> srModeMapping;
 
     uint16_t vcCurrentRangesNum;
     uint16_t vcVoltageRangesNum;
