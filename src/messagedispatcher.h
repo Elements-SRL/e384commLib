@@ -772,9 +772,10 @@ public:
     /*! \brief Update the ADC filter based on the current range and sampling rate configuration.
      *  \note Method used internally to automatically correct the filtering during range or sampling rate changes.
      *
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t setAdcFilter();
+    virtual ErrorCodes_t setAdcFilter(bool applyFlag = false);
 
     /*! \brief Set the sampling rate.
      *

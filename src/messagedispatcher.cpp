@@ -263,7 +263,7 @@ ErrorCodes_t MessageDispatcher::resetOffsetRecalibration(std::vector <uint16_t> 
     int offsetIdx = 0;
     for (auto channelIdx : channelIndexes) {
         liquidJunctionStatuses[channelIdx] = LiquidJunctionResetted;
-        offsets[offsetIdx++] = originalCalibrationParams.vcOffsetAdc[selectedVcCurrentRangeIdx][channelIdx];
+        offsets[offsetIdx++] = originalCalibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIdx];
     }
     ljMutexLock.unlock();
     return this->setCalibVcCurrentOffset(channelIndexes, offsets, applyFlag);
@@ -471,7 +471,7 @@ ErrorCodes_t MessageDispatcher::expandTraces(std::vector <uint16_t> channelIndex
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::setAdcFilter() {
+ErrorCodes_t MessageDispatcher::setAdcFilter(bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -1417,7 +1417,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     activeFlag = true;
                     readoutOffsetInt = (int16_t)(((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum);
                     this->convertCurrentValue(readoutOffsetInt, readoutOffset);
-                    offsetRecalibCorrection.push_back(calibrationParams.vcOffsetAdc[selectedVcCurrentRangeIdx][channelIdx]);
+                    offsetRecalibCorrection.push_back(calibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIdx]);
                     offsetRecalibCorrection.back().value -= readoutOffset;
                     offsetRecalibStates[channelIdx] = OffsetRecalibCheck;
                     channelIndexes.push_back(channelIdx);
@@ -1444,7 +1444,7 @@ void MessageDispatcher::computeLiquidJunction() {
                 case OffsetRecalibFail:
                     activeFlag = true;
                     channelIndexes.push_back(channelIdx);
-                    offsetRecalibCorrection.push_back(originalCalibrationParams.vcOffsetAdc[selectedVcCurrentRangeIdx][channelIdx]);
+                    offsetRecalibCorrection.push_back(originalCalibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIdx]);
                     offsetRecalibStates[channelIdx] = OffsetRecalibTerminate;
                     offsetRecalibStatuses[channelIdx] = OffsetRecalibFailed;
                     break;

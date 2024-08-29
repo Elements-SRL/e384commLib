@@ -892,7 +892,7 @@ ErrorCodes_t EZPatchDevice::setCalibVcCurrentOffset(std::vector <uint16_t> chann
         Measurement_t current = e.second;
 
         current.convertValue(range.prefix);
-        calibrationParams.vcOffsetAdc[selectedVcCurrentRangeIdx][chIdx] = current;
+        calibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][chIdx] = current;
     }
     return this->updateCalibVcCurrentOffset(channelIndexes, applyFlag);
 }
@@ -908,10 +908,10 @@ ErrorCodes_t EZPatchDevice::updateCalibVcCurrentOffset(std::vector <uint16_t> ch
     uint16_t dataLength = 2*channelIndexes.size();
     std::vector <uint16_t> txDataMessage(dataLength);
     for (auto chIdx : channelIndexes) {
-        calibrationParams.vcOffsetAdc[selectedVcCurrentRangeIdx][chIdx].convertValue(range.prefix);
+        calibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][chIdx].convertValue(range.prefix);
 
         txDataMessage[0+chIdx*2] = vcCurrentOffsetDeltaRegisterOffset+chIdx*coreSpecificRegistersNum;
-        txDataMessage[1+chIdx*2] = (uint16_t)((int16_t)round(calibrationParams.vcOffsetAdc[selectedVcCurrentRangeIdx][chIdx].value*SHORT_MAX/range.max));
+        txDataMessage[1+chIdx*2] = (uint16_t)((int16_t)round(calibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][chIdx].value*SHORT_MAX/range.max));
     }
 
     return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
@@ -937,7 +937,7 @@ ErrorCodes_t EZPatchDevice::setCalibCcVoltageOffset(std::vector <uint16_t> chann
         Measurement_t voltage = e.second;
 
         voltage.convertValue(range.prefix);
-        calibrationParams.ccOffsetAdc[selectedCcVoltageRangeIdx][chIdx] = voltage;
+        calibrationParams.ccOffsetAdc[selectedSamplingRateIdx][selectedCcVoltageRangeIdx][chIdx] = voltage;
     }
     return this->updateCalibCcVoltageOffset(channelIndexes, applyFlag);
 }
@@ -953,10 +953,10 @@ ErrorCodes_t EZPatchDevice::updateCalibCcVoltageOffset(std::vector <uint16_t> ch
     uint16_t dataLength = 2*channelIndexes.size();
     std::vector <uint16_t> txDataMessage(dataLength);
     for (auto chIdx : channelIndexes) {
-        calibrationParams.ccOffsetAdc[selectedCcVoltageRangeIdx][chIdx].convertValue(range.prefix);
+        calibrationParams.ccOffsetAdc[selectedSamplingRateIdx][selectedCcVoltageRangeIdx][chIdx].convertValue(range.prefix);
 
         txDataMessage[0+chIdx*2] = ccVoltageOffsetDeltaRegisterOffset+chIdx*coreSpecificRegistersNum;
-        txDataMessage[1+chIdx*2] = (uint16_t)((int16_t)round(calibrationParams.ccOffsetAdc[selectedCcVoltageRangeIdx][chIdx].value*SHORT_MAX/range.max));
+        txDataMessage[1+chIdx*2] = (uint16_t)((int16_t)round(calibrationParams.ccOffsetAdc[selectedSamplingRateIdx][selectedCcVoltageRangeIdx][chIdx].value*SHORT_MAX/range.max));
     }
 
     return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);

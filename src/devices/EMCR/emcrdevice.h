@@ -79,7 +79,7 @@ public:
     ErrorCodes_t readoutOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     ErrorCodes_t liquidJunctionCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
 
-    ErrorCodes_t setAdcFilter() override;
+    ErrorCodes_t setAdcFilter(bool applyFlag = false) override;
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
     ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) override;
@@ -239,10 +239,10 @@ protected:
     std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
 
     ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
-    std::vector <std::string> calibrationFileNames;
-    std::vector <std::vector <bool> > calibrationFilesOkFlags;
-    std::string calibrationMappingFileDir;
-    std::string calibrationMappingFilePath;
+    std::vector <std::string> calibrationFileNames = {""};
+    std::vector <std::vector <bool> > calibrationFilesOkFlags = {{false}};
+    std::string calibrationMappingFileDir = "";
+    std::string calibrationMappingFilePath = "";
 
     /************\
      *  Coders  *
