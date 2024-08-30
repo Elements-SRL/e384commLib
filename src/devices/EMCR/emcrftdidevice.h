@@ -72,9 +72,9 @@ protected:
     FT_HANDLE * ftdiRxHandle = nullptr;
     FT_HANDLE * ftdiTxHandle = nullptr;
 
-    char spiChannel;
-    char rxChannel;
-    char txChannel;
+    char spiChannel = 'A';
+    char rxChannel = 'B';
+    char txChannel = 'B';
 
     uint32_t rxSyncWord;
 

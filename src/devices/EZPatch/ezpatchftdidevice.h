@@ -68,15 +68,15 @@ protected:
     FT_HANDLE * ftdiRxHandle = nullptr;
     FT_HANDLE * ftdiTxHandle = nullptr;
 
-    char spiChannel;
-    char rxChannel;
-    char txChannel;
+    char spiChannel = 'A';
+    char rxChannel = 'B';
+    char txChannel = 'B';
 
-    uint8_t rxSyncWord[FTD_RX_SYNC_WORD_SIZE];
+    uint8_t rxSyncWord[FTD_RX_SYNC_WORD_SIZE] = {0xA5, 0x5A};
 
     uint16_t rxCrcInitialValue = 0xFFFF;
 
-    uint8_t txSyncWord[FTD_TX_SYNC_WORD_SIZE];
+    uint8_t txSyncWord[FTD_TX_SYNC_WORD_SIZE] = {0xA5, 0x5A};
 
     uint16_t txCrcInitialValue = 0xFFFF;
 };

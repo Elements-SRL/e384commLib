@@ -1,7 +1,13 @@
 #include "emcr8patchclamp_el07cd_artix7.h"
 
-Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di) :
+Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di) :
     EmcrFtdiDevice(di) {
+
+    spiChannel = 'B';
+    rxChannel = 'A';
+    txChannel = 'A';
+
+    fpgaLoadType = FtdiFpgaFwLoadPatchlinerArtix7_V01;
 
     deviceName = "8xPatchClamp";
 
@@ -1523,7 +1529,7 @@ Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV02_
     txStatus[327] = 0x1111;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::initializeHW() {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::initializeHW() {
     std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));
 
     this->resetFpga(true, true);
@@ -1537,7 +1543,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::initializeHW() {
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) {
     switch (type) {
     case CompRsCorr:
         if (rsCorrBwArray.size()==0) {
@@ -1557,7 +1563,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::getCompOptionsFeatures(
     }
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
     switch (type) {
     case CompCfast:
         if (pipetteCapEnCompensationCoders.size() == 0) {
@@ -1611,7 +1617,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::getCompensationEnables(
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
@@ -1730,7 +1736,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::enableCompensation(std:
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::enableVcCompensations(bool enable, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableVcCompensations(bool enable, bool applyFlag) {
     vcCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -1752,7 +1758,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::enableVcCompensations(b
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::enableCcCompensations(bool enable, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCcCompensations(bool enable, bool applyFlag) {
     ccCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -1769,7 +1775,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::enableCcCompensations(b
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
     std::string debugString = "";
     // make local copy of the user domain param vectors
     std::vector <std::vector <double> > localCompValueSubMatrix;
@@ -1885,7 +1891,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::setCompValues(std::vect
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
@@ -1912,7 +1918,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::setCompOptions(std::vec
     }
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
     std::vector <ClampingModality_t> clamps(currentChannelsNum);
@@ -1936,7 +1942,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnVoltageReaderOn(boo
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnCurrentReaderOn(bool onValueIn, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnCurrentReaderOn(bool onValueIn, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
     std::vector <ClampingModality_t> clamps(currentChannelsNum);
@@ -1960,7 +1966,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnCurrentReaderOn(boo
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnVoltageStimulusOn(bool onValue, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnVoltageStimulusOn(bool onValue, bool applyFlag) {
     if (onValue) {
         this->updateCalibVcVoltageGain(allChannelIndexes, false);
         this->updateCalibVcVoltageOffset(allChannelIndexes, applyFlag);
@@ -1971,7 +1977,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnVoltageStimulusOn(b
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnCurrentStimulusOn(bool onValue, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnCurrentStimulusOn(bool onValue, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
 
@@ -1990,7 +1996,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnCurrentStimulusOn(b
     return Success;
 }
 
-std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) {
+std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) {
     std::vector <double> asicDomainParameter;
     asicDomainParameter.resize(CompensationAsicParamsNum);
     double cp; // pipette capacitance
@@ -2035,7 +2041,7 @@ std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::user2AsicDomain
     return asicDomainParameter;
 }
 
-std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::asic2UserDomainTransform(int chIdx, std::vector <double> asicDomainParams, double oldUCpVc, double oldUCpCc) {
+std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::asic2UserDomainTransform(int chIdx, std::vector <double> asicDomainParams, double oldUCpVc, double oldUCpCc) {
     std::vector <double> userDomainParameter;
     userDomainParameter.resize(CompensationUserParamsNum);
 
@@ -2081,7 +2087,7 @@ std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::asic2UserDomain
     return userDomainParameter;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams) {
     /*! \todo still to understand how to obtain them. COuld they be imputs of the function?*/
     std::vector <double> potentialMaxs;
     std::vector <double> potentialMins;
@@ -2219,7 +2225,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::asic2UserDomainCompensa
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
     switch (param) {
     case U_CpVc:
         control.implemented = true;
@@ -2316,11 +2322,16 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::getCompensationControl(
     }
 }
 
-void Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::setGrEn(bool flag, bool applyFlag) {
+void Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setGrEn(bool flag, bool applyFlag) {
     for (auto coder : grEnCoders) {
         coder->encode(flag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
+}
+
+Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di) :
+    Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(di) {
+    fpgaLoadType = FtdiFpgaFwLoadAutomatic;
 }

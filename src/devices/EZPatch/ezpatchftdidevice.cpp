@@ -137,19 +137,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
 EZPatchFtdiDevice::EZPatchFtdiDevice(std::string deviceId) :
     EZPatchDevice(deviceId) {
 
-    ftdiEepromId = FtdiEepromId56;
-    spiChannel = 'A';
-    rxChannel = 'B';
-    txChannel = 'B';
-
-    rxSyncWord[0] = 0xA5;
-    rxSyncWord[1] = 0x5A;
-
     rxCrcInitialValue = (((uint16_t)rxSyncWord[1]) << 8)+(uint16_t)rxSyncWord[0];
-
-    txSyncWord[0] = 0xA5;
-    txSyncWord[1] = 0x5A;
-
     txCrcInitialValue = (((uint16_t)txSyncWord[1]) << 8)+(uint16_t)txSyncWord[0];
 }
 

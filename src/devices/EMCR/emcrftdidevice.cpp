@@ -12,10 +12,6 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
     EmcrDevice(deviceId) {
 
-    ftdiEepromId = FtdiEepromId56;
-    spiChannel = 'A';
-    rxChannel = 'B';
-    txChannel = 'B';
 }
 
 EmcrFtdiDevice::~EmcrFtdiDevice() {
