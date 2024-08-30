@@ -2,6 +2,8 @@
 
 #include "libMPSSE_spi.h"
 
+#include "emcr8patchclamp_el07cd_artix7.h"
+
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV02, 1, DeviceE8PPatchLinerEL07CD_artix7_PCBV02},     //  10, 14,  1 : VC-CC device with 8 channels (EL07CD) for Nanion's Patchliner (FPGA artix7) PCB V02. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV01, 1, DeviceE8PPatchLinerEL07CD_artix7_PCBV01},     //  10, 12,  1 : VC-CC device with 8 channels (EL07CD) for Nanion's Patchliner (FPGA artix7) PCB V01. */
@@ -131,6 +133,20 @@ ErrorCodes_t EmcrFtdiDevice::isDeviceSerialDetected(std::string deviceId) {
     return ret;
 }
 
+ErrorCodes_t EmcrFtdiDevice::isDeviceRecognized(std::string deviceId) {
+    if (isDeviceSerialDetected(deviceId) != Success) {
+        return ErrorDeviceNotFound;
+    }
+
+    DeviceTypes_t deviceType;
+
+    if (EmcrFtdiDevice::getDeviceType(deviceId, deviceType) != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    return Success;
+}
+
 ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     ErrorCodes_t ret = Success;
     if (messageDispatcher != nullptr) {
@@ -145,13 +161,13 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
     }
 
     switch (deviceType) {
-//    case DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02:
-//        messageDispatcher = new Emcre8PPatchliner_el07ab_artix7_PCBV02_V02(deviceId);
-//        break;
+    case DeviceE8PPatchLinerEL07CD_artix7_PCBV02:
+        messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(deviceId);
+        break;
 
-//    case DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V01:
-//        messageDispatcher = new Emcre8PPatchliner_el07ab_artix7_PCBV02_V01(deviceId);
-//        break;
+    case DeviceE8PPatchLinerEL07CD_artix7_PCBV01:
+        messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(deviceId);
+        break;
 
     default:
         return ErrorDeviceTypeNotRecognized;
@@ -661,7 +677,7 @@ void EmcrFtdiDevice::parseDataFromDevice() {
      *  Parsing part  *
     \******************/
 
-    std::unique_lock <std::mutex> rxRawMutexLock (rxRawMutex);
+    std::unique_lock <std::mutex> rxRawMutexLock(rxRawMutex);
     rxRawMutexLock.unlock();
 
     while (!stopConnectionFlag) {

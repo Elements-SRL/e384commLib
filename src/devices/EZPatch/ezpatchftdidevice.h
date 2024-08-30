@@ -15,6 +15,7 @@ public:
     ErrorCodes_t getDeviceInfo(std::string &deviceId, std::string &deviceName, uint32_t &deviceVersion, uint32_t &deviceSubversion, uint32_t &firmwareVersion);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
+    static ErrorCodes_t isDeviceRecognized(std::string deviceId);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
     virtual ErrorCodes_t pauseConnection(bool pauseFlag);
     ErrorCodes_t disconnectDevice() override;

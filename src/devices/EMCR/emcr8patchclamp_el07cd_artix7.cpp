@@ -1,19 +1,14 @@
-#include "emcrtestboardel07cd.h"
-#include "utils.h"
+#include "emcr8patchclamp_el07cd_artix7.h"
 
-EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
-    EmcrOpalKellyDevice(di) {
+Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di) :
+    EmcrFtdiDevice(di) {
 
-    deviceName = "TestBoardEL07cd";
-
-    fwName = "TB_EL07c_V01.bit";
+    deviceName = "8xPatchClamp";
 
     fwSize_B = 0;
-    motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+2;
-    waitingTimeBeforeReadingData = 2; //s
-    okTransferSize = 0x10000;
+    motherboardBootTime_s = 0; // no motherboard to be started
 
-    rxSyncWord = 0x5aa5;
+    rxSyncWord = 0x5aa55aa5;
 
     packetsPerFrame = 1;
 
@@ -38,7 +33,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 369;
+    txDataWords = 337;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
@@ -312,7 +307,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         {SamplingRate20kHz, CCVoltageFilter12kHz},
         {SamplingRate40kHz, CCVoltageFilter40kHz},
         {SamplingRate80kHz, CCVoltageFilter48kHz},
-        {SamplingRate160kHz,  CCVoltageFilter100kHz}
+        {SamplingRate160kHz, VCCurrentFilter100kHz}
     };
 
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
@@ -600,8 +595,14 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     /*! Sampling rate */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 3;
-    boolConfig.bitsNum = 4;
-    samplingRateCoder = new BoolArrayCoder(boolConfig);
+    boolConfig.bitsNum = 6;
+    samplingRateCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(32); /*! 5kHz 0b100000 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(33); /*! 10kHz 0b100001 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(34); /*! 20kHz 0b100010 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(19); /*! 40kHz 0b010011 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(20); /*! 80kHz 0b010100 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(5); /*! 160kHz 0b000101 */
     coders.push_back(samplingRateCoder);
 
     /*! Clamping mode */
@@ -1088,7 +1089,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     doubleConfig.bitsNum = 16;
     liquidJunctionVoltageCoders.resize(liquidJunctionRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < liquidJunctionRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 361;
+        doubleConfig.initialWord = 284;
         doubleConfig.resolution = liquidJunctionRangesArray[rangeIdx].step;
         doubleConfig.minValue = liquidJunctionRangesArray[rangeIdx].min;
         doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
@@ -1100,107 +1101,10 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         }
     }
 
-    /*! VC leak calibration */
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    calibRShuntConductanceCoders.resize(VCCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 288;
-        doubleConfig.resolution = rRShuntConductanceCalibRange[rangeIdx].step;
-        doubleConfig.minValue = rRShuntConductanceCalibRange[rangeIdx].min;
-        doubleConfig.maxValue = rRShuntConductanceCalibRange[rangeIdx].max;
-        calibRShuntConductanceCoders[rangeIdx].resize(currentChannelsNum);
-        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            calibRShuntConductanceCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(calibRShuntConductanceCoders[rangeIdx][channelIdx]);
-            doubleConfig.initialWord++;
-        }
-    }
-
-    /*! DAC gain e offset*/
-    /*! VC Voltage gain tuner */
-    doubleConfig.initialWord = 296;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibVcVoltageGainRange.step;
-    doubleConfig.minValue = calibVcVoltageGainRange.min;
-    doubleConfig.maxValue = calibVcVoltageGainRange.max;
-    calibVcVoltageGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibVcVoltageGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibVcVoltageGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
-
-    /*! VC Voltage offset tuner */
-    calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 304;
-        doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
-        doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
-        doubleConfig.minValue = calibVcVoltageOffsetRanges[rangeIdx].min;
-        doubleConfig.maxValue = calibVcVoltageOffsetRanges[rangeIdx].max;
-        calibVcVoltageOffsetCoders[rangeIdx].resize(currentChannelsNum);
-        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            calibVcVoltageOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(calibVcVoltageOffsetCoders[rangeIdx][idx]);
-            doubleConfig.initialWord++;
-        }
-    }
-
-    /*! CC Current gain tuner */
-    doubleConfig.initialWord = 296;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibCcCurrentGainRange.step;
-    doubleConfig.minValue = calibCcCurrentGainRange.min;
-    doubleConfig.maxValue = calibCcCurrentGainRange.max;
-    calibCcCurrentGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibCcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibCcCurrentGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
-
-    /*! CC Voltage offset tuner */
-    calibCcCurrentOffsetCoders.resize(ccCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 304;
-        doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
-        doubleConfig.resolution = calibCcCurrentOffsetRanges[rangeIdx].step;
-        doubleConfig.minValue = calibCcCurrentOffsetRanges[rangeIdx].min;
-        doubleConfig.maxValue = calibCcCurrentOffsetRanges[rangeIdx].max;
-        calibCcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
-        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            calibCcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(calibCcCurrentOffsetCoders[rangeIdx][idx]);
-            doubleConfig.initialWord++;
-        }
-    }
-
-    /*! ADC gain e offset*/
-    /*! \note MPAC sebbene nel calibratore si cicli sui range per calcolare i gainADC, questi non dipendono dai range essendo numeri puri. Il ciclo sui
-    range serve solo per selezionare gli step di corrente range-specifici*/
-    /*! VC current gain tuner */
-    doubleConfig.initialWord = 312;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibVcCurrentGainRange.step;
-    doubleConfig.minValue = calibVcCurrentGainRange.min;
-    doubleConfig.maxValue = calibVcCurrentGainRange.max;
-    calibVcCurrentGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibVcCurrentGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
-
-    /*! VC current offset tuner */
+    /*! VC current offset */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 320;
+        doubleConfig.initialWord = 296;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -1214,24 +1118,10 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         }
     }
 
-    /*! CC Voltage gain tuner */
-    doubleConfig.initialWord = 312;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibCcVoltageGainRange.step;
-    doubleConfig.minValue = calibCcVoltageGainRange.min;
-    doubleConfig.maxValue = calibCcVoltageGainRange.max;
-    calibCcVoltageGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibCcVoltageGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibCcVoltageGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
-
-    /*! CC Voltage offset tuner */
+    /*! CC Voltage offset */
     calibCcVoltageOffsetCoders.resize(ccVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < ccVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 320;
+        doubleConfig.initialWord = 296;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibCcVoltageOffsetRanges[rangeIdx].step;
@@ -1245,9 +1135,9 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         }
     }
 
-    /*! Compensation coders*/
+    /*! Compensation coders */
     /*! Cfast / pipette capacitance compensation ENABLE */
-    boolConfig.initialWord = 328;
+    boolConfig.initialWord = 304;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     pipetteCapEnCompensationCoders.resize(currentChannelsNum);
@@ -1264,11 +1154,11 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     /*! Cfast / pipette capacitance compensation VALUE*/
     pipetteCapValCompensationMultiCoders.resize(currentChannelsNum);
 
-    boolConfig.initialWord = 333;
+    boolConfig.initialWord = 309;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 2;
 
-    doubleConfig.initialWord = 329;
+    doubleConfig.initialWord = 305;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
@@ -1312,7 +1202,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     }
 
     /*! Cslow / membrane capacitance compensation ENABLE */
-    boolConfig.initialWord = 334;
+    boolConfig.initialWord = 310;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     membraneCapEnCompensationCoders.resize(currentChannelsNum);
@@ -1329,11 +1219,11 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     /*! Cslow / membrane capacitance compensation */
     membraneCapValCompensationMultiCoders.resize(currentChannelsNum);
 
-    boolConfig.initialWord = 339;
+    boolConfig.initialWord = 315;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 2;
 
-    doubleConfig.initialWord = 335;
+    doubleConfig.initialWord = 311;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
@@ -1341,6 +1231,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     multiCoderConfig.thresholdVector.resize(membraneCapValueRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
         multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapValueRanges; rangeIdx++) {
@@ -1376,11 +1267,11 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     /*! Cslow / membrane capacitance compensation TAU and TAU RANGES */
     membraneCapTauValCompensationMultiCoders.resize(currentChannelsNum);
 
-    doubleConfig.initialWord = 340;
+    doubleConfig.initialWord = 320;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
-    boolConfig.initialWord = 344;
+    boolConfig.initialWord = 316;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
 
@@ -1420,7 +1311,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     }
 
     /*! Rs correction compensation ENABLE*/
-    boolConfig.initialWord = 345;
+    boolConfig.initialWord = 321;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     rsCorrEnCompensationCoders.resize(currentChannelsNum);
@@ -1435,7 +1326,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     }
 
     /*! Rs correction compensation VALUE*/
-    doubleConfig.initialWord = 346;
+    doubleConfig.initialWord = 322;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
     doubleConfig.resolution = rsCorrValueRange.step;
@@ -1454,7 +1345,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
 
     /*! Rs correction compensation BANDWIDTH */
     /*! \todo QUESTO VIENE IMPATTATO DALLA SWITCHED CAP FREQUENCY SOLO  A LIVELLO DI RAPPRESENTAZINE DI STRINGHE PER LA BANDA NELLA GUI. ATTIVAMENTE QUI NN FACCIAMO NULLA!!!!!*/
-    boolConfig.initialWord = 350;
+    boolConfig.initialWord = 326;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 3;
     rsCorrBwCompensationCoders.resize(currentChannelsNum);
@@ -1475,8 +1366,8 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         }
     }
 
-    /*! Rs PREDICTION compensation ENABLE*/
-    boolConfig.initialWord = 352;
+    /*! Rs PREDICTION compensation ENABLE */
+    boolConfig.initialWord = 328;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     rsPredEnCompensationCoders.resize(currentChannelsNum);
@@ -1490,8 +1381,8 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         }
     }
 
-    /*! Rs prediction compensation GAIN*/
-    doubleConfig.initialWord = 353;
+    /*! Rs prediction compensation GAIN */
+    doubleConfig.initialWord = 329;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
     doubleConfig.resolution = rsPredGainRange.step;
@@ -1508,8 +1399,8 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         }
     }
 
-    /*! Rs prediction compensation TAU*/
-    doubleConfig.initialWord = 357;
+    /*! Rs prediction compensation TAU */
+    doubleConfig.initialWord = 333;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
     doubleConfig.resolution = rsPredTauRange.step;
@@ -1527,7 +1418,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     }
 
     /*! CURRENT CLAMP Cfast / pipette capacitance compensation ENABLE */
-    boolConfig.initialWord = 328;
+    boolConfig.initialWord = 304;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     pipetteCapCcEnCompensationCoders.resize(currentChannelsNum);
@@ -1544,11 +1435,11 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     /*! CURRENT CLAMP Cfast / pipette capacitance compensation VALUE*/
     pipetteCapCcValCompensationMultiCoders.resize(currentChannelsNum);
 
-    boolConfig.initialWord = 333;
+    boolConfig.initialWord = 309;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 2;
 
-    doubleConfig.initialWord = 329;
+    doubleConfig.initialWord = 305;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
@@ -1556,6 +1447,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
         multiCoderConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
         static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x0);
         static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x1);
@@ -1605,7 +1497,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     customOptionsCoders[CustomOptionClockDivider] = new BoolArrayCoder(boolConfig);
     coders.push_back(customOptionsCoders[CustomOptionClockDivider]);
 
-    doubleConfig.initialWord = 284;
+    doubleConfig.initialWord = 292;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 7;
     customDoublesCoders.resize(customDoublesNum);
@@ -1627,11 +1519,11 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[17] = 0x00FF; // GR_EN active
-    txStatus[350] = 0x1111; // rs bw avoid configuration with all zeros
-    txStatus[351] = 0x1111;
+    txStatus[326] = 0x1111; // rs bw avoid configuration with all zeros
+    txStatus[327] = 0x1111;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::initializeHW() {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::initializeHW() {
     std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));
 
     this->resetFpga(true, true);
@@ -1645,7 +1537,7 @@ ErrorCodes_t EmcrTestBoardEl07c::initializeHW() {
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) {
     switch (type) {
     case CompRsCorr:
         if (rsCorrBwArray.size()==0) {
@@ -1665,7 +1557,7 @@ ErrorCodes_t EmcrTestBoardEl07c::getCompOptionsFeatures(CompensationTypes_t type
     }
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
     switch (type) {
     case CompCfast:
         if (pipetteCapEnCompensationCoders.size() == 0) {
@@ -1708,7 +1600,7 @@ ErrorCodes_t EmcrTestBoardEl07c::getCompensationEnables(std::vector <uint16_t> c
             return ErrorFeatureNotImplemented;
         }
         for (int i = 0; i < channelIndexes.size(); i++) {
-            onValues[i] = ccCompensationsActivated && compensationsEnableFlags[type][channelIndexes[i]];
+            onValues[i] =  ccCompensationsActivated && compensationsEnableFlags[type][channelIndexes[i]];
         }
         break;
 
@@ -1719,7 +1611,7 @@ ErrorCodes_t EmcrTestBoardEl07c::getCompensationEnables(std::vector <uint16_t> c
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
@@ -1838,7 +1730,7 @@ ErrorCodes_t EmcrTestBoardEl07c::enableCompensation(std::vector <uint16_t> chann
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::enableVcCompensations(bool enable, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::enableVcCompensations(bool enable, bool applyFlag) {
     vcCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -1860,7 +1752,7 @@ ErrorCodes_t EmcrTestBoardEl07c::enableVcCompensations(bool enable, bool applyFl
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::enableCcCompensations(bool enable, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::enableCcCompensations(bool enable, bool applyFlag) {
     ccCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -1877,7 +1769,7 @@ ErrorCodes_t EmcrTestBoardEl07c::enableCcCompensations(bool enable, bool applyFl
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
     std::string debugString = "";
     // make local copy of the user domain param vectors
     std::vector <std::vector <double> > localCompValueSubMatrix;
@@ -1993,15 +1885,15 @@ ErrorCodes_t EmcrTestBoardEl07c::setCompValues(std::vector <uint16_t> channelInd
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
-    switch (type) {
+    switch (type)
+    {
     case CompRsCorr:
         if (rsCorrBwCompensationCoders.size() == 0) {
             return ErrorFeatureNotImplemented;
-
         } else {
             for (uint32_t i = 0; i < channelIndexes.size(); i++) {
                 selectedRsCorrBws[i] = options[i];
@@ -2016,11 +1908,11 @@ ErrorCodes_t EmcrTestBoardEl07c::setCompOptions(std::vector <uint16_t> channelIn
             }
             return Success;
         }
-        break;
+    break;
     }
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
     std::vector <ClampingModality_t> clamps(currentChannelsNum);
@@ -2044,7 +1936,7 @@ ErrorCodes_t EmcrTestBoardEl07c::turnVoltageReaderOn(bool onValueIn, bool applyF
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::turnCurrentReaderOn(bool onValueIn, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnCurrentReaderOn(bool onValueIn, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
     std::vector <ClampingModality_t> clamps(currentChannelsNum);
@@ -2068,7 +1960,7 @@ ErrorCodes_t EmcrTestBoardEl07c::turnCurrentReaderOn(bool onValueIn, bool applyF
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::turnVoltageStimulusOn(bool onValue, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnVoltageStimulusOn(bool onValue, bool applyFlag) {
     if (onValue) {
         this->updateCalibVcVoltageGain(allChannelIndexes, false);
         this->updateCalibVcVoltageOffset(allChannelIndexes, applyFlag);
@@ -2079,7 +1971,7 @@ ErrorCodes_t EmcrTestBoardEl07c::turnVoltageStimulusOn(bool onValue, bool applyF
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::turnCurrentStimulusOn(bool onValue, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::turnCurrentStimulusOn(bool onValue, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
 
@@ -2098,7 +1990,7 @@ ErrorCodes_t EmcrTestBoardEl07c::turnCurrentStimulusOn(bool onValue, bool applyF
     return Success;
 }
 
-std::vector <double> EmcrTestBoardEl07c::user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) {
+std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) {
     std::vector <double> asicDomainParameter;
     asicDomainParameter.resize(CompensationAsicParamsNum);
     double cp; // pipette capacitance
@@ -2143,7 +2035,7 @@ std::vector <double> EmcrTestBoardEl07c::user2AsicDomainTransform(int chIdx, std
     return asicDomainParameter;
 }
 
-std::vector <double> EmcrTestBoardEl07c::asic2UserDomainTransform(int chIdx, std::vector <double> asicDomainParams, double oldUCpVc, double oldUCpCc) {
+std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::asic2UserDomainTransform(int chIdx, std::vector <double> asicDomainParams, double oldUCpVc, double oldUCpCc) {
     std::vector <double> userDomainParameter;
     userDomainParameter.resize(CompensationUserParamsNum);
 
@@ -2189,7 +2081,7 @@ std::vector <double> EmcrTestBoardEl07c::asic2UserDomainTransform(int chIdx, std
     return userDomainParameter;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams) {
     /*! \todo still to understand how to obtain them. COuld they be imputs of the function?*/
     std::vector <double> potentialMaxs;
     std::vector <double> potentialMins;
@@ -2327,7 +2219,7 @@ ErrorCodes_t EmcrTestBoardEl07c::asic2UserDomainCompensable(int chIdx, std::vect
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07c::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
     switch (param) {
     case U_CpVc:
         control.implemented = true;
@@ -2424,17 +2316,11 @@ ErrorCodes_t EmcrTestBoardEl07c::getCompensationControl(CompensationUserParams_t
     }
 }
 
-void EmcrTestBoardEl07c::setGrEn(bool flag, bool applyFlag) {
+void Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::setGrEn(bool flag, bool applyFlag) {
     for (auto coder : grEnCoders) {
         coder->encode(flag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
-}
-
-EmcrTestBoardEl07d::EmcrTestBoardEl07d(std::string di) :
-    EmcrTestBoardEl07c(di) {
-
-    fwName = "TB_EL07d_V01.bit";
 }

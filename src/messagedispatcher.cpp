@@ -10,6 +10,7 @@
 #include "emcropalkellydevice.h"
 #include "emcrudbdevice.h"
 #include "ezpatchftdidevice.h"
+#include "emcrftdidevice.h"
 #include "utils.h"
 
 /********************************************************************************************\
@@ -55,6 +56,12 @@ ErrorCodes_t MessageDispatcher::detectDevices(
         ret = retTemp;
     }
 
+    retTemp = EmcrFtdiDevice::detectDevices(deviceIdsTemp);
+    if (retTemp == Success) {
+        deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
+        ret = retTemp;
+    }
+
     retTemp = EmcrOpalKellyDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
         deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
@@ -64,19 +71,24 @@ ErrorCodes_t MessageDispatcher::detectDevices(
 }
 
 ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
-    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
         deviceVersion = -1;
         deviceSubVersion = -1;
         fwVersion = -1;
         return ErrorFeatureNotImplemented;
     }
 
-    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrUdbDevice::isDeviceRecognized(deviceId) == Success) {
         EmcrUdbDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
         return Success;
     }
 
-    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
+        EmcrFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+        return Success;
+    }
+
+    if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
         EZPatchFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
         return Success;
     }
@@ -85,30 +97,38 @@ ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int
 
 ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     messageDispatcher = nullptr;
-    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
         return EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher, fwPath);
     }
 
-    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrUdbDevice::isDeviceRecognized(deviceId) == Success) {
         return EmcrUdbDevice::connectDevice(deviceId, messageDispatcher, fwPath);
     }
 
-    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
+        return EmcrFtdiDevice::connectDevice(deviceId, messageDispatcher, fwPath);
+    }
+
+    if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
         return EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher, fwPath);
     }
     return ErrorDeviceTypeNotRecognized;
 }
 
 ErrorCodes_t MessageDispatcher::isDeviceUpgradable(std::string deviceId) {
-    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
         return ErrorDeviceNotUpgradable;
     }
 
-    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrUdbDevice::isDeviceRecognized(deviceId) == Success) {
         return EmcrUdbDevice::isDeviceUpgradable(deviceId);
     }
 
-    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
+        return EmcrFtdiDevice::isDeviceUpgradable(deviceId);
+    }
+
+    if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
         return ErrorDeviceNotUpgradable;
     }
     return ErrorDeviceTypeNotRecognized;
@@ -119,15 +139,19 @@ ErrorCodes_t MessageDispatcher::upgradeDevice(std::string deviceId) {
         return ErrorDeviceNotUpgradable;
     }
 
-    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
         return ErrorDeviceNotUpgradable;
     }
 
-    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrUdbDevice::isDeviceRecognized(deviceId) == Success) {
         return EmcrUdbDevice::upgradeDevice(deviceId);
     }
 
-    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+    if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
+        return EmcrFtdiDevice::upgradeDevice(deviceId);
+    }
+
+    if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
         return ErrorDeviceNotUpgradable;
     }
     return ErrorDeviceTypeNotRecognized;
@@ -138,15 +162,19 @@ ErrorCodes_t MessageDispatcher::upgradeDevice(std::string deviceId) {
 //        return ErrorDeviceNotUpgradable;
 //    }
 
-//    if (EmcrOpalKellyDevice::isDeviceSerialDetected(deviceId) == Success) {
+//    if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
 //        return ErrorDeviceNotUpgradable;
 //    }
 
-//    if (EmcrUdbDevice::isDeviceSerialDetected(deviceId) == Success) {
+//    if (EmcrUdbDevice::isDeviceRecognized(deviceId) == Success) {
 //        return EmcrUdbDevice::upgradeDevice(deviceId);
 //    }
 
-//    if (EZPatchFtdiDevice::isDeviceSerialDetected(deviceId) == Success) {
+//    if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
+//        return EmcrFtdiDevice::upgradeDevice(deviceId);
+//    }
+
+//    if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
 //        return ErrorDeviceNotUpgradable;
 //    }
 //    return ErrorDeviceTypeNotRecognized;
@@ -740,11 +768,11 @@ ErrorCodes_t MessageDispatcher::hasSourceVoltages() {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getGateVoltagesFeatures(RangedMeasurement_t &range) {
+ErrorCodes_t MessageDispatcher::getGateVoltagesFeatures(RangedMeasurement_t &) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::getSourceVoltagesFeatures(RangedMeasurement_t &range) {
+ErrorCodes_t MessageDispatcher::getSourceVoltagesFeatures(RangedMeasurement_t &) {
     return ErrorFeatureNotImplemented;
 }
 
