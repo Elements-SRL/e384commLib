@@ -320,7 +320,7 @@ protected:
     bool vcCurrentOffsetDeltaImplemented = false;
     bool ccVoltageOffsetDeltaImplemented = false;
 
-    unsigned int maxDigitalTriggerOutputEvents = 1000000;
+    unsigned int maxDigitalTriggerOutputEvents = 0;
     unsigned int digitalTriggersNum = 0;
     bool repetitiveTriggerAvailableFlag = false;
 

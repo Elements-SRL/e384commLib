@@ -2106,6 +2106,9 @@ ErrorCodes_t EZPatchDevice::setBridgeBalanceResistance(Measurement_t resistance)
 }
 
 ErrorCodes_t EZPatchDevice::setDigitalTriggerOutput(uint16_t triggerIdx, bool terminator, bool polarity, uint16_t triggerId, Measurement_t delay) {
+    if (maxDigitalTriggerOutputEvents == 0) {
+        return ErrorFeatureNotImplemented;
+    }
     ErrorCodes_t ret;
 
     if ((triggerIdx < maxDigitalTriggerOutputEvents) &&
@@ -3180,7 +3183,7 @@ ErrorCodes_t EZPatchDevice::initialize(std::string fwPath) {
 
     this->initializeVariables();
 
-    this->deviceConfiguration();
+    ret = this->deviceConfiguration();
     if (ret != Success) {
         return ret;
     }

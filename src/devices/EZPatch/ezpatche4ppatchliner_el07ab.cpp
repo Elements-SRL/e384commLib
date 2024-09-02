@@ -739,9 +739,6 @@ EZPatche4PPatchliner_el07ab::EZPatche4PPatchliner_el07ab(std::string di) :
 
     protocolMaxItemsNum = 15;
 
-    maxDigitalTriggerOutputEvents = 21;
-    digitalTriggersNum = 1;
-
     voltageProtocolStepImplemented = true;
     currentProtocolStepImplemented = true;
     voltageProtocolRampImplemented = true;
