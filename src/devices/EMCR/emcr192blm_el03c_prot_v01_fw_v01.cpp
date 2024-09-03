@@ -370,6 +370,8 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     doubleConfig.resolution = zapDurationRange.step;
     doubleConfig.minValue = zapDurationRange.min;
     doubleConfig.maxValue = zapDurationRange.max;
+    zapDurationCoder = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(zapDurationCoder);
 
     /*! Protocol structure */
     boolConfig.initialWord = protocolWordOffset;
@@ -525,7 +527,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
 
     /*! liquid junction voltage */
     doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
+    doubleConfig.bitsNum = 10;
     liquidJunctionVoltageCoders.resize(liquidJunctionRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < liquidJunctionRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 700;
@@ -534,7 +536,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
         doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
         liquidJunctionVoltageCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            liquidJunctionVoltageCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            liquidJunctionVoltageCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(liquidJunctionVoltageCoders[rangeIdx][channelIdx]);
             doubleConfig.initialWord++;
         }
@@ -608,6 +610,12 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[2] = 0x0070; // fans on
+    for (int c = 36; c < 48; c++) {
+        txStatus[c] = 0xFFFF; // VC_int on
+    }
+    for (int c = 700; c < 892; c++) {
+        txStatus[c] = 0x200; // ODAC zero
+    }
 }
 
 ErrorCodes_t Emcr192Blm_EL03c_prot_v01_fw_v01::initializeHW() {
