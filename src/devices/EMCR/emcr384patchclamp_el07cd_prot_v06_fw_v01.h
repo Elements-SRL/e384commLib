@@ -141,18 +141,6 @@ protected:
         CustomOptionsNum
     };
 
-    enum CustomDouble {
-        CustomOffset1,
-        CustomOffset2,
-        CustomOffset3,
-        CustomOffset4,
-        CustomOffset5,
-        CustomOffset6,
-        CustomOffset7,
-        CustomOffset8,
-        CustomDoublesNum
-    };
-
     virtual ErrorCodes_t initializeHW() override;
 
     virtual std::vector <double> user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) override;

@@ -511,22 +511,6 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     customOptionsDefault.resize(customOptionsNum);
     customOptionsDefault[CustomOptionClockDivider] = 0;
 
-    customDoublesNum = CustomDoublesNum;
-    customDoublesNames.resize(customDoublesNum);
-    customDoublesNames[CustomOffset1] = "Offset 1";
-    customDoublesNames[CustomOffset2] = "Offset 2";
-    customDoublesNames[CustomOffset3] = "Offset 3";
-    customDoublesNames[CustomOffset4] = "Offset 4";
-    customDoublesNames[CustomOffset5] = "Offset 5";
-    customDoublesNames[CustomOffset6] = "Offset 6";
-    customDoublesNames[CustomOffset7] = "Offset 7";
-    customDoublesNames[CustomOffset8] = "Offset 8";
-    customDoublesRanges.resize(customDoublesNum);
-    RangedMeasurement_t customRange = {-64.0, 63.0, 1.0, UnitPfxMilli, "V"};
-    std::fill(customDoublesRanges.begin(), customDoublesRanges.end(), customRange);
-    customDoublesDefault.resize(customDoublesNum);
-    std::fill(customDoublesDefault.begin(), customDoublesDefault.end(), 0.0);
-
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
     currentResolution = currentRange.step;
@@ -804,6 +788,13 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
             boolConfig.initialWord++;
         }
     }
+
+    /*! Protocol reset */
+    boolConfig.initialWord = 4;
+    boolConfig.initialBit = 14;
+    boolConfig.bitsNum = 1;
+    protocolResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolResetCoder);
 
     /*! Protocol structure */
     boolConfig.initialWord = protocolWordOffset;
@@ -1615,6 +1606,9 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     txStatus[2] = 0x0070; // fans on
     for (int idx = 132; idx < 156; idx++) {
         txStatus[idx] = 0x1111; // GR_EN active
+    }
+    for (int idx = 1312; idx < 1504; idx++) {
+        txStatus[idx] = 0x4040; // Set 0 of secondary DAC
     }
     for (int idx = 4384; idx < 4480; idx++) {
         txStatus[idx] = 0x1111; // rs bw avoid configuration with all zeros

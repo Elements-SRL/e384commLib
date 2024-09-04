@@ -288,10 +288,10 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
     vcCurrentRangeCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(0);
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(2);
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(3);
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(7);
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(0); /*! 200pA 0b000 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(2); /*!   2nA 0b010 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(3); /*!  20nA 0b011 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(7); /*! 200nA 0b111 */
     coders.push_back(vcCurrentRangeCoder);
 
     /*! Voltage range VC */

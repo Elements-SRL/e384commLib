@@ -1627,6 +1627,9 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[17] = 0x00FF; // GR_EN active
+    for (int idx = 284; idx < 288; idx++) {
+        txStatus[idx] = 0x4040; // Set 0 of secondary DAC
+    }
     txStatus[350] = 0x1111; // rs bw avoid configuration with all zeros
     txStatus[351] = 0x1111;
 }
