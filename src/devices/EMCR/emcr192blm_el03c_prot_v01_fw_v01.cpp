@@ -220,10 +220,10 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
 
     /*! Zap */
     zapDurationRange.step = 0.1;
-    zapDurationRange.min = 00;
+    zapDurationRange.min = 0.0;
     zapDurationRange.max = zapDurationRange.min+zapDurationRange.step*(double)UINT16_MAX;
-    zapDurationRange.min = 0.0;
-    zapDurationRange.min = 0.0;
+    zapDurationRange.prefix = UnitPfxMilli;
+    zapDurationRange.unit = "V";
 
     /*! VC voltage calib gain (DAC) */
     calibVcVoltageGainRange.step = 1.0/1024.0;
@@ -287,7 +287,11 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
-    vcCurrentRangeCoder = new BoolArrayCoder(boolConfig);
+    vcCurrentRangeCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(0);
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(2);
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(3);
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(7);
     coders.push_back(vcCurrentRangeCoder);
 
     /*! Voltage range VC */
