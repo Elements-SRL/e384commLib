@@ -104,7 +104,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     vcVoltageRangesArray.resize(vcVoltageRangesNum);
     vcVoltageRangesArray[VCVoltageRange500mV].max = 512.0;
     vcVoltageRangesArray[VCVoltageRange500mV].min = -512.0;
-    vcVoltageRangesArray[VCVoltageRange500mV].step = 0.125;
+    vcVoltageRangesArray[VCVoltageRange500mV].step = 1.0;
     vcVoltageRangesArray[VCVoltageRange500mV].prefix = UnitPfxMilli;
     vcVoltageRangesArray[VCVoltageRange500mV].unit = "V";
     defaultVcVoltageRangeIdx = VCVoltageRange500mV;

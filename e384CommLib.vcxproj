@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\calibration\calibrationeeprom.cpp" />
+    <ClCompile Include="src\calibration\csvcalibrationmanager.cpp" />
+    <ClCompile Include="src\calibration\tomlcalibrationmanager.cpp" />
+    <ClCompile Include="src\commandcoder.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr10mhz.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr10mhzfake.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr192blm_el03c_prot_v01_fw_v01.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr2x10mhz.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr2x10mhzfake.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr384nanopores.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr384nanoporesfake.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr384nanopores_sr7p5khz_v01.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr384patchclampfake.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr384patchclamp_el07cd_prot_v06_fw_v01.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr384patchclamp_prot_v01_fw_v02.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr384patchclamp_prot_v04_fw_v03.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr384patchclamp_prot_v04_fw_v04.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr384patchclamp_prot_v04_fw_v05.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr384patchclamp_prot_v05_fw_v06.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr384voltageclamp_prot_v04_fw_v03.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr4x10mhz.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr4x10mhzfake.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcr8patchclamp_el07cd_artix7.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcrdevice.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcrftdidevice.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcropalkellydevice.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcrtestboardel07ab.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcrtestboardel07abfake.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcrtestboardel07cd.cpp" />
+    <ClCompile Include="src\devices\EMCR\emcrudbdevice.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatchdevice.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatche4pel04f.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatche4ppatchliner.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatche4ppatchliner_el07ab.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatche8ppatchliner.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatche8ppatchliner_el07ab.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatche8ppatchliner_el07cd.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatchepatchel03d.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatchepatchel03f_4d.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatchepatchel03f_4e.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatchepatchel03f_4f.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatchepatchel04e.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatchepatchel04f.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatchfakep8.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatchfakepatch.cpp" />
+    <ClCompile Include="src\devices\EZPatch\ezpatchftdidevice.cpp" />
+    <ClCompile Include="src\messagedispatcher.cpp" />
+    <ClCompile Include="src\model\boardmodel.cpp" />
+    <ClCompile Include="src\model\channelmodel.cpp" />
+    <ClCompile Include="src\peripherals\ftdieeprom.cpp" />
+    <ClCompile Include="src\peripherals\ftdieeprom56.cpp" />
+    <ClCompile Include="src\peripherals\ftdieepromdemo.cpp" />
+    <ClCompile Include="src\peripherals\udbprogrammer.cpp" />
+    <ClCompile Include="src\peripherals\udbutils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\calibration\calibrationmanager.h" />
+    <ClInclude Include="src\commandcoder.h" />
+    <ClInclude Include="src\devices\EMCR\emcr10mhz.h" />
+    <ClInclude Include="src\devices\EMCR\emcr2x10mhz.h" />
+    <ClInclude Include="src\devices\EMCR\emcr2x10mhzfake.h" />
+    <ClInclude Include="src\devices\EMCR\emcr384nanopores.h" />
+    <ClInclude Include="src\devices\EMCR\emcr384nanoporesfake.h" />
+    <ClInclude Include="src\devices\EMCR\emcr384nanopores_sr7p5khz_v01.h" />
+    <ClInclude Include="src\devices\EMCR\emcr384patchclampfake.h" />
+    <ClInclude Include="src\devices\EMCR\emcr384patchclamp_prot_v01_fw_v02.h" />
+    <ClInclude Include="src\devices\EMCR\emcr384patchclamp_prot_v04_fw_v03.h" />
+    <ClInclude Include="src\devices\EMCR\emcr384patchclamp_prot_v04_fw_v04.h" />
+    <ClInclude Include="src\devices\EMCR\emcr384patchclamp_prot_v04_fw_v05.h" />
+    <ClInclude Include="src\devices\EMCR\emcr384patchclamp_prot_v05_fw_v06.h" />
+    <ClInclude Include="src\devices\EMCR\emcr4x10mhz.h" />
+    <ClInclude Include="src\devices\EMCR\emcr4x10mhzfake.h" />
+    <ClInclude Include="src\devices\EMCR\emcrdevice.h" />
+    <ClInclude Include="src\devices\EMCR\emcropalkellydevice.h" />
+    <ClInclude Include="src\devices\EMCR\emcrudbdevice.h" />
+    <ClInclude Include="src\devices\EMCR\stdafx.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatchdevice.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatche4pel04f.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatche4ppatchliner.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatche4ppatchliner_el07ab.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatche8ppatchliner.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatche8ppatchliner_el07ab.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatchepatchel03d.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatchepatchel03f_4d.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatchepatchel03f_4e.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatchepatchel03f_4f.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatchepatchel04e.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatchepatchel04f.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatchfakep8.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatchfakepatch.h" />
+    <ClInclude Include="src\devices\EZPatch\ezpatchftdidevice.h" />
+    <ClInclude Include="src\devices\EZPatch\ftdieeprom.h" />
+    <ClInclude Include="src\devices\EZPatch\ftdieeprom56.h" />
+    <ClInclude Include="src\devices\EZPatch\ftdieepromdemo.h" />
+    <ClInclude Include="src\e384commlib_errorcodes.h" />
+    <ClInclude Include="src\e384commlib_global.h" />
+    <ClInclude Include="src\e384commlib_global_addendum.h" />
+    <ClInclude Include="src\messagedispatcher.h" />
+    <ClInclude Include="src\model\boardmodel.h" />
+    <ClInclude Include="src\model\channelmodel.h" />
+    <ClInclude Include="src\programming\udbprogrammer.h" />
+    <ClInclude Include="src\udbutils.h" />
+    <ClInclude Include="src\utils.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{a57eb823-9228-4381-8da8-def783e3496e}</ProjectGuid>
+    <RootNamespace>e384CommLib</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(MSBuildProjectDirectory)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(MSBuildProjectDirectory)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>e384commlibd</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(MSBuildProjectDirectory)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(MSBuildProjectDirectory)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>e384commlib</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;E384COMMLIB_STATIC;TOML_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>src;src\calibration;src\devices\EMCR;src\devices\EZPatch;src\model;src\peripherals;$(CY_API_PATH)include;$(FRONT_PANEL_PATH)include;$(TOML_PP_PATH)include;$(FTD2XX_PATH)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>$(FTD2XX_PATH)lib\win\x64;$(FRONT_PANEL_PATH)lib\x64;$(CY_API_PATH)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ftd2xx.lib;libMPSSE.lib;CyAPI.lib;okFrontPanel.lib;setupapi.lib;user32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;E384COMMLIB_STATIC;TOML_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>src;src\calibration;src\devices\EMCR;src\devices\EZPatch;src\model;src\peripherals;$(CY_API_PATH)include;$(FRONT_PANEL_PATH)include;$(TOML_PP_PATH)include;$(FTD2XX_PATH)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>$(FTD2XX_PATH)lib\win\x64;$(FRONT_PANEL_PATH)lib\x64;$(CY_API_PATH)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ftd2xx.lib;libMPSSE.lib;CyAPI.lib;okFrontPanel.lib;setupapi.lib;user32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
