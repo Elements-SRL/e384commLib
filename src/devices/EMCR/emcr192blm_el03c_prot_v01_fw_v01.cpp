@@ -223,7 +223,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     zapDurationRange.min = 0.0;
     zapDurationRange.max = zapDurationRange.min+zapDurationRange.step*(double)UINT16_MAX;
     zapDurationRange.prefix = UnitPfxMilli;
-    zapDurationRange.unit = "V";
+    zapDurationRange.unit = "s";
 
     /*! VC voltage calib gain (DAC) */
     calibVcVoltageGainRange.step = 1.0/1024.0;

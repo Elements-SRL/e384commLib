@@ -136,11 +136,6 @@ protected:
         CompensationRsCorrBwNum
     };
 
-    enum CustomOptions {
-        CustomOptionClockDivider,
-        CustomOptionsNum
-    };
-
     virtual ErrorCodes_t initializeHW() override;
 
     virtual std::vector <double> user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) override;
