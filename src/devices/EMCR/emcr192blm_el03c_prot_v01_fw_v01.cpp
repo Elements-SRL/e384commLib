@@ -112,9 +112,9 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     liquidJunctionSameRangeAsVcDac = false;
     liquidJunctionRangesNum = LJVoltageRangesNum;
     liquidJunctionRangesArray.resize(vcVoltageRangesNum);
-    liquidJunctionRangesArray[LJVoltageRange50mV].max = 50.0;
+    liquidJunctionRangesArray[LJVoltageRange50mV].step = 100.0/1024.0;
     liquidJunctionRangesArray[LJVoltageRange50mV].min = -50.0;
-    liquidJunctionRangesArray[LJVoltageRange50mV].step = liquidJunctionRangesArray[LJVoltageRange50mV].delta()/1024.0;
+    liquidJunctionRangesArray[LJVoltageRange50mV].max = liquidJunctionRangesArray[LJVoltageRange50mV].min+1023.0*liquidJunctionRangesArray[LJVoltageRange50mV].step;
     liquidJunctionRangesArray[LJVoltageRange50mV].prefix = UnitPfxMilli;
     liquidJunctionRangesArray[LJVoltageRange50mV].unit = "V";
     defaultLiquidJunctionRangeIdx = LJVoltageRange50mV;
