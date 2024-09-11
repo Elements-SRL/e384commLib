@@ -121,6 +121,7 @@ ErrorCodes_t EZPatchDevice::ping() {
 }
 
 ErrorCodes_t EZPatchDevice::resetAsic(bool resetFlag, bool applyFlag) {
+    /*! \todo FCON qui bisogna eventualmente settare resetFlag, se mai sarà operativo quel genere di controllo per questi device */
     ErrorCodes_t ret;
     uint16_t dataLength = switchesStatusLength;
     std::vector <uint16_t> txDataMessage(dataLength);

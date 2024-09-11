@@ -402,22 +402,28 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
                 txMsgBufferNotFull.notify_all();
             }
 
-            rxRawMutexLock.lock();
-            if (rxRawBufferReadLength+UDB_RX_TRANSFER_SIZE <= UDB_RX_BUFFER_SIZE) {
-                anyOperationPerformed = true;
-                rxRawMutexLock.unlock();
-
-                uint32_t bytesRead = this->readDataFromDevice();
-
-                if (bytesRead <= INT32_MAX) {
-                    rxRawMutexLock.lock();
-                    rxRawBufferReadLength += bytesRead;
+            if (!resetStateFlag) {
+                rxRawMutexLock.lock();
+                if (rxRawBufferReadLength+UDB_RX_TRANSFER_SIZE <= UDB_RX_BUFFER_SIZE) {
+                    anyOperationPerformed = true;
                     rxRawMutexLock.unlock();
-                    rxRawBufferNotEmpty.notify_all();
-                }
 
-            } else {
-                rxRawMutexLock.unlock();
+                    uint32_t bytesRead = this->readDataFromDevice();
+
+                    if (bytesRead <= INT32_MAX) {
+                        rxRawMutexLock.lock();
+                        rxRawBufferReadLength += bytesRead;
+                        rxRawMutexLock.unlock();
+                        rxRawBufferNotEmpty.notify_all();
+                    }
+
+                } else {
+                    rxRawMutexLock.unlock();
+                }
+            }
+
+            if (!anyOperationPerformed) {
+                std::this_thread::sleep_for (std::chrono::microseconds(1));
             }
         }
 
@@ -441,7 +447,16 @@ void EmcrUdbDevice::sendCommandsToDevice() {
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
     }
-    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
+    TxTriggerType_t type = txMsgOption[txMsgBufferReadOffset].triggerType;
+    switch (txMsgOption[txMsgBufferReadOffset].resetControl) {
+    case ResetTrue:
+        resetStateFlag = true;
+        break;
+
+    case ResetFalse:
+        resetStateFlag = false;
+        break;
+    }
 
     txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 

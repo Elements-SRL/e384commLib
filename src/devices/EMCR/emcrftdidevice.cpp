@@ -495,7 +495,7 @@ void EmcrFtdiDevice::handleCommunicationWithDevice() {
         anyOperationPerformed = false;
 
         /*! Avoid communicating too early, communication might break if the fw has not started yet */
-        if (fwLoadedFlag) {
+        if (fwLoadedFlag && !resetStateFlag) {
             txMutexLock.lock();
             while (txMsgBufferReadLength > 0) {
                 anyOperationPerformed = true;
@@ -545,7 +545,16 @@ void EmcrFtdiDevice::sendCommandsToDevice() {
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
     }
-    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
+    TxTriggerType_t type = txMsgOption[txMsgBufferReadOffset].triggerType;
+    switch (txMsgOption[txMsgBufferReadOffset].resetControl) {
+    case ResetTrue:
+        resetStateFlag = true;
+        break;
+
+    case ResetFalse:
+        resetStateFlag = false;
+        break;
+    }
 
     txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 

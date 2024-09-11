@@ -25,7 +25,7 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     totalBoardsNum = 1;
 
     rxWordOffsets[RxMessageDataLoad] = 0;
-    rxWordLengths[RxMessageDataLoad] = (voltageChannelsNum+currentChannelsNum)*packetsPerFrame;
+    rxWordLengths[RxMessageDataLoad] = totalChannelsNum*packetsPerFrame;
 
     rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
     rxWordLengths[RxMessageDataHeader] = 4;

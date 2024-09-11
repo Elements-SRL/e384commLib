@@ -397,7 +397,7 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         }
 
         /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
-        if (waitingTimeForReadingPassed) {
+        if (waitingTimeForReadingPassed && !resetStateFlag) {
             rxRawMutexLock.lock();
             if (rxRawBufferReadLength+okTransferSize <= OKY_RX_BUFFER_SIZE) {
                 anyOperationPerformed = true;
@@ -447,7 +447,16 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
     }
-    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
+    TxTriggerType_t type = txMsgOption[txMsgBufferReadOffset].triggerType;
+    switch (txMsgOption[txMsgBufferReadOffset].resetControl) {
+    case ResetTrue:
+        resetStateFlag = true;
+        break;
+
+    case ResetFalse:
+        resetStateFlag = false;
+        break;
+    }
 
     txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 

@@ -2015,6 +2015,7 @@ protected:
     void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
 
     void flushBoardList();
+
     /************\
      *  Fields  *
     \************/
@@ -2032,7 +2033,9 @@ protected:
     uint16_t totalBoardsNum = 1;
     uint16_t channelsPerBoard = 1;
 
-    /*! 20230531 MPAC: state array params*/
+    bool resetStateFlag = false;
+
+    /*! State array params */
     unsigned int stateMaxNum;
     unsigned int stateWordOffset;
     unsigned int stateWordsNum;
@@ -2149,7 +2152,8 @@ protected:
     CalibrationParams_t calibrationParams;
     CalibrationParams_t originalCalibrationParams;
     std::vector <RangedMeasurement_t> rRShuntConductanceCalibRange;
-    /*! Compensation options*/
+
+    /*! Compensation options  */
     std::vector <uint16_t> selectedRsCorrBws;
     std::vector <Measurement_t> rsCorrBwArray;
     uint16_t defaultRsCorrBwIdx;
@@ -2164,7 +2168,7 @@ protected:
 
     std::vector <CompensationControl_t> compensationControls[CompensationUserParamsNum];
 
-    /*! Default paramter values in USER domain*/
+    /*! Default parameter values in USER domain */
     std::vector <double> defaultUserDomainParams;
 
     std::vector <double> membraneCapValueInjCapacitance;

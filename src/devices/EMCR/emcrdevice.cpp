@@ -66,7 +66,7 @@ ErrorCodes_t EmcrDevice::sendCommands() {
 ErrorCodes_t EmcrDevice::startProtocol() {
     if (protocolResetCoder == nullptr) {
         this->forceOutMessage();
-        this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
+        this->stackOutgoingMessage(txStatus, {TxTriggerStartProtocol, ResetIndifferent});
 
     } else {
         if (protocolResetFlag == false) {
@@ -95,7 +95,7 @@ ErrorCodes_t EmcrDevice::stopProtocol() {
 
     } else {
         protocolResetCoder->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        this->stackOutgoingMessage(txStatus, TxTriggerStartProtocol);
+        this->stackOutgoingMessage(txStatus, {TxTriggerStartProtocol, ResetIndifferent});
         protocolResetFlag = true;
         return Success;
     }
@@ -107,7 +107,7 @@ ErrorCodes_t EmcrDevice::startStateArray() {
     }
     this->stopProtocol();
     this->forceOutMessage();
-    this->stackOutgoingMessage(txStatus, TxTriggerStartStateArray);
+    this->stackOutgoingMessage(txStatus, {TxTriggerStartStateArray, ResetIndifferent});
     return Success;
 }
 
@@ -127,7 +127,7 @@ ErrorCodes_t EmcrDevice::zap(std::vector <uint16_t> channelIndexes, Measurement_
         zapCoders[chIdx]->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
-    this->stackOutgoingMessage(txStatus, TxTriggerZap);
+    this->stackOutgoingMessage(txStatus, {TxTriggerZap, ResetIndifferent});
 
     for (auto chIdx : channelIndexes) {
         zapCoders[chIdx]->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -140,8 +140,9 @@ ErrorCodes_t EmcrDevice::resetAsic(bool resetFlag, bool applyFlag) {
         return ErrorFeatureNotImplemented;
     }
     asicResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+
     if (applyFlag) {
-        this->stackOutgoingMessage(txStatus);
+        this->stackOutgoingMessage(txStatus, {TxTriggerParameteresUpdated, resetFlag ? ResetTrue : ResetFalse});
     }
     return Success;
 }
@@ -2295,7 +2296,7 @@ ErrorCodes_t EmcrDevice::initializeMemory() {
 
     txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
     txMsgLength.resize(TX_MSG_BUFFER_SIZE);
-    txMsgTrigger.resize(TX_MSG_BUFFER_SIZE);
+    txMsgOption.resize(TX_MSG_BUFFER_SIZE);
 
     selectedVoltageHoldVector.resize(currentChannelsNum);
     fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
@@ -2535,7 +2536,7 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
     }
 }
 
-void EmcrDevice::stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, TxTriggerType_t triggerType) {
+void EmcrDevice::stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, CommandOptions_t commandOptions) {
     if (txModifiedEndingWord > txModifiedStartingWord) {
         std::unique_lock <std::mutex> txMutexLock(txMutex);
         while (txMsgBufferReadLength >= TX_MSG_BUFFER_SIZE) {
@@ -2549,7 +2550,7 @@ void EmcrDevice::stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, TxT
         txMsgBuffer[txMsgBufferWriteOffset] = {txDataMessage.begin()+txModifiedStartingWord, txDataMessage.begin()+txModifiedEndingWord};
         txMsgOffsetWord[txMsgBufferWriteOffset] = txModifiedStartingWord;
         txMsgLength[txMsgBufferWriteOffset] = txModifiedEndingWord-txModifiedStartingWord;
-        txMsgTrigger[txMsgBufferWriteOffset] = triggerType;
+        txMsgOption[txMsgBufferWriteOffset] = commandOptions;
 
         txModifiedStartingWord = txDataWords;
         txModifiedEndingWord = 0;
