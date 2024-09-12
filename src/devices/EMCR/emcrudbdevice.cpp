@@ -538,7 +538,7 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
         fflush(rxRawFid);
 #endif
 
-    rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & UDB_RX_BUFFER_MASK;
+    rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & rxRawBufferMask;
     /*! Update buffer writing point */
     return bytesRead;
 }
@@ -604,7 +604,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
 
                     } else {
                         /*! If not all the bytes match the sync word restore three of the removed bytes and recheck */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & UDB_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & rxRawBufferMask;
                         rxRawBytesAvailable += 3;
                         dataLossCount += 1;
                     }
@@ -633,7 +633,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
 
                     if (rxDataBytes > maxInputDataLoadSize) {
                         /*! Too many bytes to be read, restarting looking for a sync word from the previous one */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & UDB_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
 #ifdef DEBUG_RX_DATA_PRINT
@@ -705,14 +705,14 @@ void EmcrUdbDevice::parseDataFromDevice() {
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & UDB_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & rxRawBufferMask;
                         rxRawBytesAvailable -= rxSyncWordSize;
 
                         rxParsePhase = RxParseLookForLength;
 
                     } else {
                         /*! Sync word not found, restart looking from the previous sync word */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & UDB_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
                         rxParsePhase = RxParseLookForHeader;

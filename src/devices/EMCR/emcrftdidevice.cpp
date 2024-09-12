@@ -12,6 +12,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
     EmcrDevice(deviceId) {
 
+    rxRawBufferMask = FTD_RX_RAW_BUFFER_MASK;
 }
 
 EmcrFtdiDevice::~EmcrFtdiDevice() {
@@ -495,7 +496,7 @@ void EmcrFtdiDevice::handleCommunicationWithDevice() {
         anyOperationPerformed = false;
 
         /*! Avoid communicating too early, communication might break if the fw has not started yet */
-        if (fwLoadedFlag && !resetStateFlag) {
+        if (fwLoadedFlag) {
             txMutexLock.lock();
             while (txMsgBufferReadLength > 0) {
                 anyOperationPerformed = true;
@@ -511,17 +512,17 @@ void EmcrFtdiDevice::handleCommunicationWithDevice() {
                 txMsgBufferNotFull.notify_all();
             }
 
-            rxRawMutexLock.lock();
-            anyOperationPerformed = true;
-            rxRawMutexLock.unlock();
+            if (!resetStateFlag) {
+                anyOperationPerformed = true;
 
-            uint32_t bytesRead = this->readDataFromDevice();
+                uint32_t bytesRead = this->readDataFromDevice();
 
-            if (bytesRead > 0) {
-                rxRawMutexLock.lock();
-                rxRawBufferReadLength += bytesRead;
-                rxRawMutexLock.unlock();
-                rxRawBufferNotEmpty.notify_all();
+                if (bytesRead > 0) {
+                    rxRawMutexLock.lock();
+                    rxRawBufferReadLength += bytesRead;
+                    rxRawMutexLock.unlock();
+                    rxRawBufferNotEmpty.notify_all();
+                }
             }
         }
 
@@ -659,7 +660,7 @@ uint32_t EmcrFtdiDevice::readDataFromDevice() {
     }
 
     /*! Update rxRawBufferWriteOffset to position to be written on next iteration */
-    rxRawBufferWriteOffset = (rxRawBufferWriteOffset+ftdiReadBytes)&FTD_RX_RAW_BUFFER_MASK;
+    rxRawBufferWriteOffset = (rxRawBufferWriteOffset+ftdiReadBytes)&rxRawBufferMask;
     return ftdiReadBytes;
 }
 
@@ -722,7 +723,7 @@ void EmcrFtdiDevice::parseDataFromDevice() {
 
                     } else {
                         /*! If not all the bytes match the sync word restore three of the removed bytes and recheck */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & FTD_RX_RAW_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & rxRawBufferMask;
                         rxRawBytesAvailable += 3;
                         dataLossCount += 1;
                     }
@@ -751,7 +752,7 @@ void EmcrFtdiDevice::parseDataFromDevice() {
 
                     if (rxDataBytes > maxInputDataLoadSize) {
                         /*! Too many bytes to be read, restarting looking for a sync word from the previous one */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & FTD_RX_RAW_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
 #ifdef DEBUG_RX_DATA_PRINT
@@ -823,14 +824,14 @@ void EmcrFtdiDevice::parseDataFromDevice() {
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & FTD_RX_RAW_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & rxRawBufferMask;
                         rxRawBytesAvailable -= rxSyncWordSize;
 
                         rxParsePhase = RxParseLookForLength;
 
                     } else {
                         /*! Sync word not found, restart looking from the previous sync word */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & FTD_RX_RAW_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
                         rxParsePhase = RxParseLookForHeader;

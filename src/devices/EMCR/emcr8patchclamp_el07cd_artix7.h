@@ -137,11 +137,6 @@ protected:
         CompensationRsCorrBwNum
     };
 
-    enum CustomOptions {
-        CustomOptionClockDivider,
-        CustomOptionsNum
-    };
-
     enum CustomDouble {
         CustomOffset1,
         CustomOffset2,

@@ -509,18 +509,6 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw17_7kHz] = rsCorrBwArray[CompensationRsCorrBw17_7kHz].niceLabel();
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_36kHz] = rsCorrBwArray[CompensationRsCorrBw9_36kHz].niceLabel();
 
-    customOptionsNum = CustomOptionsNum;
-    customOptionsNames.resize(customOptionsNum);
-    customOptionsNames[CustomOptionClockDivider] = "Clock Divider";
-    customOptionsDescriptions.resize(customOptionsNum);
-    customOptionsDescriptions[CustomOptionClockDivider].resize(4);
-    customOptionsDescriptions[CustomOptionClockDivider][0] = "/ 1";
-    customOptionsDescriptions[CustomOptionClockDivider][1] = "/ 2";
-    customOptionsDescriptions[CustomOptionClockDivider][2] = "/ 4";
-    customOptionsDescriptions[CustomOptionClockDivider][3] = "/ 8";
-    customOptionsDefault.resize(customOptionsNum);
-    customOptionsDefault[CustomOptionClockDivider] = 0;
-
     customDoublesNum = CustomDoublesNum;
     customDoublesNames.resize(customDoublesNum);
     customDoublesNames[CustomOffset1] = "Offset 1";
@@ -1496,13 +1484,6 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
         asic2UserDomainCompensable(i, defaultAsicDomainParams, defaultUserDomainParams);
     }
 
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 7;
-    boolConfig.bitsNum = 2;
-    customOptionsCoders.resize(customOptionsNum);
-    customOptionsCoders[CustomOptionClockDivider] = new BoolArrayCoder(boolConfig);
-    coders.push_back(customOptionsCoders[CustomOptionClockDivider]);
-
     doubleConfig.initialWord = 292;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 7;
@@ -1525,6 +1506,10 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[17] = 0x00FF; // GR_EN active
+    txStatus[292] = 0x4040; // Secondary DAC
+    txStatus[293] = 0x4040;
+    txStatus[294] = 0x4040;
+    txStatus[295] = 0x4040;
     txStatus[326] = 0x1111; // rs bw avoid configuration with all zeros
     txStatus[327] = 0x1111;
 }
