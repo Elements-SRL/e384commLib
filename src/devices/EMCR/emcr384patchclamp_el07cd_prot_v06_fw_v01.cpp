@@ -5,9 +5,9 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
 
     deviceName = "384PatchClamp";
 
-    fwName = "384PatchClamp_EL07c_V01.bit";
+    fwName = "384PatchClamp_EL07c_V01.3.bit";
 
-    fwSize_B = 6282736;
+    fwSize_B = 6313140;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
     waitingTimeBeforeReadingData = 2; //s
 
