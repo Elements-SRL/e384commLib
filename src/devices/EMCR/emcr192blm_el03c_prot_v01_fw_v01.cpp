@@ -228,7 +228,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     /*! VC voltage calib gain (DAC) RDAC */
     calibVcVoltageGainRange.step = 1.0;
     calibVcVoltageGainRange.min = 0;
-    calibVcVoltageGainRange.max = SHORT_MAX * calibVcVoltageGainRange.step;
+    calibVcVoltageGainRange.max = UINT10_MAX * calibVcVoltageGainRange.step;
     calibVcVoltageGainRange.prefix = UnitPfxNone;
     calibVcVoltageGainRange.unit = "";
 
