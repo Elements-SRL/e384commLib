@@ -225,8 +225,8 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     zapDurationRange.prefix = UnitPfxMilli;
     zapDurationRange.unit = "s";
 
-    /*! VC voltage calib gain (DAC) */
-    calibVcVoltageGainRange.step = 1.0/1024.0;
+    /*! VC voltage calib gain (DAC) RDAC */
+    calibVcVoltageGainRange.step = 1.0;
     calibVcVoltageGainRange.min = 0;
     calibVcVoltageGainRange.max = SHORT_MAX * calibVcVoltageGainRange.step;
     calibVcVoltageGainRange.prefix = UnitPfxNone;
@@ -556,7 +556,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     doubleConfig.maxValue = calibVcVoltageGainRange.max;
     calibVcVoltageGainCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibVcVoltageGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        calibVcVoltageGainCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(calibVcVoltageGainCoders[idx]);
         doubleConfig.initialWord++;
     }
