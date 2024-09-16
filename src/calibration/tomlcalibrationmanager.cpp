@@ -321,8 +321,8 @@ bool TomlCalibrationManager::loadSetOfParams(toml::node_view <toml::node> node, 
             auto offsetsArray = srNode["calibrations"]["offsets"].as_array();
 
             for (uint32_t idx = 0; idx < channelsPerBoard; idx++) {
-                outGains[srIdx][rangeIdx][idx+boardIdx*channelsPerBoard] = {gainsArray->get(0)->value_or(1.0), UnitPfxNone, ""};
-                outOffsets[srIdx][rangeIdx][idx+boardIdx*channelsPerBoard] = {offsetsArray->get(0)->value_or(0.0), UnitPfxNone, offsetUnit};
+                outGains[srIdx][rangeIdx][idx+boardIdx*channelsPerBoard] = {gainsArray->get(idx)->value_or(1.0), UnitPfxNone, ""};
+                outOffsets[srIdx][rangeIdx][idx+boardIdx*channelsPerBoard] = {offsetsArray->get(idx)->value_or(0.0), UnitPfxNone, offsetUnit};
             }
         }
     }
@@ -378,7 +378,7 @@ bool TomlCalibrationManager::loadSetOfOffsets(toml::node_view <toml::node> node,
             auto offsetsArray = srNode["calibrations"]["offsets"].as_array();
 
             for (uint32_t idx = 0; idx < channelsPerBoard; idx++) {
-                outOffsets[srIdx][rangeIdx][idx+boardIdx*channelsPerBoard] = {offsetsArray->get(0)->value_or(0.0), UnitPfxNone, offsetUnit};
+                outOffsets[srIdx][rangeIdx][idx+boardIdx*channelsPerBoard] = {offsetsArray->get(idx)->value_or(0.0), UnitPfxNone, offsetUnit};
             }
         }
     }
