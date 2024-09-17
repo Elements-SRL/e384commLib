@@ -79,7 +79,7 @@ public:
     ErrorCodes_t readoutOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     ErrorCodes_t liquidJunctionCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
 
-    ErrorCodes_t setAdcFilter() override;
+    ErrorCodes_t setAdcFilter(bool applyFlag = false) override;
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
     ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) override;
@@ -167,7 +167,7 @@ protected:
     void updateCurrentHoldTuner(bool applyFlag);
 
     void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);
-    void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, TxTriggerType_t triggerType = TxTriggerParameteresUpdated);
+    void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
     uint16_t popUint16FromRxRawBuffer();
     uint32_t popUint32FromRxRawBuffer();
     uint16_t readUint16FromRxRawBuffer(uint32_t n);
@@ -209,7 +209,7 @@ protected:
     std::vector <uint16_t> * txMsgBuffer = nullptr; /*!< Buffer of arrays of bytes to communicate to the device */
     std::vector <uint16_t> txMsgOffsetWord; /*!< Buffer of offset word in txMsgBuffer */
     std::vector <uint16_t> txMsgLength; /*!< Buffer of txMsgBuffer length */
-    std::vector <TxTriggerType_t> txMsgTrigger; /*!< Buffer of trigger types */
+    std::vector <CommandOptions_t> txMsgOption; /*!< Buffer of commandOptions */
     uint32_t txMsgBufferWriteOffset = 0; /*!< Offset of the part of buffer to be written */
     uint32_t txMsgBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
     uint16_t txDataWords;
@@ -239,10 +239,10 @@ protected:
     std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
 
     ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
-    std::vector <std::string> calibrationFileNames;
-    std::vector <std::vector <bool> > calibrationFilesOkFlags;
-    std::string calibrationMappingFileDir;
-    std::string calibrationMappingFilePath;
+    std::vector <std::string> calibrationFileNames = {""};
+    std::vector <std::vector <bool> > calibrationFilesOkFlags = {{false}};
+    std::string calibrationMappingFileDir = "";
+    std::string calibrationMappingFilePath = "";
 
     /************\
      *  Coders  *

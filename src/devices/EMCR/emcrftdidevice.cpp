@@ -2,6 +2,8 @@
 
 #include "libMPSSE_spi.h"
 
+#include "emcr8patchclamp_el07cd_artix7.h"
+
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV02, 1, DeviceE8PPatchLinerEL07CD_artix7_PCBV02},     //  10, 14,  1 : VC-CC device with 8 channels (EL07CD) for Nanion's Patchliner (FPGA artix7) PCB V02. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV01, 1, DeviceE8PPatchLinerEL07CD_artix7_PCBV01},     //  10, 12,  1 : VC-CC device with 8 channels (EL07CD) for Nanion's Patchliner (FPGA artix7) PCB V01. */
@@ -10,10 +12,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
     EmcrDevice(deviceId) {
 
-    ftdiEepromId = FtdiEepromId56;
-    spiChannel = 'A';
-    rxChannel = 'B';
-    txChannel = 'B';
+    rxRawBufferMask = FTD_RX_RAW_BUFFER_MASK;
 }
 
 EmcrFtdiDevice::~EmcrFtdiDevice() {
@@ -131,6 +130,20 @@ ErrorCodes_t EmcrFtdiDevice::isDeviceSerialDetected(std::string deviceId) {
     return ret;
 }
 
+ErrorCodes_t EmcrFtdiDevice::isDeviceRecognized(std::string deviceId) {
+    if (isDeviceSerialDetected(deviceId) != Success) {
+        return ErrorDeviceNotFound;
+    }
+
+    DeviceTypes_t deviceType;
+
+    if (EmcrFtdiDevice::getDeviceType(deviceId, deviceType) != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    return Success;
+}
+
 ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     ErrorCodes_t ret = Success;
     if (messageDispatcher != nullptr) {
@@ -145,13 +158,13 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
     }
 
     switch (deviceType) {
-//    case DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02:
-//        messageDispatcher = new Emcre8PPatchliner_el07ab_artix7_PCBV02_V02(deviceId);
-//        break;
+    case DeviceE8PPatchLinerEL07CD_artix7_PCBV02:
+        messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(deviceId);
+        break;
 
-//    case DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V01:
-//        messageDispatcher = new Emcre8PPatchliner_el07ab_artix7_PCBV02_V01(deviceId);
-//        break;
+    case DeviceE8PPatchLinerEL07CD_artix7_PCBV01:
+        messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(deviceId);
+        break;
 
     default:
         return ErrorDeviceTypeNotRecognized;
@@ -436,16 +449,22 @@ ErrorCodes_t EmcrFtdiDevice::stopCommunication() {
 void EmcrFtdiDevice::initializeCalibration() {
     calibrationEeprom = new CalibrationEeprom(this->getDeviceIndex(deviceId+spiChannel));
     Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
-    calibrationParams.vcOffsetAdc.resize(vcCurrentRangesNum);
-    for (auto &v : calibrationParams.vcOffsetAdc) {
-        v.resize(currentChannelsNum);
-        std::fill(v.begin(), v.end(), zeroA);
+    calibrationParams.vcOffsetAdc.resize(samplingRatesNum);
+    for (uint32_t srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
+        calibrationParams.vcOffsetAdc[srIdx].resize(vcCurrentRangesNum);
+        for (auto &v : calibrationParams.vcOffsetAdc[srIdx]) {
+            v.resize(currentChannelsNum);
+            std::fill(v.begin(), v.end(), zeroA);
+        }
     }
     Measurement_t zeroV = {0.0, UnitPfxNone, "V"};
-    calibrationParams.ccOffsetAdc.resize(ccVoltageRangesNum);
-    for (auto &v : calibrationParams.ccOffsetAdc) {
-        v.resize(voltageChannelsNum);
-        std::fill(v.begin(), v.end(), zeroV);
+    calibrationParams.ccOffsetAdc.resize(samplingRatesNum);
+    for (uint32_t srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
+        calibrationParams.ccOffsetAdc[srIdx].resize(ccVoltageRangesNum);
+        for (auto &v : calibrationParams.ccOffsetAdc[srIdx]) {
+            v.resize(voltageChannelsNum);
+            std::fill(v.begin(), v.end(), zeroV);
+        }
     }
 }
 
@@ -493,17 +512,17 @@ void EmcrFtdiDevice::handleCommunicationWithDevice() {
                 txMsgBufferNotFull.notify_all();
             }
 
-            rxRawMutexLock.lock();
-            anyOperationPerformed = true;
-            rxRawMutexLock.unlock();
+            if (!resetStateFlag) {
+                anyOperationPerformed = true;
 
-            uint32_t bytesRead = this->readDataFromDevice();
+                uint32_t bytesRead = this->readDataFromDevice();
 
-            if (bytesRead > 0) {
-                rxRawMutexLock.lock();
-                rxRawBufferReadLength += bytesRead;
-                rxRawMutexLock.unlock();
-                rxRawBufferNotEmpty.notify_all();
+                if (bytesRead > 0) {
+                    rxRawMutexLock.lock();
+                    rxRawBufferReadLength += bytesRead;
+                    rxRawMutexLock.unlock();
+                    rxRawBufferNotEmpty.notify_all();
+                }
             }
         }
 
@@ -527,7 +546,16 @@ void EmcrFtdiDevice::sendCommandsToDevice() {
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
     }
-    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
+    TxTriggerType_t type = txMsgOption[txMsgBufferReadOffset].triggerType;
+    switch (txMsgOption[txMsgBufferReadOffset].resetControl) {
+    case ResetTrue:
+        resetStateFlag = true;
+        break;
+
+    case ResetFalse:
+        resetStateFlag = false;
+        break;
+    }
 
     txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 
@@ -632,7 +660,7 @@ uint32_t EmcrFtdiDevice::readDataFromDevice() {
     }
 
     /*! Update rxRawBufferWriteOffset to position to be written on next iteration */
-    rxRawBufferWriteOffset = (rxRawBufferWriteOffset+ftdiReadBytes)&FTD_RX_RAW_BUFFER_MASK;
+    rxRawBufferWriteOffset = (rxRawBufferWriteOffset+ftdiReadBytes)&rxRawBufferMask;
     return ftdiReadBytes;
 }
 
@@ -655,7 +683,7 @@ void EmcrFtdiDevice::parseDataFromDevice() {
      *  Parsing part  *
     \******************/
 
-    std::unique_lock <std::mutex> rxRawMutexLock (rxRawMutex);
+    std::unique_lock <std::mutex> rxRawMutexLock(rxRawMutex);
     rxRawMutexLock.unlock();
 
     while (!stopConnectionFlag) {
@@ -695,7 +723,7 @@ void EmcrFtdiDevice::parseDataFromDevice() {
 
                     } else {
                         /*! If not all the bytes match the sync word restore three of the removed bytes and recheck */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & FTD_RX_RAW_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & rxRawBufferMask;
                         rxRawBytesAvailable += 3;
                         dataLossCount += 1;
                     }
@@ -724,7 +752,7 @@ void EmcrFtdiDevice::parseDataFromDevice() {
 
                     if (rxDataBytes > maxInputDataLoadSize) {
                         /*! Too many bytes to be read, restarting looking for a sync word from the previous one */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & FTD_RX_RAW_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
 #ifdef DEBUG_RX_DATA_PRINT
@@ -796,14 +824,14 @@ void EmcrFtdiDevice::parseDataFromDevice() {
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & FTD_RX_RAW_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & rxRawBufferMask;
                         rxRawBytesAvailable -= rxSyncWordSize;
 
                         rxParsePhase = RxParseLookForLength;
 
                     } else {
                         /*! Sync word not found, restart looking from the previous sync word */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & FTD_RX_RAW_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
                         rxParsePhase = RxParseLookForHeader;

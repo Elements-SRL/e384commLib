@@ -1,42 +1,45 @@
-#include "emcr384patchclamp_el07cd_prot_v06_fw_v01.h"
+#include "emcr8patchclamp_el07cd_artix7.h"
 
-Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01(std::string di) :
-    EmcrOpalKellyDevice(di) {
+Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di) :
+    EmcrFtdiDevice(di) {
 
-    deviceName = "384PatchClamp";
+    spiChannel = 'B';
+    rxChannel = 'A';
+    txChannel = 'A';
 
-    fwName = "384PatchClamp_EL07c_V01.3.bit";
+    fpgaLoadType = FtdiFpgaFwLoadPatchlinerArtix7_V01;
 
-    fwSize_B = 6313140;
-    motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
-    waitingTimeBeforeReadingData = 2; //s
+    deviceName = "8xPatchClamp";
 
-    rxSyncWord = 0x5aa5;
+    fwSize_B = 0;
+    motherboardBootTime_s = 0; // no motherboard to be started
+
+    rxSyncWord = 0x5aa55aa5;
 
     packetsPerFrame = 1;
 
-    voltageChannelsNum = 384;
-    currentChannelsNum = 384;
+    voltageChannelsNum = 8;
+    currentChannelsNum = 8;
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
 
-    totalBoardsNum = 24;
+    totalBoardsNum = 1;
 
     rxWordOffsets[RxMessageDataLoad] = 0;
-    rxWordLengths[RxMessageDataLoad] = (voltageChannelsNum+currentChannelsNum)*packetsPerFrame;
+    rxWordLengths[RxMessageDataLoad] = totalChannelsNum*packetsPerFrame;
 
     rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
-    rxWordLengths[RxMessageDataHeader] = 6;
+    rxWordLengths[RxMessageDataHeader] = 4;
 
-    rxWordOffsets[RxMessageDataTail] = 0xFFFF;
-    rxWordLengths[RxMessageDataTail] = 0xFFFF;
+    rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
+    rxWordLengths[RxMessageDataTail] = 1;
 
-    rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
-    rxWordLengths[RxMessageStatus] = 2;
+    rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
+    rxWordLengths[RxMessageStatus] = 1;
 
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 5272;
+    txDataWords = 337;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txModifiedStartingWord = txDataWords;
     txModifiedEndingWord = 0;
@@ -82,7 +85,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     currentProtocolSinImplemented = false;
 
     protocolMaxItemsNum = 15;
-    protocolWordOffset = 300;
+    protocolWordOffset = 24;
     protocolItemsWordsNum = 16;
 
     /*! Current ranges */
@@ -269,6 +272,9 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     realSamplingRatesArray[SamplingRate80kHz].value = 80.0;
     realSamplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate80kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate160kHz].value = 160.0;
+    realSamplingRatesArray[SamplingRate160kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate160kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate5kHz].value = 200.0;
@@ -286,6 +292,9 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     integrationStepArray[SamplingRate80kHz].value = 12.5;
     integrationStepArray[SamplingRate80kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate80kHz].unit = "s";
+    integrationStepArray[SamplingRate160kHz].value = 6.25;
+    integrationStepArray[SamplingRate160kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate160kHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
@@ -293,7 +302,8 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         {SamplingRate10kHz, VCCurrentFilter6kHz},
         {SamplingRate20kHz, VCCurrentFilter12kHz},
         {SamplingRate40kHz, VCCurrentFilter40kHz},
-        {SamplingRate80kHz, VCCurrentFilter48kHz}
+        {SamplingRate80kHz, VCCurrentFilter48kHz},
+        {SamplingRate160kHz, VCCurrentFilter100kHz}
     };
 
     // mapping ADC Current Clamp
@@ -302,7 +312,8 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         {SamplingRate10kHz, CCVoltageFilter6kHz},
         {SamplingRate20kHz, CCVoltageFilter12kHz},
         {SamplingRate40kHz, CCVoltageFilter40kHz},
-        {SamplingRate80kHz, CCVoltageFilter48kHz}
+        {SamplingRate80kHz, CCVoltageFilter48kHz},
+        {SamplingRate160kHz, VCCurrentFilter100kHz}
     };
 
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
@@ -400,7 +411,6 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     const double pipetteCapacitanceValuesNum = 256.0;
 
     std::vector <double> pipetteInjCapacitance = {3.0, 9.0, 27.0};
-    /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
     pipetteCapacitanceRange.resize(pipetteCapacitanceRanges);
     for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
         pipetteCapacitanceRange[idx].step = pipetteVarConductance/pipetteCapacitanceValuesNum*pipetteFixedResistance2*pipetteInjCapacitance[idx];
@@ -499,6 +509,22 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw17_7kHz] = rsCorrBwArray[CompensationRsCorrBw17_7kHz].niceLabel();
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_36kHz] = rsCorrBwArray[CompensationRsCorrBw9_36kHz].niceLabel();
 
+    customDoublesNum = CustomDoublesNum;
+    customDoublesNames.resize(customDoublesNum);
+    customDoublesNames[CustomOffset1] = "Offset 1";
+    customDoublesNames[CustomOffset2] = "Offset 2";
+    customDoublesNames[CustomOffset3] = "Offset 3";
+    customDoublesNames[CustomOffset4] = "Offset 4";
+    customDoublesNames[CustomOffset5] = "Offset 5";
+    customDoublesNames[CustomOffset6] = "Offset 6";
+    customDoublesNames[CustomOffset7] = "Offset 7";
+    customDoublesNames[CustomOffset8] = "Offset 8";
+    customDoublesRanges.resize(customDoublesNum);
+    RangedMeasurement_t customRange = {-64.0, 63.0, 1.0, UnitPfxMilli, "V"};
+    std::fill(customDoublesRanges.begin(), customDoublesRanges.end(), customRange);
+    customDoublesDefault.resize(customDoublesNum);
+    std::fill(customDoublesDefault.begin(), customDoublesDefault.end(), 0.0);
+
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
     currentResolution = currentRange.step;
@@ -565,11 +591,12 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     boolConfig.initialBit = 3;
     boolConfig.bitsNum = 6;
     samplingRateCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(32); /* 5kHz  0xb100000 */
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(33); /* 10kHz 0xb100001 */
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(34); /* 20kHz 0xb100010 */
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(19); /* 40kHz 0xb010011 */
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(20); /* 80kHz 0xb010100 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(32); /*! 5kHz 0b100000 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(33); /*! 10kHz 0b100001 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(34); /*! 20kHz 0b100010 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(19); /*! 40kHz 0b010011 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(20); /*! 80kHz 0b010100 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(5); /*! 160kHz 0b000101 */
     coders.push_back(samplingRateCoder);
 
     /*! Clamping mode */
@@ -578,6 +605,13 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     boolConfig.bitsNum = 2;
     clampingModeCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(clampingModeCoder);
+
+    /*! Protocol reset */
+    boolConfig.initialWord = 4;
+    boolConfig.initialBit = 14;
+    boolConfig.bitsNum = 1;
+    protocolResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolResetCoder);
 
     /*! Voltage Source */
     boolConfig.initialWord = 3;
@@ -665,7 +699,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! Enable stimulus */
-    boolConfig.initialWord = 36;
+    boolConfig.initialWord = 13;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     enableStimulusCoders.resize(currentChannelsNum);
@@ -680,7 +714,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! Turn channels on */
-    boolConfig.initialWord = 60;
+    boolConfig.initialWord = 14;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     turnChannelsOnCoders.resize(currentChannelsNum);
@@ -695,7 +729,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! CAL_SW */
-    boolConfig.initialWord = 108;
+    boolConfig.initialWord = 16;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     calSwCoders.resize(currentChannelsNum);
@@ -710,7 +744,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! GR_En */
-    boolConfig.initialWord = 132;
+    boolConfig.initialWord = 17;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     grEnCoders.resize(currentChannelsNum);
@@ -725,7 +759,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! VC_SW */
-    boolConfig.initialWord = 204;
+    boolConfig.initialWord = 20;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     vcSwCoders.resize(currentChannelsNum);
@@ -740,7 +774,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! CC_SW */
-    boolConfig.initialWord = 228;
+    boolConfig.initialWord = 21;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     ccSwCoders.resize(currentChannelsNum);
@@ -768,7 +802,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! CC_Stim_En */
-    boolConfig.initialWord = 276;
+    boolConfig.initialWord = 23;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     ccStimEnCoders.resize(currentChannelsNum);
@@ -781,13 +815,6 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
             boolConfig.initialWord++;
         }
     }
-
-    /*! Protocol reset */
-    boolConfig.initialWord = 4;
-    boolConfig.initialBit = 14;
-    boolConfig.bitsNum = 1;
-    protocolResetCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(protocolResetCoder);
 
     /*! Protocol structure */
     boolConfig.initialWord = protocolWordOffset;
@@ -988,7 +1015,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     doubleConfig.bitsNum = 16;
     vHoldTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 544;
+        doubleConfig.initialWord = 268;
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
         doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
@@ -1005,7 +1032,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     doubleConfig.bitsNum = 16;
     cHoldTunerCoders.resize(CCCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < CCCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 544;
+        doubleConfig.initialWord = 268;
         doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
         doubleConfig.minValue = ccCurrentRangesArray[rangeIdx].min;
         doubleConfig.maxValue = ccCurrentRangesArray[rangeIdx].max;
@@ -1022,7 +1049,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     doubleConfig.bitsNum = 16;
     vHalfTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 928;
+        doubleConfig.initialWord = 276;
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
         doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
@@ -1039,7 +1066,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     doubleConfig.bitsNum = 16;
     cHalfTunerCoders.resize(CCCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < CCCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 928;
+        doubleConfig.initialWord = 276;
         doubleConfig.resolution = ccCurrentRangesArray[rangeIdx].step;
         doubleConfig.minValue = ccCurrentRangesArray[rangeIdx].min;
         doubleConfig.maxValue = ccCurrentRangesArray[rangeIdx].max;
@@ -1056,7 +1083,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     doubleConfig.bitsNum = 16;
     liquidJunctionVoltageCoders.resize(liquidJunctionRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < liquidJunctionRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 4888;
+        doubleConfig.initialWord = 284;
         doubleConfig.resolution = liquidJunctionRangesArray[rangeIdx].step;
         doubleConfig.minValue = liquidJunctionRangesArray[rangeIdx].min;
         doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
@@ -1068,107 +1095,10 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         }
     }
 
-    /*! VC leak calibration */
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    calibRShuntConductanceCoders.resize(VCCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 1504;
-        doubleConfig.resolution = rRShuntConductanceCalibRange[rangeIdx].step;
-        doubleConfig.minValue = rRShuntConductanceCalibRange[rangeIdx].min;
-        doubleConfig.maxValue = rRShuntConductanceCalibRange[rangeIdx].max;
-        calibRShuntConductanceCoders[rangeIdx].resize(currentChannelsNum);
-        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            calibRShuntConductanceCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(calibRShuntConductanceCoders[rangeIdx][channelIdx]);
-            doubleConfig.initialWord++;
-        }
-    }
-
-    /*! DAC gain e offset*/
-    /*! VC Voltage gain tuner */
-    doubleConfig.initialWord = 1888;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibVcVoltageGainRange.step;
-    doubleConfig.minValue = calibVcVoltageGainRange.min;
-    doubleConfig.maxValue = calibVcVoltageGainRange.max;
-    calibVcVoltageGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibVcVoltageGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibVcVoltageGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
-
-    /*! VC Voltage offset tuner */
-    calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 2272;
-        doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
-        doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
-        doubleConfig.minValue = calibVcVoltageOffsetRanges[rangeIdx].min;
-        doubleConfig.maxValue = calibVcVoltageOffsetRanges[rangeIdx].max;
-        calibVcVoltageOffsetCoders[rangeIdx].resize(currentChannelsNum);
-        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            calibVcVoltageOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(calibVcVoltageOffsetCoders[rangeIdx][idx]);
-            doubleConfig.initialWord++;
-        }
-    }
-
-    /*! CC Current gain tuner */
-    doubleConfig.initialWord = 1888;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibCcCurrentGainRange.step;
-    doubleConfig.minValue = calibCcCurrentGainRange.min;
-    doubleConfig.maxValue = calibCcCurrentGainRange.max;
-    calibCcCurrentGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibCcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibCcCurrentGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
-
-    /*! CC Voltage offset tuner */
-    calibCcCurrentOffsetCoders.resize(ccCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 2272;
-        doubleConfig.initialBit = 0;
-        doubleConfig.bitsNum = 16;
-        doubleConfig.resolution = calibCcCurrentOffsetRanges[rangeIdx].step;
-        doubleConfig.minValue = calibCcCurrentOffsetRanges[rangeIdx].min;
-        doubleConfig.maxValue = calibCcCurrentOffsetRanges[rangeIdx].max;
-        calibCcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
-        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            calibCcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(calibCcCurrentOffsetCoders[rangeIdx][idx]);
-            doubleConfig.initialWord++;
-        }
-    }
-
-    /*! ADC gain e offset*/
-    /*! \note MPAC sebbene nel calibratore si cicli sui range per calcolare i gainADC, questi non dipendono dai range essendo numeri puri. Il ciclo sui
-    range serve solo per selezionare gli step di corrente range-specifici*/
-    /*! VC current gain tuner */
-    doubleConfig.initialWord = 2656;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibVcCurrentGainRange.step;
-    doubleConfig.minValue = calibVcCurrentGainRange.min;
-    doubleConfig.maxValue = calibVcCurrentGainRange.max;
-    calibVcCurrentGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibVcCurrentGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibVcCurrentGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
-
-    /*! VC current offset tuner */
+    /*! VC current offset */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 3040;
+        doubleConfig.initialWord = 296;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -1182,24 +1112,10 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         }
     }
 
-    /*! CC Voltage gain tuner */
-    doubleConfig.initialWord = 2656;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    doubleConfig.resolution = calibCcVoltageGainRange.step;
-    doubleConfig.minValue = calibCcVoltageGainRange.min;
-    doubleConfig.maxValue = calibCcVoltageGainRange.max;
-    calibCcVoltageGainCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibCcVoltageGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
-        coders.push_back(calibCcVoltageGainCoders[idx]);
-        doubleConfig.initialWord++;
-    }
-
-    /*! CC Voltage offset tuner */
+    /*! CC Voltage offset */
     calibCcVoltageOffsetCoders.resize(ccVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < ccVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 3040;
+        doubleConfig.initialWord = 296;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibCcVoltageOffsetRanges[rangeIdx].step;
@@ -1213,9 +1129,9 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         }
     }
 
-    /*! Compensation coders*/
+    /*! Compensation coders */
     /*! Cfast / pipette capacitance compensation ENABLE */
-    boolConfig.initialWord = 3424;
+    boolConfig.initialWord = 304;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     pipetteCapEnCompensationCoders.resize(currentChannelsNum);
@@ -1232,11 +1148,11 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     /*! Cfast / pipette capacitance compensation VALUE*/
     pipetteCapValCompensationMultiCoders.resize(currentChannelsNum);
 
-    boolConfig.initialWord = 3640;
+    boolConfig.initialWord = 309;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 2;
 
-    doubleConfig.initialWord = 3448;
+    doubleConfig.initialWord = 305;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
@@ -1280,7 +1196,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! Cslow / membrane capacitance compensation ENABLE */
-    boolConfig.initialWord = 3688;
+    boolConfig.initialWord = 310;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     membraneCapEnCompensationCoders.resize(currentChannelsNum);
@@ -1297,11 +1213,11 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     /*! Cslow / membrane capacitance compensation */
     membraneCapValCompensationMultiCoders.resize(currentChannelsNum);
 
-    boolConfig.initialWord = 3904;
+    boolConfig.initialWord = 315;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 2;
 
-    doubleConfig.initialWord = 3712;
+    doubleConfig.initialWord = 311;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
@@ -1345,11 +1261,11 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     /*! Cslow / membrane capacitance compensation TAU and TAU RANGES */
     membraneCapTauValCompensationMultiCoders.resize(currentChannelsNum);
 
-    doubleConfig.initialWord = 3952;
+    doubleConfig.initialWord = 320;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
-    boolConfig.initialWord = 4144;
+    boolConfig.initialWord = 316;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
 
@@ -1389,7 +1305,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! Rs correction compensation ENABLE*/
-    boolConfig.initialWord = 4168;
+    boolConfig.initialWord = 321;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     rsCorrEnCompensationCoders.resize(currentChannelsNum);
@@ -1404,7 +1320,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! Rs correction compensation VALUE*/
-    doubleConfig.initialWord = 4192;
+    doubleConfig.initialWord = 322;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
     doubleConfig.resolution = rsCorrValueRange.step;
@@ -1423,7 +1339,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
 
     /*! Rs correction compensation BANDWIDTH */
     /*! \todo QUESTO VIENE IMPATTATO DALLA SWITCHED CAP FREQUENCY SOLO  A LIVELLO DI RAPPRESENTAZINE DI STRINGHE PER LA BANDA NELLA GUI. ATTIVAMENTE QUI NN FACCIAMO NULLA!!!!!*/
-    boolConfig.initialWord = 4384;
+    boolConfig.initialWord = 326;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 3;
     rsCorrBwCompensationCoders.resize(currentChannelsNum);
@@ -1444,8 +1360,8 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         }
     }
 
-    /*! Rs PREDICTION compensation ENABLE*/
-    boolConfig.initialWord = 4480;
+    /*! Rs PREDICTION compensation ENABLE */
+    boolConfig.initialWord = 328;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     rsPredEnCompensationCoders.resize(currentChannelsNum);
@@ -1459,8 +1375,8 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         }
     }
 
-    /*! Rs prediction compensation GAIN*/
-    doubleConfig.initialWord = 4504;
+    /*! Rs prediction compensation GAIN */
+    doubleConfig.initialWord = 329;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
     doubleConfig.resolution = rsPredGainRange.step;
@@ -1477,8 +1393,8 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         }
     }
 
-    /*! Rs prediction compensation TAU*/
-    doubleConfig.initialWord = 4696;
+    /*! Rs prediction compensation TAU */
+    doubleConfig.initialWord = 333;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
     doubleConfig.resolution = rsPredTauRange.step;
@@ -1496,7 +1412,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! CURRENT CLAMP Cfast / pipette capacitance compensation ENABLE */
-    boolConfig.initialWord = 3424;
+    boolConfig.initialWord = 304;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     pipetteCapCcEnCompensationCoders.resize(currentChannelsNum);
@@ -1513,11 +1429,11 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     /*! CURRENT CLAMP Cfast / pipette capacitance compensation VALUE*/
     pipetteCapCcValCompensationMultiCoders.resize(currentChannelsNum);
 
-    boolConfig.initialWord = 3640;
+    boolConfig.initialWord = 309;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 2;
 
-    doubleConfig.initialWord = 3448;
+    doubleConfig.initialWord = 305;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
@@ -1568,7 +1484,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         asic2UserDomainCompensable(i, defaultAsicDomainParams, defaultUserDomainParams);
     }
 
-    doubleConfig.initialWord = 1312;
+    doubleConfig.initialWord = 292;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 7;
     customDoublesCoders.resize(customDoublesNum);
@@ -1589,19 +1505,16 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x0070; // fans on
-    for (int idx = 132; idx < 156; idx++) {
-        txStatus[idx] = 0x1111; // GR_EN active
-    }
-    for (int idx = 1312; idx < 1504; idx++) {
-        txStatus[idx] = 0x4040; // Set 0 of secondary DAC
-    }
-    for (int idx = 4384; idx < 4480; idx++) {
-        txStatus[idx] = 0x1111; // rs bw avoid configuration with all zeros
-    }
+    txStatus[17] = 0x00FF; // GR_EN active
+    txStatus[292] = 0x4040; // Secondary DAC
+    txStatus[293] = 0x4040;
+    txStatus[294] = 0x4040;
+    txStatus[295] = 0x4040;
+    txStatus[326] = 0x1111; // rs bw avoid configuration with all zeros
+    txStatus[327] = 0x1111;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::initializeHW() {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::initializeHW() {
     std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));
 
     this->resetFpga(true, true);
@@ -1609,18 +1522,13 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::initializeHW() {
     std::this_thread::sleep_for (std::chrono::milliseconds(1000));
 
     this->resetAsic(true, true);
-    // resetAsicClock(true, true);
-    // resetFpgaFifo(true, true);
-    std::this_thread::sleep_for (std::chrono::milliseconds(1));
-    // resetFpgaFifo(false, true);
-    this->resetAsic(false, true); /*! Not synchronous across MB's FGPAs */
-    std::this_thread::sleep_for (std::chrono::milliseconds(10));
-    // resetAsicClock(false, true); /*! Synchronous across MB's FGPAs, the wait time ensures that all asic resets have been offed */
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
+    this->resetAsic(false, true);
 
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) {
     switch (type) {
     case CompRsCorr:
         if (rsCorrBwArray.size()==0) {
@@ -1640,7 +1548,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::getCompOptionsFeatures(Com
     }
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
     switch (type) {
     case CompCfast:
         if (pipetteCapEnCompensationCoders.size() == 0) {
@@ -1694,7 +1602,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::getCompensationEnables(std
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
@@ -1813,7 +1721,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableCompensation(std::ve
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableVcCompensations(bool enable, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableVcCompensations(bool enable, bool applyFlag) {
     vcCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -1835,7 +1743,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableVcCompensations(bool
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableCcCompensations(bool enable, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCcCompensations(bool enable, bool applyFlag) {
     ccCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -1852,7 +1760,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableCcCompensations(bool
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
     std::string debugString = "";
     // make local copy of the user domain param vectors
     std::vector <std::vector <double> > localCompValueSubMatrix;
@@ -1968,7 +1876,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompValues(std::vector 
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
@@ -1995,7 +1903,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompOptions(std::vector
     }
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
     std::vector <ClampingModality_t> clamps(currentChannelsNum);
@@ -2019,7 +1927,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::turnVoltageReaderOn(bool o
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::turnCurrentReaderOn(bool onValueIn, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnCurrentReaderOn(bool onValueIn, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
     std::vector <ClampingModality_t> clamps(currentChannelsNum);
@@ -2043,7 +1951,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::turnCurrentReaderOn(bool o
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::turnVoltageStimulusOn(bool onValue, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnVoltageStimulusOn(bool onValue, bool applyFlag) {
     if (onValue) {
         this->updateCalibVcVoltageGain(allChannelIndexes, false);
         this->updateCalibVcVoltageOffset(allChannelIndexes, applyFlag);
@@ -2054,7 +1962,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::turnVoltageStimulusOn(bool
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::turnCurrentStimulusOn(bool onValue, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnCurrentStimulusOn(bool onValue, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
 
@@ -2073,7 +1981,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::turnCurrentStimulusOn(bool
     return Success;
 }
 
-std::vector <double> Emcr384PatchClamp_EL07c_prot_v06_fw_v01::user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) {
+std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) {
     std::vector <double> asicDomainParameter;
     asicDomainParameter.resize(CompensationAsicParamsNum);
     double cp; // pipette capacitance
@@ -2118,7 +2026,7 @@ std::vector <double> Emcr384PatchClamp_EL07c_prot_v06_fw_v01::user2AsicDomainTra
     return asicDomainParameter;
 }
 
-std::vector <double> Emcr384PatchClamp_EL07c_prot_v06_fw_v01::asic2UserDomainTransform(int chIdx, std::vector <double> asicDomainParams, double oldUCpVc, double oldUCpCc) {
+std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::asic2UserDomainTransform(int chIdx, std::vector <double> asicDomainParams, double oldUCpVc, double oldUCpCc) {
     std::vector <double> userDomainParameter;
     userDomainParameter.resize(CompensationUserParamsNum);
 
@@ -2164,7 +2072,7 @@ std::vector <double> Emcr384PatchClamp_EL07c_prot_v06_fw_v01::asic2UserDomainTra
     return userDomainParameter;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams) {
     /*! \todo still to understand how to obtain them. COuld they be imputs of the function?*/
     std::vector <double> potentialMaxs;
     std::vector <double> potentialMins;
@@ -2302,7 +2210,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::asic2UserDomainCompensable
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
     switch (param) {
     case U_CpVc:
         control.implemented = true;
@@ -2399,7 +2307,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::getCompensationControl(Com
     }
 }
 
-void Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setGrEn(bool flag, bool applyFlag) {
+void Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setGrEn(bool flag, bool applyFlag) {
     for (auto coder : grEnCoders) {
         coder->encode(flag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
@@ -2408,11 +2316,7 @@ void Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setGrEn(bool flag, bool applyFlag)
     }
 }
 
-Emcr384PatchClamp_EL07d_prot_v06_fw_v01::Emcr384PatchClamp_EL07d_prot_v06_fw_v01(std::string di) :
-    Emcr384PatchClamp_EL07c_prot_v06_fw_v01(di) {
-
-    fwName = "384PatchClamp_EL07c_V01.bit";
-
-    fwSize_B = 5506748;
-    motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
+Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di) :
+    Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(di) {
+    fpgaLoadType = FtdiFpgaFwLoadAutomatic;
 }

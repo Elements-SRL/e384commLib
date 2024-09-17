@@ -809,9 +809,6 @@ EZPatche4PEL04F::EZPatche4PEL04F(std::string di) :
 
     protocolMaxItemsNum = 15;
 
-    maxDigitalTriggerOutputEvents = 21;
-    digitalTriggersNum = 1;
-
     voltageProtocolStepImplemented = true;
     currentProtocolStepImplemented = true;
     voltageProtocolRampImplemented = true;

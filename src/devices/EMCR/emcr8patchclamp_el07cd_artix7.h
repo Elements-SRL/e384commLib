@@ -1,11 +1,11 @@
-#ifndef EMCR384PATCHCLAMP_EL07CD_PROT_V06_FW_V01_H
-#define EMCR384PATCHCLAMP_EL07CD_PROT_V06_FW_V01_H
+#ifndef EMCR8PATCHCLAMP_EL07CD_ARTIX7_H
+#define EMCR8PATCHCLAMP_EL07CD_ARTIX7_H
 
-#include "emcropalkellydevice.h"
+#include "emcrftdidevice.h"
 
-class Emcr384PatchClamp_EL07c_prot_v06_fw_v01 : public EmcrOpalKellyDevice {
+class Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01 : public EmcrFtdiDevice {
 public:
-    Emcr384PatchClamp_EL07c_prot_v06_fw_v01(std::string di);
+    Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di);
 
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) override;
     virtual ErrorCodes_t getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) override;
@@ -115,6 +115,7 @@ protected:
         SamplingRate20kHz,
         SamplingRate40kHz,
         SamplingRate80kHz,
+        SamplingRate160kHz,
         SamplingRatesNum
     };
 
@@ -136,6 +137,18 @@ protected:
         CompensationRsCorrBwNum
     };
 
+    enum CustomDouble {
+        CustomOffset1,
+        CustomOffset2,
+        CustomOffset3,
+        CustomOffset4,
+        CustomOffset5,
+        CustomOffset6,
+        CustomOffset7,
+        CustomOffset8,
+        CustomDoublesNum
+    };
+
     virtual ErrorCodes_t initializeHW() override;
 
     virtual std::vector <double> user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) override;
@@ -147,9 +160,9 @@ protected:
     void setGrEn(bool flag, bool applyFlag);
 };
 
-class Emcr384PatchClamp_EL07d_prot_v06_fw_v01 : public Emcr384PatchClamp_EL07c_prot_v06_fw_v01 {
+class Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01 : public Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01 {
 public:
-    Emcr384PatchClamp_EL07d_prot_v06_fw_v01(std::string di);
+    Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di);
 };
 
-#endif // EMCR384PATCHCLAMP_EL07CD_PROT_V06_FW_V01_H
+#endif // EMCR8PATCHCLAMP_EL07CD_ARTIX7_H

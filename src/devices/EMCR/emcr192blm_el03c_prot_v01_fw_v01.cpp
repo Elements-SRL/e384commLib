@@ -5,9 +5,9 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
 
     deviceName = "192Blm";
 
-    fwName = "192Blm_EL03c_V01.bit";
+    fwName = "192Blm_EL03c_V01.1.bit";
 
-    fwSize_B = 3775052;
+    fwSize_B = 3709388;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
     waitingTimeBeforeReadingData = 2; //s
 
@@ -104,7 +104,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     vcVoltageRangesArray.resize(vcVoltageRangesNum);
     vcVoltageRangesArray[VCVoltageRange500mV].max = 512.0;
     vcVoltageRangesArray[VCVoltageRange500mV].min = -512.0;
-    vcVoltageRangesArray[VCVoltageRange500mV].step = 0.125;
+    vcVoltageRangesArray[VCVoltageRange500mV].step = 1.0;
     vcVoltageRangesArray[VCVoltageRange500mV].prefix = UnitPfxMilli;
     vcVoltageRangesArray[VCVoltageRange500mV].unit = "V";
     defaultVcVoltageRangeIdx = VCVoltageRange500mV;
@@ -112,9 +112,9 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     liquidJunctionSameRangeAsVcDac = false;
     liquidJunctionRangesNum = LJVoltageRangesNum;
     liquidJunctionRangesArray.resize(vcVoltageRangesNum);
-    liquidJunctionRangesArray[LJVoltageRange50mV].max = 50.0;
+    liquidJunctionRangesArray[LJVoltageRange50mV].step = 100.0/1024.0;
     liquidJunctionRangesArray[LJVoltageRange50mV].min = -50.0;
-    liquidJunctionRangesArray[LJVoltageRange50mV].step = liquidJunctionRangesArray[LJVoltageRange50mV].delta()/1024.0;
+    liquidJunctionRangesArray[LJVoltageRange50mV].max = liquidJunctionRangesArray[LJVoltageRange50mV].min+1023.0*liquidJunctionRangesArray[LJVoltageRange50mV].step;
     liquidJunctionRangesArray[LJVoltageRange50mV].prefix = UnitPfxMilli;
     liquidJunctionRangesArray[LJVoltageRange50mV].unit = "V";
     defaultLiquidJunctionRangeIdx = LJVoltageRange50mV;
@@ -220,15 +220,15 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
 
     /*! Zap */
     zapDurationRange.step = 0.1;
-    zapDurationRange.min = 00;
+    zapDurationRange.min = 0.0;
     zapDurationRange.max = zapDurationRange.min+zapDurationRange.step*(double)UINT16_MAX;
-    zapDurationRange.min = 0.0;
-    zapDurationRange.min = 0.0;
+    zapDurationRange.prefix = UnitPfxMilli;
+    zapDurationRange.unit = "s";
 
-    /*! VC voltage calib gain (DAC) */
-    calibVcVoltageGainRange.step = 1.0/1024.0;
+    /*! VC voltage calib gain (DAC) RDAC */
+    calibVcVoltageGainRange.step = 1.0;
     calibVcVoltageGainRange.min = 0;
-    calibVcVoltageGainRange.max = SHORT_MAX * calibVcVoltageGainRange.step;
+    calibVcVoltageGainRange.max = UINT10_MAX * calibVcVoltageGainRange.step;
     calibVcVoltageGainRange.prefix = UnitPfxNone;
     calibVcVoltageGainRange.unit = "";
 
@@ -287,7 +287,11 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
-    vcCurrentRangeCoder = new BoolArrayCoder(boolConfig);
+    vcCurrentRangeCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(0); /*! 200pA 0b000 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(2); /*!   2nA 0b010 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(3); /*!  20nA 0b011 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(7); /*! 200nA 0b111 */
     coders.push_back(vcCurrentRangeCoder);
 
     /*! Voltage range VC */
@@ -370,6 +374,8 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     doubleConfig.resolution = zapDurationRange.step;
     doubleConfig.minValue = zapDurationRange.min;
     doubleConfig.maxValue = zapDurationRange.max;
+    zapDurationCoder = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(zapDurationCoder);
 
     /*! Protocol structure */
     boolConfig.initialWord = protocolWordOffset;
@@ -525,7 +531,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
 
     /*! liquid junction voltage */
     doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
+    doubleConfig.bitsNum = 10;
     liquidJunctionVoltageCoders.resize(liquidJunctionRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < liquidJunctionRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 700;
@@ -534,7 +540,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
         doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
         liquidJunctionVoltageCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            liquidJunctionVoltageCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            liquidJunctionVoltageCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(liquidJunctionVoltageCoders[rangeIdx][channelIdx]);
             doubleConfig.initialWord++;
         }
@@ -550,7 +556,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     doubleConfig.maxValue = calibVcVoltageGainRange.max;
     calibVcVoltageGainCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        calibVcVoltageGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
+        calibVcVoltageGainCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(calibVcVoltageGainCoders[idx]);
         doubleConfig.initialWord++;
     }
@@ -608,6 +614,12 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[2] = 0x0070; // fans on
+    for (int c = 36; c < 48; c++) {
+        txStatus[c] = 0xFFFF; // VC_int on
+    }
+    for (int c = 700; c < 892; c++) {
+        txStatus[c] = 0x200; // ODAC zero
+    }
 }
 
 ErrorCodes_t Emcr192Blm_EL03c_prot_v01_fw_v01::initializeHW() {

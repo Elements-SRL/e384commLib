@@ -506,7 +506,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw53_1kHz] = rsCorrBwArray[CompensationRsCorrBw53_1kHz].niceLabel();
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw31_8kHz] = rsCorrBwArray[CompensationRsCorrBw31_8kHz].niceLabel();
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw17_7kHz] = rsCorrBwArray[CompensationRsCorrBw17_7kHz].niceLabel();
-    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_36kHz] = rsCorrBwArray[CompensationRsCorrBw9_36kHz].niceLabel();;
+    compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_36kHz] = rsCorrBwArray[CompensationRsCorrBw9_36kHz].niceLabel();
 
     customOptionsNum = CustomOptionsNum;
     customOptionsNames.resize(customOptionsNum);
@@ -1627,6 +1627,9 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[17] = 0x00FF; // GR_EN active
+    for (int idx = 284; idx < 288; idx++) {
+        txStatus[idx] = 0x4040; // Set 0 of secondary DAC
+    }
     txStatus[350] = 0x1111; // rs bw avoid configuration with all zeros
     txStatus[351] = 0x1111;
 }

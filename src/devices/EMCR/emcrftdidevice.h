@@ -22,6 +22,7 @@ public:
     static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
+    static ErrorCodes_t isDeviceRecognized(std::string deviceId);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
     virtual ErrorCodes_t pauseConnection(bool pauseFlag);
     ErrorCodes_t disconnectDevice() override;
@@ -71,9 +72,9 @@ protected:
     FT_HANDLE * ftdiRxHandle = nullptr;
     FT_HANDLE * ftdiTxHandle = nullptr;
 
-    char spiChannel;
-    char rxChannel;
-    char txChannel;
+    char spiChannel = 'A';
+    char rxChannel = 'B';
+    char txChannel = 'B';
 
     uint32_t rxSyncWord;
 

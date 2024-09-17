@@ -47,6 +47,7 @@ public:
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t getUpgradeInfo(DeviceTypes_t type, FwUpgradeInfo_t &info);
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
+    static ErrorCodes_t isDeviceRecognized(std::string deviceId);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
     static ErrorCodes_t isDeviceUpgradable(std::string deviceId);
     static ErrorCodes_t upgradeDevice(std::string deviceId);

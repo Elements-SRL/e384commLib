@@ -3,7 +3,7 @@
 Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     EmcrUdbDevice(di) {
 
-    deviceName = "10MHz";
+    deviceName = "eNPR10MHz";
 
     rxSyncWord = 0x5aa55aa5;
 

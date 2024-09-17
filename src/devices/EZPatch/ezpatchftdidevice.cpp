@@ -137,19 +137,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
 EZPatchFtdiDevice::EZPatchFtdiDevice(std::string deviceId) :
     EZPatchDevice(deviceId) {
 
-    ftdiEepromId = FtdiEepromId56;
-    spiChannel = 'A';
-    rxChannel = 'B';
-    txChannel = 'B';
-
-    rxSyncWord[0] = 0xA5;
-    rxSyncWord[1] = 0x5A;
-
     rxCrcInitialValue = (((uint16_t)rxSyncWord[1]) << 8)+(uint16_t)rxSyncWord[0];
-
-    txSyncWord[0] = 0xA5;
-    txSyncWord[1] = 0x5A;
-
     txCrcInitialValue = (((uint16_t)txSyncWord[1]) << 8)+(uint16_t)txSyncWord[0];
 }
 
@@ -266,6 +254,20 @@ ErrorCodes_t EZPatchFtdiDevice::isDeviceSerialDetected(std::string deviceId) {
         return ErrorDeviceNotFound;
     }
     return ret;
+}
+
+ErrorCodes_t EZPatchFtdiDevice::isDeviceRecognized(std::string deviceId) {
+    if (isDeviceSerialDetected(deviceId) != Success) {
+        return ErrorDeviceNotFound;
+    }
+
+    DeviceTypes_t deviceType;
+
+    if (EZPatchFtdiDevice::getDeviceType(deviceId, deviceType) != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    return Success;
 }
 
 ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
@@ -722,18 +724,24 @@ void EZPatchFtdiDevice::initializeCalibration() {
     calibrationEeprom = new CalibrationEeprom(this->getDeviceIndex(deviceId+spiChannel));
     if (vcCurrentOffsetDeltaImplemented) {
         Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
-        calibrationParams.vcOffsetAdc.resize(vcCurrentRangesNum);
-        for (auto &v : calibrationParams.vcOffsetAdc) {
-            v.resize(currentChannelsNum);
-            std::fill(v.begin(), v.end(), zeroA);
+        calibrationParams.vcOffsetAdc.resize(samplingRatesNum);
+        for (uint32_t srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
+            calibrationParams.vcOffsetAdc[srIdx].resize(vcCurrentRangesNum);
+            for (auto &v : calibrationParams.vcOffsetAdc[srIdx]) {
+                v.resize(currentChannelsNum);
+                std::fill(v.begin(), v.end(), zeroA);
+            }
         }
     }
     if (ccVoltageOffsetDeltaImplemented) {
         Measurement_t zeroV = {0.0, UnitPfxNone, "V"};
-        calibrationParams.ccOffsetAdc.resize(ccVoltageRangesNum);
-        for (auto &v : calibrationParams.ccOffsetAdc) {
-            v.resize(voltageChannelsNum);
-            std::fill(v.begin(), v.end(), zeroV);
+        calibrationParams.ccOffsetAdc.resize(samplingRatesNum);
+        for (uint32_t srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
+            calibrationParams.ccOffsetAdc[srIdx].resize(ccVoltageRangesNum);
+            for (auto &v : calibrationParams.ccOffsetAdc[srIdx]) {
+                v.resize(voltageChannelsNum);
+                std::fill(v.begin(), v.end(), zeroV);
+            }
         }
     }
 }

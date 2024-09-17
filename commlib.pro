@@ -26,7 +26,7 @@ CONFIG(release, debug|release) {
 }
 
 TEMPLATE = lib
-CONFIG += c++14
+CONFIG += c++17
 
 #DEFINES += E384COMMLIB_LABVIEW_WRAPPER
 #DEFINES += E384COMMLIB_LIBRARY
@@ -75,6 +75,7 @@ SOURCES += \
     src/devices/EMCR/emcr4x10mhz.cpp \
     src/devices/EMCR/emcrtestboardel07ab.cpp \
     src/devices/EMCR/emcrtestboardel07cd.cpp \
+    src/devices/EMCR/emcr8patchclamp_el07cd_artix7.cpp \
     src/devices/EZPatch/ezpatchdevice.cpp \
     src/devices/EZPatch/ezpatchftdidevice.cpp \
     src/devices/EZPatch/ezpatchepatchel03d.cpp \
@@ -91,7 +92,8 @@ SOURCES += \
     src/devices/EZPatch/ezpatche8ppatchliner_el07cd.cpp \
     src/model/boardmodel.cpp \
     src/model/channelmodel.cpp \
-    src/calibration/calibrationmanager.cpp \
+    src/calibration/tomlcalibrationmanager.cpp \
+    src/calibration/csvcalibrationmanager.cpp \
     src/calibration/calibrationeeprom.cpp \
     src/peripherals/ftdieeprom.cpp \
     src/peripherals/ftdieeprom56.cpp \
@@ -124,6 +126,7 @@ HEADERS += \
     src/devices/EMCR/emcr4x10mhz.h \
     src/devices/EMCR/emcrtestboardel07ab.h \
     src/devices/EMCR/emcrtestboardel07cd.h \
+    src/devices/EMCR/emcr8patchclamp_el07cd_artix7.h \
     src/devices/EZPatch/ezpatchdevice.h \
     src/devices/EZPatch/ezpatchftdidevice.h \
     src/devices/EZPatch/ezpatchepatchel03d.h \
@@ -140,7 +143,8 @@ HEADERS += \
     src/devices/EZPatch/ezpatche8ppatchliner_el07cd.h \
     src/model/boardmodel.h \
     src/model/channelmodel.h \
-    src/calibration/calibrationmanager.h \
+    src/calibration/tomlcalibrationmanager.h \
+    src/calibration/csvcalibrationmanager.h \
     src/calibration/calibrationeeprom.h \
     src/peripherals/ftdiutils.h \
     src/peripherals/udbprogrammer.h \
@@ -191,3 +195,4 @@ DEPENDPATH += \
 include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
 include($$(FTD2XX_PATH)includeftd2xx.pri)
+include($$(TOML_PP_PATH)includetoml++.pri)

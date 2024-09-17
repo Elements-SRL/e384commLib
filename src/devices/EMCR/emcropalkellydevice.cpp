@@ -35,7 +35,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"23210014U6", Device384PatchClamp_prot_v05_fw_v06},
     {"2210001076", Device384PatchClamp_prot_el07c_v06_fw_v01},
     {"221000106C", Device384PatchClamp_prot_v01_fw_v02},
-    {"23210014UF", Device384PatchClamp_prot_v01_fw_v02},
+    {"23210014UF", Device192Blm_el03c_prot_v01_fw_v01},
     {"221000106B", Device384VoltageClamp_prot_v04_fw_v03},
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
@@ -129,6 +129,20 @@ ErrorCodes_t EmcrOpalKellyDevice::isDeviceSerialDetected(std::string deviceId) {
     return ret;
 }
 
+ErrorCodes_t EmcrOpalKellyDevice::isDeviceRecognized(std::string deviceId) {
+    if (isDeviceSerialDetected(deviceId) != Success) {
+        return ErrorDeviceNotFound;
+    }
+
+    DeviceTypes_t deviceType;
+
+    if (EmcrOpalKellyDevice::getDeviceType(deviceId, deviceType) != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    return Success;
+}
+
 ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     ErrorCodes_t ret = Success;
     if (messageDispatcher != nullptr) {
@@ -146,6 +160,7 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
     switch (deviceType) {
     case Device192Blm_el03c_prot_v01_fw_v01:
         messageDispatcher = new Emcr192Blm_EL03c_prot_v01_fw_v01(deviceId);
+        break;
 
     case Device384Nanopores:
         messageDispatcher = new Emcr384NanoPores_V01(deviceId);
@@ -382,7 +397,7 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         }
 
         /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
-        if (waitingTimeForReadingPassed) {
+        if (waitingTimeForReadingPassed && !resetStateFlag) {
             rxRawMutexLock.lock();
             if (rxRawBufferReadLength+okTransferSize <= OKY_RX_BUFFER_SIZE) {
                 anyOperationPerformed = true;
@@ -432,7 +447,16 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
     }
-    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
+    TxTriggerType_t type = txMsgOption[txMsgBufferReadOffset].triggerType;
+    switch (txMsgOption[txMsgBufferReadOffset].resetControl) {
+    case ResetTrue:
+        resetStateFlag = true;
+        break;
+
+    case ResetFalse:
+        resetStateFlag = false;
+        break;
+    }
 
     txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 
@@ -484,6 +508,8 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
         break;
 
     case TxTriggerZap:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for (std::chrono::milliseconds(5));
         dev.ActivateTriggerIn(OKY_ZAP_PULSE_TRIGGER_IN_ADDR, OKY_ZAP_PULSE_TRIGGER_IN_BIT);
         break;
     }
@@ -542,7 +568,7 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
         fprintf(rxRawFid, "Bytes read %d\n", bytesRead);
         fflush(rxRawFid);
 #endif
-        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & OKY_RX_BUFFER_MASK;
+        rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & rxRawBufferMask;
     }
     /*! Update buffer writing point */
     return bytesRead;
@@ -609,7 +635,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                     } else {
                         /*! If not all the bytes match the sync word restore one of the removed bytes and recheck */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset-1) & OKY_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset-1) & rxRawBufferMask;
                         rxRawBytesAvailable++;
                         dataLossCount += 1;
                     }
@@ -638,7 +664,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                     if (rxDataBytes > maxInputDataLoadSize) {
                         /*! Too many bytes to be read, restarting looking for a sync word from the previous one */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
 #ifdef DEBUG_RX_DATA_PRINT
@@ -707,14 +733,14 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & rxRawBufferMask;
                         rxRawBytesAvailable -= rxSyncWordSize;
 
                         rxParsePhase = RxParseLookForLength;
 
                     } else {
                         /*! Sync word not found, restart looking from the previous sync word */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & OKY_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
                         rxParsePhase = RxParseLookForHeader;

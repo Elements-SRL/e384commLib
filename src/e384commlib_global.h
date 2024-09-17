@@ -291,14 +291,32 @@ typedef enum ProtocolItemTypes {
 } ProtocolItemTypes_t;
 
 /*! \enum TxTriggerType_t
- * \brief Enumerates the notifications that can be sent to the FPGA.
+ * \brief Enumerates the notifications that can be sent to the device.
  */
-typedef enum TxTriggerType_t {
+typedef enum TxTriggerType {
     TxTriggerParameteresUpdated,
     TxTriggerStartProtocol,
     TxTriggerStartStateArray,
     TxTriggerZap
 } TxTriggerType_t;
+
+/*! \enum ResetControl_t
+ * \brief Enumerates the possible effects of commands over the reset state of the device.
+ */
+typedef enum ResetControl { /*! \todo FCON Forse servirà qualcosa di più complesso per evitare che il reset ASIC ed FPGA interferiscano,
+                             *  e.g. ResetFalse dell'FPGA disabilita un ResetTure dell'ASIC */
+    ResetIndifferent,
+    ResetTrue,
+    ResetFalse
+} ResetControl_t;
+
+/*! \struct CommandOptions_t
+ * \brief Structure used internally to define the options accompanying commands for the device.
+ */
+typedef struct CommandOptions {
+    TxTriggerType_t triggerType = TxTriggerParameteresUpdated; /*!< Notification sent together with the command */
+    ResetControl_t resetControl = ResetIndifferent; /*!< true if the command will put the device in a reset state that stops the incoming data flow */
+} CommandOptions_t;
 
 /*! \enum OffsetRecalibStatus_t
  * \brief Enumerates the possible statuses of the readout offset recalibration algorithm.

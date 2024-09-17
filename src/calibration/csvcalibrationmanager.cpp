@@ -1,16 +1,24 @@
-#include "calibrationmanager.h"
+#include "csvcalibrationmanager.h"
 
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
 namespace e384CommLib {
 #endif
-CalibrationManager::CalibrationManager(std::string serialNumber, uint16_t currentChannelsNum, uint16_t boardsNum, uint16_t vcCurrentRangesNum, uint16_t vcVoltageRangesNum, uint16_t ccVoltageRangesNum, uint16_t ccCurrentRangesNum) :
+CsvCalibrationManager::CsvCalibrationManager(std::string serialNumber,
+                                             uint16_t currentChannelsNum,
+                                             uint16_t boardsNum,
+                                             uint16_t vcCurrentRangesNum,
+                                             uint16_t vcVoltageRangesNum,
+                                             uint16_t ccVoltageRangesNum,
+                                             uint16_t ccCurrentRangesNum,
+                                             uint16_t samplingRatesNum) :
     serialNumber(serialNumber),
     currentChannelsNum(currentChannelsNum),
     boardsNum(boardsNum),
     vcCurrentRangesNum(vcCurrentRangesNum),
     vcVoltageRangesNum(vcVoltageRangesNum),
     ccVoltageRangesNum(ccVoltageRangesNum),
-    ccCurrentRangesNum(ccCurrentRangesNum) {
+    ccCurrentRangesNum(ccCurrentRangesNum),
+    samplingRatesNum(samplingRatesNum) {
 
     channelsPerBoard = currentChannelsNum/boardsNum;
     calibrationFileNames.resize(boardsNum);
@@ -18,8 +26,8 @@ CalibrationManager::CalibrationManager(std::string serialNumber, uint16_t curren
         calibrationFileNames[idx].resize(2);
     }
 
-    mappingFileDir = CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR;
-    mappingFilePath = mappingFileDir + CAL_MAPPING_FILE_NAME;
+    mappingFileDir = CSV_CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR;
+    mappingFilePath = mappingFileDir + CSV_CAL_MAPPING_FILE_NAME;
 
     for (int i = 1; i <= boardsNum; i++) {
        correctBoardsNumbering.push_back(i);
@@ -28,7 +36,7 @@ CalibrationManager::CalibrationManager(std::string serialNumber, uint16_t curren
     this->loadDefaultParams();
 }
 
-CalibrationParams_t CalibrationManager::getCalibrationParams(ErrorCodes_t &error) {
+CalibrationParams_t CsvCalibrationManager::getCalibrationParams(ErrorCodes_t &error) {
     status = Success;
     if (this->loadMappingFile()) {
         calibrationFilesOkFlags = this->loadCalibrationFiles();
@@ -40,7 +48,7 @@ CalibrationParams_t CalibrationManager::getCalibrationParams(ErrorCodes_t &error
     return calibrationParams;
 }
 
-std::vector <std::string> CalibrationManager::getCalibrationFileNames() {
+std::vector <std::string> CsvCalibrationManager::getCalibrationFileNames() {
     std::vector <std::string> calibFileNames;
     for (int i = 0; i < calibrationFileNames.size(); i++) {
         calibFileNames.push_back(calibrationFileNames[i][1]);
@@ -48,7 +56,7 @@ std::vector <std::string> CalibrationManager::getCalibrationFileNames() {
     return calibFileNames;
 }
 
-std::vector <std::vector <bool> > CalibrationManager::getCalibrationFilesOkFlags() {
+std::vector <std::vector <bool> > CsvCalibrationManager::getCalibrationFilesOkFlags() {
     /*! First vector has 2 items, one for Voltage clamp one for Current clamp
      *  Inner vectors have one item per board
      *  True means the file is found and ok
@@ -56,7 +64,7 @@ std::vector <std::vector <bool> > CalibrationManager::getCalibrationFilesOkFlags
     return calibrationFilesOkFlags;
 }
 
-bool CalibrationManager::loadMappingFile() {
+bool CsvCalibrationManager::loadMappingFile() {
     struct stat sb;
     std::vector <int> actualBoardsNumbering;
     if (stat(mappingFileDir.c_str(), &sb) != 0) {
@@ -97,15 +105,15 @@ bool CalibrationManager::loadMappingFile() {
     }
 }
 
-std::string CalibrationManager::getMappingFileDir() {
+std::string CsvCalibrationManager::getMappingFileDir() {
     return this->mappingFileDir;
 }
 
-std::string CalibrationManager::getMappingFilePath() {
+std::string CsvCalibrationManager::getMappingFilePath() {
     return this->mappingFilePath;
 }
 
-std::vector <std::vector <bool> > CalibrationManager::loadCalibrationFiles() {
+std::vector <std::vector <bool> > CsvCalibrationManager::loadCalibrationFiles() {
     std::vector <std::vector <bool> > rets;
     rets.resize(2);
     vcCalibrationFileStreams.resize(boardsNum);
@@ -113,7 +121,7 @@ std::vector <std::vector <bool> > CalibrationManager::loadCalibrationFiles() {
     rShuntCalibrationFileStreams.resize(boardsNum);
     ccCalibrationFileStreams.resize(boardsNum);
     for (uint32_t boardIdx = 0; boardIdx < boardsNum; boardIdx++) {
-        std::string vcCalibrationFilePath = CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR + calibrationFileNames[boardIdx][1] + ".csv";
+        std::string vcCalibrationFilePath = CSV_CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR + calibrationFileNames[boardIdx][1] + ".csv";
         vcCalibrationFileStreams[boardIdx].open(vcCalibrationFilePath, std::ios::in);
         if (vcCalibrationFileStreams[boardIdx].is_open()) {
             this->discardCsvLine(vcCalibrationFileStreams[boardIdx]); /*! Discard line including board name */
@@ -133,7 +141,7 @@ std::vector <std::vector <bool> > CalibrationManager::loadCalibrationFiles() {
             rets[0].push_back(false);
         }
 
-        std::string rsCorrCalibrationFilePath = CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR + calibrationFileNames[boardIdx][1] + "_rs.csv";
+        std::string rsCorrCalibrationFilePath = CSV_CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR + calibrationFileNames[boardIdx][1] + "_rs.csv";
         rsCorrCalibrationFileStreams[boardIdx].open(rsCorrCalibrationFilePath, std::ios::in);
         if (rsCorrCalibrationFileStreams[boardIdx].is_open()) {
             this->discardCsvLine(rsCorrCalibrationFileStreams[boardIdx]); /*! Discard line including board name */
@@ -148,7 +156,7 @@ std::vector <std::vector <bool> > CalibrationManager::loadCalibrationFiles() {
             rets[0].push_back(false);
         }
 
-        std::string rShuntCalibrationFilePath = CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR + calibrationFileNames[boardIdx][1] + "_sh.csv";
+        std::string rShuntCalibrationFilePath = CSV_CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR + calibrationFileNames[boardIdx][1] + "_sh.csv";
         rShuntCalibrationFileStreams[boardIdx].open(rShuntCalibrationFilePath, std::ios::in);
         if (rShuntCalibrationFileStreams[boardIdx].is_open()) {
             this->discardCsvLine(rShuntCalibrationFileStreams[boardIdx]); /*! Discard line including board name */
@@ -163,7 +171,7 @@ std::vector <std::vector <bool> > CalibrationManager::loadCalibrationFiles() {
             rets[0].push_back(false);
         }
 
-        std::string ccCalibrationFilePath = CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR + calibrationFileNames[boardIdx][1] + "_cc.csv";
+        std::string ccCalibrationFilePath = CSV_CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR + calibrationFileNames[boardIdx][1] + "_cc.csv";
         ccCalibrationFileStreams[boardIdx].open(ccCalibrationFilePath, std::ios::in);
         if (ccCalibrationFileStreams[boardIdx].is_open()) {
             this->discardCsvLine(ccCalibrationFileStreams[boardIdx]); /*! Discard line including board name */
@@ -187,122 +195,162 @@ std::vector <std::vector <bool> > CalibrationManager::loadCalibrationFiles() {
     return rets;
 }
 
-void CalibrationManager::loadDefaultParams() {
+void CsvCalibrationManager::loadDefaultParams() {
     Measurement_t one = {1.0, UnitPfxNone, ""};
     Measurement_t zeroV = {0.0, UnitPfxNone, "V"};
     Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
     Measurement_t zeroS = {0.0, UnitPfxNone, "S"};
 
-    calibrationParams.vcGainAdc.resize(vcCurrentRangesNum);
-    calibrationParams.vcOffsetAdc.resize(vcCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        calibrationParams.vcGainAdc[rangeIdx].resize(currentChannelsNum);
-        calibrationParams.vcOffsetAdc[rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.vcGainAdc[rangeIdx].begin(), calibrationParams.vcGainAdc[rangeIdx].end(), one);
-        std::fill(calibrationParams.vcOffsetAdc[rangeIdx].begin(), calibrationParams.vcOffsetAdc[rangeIdx].end(), zeroA);
+    calibrationParams.vcGainAdc.resize(samplingRatesNum);
+    calibrationParams.vcOffsetAdc.resize(samplingRatesNum);
+    for (uint32_t srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
+        calibrationParams.vcGainAdc[srIdx].resize(vcCurrentRangesNum);
+        calibrationParams.vcOffsetAdc[srIdx].resize(vcCurrentRangesNum);
+        for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+            calibrationParams.vcGainAdc[srIdx][rangeIdx].resize(currentChannelsNum);
+            calibrationParams.vcOffsetAdc[srIdx][rangeIdx].resize(currentChannelsNum);
+            std::fill(calibrationParams.vcGainAdc[srIdx][rangeIdx].begin(), calibrationParams.vcGainAdc[srIdx][rangeIdx].end(), one);
+            std::fill(calibrationParams.vcOffsetAdc[srIdx][rangeIdx].begin(), calibrationParams.vcOffsetAdc[srIdx][rangeIdx].end(), zeroA);
+        }
     }
 
-    calibrationParams.vcGainDac.resize(vcVoltageRangesNum);
-    calibrationParams.vcOffsetDac.resize(vcVoltageRangesNum);
+    calibrationParams.vcGainDac.resize(1);
+    calibrationParams.vcOffsetDac.resize(1);
+    calibrationParams.vcGainDac[0].resize(vcVoltageRangesNum);
+    calibrationParams.vcOffsetDac[0].resize(vcVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        calibrationParams.vcGainDac[rangeIdx].resize(currentChannelsNum);
-        calibrationParams.vcOffsetDac[rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.vcGainDac[rangeIdx].begin(), calibrationParams.vcGainDac[rangeIdx].end(), one);
-        std::fill(calibrationParams.vcOffsetDac[rangeIdx].begin(), calibrationParams.vcOffsetDac[rangeIdx].end(), zeroV);
+        calibrationParams.vcGainDac[0][rangeIdx].resize(currentChannelsNum);
+        calibrationParams.vcOffsetDac[0][rangeIdx].resize(currentChannelsNum);
+        std::fill(calibrationParams.vcGainDac[0][rangeIdx].begin(), calibrationParams.vcGainDac[0][rangeIdx].end(), one);
+        std::fill(calibrationParams.vcOffsetDac[0][rangeIdx].begin(), calibrationParams.vcOffsetDac[0][rangeIdx].end(), zeroV);
     }
 
-    calibrationParams.rsCorrOffsetDac.resize(vcCurrentRangesNum);
+    calibrationParams.rsCorrOffsetDac.resize(1);
+    calibrationParams.rsCorrOffsetDac[0].resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        calibrationParams.rsCorrOffsetDac[rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.rsCorrOffsetDac[rangeIdx].begin(), calibrationParams.rsCorrOffsetDac[rangeIdx].end(), zeroV);
+        calibrationParams.rsCorrOffsetDac[0][rangeIdx].resize(currentChannelsNum);
+        std::fill(calibrationParams.rsCorrOffsetDac[0][rangeIdx].begin(), calibrationParams.rsCorrOffsetDac[0][rangeIdx].end(), zeroV);
     }
 
-    calibrationParams.rShuntConductance.resize(vcCurrentRangesNum);
+    calibrationParams.rShuntConductance.resize(1);
+    calibrationParams.rShuntConductance[0].resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        calibrationParams.rShuntConductance[rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.rShuntConductance[rangeIdx].begin(), calibrationParams.rShuntConductance[rangeIdx].end(), zeroS);
+        calibrationParams.rShuntConductance[0][rangeIdx].resize(currentChannelsNum);
+        std::fill(calibrationParams.rShuntConductance[0][rangeIdx].begin(), calibrationParams.rShuntConductance[0][rangeIdx].end(), zeroS);
     }
 
-    calibrationParams.ccGainAdc.resize(ccVoltageRangesNum);
-    calibrationParams.ccOffsetAdc.resize(ccVoltageRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < ccVoltageRangesNum; rangeIdx++) {
-        calibrationParams.ccGainAdc[rangeIdx].resize(currentChannelsNum);
-        calibrationParams.ccOffsetAdc[rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.ccGainAdc[rangeIdx].begin(), calibrationParams.ccGainAdc[rangeIdx].end(), one);
-        std::fill(calibrationParams.ccOffsetAdc[rangeIdx].begin(), calibrationParams.ccOffsetAdc[rangeIdx].end(), zeroV);
+    calibrationParams.ccGainAdc.resize(samplingRatesNum);
+    calibrationParams.ccOffsetAdc.resize(samplingRatesNum);
+    for (uint32_t srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
+        calibrationParams.ccGainAdc[srIdx].resize(ccVoltageRangesNum);
+        calibrationParams.ccOffsetAdc[srIdx].resize(ccVoltageRangesNum);
+        for (uint32_t rangeIdx = 0; rangeIdx < ccVoltageRangesNum; rangeIdx++) {
+            calibrationParams.ccGainAdc[srIdx][rangeIdx].resize(currentChannelsNum);
+            calibrationParams.ccOffsetAdc[srIdx][rangeIdx].resize(currentChannelsNum);
+            std::fill(calibrationParams.ccGainAdc[srIdx][rangeIdx].begin(), calibrationParams.ccGainAdc[srIdx][rangeIdx].end(), one);
+            std::fill(calibrationParams.ccOffsetAdc[srIdx][rangeIdx].begin(), calibrationParams.ccOffsetAdc[srIdx][rangeIdx].end(), zeroV);
+        }
     }
 
-    calibrationParams.ccGainDac.resize(ccCurrentRangesNum);
-    calibrationParams.ccOffsetDac.resize(ccCurrentRangesNum);
+    calibrationParams.ccGainDac.resize(1);
+    calibrationParams.ccOffsetDac.resize(1);
+    calibrationParams.ccGainDac[0].resize(ccCurrentRangesNum);
+    calibrationParams.ccOffsetDac[0].resize(ccCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
-        calibrationParams.ccGainDac[rangeIdx].resize(currentChannelsNum);
-        calibrationParams.ccOffsetDac[rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.ccGainDac[rangeIdx].begin(), calibrationParams.ccGainDac[rangeIdx].end(), one);
-        std::fill(calibrationParams.ccOffsetDac[rangeIdx].begin(), calibrationParams.ccOffsetDac[rangeIdx].end(), zeroA);
+        calibrationParams.ccGainDac[0][rangeIdx].resize(currentChannelsNum);
+        calibrationParams.ccOffsetDac[0][rangeIdx].resize(currentChannelsNum);
+        std::fill(calibrationParams.ccGainDac[0][rangeIdx].begin(), calibrationParams.ccGainDac[0][rangeIdx].end(), one);
+        std::fill(calibrationParams.ccOffsetDac[0][rangeIdx].begin(), calibrationParams.ccOffsetDac[0][rangeIdx].end(), zeroA);
     }
 }
 
-bool CalibrationManager::loadVcAdc(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+bool CsvCalibrationManager::loadVcAdc(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+    bool ret;
     if (defaultFlag) {
-        this->loadSetOfDefaultParams(boardIdx, vcCurrentRangesNum, calibrationParams.vcGainAdc, calibrationParams.vcOffsetAdc, "A");
-        return true;
+        this->loadSetOfDefaultParams(boardIdx, vcCurrentRangesNum, calibrationParams.vcGainAdc[0], calibrationParams.vcOffsetAdc[0], "A");
+        ret = true;
 
     } else {
-        return loadSetOfParams(stream, boardIdx, vcCurrentRangesNum, calibrationParams.vcGainAdc, calibrationParams.vcOffsetAdc, "A");
+        ret = loadSetOfParams(stream, boardIdx, vcCurrentRangesNum, calibrationParams.vcGainAdc[0], calibrationParams.vcOffsetAdc[0], "A");
     }
+
+    if (ret) {
+        for (uint16_t srIdx = 1; srIdx < samplingRatesNum; srIdx++) {
+            calibrationParams.vcGainAdc[srIdx] = calibrationParams.vcGainAdc[0];
+            calibrationParams.vcOffsetAdc[srIdx] = calibrationParams.vcOffsetAdc[0];
+        }
+    }
+    return ret;
 }
 
-bool CalibrationManager::loadVcDac(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+bool CsvCalibrationManager::loadVcDac(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+    bool ret;
     if (defaultFlag) {
-        this->loadSetOfDefaultParams(boardIdx, vcVoltageRangesNum, calibrationParams.vcGainDac, calibrationParams.vcOffsetDac, "V");
-        return true;
+        this->loadSetOfDefaultParams(boardIdx, vcVoltageRangesNum, calibrationParams.vcGainDac[0], calibrationParams.vcOffsetDac[0], "V");
+        ret = true;
 
     } else {
-        return loadSetOfParams(stream, boardIdx, vcVoltageRangesNum, calibrationParams.vcGainDac, calibrationParams.vcOffsetDac, "V");
+        ret = loadSetOfParams(stream, boardIdx, vcVoltageRangesNum, calibrationParams.vcGainDac[0], calibrationParams.vcOffsetDac[0], "V");
     }
+    return ret;
 }
 
-bool CalibrationManager::loadRsCorrOffset(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+bool CsvCalibrationManager::loadRsCorrOffset(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+    bool ret;
     if (defaultFlag) {
-        this->loadSetOfDefaultOffsets(boardIdx, vcCurrentRangesNum, calibrationParams.rsCorrOffsetDac, "V");
-        return true;
+        this->loadSetOfDefaultOffsets(boardIdx, vcCurrentRangesNum, calibrationParams.rsCorrOffsetDac[0], "V");
+        ret = true;
 
     } else {
-        return loadSetOfOffsets(stream, boardIdx, vcCurrentRangesNum, calibrationParams.rsCorrOffsetDac, "V");
+        ret = loadSetOfOffsets(stream, boardIdx, vcCurrentRangesNum, calibrationParams.rsCorrOffsetDac[0], "V");
     }
+    return ret;
 }
 
-bool CalibrationManager::loadRShuntConductance(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+bool CsvCalibrationManager::loadRShuntConductance(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+    bool ret;
     if (defaultFlag) {
-        this->loadSetOfDefaultMeas(boardIdx, vcCurrentRangesNum, calibrationParams.rShuntConductance, "S");
-        return true;
+        this->loadSetOfDefaultOffsets(boardIdx, vcCurrentRangesNum, calibrationParams.rShuntConductance[0], "S");
+        ret = true;
 
     } else {
-        return loadSetOfMeas(stream, boardIdx, vcCurrentRangesNum, calibrationParams.rShuntConductance, "S");
+        ret = loadSetOfOffsets(stream, boardIdx, vcCurrentRangesNum, calibrationParams.rShuntConductance[0], "S");
     }
+    return ret;
 }
 
-bool CalibrationManager::loadCcAdc(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+bool CsvCalibrationManager::loadCcAdc(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+    bool ret;
     if (defaultFlag) {
-        this->loadSetOfDefaultParams(boardIdx, ccVoltageRangesNum, calibrationParams.ccGainAdc, calibrationParams.ccOffsetAdc, "V");
-        return true;
+        this->loadSetOfDefaultParams(boardIdx, ccVoltageRangesNum, calibrationParams.ccGainAdc[0], calibrationParams.ccOffsetAdc[0], "V");
+        ret = true;
 
     } else {
-        return loadSetOfParams(stream, boardIdx, ccVoltageRangesNum, calibrationParams.ccGainAdc, calibrationParams.ccOffsetAdc, "V");
+        ret = loadSetOfParams(stream, boardIdx, ccVoltageRangesNum, calibrationParams.ccGainAdc[0], calibrationParams.ccOffsetAdc[0], "V");
     }
+
+    if (ret) {
+        for (uint16_t srIdx = 1; srIdx < samplingRatesNum; srIdx++) {
+            calibrationParams.ccGainAdc[srIdx] = calibrationParams.ccGainAdc[0];
+            calibrationParams.ccOffsetAdc[srIdx] = calibrationParams.ccOffsetAdc[0];
+        }
+    }
+    return ret;
 }
 
-bool CalibrationManager::loadCcDac(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+bool CsvCalibrationManager::loadCcDac(std::fstream &stream, uint32_t boardIdx, bool defaultFlag) {
+    bool ret;
     if (defaultFlag) {
-        this->loadSetOfDefaultParams(boardIdx, ccCurrentRangesNum, calibrationParams.ccGainDac, calibrationParams.ccOffsetDac, "A");
-        return true;
+        this->loadSetOfDefaultParams(boardIdx, ccCurrentRangesNum, calibrationParams.ccGainDac[0], calibrationParams.ccOffsetDac[0], "A");
+        ret = true;
 
     } else {
-        return loadSetOfParams(stream, boardIdx, ccCurrentRangesNum, calibrationParams.ccGainDac, calibrationParams.ccOffsetDac, "A");
+        ret = loadSetOfParams(stream, boardIdx, ccCurrentRangesNum, calibrationParams.ccGainDac[0], calibrationParams.ccOffsetDac[0], "A");
     }
+    return ret;
 }
 
-bool CalibrationManager::loadSetOfParams(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
+bool CsvCalibrationManager::loadSetOfParams(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
     bool ret = true;
     std::vector <std::vector <std::string> > strings;
     strings.resize(2);
@@ -326,7 +374,7 @@ bool CalibrationManager::loadSetOfParams(std::fstream &stream, uint32_t boardIdx
     return ret;
 }
 
-void CalibrationManager::loadSetOfDefaultParams(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
+void CsvCalibrationManager::loadSetOfDefaultParams(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
     for (uint32_t rangeIdx = 0; rangeIdx < rangesNum; rangeIdx++) {
         Measurement_t one = {1.0, UnitPfxNone, ""};
         Measurement_t zero = {0.0, UnitPfxNone, offsetUnit};
@@ -335,7 +383,7 @@ void CalibrationManager::loadSetOfDefaultParams(uint32_t boardIdx, uint32_t rang
     }
 }
 
-bool CalibrationManager::loadSetOfOffsets(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
+bool CsvCalibrationManager::loadSetOfOffsets(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
     bool ret = true;
     std::vector <std::vector <std::string> > strings;
     strings.resize(1);
@@ -357,43 +405,14 @@ bool CalibrationManager::loadSetOfOffsets(std::fstream &stream, uint32_t boardId
     return ret;
 }
 
-void CalibrationManager::loadSetOfDefaultOffsets(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
+void CsvCalibrationManager::loadSetOfDefaultOffsets(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit) {
     for (uint32_t rangeIdx = 0; rangeIdx < rangesNum; rangeIdx++) {
         Measurement_t zero = {0.0, UnitPfxNone, offsetUnit};
         std::fill(outOffsets[rangeIdx].begin()+boardIdx*channelsPerBoard, outOffsets[rangeIdx].begin()+(boardIdx+1)*channelsPerBoard, zero);
     }
 }
 
-bool CalibrationManager::loadSetOfMeas(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outMeas, std::string unit) {
-    bool ret = true;
-    std::vector <std::vector <std::string> > strings;
-    strings.resize(1);
-    strings[0].resize(channelsPerBoard);
-    for (uint32_t rangeIdx = 0; rangeIdx < rangesNum && ret; rangeIdx++) {
-        this->discardCsvLine(stream); /*! Discard line including range name */
-        ret = this->readCsvPortion(stream, strings);
-        if (ret) {
-            for (uint32_t idx = 0; idx < channelsPerBoard; idx++) {
-                outMeas[rangeIdx][idx+boardIdx*channelsPerBoard] = {std::stod(strings[0][idx]), UnitPfxNone, unit};
-            }
-        }
-    }
-
-    if (!ret) {
-        this->loadSetOfDefaultMeas(boardIdx, rangesNum, outMeas, unit);
-    }
-
-    return ret;
-}
-
-void CalibrationManager::loadSetOfDefaultMeas(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outMeas, std::string unit) {
-    for (uint32_t rangeIdx = 0; rangeIdx < rangesNum; rangeIdx++) {
-        Measurement_t zero = {0.0, UnitPfxNone, unit};
-        std::fill(outMeas[rangeIdx].begin()+boardIdx*channelsPerBoard, outMeas[rangeIdx].begin()+(boardIdx+1)*channelsPerBoard, zero);
-    }
-}
-
-bool CalibrationManager::readCsvPortion(std::fstream &stream, std::vector <std::vector <std::string> > &out) {
+bool CsvCalibrationManager::readCsvPortion(std::fstream &stream, std::vector <std::vector <std::string> > &out) {
     uint32_t rowsNum = out.size();
     uint32_t colsNum = 0;
     if (rowsNum > 0) {
@@ -443,7 +462,7 @@ bool CalibrationManager::readCsvPortion(std::fstream &stream, std::vector <std::
     }
 }
 
-void CalibrationManager::discardCsvLine(std::fstream &stream) {
+void CsvCalibrationManager::discardCsvLine(std::fstream &stream) {
     std::string word;
     getline(stream, word);
 }

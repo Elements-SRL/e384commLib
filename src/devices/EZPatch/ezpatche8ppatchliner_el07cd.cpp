@@ -1012,9 +1012,6 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
 
     protocolMaxItemsNum = 15;
 
-    maxDigitalTriggerOutputEvents = 21;
-    digitalTriggersNum = 1;
-
     voltageProtocolStepImplemented = true;
     currentProtocolStepImplemented = true;
     voltageProtocolRampImplemented = true;

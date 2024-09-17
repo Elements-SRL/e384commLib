@@ -143,6 +143,20 @@ ErrorCodes_t EmcrUdbDevice::isDeviceSerialDetected(std::string deviceId) {
     return ret;
 }
 
+ErrorCodes_t EmcrUdbDevice::isDeviceRecognized(std::string deviceId) {
+    if (isDeviceSerialDetected(deviceId) != Success) {
+        return ErrorDeviceNotFound;
+    }
+
+    DeviceTypes_t deviceType;
+
+    if (EmcrUdbDevice::getDeviceType(deviceId, deviceType) != Success) {
+        return ErrorDeviceTypeNotRecognized;
+    }
+
+    return Success;
+}
+
 ErrorCodes_t EmcrUdbDevice::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
     ErrorCodes_t ret = Success;
     if (messageDispatcher != nullptr) {
@@ -388,22 +402,28 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
                 txMsgBufferNotFull.notify_all();
             }
 
-            rxRawMutexLock.lock();
-            if (rxRawBufferReadLength+UDB_RX_TRANSFER_SIZE <= UDB_RX_BUFFER_SIZE) {
-                anyOperationPerformed = true;
-                rxRawMutexLock.unlock();
-
-                uint32_t bytesRead = this->readDataFromDevice();
-
-                if (bytesRead <= INT32_MAX) {
-                    rxRawMutexLock.lock();
-                    rxRawBufferReadLength += bytesRead;
+            if (!resetStateFlag) {
+                rxRawMutexLock.lock();
+                if (rxRawBufferReadLength+UDB_RX_TRANSFER_SIZE <= UDB_RX_BUFFER_SIZE) {
+                    anyOperationPerformed = true;
                     rxRawMutexLock.unlock();
-                    rxRawBufferNotEmpty.notify_all();
-                }
 
-            } else {
-                rxRawMutexLock.unlock();
+                    uint32_t bytesRead = this->readDataFromDevice();
+
+                    if (bytesRead <= INT32_MAX) {
+                        rxRawMutexLock.lock();
+                        rxRawBufferReadLength += bytesRead;
+                        rxRawMutexLock.unlock();
+                        rxRawBufferNotEmpty.notify_all();
+                    }
+
+                } else {
+                    rxRawMutexLock.unlock();
+                }
+            }
+
+            if (!anyOperationPerformed) {
+                std::this_thread::sleep_for (std::chrono::microseconds(1));
             }
         }
 
@@ -427,7 +447,16 @@ void EmcrUdbDevice::sendCommandsToDevice() {
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
     }
-    TxTriggerType_t type = txMsgTrigger[txMsgBufferReadOffset];
+    TxTriggerType_t type = txMsgOption[txMsgBufferReadOffset].triggerType;
+    switch (txMsgOption[txMsgBufferReadOffset].resetControl) {
+    case ResetTrue:
+        resetStateFlag = true;
+        break;
+
+    case ResetFalse:
+        resetStateFlag = false;
+        break;
+    }
 
     txMsgBufferReadOffset = (txMsgBufferReadOffset+1) & TX_MSG_BUFFER_MASK;
 
@@ -509,7 +538,7 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
         fflush(rxRawFid);
 #endif
 
-    rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & UDB_RX_BUFFER_MASK;
+    rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & rxRawBufferMask;
     /*! Update buffer writing point */
     return bytesRead;
 }
@@ -575,7 +604,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
 
                     } else {
                         /*! If not all the bytes match the sync word restore three of the removed bytes and recheck */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & UDB_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset-3) & rxRawBufferMask;
                         rxRawBytesAvailable += 3;
                         dataLossCount += 1;
                     }
@@ -604,7 +633,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
 
                     if (rxDataBytes > maxInputDataLoadSize) {
                         /*! Too many bytes to be read, restarting looking for a sync word from the previous one */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & UDB_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
 #ifdef DEBUG_RX_DATA_PRINT
@@ -676,14 +705,14 @@ void EmcrUdbDevice::parseDataFromDevice() {
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & UDB_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset+rxSyncWordSize) & rxRawBufferMask;
                         rxRawBytesAvailable -= rxSyncWordSize;
 
                         rxParsePhase = RxParseLookForLength;
 
                     } else {
                         /*! Sync word not found, restart looking from the previous sync word */
-                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & UDB_RX_BUFFER_MASK;
+                        rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
                         rxParsePhase = RxParseLookForHeader;
