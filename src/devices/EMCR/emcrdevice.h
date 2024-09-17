@@ -50,6 +50,8 @@ public:
     ErrorCodes_t updateCalibCcCurrentGain(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
     ErrorCodes_t setCalibCcCurrentOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) override;
     ErrorCodes_t updateCalibCcCurrentOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
+    ErrorCodes_t setCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) override;
+    ErrorCodes_t updateCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, bool applyFlag)  override;
     ErrorCodes_t setCalibRShuntConductance(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> conductances, bool applyFlag) override;
     ErrorCodes_t updateCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
     ErrorCodes_t resetCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag);
@@ -282,6 +284,7 @@ protected:
     std::vector <DoubleCoder *> calibCcVoltageGainCoders;
     std::vector <std::vector <DoubleCoder *> > calibCcVoltageOffsetCoders;
     std::vector <std::vector <DoubleCoder *> > calibRShuntConductanceCoders;
+    std::vector <std::vector <DoubleCoder *> > calibRsCorrOffsetDacCoders;
     std::vector <DoubleCoder *> gateVoltageCoders;
     std::vector <DoubleCoder *> sourceVoltageCoders;
 

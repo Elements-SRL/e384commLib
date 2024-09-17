@@ -544,6 +544,24 @@ public:
      */
     virtual ErrorCodes_t updateCalibCcCurrentOffset(std::vector <uint16_t> channelIndexes, bool applyFlag);
 
+    /*! \brief Set a Rs correction offset on a specific channel.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to control.
+     * \param offsets [in] Vector of voltage offsets.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag);
+
+    /*! \brief Update the Rs correction offset on a specific channel.
+     *  \note Method used internally to set the correct calibration value after a range change.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t updateCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, bool applyFlag);
+
     /*! \brief Set a shunt resistance correction on a specific channel.
      *
      * \param channelIndexes [in] Vector of Indexes for the channels to control.

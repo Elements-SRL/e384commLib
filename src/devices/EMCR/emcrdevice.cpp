@@ -690,6 +690,41 @@ ErrorCodes_t EmcrDevice::updateCalibCcCurrentOffset(std::vector <uint16_t> chann
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::setCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) {
+    if (calibRsCorrOffsetDacCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+        offsets[i].convertValue(liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx].prefix);
+        calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIndexes[i]] = offsets[i];
+    }
+    this->updateCalibRsCorrOffsetDac(channelIndexes, applyFlag);
+
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::updateCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, bool applyFlag) {
+    if (calibRsCorrOffsetDacCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+        calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx].prefix);
+        double offset = calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIndexes[i]].value;
+        calibRsCorrOffsetDacCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
 ErrorCodes_t EmcrDevice::setCalibRShuntConductance(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> conductances, bool applyFlag) {
     if (calibRShuntConductanceCoders.empty()) {
         return ErrorFeatureNotImplemented;
