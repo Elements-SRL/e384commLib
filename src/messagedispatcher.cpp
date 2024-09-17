@@ -383,11 +383,11 @@ ErrorCodes_t MessageDispatcher::setCalibCcCurrentOffset(std::vector <uint16_t>, 
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t setCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setCalibRsCorrOffsetDac(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t updateCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::updateCalibRsCorrOffsetDac(std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 

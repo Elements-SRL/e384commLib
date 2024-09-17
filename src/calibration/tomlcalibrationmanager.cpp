@@ -270,7 +270,7 @@ bool TomlCalibrationManager::loadCcAdc(toml::node_view <toml::node> node, uint32
         ret = true;
 
     } else {
-        ret = loadSetOfParams(node["voltage_adc"], boardIdx, calibrationParams.ccGainAdc, calibrationParams.ccGainAdc, "V");
+        ret = loadSetOfParams(node["voltage_adc"], boardIdx, calibrationParams.ccGainAdc, calibrationParams.ccOffsetAdc, "V");
     }
     return ret;
 }
@@ -282,7 +282,7 @@ bool TomlCalibrationManager::loadCcDac(toml::node_view <toml::node> node, uint32
         ret = true;
 
     } else {
-        ret = loadSetOfParams(node["current_dac"], boardIdx, calibrationParams.ccGainDac, calibrationParams.ccGainDac, "A");
+        ret = loadSetOfParams(node["current_dac"], boardIdx, calibrationParams.ccGainDac, calibrationParams.ccOffsetDac, "A");
     }
     return ret;
 }
