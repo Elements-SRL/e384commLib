@@ -2581,22 +2581,26 @@ ErrorCodes_t getBridgeBalanceResistance(
 
 /*! \brief Gets the gain of the voltage clamp current ADC.
  *
+ * \param samplingRateIdx [in] sampling rate index (different sampling rates may have different ADC calibrations).
  * \param meas [out] calibration parameters.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVcAdcGainCalibration(
+        E384CL_ARGIN uint16_t samplingRateIdx,
         E384CL_ARGOUT LVecMeasHandle * meas);
 
 /*! \brief Gets the offset of the voltage clamp current ADC.
  *
+ * \param samplingRateIdx [in] sampling rate index (different sampling rates may have different ADC calibrations).
  * \param meas [out] calibration parameters.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVcAdcOffsetCalibration(
+        E384CL_ARGIN uint16_t samplingRateIdx,
         E384CL_ARGOUT LVecMeasHandle * meas);
 
 /*! \brief Gets the gain of the voltage clamp voltage DAC.
@@ -2621,22 +2625,26 @@ ErrorCodes_t getVcDacOffsetCalibration(
 
 /*! \brief Gets the gain of the current clamp voltage ADC.
  *
+ * \param samplingRateIdx [in] sampling rate index (different sampling rates may have different ADC calibrations).
  * \param meas [out] calibration parameters.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCcAdcGainCalibration(
+        E384CL_ARGIN uint16_t samplingRateIdx,
         E384CL_ARGOUT LVecMeasHandle * meas);
 
 /*! \brief Gets the offset of the current clamp voltage ADC.
  *
+ * \param samplingRateIdx [in] sampling rate index (different sampling rates may have different ADC calibrations).
  * \param meas [out] calibration parameters.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCcAdcOffsetCalibration(
+        E384CL_ARGIN uint16_t samplingRateIdx,
         E384CL_ARGOUT LVecMeasHandle * meas);
 
 /*! \brief Gets the gain of the current clamp current DAC.
