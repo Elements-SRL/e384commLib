@@ -25,7 +25,6 @@ ErrorCodes_t getMeasVecSize(
         E384CL_ARGOUT uint16_t &size);
 
 /*! \brief Resize the internal vector of Measurement_t.
- * \todo NOT IMPLEMENTED
  *
  * \param size [in] New size of the vector.
  * \return Error code.
@@ -61,7 +60,6 @@ ErrorCodes_t appendMeasToVec(
 
 /*! \brief Set a Measurment_t in the internal vector.
  * \note The size of the vector must be greater than idx.
- * \todo NOT IMPLEMENTED
  *
  * \param idx [in] Index of the vector to set.
  * \param value [in] Value of the measurement.
@@ -74,81 +72,6 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setMeasInVec(
         E384CL_ARGIN uint16_t idx,
         E384CL_ARGIN double value,
-        E384CL_ARGIN UnitPfx_t prefix,
-        E384CL_ARGIN char * unitIn);
-
-/*! \brief Get the size of the internal vector of RangedMeasurement_t.
- * \note Increases size by 1
- * \todo NOT IMPLEMENTED
- *
- * \param size [out] Size of the vector.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t getRangeVecSize(
-        E384CL_ARGOUT uint16_t &size);
-
-/*! \brief Clears the internal vector of RangedMeasurement_t.
- * \todo NOT IMPLEMENTED
- *
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t rangeVecClear(
-        E384CL_ARGVOID);
-
-/*! \brief Resize the internal vector of RangedMeasurement_t.
- * \todo NOT IMPLEMENTED
- *
- * \param size [in] New size of the vector.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t rangeVecResize(
-        E384CL_ARGIN uint16_t &size);
-
-/*! \brief Append a RangedMeasurment_t to the internal vector.
- * \note Increases size by 1
- * \todo NOT IMPLEMENTED
- *
- * \param max [in] Max value of the rangedMeasurement.
- * \param min [in] Min value of the rangedMeasurement.
- * \param step [in] Step of the rangedMeasurement.
- * \param prefix [in] Prefic of the measurement unit.
- * \param unit [in] Unit of the measurement.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t appendRangeToVec(
-        E384CL_ARGIN double max,
-        E384CL_ARGIN double min,
-        E384CL_ARGIN double step,
-        E384CL_ARGIN UnitPfx_t prefix,
-        E384CL_ARGIN char * unitIn);
-
-/*! \brief Set a RangedMeasurment_t in the internal vector.
- * \note The size of the vector must be greater than idx.
- * \todo NOT IMPLEMENTED
- *
- * \param idx [in] Index of the vector to set.
- * \param max [in] Max value of the rangedMeasurement.
- * \param min [in] Min value of the rangedMeasurement.
- * \param step [in] Step of the rangedMeasurement.
- * \param prefix [in] Prefic of the rangedMeasurement unit.
- * \param unit [in] Unit of the rangedMeasurement.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setRangeInVec(
-        E384CL_ARGIN uint16_t idx,
-        E384CL_ARGIN double max,
-        E384CL_ARGIN double min,
-        E384CL_ARGIN double step,
         E384CL_ARGIN UnitPfx_t prefix,
         E384CL_ARGIN char * unitIn);
 
@@ -215,8 +138,8 @@ ErrorCodes_t enableRxMessageType(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnVoltageStimulusOn(
-        bool onValueIn,
-        bool applyFlagIn);
+        E384CL_ARGIN bool onValueIn,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Turn on/off the current stimulus for each channel.
  *
@@ -227,8 +150,8 @@ ErrorCodes_t turnVoltageStimulusOn(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t turnCurrentStimulusOn(
-        bool onValueIn,
-        bool applyFlagIn);
+        E384CL_ARGIN bool onValueIn,
+        E384CL_ARGIN bool applyFlagIn);
 
 /*! \brief Turn on/off the voltage reader for each channel.
  *  \note The voltage is read by the current clamp ADC.
@@ -284,7 +207,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setVoltageHoldTuner(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * voltagesIn,
+        E384CL_ARGIN LMeasHandle * voltagesIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -300,7 +223,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentHoldTuner(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * currentsIn,
+        E384CL_ARGIN LMeasHandle * currentsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -316,7 +239,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setVoltageHalf(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * voltagesIn,
+        E384CL_ARGIN LMeasHandle * voltagesIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -332,7 +255,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCurrentHalf(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * currentsIn,
+        E384CL_ARGIN LMeasHandle * currentsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -362,7 +285,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setLiquidJunctionVoltage(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * voltagesIn,
+        E384CL_ARGIN LMeasHandle * voltagesIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -462,7 +385,23 @@ ErrorCodes_t setDownsamplingRatio(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setDigitalFilter(
-        E384CL_ARGIN CharMeasurement_t cutoffFrequencyIn,
+        E384CL_ARGIN LVMeasurement_t cutoffFrequencyIn,
+        E384CL_ARGIN bool lowPassFlag,
+        E384CL_ARGIN bool activeFlag);
+
+/*! \brief Set a digital filter.
+ *
+ * \param vec [in] Vector of input measurements:
+ *                 vec[0]: The cut-off frequency in kHz of the filter.
+ *                 Can use internal vector
+ * \param lowPassFlag [in] true: set a low pass filter; false: set a high pass filter.
+ * \param activeFlag [in] true: enable the filter; false: disable the filter.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setDigitalFilterVec(
+        E384CL_ARGIN LMeasHandle * vec,
         E384CL_ARGIN bool lowPassFlag,
         E384CL_ARGIN bool activeFlag);
 
@@ -524,15 +463,34 @@ ErrorCodes_t digitalOffsetCompensation(
 /*! \brief Zap.
  * A big voltage is applied in order to break the membrane.
  *
+ * \param channelIndexesIn [in] Channel indexes.
  * \param duration [in] Duration of the zap.
- * \param channelIdx [in] Index of the channel to zap.
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t zap(
-        E384CL_ARGIN CharMeasurement_t duration,
-        E384CL_ARGIN uint16_t channelIdx);
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LVMeasurement_t duration,
+        E384CL_ARGIN int vectorLengthIn);
+
+/*! \brief Zap.
+ * A big voltage is applied in order to break the membrane.
+ *
+ * \param channelIndexesIn [in] Channel indexes.
+ * \param vec [in] Vector of input measurements:
+ *                 vec[0]: Duration of the zap.
+ *                 Can use internal vector
+ * \param vectorLengthIn [in] Length of the array/vector of channels to be set.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t zapVec(
+        E384CL_ARGIN uint16_t * channelIndexesIn,
+        E384CL_ARGIN LMeasHandle * vec,
+        E384CL_ARGIN int vectorLengthIn);
 
 /*! \brief Sets the low pass filter on the voltage stimulus.
  *
@@ -648,7 +606,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcCurrentGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -664,7 +622,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcCurrentOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -680,7 +638,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcVoltageGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -696,7 +654,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibVcVoltageOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -712,7 +670,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcVoltageGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -728,7 +686,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcVoltageOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -744,7 +702,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcCurrentGain(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * gainsIn,
+        E384CL_ARGIN LMeasHandle * gainsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -760,7 +718,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setCalibCcCurrentOffset(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN LMeasHandle * offsetsIn,
+        E384CL_ARGIN LMeasHandle * offsetsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -792,7 +750,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setGateVoltage(
         E384CL_ARGIN uint16_t * boardIndexesIn,
-        E384CL_ARGIN LMeasHandle * gateVoltagesIn,
+        E384CL_ARGIN LMeasHandle * gateVoltagesIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -808,7 +766,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setSourceVoltage(
         E384CL_ARGIN uint16_t * boardIndexesIn,
-        E384CL_ARGIN LMeasHandle * sourceVoltagesIn,
+        E384CL_ARGIN LMeasHandle * sourceVoltagesIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -1456,7 +1414,26 @@ ErrorCodes_t setVoltageProtocolStructure(
         E384CL_ARGIN uint16_t protId,
         E384CL_ARGIN uint16_t itemsNum,
         E384CL_ARGIN uint16_t sweepsNum,
-        E384CL_ARGIN CharMeasurement_t vRest);
+        E384CL_ARGIN LVMeasurement_t vRest);
+
+/*! \brief Describes the structure of an incoming voltage protocol.
+ *
+ * \param protId [in] Protocol identifier number.
+ * \param itemsNum [in] Number of protocol items.
+ * \param sweepsNum [in] Number of sweeps of the protocol.
+ * \param vec [in] Vector of input measurements:
+ *                 vec[0]: Voltage that will be applied when the protocol ends.
+ *                 Can use internal vector
+ * \note Each sweep increases the stepped parameter by 1 step.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setVoltageProtocolStructureVec(
+        E384CL_ARGIN uint16_t protId,
+        E384CL_ARGIN uint16_t itemsNum,
+        E384CL_ARGIN uint16_t sweepsNum,
+        E384CL_ARGIN LMeasHandle * vec);
 
 /*! \brief Commits a voltage protocol item consisting of a constant voltage.
  *  Steps can be defined for both voltage and duration to make them change at any iteration.
@@ -1479,10 +1456,40 @@ ErrorCodes_t setVoltageProtocolStructure(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltStepTimeStep(
-        E384CL_ARGIN CharMeasurement_t v0,
-        E384CL_ARGIN CharMeasurement_t vStep,
-        E384CL_ARGIN CharMeasurement_t t0,
-        E384CL_ARGIN CharMeasurement_t tStep,
+        E384CL_ARGIN LVMeasurement_t v0,
+        E384CL_ARGIN LVMeasurement_t vStep,
+        E384CL_ARGIN LVMeasurement_t t0,
+        E384CL_ARGIN LVMeasurement_t tStep,
+        E384CL_ARGIN uint16_t currentItem,
+        E384CL_ARGIN uint16_t nextItem,
+        E384CL_ARGIN uint16_t repsNum,
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t vHalfFlag);
+
+/*! \brief Commits a voltage protocol item consisting of a constant voltage.
+ *  Steps can be defined for both voltage and duration to make them change at any iteration.
+ *  Loops can also be defined to repeat a given sequence of items more than once,
+ *  e.g. sequence 0123232345 can be reduced to 012345 where item 3 has \p nextItem set to 2 and
+ *  repsNum set to 3
+ *
+ * \param vec [in] Vector of input measurements:
+ *                 vec[0]: Initial voltage.
+ *                 vec[1]: Voltage step.
+ *                 vec[2]: Initial duration.
+ *                 vec[3]: Duration step.
+ *                 Can use internal vector
+ * \param currentItem [in] Index of the current protocol item.
+ * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
+ * \param repsNum [in] Number of loop repetitions before moving on.
+ * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+ * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t voltStepTimeStepVec(
+        E384CL_ARGIN LMeasHandle * vec,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -1508,9 +1515,37 @@ ErrorCodes_t voltStepTimeStep(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltRamp(
-        E384CL_ARGIN CharMeasurement_t v0,
-        E384CL_ARGIN CharMeasurement_t vFinal,
-        E384CL_ARGIN CharMeasurement_t t,
+        E384CL_ARGIN LVMeasurement_t v0,
+        E384CL_ARGIN LVMeasurement_t vFinal,
+        E384CL_ARGIN LVMeasurement_t t,
+        E384CL_ARGIN uint16_t currentItem,
+        E384CL_ARGIN uint16_t nextItem,
+        E384CL_ARGIN uint16_t repsNum,
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t vHalfFlag);
+
+/*! \brief Commits a voltage protocol item consisting of a voltage ramp.
+ *  Loops can also be defined to repeat a given sequence of items more than once,
+ *  e.g. sequence 0123232345 can be reduced to 012345 where item 3 has \p nextItem set to 2 and
+ *  repsNum set to 3
+ *
+ * \param vec [in] Vector of input measurements:
+ *                 vec[0]: Initial voltage.
+ *                 vec[1]: Final voltage.
+ *                 vec[2]: Duration.
+ *                 Can use internal vector
+ * \param currentItem [in] Index of the current protocol item.
+ * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
+ * \param repsNum [in] Number of loop repetitions before moving on.
+ * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+ * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t voltRampVec(
+        E384CL_ARGIN LMeasHandle * vec,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -1536,9 +1571,37 @@ ErrorCodes_t voltRamp(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltSin(
-        E384CL_ARGIN CharMeasurement_t v0,
-        E384CL_ARGIN CharMeasurement_t vAmp,
-        E384CL_ARGIN CharMeasurement_t freq,
+        E384CL_ARGIN LVMeasurement_t v0,
+        E384CL_ARGIN LVMeasurement_t vAmp,
+        E384CL_ARGIN LVMeasurement_t freq,
+        E384CL_ARGIN uint16_t currentItem,
+        E384CL_ARGIN uint16_t nextItem,
+        E384CL_ARGIN uint16_t repsNum,
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t vHalfFlag);
+
+/*! \brief Commits a voltage protocol item consisting of a sinusoidal wave.
+ *  Loops can also be defined to repeat a given sequence of items more than once,
+ *  e.g. sequence 0123232345 can be reduced to 012345 where item 3 has \p nextItem set to 2 and
+ *  repsNum set to 3
+ *
+ * \param vec [in] Vector of input measurements:
+ *                 vec[0]: Voltage offset.
+ *                 vec[1]: Voltage amplitude.
+ *                 vec[2]: Oscillation frequency.
+ *                 Can use internal vector
+ * \param currentItem [in] Index of the current protocol item.
+ * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
+ * \param repsNum [in] Number of loop repetitions before moving on.
+ * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+ * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t voltSinVec(
+        E384CL_ARGIN LMeasHandle * vec,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -1578,7 +1641,26 @@ ErrorCodes_t setCurrentProtocolStructure(
         E384CL_ARGIN uint16_t protId,
         E384CL_ARGIN uint16_t itemsNum,
         E384CL_ARGIN uint16_t sweepsNum,
-        E384CL_ARGIN CharMeasurement_t iRest);
+        E384CL_ARGIN LVMeasurement_t iRest);
+
+/*! \brief Describes the structure of an incoming current protocol.
+ *
+ * \param protId [in] Protocol identifier number.
+ * \param itemsNum [in] Number of protocol items.
+ * \param sweepsNum [in] Number of sweeps of the protocol.
+ * \param vec [in] Vector of input measurements:
+ *                 vec[0]: Current that will be applied when the protocol ends.
+ *                 Can use internal vector
+ * \note Each sweep increases the stepped parameters by 1 step.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCurrentProtocolStructureVec(
+        E384CL_ARGIN uint16_t protId,
+        E384CL_ARGIN uint16_t itemsNum,
+        E384CL_ARGIN uint16_t sweepsNum,
+        E384CL_ARGIN LMeasHandle * vec);
 
 /*! \brief Commits a current protocol item consisting of a constant current.
  *  Steps can be defined for both current and duration to make them change at any iteration.
@@ -1601,10 +1683,40 @@ ErrorCodes_t setCurrentProtocolStructure(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currStepTimeStep(
-        E384CL_ARGIN CharMeasurement_t i0,
-        E384CL_ARGIN CharMeasurement_t iStep,
-        E384CL_ARGIN CharMeasurement_t t0,
-        E384CL_ARGIN CharMeasurement_t tStep,
+        E384CL_ARGIN LVMeasurement_t i0,
+        E384CL_ARGIN LVMeasurement_t iStep,
+        E384CL_ARGIN LVMeasurement_t t0,
+        E384CL_ARGIN LVMeasurement_t tStep,
+        E384CL_ARGIN uint16_t currentItem,
+        E384CL_ARGIN uint16_t nextItem,
+        E384CL_ARGIN uint16_t repsNum,
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t cHalfFlag);
+
+/*! \brief Commits a current protocol item consisting of a constant current.
+ *  Steps can be defined for both current and duration to make them change at any iteration.
+ *  Loops can also be defined to repeat a given sequence of items more than once,
+ *  e.g. sequence 0123232345 can be reduced to 012345 where item 3 has \p nextItem set to 2 and
+ *  repsNum set to 3
+ *
+ * \param vec [in] Vector of input measurements:
+ *                 vec[0]: Initial current.
+ *                 vec[1]: Current step.
+ *                 vec[2]: Initial duration.
+ *                 vec[3]: Duration step.
+ *                 Can use internal vector
+ * \param currentItem [in] Index of the current protocol item.
+ * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
+ * \param repsNum [in] Number of loop repetitions before moving on.
+ * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
+ * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t currStepTimeStepVec(
+        E384CL_ARGIN LMeasHandle * vec,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -1630,9 +1742,37 @@ ErrorCodes_t currStepTimeStep(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currRamp(
-        E384CL_ARGIN CharMeasurement_t i0,
-        E384CL_ARGIN CharMeasurement_t iFinal,
-        E384CL_ARGIN CharMeasurement_t t,
+        E384CL_ARGIN LVMeasurement_t i0,
+        E384CL_ARGIN LVMeasurement_t iFinal,
+        E384CL_ARGIN LVMeasurement_t t,
+        E384CL_ARGIN uint16_t currentItem,
+        E384CL_ARGIN uint16_t nextItem,
+        E384CL_ARGIN uint16_t repsNum,
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t cHalfFlag);
+
+/*! \brief Commits a current protocol item consisting of a current ramp.
+ *  Loops can also be defined to repeat a given sequence of items more than once,
+ *  e.g. sequence 0123232345 can be reduced to 012345 where item 3 has \p nextItem set to 2 and
+ *  repsNum set to 3
+ *
+ * \param vec [in] Vector of input measurements:
+ *                 vec[0]: Initial Current.
+ *                 vec[1]: Final current.
+ *                 vec[2]: Duration.
+ *                 Can use internal vector
+ * \param currentItem [in] Index of the current protocol item.
+ * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
+ * \param repsNum [in] Number of loop repetitions before moving on.
+ * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
+ * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t currRampVec(
+        E384CL_ARGIN LMeasHandle * vec,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -1658,9 +1798,37 @@ ErrorCodes_t currRamp(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currSin(
-        E384CL_ARGIN CharMeasurement_t i0,
-        E384CL_ARGIN CharMeasurement_t iAmp,
-        E384CL_ARGIN CharMeasurement_t freq,
+        E384CL_ARGIN LVMeasurement_t i0,
+        E384CL_ARGIN LVMeasurement_t iAmp,
+        E384CL_ARGIN LVMeasurement_t freq,
+        E384CL_ARGIN uint16_t currentItem,
+        E384CL_ARGIN uint16_t nextItem,
+        E384CL_ARGIN uint16_t repsNum,
+        E384CL_ARGIN uint16_t applySteps,
+        E384CL_ARGIN uint16_t cHalfFlag);
+
+/*! \brief Commits a current protocol item consisting of a sinusoidal wave.
+ *  Loops can also be defined to repeat a given sequence of items more than once,
+ *  e.g. sequence 0123232345 can be reduced to 012345 where item 3 has \p nextItem set to 2 and
+ *  repsNum set to 3
+ *
+ * \param vec [in] Vector of input measurements:
+ *                 vec[0]: Current offset.
+ *                 vec[1]: Current amplitude.
+ *                 vec[2]: Oscillation frequency.
+ *                 Can use internal vector
+ * \param currentItem [in] Index of the current protocol item.
+ * \param nextItem [in] Index of the protocol item that will follow, i.e. used as a goto to create loops.
+ * \param repsNum [in] Number of loop repetitions before moving on.
+ * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
+ * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
+ * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t currSinVec(
+        E384CL_ARGIN LMeasHandle * vec,
         E384CL_ARGIN uint16_t currentItem,
         E384CL_ARGIN uint16_t nextItem,
         E384CL_ARGIN uint16_t repsNum,
@@ -1870,7 +2038,7 @@ ErrorCodes_t getCCCurrentRanges(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVCCurrentRange(
-        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
+        E384CL_ARGOUT LVRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the current range currently applied for current clamp.
  *
@@ -1880,7 +2048,7 @@ ErrorCodes_t getVCCurrentRange(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCCurrentRange(
-        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
+        E384CL_ARGOUT LVRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the voltage ranges available in voltage clamp for the device.
  *
@@ -1910,7 +2078,7 @@ ErrorCodes_t getCCVoltageRanges(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVCVoltageRange(
-        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
+        E384CL_ARGOUT LVRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the voltage range currently applied for current clamp.
  *
@@ -1920,7 +2088,7 @@ ErrorCodes_t getVCVoltageRange(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCVoltageRange(
-        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
+        E384CL_ARGOUT LVRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the sampling rates available for the device.
  *
@@ -1953,7 +2121,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVoltageProtocolRange(
         E384CL_ARGIN unsigned int rangeIdx,
-        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
+        E384CL_ARGOUT LVRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the current range for current protocols.
  *
@@ -1965,7 +2133,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCurrentProtocolRange(
         E384CL_ARGIN unsigned int rangeIdx,
-        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
+        E384CL_ARGOUT LVRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the time range for voltage and current protocols.
  *
@@ -1975,7 +2143,7 @@ ErrorCodes_t getCurrentProtocolRange(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getTimeProtocolRange(
-        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
+        E384CL_ARGOUT LVRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the frequency range for voltage and current sinusoidal protocols.
  *
@@ -1985,7 +2153,7 @@ ErrorCodes_t getTimeProtocolRange(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getFrequencyProtocolRange(
-        E384CL_ARGOUT CharRangedMeasurement_t &rangeOut);
+        E384CL_ARGOUT LVRangedMeasurement_t &rangeOut);
 
 /*! \brief Tell how many protocol items the device can memorize.
  *
@@ -2133,7 +2301,7 @@ ErrorCodes_t getBridgeBalanceCompensationOptions(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getPipetteCapacitanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+        E384CL_ARGOUT LVCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the pipette capacitance for current clamp.
  *
@@ -2143,7 +2311,7 @@ ErrorCodes_t getPipetteCapacitanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCPipetteCapacitanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+        E384CL_ARGOUT LVCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the membrane capacitance.
  *
@@ -2153,7 +2321,7 @@ ErrorCodes_t getCCPipetteCapacitanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getMembraneCapacitanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+        E384CL_ARGOUT LVCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the access resistance.
  *
@@ -2163,7 +2331,7 @@ ErrorCodes_t getMembraneCapacitanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+        E384CL_ARGOUT LVCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance correction percentage.
  *
@@ -2173,7 +2341,7 @@ ErrorCodes_t getAccessResistanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistanceCorrectionPercentageControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+        E384CL_ARGOUT LVCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance correction lag.
  *
@@ -2183,7 +2351,7 @@ ErrorCodes_t getResistanceCorrectionPercentageControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistanceCorrectionLagControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+        E384CL_ARGOUT LVCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction gain.
  *
@@ -2193,7 +2361,7 @@ ErrorCodes_t getResistanceCorrectionLagControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionGainControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+        E384CL_ARGOUT LVCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction percentage.
  *
@@ -2203,7 +2371,7 @@ ErrorCodes_t getResistancePredictionGainControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionPercentageControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+        E384CL_ARGOUT LVCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the resistance prediction tau.
  *
@@ -2213,7 +2381,7 @@ ErrorCodes_t getResistancePredictionPercentageControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getResistancePredictionTauControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+        E384CL_ARGOUT LVCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the leak conductance.
  *
@@ -2223,7 +2391,7 @@ ErrorCodes_t getResistancePredictionTauControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLeakConductanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+        E384CL_ARGOUT LVCompensationControl_t &control);
 
 /*! \brief Get the specifications of the control for the bridge balance resistance.
  *
@@ -2233,7 +2401,7 @@ ErrorCodes_t getLeakConductanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceResistanceControl(
-        E384CL_ARGOUT CharCompensationControl_t &control);
+        E384CL_ARGOUT LVCompensationControl_t &control);
 
 /*! \brief Gets the value of the pipette capacitance for voltage clamp for each channel.
  *
@@ -2413,22 +2581,26 @@ ErrorCodes_t getBridgeBalanceResistance(
 
 /*! \brief Gets the gain of the voltage clamp current ADC.
  *
+ * \param samplingRateIdx [in] sampling rate index (different sampling rates may have different ADC calibrations).
  * \param meas [out] calibration parameters.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVcAdcGainCalibration(
+        E384CL_ARGIN uint16_t samplingRateIdx,
         E384CL_ARGOUT LVecMeasHandle * meas);
 
 /*! \brief Gets the offset of the voltage clamp current ADC.
  *
+ * \param samplingRateIdx [in] sampling rate index (different sampling rates may have different ADC calibrations).
  * \param meas [out] calibration parameters.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getVcAdcOffsetCalibration(
+        E384CL_ARGIN uint16_t samplingRateIdx,
         E384CL_ARGOUT LVecMeasHandle * meas);
 
 /*! \brief Gets the gain of the voltage clamp voltage DAC.
@@ -2453,22 +2625,26 @@ ErrorCodes_t getVcDacOffsetCalibration(
 
 /*! \brief Gets the gain of the current clamp voltage ADC.
  *
+ * \param samplingRateIdx [in] sampling rate index (different sampling rates may have different ADC calibrations).
  * \param meas [out] calibration parameters.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCcAdcGainCalibration(
+        E384CL_ARGIN uint16_t samplingRateIdx,
         E384CL_ARGOUT LVecMeasHandle * meas);
 
 /*! \brief Gets the offset of the current clamp voltage ADC.
  *
+ * \param samplingRateIdx [in] sampling rate index (different sampling rates may have different ADC calibrations).
  * \param meas [out] calibration parameters.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCcAdcOffsetCalibration(
+        E384CL_ARGIN uint16_t samplingRateIdx,
         E384CL_ARGOUT LVecMeasHandle * meas);
 
 /*! \brief Gets the gain of the current clamp current DAC.
