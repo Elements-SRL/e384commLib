@@ -316,7 +316,9 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     boolConfig.initialWord = 11;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    vcVoltageFilterCoder = new BoolArrayCoder(boolConfig);
+    vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(1); // 10 Hz
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0); // 10kHz
     coders.push_back(vcVoltageFilterCoder);
 
     /*! Current filter CC */
@@ -517,7 +519,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     doubleConfig.bitsNum = 16;
     vHoldTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 508;
+        doubleConfig.initialWord = 316;
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
         doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
