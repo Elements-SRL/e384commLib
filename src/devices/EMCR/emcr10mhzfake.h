@@ -36,7 +36,8 @@ private:
     void initializeLongBuffer();
 
     uint32_t syntheticData = 0;
-    double generatedByteRate = 4.0e6;
+    double samplingRatesMHz = 1.25;
+    double generatedByteRate = 4.0e6*samplingRatesMHz;
 
     std::chrono::steady_clock::time_point startTime;
     std::chrono::steady_clock::time_point currentTime;
