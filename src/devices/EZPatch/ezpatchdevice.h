@@ -10,9 +10,6 @@
 #include "messagedispatcher.h"
 #include "calibrationeeprom.h"
 
-#define EZP_LSB_NOISE_ARRAY_SIZE 0x40000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~250k
-#define EZP_LSB_NOISE_ARRAY_MASK (EZP_LSB_NOISE_ARRAY_SIZE-1) // 0b11...1 for all bits of the array indexes
-
 #define EZP_RX_MSG_BUFFER_SIZE 0x10000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~65k
 #define EZP_RX_MSG_BUFFER_MASK (EZP_RX_MSG_BUFFER_SIZE-1)
 #define EZP_RX_DATA_BUFFER_SIZE 0x1000000 /*! \todo FCON valutare che questo numero sia adeguato */ // 16M
@@ -94,7 +91,6 @@ public:
     ErrorCodes_t setCalibCcVoltageOffset(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) override;
     ErrorCodes_t updateCalibCcVoltageOffset(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
 
-    ErrorCodes_t turnOnLsbNoise(bool flag);
     virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
     virtual ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
@@ -254,7 +250,6 @@ protected:
 
     void joinCommunicationThreads() override;
 
-    void initializeLsbNoise(bool nullValues = true);
     virtual void initializeCompensations();
 
     virtual void readAndParseMessages() = 0;
@@ -481,9 +476,6 @@ protected:
     bool txAckReceived = false;
 
     int32_t txWaitingOnAcks = 0;
-
-    double * lsbNoiseArray = nullptr;
-    uint32_t lsbNoiseIdx = 0;
 
     uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */
 

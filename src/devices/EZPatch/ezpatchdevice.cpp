@@ -1,6 +1,5 @@
 #include "ezpatchdevice.h"
 
-#include <random>
 #include <map>
 
 #include "utils.h"
@@ -961,11 +960,6 @@ ErrorCodes_t EZPatchDevice::updateCalibCcVoltageOffset(std::vector <uint16_t> ch
     }
 
     return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
-}
-
-ErrorCodes_t EZPatchDevice::turnOnLsbNoise(bool flag) {
-    this->initializeLsbNoise(!flag);
-    return Success;
 }
 
 ErrorCodes_t EZPatchDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {
@@ -2800,18 +2794,16 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                         /*! \todo FCON questo doppio ciclo va modificato per raccogliere i dati di impedenza in modalità lock-in */
                         for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                             rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(channelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+(voltageOffsetCorrection+voltageTunerCorrection[channelIdx])/voltageResolution, iirVNum, iirVDen);
+                            this->applyRawDataFilter(channelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY)+(voltageOffsetCorrection+voltageTunerCorrection[channelIdx])/voltageResolution, iirVNum, iirVDen);
                             xFlt = iirY[channelIdx][iirOff];
                             data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
-                            lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
 
                             rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(channelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY+lsbNoiseArray[lsbNoiseIdx])+currentTunerCorrection[channelIdx]/currentResolution, iirINum, iirIDen);
+                            this->applyRawDataFilter(channelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY)+currentTunerCorrection[channelIdx]/currentResolution, iirINum, iirIDen);
                             xFlt = iirY[channelIdx+voltageChannelsNum][iirOff];
                             data[dataWritten+sampleIdx+voltageChannelsNum] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
-                            lsbNoiseIdx = (lsbNoiseIdx+1)&EZP_LSB_NOISE_ARRAY_MASK;
 
                             if (computeCurrentOffsetFlag) {
                                 liquidJunctionCurrentSums[channelIdx] += (int64_t)data[dataWritten+sampleIdx+voltageChannelsNum];
@@ -3247,12 +3239,6 @@ ErrorCodes_t EZPatchDevice::initializeMemory() {
         return ErrorMemoryInitialization;
     }
 
-    lsbNoiseArray = new (std::nothrow) double[EZP_LSB_NOISE_ARRAY_SIZE];
-    if (lsbNoiseArray == nullptr) {
-        this->deinitializeMemory();
-        return ErrorMemoryInitialization;
-    }
-
     /*! Allocate memory for holding values to correct readout from device */
     voltageTunerCorrection.resize(currentChannelsNum);
     std::fill(voltageTunerCorrection.begin(), voltageTunerCorrection.end(), 0.0);
@@ -3273,9 +3259,6 @@ ErrorCodes_t EZPatchDevice::initializeMemory() {
 
 void EZPatchDevice::initializeVariables() {
     MessageDispatcher::initializeVariables();
-
-    /*! Calculate the LSB noise std::vector */
-    this->initializeLsbNoise();
 
     /*! Allocate memory for compensations */
     this->initializeCompensations();
@@ -3410,11 +3393,6 @@ void EZPatchDevice::deinitializeMemory() {
         delete [] txDataBuffer;
         txDataBuffer = nullptr;
     }
-
-    if (lsbNoiseArray != nullptr) {
-        delete [] lsbNoiseArray;
-        lsbNoiseArray = nullptr;
-    }
 }
 
 void EZPatchDevice::deinitializeVariables() {
@@ -3430,22 +3408,6 @@ void EZPatchDevice::joinCommunicationThreads() {
         liquidJunctionThread.join();
 
         threadsStarted = false;
-    }
-}
-
-void EZPatchDevice::initializeLsbNoise(bool nullValues) {
-    if (nullValues) {
-        /*! By default there is no added noise  */
-        for (int32_t i = 0; i < EZP_LSB_NOISE_ARRAY_SIZE; i++) {
-            lsbNoiseArray[i] = 0.0;
-        }
-
-    } else {
-        std::mt19937 mtRng((uint32_t)time(nullptr));
-        double den = (double)0xFFFFFFFF;
-        for (int32_t i = 0; i < EZP_LSB_NOISE_ARRAY_SIZE; i++) {
-            lsbNoiseArray[i] = ((double)mtRng())/den-0.5;
-        }
     }
 }
 

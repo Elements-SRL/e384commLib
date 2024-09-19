@@ -21,6 +21,7 @@ Emcr10MHzFake::Emcr10MHzFake(std::string id) :
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
     selectedSamplingRateIdx = defaultSamplingRateIdx;
+    bytesPerFrame = (totalChannelsNum*packetsPerFrame+8)*RX_WORD_SIZE;
 }
 
 ErrorCodes_t Emcr10MHzFake::startCommunication(std::string) {
@@ -30,7 +31,7 @@ ErrorCodes_t Emcr10MHzFake::startCommunication(std::string) {
 
 void Emcr10MHzFake::initializeVariables() {
     EmcrDevice::initializeVariables();
-    this->fillBuffer();
+//    this->fillBuffer();
     this->initializeLongBuffer();
     startTime = std::chrono::steady_clock::now();
 }
@@ -77,7 +78,7 @@ uint32_t Emcr10MHzFake::readDataFromDevice() {
     }
     startTime = currentTime;
 
-    while (bytesRead+((voltageChannelsNum+currentChannelsNum)*packetsPerFrame+8)*RX_WORD_SIZE < UDB_RX_TRANSFER_SIZE) {
+    while (bytesRead+bytesPerFrame < UDB_RX_TRANSFER_SIZE) {
         rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
         rxRawBuffer[rxRawBufferWriteOffset+1] = 0XA5;
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & UDB_RX_BUFFER_MASK;
@@ -132,7 +133,7 @@ uint32_t Emcr10MHzFake::readDataFromDevice() {
                 }
             }
         }
-        bytesRead += ((voltageChannelsNum+currentChannelsNum)*packetsPerFrame+8)*RX_WORD_SIZE;
+        bytesRead += bytesPerFrame;
     }
 
 #endif
@@ -163,7 +164,7 @@ void Emcr10MHzFake::fillBuffer() {
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from UDB */
 
-    while (bytesRead+((voltageChannelsNum+currentChannelsNum)*packetsPerFrame+8)*RX_WORD_SIZE < UDB_RX_BUFFER_SIZE) {
+    while (bytesRead+bytesPerFrame < UDB_RX_BUFFER_SIZE) {
         rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
         rxRawBuffer[rxRawBufferWriteOffset+1] = 0XA5;
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & UDB_RX_BUFFER_MASK;
@@ -211,7 +212,7 @@ void Emcr10MHzFake::fillBuffer() {
             }
         }
 
-        bytesRead += ((voltageChannelsNum+currentChannelsNum)*packetsPerFrame+8)*RX_WORD_SIZE;
+        bytesRead += bytesPerFrame;
     }
 }
 

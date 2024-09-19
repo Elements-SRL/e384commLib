@@ -51,6 +51,8 @@ private:
     std::size_t maxElementsLong;
     std::size_t readElementsLong;
     std::vector <int16_t> dataLong;
+
+    int32_t bytesPerFrame = 0;
 };
 
 #endif // EMCR10MHZFAKE_H
