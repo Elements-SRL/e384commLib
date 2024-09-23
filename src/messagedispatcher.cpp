@@ -837,36 +837,39 @@ ErrorCodes_t MessageDispatcher::getClampingModalityIdx(uint32_t &idx) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultVcCurrRangeIdx) {
+ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultRangeIdx) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     currentRanges = vcCurrentRangesArray;
-    defaultVcCurrRangeIdx = defaultVcCurrentRangeIdx;
+    defaultRangeIdx = defaultVcCurrentRangeIdx;
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getVCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
+ErrorCodes_t MessageDispatcher::getVCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges, uint16_t &defaultRangeIdx) {
     if (vcVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     voltageRanges = vcVoltageRangesArray;
+    defaultRangeIdx = defaultVcVoltageRangeIdx;
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges) {
+ErrorCodes_t MessageDispatcher::getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultRangeIdx) {
     if (ccCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     currentRanges = ccCurrentRangesArray;
+    defaultRangeIdx = defaultCcCurrentRangeIdx;
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges) {
+ErrorCodes_t MessageDispatcher::getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges, uint16_t &defaultRangeIdx) {
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
     voltageRanges = ccVoltageRangesArray;
+    defaultRangeIdx = defaultCcVoltageRangeIdx;
     return Success;
 }
 

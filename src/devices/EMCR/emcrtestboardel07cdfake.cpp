@@ -1,7 +1,7 @@
-#include "emcrtestboardel07abfake.h"
+#include "emcrtestboardel07cdfake.h"
 
-EmcrTestBoardEl07abFake::EmcrTestBoardEl07abFake(std::string id) :
-    EmcrTestBoardEl07ab(id) {
+EmcrTestBoardEl07cdFake::EmcrTestBoardEl07cdFake(std::string id) :
+    EmcrTestBoardEl07c(id) {
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
@@ -23,34 +23,34 @@ EmcrTestBoardEl07abFake::EmcrTestBoardEl07abFake(std::string id) :
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 }
 
-ErrorCodes_t EmcrTestBoardEl07abFake::startCommunication(std::string) {
+ErrorCodes_t EmcrTestBoardEl07cdFake::startCommunication(std::string) {
     /*! Nothing to be done */
     return Success;
 }
 
-void EmcrTestBoardEl07abFake::initializeVariables() {
+void EmcrTestBoardEl07cdFake::initializeVariables() {
     EmcrDevice::initializeVariables();
     this->fillBuffer();
     this->initializeLongBuffer();
     startTime = std::chrono::steady_clock::now();
 }
 
-ErrorCodes_t EmcrTestBoardEl07abFake::initializeHW() {
+ErrorCodes_t EmcrTestBoardEl07cdFake::initializeHW() {
     parsingStatus = ParsingParsing;
     return Success;
 }
 
-ErrorCodes_t EmcrTestBoardEl07abFake::stopCommunication() {
+ErrorCodes_t EmcrTestBoardEl07cdFake::stopCommunication() {
     /*! Nothing to be done */
     fileLong.close();
     return Success;
 }
 
-bool EmcrTestBoardEl07abFake::writeRegistersAndActivateTriggers(TxTriggerType_t) {
+bool EmcrTestBoardEl07cdFake::writeRegistersAndActivateTriggers(TxTriggerType_t) {
     return true;
 }
 
-uint32_t EmcrTestBoardEl07abFake::readDataFromDevice() {
+uint32_t EmcrTestBoardEl07cdFake::readDataFromDevice() {
 #ifdef DEBUG_MAX_SPEED
     uint32_t bytesRead = UDB_RX_TRANSFER_SIZE; /*!< Bytes read during last transfer from UDB */
 #else
@@ -137,7 +137,7 @@ uint32_t EmcrTestBoardEl07abFake::readDataFromDevice() {
     return bytesRead;
 }
 
-void EmcrTestBoardEl07abFake::fillBuffer() {
+void EmcrTestBoardEl07cdFake::fillBuffer() {
     std::string filename = "iv_long.dat";
     std::ifstream file(filename, std::ios::binary);
     std::vector <int16_t> data;
@@ -220,7 +220,7 @@ void EmcrTestBoardEl07abFake::fillBuffer() {
     }
 }
 
-void EmcrTestBoardEl07abFake::initializeLongBuffer() {
+void EmcrTestBoardEl07cdFake::initializeLongBuffer() {
     fileLong.open(filenameLong, std::ios::binary);
 
     fileOkLong = fileLong.good();

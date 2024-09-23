@@ -158,19 +158,19 @@ contains(DEFINES, DEBUG) {
 SOURCES += \
     src/devices/EMCR/emcr384nanoporesfake.cpp \
     src/devices/EMCR/emcr384patchclampfake.cpp \
-    src/devices/EMCR/emcrtestboardel07abfake.cpp \
     src/devices/EMCR/emcr10mhzfake.cpp \
     src/devices/EMCR/emcr2x10mhzfake.cpp \
     src/devices/EMCR/emcr4x10mhzfake.cpp \
+    src/devices/EMCR/emcrtestboardel07cdfake.cpp \
     src/devices/EZPatch/ezpatchfakepatch.cpp \
     src/devices/EZPatch/ezpatchfakep8.cpp
 HEADERS += \
     src/devices/EMCR/emcr384nanoporesfake.h \
     src/devices/EMCR/emcr384patchclampfake.h \
-    src/devices/EMCR/emcrtestboardel07abfake.h \
     src/devices/EMCR/emcr10mhzfake.h \
     src/devices/EMCR/emcr2x10mhzfake.h \
     src/devices/EMCR/emcr4x10mhzfake.h \
+    src/devices/EMCR/emcrtestboardel07cdfake.h \
     src/devices/EZPatch/ezpatchfakepatch.h \
     src/devices/EZPatch/ezpatchfakep8.h
 }

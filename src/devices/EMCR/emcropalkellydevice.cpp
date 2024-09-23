@@ -20,7 +20,7 @@
 /*! Fake device that generates synthetic data */
 #include "emcr384nanoporesfake.h"
 #include "emcr384patchclampfake.h"
-#include "emcrtestboardel07abfake.h"
+#include "emcrtestboardel07cdfake.h"
 #include "emcr4x10mhzfake.h"
 #include "emcr2x10mhzfake.h"
 #endif
@@ -50,7 +50,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     #ifdef DEBUG
     ,{"DEMO_384_SSN", Device384Fake},
     {"DEMO_384_Patch", Device384FakePatchClamp},
-    {"DEMO_TB_EL07ab", DeviceTbEl07abFake},
+    {"DEMO_TB_EL07cd", DeviceTbEl07cdFake},
     {"DEMO_4x10MHz", Device4x10MHzFake},
     {"DEMO_2x10MHz", Device2x10MHzFake}
     #endif
@@ -94,7 +94,7 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
     numDevs++;
     deviceIds.push_back("DEMO_384_Patch");
     numDevs++;
-    deviceIds.push_back("DEMO_TB_EL07ab");
+    deviceIds.push_back("DEMO_TB_EL07cd");
     numDevs++;
     deviceIds.push_back("DEMO_4x10MHz");
     numDevs++;
@@ -247,8 +247,8 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr384FakePatchClamp(deviceId);
         break;
 
-    case DeviceTbEl07abFake:
-        messageDispatcher = new EmcrTestBoardEl07abFake(deviceId);
+    case DeviceTbEl07cdFake:
+        messageDispatcher = new EmcrTestBoardEl07cdFake(deviceId);
         break;
 
     case Device4x10MHzFake:

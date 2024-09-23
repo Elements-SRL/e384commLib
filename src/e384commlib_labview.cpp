@@ -1526,8 +1526,8 @@ ErrorCodes_t getVCCurrentRanges(
         return ErrorDeviceNotConnected;
     }
     std::vector <RangedMeasurement_t> currentRanges;
-    uint16_t unused;
-    ErrorCodes_t ret = messageDispatcher->getVCCurrentRanges(currentRanges, unused);
+    uint16_t _;
+    ErrorCodes_t ret = messageDispatcher->getVCCurrentRanges(currentRanges, _);
     vectorRangedMeasurement2Output(currentRanges, currentRangesOut);
     return ret;
 }
@@ -1538,7 +1538,8 @@ ErrorCodes_t getCCCurrentRanges(
         return ErrorDeviceNotConnected;
     }
     std::vector <RangedMeasurement_t> currentRanges;
-    ErrorCodes_t ret = messageDispatcher->getCCCurrentRanges(currentRanges);
+    uint16_t _;
+    ErrorCodes_t ret = messageDispatcher->getCCCurrentRanges(currentRanges, _);
     vectorRangedMeasurement2Output(currentRanges, currentRangesOut);
     return ret;
 }
@@ -1571,7 +1572,8 @@ ErrorCodes_t getVCVoltageRanges(
         return ErrorDeviceNotConnected;
     }
     std::vector <RangedMeasurement_t> voltageRanges;
-    ErrorCodes_t ret = messageDispatcher->getVCVoltageRanges(voltageRanges);
+    uint16_t _;
+    ErrorCodes_t ret = messageDispatcher->getVCVoltageRanges(voltageRanges, _);
     vectorRangedMeasurement2Output(voltageRanges, voltageRangesOut);
     return ret;
 }
@@ -1582,7 +1584,8 @@ ErrorCodes_t getCCVoltageRanges(
         return ErrorDeviceNotConnected;
     }
     std::vector <RangedMeasurement_t> voltageRanges;
-    ErrorCodes_t ret = messageDispatcher->getCCVoltageRanges(voltageRanges);
+    uint16_t _;
+    ErrorCodes_t ret = messageDispatcher->getCCVoltageRanges(voltageRanges, _);
     vectorRangedMeasurement2Output(voltageRanges, voltageRangesOut);
     return ret;
 }

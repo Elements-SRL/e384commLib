@@ -1,15 +1,15 @@
-#ifndef EMCRTESTBOARDEL07ABFAKE_H
-#define EMCRTESTBOARDEL07ABFAKE_H
+#ifndef EMCRTESTBOARDEL07CDFAKE_H
+#define EMCRTESTBOARDEL07CDFAKE_H
 
 //#define SHORT_FILE
 
-#include "emcrtestboardel07ab.h"
+#include "emcrtestboardel07cd.h"
 
 #include <fstream>
 
-class EmcrTestBoardEl07abFake : public EmcrTestBoardEl07ab {
+class EmcrTestBoardEl07cdFake : public EmcrTestBoardEl07c {
 public:
-    EmcrTestBoardEl07abFake(std::string id);
+    EmcrTestBoardEl07cdFake(std::string id);
 
 protected:
 
@@ -52,4 +52,4 @@ private:
     std::vector <int16_t> dataLong;
 };
 
-#endif // EMCRTESTBOARDEL07ABFAKE_H
+#endif // EMCRTESTBOARDEL07CDFAKE_H

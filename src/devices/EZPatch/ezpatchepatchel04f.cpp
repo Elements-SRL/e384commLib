@@ -85,7 +85,7 @@ EZPatchePatchEL04F::EZPatchePatchEL04F(std::string di) :
     ccCurrentRangesNum = CCCurrentRangesNum;
     ccCurrentRangesArray.resize(ccCurrentRangesNum);
     ccCurrentRangesArray[CCCurrentRange2500pA].max = 2500.0;
-    ccCurrentRangesArray[CCCurrentRange2500pA].min = 2500.0;
+    ccCurrentRangesArray[CCCurrentRange2500pA].min = -2500.0;
     ccCurrentRangesArray[CCCurrentRange2500pA].step = ccCurrentRangesArray[CCCurrentRange2500pA].max/(SHORT_MAX+1.0)*stimulusVoltageReference/stimulusVoltageLimit; /*! partial range used to avoid delta-sigma clipping */
     ccCurrentRangesArray[CCCurrentRange2500pA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange2500pA].unit = "A";

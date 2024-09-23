@@ -1411,31 +1411,34 @@ public:
     /*! \brief Get the current ranges available in voltage clamp for the device.
      *
      * \param currentRanges [out] Array containing all the available current ranges in voltage clamp.
-     * \param defaultVcCurrRangeIdx [out] Default index
+     * \param defaultRangeIdx [out] Default index
      * \return Error code.
      */
-    ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultVcCurrRangeIdx);
+    ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultRangeIdx);
 
     /*! \brief Get the voltage ranges available in voltage clamp for the device.
      *
      * \param voltageRanges [out] Array containing all the available voltage ranges in voltage clamp.
+     * \param defaultRangeIdx [out] Default index
      * \return Error code.
      */
-    ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges);
+    ErrorCodes_t getVCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges, uint16_t &defaultRangeIdx);
 
     /*! \brief Get the current ranges available in current clamp for the device.
      *
      * \param currentRanges [out] Array containing all the available current ranges in current clamp.
+     * \param defaultRangeIdx [out] Default index
      * \return Error code.
      */
-    ErrorCodes_t getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges);
+    ErrorCodes_t getCCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultRangeIdx);
 
     /*! \brief Get the voltage ranges available in current clamp for the device.
      *
      * \param voltageRanges [out] Array containing all the available voltage ranges in current clamp.
+     * \param defaultRangeIdx [out] Default index
      * \return Error code.
      */
-    ErrorCodes_t getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges);
+    ErrorCodes_t getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges, uint16_t &defaultRangeIdx);
 
     /*! \brief Get the current range currently applied for voltage clamp.
      *
