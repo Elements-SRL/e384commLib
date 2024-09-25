@@ -83,7 +83,7 @@ ErrorCodes_t EmcrDevice::startProtocol() {
 ErrorCodes_t EmcrDevice::stopProtocol() {
     if (protocolResetCoder == nullptr) {
         bool stopProtocolFlag = false; /*! We're already commiting a stop protocol, so commiting another one on the protocol structure will create an infinite recursion */
-        if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+        if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP || selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
             this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest, stopProtocolFlag);
             this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
 
@@ -165,7 +165,7 @@ ErrorCodes_t EmcrDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIndex
     } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (selectedClampingModality != VOLTAGE_CLAMP) {
+    } else if (selectedClampingModality != VOLTAGE_CLAMP && selectedClampingModality != VOLTAGE_CLAMP_VOLTAGE_READ) {
         return ErrorWrongClampModality;
     }
 
@@ -193,7 +193,7 @@ ErrorCodes_t EmcrDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIndex
     } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (selectedClampingModality == VOLTAGE_CLAMP) {
+    } else if (selectedClampingModality == VOLTAGE_CLAMP || selectedClampingModality == VOLTAGE_CLAMP_VOLTAGE_READ) {
         return ErrorWrongClampModality;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -220,7 +220,7 @@ ErrorCodes_t EmcrDevice::setVoltageHalf(std::vector <uint16_t> channelIndexes, s
     } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (selectedClampingModality != VOLTAGE_CLAMP) {
+    } else if (selectedClampingModality != VOLTAGE_CLAMP && selectedClampingModality != VOLTAGE_CLAMP_VOLTAGE_READ) {
         return ErrorWrongClampModality;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -247,7 +247,7 @@ ErrorCodes_t EmcrDevice::setCurrentHalf(std::vector <uint16_t> channelIndexes, s
     } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (selectedClampingModality == VOLTAGE_CLAMP) {
+    } else if (selectedClampingModality == VOLTAGE_CLAMP || selectedClampingModality == VOLTAGE_CLAMP_VOLTAGE_READ) {
         return ErrorWrongClampModality;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -275,7 +275,7 @@ ErrorCodes_t EmcrDevice::setLiquidJunctionVoltage(std::vector <uint16_t> channel
     } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
 
-    } else if (selectedClampingModality != VOLTAGE_CLAMP) {
+    } else if (selectedClampingModality != VOLTAGE_CLAMP && selectedClampingModality != VOLTAGE_CLAMP_VOLTAGE_READ) {
         return ErrorWrongClampModality;
     }
 
@@ -303,7 +303,7 @@ ErrorCodes_t EmcrDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool a
         return ErrorValueOutOfRange;
     }
 
-    if (selectedClampingModality == VOLTAGE_CLAMP) {
+    if (selectedClampingModality == VOLTAGE_CLAMP || selectedClampingModality == VOLTAGE_CLAMP_VOLTAGE_READ) {
         if (compensationsEnableFlags[CompRsCorr].empty()) {
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
@@ -1032,6 +1032,10 @@ ErrorCodes_t EmcrDevice::setAdcCore(std::vector <uint16_t> channelIndexes, std::
         case DYNAMIC_CLAMP:
             return ErrorFeatureNotImplemented;
 
+        case VOLTAGE_CLAMP_VOLTAGE_READ:
+            vcCcSelCoders[channelIndexes[i]]->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            break;
+
         case UNDEFINED_CLAMP:
             return ErrorFeatureNotImplemented;
         }
@@ -1078,6 +1082,12 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
     if (clampingModeCoder != nullptr) {
         clampingModeCoder->encode(selectedClampingModalityIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
+
+    std::vector <bool> trues(currentChannelsNum);
+    std::vector <bool> falses(currentChannelsNum);
+
+    std::fill(trues.begin(), trues.end(), true);
+    std::fill(falses.begin(), falses.end(), false);
 
     switch (selectedClampingModality) {
     case VOLTAGE_CLAMP:
@@ -1155,7 +1165,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
         }
 
-        if (previousClampingModality == VOLTAGE_CLAMP) {
+        if (previousClampingModality == VOLTAGE_CLAMP || previousClampingModality == VOLTAGE_CLAMP_VOLTAGE_READ) {
             this->enableVcCompensations(false, false);
             storedVcCurrentRangeIdx = selectedVcCurrentRangeIdx;
             RangedMeasurement_t range;
@@ -1181,6 +1191,37 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
     case DYNAMIC_CLAMP:
         rawDataFilterVoltageFlag = false;
         rawDataFilterCurrentFlag = false;
+        break;
+
+    case VOLTAGE_CLAMP_VOLTAGE_READ:
+        rawDataFilterVoltageFlag = true;
+        rawDataFilterCurrentFlag = false;
+
+        /*! Remove liquid junction and subtract it from voltage reading */
+        for (uint32_t i = 0; i < currentChannelsNum; i++) {
+            this->updateLiquidJunctionVoltage(i, false);
+            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
+            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+        }
+
+        if (previousClampingModality != VOLTAGE_CLAMP_VOLTAGE_READ) {
+            this->enableVcCompensations(false, false);
+            this->enableCcCompensations(false, false);
+        }
+        this->turnVoltageReaderOn(true, false);
+        this->turnVoltageStimulusOn(true, false);
+        /*! Apply on previous command to turn the current clamp on then */
+        this->turnCurrentReaderOn(false, false);
+        this->turnCurrentStimulusOn(false, true);
+
+        this->turnVcSwOn(allChannelIndexes, trues, false);
+
+        this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+
+        this->setSourceForVoltageChannel(1, false);
+        this->setSourceForCurrentChannel(1, false);
+
         break;
     }
 
@@ -1295,6 +1336,7 @@ ErrorCodes_t EmcrDevice::setAdcFilter(bool applyFlag) {
 
     case CURRENT_CLAMP:
     case ZERO_CURRENT_CLAMP:
+    case VOLTAGE_CLAMP_VOLTAGE_READ:
         if (ccVoltageFilterCoder != nullptr) {
             ccVoltageFilterCoder->encode(sr2LpfCcVoltageMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedCcVoltageFilterIdx = sr2LpfCcVoltageMap[selectedSamplingRateIdx];
@@ -1328,6 +1370,7 @@ ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFla
 
     case CURRENT_CLAMP:
     case ZERO_CURRENT_CLAMP:
+    case VOLTAGE_CLAMP_VOLTAGE_READ:
         this->updateCalibCcVoltageGain(allChannelIndexes, false);
         this->updateCalibCcVoltageOffset(allChannelIndexes, false);
         break;

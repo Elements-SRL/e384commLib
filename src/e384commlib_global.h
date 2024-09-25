@@ -174,7 +174,8 @@ typedef enum{
     ZERO_CURRENT_CLAMP = 1,
     CURRENT_CLAMP = 2,
     DYNAMIC_CLAMP = 3,
-    UNDEFINED_CLAMP = 4,
+    VOLTAGE_CLAMP_VOLTAGE_READ = 4,
+    UNDEFINED_CLAMP = 5,
 } ClampingModality_t;
 
 /*! \enum DeviceTypes_t

@@ -31,6 +31,9 @@ protected:
     enum ClampingModalities {
         VoltageClamp,
         CurrentClamp,
+#ifdef CALIBRATION
+        VoltageClampVoltageRead,
+#endif
         ClampingModalitiesNum
     };
 
