@@ -400,7 +400,6 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     const double pipetteCapacitanceValuesNum = 256.0;
 
     std::vector <double> pipetteInjCapacitance = {3.0, 9.0, 27.0};
-    /*! \todo FCON recheck, now trying to use ranged measurement fo Features  */
     pipetteCapacitanceRange.resize(pipetteCapacitanceRanges);
     for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
         pipetteCapacitanceRange[idx].step = pipetteVarConductance/pipetteCapacitanceValuesNum*pipetteFixedResistance2*pipetteInjCapacitance[idx];
@@ -578,6 +577,13 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     boolConfig.bitsNum = 2;
     clampingModeCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(clampingModeCoder);
+
+    /*! Protocol reset */
+    boolConfig.initialWord = 4;
+    boolConfig.initialBit = 14;
+    boolConfig.bitsNum = 1;
+    protocolResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolResetCoder);
 
     /*! Voltage Source */
     boolConfig.initialWord = 3;
@@ -781,13 +787,6 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
             boolConfig.initialWord++;
         }
     }
-
-    /*! Protocol reset */
-    boolConfig.initialWord = 4;
-    boolConfig.initialBit = 14;
-    boolConfig.bitsNum = 1;
-    protocolResetCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(protocolResetCoder);
 
     /*! Protocol structure */
     boolConfig.initialWord = protocolWordOffset;
@@ -1309,7 +1308,6 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     multiCoderConfig.thresholdVector.resize(membraneCapValueRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
         multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapValueRanges; rangeIdx++) {
@@ -1525,7 +1523,6 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
         multiCoderConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
         static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x0);
         static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x1);
@@ -1683,7 +1680,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::getCompensationEnables(std
             return ErrorFeatureNotImplemented;
         }
         for (int i = 0; i < channelIndexes.size(); i++) {
-            onValues[i] =  ccCompensationsActivated && compensationsEnableFlags[type][channelIndexes[i]];
+            onValues[i] = ccCompensationsActivated && compensationsEnableFlags[type][channelIndexes[i]];
         }
         break;
 
@@ -1972,11 +1969,11 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompOptions(std::vector
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
-    switch (type)
-    {
+    switch (type) {
     case CompRsCorr:
         if (rsCorrBwCompensationCoders.size() == 0) {
             return ErrorFeatureNotImplemented;
+
         } else {
             for (uint32_t i = 0; i < channelIndexes.size(); i++) {
                 selectedRsCorrBws[i] = options[i];

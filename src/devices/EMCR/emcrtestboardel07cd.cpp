@@ -508,18 +508,6 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw17_7kHz] = rsCorrBwArray[CompensationRsCorrBw17_7kHz].niceLabel();
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_36kHz] = rsCorrBwArray[CompensationRsCorrBw9_36kHz].niceLabel();
 
-    customOptionsNum = CustomOptionsNum;
-    customOptionsNames.resize(customOptionsNum);
-    customOptionsNames[CustomOptionClockDivider] = "Clock Divider";
-    customOptionsDescriptions.resize(customOptionsNum);
-    customOptionsDescriptions[CustomOptionClockDivider].resize(4);
-    customOptionsDescriptions[CustomOptionClockDivider][0] = "/ 1";
-    customOptionsDescriptions[CustomOptionClockDivider][1] = "/ 2";
-    customOptionsDescriptions[CustomOptionClockDivider][2] = "/ 4";
-    customOptionsDescriptions[CustomOptionClockDivider][3] = "/ 8";
-    customOptionsDefault.resize(customOptionsNum);
-    customOptionsDefault[CustomOptionClockDivider] = 0;
-
     customDoublesNum = CustomDoublesNum;
     customDoublesNames.resize(customDoublesNum);
     customDoublesNames[CustomOffset1] = "Offset 1";
@@ -600,8 +588,14 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     /*! Sampling rate */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 3;
-    boolConfig.bitsNum = 4;
-    samplingRateCoder = new BoolArrayCoder(boolConfig);
+    boolConfig.bitsNum = 6;
+    samplingRateCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(32); /*   5kHz 0xb100000 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(33); /*  10kHz 0xb100001 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(34); /*  20kHz 0xb100010 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(19); /*  40kHz 0xb010011 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(20); /*  80kHz 0xb010100 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(5); /* 160kHz 0xb000101 */
     coders.push_back(samplingRateCoder);
 
     /*! Clamping mode */
@@ -1598,13 +1592,6 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         asic2UserDomainCompensable(i, defaultAsicDomainParams, defaultUserDomainParams);
     }
 
-    boolConfig.initialWord = 0;
-    boolConfig.initialBit = 7;
-    boolConfig.bitsNum = 2;
-    customOptionsCoders.resize(customOptionsNum);
-    customOptionsCoders[CustomOptionClockDivider] = new BoolArrayCoder(boolConfig);
-    coders.push_back(customOptionsCoders[CustomOptionClockDivider]);
-
     doubleConfig.initialWord = 284;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 7;
@@ -2019,7 +2006,7 @@ ErrorCodes_t EmcrTestBoardEl07c::setCompOptions(std::vector <uint16_t> channelIn
             }
             return Success;
         }
-        break;
+    break;
     }
 }
 
