@@ -315,6 +315,11 @@ protected:
     bool vcCurrentOffsetDeltaImplemented = false;
     bool ccVoltageOffsetDeltaImplemented = false;
 
+    double voltageCommandResolution = 1.0;
+    double vcVoltageCommandResolutionGain = 1.0;
+    double currentCommandResolution = 1.0;
+    double ccCurrentCommandResolutionGain = 1.0;
+
     unsigned int maxDigitalTriggerOutputEvents = 0;
     unsigned int digitalTriggersNum = 0;
     bool repetitiveTriggerAvailableFlag = false;

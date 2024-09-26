@@ -197,10 +197,10 @@ ErrorCodes_t EZPatchDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, boo
     uint16_t dataLength = 4;
     std::vector <uint16_t> txDataMessage(dataLength);
     if (channelModels[channelIdx]->isCompensatingLiquidJunction()) {
-        this->int322uint16((int32_t)round((selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+        this->int322uint16((int32_t)round((selectedLiquidJunctionVector[channelIdx].value)/voltageCommandResolution), txDataMessage, 0);
 
     } else {
-        this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+        this->int322uint16((int32_t)round((selectedVoltageHoldVector[channelIdx].value+selectedLiquidJunctionVector[channelIdx].value)/voltageCommandResolution), txDataMessage, 0);
     }
     txDataMessage[3] = txDataMessage[1];
     txDataMessage[1] = txDataMessage[0];
@@ -235,10 +235,10 @@ ErrorCodes_t EZPatchDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIn
         selectedVoltageHoldVector[chIdx].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
 
         if (channelModels[chIdx]->isCompensatingLiquidJunction()) {
-            this->int322uint16((int32_t)round((selectedLiquidJunctionVector[chIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), uint16Value, 0);
+            this->int322uint16((int32_t)round((selectedLiquidJunctionVector[chIdx].value)/voltageCommandResolution), uint16Value, 0);
 
         } else {
-            this->int322uint16((int32_t)round((selectedVoltageHoldVector[chIdx].value+selectedLiquidJunctionVector[chIdx].value)/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), uint16Value, 0);
+            this->int322uint16((int32_t)round((selectedVoltageHoldVector[chIdx].value+selectedLiquidJunctionVector[chIdx].value)/voltageCommandResolution), uint16Value, 0);
         }
         txDataMessage[0+chIdx*4] = vcHoldTunerHwRegisterOffset+chIdx*coreSpecificRegistersNum;
         txDataMessage[1+chIdx*4] = uint16Value[0];
@@ -279,7 +279,7 @@ ErrorCodes_t EZPatchDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIn
 
         selectedCurrentHoldVector[chIdx] = current;
         selectedCurrentHoldVector[chIdx].convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
-        this->int322uint16((int32_t)round(selectedCurrentHoldVector[chIdx].value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), uint16Value, 0);
+        this->int322uint16((int32_t)round(selectedCurrentHoldVector[chIdx].value/currentCommandResolution), uint16Value, 0);
         txDataMessage[0+chIdx*4] = ccHoldTunerHwRegisterOffset+chIdx*coreSpecificRegistersNum;
         txDataMessage[1+chIdx*4] = uint16Value[0];
         txDataMessage[2+chIdx*4] = ccHoldTunerHwRegisterOffset+chIdx*coreSpecificRegistersNum+1;
@@ -1022,6 +1022,7 @@ ErrorCodes_t EZPatchDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool app
             currentRange = ccCurrentRangesArray[currentRangeIdx];
             selectedCcCurrentRangeIdx = currentRangeIdx;
             currentResolution = currentRange.step;
+            currentCommandResolution = currentResolution*ccCurrentCommandResolutionGain;
             this->selectChannelsResolutions();
         }
 
@@ -1057,6 +1058,7 @@ ErrorCodes_t EZPatchDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool app
             voltageRange = vcVoltageRangesArray[voltageRangeIdx];
             selectedVcVoltageRangeIdx = voltageRangeIdx;
             voltageResolution = voltageRange.step;
+            voltageCommandResolution = voltageResolution*vcVoltageCommandResolutionGain;
             this->selectChannelsResolutions();
         }
 
@@ -2189,7 +2191,7 @@ ErrorCodes_t EZPatchDevice::setVoltageProtocolStructure(uint16_t protId, uint16_
     txDataMessage[0] = protId;
     txDataMessage[1] = itemsNum;
     txDataMessage[2] = sweepsNum;
-    this->int322uint16((int32_t)round(vRest.value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 3);
+    this->int322uint16((int32_t)round(vRest.value/voltageCommandResolution), txDataMessage, 3);
 
     stepsOnLastSweep = (double)(sweepsNum-1);
     protocolItemsNum = itemsNum;
@@ -2211,8 +2213,8 @@ ErrorCodes_t EZPatchDevice::voltStepTimeStep(Measurement_t v0, Measurement_t vSt
         if (nextItem <= ++protocolItemIndex) {
             uint16_t dataLength = 16;
             std::vector <uint16_t> txDataMessage(dataLength);
-            this->int322uint16((int32_t)round(v0.value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
-            this->int322uint16((int32_t)round(vStep.value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 2);
+            this->int322uint16((int32_t)round(v0.value/voltageCommandResolution), txDataMessage, 0);
+            this->int322uint16((int32_t)round(vStep.value/voltageCommandResolution), txDataMessage, 2);
             this->int322uint16((int32_t)round(t0.value/positiveProtocolTimeRange.step), txDataMessage, 4);
             this->int322uint16((int32_t)round(tStep.value/positiveProtocolTimeRange.step), txDataMessage, 6);
             txDataMessage[8] = 0xF00D;
@@ -2249,10 +2251,10 @@ ErrorCodes_t EZPatchDevice::voltRamp(Measurement_t v0, Measurement_t vFinal, Mea
         if (nextItem <= ++protocolItemIndex) {
             uint16_t dataLength = 16;
             std::vector <uint16_t> txDataMessage(dataLength);
-            this->int322uint16((int32_t)round(v0.value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+            this->int322uint16((int32_t)round(v0.value/voltageCommandResolution), txDataMessage, 0);
             txDataMessage[2] = 0;
             txDataMessage[3] = 0;
-            this->int322uint16((int32_t)round(vFinal.value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 4);
+            this->int322uint16((int32_t)round(vFinal.value/voltageCommandResolution), txDataMessage, 4);
             txDataMessage[6] = 0;
             txDataMessage[7] = 0;
             this->int322uint16((int32_t)round(t.value/positiveProtocolTimeRange.step), txDataMessage, 8);
@@ -2288,10 +2290,10 @@ ErrorCodes_t EZPatchDevice::voltSin(Measurement_t v0, Measurement_t vAmp, Measur
         if (nextItem <= ++protocolItemIndex) {
             uint16_t dataLength = 16;
             std::vector <uint16_t> txDataMessage(dataLength);
-            this->int322uint16((int32_t)round(v0.value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 0);
+            this->int322uint16((int32_t)round(v0.value/voltageCommandResolution), txDataMessage, 0);
             txDataMessage[2] = 0;
             txDataMessage[3] = 0;
-            this->int322uint16((int32_t)round(vAmp.value/vcVoltageRangesArray[selectedVcVoltageRangeIdx].step), txDataMessage, 4);
+            this->int322uint16((int32_t)round(vAmp.value/voltageCommandResolution), txDataMessage, 4);
             txDataMessage[6] = 0;
             txDataMessage[7] = 0;
             this->int322uint16((int32_t)round(freq.value/positiveProtocolFrequencyRange.step), txDataMessage, 8);
@@ -2392,7 +2394,7 @@ ErrorCodes_t EZPatchDevice::setCurrentProtocolStructure(uint16_t protId, uint16_
     txDataMessage[0] = protId;
     txDataMessage[1] = itemsNum;
     txDataMessage[2] = sweepsNum;
-    this->int322uint16((int32_t)round(iRest.value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 3);
+    this->int322uint16((int32_t)round(iRest.value/currentCommandResolution), txDataMessage, 3);
 
     stepsOnLastSweep = (double)(sweepsNum-1);
     protocolItemsNum = itemsNum;
@@ -2414,8 +2416,8 @@ ErrorCodes_t EZPatchDevice::currStepTimeStep(Measurement_t i0, Measurement_t iSt
         if (nextItem <= ++protocolItemIndex) {
             uint16_t dataLength = 16;
             std::vector <uint16_t> txDataMessage(dataLength);
-            this->int322uint16((int32_t)round(i0.value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 0);
-            this->int322uint16((int32_t)round(iStep.value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 2);
+            this->int322uint16((int32_t)round(i0.value/currentCommandResolution), txDataMessage, 0);
+            this->int322uint16((int32_t)round(iStep.value/currentCommandResolution), txDataMessage, 2);
             this->int322uint16((int32_t)round(t0.value/positiveProtocolTimeRange.step), txDataMessage, 4);
             this->int322uint16((int32_t)round(tStep.value/positiveProtocolTimeRange.step), txDataMessage, 6);
             txDataMessage[8] = 0xF00D;
@@ -2452,10 +2454,10 @@ ErrorCodes_t EZPatchDevice::currRamp(Measurement_t i0, Measurement_t iFinal, Mea
         if (nextItem <= ++protocolItemIndex) {
             uint16_t dataLength = 16;
             std::vector <uint16_t> txDataMessage(dataLength);
-            this->int322uint16((int32_t)round(i0.value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 0);
+            this->int322uint16((int32_t)round(i0.value/currentCommandResolution), txDataMessage, 0);
             txDataMessage[2] = 0;
             txDataMessage[3] = 0;
-            this->int322uint16((int32_t)round(iFinal.value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 4);
+            this->int322uint16((int32_t)round(iFinal.value/currentCommandResolution), txDataMessage, 4);
             txDataMessage[6] = 0;
             txDataMessage[7] = 0;
             this->int322uint16((int32_t)round(t.value/positiveProtocolTimeRange.step), txDataMessage, 8);
@@ -2491,10 +2493,10 @@ ErrorCodes_t EZPatchDevice::currSin(Measurement_t i0, Measurement_t iAmp, Measur
         if (nextItem <= ++protocolItemIndex) {
             uint16_t dataLength = 16;
             std::vector <uint16_t> txDataMessage(dataLength);
-            this->int322uint16((int32_t)round(i0.value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 0);
+            this->int322uint16((int32_t)round(i0.value/currentCommandResolution), txDataMessage, 0);
             txDataMessage[2] = 0;
             txDataMessage[3] = 0;
-            this->int322uint16((int32_t)round(iAmp.value/ccCurrentRangesArray[selectedCcCurrentRangeIdx].step), txDataMessage, 4);
+            this->int322uint16((int32_t)round(iAmp.value/currentCommandResolution), txDataMessage, 4);
             txDataMessage[6] = 0;
             txDataMessage[7] = 0;
             this->int322uint16((int32_t)round(freq.value/positiveProtocolFrequencyRange.step), txDataMessage, 8);
@@ -3616,8 +3618,8 @@ ErrorCodes_t EZPatchDevice::setLiquidJunctionCompensationOverrideValue(uint16_t 
 }
 
 bool EZPatchDevice::checkVoltStepTimeStepParameters(double v0, double vStep, double t0, double tStep, uint16_t repsNum, uint16_t applySteps) {
-    double minVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].min-vcVoltageRangesArray[selectedVcVoltageRangeIdx].step*0.5;
-    double maxVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].max+vcVoltageRangesArray[selectedVcVoltageRangeIdx].step*0.5;
+    double minVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].min-voltageCommandResolution*0.5;
+    double maxVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].max+voltageCommandResolution*0.5;
     double minTWithMargin = positiveProtocolTimeRange.min-positiveProtocolTimeRange.step*0.5;
     double maxTWithMargin = positiveProtocolTimeRange.max+positiveProtocolTimeRange.step*0.5;
     double factor = stepsOnLastSweep+(applySteps == 1 ? (double)(repsNum-1) : 0.0);
@@ -3637,8 +3639,8 @@ bool EZPatchDevice::checkVoltStepTimeStepParameters(double v0, double vStep, dou
 }
 
 bool EZPatchDevice::checkVoltRampParameters(double v0, double vFinal, double t) {
-    double minVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].min-vcVoltageRangesArray[selectedVcVoltageRangeIdx].step*0.5;
-    double maxVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].max+vcVoltageRangesArray[selectedVcVoltageRangeIdx].step*0.5;
+    double minVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].min-voltageCommandResolution*0.5;
+    double maxVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].max+voltageCommandResolution*0.5;
     double minTWithMargin = positiveProtocolTimeRange.min-positiveProtocolTimeRange.step*0.5;
     double maxTWithMargin = positiveProtocolTimeRange.max+positiveProtocolTimeRange.step*0.5;
     if (v0 < minVWithMargin ||
@@ -3655,8 +3657,8 @@ bool EZPatchDevice::checkVoltRampParameters(double v0, double vFinal, double t) 
 }
 
 bool EZPatchDevice::checkVoltSinParameters(double v0, double vAmp, double freq) {
-    double minVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].min-vcVoltageRangesArray[selectedVcVoltageRangeIdx].step*0.5;
-    double maxVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].max+vcVoltageRangesArray[selectedVcVoltageRangeIdx].step*0.5;
+    double minVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].min-voltageCommandResolution*0.5;
+    double maxVWithMargin = vcVoltageRangesArray[selectedVcVoltageRangeIdx].max+voltageCommandResolution*0.5;
     double minFWithMargin = positiveProtocolFrequencyRange.min-positiveProtocolFrequencyRange.step*0.5;
     double maxFWithMargin = positiveProtocolFrequencyRange.max+positiveProtocolFrequencyRange.step*0.5;
     if (v0-vAmp < minVWithMargin ||
@@ -3672,8 +3674,8 @@ bool EZPatchDevice::checkVoltSinParameters(double v0, double vAmp, double freq) 
 }
 
 bool EZPatchDevice::checkCurrStepTimeStepParameters(double i0, double iStep, double t0, double tStep, uint16_t repsNum, uint16_t applySteps) {
-    double minIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].min-ccCurrentRangesArray[selectedCcCurrentRangeIdx].step*0.5;
-    double maxIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].max+ccCurrentRangesArray[selectedCcCurrentRangeIdx].step*0.5;
+    double minIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].min-currentCommandResolution*0.5;
+    double maxIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].max+currentCommandResolution*0.5;
     double minTWithMargin = positiveProtocolTimeRange.min-positiveProtocolTimeRange.step*0.5;
     double maxTWithMargin = positiveProtocolTimeRange.max+positiveProtocolTimeRange.step*0.5;
     double factor = stepsOnLastSweep+(applySteps == 1 ? (double)(repsNum-1) : 0.0);
@@ -3693,8 +3695,8 @@ bool EZPatchDevice::checkCurrStepTimeStepParameters(double i0, double iStep, dou
 }
 
 bool EZPatchDevice::checkCurrRampParameters(double i0, double iFinal, double t) {
-    double minIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].min-ccCurrentRangesArray[selectedCcCurrentRangeIdx].step*0.5;
-    double maxIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].max+ccCurrentRangesArray[selectedCcCurrentRangeIdx].step*0.5;
+    double minIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].min-currentCommandResolution*0.5;
+    double maxIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].max+currentCommandResolution*0.5;
     double minTWithMargin = positiveProtocolTimeRange.min-positiveProtocolTimeRange.step*0.5;
     double maxTWithMargin = positiveProtocolTimeRange.max+positiveProtocolTimeRange.step*0.5;
     if (i0 < minIWithMargin ||
@@ -3711,8 +3713,8 @@ bool EZPatchDevice::checkCurrRampParameters(double i0, double iFinal, double t) 
 }
 
 bool EZPatchDevice::checkCurrSinParameters(double i0, double iAmp, double freq) {
-    double minIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].min-ccCurrentRangesArray[selectedCcCurrentRangeIdx].step*0.5;
-    double maxIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].max+ccCurrentRangesArray[selectedCcCurrentRangeIdx].step*0.5;
+    double minIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].min-currentCommandResolution*0.5;
+    double maxIWithMargin = ccCurrentRangesArray[selectedCcCurrentRangeIdx].max+currentCommandResolution*0.5;
     double minFWithMargin = positiveProtocolFrequencyRange.min-positiveProtocolFrequencyRange.step*0.5;
     double maxFWithMargin = positiveProtocolFrequencyRange.max+positiveProtocolFrequencyRange.step*0.5;
     if (i0-iAmp < minIWithMargin ||

@@ -1019,7 +1019,7 @@ bool EmcrFtdiDevice::writeToBulkOut(uint32_t * buffer) {
     connectionMutexLock.unlock();
     while (!txDataSent && (writeTries++ < EMF_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
         connectionMutexLock.lock();
-        ftRet = FT_Write(* ftdiTxHandle, (LPVOID)txRawBulkBuffer, bytesToWrite, &ftdiWrittenBytes);
+        ftRet = FT_Write(* ftdiTxHandle, (LPVOID)buffer, bytesToWrite, &ftdiWrittenBytes);
         connectionMutexLock.unlock();
 
         if (ftRet != FT_OK) {

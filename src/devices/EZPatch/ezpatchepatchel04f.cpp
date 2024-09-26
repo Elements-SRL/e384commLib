@@ -181,6 +181,9 @@ EZPatchePatchEL04F::EZPatchePatchEL04F(std::string di) :
         }
     }
 
+    vcVoltageCommandResolutionGain = 0.25;
+    ccCurrentCommandResolutionGain = 0.25;
+
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
 
@@ -360,7 +363,7 @@ EZPatchePatchEL04F::EZPatchePatchEL04F(std::string di) :
     switchesNames[3][12] = "CC_BridgeDIS";
     switchesNames[3][13] = "Protocol_EN";
     switchesNames[3][14] = "free";
-    switchesNames[3][15] = "free";
+    switchesNames[3][15] = "slave";
 
     /*! LEDs */
     ledsNum = 1;
@@ -371,6 +374,12 @@ EZPatchePatchEL04F::EZPatchePatchEL04F(std::string di) :
     ledsWord[0] = 1;
     ledsByte[0] = 0x8000;
     ledsColorsArray[0] = 0x00FF00;
+
+    /*! Slave */
+    slaveImplementedFlag = true;
+
+    slaveWord = 3;
+    slaveByte = 0x8000;
 
     /*! Stimulus LPF */
     /*! VC */

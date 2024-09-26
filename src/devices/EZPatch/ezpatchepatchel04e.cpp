@@ -77,7 +77,7 @@ EZPatchePatchEL04E::EZPatchePatchEL04E(std::string di) :
     ccCurrentRangesNum = CCCurrentRangesNum;
     ccCurrentRangesArray.resize(ccCurrentRangesNum);
     ccCurrentRangesArray[CCCurrentRange2500pA].max = 2500.0;
-    ccCurrentRangesArray[CCCurrentRange2500pA].min = 2500.0;
+    ccCurrentRangesArray[CCCurrentRange2500pA].min = -2500.0;
     ccCurrentRangesArray[CCCurrentRange2500pA].step = ccCurrentRangesArray[CCCurrentRange2500pA].max/(SHORT_MAX+1.0)*1.5; /*! only 2/3 of total range used to avoid delta-sigma clipping */
     ccCurrentRangesArray[CCCurrentRange2500pA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange2500pA].unit = "A";
@@ -172,6 +172,9 @@ EZPatchePatchEL04E::EZPatchePatchEL04E(std::string di) :
             }
         }
     }
+
+    vcVoltageCommandResolutionGain = 0.25;
+    ccCurrentCommandResolutionGain = 0.25;
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
