@@ -5,7 +5,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
 
     deviceName = "384PatchClamp";
 
-    fwName = "384PatchClamp_EL07c_V01.3.bit";
+    fwName = "384PatchClamp_EL07c_V01.4.bit";
 
     fwSize_B = 6313140;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
@@ -2411,7 +2411,7 @@ void Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setGrEn(bool flag, bool applyFlag)
 Emcr384PatchClamp_EL07d_prot_v06_fw_v01::Emcr384PatchClamp_EL07d_prot_v06_fw_v01(std::string di) :
     Emcr384PatchClamp_EL07c_prot_v06_fw_v01(di) {
 
-    fwName = "384PatchClamp_EL07c_V01.bit";
+    fwName = "384PatchClamp_EL07d_V01.4.bit";
 
     fwSize_B = 5506748;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
