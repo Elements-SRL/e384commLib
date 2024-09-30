@@ -163,7 +163,7 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
         break;
 
     case DeviceE8PPatchLinerEL07CD_artix7_PCBV01:
-        messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(deviceId);
+        messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(deviceId);
         break;
 
     default:
