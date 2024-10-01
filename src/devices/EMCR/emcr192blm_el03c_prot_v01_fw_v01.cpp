@@ -5,7 +5,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
 
     deviceName = "192Blm";
 
-    fwName = "192Blm_EL03c_V01.1.bit";
+    fwName = "192Blm_EL03c_V01.2.bit";
 
     fwSize_B = 3709388;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
