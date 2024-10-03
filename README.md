@@ -13,9 +13,14 @@ Download the following dynamic libraries and add them to the system path or the 
 The prebuilt libraries are available on Elements website [elements-ic.com/emcr/#api](https://elements-ic.com/emcr/#api)
 ### Compilation
 #### Requirements
-Define the following environment variables:
+Download the needed static libraries and the corresponding header files []
+For the provided sln to correctly work, set the following environmental variables to match the location on your computer:
+- CY_API_PATH
+- FRONT_PANEL_PATH
+- FTD2XX_PATH
+- TOML_PP_PATH
 #### Compiler
-To compile the library, the recommended settings can be found in the sln file.
+To compile the library, the recommended settings can be found in the provided sln file.
 #### Static Libraries
 The static libraries needed by this project can be downloaded from the Elements website [elements-ic.com/emcr/#api](https://elements-ic.com/emcr/#api).
 The static libraries can be found inside the unzipped archive, make sure to include them with
