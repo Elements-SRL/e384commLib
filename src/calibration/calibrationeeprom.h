@@ -6,6 +6,7 @@
 #include "ftd2xx_win.h"
 #include "libMPSSE_spi.h"
 #include "e384commlib_errorcodes.h"
+#include "stdint.h"
 
 /*! EEPROM constants */
 #define CEE_XCBUS_DIR 0x09 /*! Set high output pins: FPGA reset 0x01 + SPI program 0x08 */
@@ -28,7 +29,7 @@ using namespace e384CommLib;
 
 class CalibrationEeprom {
 public:
-    CalibrationEeprom(uint32 channel);
+    CalibrationEeprom(uint32_t channel);
 
     ErrorCodes_t openConnection();
     ErrorCodes_t closeConnection();
@@ -43,7 +44,7 @@ public:
     static unsigned int getMemorySize();
 
 private:
-    uint32 channelIdx;
+    uint32_t channelIdx;
     ChannelConfig config;
     FT_HANDLE handle;
     bool connectionOpened = false;
