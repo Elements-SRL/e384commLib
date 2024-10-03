@@ -10,8 +10,13 @@ Download the following dynamic libraries and add them to the system path or the 
 - okFrontPanel.dll, okimpl_fpoip.dll: additional third party libraries (developed and released by Opal Kelly [www.opalkelly.com](https://www.opalkelly.com))
 ## Working with the Library
 ### Prebuilt
-The prebuilt libraries are available on Elements website 
+The prebuilt libraries are available on Elements website [elements-ic.com/emcr/#api](https://elements-ic.com/emcr/#api)
 ### Compilation
+#### Requirements
+Define the following environment variables:
 #### Compiler
+To compile the library, the recommended settings can be found in the sln file.
 #### Static Libraries
+The static libraries needed by this project can be downloaded from the Elements website [elements-ic.com/emcr/#api](https://elements-ic.com/emcr/#api).
+The static libraries can be found inside the unzipped archive, make sure to include them with
 Download the following static or import libraries and add them to the list of the imported libraries in your project:
