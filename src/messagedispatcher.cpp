@@ -1719,7 +1719,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     } else if (liquidJunctionOpenCircuitCount[channelIdx] > 5) {
                         liquidJunctionStates[channelIdx] = LiquidJunctionFailOpenCircuit;
 
-                    } else if (liquidJunctionPositiveSaturationCount[channelIdx] > 10 || liquidJunctionNegativeSaturationCount[channelIdx] > 20) {
+                    } else if (liquidJunctionPositiveSaturationCount[channelIdx] > 10 || liquidJunctionNegativeSaturationCount[channelIdx] > 10) {
                         liquidJunctionStates[channelIdx] = LiquidJunctionFailSaturation;
                     }
                     break;
