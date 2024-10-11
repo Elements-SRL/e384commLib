@@ -2080,7 +2080,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
             break;
 
         case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
-            //            not really managed, ignore it
+            // not really managed, ignore it
             if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
                 lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus;
                 rxOutput.dataLen = 0;
@@ -2094,6 +2094,20 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 messageReadFlag = false;
             }
 
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature):
+            rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
+            /*! \todo FCON check sulla lunghezza del messaggio */
+            for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
+                data[dataWritten+sampleIdx++] = (int16_t)rxDataBuffer[dataOffset];
+                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+            }
+
+            lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature;
+
+            exitLoop = true;
+            messageReadFlag = true;
             break;
 
         default:
@@ -2590,6 +2604,7 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
     case RxMessageDataHeader:
     case RxMessageDataTail:
     case RxMessageStatus:
+    case RxMessageTemperature:
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
         }

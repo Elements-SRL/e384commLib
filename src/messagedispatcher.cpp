@@ -706,6 +706,14 @@ ErrorCodes_t MessageDispatcher::convertCurrentValues(int16_t * intValues, double
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::convertTemperatureValues(int16_t * intValues, double * fltValues) {
+    for (int idx = 0; idx < temperatureChannelsNum; idx++) {
+        fltValues[idx] = currentResolution*(double)intValues[idx];
+    }
+
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getReadoutOffsetRecalibrationStatuses(std::vector <uint16_t> channelIndexes, std::vector <OffsetRecalibStatus_t> &statuses) {
     if (offsetRecalibStatuses.empty()) {
         return ErrorFeatureNotImplemented;
@@ -1024,6 +1032,15 @@ ErrorCodes_t MessageDispatcher::getMinCCVoltageRange(RangedMeasurement_t &range,
     }
     idx = (uint32_t)std::distance(ccVoltageRangesArray.begin(), std::min_element(ccVoltageRangesArray.begin(), ccVoltageRangesArray.end()));
     range = ccVoltageRangesArray[idx];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getTemperatureChannelsFeatures(std::vector <std::string> names, std::vector <RangedMeasurement_t> &ranges) {
+    if (temperatureChannelsNum == 0) {
+        return ErrorFeatureNotImplemented;
+    }
+    names = temperatureChannelsNames;
+    ranges = temperatureChannelsRanges;
     return Success;
 }
 

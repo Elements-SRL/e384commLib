@@ -1250,7 +1250,7 @@ public:
      * \param valuesNum [in] Number of values in the array.
      * \return Error code.
      */
-    ErrorCodes_t convertVoltageValues(int16_t * intValue, double * fltValue, int valuesNum);
+    ErrorCodes_t convertVoltageValues(int16_t * intValues, double * fltValues, int valuesNum);
 
     /*! \brief Convert an array of current values returned by getNextMessage from integer to floating point.
      *
@@ -1259,7 +1259,16 @@ public:
      * \param valuesNum [in] Number of values in the array.
      * \return Error code.
      */
-    ErrorCodes_t convertCurrentValues(int16_t * intValue, double * fltValue, int valuesNum);
+    ErrorCodes_t convertCurrentValues(int16_t * intValues, double * fltValues, int valuesNum);
+
+    /*! \brief Convert an array of current values returned by getNextMessage from integer to floating point.
+     *
+     * \param intValue [in] Array of integer temperature values obtained with the getNextMessage method.
+     * \param fltValue [out] Array of floating point temperature values expressed in the unit of the temperature range for the corresponding channel.
+     * \note The number of items must match the number of temperature channels.
+     * \return Error code.
+     */
+    ErrorCodes_t convertTemperatureValues(int16_t * intValues, double * fltValues);
 
     /*! \brief Get the current status of the readout offset recalibration algorithm for each channel.
      *
@@ -1580,6 +1589,15 @@ public:
      * \return Error code.
      */
     ErrorCodes_t getMinCCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
+
+    /*! \brief Get information on the temperature channels.
+     *
+     * \param names [out] Array containing the name of each temperature channel.
+     * \param ranges [out] Array containing the range for each temperature channel.
+     *
+     * \return Error code.
+     */
+    ErrorCodes_t getTemperatureChannelsFeatures(std::vector <std::string> names, std::vector <RangedMeasurement_t> &ranges);
 
     /*! \brief Get the sampling rates available for the device.
      *
@@ -1957,6 +1975,7 @@ protected:
         RxMessageDataHeader,
         RxMessageDataTail,
         RxMessageStatus,
+        RxMessageTemperature,
         RxMessageNum
     } RxMessageTypes_t;
 
@@ -2053,6 +2072,10 @@ protected:
 
     uint16_t totalBoardsNum = 1;
     uint16_t channelsPerBoard = 1;
+
+    uint16_t temperatureChannelsNum = 0;
+    std::vector <std::string> temperatureChannelsNames;
+    std::vector <RangedMeasurement_t> temperatureChannelsRanges;
 
     bool resetStateFlag = false;
 
