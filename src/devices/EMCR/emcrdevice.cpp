@@ -23,6 +23,7 @@ EmcrDevice::EmcrDevice(std::string deviceId) :
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdInvalid] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus] = false;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature] = true;
 
     /*! Initialize rx word offsets and lengths with default values */
     rxWordOffsets.resize(RxMessageNum);

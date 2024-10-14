@@ -1597,7 +1597,7 @@ public:
      *
      * \return Error code.
      */
-    ErrorCodes_t getTemperatureChannelsFeatures(std::vector <std::string> names, std::vector <RangedMeasurement_t> &ranges);
+    ErrorCodes_t getTemperatureChannelsFeatures(std::vector <std::string> &names, std::vector <RangedMeasurement_t> &ranges);
 
     /*! \brief Get the sampling rates available for the device.
      *

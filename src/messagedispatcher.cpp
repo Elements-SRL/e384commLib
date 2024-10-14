@@ -1035,7 +1035,7 @@ ErrorCodes_t MessageDispatcher::getMinCCVoltageRange(RangedMeasurement_t &range,
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getTemperatureChannelsFeatures(std::vector <std::string> names, std::vector <RangedMeasurement_t> &ranges) {
+ErrorCodes_t MessageDispatcher::getTemperatureChannelsFeatures(std::vector <std::string> &names, std::vector <RangedMeasurement_t> &ranges) {
     if (temperatureChannelsNum == 0) {
         return ErrorFeatureNotImplemented;
     }
