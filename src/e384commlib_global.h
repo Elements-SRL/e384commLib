@@ -170,12 +170,13 @@ typedef enum MsgTypeId {
  * \brief Enum that identifies different clamp modality.
  */
 typedef enum{
-    VOLTAGE_CLAMP = 0,
-    ZERO_CURRENT_CLAMP = 1,
-    CURRENT_CLAMP = 2,
-    DYNAMIC_CLAMP = 3,
-    VOLTAGE_CLAMP_VOLTAGE_READ = 4,
-    UNDEFINED_CLAMP = 5,
+    VOLTAGE_CLAMP,
+    ZERO_CURRENT_CLAMP,
+    CURRENT_CLAMP,
+    DYNAMIC_CLAMP,
+    VOLTAGE_CLAMP_VOLTAGE_READ,
+    CURRENT_CLAMP_CURRENT_READ,
+    UNDEFINED_CLAMP
 } ClampingModality_t;
 
 /*! \enum DeviceTypes_t

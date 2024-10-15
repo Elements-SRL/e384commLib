@@ -53,6 +53,7 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     clampingModalitiesArray[CurrentClamp] = ClampingModality_t::CURRENT_CLAMP;
 #ifdef CALIBRATION
     clampingModalitiesArray[VoltageClampVoltageRead] = ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ;
+    clampingModalitiesArray[CurrentClampCurrentRead] = ClampingModality_t::CURRENT_CLAMP_CURRENT_READ;
 #endif
     defaultClampingModalityIdx = VoltageClamp;
 

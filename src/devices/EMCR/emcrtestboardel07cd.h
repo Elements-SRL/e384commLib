@@ -33,6 +33,7 @@ protected:
         CurrentClamp,
 #ifdef CALIBRATION
         VoltageClampVoltageRead,
+        CurrentClampCurrentRead,
 #endif
         ClampingModalitiesNum
     };
