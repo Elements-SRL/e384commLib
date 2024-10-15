@@ -2098,17 +2098,20 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
             break;
 
         case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature):
-            rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
-            /*! \todo FCON check sulla lunghezza del messaggio */
-            for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
-                data[dataWritten+sampleIdx++] = (int16_t)rxDataBuffer[dataOffset];
-                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
+            if (lastParsedMsgType == MsgDirectionDeviceToPc + MsgTypeIdInvalid) {
+                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
+                rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
+                /*! \todo FCON check sulla lunghezza del messaggio */
+                for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
+                    data[sampleIdx++] = (int16_t)rxDataBuffer[dataOffset];
+                    dataOffset = (dataOffset + 1) & RX_DATA_BUFFER_MASK;
+                }
+
+                lastParsedMsgType = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionTemperature;
+
+                exitLoop = true;
+                messageReadFlag = true;
             }
-
-            lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature;
-
-            exitLoop = true;
-            messageReadFlag = true;
             break;
 
         default:

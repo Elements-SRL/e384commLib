@@ -60,7 +60,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     temperatureChannelsRanges[TemperatureSensor0].unit = "°C";
     temperatureChannelsRanges[TemperatureSensor1].step = 0.0625;
     temperatureChannelsRanges[TemperatureSensor1].min = -2048.0;
-    temperatureChannelsRanges[TemperatureSensor1].max = temperatureChannelsRanges[TemperatureSensor0].min+temperatureChannelsRanges[TemperatureSensor0].step*USHORT_MAX;
+    temperatureChannelsRanges[TemperatureSensor1].max = temperatureChannelsRanges[TemperatureSensor1].min+temperatureChannelsRanges[TemperatureSensor1].step*USHORT_MAX;
     temperatureChannelsRanges[TemperatureSensor1].prefix = UnitPfxNone;
     temperatureChannelsRanges[TemperatureSensor1].unit = "°C";
 

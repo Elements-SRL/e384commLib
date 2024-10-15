@@ -708,7 +708,7 @@ ErrorCodes_t MessageDispatcher::convertCurrentValues(int16_t * intValues, double
 
 ErrorCodes_t MessageDispatcher::convertTemperatureValues(int16_t * intValues, double * fltValues) {
     for (int idx = 0; idx < temperatureChannelsNum; idx++) {
-        fltValues[idx] = currentResolution*(double)intValues[idx];
+        fltValues[idx] = temperatureChannelsRanges[idx].step*(double)intValues[idx];
     }
 
     return Success;
