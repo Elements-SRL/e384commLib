@@ -2112,6 +2112,11 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 exitLoop = true;
                 messageReadFlag = true;
             }
+            else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
             break;
 
         default:
