@@ -1240,7 +1240,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
         this->turnVoltageReaderOn(false, false);
         this->turnVoltageStimulusOn(false, true);
 
-        this->turnVcSwOn(allChannelIndexes, falses, false);
+        this->turnCcSwOn(allChannelIndexes, trues, false);
 
         this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
         this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
