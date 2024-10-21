@@ -24,6 +24,7 @@ CONFIG(release, debug|release) {
 #    DEFINES += DEBUG_TX_DATA_PRINT
 #    DEFINES += DEBUG_MAX_SPEED
 }
+DEFINES += CALIBRATION
 
 TEMPLATE = lib
 CONFIG += c++17
