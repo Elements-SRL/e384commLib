@@ -49,6 +49,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
     clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
+    clampingModalitiesArray[ZeroCurrentClamp] = ClampingModality_t::ZERO_CURRENT_CLAMP;
     clampingModalitiesArray[CurrentClamp] = ClampingModality_t::CURRENT_CLAMP;
 #ifdef CALIBRATION
     clampingModalitiesArray[VoltageClampVoltageRead] = ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ;
