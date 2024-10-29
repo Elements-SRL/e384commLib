@@ -1881,6 +1881,42 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompValues(std::vect
     return Success;
 }
 
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompRanges(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) {
+    if (compValueMatrix.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+
+    if (!allLessThan(newRanges, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+
+    std::vector <std::vector <double> > localCompValueSubMatrix(channelIndexes.size());
+    std::vector <double> newParams(channelIndexes.size());
+    for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
+        localCompValueSubMatrix[chIdx] = compValueMatrix[channelIndexes[chIdx]];
+    }
+
+    double temp;
+
+    switch (paramToUpdate) {
+    case U_Rs:
+        if (membraneCapTauValCompensationMultiCoders.empty()) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
+            membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->setEncodingRange(newRanges[chIdx]);
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            newParams[chIdx] = temp/localCompValueSubMatrix[chIdx][U_Cm];
+        }
+        break;
+
+    default:
+        return EmcrDevice::setCompRanges(channelIndexes, paramToUpdate, newRanges, applyFlag);
+    }
+    return this->setCompValues(channelIndexes, paramToUpdate, newParams, applyFlag);
+}
+
 ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";

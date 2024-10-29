@@ -13,6 +13,7 @@ public:
     virtual ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag) override;
     virtual ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag) override;
     virtual ErrorCodes_t setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) override;
+    virtual ErrorCodes_t setCompRanges(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) override;
     virtual ErrorCodes_t setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) override;
 
     virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlag) override;
