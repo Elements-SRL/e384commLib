@@ -1896,7 +1896,7 @@ public:
     /*! \brief Get the state of a compensation type for some channels.
      *
      * \param matrix [in]: Matrix of compensated values; the external vector has an item for each channel,
-     * each internal vector has an item for each CompensationTypes_t.
+     * each internal vector has an item for each CompensationUserParams_t.
      * \note columns corresponding to not implemented compensation types are always zero and can be ignored.
      * \note the values might differ from the values set by user because of rounding factors, clipping and interactions with other compensations.
      * \return Success if the device implements any compensation.

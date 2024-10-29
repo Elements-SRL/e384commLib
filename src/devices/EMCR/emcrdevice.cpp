@@ -1681,6 +1681,10 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextIt
 }
 
 ErrorCodes_t EmcrDevice::setCompRanges(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) {
+    if (compValueMatrix.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+
     if (!allLessThan(newRanges, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
