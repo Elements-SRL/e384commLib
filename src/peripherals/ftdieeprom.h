@@ -55,14 +55,14 @@ typedef enum {
 
     /*! Subversions used for ver = 10 */
     DeviceSubversionEl04Fx4 = 1,
-    DeviceSubversionEl04Fx4PatchLiner = 2,
-    DeviceSubversionEl04Fx8PatchLiner = 3,
-    DeviceSubversionEl07ABx4PatchLiner = 5,
-    DeviceSubversionEl07ABx8PatchLiner = 6,
-    DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV01 = 8,
-    DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV02 = 10,
-    DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV01 = 12,
-    DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV02 = 14,
+    DeviceSubversionEl04Fx4Patch = 2,
+    DeviceSubversionEl04Fx8Patch = 3,
+    DeviceSubversionEl07ABx4Patch = 5,
+    DeviceSubversionEl07ABx8Patch = 6,
+    DeviceSubversionEl07ABx8Patch_artix7_PCBV01 = 8,
+    DeviceSubversionEl07ABx8Patch_artix7_PCBV02 = 10,
+    DeviceSubversionEl07CDx8Patch_artix7_PCBV01 = 12,
+    DeviceSubversionEl07CDx8Patch_artix7_PCBV02 = 14,
 
     /*! Subversions used for ver = FD */
     DeviceSubversionDemo = 1,

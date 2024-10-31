@@ -1,9 +1,9 @@
-#include "ezpatche4ppatchliner_el07ab.h"
+#include "ezpatche4ppatch_el07ab.h"
 
-EZPatche4PPatchliner_el07ab::EZPatche4PPatchliner_el07ab(std::string di) :
+EZPatche4PPatch_el07ab::EZPatche4PPatch_el07ab(std::string di) :
     EZPatchFtdiDevice(di) {
 
-    deviceName = "e8PPatchliner";
+    deviceName = "e8PPatch";
 
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
@@ -763,7 +763,7 @@ EZPatche4PPatchliner_el07ab::EZPatche4PPatchliner_el07ab(std::string di) :
     samplingRate = realSamplingRatesArray[SamplingRate6_25kHz];
 }
 
-ErrorCodes_t EZPatche4PPatchliner_el07ab::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
+ErrorCodes_t EZPatche4PPatch_el07ab::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
     ErrorCodes_t ret;
 
     if (samplingRateIdx < samplingRatesNum) {
@@ -795,7 +795,7 @@ ErrorCodes_t EZPatche4PPatchliner_el07ab::setSamplingRate(uint16_t samplingRateI
     return ret;
 }
 
-void EZPatche4PPatchliner_el07ab::selectChannelsResolutions() {
+void EZPatche4PPatch_el07ab::selectChannelsResolutions() {
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromVoltageClamp) {
             currentTunerCorrection[channelIdx] = 0.0;
@@ -822,7 +822,7 @@ void EZPatche4PPatchliner_el07ab::selectChannelsResolutions() {
     this->computeRawDataFilterCoefficients();
 }
 
-void EZPatche4PPatchliner_el07ab::selectVoltageOffsetResolution() {
+void EZPatche4PPatch_el07ab::selectVoltageOffsetResolution() {
     if (selectedSourceForVoltageChannelIdx == ChannelSourceVoltageFromVoltageClamp) {
         voltageOffsetCorrection = 0.0;
 
@@ -835,7 +835,7 @@ void EZPatche4PPatchliner_el07ab::selectVoltageOffsetResolution() {
     }
 }
 
-void EZPatche4PPatchliner_el07ab::initializeCompensations() {
+void EZPatche4PPatch_el07ab::initializeCompensations() {
     EZPatchDevice::initializeCompensations();
 
     /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
@@ -964,7 +964,7 @@ void EZPatche4PPatchliner_el07ab::initializeCompensations() {
     }
 }
 
-bool EZPatche4PPatchliner_el07ab::checkCompensationsValues() {
+bool EZPatche4PPatch_el07ab::checkCompensationsValues() {
     bool ret = true;
     if (vcCompensationsActivated) {
         if (compensationsEnableFlags[CompCfast][compensationsSettingChannel] && compensationsEnableFlags[CompCslow][compensationsSettingChannel]) {
@@ -1049,7 +1049,7 @@ bool EZPatche4PPatchliner_el07ab::checkCompensationsValues() {
     return ret;
 }
 
-bool EZPatche4PPatchliner_el07ab::fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) {
+bool EZPatche4PPatch_el07ab::fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) {
     bool anythingChanged = false;
 
     double pipetteValue;
@@ -1242,7 +1242,7 @@ bool EZPatche4PPatchliner_el07ab::fillCompensationsRegistersTxData(std::vector <
     return anythingChanged;
 }
 
-void EZPatche4PPatchliner_el07ab::updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) {
+void EZPatche4PPatch_el07ab::updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) {
     if (vcCompensationsActivated) {
         pipetteCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[1];
 

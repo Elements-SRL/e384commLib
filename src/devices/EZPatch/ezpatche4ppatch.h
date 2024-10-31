@@ -1,11 +1,11 @@
-#ifndef EZPATCHE4PPATCHLINER_H
-#define EZPATCHE4PPATCHLINER_H
+#ifndef EZPATCHE4PPATCH_H
+#define EZPATCHE4PPATCH_H
 
 #include "ezpatchftdidevice.h"
 
-class EZPatche4PPatchliner : public EZPatchFtdiDevice {
+class EZPatche4PPatch : public EZPatchFtdiDevice {
 public:
-    EZPatche4PPatchliner(std::string di);
+    EZPatche4PPatch(std::string di);
 
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
@@ -167,17 +167,17 @@ protected:
         ConstantSwitchEnNegIsoPw,
         ConstantSwitchLedBb,
         ConstantSwitchCh1VcEn1,
-        ConstantSwitchCh1VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh1PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh1VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh1PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchCh2VcEn1,
-        ConstantSwitchCh2VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh2PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh2VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh2PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchCh3VcEn1,
-        ConstantSwitchCh3VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh3PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh3VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh3PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchCh4VcEn1,
-        ConstantSwitchCh4VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh4PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh4VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh4PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchesNum
     };
 
@@ -363,4 +363,4 @@ protected:
     CompensationControl_t leakConductanceControlHigh;
 };
 
-#endif // EZPATCHE4PPATCHLINER_H
+#endif // EZPATCHE4PPATCH_H

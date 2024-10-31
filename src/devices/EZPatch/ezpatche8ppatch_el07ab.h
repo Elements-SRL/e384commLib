@@ -1,11 +1,11 @@
-#ifndef EZPATCHE8PPATCHLINER_EL07AB_H
-#define EZPATCHE8PPATCHLINER_EL07AB_H
+#ifndef EZPATCHE8PPATCH_EL07AB_H
+#define EZPATCHE8PPATCH_EL07AB_H
 
 #include "ezpatchftdidevice.h"
 
-class EZPatche8PPatchliner_el07ab : public EZPatchFtdiDevice {
+class EZPatche8PPatch_el07ab : public EZPatchFtdiDevice {
 public:
-    EZPatche8PPatchliner_el07ab(std::string di);
+    EZPatche8PPatch_el07ab(std::string di);
 
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
@@ -359,19 +359,19 @@ protected:
     std::vector <uint16_t> ccPipetteCapacitanceRegValue;
 };
 
-class EZPatche8PPatchliner_el07ab_artix7_PCBV01 : public EZPatche8PPatchliner_el07ab {
+class EZPatche8PPatch_el07ab_artix7_PCBV01 : public EZPatche8PPatch_el07ab {
 public:
-    EZPatche8PPatchliner_el07ab_artix7_PCBV01(std::string di);
+    EZPatche8PPatch_el07ab_artix7_PCBV01(std::string di);
 };
 
-class EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01 : public EZPatche8PPatchliner_el07ab_artix7_PCBV01 {
+class EZPatche8PPatch_el07ab_artix7_PCBV02_V01 : public EZPatche8PPatch_el07ab_artix7_PCBV01 {
 public:
-    EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01(std::string di);
+    EZPatche8PPatch_el07ab_artix7_PCBV02_V01(std::string di);
 };
 
-class EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02 : public EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01 {
+class EZPatche8PPatch_el07ab_artix7_PCBV02_V02 : public EZPatche8PPatch_el07ab_artix7_PCBV02_V01 {
 public:
-    EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02(std::string di);
+    EZPatche8PPatch_el07ab_artix7_PCBV02_V02(std::string di);
 };
 
-#endif // EZPATCHE8PPATCHLINER_EL07AB_H
+#endif // EZPATCHE8PPATCH_EL07AB_H

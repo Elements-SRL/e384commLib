@@ -86,11 +86,11 @@ SOURCES += \
     src/devices/EZPatch/ezpatchepatchel03f_4e.cpp \
     src/devices/EZPatch/ezpatchepatchel03f_4f.cpp \
     src/devices/EZPatch/ezpatche4pel04f.cpp \
-    src/devices/EZPatch/ezpatche4ppatchliner.cpp \
-    src/devices/EZPatch/ezpatche8ppatchliner.cpp \
-    src/devices/EZPatch/ezpatche4ppatchliner_el07ab.cpp \
-    src/devices/EZPatch/ezpatche8ppatchliner_el07ab.cpp \
-    src/devices/EZPatch/ezpatche8ppatchliner_el07cd.cpp \
+    src/devices/EZPatch/ezpatche4ppatch.cpp \
+    src/devices/EZPatch/ezpatche4ppatch_el07ab.cpp \
+    src/devices/EZPatch/ezpatche8ppatch.cpp \
+    src/devices/EZPatch/ezpatche8ppatch_el07ab.cpp \
+    src/devices/EZPatch/ezpatche8ppatch_el07cd.cpp \
     src/model/boardmodel.cpp \
     src/model/channelmodel.cpp \
     src/calibration/tomlcalibrationmanager.cpp \
@@ -138,11 +138,11 @@ HEADERS += \
     src/devices/EZPatch/ezpatchepatchel03f_4e.h \
     src/devices/EZPatch/ezpatchepatchel03f_4f.h \
     src/devices/EZPatch/ezpatche4pel04f.h \
-    src/devices/EZPatch/ezpatche4ppatchliner.h \
-    src/devices/EZPatch/ezpatche8ppatchliner.h \
-    src/devices/EZPatch/ezpatche4ppatchliner_el07ab.h \
-    src/devices/EZPatch/ezpatche8ppatchliner_el07ab.h \
-    src/devices/EZPatch/ezpatche8ppatchliner_el07cd.h \
+    src/devices/EZPatch/ezpatche4ppatch.h \
+    src/devices/EZPatch/ezpatche4ppatch_el07ab.h \
+    src/devices/EZPatch/ezpatche8ppatch.h \
+    src/devices/EZPatch/ezpatche8ppatch_el07ab.h \
+    src/devices/EZPatch/ezpatche8ppatch_el07cd.h \
     src/model/boardmodel.h \
     src/model/channelmodel.h \
     src/calibration/tomlcalibrationmanager.h \

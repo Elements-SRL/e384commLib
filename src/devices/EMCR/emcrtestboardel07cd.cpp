@@ -1997,7 +1997,6 @@ ErrorCodes_t EmcrTestBoardEl07c::setCompRanges(std::vector <uint16_t> channelInd
         return ErrorValueOutOfRange;
     }
 
-
     std::vector <std::vector <double> > localCompValueSubMatrix(channelIndexes.size());
     std::vector <double> newParams(channelIndexes.size());
     for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {

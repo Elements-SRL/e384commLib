@@ -7,7 +7,7 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     rxChannel = 'A';
     txChannel = 'A';
 
-    fpgaLoadType = FtdiFpgaFwLoadPatchlinerArtix7_V01;
+    fpgaLoadType = FtdiFpgaFwLoad8PatchArtix7_V01;
 
     deviceName = "8xPatchClamp";
 
@@ -2360,4 +2360,38 @@ void Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setGrEn(bool flag, bool applyFl
 Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di) :
     Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(di) {
     fpgaLoadType = FtdiFpgaFwLoadAutomatic;
+}
+
+Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di) :
+    Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(di) {
+
+    deviceName = "4xPatchClamp";
+
+    fwSize_B = 0;
+    motherboardBootTime_s = 0; // no motherboard to be started
+
+    rxSyncWord = 0x5aa55aa5;
+
+    packetsPerFrame = 1;
+
+    voltageChannelsNum = 4;
+    currentChannelsNum = 4;
+    totalChannelsNum = voltageChannelsNum+currentChannelsNum;
+
+    totalBoardsNum = 1;
+
+    rxWordOffsets[RxMessageDataLoad] = 0;
+    rxWordLengths[RxMessageDataLoad] = totalChannelsNum*packetsPerFrame;
+
+    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
+    rxWordLengths[RxMessageDataHeader] = 4;
+
+    rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
+    rxWordLengths[RxMessageDataTail] = 1;
+
+    rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
+    rxWordLengths[RxMessageStatus] = 1;
+
+    rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
+    maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 }
