@@ -1,9 +1,9 @@
 #ifndef EZPATCHFAKEP8_H
 #define EZPATCHFAKEP8_H
 
-#include "ezpatche8ppatchliner_el07ab.h"
+#include "ezpatche8ppatch_el07ab.h"
 
-class EZPatchFakeP8 : public EZPatche8PPatchliner_el07ab {
+class EZPatchFakeP8 : public EZPatche8PPatch_el07ab {
 public:
     /*****************\
      *  Ctor / Dtor  *

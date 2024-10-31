@@ -9,11 +9,11 @@
 #include "ezpatchepatchel04f.h"
 #include "ezpatchepatchel03f_4f.h"
 #include "ezpatche4pel04f.h"
-#include "ezpatche4ppatchliner.h"
-#include "ezpatche8ppatchliner.h"
-#include "ezpatche4ppatchliner_el07ab.h"
-#include "ezpatche8ppatchliner_el07ab.h"
-#include "ezpatche8ppatchliner_el07cd.h"
+#include "ezpatche4ppatch.h"
+#include "ezpatche8ppatch.h"
+#include "ezpatche4ppatch_el07ab.h"
+#include "ezpatche8ppatch_el07ab.h"
+#include "ezpatche8ppatch_el07cd.h"
 #ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "ezpatchfakepatch.h"
@@ -97,30 +97,30 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionEpatch, DeviceSubversionEl04F, 131, DeviceEPatchEL04F},                                                   //  7,  4,  131 : VC-CC device with 1 chip (EL04F)
     /*! e4P EL04F */
     {DeviceVersionE4p, DeviceSubversionEl04Fx4, 135, DeviceE4PEL04F},                                                       //  10, 1,  135 : VC-CC device with 4 channels (EL04F)
-    {DeviceVersionE4p, DeviceSubversionEl04Fx4PatchLiner, 134, DeviceE4PPatchLiner},                                        //  10, 2,  134 : VC-CC device with 4 channels (EL04F) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx4PatchLiner, 135, DeviceE4PPatchLiner},                                        //  10, 2,  135 : VC-CC device with 4 channels (EL04F) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 129, DeviceE8PPatchLiner},                                        //  10, 3,  129 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 135, DeviceE8PPatchLiner},                                        //  10, 3,  135 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp both in voltage and current clamp. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 134, DeviceE8PPatchLiner},                                        //  10, 3,  134 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp, only in current clamp (worked only in voltage clamp before). */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 133, DeviceE8PPatchLiner},                                        //  10, 3,  133 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp, fixed sampling of DC output. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 132, DeviceE8PPatchLiner},                                        //  10, 3,  132 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner compatible with dynamic clamp. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 131, DeviceE8PPatchLiner},                                        //  10, 3,  131 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner fix on digital pins mapping. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 130, DeviceE8PPatchLiner},                                        //  10, 3,  130 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8PatchLiner, 129, DeviceE8PPatchLiner},                                        //  10, 3,  129 : VC-CC device with 8 channels (EL04F) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx4PatchLiner, 129, DeviceE4PPatchLinerEL07AB},                                 //  10, 5,  129 : VC-CC device with 4 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 136, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  136 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 135, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  135 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 134, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  134 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 133, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  133 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 132, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  132 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 131, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  131 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 130, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  130 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner, 129, DeviceE8PPatchLinerEL07AB},                                 //  10, 6,  129 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV02, 131, DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02}, //  10,10,  131 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner (FPGA artix7) PCB V02. increased protocol items to 256. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV02, 129, DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V01}, //  10,10,  129 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner (FPGA artix7) PCB V02. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV01, 129, DeviceE8PPatchLinerEL07AB_artix7_PCBV01},     //  10, 8,  129 : VC-CC device with 8 channels (EL07AB) for Nanion's Patchliner (FPGA artix7) PCB V01. */
-    {DeviceVersionE4p, DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV02, 129, DeviceE8PPatchLinerEL07CD_artix7_PCBV02},     //  10,14,  129 : VC-CC device with 8 channels (EL07CD) for Nanion's Patchliner (FPGA artix7) PCB V02. */
-    {DeviceVersionE4p, DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV01, 129, DeviceE8PPatchLinerEL07CD_artix7_PCBV01},     //  10,12,  129 : VC-CC device with 8 channels (EL07CD) for Nanion's Patchliner (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx4Patch, 134, DeviceE4PPatch},                                                  //  10, 2,  134 : VC-CC device with 4 channels (EL04F). */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx4Patch, 135, DeviceE4PPatch},                                                  //  10, 2,  135 : VC-CC device with 4 channels (EL04F). */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 129, DeviceE8PPatch},                                                  //  10, 3,  129 : VC-CC device with 8 channels (EL04F). */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 135, DeviceE8PPatch},                                                  //  10, 3,  135 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp both in voltage and current clamp. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 134, DeviceE8PPatch},                                                  //  10, 3,  134 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp, only in current clamp (worked only in voltage clamp before). */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 133, DeviceE8PPatch},                                                  //  10, 3,  133 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp, fixed sampling of DC output. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 132, DeviceE8PPatch},                                                  //  10, 3,  132 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 131, DeviceE8PPatch},                                                  //  10, 3,  131 : VC-CC device with 8 channels (EL04F) fix on digital pins mapping. */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 130, DeviceE8PPatch},                                                  //  10, 3,  130 : VC-CC device with 8 channels (EL04F). */
+    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 129, DeviceE8PPatch},                                                  //  10, 3,  129 : VC-CC device with 8 channels (EL04F). */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx4Patch, 129, DeviceE4PPatchEL07AB},                                           //  10, 5,  129 : VC-CC device with 4 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 136, DeviceE8PPatchEL07AB},                                           //  10, 6,  136 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 135, DeviceE8PPatchEL07AB},                                           //  10, 6,  135 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 134, DeviceE8PPatchEL07AB},                                           //  10, 6,  134 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 133, DeviceE8PPatchEL07AB},                                           //  10, 6,  133 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 132, DeviceE8PPatchEL07AB},                                           //  10, 6,  132 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 131, DeviceE8PPatchEL07AB},                                           //  10, 6,  131 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 130, DeviceE8PPatchEL07AB},                                           //  10, 6,  130 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 129, DeviceE8PPatchEL07AB},                                           //  10, 6,  129 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV02, 131, DeviceE8PPatchEL07AB_artix7_PCBV02_V02},           //  10,10,  131 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V02. increased protocol items to 256. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV02, 129, DeviceE8PPatchEL07AB_artix7_PCBV02_V01},           //  10,10,  129 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V02. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV01, 129, DeviceE8PPatchEL07AB_artix7_PCBV01},               //  10, 8,  129 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV02, 129, DeviceE8PPatchEL07CD_artix7_PCBV02},               //  10,14,  129 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V02. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 129, DeviceE8PPatchEL07CD_artix7_PCBV01},               //  10,12,  129 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
     /*! Test boards */
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04d, 129, DeviceEPatchEL04E},                                       //  6,  9,  129 : test board for EL04d chips (only current clamp works)
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04e, 129, DeviceEPatchEL04E},                                       //  6, 10,  129 : test board for EL04e chips
@@ -392,40 +392,40 @@ ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispa
         messageDispatcher = new EZPatche4PEL04F(deviceId);
         break;
 
-    case DeviceE4PPatchLiner:
-        messageDispatcher = new EZPatche4PPatchliner(deviceId);
+    case DeviceE4PPatch:
+        messageDispatcher = new EZPatche4PPatch(deviceId);
         break;
 
-    case DeviceE8PPatchLiner:
-        messageDispatcher = new EZPatche8PPatchliner(deviceId);
+    case DeviceE8PPatch:
+        messageDispatcher = new EZPatche8PPatch(deviceId);
         break;
 
-    case DeviceE4PPatchLinerEL07AB:
-        messageDispatcher = new EZPatche4PPatchliner_el07ab(deviceId);
+    case DeviceE4PPatchEL07AB:
+        messageDispatcher = new EZPatche4PPatch_el07ab(deviceId);
         break;
 
-    case DeviceE8PPatchLinerEL07AB:
-        messageDispatcher = new EZPatche8PPatchliner_el07ab(deviceId);
+    case DeviceE8PPatchEL07AB:
+        messageDispatcher = new EZPatche8PPatch_el07ab(deviceId);
         break;
 
-    case DeviceE8PPatchLinerEL07AB_artix7_PCBV01:
-        messageDispatcher = new EZPatche8PPatchliner_el07ab_artix7_PCBV01(deviceId);
+    case DeviceE8PPatchEL07AB_artix7_PCBV01:
+        messageDispatcher = new EZPatche8PPatch_el07ab_artix7_PCBV01(deviceId);
         break;
 
-    case DeviceE8PPatchLinerEL07CD_artix7_PCBV02:
-        messageDispatcher = new EZPatche8PPatchliner_el07cd_artix7_PCBV02(deviceId);
+    case DeviceE8PPatchEL07CD_artix7_PCBV02:
+        messageDispatcher = new EZPatche8PPatch_el07cd_artix7_PCBV02(deviceId);
         break;
 
-    case DeviceE8PPatchLinerEL07CD_artix7_PCBV01:
-        messageDispatcher = new EZPatche8PPatchliner_el07cd_artix7_PCBV01(deviceId);
+    case DeviceE8PPatchEL07CD_artix7_PCBV01:
+        messageDispatcher = new EZPatche8PPatch_el07cd_artix7_PCBV01(deviceId);
         break;
 
-    case DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02:
-        messageDispatcher = new EZPatche8PPatchliner_el07ab_artix7_PCBV02_V02(deviceId);
+    case DeviceE8PPatchEL07AB_artix7_PCBV02_V02:
+        messageDispatcher = new EZPatche8PPatch_el07ab_artix7_PCBV02_V02(deviceId);
         break;
 
-    case DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V01:
-        messageDispatcher = new EZPatche8PPatchliner_el07ab_artix7_PCBV02_V01(deviceId);
+    case DeviceE8PPatchEL07AB_artix7_PCBV02_V01:
+        messageDispatcher = new EZPatche8PPatch_el07ab_artix7_PCBV02_V01(deviceId);
         break;
 
 #ifdef DEBUG
@@ -1396,7 +1396,7 @@ ErrorCodes_t EZPatchFtdiDevice::loadFpgaFw() {
         /*! Nothing to be done, the FPGA will handle itself */
         break;
 
-    case FtdiFpgaFwLoadPatchlinerArtix7_V01:
+    case FtdiFpgaFwLoad8PatchArtix7_V01:
         /*! Need to set some pins low to select FW loading from FLASH and then pulse Spi_Prog low to start FPGA configuration */
         FT_STATUS status;
         FT_HANDLE spiHandle;

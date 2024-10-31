@@ -13,6 +13,7 @@ public:
     virtual ErrorCodes_t enableVcCompensations(bool enable, bool applyFlag) override;
     virtual ErrorCodes_t enableCcCompensations(bool enable, bool applyFlag) override;
     virtual ErrorCodes_t setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) override;
+    virtual ErrorCodes_t setCompRanges(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) override;
     virtual ErrorCodes_t setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) override;
 
     virtual ErrorCodes_t turnVoltageReaderOn(bool onValueIn, bool applyFlag) override;
@@ -30,9 +31,11 @@ protected:
 
     enum ClampingModalities {
         VoltageClamp,
+        ZeroCurrentClamp,
         CurrentClamp,
 #ifdef CALIBRATION
         VoltageClampVoltageRead,
+        CurrentClampCurrentRead,
 #endif
         ClampingModalitiesNum
     };
@@ -168,4 +171,8 @@ public:
     Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di);
 };
 
+class Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01 : public Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01 {
+public:
+    Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di);
+};
 #endif // EMCR8PATCHCLAMP_EL07CD_ARTIX7_H

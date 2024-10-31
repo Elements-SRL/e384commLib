@@ -28,7 +28,7 @@
 
 typedef enum {
     FtdiFpgaFwLoadAutomatic,
-    FtdiFpgaFwLoadPatchlinerArtix7_V01
+    FtdiFpgaFwLoad8PatchArtix7_V01
 } FtdiFpgaLoadType_t;
 
 #endif // FTDIUTILS_H

@@ -1037,6 +1037,10 @@ ErrorCodes_t EmcrDevice::setAdcCore(std::vector <uint16_t> channelIndexes, std::
             vcCcSelCoders[channelIndexes[i]]->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
             break;
 
+        case CURRENT_CLAMP_CURRENT_READ:
+            vcCcSelCoders[channelIndexes[i]]->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            break;
+
         case UNDEFINED_CLAMP:
             return ErrorFeatureNotImplemented;
         }
@@ -1211,7 +1215,6 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
         }
         this->turnVoltageReaderOn(true, false);
         this->turnVoltageStimulusOn(true, false);
-        /*! Apply on previous command to turn the current clamp on then */
         this->turnCurrentReaderOn(false, false);
         this->turnCurrentStimulusOn(false, true);
 
@@ -1222,6 +1225,29 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
 
         this->setSourceForVoltageChannel(1, false);
         this->setSourceForCurrentChannel(1, false);
+
+        break;
+
+    case CURRENT_CLAMP_CURRENT_READ:
+        rawDataFilterVoltageFlag = false;
+        rawDataFilterCurrentFlag = true;
+
+        if (previousClampingModality != CURRENT_CLAMP_CURRENT_READ) {
+            this->enableVcCompensations(false, false);
+            this->enableCcCompensations(false, false);
+        }
+        this->turnCurrentReaderOn(true, false);
+        this->turnCurrentStimulusOn(true, false);
+        this->turnVoltageReaderOn(false, false);
+        this->turnVoltageStimulusOn(false, true);
+
+        this->turnCcSwOn(allChannelIndexes, trues, false);
+
+        this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
+        this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
+
+        this->setSourceForVoltageChannel(0, false);
+        this->setSourceForCurrentChannel(0, false);
 
         break;
     }
@@ -1329,6 +1355,7 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
 ErrorCodes_t EmcrDevice::setAdcFilter(bool applyFlag) {
     switch (selectedClampingModality) {
     case VOLTAGE_CLAMP:
+    case CURRENT_CLAMP_CURRENT_READ:
         if (vcCurrentFilterCoder != nullptr) {
             vcCurrentFilterCoder->encode(sr2LpfVcCurrentMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedVcCurrentFilterIdx = sr2LpfVcCurrentMap[selectedSamplingRateIdx];
@@ -1365,6 +1392,7 @@ ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFla
     this->computeRawDataFilterCoefficients();
     switch (selectedClampingModality) {
     case VOLTAGE_CLAMP:
+    case CURRENT_CLAMP_CURRENT_READ:
         this->updateCalibVcCurrentGain(allChannelIndexes, false);
         this->updateCalibVcCurrentOffset(allChannelIndexes, false);
         break;
@@ -1654,6 +1682,10 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextIt
 }
 
 ErrorCodes_t EmcrDevice::setCompRanges(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) {
+    if (compValueMatrix.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+
     if (!allLessThan(newRanges, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }

@@ -49,9 +49,11 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
     clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
+    clampingModalitiesArray[ZeroCurrentClamp] = ClampingModality_t::ZERO_CURRENT_CLAMP;
     clampingModalitiesArray[CurrentClamp] = ClampingModality_t::CURRENT_CLAMP;
 #ifdef CALIBRATION
     clampingModalitiesArray[VoltageClampVoltageRead] = ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ;
+    clampingModalitiesArray[CurrentClampCurrentRead] = ClampingModality_t::CURRENT_CLAMP_CURRENT_READ;
 #endif
     defaultClampingModalityIdx = VoltageClamp;
 
@@ -1984,6 +1986,42 @@ ErrorCodes_t EmcrTestBoardEl07c::setCompValues(std::vector <uint16_t> channelInd
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
+}
+
+ErrorCodes_t EmcrTestBoardEl07c::setCompRanges(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) {
+    if (compValueMatrix.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+
+    if (!allLessThan(newRanges, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+
+    std::vector <std::vector <double> > localCompValueSubMatrix(channelIndexes.size());
+    std::vector <double> newParams(channelIndexes.size());
+    for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
+        localCompValueSubMatrix[chIdx] = compValueMatrix[channelIndexes[chIdx]];
+    }
+
+    double temp;
+
+    switch (paramToUpdate) {
+    case U_Rs:
+        if (membraneCapTauValCompensationMultiCoders.empty()) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
+            membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->setEncodingRange(newRanges[chIdx]);
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            newParams[chIdx] = temp/localCompValueSubMatrix[chIdx][U_Cm];
+        }
+        break;
+
+    default:
+        return EmcrDevice::setCompRanges(channelIndexes, paramToUpdate, newRanges, applyFlag);
+    }
+    return this->setCompValues(channelIndexes, paramToUpdate, newParams, applyFlag);
 }
 
 ErrorCodes_t EmcrTestBoardEl07c::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {

@@ -1,11 +1,11 @@
-#ifndef EZPATCHE8PPATCHLINER_H
-#define EZPATCHE8PPATCHLINER_H
+#ifndef EZPATCHE8PPATCH_H
+#define EZPATCHE8PPATCH_H
 
 #include "ezpatchftdidevice.h"
 
-class EZPatche8PPatchliner : public EZPatchFtdiDevice {
+class EZPatche8PPatch : public EZPatchFtdiDevice {
 public:
-    EZPatche8PPatchliner(std::string di);
+    EZPatche8PPatch(std::string di);
 
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
@@ -171,29 +171,29 @@ protected:
         ConstantSwitchEnNegIsoPw,
         ConstantSwitchLedBb,
         ConstantSwitchCh1VcEn1,
-        ConstantSwitchCh1VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh1PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh1VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh1PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchCh2VcEn1,
-        ConstantSwitchCh2VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh2PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh2VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh2PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchCh3VcEn1,
-        ConstantSwitchCh3VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh3PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh3VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh3PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchCh4VcEn1,
-        ConstantSwitchCh4VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh4PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh4VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh4PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchCh5VcEn1,
-        ConstantSwitchCh5VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh5PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh5VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh5PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchCh6VcEn1,
-        ConstantSwitchCh6VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh6PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh6VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh6PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchCh7VcEn1,
-        ConstantSwitchCh7VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh7PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh7VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh7PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchCh8VcEn1,
-        ConstantSwitchCh8VcCorrBw, /*! \todo FCON non Ã¨ veramente costante */
-        ConstantSwitchCh8PredRange, /*! \todo FCON non Ã¨ veramente costante */
+        ConstantSwitchCh8VcCorrBw, /*! \todo FCON non ÃƒÂ¨ veramente costante */
+        ConstantSwitchCh8PredRange, /*! \todo FCON non ÃƒÂ¨ veramente costante */
         ConstantSwitchesNum
     };
 
@@ -379,4 +379,4 @@ protected:
     CompensationControl_t leakConductanceControlHigh;
 };
 
-#endif // EZPATCHE8PPATCHLINER_H
+#endif // EZPATCHE8PPATCH_H

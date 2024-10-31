@@ -5,8 +5,9 @@
 #include "emcr8patchclamp_el07cd_artix7.h"
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
-    {DeviceVersionE4p, DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV02, 1, DeviceE8PPatchLinerEL07CD_artix7_PCBV02},     //  10, 14,  1 : VC-CC device with 8 channels (EL07CD) for Nanion's Patchliner (FPGA artix7) PCB V02. */
-    {DeviceVersionE4p, DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV01, 1, DeviceE8PPatchLinerEL07CD_artix7_PCBV01},     //  10, 12,  1 : VC-CC device with 8 channels (EL07CD) for Nanion's Patchliner (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV02, 1, DeviceE8PPatchEL07CD_artix7_PCBV02},     //  10, 14,  1 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V02. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 1, DeviceE8PPatchEL07CD_artix7_PCBV01},     //  10, 12,  1 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 1, DeviceE4PPatchEL07CD_artix7_PCBV01},     //  10, 12,  2 : VC-CC device with 4 channels (EL07CD) (FPGA artix7) PCB V01. */
 };
 
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
@@ -158,12 +159,16 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
     }
 
     switch (deviceType) {
-    case DeviceE8PPatchLinerEL07CD_artix7_PCBV02:
+    case DeviceE8PPatchEL07CD_artix7_PCBV02:
         messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(deviceId);
         break;
 
-    case DeviceE8PPatchLinerEL07CD_artix7_PCBV01:
+    case DeviceE8PPatchEL07CD_artix7_PCBV01:
         messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(deviceId);
+        break;
+
+    case DeviceE4PPatchEL07CD_artix7_PCBV01:
+        messageDispatcher = new Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01(deviceId);
         break;
 
     default:
@@ -903,7 +908,7 @@ ErrorCodes_t EmcrFtdiDevice::loadFpgaFw() {
         /*! Nothing to be done, the FPGA will handle itself */
         break;
 
-    case FtdiFpgaFwLoadPatchlinerArtix7_V01:
+    case FtdiFpgaFwLoad8PatchArtix7_V01:
         /*! Need to set some pins low to select FW loading from FLASH and then pulse Spi_Prog low to start FPGA configuration */
         FT_STATUS status;
         FT_HANDLE spiHandle;

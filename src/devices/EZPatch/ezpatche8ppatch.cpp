@@ -1,9 +1,9 @@
-#include "ezpatche8ppatchliner.h"
+#include "ezpatche8ppatch.h"
 
-EZPatche8PPatchliner::EZPatche8PPatchliner(std::string di) :
+EZPatche8PPatch::EZPatche8PPatch(std::string di) :
     EZPatchFtdiDevice(di) {
 
-    deviceName = "e8PPatchliner";
+    deviceName = "e8PPatch";
 
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
@@ -959,7 +959,7 @@ EZPatche8PPatchliner::EZPatche8PPatchliner(std::string di) :
     samplingRate = realSamplingRatesArray[SamplingRate1_25kHz];
 }
 
-ErrorCodes_t EZPatche8PPatchliner::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
+ErrorCodes_t EZPatche8PPatch::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
     ErrorCodes_t ret;
 
     if (samplingRateIdx < samplingRatesNum) {
@@ -991,7 +991,7 @@ ErrorCodes_t EZPatche8PPatchliner::setSamplingRate(uint16_t samplingRateIdx, boo
     return ret;
 }
 
-ErrorCodes_t EZPatche8PPatchliner::setResistancePredictionOptions(uint16_t optionIdx) {
+ErrorCodes_t EZPatche8PPatch::setResistancePredictionOptions(uint16_t optionIdx) {
     if (optionIdx < resistancePredictionOptions.size()) {
         if (optionIdx == 0) {
             compensationControls[U_RsPg][compensationsSettingChannel].value = resistancePredictionGain0;
@@ -1009,7 +1009,7 @@ ErrorCodes_t EZPatche8PPatchliner::setResistancePredictionOptions(uint16_t optio
     }
 }
 
-ErrorCodes_t EZPatche8PPatchliner::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
+ErrorCodes_t EZPatche8PPatch::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
     if (param == U_LkG) {
         if (selectedVcCurrentRangeIdx < VCCurrentRange3nA) {
             compensationControls[U_LkG][compensationsSettingChannel].min = leakConductanceControlLow.min;
@@ -1031,7 +1031,7 @@ ErrorCodes_t EZPatche8PPatchliner::getCompensationControl(CompensationUserParams
     return EZPatchDevice::getCompensationControl(param, control);
 }
 
-void EZPatche8PPatchliner::selectChannelsResolutions() {
+void EZPatche8PPatch::selectChannelsResolutions() {
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromVoltageClamp) {
             currentTunerCorrection[channelIdx] = 0.0;
@@ -1058,7 +1058,7 @@ void EZPatche8PPatchliner::selectChannelsResolutions() {
     this->computeRawDataFilterCoefficients();
 }
 
-void EZPatche8PPatchliner::selectVoltageOffsetResolution() {
+void EZPatche8PPatch::selectVoltageOffsetResolution() {
     if (selectedSourceForVoltageChannelIdx == ChannelSourceVoltageFromVoltageClamp) {
         voltageOffsetCorrection = 0.0;
 
@@ -1071,7 +1071,7 @@ void EZPatche8PPatchliner::selectVoltageOffsetResolution() {
     }
 }
 
-void EZPatche8PPatchliner::initializeCompensations() {
+void EZPatche8PPatch::initializeCompensations() {
     EZPatchDevice::initializeCompensations();
 
     /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
@@ -1240,7 +1240,7 @@ void EZPatche8PPatchliner::initializeCompensations() {
     }
 }
 
-bool EZPatche8PPatchliner::checkCompensationsValues() {
+bool EZPatche8PPatch::checkCompensationsValues() {
     bool ret = true;
     if (vcCompensationsActivated) {
         ret &= (compensationControls[U_CpVc][compensationsSettingChannel].value > (minPipetteCapacitance-0.5*pipetteCapacitanceStep) &&
@@ -1311,7 +1311,7 @@ bool EZPatche8PPatchliner::checkCompensationsValues() {
     return ret;
 }
 
-bool EZPatche8PPatchliner::fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) {
+bool EZPatche8PPatch::fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) {
     bool anythingChanged = false;
     bool highMembraneCapacitanceFlag = (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance1 ? true : false);
     txDataMessage[0] = CompensationsRegisterVCCFastGain+compensationsSettingChannel*coreSpecificRegistersNum;
@@ -1349,7 +1349,7 @@ bool EZPatche8PPatchliner::fillCompensationsRegistersTxData(std::vector <uint16_
     return anythingChanged;
 }
 
-void EZPatche8PPatchliner::updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) {
+void EZPatche8PPatch::updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) {
     pipetteCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[1];
     membraneCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[3];
     membraneTauRegValue[compensationsSettingChannel] = txDataMessage[5];

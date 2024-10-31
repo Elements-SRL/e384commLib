@@ -7,7 +7,7 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     rxChannel = 'A';
     txChannel = 'A';
 
-    fpgaLoadType = FtdiFpgaFwLoadPatchlinerArtix7_V01;
+    fpgaLoadType = FtdiFpgaFwLoad8PatchArtix7_V01;
 
     deviceName = "8xPatchClamp";
 
@@ -50,9 +50,11 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
     clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
+    clampingModalitiesArray[ZeroCurrentClamp] = ClampingModality_t::ZERO_CURRENT_CLAMP;
     clampingModalitiesArray[CurrentClamp] = ClampingModality_t::CURRENT_CLAMP;
 #ifdef CALIBRATION
     clampingModalitiesArray[VoltageClampVoltageRead] = ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ;
+    clampingModalitiesArray[CurrentClampCurrentRead] = ClampingModality_t::CURRENT_CLAMP_CURRENT_READ;
 #endif
     defaultClampingModalityIdx = VoltageClamp;
 
@@ -324,6 +326,13 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
 
     defaultVoltageHalfTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
     defaultCurrentHalfTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
+
+    /*! Zap */
+    zapDurationRange.step = 0.1;
+    zapDurationRange.min = 0.0;
+    zapDurationRange.max = zapDurationRange.min+zapDurationRange.step*(double)UINT16_MAX;
+    zapDurationRange.prefix = UnitPfxMilli;
+    zapDurationRange.unit = "s";
 
     /*! VC leak calibration (shunt resistance)*/
     rRShuntConductanceCalibRange.resize(VCCurrentRangesNum);
@@ -715,6 +724,30 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
             boolConfig.initialWord++;
         }
     }
+
+    /*! Zap */
+    boolConfig.initialWord = 19;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    zapCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        zapCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(zapCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    doubleConfig.initialWord = 2;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = zapDurationRange.step;
+    doubleConfig.minValue = zapDurationRange.min;
+    doubleConfig.maxValue = zapDurationRange.max;
+    zapDurationCoder = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(zapDurationCoder);
 
     /*! Turn channels on */
     boolConfig.initialWord = 14;
@@ -1879,6 +1912,42 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompValues(std::vect
     return Success;
 }
 
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompRanges(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) {
+    if (compValueMatrix.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+
+    if (!allLessThan(newRanges, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+
+    std::vector <std::vector <double> > localCompValueSubMatrix(channelIndexes.size());
+    std::vector <double> newParams(channelIndexes.size());
+    for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
+        localCompValueSubMatrix[chIdx] = compValueMatrix[channelIndexes[chIdx]];
+    }
+
+    double temp;
+
+    switch (paramToUpdate) {
+    case U_Rs:
+        if (membraneCapTauValCompensationMultiCoders.empty()) {
+            return ErrorFeatureNotImplemented;
+        }
+
+        for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
+            membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->setEncodingRange(newRanges[chIdx]);
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            newParams[chIdx] = temp/localCompValueSubMatrix[chIdx][U_Cm];
+        }
+        break;
+
+    default:
+        return EmcrDevice::setCompRanges(channelIndexes, paramToUpdate, newRanges, applyFlag);
+    }
+    return this->setCompValues(channelIndexes, paramToUpdate, newParams, applyFlag);
+}
+
 ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
@@ -2322,4 +2391,38 @@ void Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setGrEn(bool flag, bool applyFl
 Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di) :
     Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(di) {
     fpgaLoadType = FtdiFpgaFwLoadAutomatic;
+}
+
+Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di) :
+    Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(di) {
+
+    deviceName = "4xPatchClamp";
+
+    fwSize_B = 0;
+    motherboardBootTime_s = 0; // no motherboard to be started
+
+    rxSyncWord = 0x5aa55aa5;
+
+    packetsPerFrame = 1;
+
+    voltageChannelsNum = 4;
+    currentChannelsNum = 4;
+    totalChannelsNum = voltageChannelsNum+currentChannelsNum;
+
+    totalBoardsNum = 1;
+
+    rxWordOffsets[RxMessageDataLoad] = 0;
+    rxWordLengths[RxMessageDataLoad] = totalChannelsNum*packetsPerFrame;
+
+    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
+    rxWordLengths[RxMessageDataHeader] = 4;
+
+    rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
+    rxWordLengths[RxMessageDataTail] = 1;
+
+    rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
+    rxWordLengths[RxMessageStatus] = 1;
+
+    rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
+    maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 }
