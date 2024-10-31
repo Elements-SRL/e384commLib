@@ -2135,9 +2135,9 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
                 /*! \todo FCON check sulla lunghezza del messaggio */
                 for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
-                    data[sampleIdx++] = (int16_t)rxDataBuffer[dataOffset];
-                    dataOffset = (dataOffset + 1) & RX_DATA_BUFFER_MASK;
+                    data[temperatureChannelIdx] = (int16_t)rxDataBuffer[dataOffset];
                 }
+                dataOffset = (dataOffset + temperatureChannelsNum) & RX_DATA_BUFFER_MASK;
 
                 lastParsedMsgType = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionTemperature;
 
