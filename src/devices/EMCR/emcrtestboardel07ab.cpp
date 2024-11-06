@@ -1339,13 +1339,13 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     /*! Cslow / membrane capacitance compensation TAU and TAU RANGES */
     membraneCapTauValCompensationMultiCoders.resize(currentChannelsNum);
 
-    doubleConfig.initialWord = 330;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 8;
-
     boolConfig.initialWord = 334;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
+
+    doubleConfig.initialWord = 330;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 8;
 
     multiCoderConfig.doubleCoderVector.resize(membraneCapTauValueRanges);
     multiCoderConfig.thresholdVector.resize(membraneCapTauValueRanges-1);

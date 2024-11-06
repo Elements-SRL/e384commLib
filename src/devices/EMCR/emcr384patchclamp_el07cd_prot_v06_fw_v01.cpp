@@ -1348,13 +1348,13 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     /*! Cslow / membrane capacitance compensation TAU and TAU RANGES */
     membraneCapTauValCompensationMultiCoders.resize(currentChannelsNum);
 
-    doubleConfig.initialWord = 3952;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 8;
-
     boolConfig.initialWord = 4144;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
+
+    doubleConfig.initialWord = 3952;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 8;
 
     multiCoderConfig.doubleCoderVector.resize(membraneCapTauValueRanges);
     multiCoderConfig.thresholdVector.resize(membraneCapTauValueRanges-1);
