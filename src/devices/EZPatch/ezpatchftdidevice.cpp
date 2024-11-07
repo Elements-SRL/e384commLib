@@ -89,6 +89,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV01_AnalogOut, 129, DeviceEPatchEL03F_4F_PCBV01_AnalogOut},           //  7,  9,  129 : added analog output.
     {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV03, 130, DeviceEPatchEL03F_4F_PCBV03_V04},                           //  7,  8,  130 : digital repetitive trigger
     {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV02, 131, DeviceEPatchEL03F_4F_PCBV02_V04},                           //  7, 10,  131 : digital repetitive trigger
+    {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV03b, 132, DeviceEPatchEL03F_4F_PCBV03_V04},                          //  7, 11,  132 : digital repetitive trigger
     {DeviceVersionEpatch, DeviceSubversionEl03F_4F_PCBV03, 129, DeviceEPatchEL03F_4F_PCBV03_V03},                           //  7,  8,  129 : increased digital triggers to 84
     /*! ePatch EL04E */
     {DeviceVersionPrototype, DeviceSubversionProtoEl04E, 128, DeviceEPatchEL04E},                                           //  254,9,  128 : VC-CC prototype 1 chip (EL04E)
