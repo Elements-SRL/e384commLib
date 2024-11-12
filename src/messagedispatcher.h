@@ -2181,6 +2181,7 @@ protected:
 
     /*! Features in ASIC domain, depend on asic*/
     std::vector <RangedMeasurement> pipetteCapacitanceRange;
+    std::vector <RangedMeasurement> ccPipetteCapacitanceRange;
     std::vector <RangedMeasurement> membraneCapValueRange;
     std::vector <RangedMeasurement> membraneCapTauValueRange;
     RangedMeasurement_t rsCorrValueRange;
