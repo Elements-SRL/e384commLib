@@ -285,6 +285,19 @@ ErrorCodes_t MessageDispatcher::setCurrentHalf(std::vector <uint16_t> channelInd
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::subtractLiquidJunctionFromCc(bool flag) {
+    subtractLiquidJunctionFromCcFlag = flag;
+    for (int i = 0; i < voltageChannelsNum; i++) {
+        if (subtractLiquidJunctionFromCcFlag) {
+            ccLiquidJunctionVectorApplied[i] = ccLiquidJunctionVector[i];
+
+        } else {
+            ccLiquidJunctionVectorApplied[i] = 0;
+        }
+    }
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::resetOffsetRecalibration(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     std::vector <Measurement_t> offsets(channelIndexes.size());
     std::unique_lock <std::mutex> ljMutexLock (ljMutex);
@@ -1877,6 +1890,8 @@ void MessageDispatcher::initializeLiquidJunction() {
 
     ccLiquidJunctionVector.resize(currentChannelsNum);
     fill(ccLiquidJunctionVector.begin(), ccLiquidJunctionVector.end(), 0);
+    ccLiquidJunctionVectorApplied.resize(currentChannelsNum);
+    fill(ccLiquidJunctionVectorApplied.begin(), ccLiquidJunctionVectorApplied.end(), 0);
 }
 
 bool MessageDispatcher::checkProtocolValidity(std::string &) {

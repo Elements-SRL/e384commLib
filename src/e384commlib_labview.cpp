@@ -323,6 +323,13 @@ ErrorCodes_t setCurrentHalf(
     return messageDispatcher->setCurrentHalf(channelIndexes, currents, applyFlagIn);
 }
 
+ErrorCodes_t subtractLiquidJunctionFromCc(bool flag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->subtractLiquidJunctionFromCc(flag);
+}
+
 ErrorCodes_t setLiquidJunctionVoltage(
         uint16_t * channelIndexesIn,
         LMeasHandle * voltagesIn,

@@ -1101,7 +1101,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
         /*! Restore liquid junction and remove it from the voltage reading */
         for (uint32_t i = 0; i < currentChannelsNum; i++) {
             this->updateLiquidJunctionVoltage(i, false);
-            ccLiquidJunctionVector[i] = 0;
+            ccLiquidJunctionVectorApplied[i] = 0;
         }
 
         this->enableCcCompensations(false, false);
@@ -1133,6 +1133,9 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
             this->updateLiquidJunctionVoltage(i, false);
             selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+            if (subtractLiquidJunctionFromCcFlag) {
+                ccLiquidJunctionVectorApplied[i] = ccLiquidJunctionVector[i];
+            }
         }
 
         if (previousClampingModality == VOLTAGE_CLAMP) {
@@ -1167,6 +1170,9 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
             this->updateLiquidJunctionVoltage(i, false);
             selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+            if (subtractLiquidJunctionFromCcFlag) {
+                ccLiquidJunctionVectorApplied[i] = ccLiquidJunctionVector[i];
+            }
         }
 
         if (previousClampingModality == VOLTAGE_CLAMP || previousClampingModality == VOLTAGE_CLAMP_VOLTAGE_READ) {
@@ -1206,6 +1212,9 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
             this->updateLiquidJunctionVoltage(i, false);
             selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+            if (subtractLiquidJunctionFromCcFlag) {
+                ccLiquidJunctionVectorApplied[i] = ccLiquidJunctionVector[i];
+            }
         }
 
         if (previousClampingModality != VOLTAGE_CLAMP_VOLTAGE_READ) {
@@ -1914,7 +1923,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                             downsamplingOffset = 0;
                             downsamplingCount++;
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
+                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
 #ifdef FILTER_CLIP_NEEDED
                                 xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                                 data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
@@ -1944,7 +1953,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
                         } else {
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
+                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
                                 xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
@@ -1977,7 +1986,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                     timeSamplesNum = samplesNum/totalChannelsNum;
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
+                            rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
 #ifdef FILTER_CLIP_NEEDED
                             xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                             data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
@@ -2018,7 +2027,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                     timeSamplesNum = samplesNum/totalChannelsNum;
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            data[dataWritten+sampleIdx++] = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
+                            data[dataWritten+sampleIdx++] = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
 

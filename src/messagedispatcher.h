@@ -350,6 +350,13 @@ public:
      */
     virtual ErrorCodes_t setCurrentHalf(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag);
 
+    /*! \brief Activate or deactivate the automatic subtraction of the liquid junction compensated in VC from the CC readout.
+     *
+     * \param flag [in] true: the liquid junction potential is subtracted from the CC readout; false: the CC readout is unaffected.
+     * \return Error code.
+     */
+    ErrorCodes_t subtractLiquidJunctionFromCc(bool flag);
+
     /*! \brief Set the current offset to the default value.
      *
      * \param channelIndexes [in] Vector of Indexes for the channels to control.
@@ -2161,6 +2168,8 @@ protected:
 
     std::vector <Measurement_t> selectedLiquidJunctionVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector <int16_t> ccLiquidJunctionVector;
+    std::vector <int16_t> ccLiquidJunctionVectorApplied;
+    bool subtractLiquidJunctionFromCcFlag = false;
 
     RangedMeasurement_t gateVoltageRange;
     std::vector <Measurement_t> selectedGateVoltageVector;

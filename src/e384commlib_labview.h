@@ -259,6 +259,16 @@ ErrorCodes_t setCurrentHalf(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+/*! \brief Activate or deactivate the automatic subtraction of the liquid junction compensated in VC from the CC readout.
+ *
+ * \param flag [in] true: the liquid junction potential is subtracted from the CC readout; false: the CC readout is unaffected.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t subtractLiquidJunctionFromCc(
+        E384CL_ARGIN bool flag);
+
 /*! \brief Set the current offset to the default value.
  *
  * \param channelIndexes [in] Vector of Indexes for the channels to control.
