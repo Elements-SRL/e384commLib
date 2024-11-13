@@ -2390,7 +2390,7 @@ Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr4PatchClamp_EL07c_artix7_PCBV01_
     rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
     rxWordLengths[RxMessageDataHeader] = 4;
 
-    rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
+    rxWordOffsets[RxMessageDataTail] = 16; /*!< Gap in the offset to match the 8-channel device's protocol */
     rxWordLengths[RxMessageDataTail] = 1;
 
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
@@ -2398,4 +2398,9 @@ Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr4PatchClamp_EL07c_artix7_PCBV01_
 
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
+}
+
+Emcr4PatchClamp_EL07c_artix7_PCBV02_fw_v01::Emcr4PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di) :
+    Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01(di) {
+    fpgaLoadType = FtdiFpgaFwLoadAutomatic;
 }

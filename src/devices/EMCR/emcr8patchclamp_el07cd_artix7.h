@@ -175,4 +175,9 @@ class Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01 : public Emcr8PatchClamp_EL07c_
 public:
     Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di);
 };
+
+class Emcr4PatchClamp_EL07c_artix7_PCBV02_fw_v01 : public Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01 {
+public:
+    Emcr4PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di);
+};
 #endif // EMCR8PATCHCLAMP_EL07CD_ARTIX7_H
