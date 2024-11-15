@@ -424,6 +424,15 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         pipetteCapacitanceRange[idx].unit = "F";
     }
 
+    ccPipetteCapacitanceRange.resize(pipetteCapacitanceRanges);
+    for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
+        ccPipetteCapacitanceRange[idx].step = (4.0*pipetteVarConductance/pipetteCapacitanceValuesNum*pipetteFixedResistance2)*pipetteInjCapacitance[idx];
+        ccPipetteCapacitanceRange[idx].min = (4.0*(pipetteVarConductance/pipetteCapacitanceValuesNum+1.0/pipetteFixedResistance1)*pipetteFixedResistance2+3.0)*pipetteInjCapacitance[idx];
+        ccPipetteCapacitanceRange[idx].max = ccPipetteCapacitanceRange[idx].min+(pipetteCapacitanceValuesNum-1.0)*ccPipetteCapacitanceRange[idx].step;
+        ccPipetteCapacitanceRange[idx].prefix = UnitPfxPico;
+        ccPipetteCapacitanceRange[idx].unit = "F";
+    }
+
     /*! FEATURES ASIC DOMAIN Membrane capacitance*/
     const double membraneVarConductance = 320.0; // uS
     const double membraneFixedResistance8 = 61.5e-3; //MOhm
@@ -544,7 +553,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     defaultUserDomainParams[U_Rs] = membraneCapTauValueRange[0].min/membraneCapValueRange[0].min;
     defaultUserDomainParams[U_RsCp] = 1.0;
     defaultUserDomainParams[U_RsPg] = rsPredGainRange.min;
-    defaultUserDomainParams[U_CpCc] = pipetteCapacitanceRange[0].min;
+    defaultUserDomainParams[U_CpCc] = ccPipetteCapacitanceRange[0].min;
 
     // Selected default Idx
     selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
@@ -1260,7 +1269,7 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         }
     }
 
-    /*! Cfast / pipette capacitance compensation VALUE*/
+    /*! Cfast / pipette capacitance compensation VALUE */
     pipetteCapValCompensationMultiCoders.resize(currentChannelsNum);
 
     boolConfig.initialWord = 333;
@@ -1561,15 +1570,15 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
         static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x3);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
-            doubleConfig.minValue = pipetteCapacitanceRange[rangeIdx].min;
-            doubleConfig.maxValue = pipetteCapacitanceRange[rangeIdx].max;
-            doubleConfig.resolution = pipetteCapacitanceRange[rangeIdx].step;
+            doubleConfig.minValue = ccPipetteCapacitanceRange[rangeIdx].min;
+            doubleConfig.maxValue = ccPipetteCapacitanceRange[rangeIdx].max;
+            doubleConfig.resolution = ccPipetteCapacitanceRange[rangeIdx].step;
 
             multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < pipetteCapacitanceRanges-1) {
-                multiCoderConfig.thresholdVector[rangeIdx] = pipetteCapacitanceRange[rangeIdx].max + pipetteCapacitanceRange[rangeIdx].step;
+                multiCoderConfig.thresholdVector[rangeIdx] = ccPipetteCapacitanceRange[rangeIdx].max + ccPipetteCapacitanceRange[rangeIdx].step;
             }
         }
         pipetteCapCcValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
@@ -2351,9 +2360,9 @@ ErrorCodes_t EmcrTestBoardEl07c::asic2UserDomainCompensable(int chIdx, std::vect
     compensationControls[U_RsPg][chIdx].step = rsPredGainRange.step;
 
     /*! Compensable for U_CpCc*/
-    compensationControls[U_CpCc][chIdx].maxCompensable = pipetteCapacitanceRange.back().max;
-    compensationControls[U_CpCc][chIdx].minCompensable = pipetteCapacitanceRange.front().min;
-    compensationControls[U_CpCc][chIdx].step = pipetteCapacitanceRange.front().step;
+    compensationControls[U_CpCc][chIdx].maxCompensable = ccPipetteCapacitanceRange.back().max;
+    compensationControls[U_CpCc][chIdx].minCompensable = ccPipetteCapacitanceRange.front().min;
+    compensationControls[U_CpCc][chIdx].step = ccPipetteCapacitanceRange.front().step;
 
     return Success;
 }
@@ -2377,16 +2386,16 @@ ErrorCodes_t EmcrTestBoardEl07c::getCompensationControl(CompensationUserParams_t
 
     case U_CpCc:
         control.implemented = true;
-        control.min = pipetteCapacitanceRange.front().min;
-        control.max = pipetteCapacitanceRange.back().max;
-        control.minCompensable = pipetteCapacitanceRange.front().min;
-        control.maxCompensable = pipetteCapacitanceRange.back().max;
-        control.step = pipetteCapacitanceRange.front().step;
+        control.min = ccPipetteCapacitanceRange.front().min;
+        control.max = ccPipetteCapacitanceRange.back().max;
+        control.minCompensable = ccPipetteCapacitanceRange.front().min;
+        control.maxCompensable = ccPipetteCapacitanceRange.back().max;
+        control.step = ccPipetteCapacitanceRange.front().step;
         control.steps = round(1.0+(control.max-control.min)/control.step);
-        control.decimals = pipetteCapacitanceRange.front().decimals();
-        control.value = pipetteCapacitanceRange.front().min;
-        control.prefix = pipetteCapacitanceRange.front().prefix;
-        control.unit = pipetteCapacitanceRange.front().unit;
+        control.decimals = ccPipetteCapacitanceRange.front().decimals();
+        control.value = ccPipetteCapacitanceRange.front().min;
+        control.prefix = ccPipetteCapacitanceRange.front().prefix;
+        control.unit = ccPipetteCapacitanceRange.front().unit;
         control.name = "Pipette Capacitance (CC)";
         return Success;
 
