@@ -2100,6 +2100,19 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCVoltageRange(
         E384CL_ARGOUT LVRangedMeasurement_t &rangeOut);
 
+/*! \brief Get information on the temperature channels.
+ *
+ * \param names [out] String containing the name of each temperature channel, separated by commas.
+ * \param ranges [out] Array containing the range for each temperature channel.
+ *
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getTemperatureChannelsInfo(
+        E384CL_ARGOUT LStrHandle * names,
+        E384CL_ARGOUT LRangeHandle * ranges);
+
 /*! \brief Get the sampling rates available for the device.
  *
  * \param samplingRates [out] Array containing all the available sampling rates.
