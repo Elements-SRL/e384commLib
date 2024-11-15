@@ -23,6 +23,7 @@ EmcrDevice::EmcrDevice(std::string deviceId) :
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdInvalid] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus] = false;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature] = true;
 
     /*! Initialize rx word offsets and lengths with default values */
     rxWordOffsets.resize(RxMessageNum);
@@ -2121,7 +2122,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
             break;
 
         case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
-            //            not really managed, ignore it
+            // not really managed, ignore it
             if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
                 lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus;
                 rxOutput.dataLen = 0;
@@ -2135,6 +2136,28 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 messageReadFlag = false;
             }
 
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature):
+            if (lastParsedMsgType == MsgDirectionDeviceToPc + MsgTypeIdInvalid) {
+                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
+                rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
+                /*! \todo FCON check sulla lunghezza del messaggio */
+                for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
+                    data[temperatureChannelIdx] = (int16_t)rxDataBuffer[dataOffset];
+                }
+                dataOffset = (dataOffset + temperatureChannelsNum) & RX_DATA_BUFFER_MASK;
+
+                lastParsedMsgType = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionTemperature;
+
+                exitLoop = true;
+                messageReadFlag = true;
+            }
+            else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
             break;
 
         default:
@@ -2631,6 +2654,7 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
     case RxMessageDataHeader:
     case RxMessageDataTail:
     case RxMessageStatus:
+    case RxMessageTemperature:
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
         }

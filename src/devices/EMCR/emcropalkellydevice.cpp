@@ -728,6 +728,9 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageStatus]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus, RxMessageStatus);
+
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageTemperature]) {
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature, RxMessageTemperature);
                         }
 
                         rxFrameOffset = rxRawBufferReadOffset;

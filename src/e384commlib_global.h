@@ -143,6 +143,7 @@ typedef enum MsgTypeId {
     MsgTypeIdAcquisitionSaturation =            MsgGroupAcquiredData+0x0004, /*!< Message that notifies the saturation of the front-end. */
     MsgTypeIdAcquisitionDataLoss =              MsgGroupAcquiredData+0x0005, /*!< Message that notifies the loss of data. */
     MsgTypeIdAcquisitionDataOverflow =          MsgGroupAcquiredData+0x0006, /*!< Message that notifies the overflow of data. */
+    MsgTypeIdAcquisitionTemperature =           MsgGroupAcquiredData+0x0007, /*!< Message containing temperature data. */
 
     /*! Features messages */
     MsgTypeIdLiquidJunctionComp =               MsgGroupFeatures+0x0001, /*!< Message used to apply the liquid junction  compensation. */

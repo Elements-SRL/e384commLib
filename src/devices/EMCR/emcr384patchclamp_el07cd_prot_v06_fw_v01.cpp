@@ -33,6 +33,9 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
     rxWordLengths[RxMessageStatus] = 2;
 
+    rxWordOffsets[RxMessageTemperature] = rxWordOffsets[RxMessageStatus] + rxWordLengths[RxMessageStatus];
+    rxWordLengths[RxMessageTemperature] = 2;
+
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
@@ -42,6 +45,24 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
+
+    temperatureChannelsNum = TemperatureChannelsNum;
+
+    temperatureChannelsNames.resize(temperatureChannelsNum);
+    temperatureChannelsNames[TemperatureSensor0] = "Sensor0";
+    temperatureChannelsNames[TemperatureSensor1] = "Sensor1";
+
+    temperatureChannelsRanges.resize(temperatureChannelsNum);
+    temperatureChannelsRanges[TemperatureSensor0].step = 0.0625;
+    temperatureChannelsRanges[TemperatureSensor0].min = -2048.0;
+    temperatureChannelsRanges[TemperatureSensor0].max = temperatureChannelsRanges[TemperatureSensor0].min+temperatureChannelsRanges[TemperatureSensor0].step*USHORT_MAX;
+    temperatureChannelsRanges[TemperatureSensor0].prefix = UnitPfxNone;
+    temperatureChannelsRanges[TemperatureSensor0].unit = "°C";
+    temperatureChannelsRanges[TemperatureSensor1].step = 0.0625;
+    temperatureChannelsRanges[TemperatureSensor1].min = -2048.0;
+    temperatureChannelsRanges[TemperatureSensor1].max = temperatureChannelsRanges[TemperatureSensor1].min+temperatureChannelsRanges[TemperatureSensor1].step*USHORT_MAX;
+    temperatureChannelsRanges[TemperatureSensor1].prefix = UnitPfxNone;
+    temperatureChannelsRanges[TemperatureSensor1].unit = "°C";
 
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
