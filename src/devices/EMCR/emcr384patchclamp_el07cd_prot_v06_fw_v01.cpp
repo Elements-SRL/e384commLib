@@ -337,6 +337,13 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     defaultVoltageHalfTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
     defaultCurrentHalfTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
 
+    /*! Zap */
+    zapDurationRange.step = 0.1;
+    zapDurationRange.min = 0.0;
+    zapDurationRange.max = zapDurationRange.min+zapDurationRange.step*(double)UINT16_MAX;
+    zapDurationRange.prefix = UnitPfxMilli;
+    zapDurationRange.unit = "s";
+
     /*! VC leak calibration (shunt resistance)*/
     rRShuntConductanceCalibRange.resize(VCCurrentRangesNum);
     rRShuntConductanceCalibRange[VCCurrentRange10nA].step = (vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step)/16384.0;
@@ -719,6 +726,30 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
             boolConfig.initialWord++;
         }
     }
+
+    /*! Zap */
+    boolConfig.initialWord = 180;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    zapCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        zapCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(zapCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    doubleConfig.initialWord = 5;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = zapDurationRange.step;
+    doubleConfig.minValue = zapDurationRange.min;
+    doubleConfig.maxValue = zapDurationRange.max;
+    zapDurationCoder = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(zapDurationCoder);
 
     /*! Turn channels on */
     boolConfig.initialWord = 60;
