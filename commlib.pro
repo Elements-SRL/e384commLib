@@ -72,6 +72,7 @@ SOURCES += \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v02.cpp \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.cpp \
     src/devices/EMCR/emcr10mhz.cpp \
+    src/devices/EMCR/emcr10mhzsb.cpp \
     src/devices/EMCR/emcr2x10mhz.cpp \
     src/devices/EMCR/emcr4x10mhz.cpp \
     src/devices/EMCR/emcrtestboardel07ab.cpp \
@@ -124,6 +125,7 @@ HEADERS += \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v02.h \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.h \
     src/devices/EMCR/emcr10mhz.h \
+    src/devices/EMCR/emcr10mhzsb.h \
     src/devices/EMCR/emcr2x10mhz.h \
     src/devices/EMCR/emcr4x10mhz.h \
     src/devices/EMCR/emcrtestboardel07ab.h \

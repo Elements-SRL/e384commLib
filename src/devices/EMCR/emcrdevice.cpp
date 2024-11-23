@@ -309,7 +309,7 @@ ErrorCodes_t EmcrDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool a
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
 
-        } else if (compensationsEnableFlags[CompRsCorr][channelIdx]) {
+        } else if (compensationsEnableFlags[CompRsCorr][channelIdx] && !(calibrationParams.rsCorrOffsetDac.empty())) {
             calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value+calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord)-calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIdx].value;
