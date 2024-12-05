@@ -42,3 +42,4 @@ commlib.vcxproj.user
 commlib/
 debug/
 release/
+build/

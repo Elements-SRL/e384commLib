@@ -9,6 +9,7 @@
 class CommandCoder {
 public:
     CommandCoder(uint16_t initialWord, uint16_t initialBit, uint16_t bitsNum);
+    virtual ~CommandCoder() {}
 
 protected:
     void encodeUint(uint32_t uintValue, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord);
@@ -29,6 +30,7 @@ public:
     } CoderConfig_t;
 
     BoolCoder(CoderConfig_t config);
+    virtual ~BoolCoder() {}
 
     virtual void encode(uint32_t value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) = 0;
 
@@ -39,6 +41,7 @@ protected:
 class BoolArrayCoder : public BoolCoder {
 public:
     BoolArrayCoder(CoderConfig_t config);
+    virtual ~BoolArrayCoder() {}
 
     void encode(uint32_t value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
 };
@@ -46,6 +49,7 @@ public:
 class BoolNegatedArrayCoder : public BoolArrayCoder {
 public:
     BoolNegatedArrayCoder(CoderConfig_t config);
+    virtual ~BoolNegatedArrayCoder() {}
 
     void encode(uint32_t value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
 };
@@ -53,6 +57,7 @@ public:
 class BoolRandomArrayCoder : public BoolArrayCoder {
 public:
     BoolRandomArrayCoder(CoderConfig_t config);
+    virtual ~BoolRandomArrayCoder() {}
 
     void encode(uint32_t value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
     void addMapItem(uint32_t to);
@@ -67,6 +72,7 @@ private:
 class BoolOneHotCoder : public BoolCoder {
 public:
     BoolOneHotCoder(CoderConfig_t config);
+    virtual ~BoolOneHotCoder() {}
 
     void encode(uint32_t value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
 };
@@ -83,6 +89,7 @@ public:
     } CoderConfig_t;
 
     DoubleCoder(CoderConfig_t config);
+    virtual ~DoubleCoder() {}
 
     virtual double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) = 0;
 
@@ -101,6 +108,7 @@ protected:
 class DoubleTwosCompCoder : public DoubleCoder {
 public:
     DoubleTwosCompCoder(CoderConfig_t config);
+    virtual ~DoubleTwosCompCoder() {}
 
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
 };
@@ -108,6 +116,7 @@ public:
 class DoubleOffsetBinaryCoder : public DoubleCoder {
 public:
     DoubleOffsetBinaryCoder(CoderConfig_t config);
+    virtual ~DoubleOffsetBinaryCoder() {}
 
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
 };
@@ -115,6 +124,7 @@ public:
 class DoubleSignAbsCoder : public DoubleCoder {
 public:
     DoubleSignAbsCoder(CoderConfig_t config);
+    virtual ~DoubleSignAbsCoder() {}
 
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) override;
 };
@@ -127,6 +137,7 @@ public:
     } CoderConfig_t;
 
     FloatCoder(CoderConfig_t config);
+    virtual ~FloatCoder() {}
 
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord);
 
@@ -143,6 +154,7 @@ public:
     } MultiCoderConfig_t;
 
     MultiCoder(MultiCoderConfig_t multiConfig);
+    virtual ~MultiCoder() {}
 
     double encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord);
     void setEncodingRange(int rangeIdx);
