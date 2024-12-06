@@ -197,7 +197,7 @@ protected:
     uint32_t rxRawBufferMask;
     MsgResume_t * rxMsgBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's high level info */
     uint32_t rxMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be written */
-    uint32_t rxMsgBufferReadLength = 0; /*!< Lenght of the part of the buffer to be processed */
+    uint32_t rxMsgBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
     uint32_t rxMsgBufferWriteOffset = 0;
     uint32_t rxDataBufferWriteOffset = 0;
     std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */

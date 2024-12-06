@@ -1886,7 +1886,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 rxOutput.protocolRepsIdx = rxDataBuffer[(dataOffset+2) & RX_DATA_BUFFER_MASK];
                 rxOutput.protocolSweepIdx = rxDataBuffer[(dataOffset+3) & RX_DATA_BUFFER_MASK];
                 if (rxWordLengths[RxMessageDataHeader] > 4) {
-                    rxOutput.itemFirstSampleDistance = (uint32_t)rxDataBuffer[(dataOffset+4) & RX_DATA_BUFFER_MASK] + 65536*(uint32_t)rxDataBuffer[(dataOffset+5) & RX_DATA_BUFFER_MASK];
+                    rxOutput.itemFirstSampleDistance = (uint32_t)rxDataBuffer[(dataOffset+4) & RX_DATA_BUFFER_MASK] + (((uint32_t)rxDataBuffer[(dataOffset+5) & RX_DATA_BUFFER_MASK]) << 16);
                 }
 
                 lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader;
@@ -1955,7 +1955,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                         } else {
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
                                 rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
-                                xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                                this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
 

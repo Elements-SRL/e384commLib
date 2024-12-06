@@ -534,10 +534,6 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
     fflush(rxProcFid);
 #endif
 
-//    int okWrites = 0;
-//    std::chrono::steady_clock::time_point startPrintfTime;
-//    std::chrono::steady_clock::time_point currentPrintfTime;
-//    startPrintfTime = std::chrono::steady_clock::now();
     /*! Read the data */
     bytesRead = dev.ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, okTransferSize, rxRawBuffer+rxRawBufferWriteOffset);
 
@@ -604,7 +600,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
     while (!stopConnectionFlag) {
         rxRawMutexLock.lock();
-        /*! Since OKY_RX_TRANSFER_SIZE bytes are obtained each time from the opal kelly, wait that at least these many are available,
+        /*! Since okTransferSize bytes are obtained each time from the opal kelly, wait that at least these many are available,
          *  Otherwise it means that no reads from the Opal kelly took place. */
         while (rxRawBufferReadLength < okTransferSize && !stopConnectionFlag) {
             rxRawBufferNotEmpty.wait_for (rxRawMutexLock, std::chrono::milliseconds(3));
