@@ -34,10 +34,9 @@ EmcrDevice::EmcrDevice(std::string deviceId) :
 }
 
 EmcrDevice::~EmcrDevice() {
-    /*! \todo FCON per qualche ragione crasha dalla 0.10.0, capire perchè */
-//    for (auto coder : coders) {
-//        delete coder;
-//    }
+    for (auto coder : coders) {
+        delete coder;
+    }
     coders.clear();
 }
 

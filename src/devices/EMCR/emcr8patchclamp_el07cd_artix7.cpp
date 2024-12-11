@@ -531,22 +531,6 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw17_7kHz] = rsCorrBwArray[CompensationRsCorrBw17_7kHz].niceLabel();
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_36kHz] = rsCorrBwArray[CompensationRsCorrBw9_36kHz].niceLabel();
 
-    customDoublesNum = CustomDoublesNum;
-    customDoublesNames.resize(customDoublesNum);
-    customDoublesNames[CustomOffset1] = "Offset 1";
-    customDoublesNames[CustomOffset2] = "Offset 2";
-    customDoublesNames[CustomOffset3] = "Offset 3";
-    customDoublesNames[CustomOffset4] = "Offset 4";
-    customDoublesNames[CustomOffset5] = "Offset 5";
-    customDoublesNames[CustomOffset6] = "Offset 6";
-    customDoublesNames[CustomOffset7] = "Offset 7";
-    customDoublesNames[CustomOffset8] = "Offset 8";
-    customDoublesRanges.resize(customDoublesNum);
-    RangedMeasurement_t customRange = {-64.0, 63.0, 1.0, UnitPfxMilli, "V"};
-    std::fill(customDoublesRanges.begin(), customDoublesRanges.end(), customRange);
-    customDoublesDefault.resize(customDoublesNum);
-    std::fill(customDoublesDefault.begin(), customDoublesDefault.end(), 0.0);
-
     /*! Default values */
     currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
     currentResolution = currentRange.step;
