@@ -925,6 +925,7 @@ ErrorCodes_t EmcrFtdiDevice::loadFpgaFw() {
         if (idx < 0) {
             return ErrorEepromConnectionFailed;
         }
+
         status = SPI_OpenChannel(idx, &spiHandle);
         if (status != FT_OK) {
             return ErrorEepromConnectionFailed;
@@ -952,7 +953,7 @@ ErrorCodes_t EmcrFtdiDevice::loadFpgaFw() {
         FT_WriteGPIO(spiHandle, xCbusDir, fpgaResetBit); // lower bits of the switches to select master mode and prog B to put FPGA in reset
         FT_WriteGPIO(spiHandle, xCbusDir, progBBit); // prog B high to start FPGA configuration (it reads the FLASH)
 
-        std::this_thread::sleep_for (std::chrono::seconds(35));
+        std::this_thread::sleep_for(std::chrono::seconds(35));
 
         SPI_CloseChannel(spiHandle);
         Cleanup_libMPSSE();

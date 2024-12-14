@@ -199,4 +199,5 @@ DEPENDPATH += \
 include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
 include($$(FTD2XX_PATH)includeftd2xx.pri)
+include($$(LIBMPSSE_PATH)includelibmpsse.pri)
 include($$(TOML_PP_PATH)includetoml++.pri)
