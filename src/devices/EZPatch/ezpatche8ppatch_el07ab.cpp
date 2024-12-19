@@ -1,17 +1,9 @@
-#include "ezpatche8ppatchliner_el07cd.h"
+#include "ezpatche8ppatch_el07ab.h"
 
-EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PCBV01(std::string di) :
+EZPatche8PPatch_el07ab::EZPatche8PPatch_el07ab(std::string di) :
     EZPatchFtdiDevice(di) {
 
-    spiChannel = 'B';
-    rxChannel = 'A';
-    txChannel = 'A';
-
-    fpgaLoadType = FtdiFpgaFwLoadPatchlinerArtix7_V01;
-
-    deviceName = "e8PPatchliner";
-
-    coreSpecificRegistersNum = 14; /*! compensations (6) VC (2) and CC (2) hold tuner, VC dig off start (1), VC (1) and CC (1) offset delta, DAC offset (1) */
+    deviceName = "e8PPatch";
 
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
@@ -83,11 +75,6 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     ccCurrentRangesArray[CCCurrentRange8nA].step = ccCurrentRangesArray[CCCurrentRange8nA].max/(INT13_MAX+1.0);
     ccCurrentRangesArray[CCCurrentRange8nA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange8nA].unit = "A";
-    ccCurrentRangesArray[CCCurrentRange2nA].max = 2000.0;
-    ccCurrentRangesArray[CCCurrentRange2nA].min = -2000.0;
-    ccCurrentRangesArray[CCCurrentRange2nA].step = ccCurrentRangesArray[CCCurrentRange2nA].max/(INT13_MAX+1.0);
-    ccCurrentRangesArray[CCCurrentRange2nA].prefix = UnitPfxPico;
-    ccCurrentRangesArray[CCCurrentRange2nA].unit = "A";
 
     ccCurrentRangesSwitchesLut.resize(ccCurrentRangesNum);
 
@@ -95,13 +82,8 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     ccCurrentRangesSwitchesWord.resize(ccCurrentRangesSwitchesNum);
     ccCurrentRangesSwitchesByte.resize(ccCurrentRangesSwitchesNum);
 
-    ccCurrentRangesSwitchesWord[CCCurrentRangesSwtichRange1] = 1;
-
-    ccCurrentRangesSwitchesByte[CCCurrentRangesSwtichRange1] = 0x0200;
-
     /*! No words/bytes to set */
-    ccCurrentRangesSwitchesLutStrings[CCCurrentRange8nA] = "0";
-    ccCurrentRangesSwitchesLutStrings[CCCurrentRange2nA] = "1";
+    ccCurrentRangesSwitchesLutStrings[CCCurrentRange8nA] = "";
 
     for (unsigned int currentRangesIdx = 0; currentRangesIdx < ccCurrentRangesNum; currentRangesIdx++) {
         ccCurrentRangesSwitchesLut[currentRangesIdx].resize(ccCurrentRangesSwitchesNum);
@@ -149,11 +131,11 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     /*! CC */
     ccVoltageRangesNum = CCVoltageRangesNum;
     ccVoltageRangesArray.resize(ccVoltageRangesNum);
-    ccVoltageRangesArray[CCVoltageRange250mV].max = 250.0;
-    ccVoltageRangesArray[CCVoltageRange250mV].min = -250.0;
-    ccVoltageRangesArray[CCVoltageRange250mV].step = ccVoltageRangesArray[CCVoltageRange250mV].max/(SHORT_MAX+1.0);
-    ccVoltageRangesArray[CCVoltageRange250mV].prefix = UnitPfxMilli;
-    ccVoltageRangesArray[CCVoltageRange250mV].unit = "V";
+    ccVoltageRangesArray[CCVoltageRange1000mV].max = 1000.0;
+    ccVoltageRangesArray[CCVoltageRange1000mV].min = -1000.0;
+    ccVoltageRangesArray[CCVoltageRange1000mV].step = ccVoltageRangesArray[CCVoltageRange1000mV].max/(SHORT_MAX+1.0);
+    ccVoltageRangesArray[CCVoltageRange1000mV].prefix = UnitPfxMilli;
+    ccVoltageRangesArray[CCVoltageRange1000mV].unit = "V";
 
     ccVoltageRangesSwitchesLut.resize(ccVoltageRangesNum);
 
@@ -162,7 +144,7 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     ccVoltageRangesSwitchesByte.resize(ccVoltageRangesSwitchesNum);
 
     /*! No words/bytes to set */
-    ccVoltageRangesSwitchesLutStrings[CCVoltageRange250mV] = "";
+    ccVoltageRangesSwitchesLutStrings[CCVoltageRange1000mV] = "";
 
     for (unsigned int voltageRangesIdx = 0; voltageRangesIdx < ccVoltageRangesNum; voltageRangesIdx++) {
         ccVoltageRangesSwitchesLut[voltageRangesIdx].resize(ccVoltageRangesSwitchesNum);
@@ -180,44 +162,44 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     samplingRatesNum = SamplingRatesNum;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate5kHz].value = 5.0;
-    realSamplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate5kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate10kHz].value = 10.0;
-    realSamplingRatesArray[SamplingRate10kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate10kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate20kHz].value = 20.0;
-    realSamplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate20kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate40kHz].value = 40.0;
-    realSamplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate40kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate80kHz].value = 80.0;
-    realSamplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate80kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate160kHz].value = 160.0;
-    realSamplingRatesArray[SamplingRate160kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate160kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate6_25kHz].value = 6.25;
+    realSamplingRatesArray[SamplingRate6_25kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate6_25kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate12_5kHz].value = 12.5;
+    realSamplingRatesArray[SamplingRate12_5kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate12_5kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate25kHz].value = 25.0;
+    realSamplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate25kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate50kHz].value = 50.0;
+    realSamplingRatesArray[SamplingRate50kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate50kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate100kHz].value = 100.0;
+    realSamplingRatesArray[SamplingRate100kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate100kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate200kHz].value = 200.0;
+    realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate5kHz].value = 200.0;
-    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate5kHz].unit = "s";
-    integrationStepArray[SamplingRate10kHz].value = 100.0;
-    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate10kHz].unit = "s";
-    integrationStepArray[SamplingRate20kHz].value = 50.0;
-    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate20kHz].unit = "s";;
-    integrationStepArray[SamplingRate40kHz].value = 25.0;
-    integrationStepArray[SamplingRate40kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate40kHz].unit = "s";
-    integrationStepArray[SamplingRate80kHz].value = 12.5;
-    integrationStepArray[SamplingRate80kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate80kHz].unit = "s";
-    integrationStepArray[SamplingRate160kHz].value = 6.25;
-    integrationStepArray[SamplingRate160kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate160kHz].unit = "s";
+    integrationStepArray[SamplingRate6_25kHz].value = 160.0;
+    integrationStepArray[SamplingRate6_25kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate6_25kHz].unit = "s";
+    integrationStepArray[SamplingRate12_5kHz].value = 80.0;
+    integrationStepArray[SamplingRate12_5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate12_5kHz].unit = "s";
+    integrationStepArray[SamplingRate25kHz].value = 40.0;
+    integrationStepArray[SamplingRate25kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate25kHz].unit = "s";;
+    integrationStepArray[SamplingRate50kHz].value = 20.0;
+    integrationStepArray[SamplingRate50kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate50kHz].unit = "s";
+    integrationStepArray[SamplingRate100kHz].value = 10.0;
+    integrationStepArray[SamplingRate100kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate100kHz].unit = "s";
+    integrationStepArray[SamplingRate200kHz].value = 5.0;
+    integrationStepArray[SamplingRate200kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate200kHz].unit = "s";
 
     samplingRatesSwitchesLut.resize(samplingRatesNum);
 
@@ -228,21 +210,17 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     samplingRatesSwitchesWord[SamplingRateSwitchVcAdcFilter2] = 0;
     samplingRatesSwitchesWord[SamplingRateSwitchVcAdcFilter1] = 0;
     samplingRatesSwitchesWord[SamplingRateSwitchVcAdcFilter0] = 0;
-    samplingRatesSwitchesWord[SamplingRateSwitchClockDiv1] = 1;
-    samplingRatesSwitchesWord[SamplingRateSwitchClockDiv0] = 1;
 
     samplingRatesSwitchesByte[SamplingRateSwitchVcAdcFilter2] = 0x0040;
     samplingRatesSwitchesByte[SamplingRateSwitchVcAdcFilter1] = 0x0020;
     samplingRatesSwitchesByte[SamplingRateSwitchVcAdcFilter0] = 0x0010;
-    samplingRatesSwitchesByte[SamplingRateSwitchClockDiv1] = 0x8000;
-    samplingRatesSwitchesByte[SamplingRateSwitchClockDiv0] = 0x4000;
 
-    samplingRatesSwitchesLutStrings[SamplingRate5kHz] = "00010";       // BW  5kHz    Clock div 4
-    samplingRatesSwitchesLutStrings[SamplingRate10kHz] = "00110";      // BW  6kHz    Clock div 4
-    samplingRatesSwitchesLutStrings[SamplingRate20kHz] = "01110";      // BW  12kHz   Clock div 4
-    samplingRatesSwitchesLutStrings[SamplingRate40kHz] = "10001";      // BW  40kHz   Clock div 2
-    samplingRatesSwitchesLutStrings[SamplingRate80kHz] = "10101";      // BW  48kHz   Clock div 2
-    samplingRatesSwitchesLutStrings[SamplingRate160kHz] = "11000";     // BW 100kHz   Clock div 1
+    samplingRatesSwitchesLutStrings[SamplingRate6_25kHz] = "001";       // BW  3.6kHz
+    samplingRatesSwitchesLutStrings[SamplingRate12_5kHz] = "010";       // BW  10kHz
+    samplingRatesSwitchesLutStrings[SamplingRate25kHz] = "100";         // BW  25kHz
+    samplingRatesSwitchesLutStrings[SamplingRate50kHz] = "101";         // BW  30kHz
+    samplingRatesSwitchesLutStrings[SamplingRate100kHz] = "110";        // BW 100kHz
+    samplingRatesSwitchesLutStrings[SamplingRate200kHz] = "111";        // BW 120kHz
 
     for (unsigned int samplingRatesIdx = 0; samplingRatesIdx < samplingRatesNum; samplingRatesIdx++) {
         samplingRatesSwitchesLut[samplingRatesIdx].resize(samplingRatesSwitchesNum);
@@ -316,13 +294,13 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     switchesNames[1][6] = "free";
     switchesNames[1][7] = "free";
     switchesNames[1][8] = "free";
-    switchesNames[1][9] = "CC_DAC_Range";
-    switchesNames[1][10] = "CFast_SW";
+    switchesNames[1][9] = "free";
+    switchesNames[1][10] = "free";
     switchesNames[1][11] = "free";
-    switchesNames[1][12] = "Clamping mode 0";
-    switchesNames[1][13] = "Clamping mode 1";
-    switchesNames[1][14] = "ClockDiv 0";
-    switchesNames[1][15] = "ClockDiv 1";
+    switchesNames[1][12] = "free";
+    switchesNames[1][13] = "free";
+    switchesNames[1][14] = "free";
+    switchesNames[1][15] = "free";
 
     switchesNames[2].resize(16);
     switchesNames[2][0] = "CH1_Input_SW";
@@ -338,9 +316,9 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     switchesNames[2][10] = "CH1_VC_CorrBW3";
     switchesNames[2][11] = "CH1_VC_PredEN";
     switchesNames[2][12] = "CH1_ProtocolEN";
-    switchesNames[2][13] = "CH1_RingEN";
-    switchesNames[2][14] = "CH1_GR_EN";
-    switchesNames[2][15] = "CH1_PIn_SW";
+    switchesNames[2][13] = "free";
+    switchesNames[2][14] = "free";
+    switchesNames[2][15] = "free";
 
     switchesNames[3].resize(16);
     switchesNames[3][0] = "CH2_Input_SW";
@@ -356,9 +334,9 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     switchesNames[3][10] = "CH2_VC_CorrBW3";
     switchesNames[3][11] = "CH2_VC_PredEN";
     switchesNames[3][12] = "CH2_ProtocolEN";
-    switchesNames[3][13] = "CH2_RingEN";
-    switchesNames[3][14] = "CH2_GR_EN";
-    switchesNames[3][15] = "CH2_PIn_SW";
+    switchesNames[3][13] = "free";
+    switchesNames[3][14] = "free";
+    switchesNames[3][15] = "free";
 
     switchesNames[4].resize(16);
     switchesNames[4][0] = "CH3_Input_SW";
@@ -374,9 +352,9 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     switchesNames[4][10] = "CH3_VC_CorrBW3";
     switchesNames[4][11] = "CH3_VC_PredEN";
     switchesNames[4][12] = "CH3_ProtocolEN";
-    switchesNames[4][13] = "CH3_RingEN";
-    switchesNames[4][14] = "CH3_GR_EN";
-    switchesNames[4][15] = "CH3_PIn_SW";
+    switchesNames[4][13] = "free";
+    switchesNames[4][14] = "free";
+    switchesNames[4][15] = "free";
 
     switchesNames[5].resize(16);
     switchesNames[5][0] = "CH4_Input_SW";
@@ -392,9 +370,9 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     switchesNames[5][10] = "CH4_VC_CorrBW3";
     switchesNames[5][11] = "CH4_VC_PredEN";
     switchesNames[5][12] = "CH4_ProtocolEN";
-    switchesNames[5][13] = "CH4_RingEN";
-    switchesNames[5][14] = "CH4_GR_EN";
-    switchesNames[5][15] = "CH4_PIn_SW";
+    switchesNames[5][13] = "free";
+    switchesNames[5][14] = "free";
+    switchesNames[5][15] = "free";
 
     switchesNames[6].resize(16);
     switchesNames[6][0] = "CH5_Input_SW";
@@ -410,9 +388,9 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     switchesNames[6][10] = "CH5_VC_CorrBW3";
     switchesNames[6][11] = "CH5_VC_PredEN";
     switchesNames[6][12] = "CH5_ProtocolEN";
-    switchesNames[6][13] = "CH5_RingEN";
-    switchesNames[6][14] = "CH5_GR_EN";
-    switchesNames[6][15] = "CH5_PIn_SW";
+    switchesNames[6][13] = "free";
+    switchesNames[6][14] = "free";
+    switchesNames[6][15] = "free";
 
     switchesNames[7].resize(16);
     switchesNames[7][0] = "CH6_Input_SW";
@@ -428,9 +406,9 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     switchesNames[7][10] = "CH6_VC_CorrBW3";
     switchesNames[7][11] = "CH6_VC_PredEN";
     switchesNames[7][12] = "CH6_ProtocolEN";
-    switchesNames[7][13] = "CH6_RingEN";
-    switchesNames[7][14] = "CH6_GR_EN";
-    switchesNames[7][15] = "CH6_PIn_SW";
+    switchesNames[7][13] = "free";
+    switchesNames[7][14] = "free";
+    switchesNames[7][15] = "free";
 
     switchesNames[8].resize(16);
     switchesNames[8][0] = "CH7_Input_SW";
@@ -446,9 +424,9 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     switchesNames[8][10] = "CH7_VC_CorrBW3";
     switchesNames[8][11] = "CH7_VC_PredEN";
     switchesNames[8][12] = "CH7_ProtocolEN";
-    switchesNames[8][13] = "CH7_RingEN";
-    switchesNames[8][14] = "CH7_GR_EN";
-    switchesNames[8][15] = "CH7_PIn_SW";
+    switchesNames[8][13] = "free";
+    switchesNames[8][14] = "free";
+    switchesNames[8][15] = "free";
 
     switchesNames[9].resize(16);
     switchesNames[9][0] = "CH8_Input_SW";
@@ -464,9 +442,9 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     switchesNames[9][10] = "CH8_VC_CorrBW3";
     switchesNames[9][11] = "CH8_VC_PredEN";
     switchesNames[9][12] = "CH8_ProtocolEN";
-    switchesNames[9][13] = "CH8_RingEN";
-    switchesNames[9][14] = "CH8_GR_EN";
-    switchesNames[9][15] = "CH8_PIn_SW";
+    switchesNames[9][13] = "free";
+    switchesNames[9][14] = "free";
+    switchesNames[9][15] = "free";
 
     /*! LEDs */
     ledsNum = 1;
@@ -490,17 +468,13 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     vcVoltageFiltersArray[VCStimulusLpf10kHz].value = 10.0;
     vcVoltageFiltersArray[VCStimulusLpf10kHz].prefix = UnitPfxKilo;
     vcVoltageFiltersArray[VCStimulusLpf10kHz].unit = "Hz";
-    vcVoltageFiltersArray[VCStimulusLpf20kHz].value = 20.0;
-    vcVoltageFiltersArray[VCStimulusLpf20kHz].prefix = UnitPfxKilo;
-    vcVoltageFiltersArray[VCStimulusLpf20kHz].unit = "Hz";
-    vcVoltageFiltersArray[VCStimulusLpf50kHz].value = 50.0;
-    vcVoltageFiltersArray[VCStimulusLpf50kHz].prefix = UnitPfxKilo;
-    vcVoltageFiltersArray[VCStimulusLpf50kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCStimulusLpf35kHz].value = 35.0;
+    vcVoltageFiltersArray[VCStimulusLpf35kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCStimulusLpf35kHz].unit = "Hz";
 
     vcStimulusLpfSwitchesLutStrings[VCStimulusLpf1kHz] = "00";
-    vcStimulusLpfSwitchesLutStrings[VCStimulusLpf10kHz] = "10";
-    vcStimulusLpfSwitchesLutStrings[VCStimulusLpf20kHz] = "01";
-    vcStimulusLpfSwitchesLutStrings[VCStimulusLpf50kHz] = "11";
+    vcStimulusLpfSwitchesLutStrings[VCStimulusLpf10kHz] = "01";
+    vcStimulusLpfSwitchesLutStrings[VCStimulusLpf35kHz] = "11";
 
     vcStimulusLpfSwitchesNum = VCStimulusLpfSwitchesNum;
     vcStimulusLpfSwitchesWord.resize(vcStimulusLpfSwitchesNum);
@@ -533,17 +507,13 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     ccCurrentFiltersArray[CCStimulusLpf10kHz].value = 10.0;
     ccCurrentFiltersArray[CCStimulusLpf10kHz].prefix = UnitPfxKilo;
     ccCurrentFiltersArray[CCStimulusLpf10kHz].unit = "Hz";
-    ccCurrentFiltersArray[CCStimulusLpf20kHz].value = 20.0;
-    ccCurrentFiltersArray[CCStimulusLpf20kHz].prefix = UnitPfxKilo;
-    ccCurrentFiltersArray[CCStimulusLpf20kHz].unit = "Hz";
-    ccCurrentFiltersArray[CCStimulusLpf50kHz].value = 50.0;
-    ccCurrentFiltersArray[CCStimulusLpf50kHz].prefix = UnitPfxKilo;
-    ccCurrentFiltersArray[CCStimulusLpf50kHz].unit = "Hz";
+    ccCurrentFiltersArray[CCStimulusLpf35kHz].value = 35.0;
+    ccCurrentFiltersArray[CCStimulusLpf35kHz].prefix = UnitPfxKilo;
+    ccCurrentFiltersArray[CCStimulusLpf35kHz].unit = "Hz";
 
     ccStimulusLpfSwitchesLutStrings[CCStimulusLpf1kHz] = "00";
-    ccStimulusLpfSwitchesLutStrings[CCStimulusLpf10kHz] = "10";
-    ccStimulusLpfSwitchesLutStrings[CCStimulusLpf20kHz] = "01";
-    ccStimulusLpfSwitchesLutStrings[CCStimulusLpf50kHz] = "11";
+    ccStimulusLpfSwitchesLutStrings[CCStimulusLpf10kHz] = "01";
+    ccStimulusLpfSwitchesLutStrings[CCStimulusLpf35kHz] = "11";
 
     ccStimulusLpfSwitchesNum = CCStimulusLpfSwitchesNum;
     ccStimulusLpfSwitchesWord.resize(ccStimulusLpfSwitchesNum);
@@ -595,82 +565,50 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     constantSwitchesWord[ConstantSwitchCalibrateDacData] = 1;
     constantSwitchesWord[ConstantSwitchCh1InSW] = 2;
     constantSwitchesWord[ConstantSwitchCh1CalibEn] = 2;
-    constantSwitchesWord[ConstantSwitchCh1RingEn] = 2;
-    constantSwitchesWord[ConstantSwitchCh1PIn_En] = 2;
     constantSwitchesWord[ConstantSwitchCh2InSW] = 3;
     constantSwitchesWord[ConstantSwitchCh2CalibEn] = 3;
-    constantSwitchesWord[ConstantSwitchCh2RingEn] = 3;
-    constantSwitchesWord[ConstantSwitchCh2PIn_En] = 3;
     constantSwitchesWord[ConstantSwitchCh3InSW] = 4;
     constantSwitchesWord[ConstantSwitchCh3CalibEn] = 4;
-    constantSwitchesWord[ConstantSwitchCh3RingEn] = 4;
-    constantSwitchesWord[ConstantSwitchCh3PIn_En] = 4;
     constantSwitchesWord[ConstantSwitchCh4InSW] = 5;
     constantSwitchesWord[ConstantSwitchCh4CalibEn] = 5;
-    constantSwitchesWord[ConstantSwitchCh4RingEn] = 5;
-    constantSwitchesWord[ConstantSwitchCh4PIn_En] = 5;
     constantSwitchesWord[ConstantSwitchCh5InSW] = 6;
     constantSwitchesWord[ConstantSwitchCh5CalibEn] = 6;
-    constantSwitchesWord[ConstantSwitchCh5RingEn] = 6;
-    constantSwitchesWord[ConstantSwitchCh5PIn_En] = 6;
     constantSwitchesWord[ConstantSwitchCh6InSW] = 7;
     constantSwitchesWord[ConstantSwitchCh6CalibEn] = 7;
-    constantSwitchesWord[ConstantSwitchCh6RingEn] = 7;
-    constantSwitchesWord[ConstantSwitchCh6PIn_En] = 7;
     constantSwitchesWord[ConstantSwitchCh7InSW] = 8;
     constantSwitchesWord[ConstantSwitchCh7CalibEn] = 8;
-    constantSwitchesWord[ConstantSwitchCh7RingEn] = 8;
-    constantSwitchesWord[ConstantSwitchCh7PIn_En] = 8;
     constantSwitchesWord[ConstantSwitchCh8InSW] = 9;
     constantSwitchesWord[ConstantSwitchCh8CalibEn] = 9;
-    constantSwitchesWord[ConstantSwitchCh8RingEn] = 9;
-    constantSwitchesWord[ConstantSwitchCh8PIn_En] = 9;
 
     constantSwitchesByte[ConstantSwitchEnableSpiDac] = 0x0001;
     constantSwitchesByte[ConstantSwitchSelectUnusedChannels] = 0x0002;
     constantSwitchesByte[ConstantSwitchCalibrateDacData] = 0x0004;
     constantSwitchesByte[ConstantSwitchCh1InSW] = 0x0001;
     constantSwitchesByte[ConstantSwitchCh1CalibEn] = 0x0002;
-    constantSwitchesByte[ConstantSwitchCh1RingEn] = 0x2000;
-    constantSwitchesByte[ConstantSwitchCh1PIn_En] = 0x8000;
     constantSwitchesByte[ConstantSwitchCh2InSW] = 0x0001;
     constantSwitchesByte[ConstantSwitchCh2CalibEn] = 0x0002;
-    constantSwitchesByte[ConstantSwitchCh2RingEn] = 0x2000;
-    constantSwitchesByte[ConstantSwitchCh2PIn_En] = 0x8000;
     constantSwitchesByte[ConstantSwitchCh3InSW] = 0x0001;
     constantSwitchesByte[ConstantSwitchCh3CalibEn] = 0x0002;
-    constantSwitchesByte[ConstantSwitchCh3RingEn] = 0x2000;
-    constantSwitchesByte[ConstantSwitchCh3PIn_En] = 0x8000;
     constantSwitchesByte[ConstantSwitchCh4InSW] = 0x0001;
     constantSwitchesByte[ConstantSwitchCh4CalibEn] = 0x0002;
-    constantSwitchesByte[ConstantSwitchCh4RingEn] = 0x2000;
-    constantSwitchesByte[ConstantSwitchCh4PIn_En] = 0x8000;
     constantSwitchesByte[ConstantSwitchCh5InSW] = 0x0001;
     constantSwitchesByte[ConstantSwitchCh5CalibEn] = 0x0002;
-    constantSwitchesByte[ConstantSwitchCh5RingEn] = 0x2000;
-    constantSwitchesByte[ConstantSwitchCh5PIn_En] = 0x8000;
     constantSwitchesByte[ConstantSwitchCh6InSW] = 0x0001;
     constantSwitchesByte[ConstantSwitchCh6CalibEn] = 0x0002;
-    constantSwitchesByte[ConstantSwitchCh6RingEn] = 0x2000;
-    constantSwitchesByte[ConstantSwitchCh6PIn_En] = 0x8000;
     constantSwitchesByte[ConstantSwitchCh7InSW] = 0x0001;
     constantSwitchesByte[ConstantSwitchCh7CalibEn] = 0x0002;
-    constantSwitchesByte[ConstantSwitchCh7RingEn] = 0x2000;
-    constantSwitchesByte[ConstantSwitchCh7PIn_En] = 0x8000;
     constantSwitchesByte[ConstantSwitchCh8InSW] = 0x0001;
     constantSwitchesByte[ConstantSwitchCh8CalibEn] = 0x0002;
-    constantSwitchesByte[ConstantSwitchCh8RingEn] = 0x2000;
-    constantSwitchesByte[ConstantSwitchCh8PIn_En] = 0x8000;
 
     constantSwitchesLutStrings = "101"
-                                 "1000"
-                                 "1000"
-                                 "1000"
-                                 "1000"
-                                 "1000"
-                                 "1000"
-                                 "1000"
-                                 "1000";
+                                 "10"
+                                 "10"
+                                 "10"
+                                 "10"
+                                 "10"
+                                 "10"
+                                 "10"
+                                 "10";
 
     for (unsigned int constantSwitchIdx = 0; constantSwitchIdx < constantSwitchesNum; constantSwitchIdx++) {
         if (constantSwitchesLutStrings[constantSwitchIdx] == '1') {
@@ -679,16 +617,6 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
         } else {
             constantSwitchesLut[constantSwitchIdx] = false;
         }
-    }
-
-    /*! Constant registers */
-    constantRegistersNum = ConstantRegistersNum;
-    constantRegistersWord.resize(constantRegistersNum);
-    constantRegistersValues.resize(constantRegistersNum);
-
-    for (uint16_t idx = 0; idx < constantRegistersNum; idx++) {
-        constantRegistersWord[idx] = 17+coreSpecificRegistersNum*idx;
-        constantRegistersValues[idx] = 0x0040;
     }
 
     /*! Compensations switches */
@@ -740,18 +668,22 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     }
 
     /*! Compensations options */
-    resistanceCorrectionOptions.resize(5);
-    resistanceCorrectionOptions[0] = "DONT USE";
-    resistanceCorrectionOptions[1] = "BW 53.1kHz";
-    resistanceCorrectionOptions[2] = "BW 31.8kHz";
-    resistanceCorrectionOptions[3] = "BW 17.7kHz";
-    resistanceCorrectionOptions[4] = "BW 9.36kHz";
+    resistanceCorrectionOptions.resize(8);
+    resistanceCorrectionOptions[0] = "BW 40kHz";
+    resistanceCorrectionOptions[1] = "BW 20kHz";
+    resistanceCorrectionOptions[2] = "BW 10kHz";
+    resistanceCorrectionOptions[3] = "BW 5kHz";
+    resistanceCorrectionOptions[4] = "BW 2.5kHz";
+    resistanceCorrectionOptions[5] = "BW 1.25kHz";
+    resistanceCorrectionOptions[6] = "BW 625Hz";
+    resistanceCorrectionOptions[7] = "BW 312Hz";
     resistanceCorrectionOptionWord = 2;
     resistanceCorrectionOptionMask = 0x0700;
     resistanceCorrectionOptionOffset = 8;
 
     /*! Compensations values */
     compensationsRegistersNum = CompensationsRegistersNum;
+    coreSpecificRegistersNum = compensationsRegistersNum+7; /*! additional 7 words are for VC (2) and CC (2) hold tuner, VC dig off start (1), VC (1) and CC (1) offset delta */
 
     liquidJunctionOffsetBinary = SHORT_OFFSET_BINARY;
     liquidJunctionResolution = liquidJunctionStep;
@@ -797,113 +729,6 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     resetByte[ResetIndexLiquidJunctionCompensation] = 0x0002;
 
     resetDurationMs = 20;
-
-    /*! Input */
-    inputSwitchesNum = InputSwitchesNum;
-    inputSwitchesLut.resize(inputSwitchesNum);
-    inputSwitchesWord.resize(inputSwitchesNum);
-    inputSwitchesByte.resize(inputSwitchesNum);
-
-    inputSwitchesWord[InputSw] = 2;
-
-    inputSwitchesByte[InputSw] = 0x0001;
-
-    inputSwitchesLutStrings = "1";
-
-    for (unsigned int stimulusSwitchesIdx = 0; stimulusSwitchesIdx < inputSwitchesNum; stimulusSwitchesIdx++) {
-        if (inputSwitchesLutStrings[stimulusSwitchesIdx] == '1') {
-            inputSwitchesLut[stimulusSwitchesIdx] = true;
-
-        } else {
-            inputSwitchesLut[stimulusSwitchesIdx] = false;
-        }
-    }
-
-    /*! Calibration input */
-    calSwitchesNum = CalSwitchesNum;
-    calSwitchesLut.resize(calSwitchesNum);
-    calSwitchesWord.resize(calSwitchesNum);
-    calSwitchesByte.resize(calSwitchesNum);
-
-    calSwitchesWord[CalSw] = 2;
-
-    calSwitchesByte[CalSw] = 0x0002;
-
-    calSwitchesLutStrings = "1";
-
-    for (unsigned int stimulusSwitchesIdx = 0; stimulusSwitchesIdx < calSwitchesNum; stimulusSwitchesIdx++) {
-        if (calSwitchesLutStrings[stimulusSwitchesIdx] == '1') {
-            calSwitchesLut[stimulusSwitchesIdx] = true;
-
-        } else {
-            calSwitchesLut[stimulusSwitchesIdx] = false;
-        }
-    }
-
-    /*! Voltage clamp input */
-    vcSwitchesNum = VcSwitchesNum;
-    vcSwitchesLut.resize(vcSwitchesNum);
-    vcSwitchesWord.resize(vcSwitchesNum);
-    vcSwitchesByte.resize(vcSwitchesNum);
-
-    vcSwitchesWord[VcSw] = 2;
-
-    vcSwitchesByte[VcSw] = 0x0004;
-
-    vcSwitchesLutStrings = "1";
-
-    for (unsigned int stimulusSwitchesIdx = 0; stimulusSwitchesIdx < vcSwitchesNum; stimulusSwitchesIdx++) {
-        if (vcSwitchesLutStrings[stimulusSwitchesIdx] == '1') {
-            vcSwitchesLut[stimulusSwitchesIdx] = true;
-
-        } else {
-            vcSwitchesLut[stimulusSwitchesIdx] = false;
-        }
-    }
-
-    /*! Current clamp input */
-    ccSwitchesNum = CcSwitchesNum;
-    ccSwitchesLut.resize(ccSwitchesNum);
-    ccSwitchesWord.resize(ccSwitchesNum);
-    ccSwitchesByte.resize(ccSwitchesNum);
-
-    ccSwitchesWord[CcSw] = 2;
-    ccSwitchesWord[GrEn] = 2;
-
-    ccSwitchesByte[CcSw] = 0x0008;
-    ccSwitchesByte[GrEn] = 0x4000;
-
-    ccSwitchesLutStrings = "10";
-
-    for (unsigned int stimulusSwitchesIdx = 0; stimulusSwitchesIdx < ccSwitchesNum; stimulusSwitchesIdx++) {
-        if (ccSwitchesLutStrings[stimulusSwitchesIdx] == '1') {
-            ccSwitchesLut[stimulusSwitchesIdx] = true;
-
-        } else {
-            ccSwitchesLut[stimulusSwitchesIdx] = false;
-        }
-    }
-
-    /*! ADC core selection */
-    adcCoreSwitchesNum = AdcCoreSwitchesNum;
-    adcCoreSwitchesLut.resize(adcCoreSwitchesNum);
-    adcCoreSwitchesWord.resize(adcCoreSwitchesNum);
-    adcCoreSwitchesByte.resize(adcCoreSwitchesNum);
-
-    adcCoreSwitchesWord[VcSelAdc] = 0;
-
-    adcCoreSwitchesByte[VcSelAdc] = 0x0004;
-
-    adcCoreSwitchesLutStrings = "1";
-
-    for (unsigned int stimulusSwitchesIdx = 0; stimulusSwitchesIdx < adcCoreSwitchesNum; stimulusSwitchesIdx++) {
-        if (adcCoreSwitchesLutStrings[stimulusSwitchesIdx] == '1') {
-            adcCoreSwitchesLut[stimulusSwitchesIdx] = true;
-
-        } else {
-            adcCoreSwitchesLut[stimulusSwitchesIdx] = false;
-        }
-    }
 
     /*! Stimulus */
     /*! VC */
@@ -957,14 +782,10 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     vcReaderSwitchChannelIndependent = false;
 
     vcReaderSwitchesWord[VCReaderSwitch_VcSel] = 0;
-    vcReaderSwitchesWord[VCReaderSwitch_CfastSw] = 1;
-    vcReaderSwitchesWord[VCReaderSwitch_ClampingMode0] = 1;
 
     vcReaderSwitchesByte[VCReaderSwitch_VcSel] = 0x0004;
-    vcReaderSwitchesByte[VCReaderSwitch_CfastSw] = 0x0400;
-    vcReaderSwitchesByte[VCReaderSwitch_ClampingMode0] = 0x1000;
 
-    vcReaderSwitchesLutStrings = "100";
+    vcReaderSwitchesLutStrings = "1";
 
     for (unsigned int readerSwitchesIdx = 0; readerSwitchesIdx < vcReaderSwitchesNum; readerSwitchesIdx++) {
         if (vcReaderSwitchesLutStrings[readerSwitchesIdx] == '1') {
@@ -982,12 +803,10 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     ccReaderSwitchesByte.resize(ccReaderSwitchesNum);
 
     ccReaderSwitchesWord[CCReaderSwitch_CcSW] = 2;
-    ccReaderSwitchesWord[CCReaderSwitch_GrEn] = 2;
 
     ccReaderSwitchesByte[CCReaderSwitch_CcSW] = 0x0008;
-    ccReaderSwitchesByte[CCReaderSwitch_GrEn] = 0x4000;
 
-    ccReaderSwitchesLutStrings = "10";
+    ccReaderSwitchesLutStrings = "1";
 
     for (unsigned int readerSwitchesIdx = 0; readerSwitchesIdx < ccReaderSwitchesNum; readerSwitchesIdx++) {
         if (ccReaderSwitchesLutStrings[readerSwitchesIdx] == '1') {
@@ -1033,40 +852,42 @@ EZPatche8PPatchliner_el07cd_artix7_PCBV01::EZPatche8PPatchliner_el07cd_artix7_PC
     voltageRange = vcVoltageRangesArray[VCVoltageRange500mV];
     currentResolution = currentRange.step;
     voltageResolution = voltageRange.step;
-    samplingRate = realSamplingRatesArray[SamplingRate5kHz];
+    samplingRate = realSamplingRatesArray[SamplingRate6_25kHz];
 }
 
-ErrorCodes_t EZPatche8PPatchliner_el07cd_artix7_PCBV01::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
-    if (samplingRateIdx >= samplingRatesNum) {
-        return ErrorValueOutOfRange;
-    }
-
+ErrorCodes_t EZPatche8PPatch_el07ab::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
     ErrorCodes_t ret;
-    uint16_t dataLength = switchesStatusLength;
-    std::vector <uint16_t> txDataMessage(dataLength);
-    this->switches2DataMessage(txDataMessage);
 
-    for (unsigned int samplingRatesSwitchIdx = 0; samplingRatesSwitchIdx < samplingRatesSwitchesNum; samplingRatesSwitchIdx++) {
-        if (samplingRatesSwitchesLut[samplingRateIdx][samplingRatesSwitchIdx]) {
-            txDataMessage[samplingRatesSwitchesWord[samplingRatesSwitchIdx]] |=
-                    samplingRatesSwitchesByte[samplingRatesSwitchIdx]; // 1
+    if (samplingRateIdx < samplingRatesNum) {
+        uint16_t dataLength = switchesStatusLength;
+        std::vector <uint16_t> txDataMessage(dataLength);
+        this->switches2DataMessage(txDataMessage);
 
-        } else {
-            txDataMessage[samplingRatesSwitchesWord[samplingRatesSwitchIdx]] &=
-                    ~samplingRatesSwitchesByte[samplingRatesSwitchIdx]; // 0
+        for (unsigned int samplingRatesSwitchIdx = 0; samplingRatesSwitchIdx < samplingRatesSwitchesNum; samplingRatesSwitchIdx++) {
+            if (samplingRatesSwitchesLut[samplingRateIdx][samplingRatesSwitchIdx]) {
+                txDataMessage[samplingRatesSwitchesWord[samplingRatesSwitchIdx]] |=
+                        samplingRatesSwitchesByte[samplingRatesSwitchIdx]; // 1
+
+            } else {
+                txDataMessage[samplingRatesSwitchesWord[samplingRatesSwitchIdx]] &=
+                        ~samplingRatesSwitchesByte[samplingRatesSwitchIdx]; // 0
+            }
         }
-    }
 
-    ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
-    if (ret == Success) {
-        this->dataMessage2Switches(txDataMessage);
-        ret = EZPatchDevice::setSamplingRate(samplingRateIdx, applyFlag);
+        ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
+        if (ret == Success) {
+            this->dataMessage2Switches(txDataMessage);
+            ret = EZPatchDevice::setSamplingRate(samplingRateIdx, applyFlag);
+        }
+
+    } else {
+        ret = ErrorValueOutOfRange;
     }
 
     return ret;
 }
 
-void EZPatche8PPatchliner_el07cd_artix7_PCBV01::selectChannelsResolutions() {
+void EZPatche8PPatch_el07ab::selectChannelsResolutions() {
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromVoltageClamp) {
             currentTunerCorrection[channelIdx] = 0.0;
@@ -1093,7 +914,7 @@ void EZPatche8PPatchliner_el07cd_artix7_PCBV01::selectChannelsResolutions() {
     this->computeRawDataFilterCoefficients();
 }
 
-void EZPatche8PPatchliner_el07cd_artix7_PCBV01::selectVoltageOffsetResolution() {
+void EZPatche8PPatch_el07ab::selectVoltageOffsetResolution() {
     if (selectedSourceForVoltageChannelIdx == ChannelSourceVoltageFromVoltageClamp) {
         voltageOffsetCorrection = 0.0;
 
@@ -1106,7 +927,7 @@ void EZPatche8PPatchliner_el07cd_artix7_PCBV01::selectVoltageOffsetResolution() 
     }
 }
 
-void EZPatche8PPatchliner_el07cd_artix7_PCBV01::initializeCompensations() {
+void EZPatche8PPatch_el07ab::initializeCompensations() {
     EZPatchDevice::initializeCompensations();
 
     /*! \todo FCON inizializzare con valori di default per prima attivazione GUI*/
@@ -1235,12 +1056,30 @@ void EZPatche8PPatchliner_el07cd_artix7_PCBV01::initializeCompensations() {
     }
 }
 
-bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::checkCompensationsValues() {
+bool EZPatche8PPatch_el07ab::checkCompensationsValues() {
     bool ret = true;
     if (vcCompensationsActivated) {
-        if (compensationsEnableFlags[CompCfast][compensationsSettingChannel]){
-            ret &= (compensationControls[U_CpVc][compensationsSettingChannel].value > (minPipetteCapacitance-0.5*pipetteCapacitanceStep) &&
-                    compensationControls[U_CpVc][compensationsSettingChannel].value < (maxPipetteCapacitance+0.5*pipetteCapacitanceStep));
+        if (compensationsEnableFlags[CompCfast][compensationsSettingChannel] && compensationsEnableFlags[CompCslow][compensationsSettingChannel]) {
+            if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance3) {
+                additionalPipetteCapacitanceFromMembrane = membraneInjCapacitance4;
+
+            } else if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance2) {
+                additionalPipetteCapacitanceFromMembrane = membraneInjCapacitance3;
+
+            } else if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance1) {
+                additionalPipetteCapacitanceFromMembrane = membraneInjCapacitance2;
+
+            } else {
+                additionalPipetteCapacitanceFromMembrane = membraneInjCapacitance1;
+            }
+
+        } else {
+            additionalPipetteCapacitanceFromMembrane = 0.0;
+        }
+
+        if (compensationsEnableFlags[CompCfast][compensationsSettingChannel]) {
+            ret &= (compensationControls[U_CpVc][compensationsSettingChannel].value+additionalPipetteCapacitanceFromMembrane > (minPipetteCapacitance-0.5*pipetteCapacitanceStep) &&
+                    compensationControls[U_CpVc][compensationsSettingChannel].value+additionalPipetteCapacitanceFromMembrane < (maxPipetteCapacitance+0.5*pipetteCapacitanceStep));
         }
 
         double membraneTau;
@@ -1273,49 +1112,58 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::checkCompensationsValues() {
     }
 
     if (vcCompensationsActivated) {
-        double rs = (std::max)(compensationControls[U_Rs][compensationsSettingChannel].value, compensationControls[U_Rs][compensationsSettingChannel].step);
-        double rc = (std::max)(compensationControls[U_RsCp][compensationsSettingChannel].value, compensationControls[U_RsCp][compensationsSettingChannel].step);
-        double rp = (std::max)(compensationControls[U_RsPp][compensationsSettingChannel].value, compensationControls[U_RsPp][compensationsSettingChannel].step);
+        double rs = fmax(compensationControls[U_Rs][compensationsSettingChannel].value, compensationControls[U_Rs][compensationsSettingChannel].step);
+        double rc = fmax(compensationControls[U_RsCp][compensationsSettingChannel].value, compensationControls[U_RsCp][compensationsSettingChannel].step);
+        double rp = fmax(compensationControls[U_RsPp][compensationsSettingChannel].value, compensationControls[U_RsPp][compensationsSettingChannel].step);
 
-        compensationControls[U_CpVc][compensationsSettingChannel].maxCompensable = (std::max)(0.0, maxPipetteCapacitance);
+        compensationControls[U_CpVc][compensationsSettingChannel].maxCompensable = fmax(0.0, maxPipetteCapacitance-additionalPipetteCapacitanceFromMembrane);
 
         double d1 = maxMembraneCapacitance;
         double d2 = maxMembraneTau/rs;
         double d3 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(rs*rp) : (std::numeric_limits <double>::max)());
-        compensationControls[U_Cm][compensationsSettingChannel].maxCompensable = (std::min)((std::min)(d1, d2), d3);
+        compensationControls[U_Cm][compensationsSettingChannel].maxCompensable = fmin(fmin(d1, d2), d3);
 
         d1 = compensationControls[U_Rs][compensationsSettingChannel].max;
         d2 = maxMembraneTau/compensationControls[U_Cm][compensationsSettingChannel].value;
         d3 = maxResistanceCorrection*maxResistanceCorrectionPercentage/rc;
         double d4 = (compensationsEnableFlags[CompRsPred][compensationsSettingChannel] ? maxResistancePredictionTau*compensationControls[U_RsPg][compensationsSettingChannel].value/(compensationControls[U_Cm][compensationsSettingChannel].value*rp) : (std::numeric_limits <double>::max)());
-        compensationControls[U_Rs][compensationsSettingChannel].maxCompensable = (std::min)((std::min)((std::min)(d1, d2), d3), d4);
+        compensationControls[U_Rs][compensationsSettingChannel].maxCompensable = fmin(fmin(fmin(d1, d2), d3), d4);
 
         d1 = compensationControls[U_RsCp][compensationsSettingChannel].max;
         d2 = maxResistanceCorrection*maxResistanceCorrectionPercentage/rs;
-        compensationControls[U_RsCp][compensationsSettingChannel].maxCompensable = (std::min)(d1, d2);
+        compensationControls[U_RsCp][compensationsSettingChannel].maxCompensable = fmin(d1, d2);
     }
 
     if (ccCompensationsActivated) {
-        /*! ccPipetteCapacitanceControl.compensable doesn't depend on other controls */
+        /*! ccPipetteCapacitanceControl.maxCompensable doesn't depend on other controls */
     }
 
     return ret;
 }
 
-bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) {
+bool EZPatche8PPatch_el07ab::fillCompensationsRegistersTxData(std::vector <uint16_t> &txDataMessage) {
     bool anythingChanged = false;
 
     double pipetteValue;
     uint16_t pipetteRange;
-    double totalPipetteCapacitance = compensationControls[U_CpVc][compensationsSettingChannel].value;
-    if (totalPipetteCapacitance > maxPipetteCapacitance2) {
+    double totalPipetteCapacitance = compensationControls[U_CpVc][compensationsSettingChannel].value+additionalPipetteCapacitanceFromMembrane;
+    if (totalPipetteCapacitance > maxPipetteCapacitance3) {
+        if (totalPipetteCapacitance < minPipetteCapacitance4) {
+            pipetteValue = 0x0000;
+
+        } else {
+            pipetteValue = (totalPipetteCapacitance-minPipetteCapacitance4)/pipetteCapacitanceStep4;
+        }
+        pipetteRange = 0x00C0;
+
+    } else if (totalPipetteCapacitance > maxPipetteCapacitance2) {
         if (totalPipetteCapacitance < minPipetteCapacitance3) {
             pipetteValue = 0x0000;
 
         } else {
             pipetteValue = (totalPipetteCapacitance-minPipetteCapacitance3)/pipetteCapacitanceStep3;
         }
-        pipetteRange = 0x0300;
+        pipetteRange = 0x0080;
 
     } else if (totalPipetteCapacitance > maxPipetteCapacitance1) {
         if (totalPipetteCapacitance < minPipetteCapacitance2) {
@@ -1324,7 +1172,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             pipetteValue = (totalPipetteCapacitance-minPipetteCapacitance2)/pipetteCapacitanceStep2;
         }
-        pipetteRange = 0x0100;
+        pipetteRange = 0x0040;
 
     } else {
         if (totalPipetteCapacitance < minPipetteCapacitance1) {
@@ -1345,7 +1193,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             membraneValue = (compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance4)/membraneCapacitanceStep4;
         }
-        membraneRange = 0x0300;
+        membraneRange = 0x00C0;
 
     } else if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance2) {
         if (compensationControls[U_Cm][compensationsSettingChannel].value < minMembraneCapacitance3) {
@@ -1354,7 +1202,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             membraneValue = (compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance3)/membraneCapacitanceStep3;
         }
-        membraneRange = 0x0200;
+        membraneRange = 0x0080;
 
     } else if (compensationControls[U_Cm][compensationsSettingChannel].value > maxMembraneCapacitance1) {
         if (compensationControls[U_Cm][compensationsSettingChannel].value < minMembraneCapacitance2) {
@@ -1363,7 +1211,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             membraneValue = (compensationControls[U_Cm][compensationsSettingChannel].value-minMembraneCapacitance2)/membraneCapacitanceStep2;
         }
-        membraneRange = 0x0100;
+        membraneRange = 0x0040;
 
     } else {
         if (compensationControls[U_Cm][compensationsSettingChannel].value < minMembraneCapacitance1) {
@@ -1407,14 +1255,23 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
 
     double ccPipetteValue;
     uint16_t ccPipetteRange;
-    if (compensationControls[U_CpCc][compensationsSettingChannel].value > maxPipetteCapacitance2) {
+    if (compensationControls[U_CpCc][compensationsSettingChannel].value > maxPipetteCapacitance3) {
+        if (compensationControls[U_CpCc][compensationsSettingChannel].value < minPipetteCapacitance4) {
+            ccPipetteValue = 0x0000;
+
+        } else {
+            ccPipetteValue = (compensationControls[U_CpCc][compensationsSettingChannel].value-minPipetteCapacitance4)/pipetteCapacitanceStep4;
+        }
+        ccPipetteRange = 0x00C0;
+
+    } else if (compensationControls[U_CpCc][compensationsSettingChannel].value > maxPipetteCapacitance2) {
         if (compensationControls[U_CpCc][compensationsSettingChannel].value < minPipetteCapacitance3) {
             ccPipetteValue = 0x0000;
 
         } else {
             ccPipetteValue = (compensationControls[U_CpCc][compensationsSettingChannel].value-minPipetteCapacitance3)/pipetteCapacitanceStep3;
         }
-        ccPipetteRange = 0x0300;
+        ccPipetteRange = 0x0080;
 
     } else if (compensationControls[U_CpCc][compensationsSettingChannel].value > maxPipetteCapacitance1) {
         if (compensationControls[U_CpCc][compensationsSettingChannel].value < minPipetteCapacitance2) {
@@ -1423,7 +1280,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
         } else {
             ccPipetteValue = (compensationControls[U_CpCc][compensationsSettingChannel].value-minPipetteCapacitance2)/pipetteCapacitanceStep2;
         }
-        ccPipetteRange = 0x0100;
+        ccPipetteRange = 0x0040;
 
     } else {
         if (compensationControls[U_CpCc][compensationsSettingChannel].value < minPipetteCapacitance1) {
@@ -1477,7 +1334,7 @@ bool EZPatche8PPatchliner_el07cd_artix7_PCBV01::fillCompensationsRegistersTxData
     return anythingChanged;
 }
 
-void EZPatche8PPatchliner_el07cd_artix7_PCBV01::updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) {
+void EZPatche8PPatch_el07ab::updateWrittenCompensationValues(std::vector <uint16_t> &txDataMessage) {
     if (vcCompensationsActivated) {
         pipetteCapacitanceRegValue[compensationsSettingChannel] = txDataMessage[1];
 
@@ -1491,7 +1348,24 @@ void EZPatche8PPatchliner_el07cd_artix7_PCBV01::updateWrittenCompensationValues(
     predictionTauRegValue[compensationsSettingChannel] = txDataMessage[11];
 }
 
-EZPatche8PPatchliner_el07cd_artix7_PCBV02::EZPatche8PPatchliner_el07cd_artix7_PCBV02(std::string di) :
-    EZPatche8PPatchliner_el07cd_artix7_PCBV01(di) {
+EZPatche8PPatch_el07ab_artix7_PCBV01::EZPatche8PPatch_el07ab_artix7_PCBV01(std::string di) :
+    EZPatche8PPatch_el07ab(di) {
+
+    spiChannel = 'B';
+    rxChannel = 'A';
+    txChannel = 'A';
+
+    fpgaLoadType = FtdiFpgaFwLoad8PatchArtix7_V01;
+}
+
+EZPatche8PPatch_el07ab_artix7_PCBV02_V01::EZPatche8PPatch_el07ab_artix7_PCBV02_V01(std::string di) :
+    EZPatche8PPatch_el07ab_artix7_PCBV01(di) {
+
     fpgaLoadType = FtdiFpgaFwLoadAutomatic;
+}
+
+EZPatche8PPatch_el07ab_artix7_PCBV02_V02::EZPatche8PPatch_el07ab_artix7_PCBV02_V02(std::string di) :
+    EZPatche8PPatch_el07ab_artix7_PCBV02_V01(di) {
+
+    protocolMaxItemsNum = 255;
 }

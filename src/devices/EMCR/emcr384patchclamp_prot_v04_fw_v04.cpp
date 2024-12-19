@@ -1332,13 +1332,13 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
     /*! Cslow / membrane capacitance compensation TAU and TAU RANGES */
     membraneCapTauValCompensationMultiCoders.resize(currentChannelsNum);
 
-    doubleConfig.initialWord = 3568;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 8;
-
     boolConfig.initialWord = 3760;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
+
+    doubleConfig.initialWord = 3568;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 8;
 
     multiCoderConfig.doubleCoderVector.resize(membraneCapTauValueRanges);
     multiCoderConfig.thresholdVector.resize(membraneCapTauValueRanges-1);

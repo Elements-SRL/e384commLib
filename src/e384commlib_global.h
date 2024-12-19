@@ -143,6 +143,7 @@ typedef enum MsgTypeId {
     MsgTypeIdAcquisitionSaturation =            MsgGroupAcquiredData+0x0004, /*!< Message that notifies the saturation of the front-end. */
     MsgTypeIdAcquisitionDataLoss =              MsgGroupAcquiredData+0x0005, /*!< Message that notifies the loss of data. */
     MsgTypeIdAcquisitionDataOverflow =          MsgGroupAcquiredData+0x0006, /*!< Message that notifies the overflow of data. */
+    MsgTypeIdAcquisitionTemperature =           MsgGroupAcquiredData+0x0007, /*!< Message containing temperature data. */
 
     /*! Features messages */
     MsgTypeIdLiquidJunctionComp =               MsgGroupFeatures+0x0001, /*!< Message used to apply the liquid junction  compensation. */
@@ -170,12 +171,13 @@ typedef enum MsgTypeId {
  * \brief Enum that identifies different clamp modality.
  */
 typedef enum{
-    VOLTAGE_CLAMP = 0,
-    ZERO_CURRENT_CLAMP = 1,
-    CURRENT_CLAMP = 2,
-    DYNAMIC_CLAMP = 3,
-    VOLTAGE_CLAMP_VOLTAGE_READ = 4,
-    UNDEFINED_CLAMP = 5,
+    VOLTAGE_CLAMP,
+    ZERO_CURRENT_CLAMP,
+    CURRENT_CLAMP,
+    DYNAMIC_CLAMP,
+    VOLTAGE_CLAMP_VOLTAGE_READ,
+    CURRENT_CLAMP_CURRENT_READ,
+    UNDEFINED_CLAMP
 } ClampingModality_t;
 
 /*! \enum DeviceTypes_t
@@ -186,16 +188,17 @@ typedef enum DeviceTypes {
     Device192Blm_el03c_prot_v01_fw_v01,         /*!< 192 channels device for BLM experiments */
     Device384Nanopores,                         /*!< 384 channels device for nanopores experiments */
     Device384Nanopores_SR7p5kHz,                /*!< 384 channels device for nanopores experiments */
-    Device384PatchClamp_prot_v01_fw_v02,        /*!< Nanion's Syncropatch */
-    Device384PatchClamp_prot_v04_fw_v03,
-    Device384PatchClamp_prot_v04_fw_v04,        /*!< Nanion's Syncropatch */
-    Device384PatchClamp_prot_v04_fw_v05,
+    Device384PatchClamp_prot_v01_fw_v02,        /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_prot_v04_fw_v03,        /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_prot_v04_fw_v04,        /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_prot_v04_fw_v05,        /*!< 384 channels device for patchclamp experiments */
     Device384PatchClamp_prot_v05_fw_v06,        /*! Header packet */
-    Device384PatchClamp_prot_el07c_v06_fw_v01,
-    Device384VoltageClamp_prot_v04_fw_v03,
+    Device384PatchClamp_prot_el07c_v06_fw_v02,  /*!< 384 channels device for patchclamp experiments */
+    Device384VoltageClamp_prot_v04_fw_v03,      /*!< 384 channels device for voltageclamp experiments */
     DeviceTestBoardEL07ab,
     DeviceTestBoardEL07c,
     DeviceTestBoardEL07d,
+    Device10MHz_SB_V01,                         /*!< 10MHz nanopore reader, single board */
     Device2x10MHz_PCBV01,                       /*!< 2 channels 10MHz nanopore reader */
     Device2x10MHz_PCBV02,                       /*!< 2 channels 10MHz nanopore reader */
     Device4x10MHz_PCBV01,                       /*!< 4 channels 10MHz nanopore reader */
@@ -233,15 +236,17 @@ typedef enum DeviceTypes {
     DeviceEPatchEL03F_4F_PCBV02_V04,            /*!< ePatch device with EL03F and EL04F chips: digital repetitive trigger output. */
     DeviceEPatchEL03F_4F_PCBV03_V03,            /*!< ePatch device with EL03F and EL04F chips: increased maximum amount of digital trigger output events. */
     DeviceE4PEL04F,                             /*!< ePatch device with 4 EL04F chips. */
-    DeviceE4PPatchLiner,                        /*!< ePatch device with 4 EL04F chips for Nanion's Patchliner. */
-    DeviceE8PPatchLiner,                        /*!< ePatch device with 8 EL04F chips for Nanion's Patchliner. */
-    DeviceE4PPatchLinerEL07AB,                  /*!< ePatch device with 4 EL07AB chips for Nanion's Patchliner. */
-    DeviceE8PPatchLinerEL07AB,                  /*!< ePatch device with 8 EL07AB chips for Nanion's Patchliner. */
-    DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V02,/*!< ePatch device with 8 EL07AB PCB V02 chips for Nanion's Patchliner (FPGA artix7). Increased protocol items to 256. */
-    DeviceE8PPatchLinerEL07AB_artix7_PCBV02_V01,/*!< ePatch device with 8 EL07AB PCB V02 chips for Nanion's Patchliner (FPGA artix7). */
-    DeviceE8PPatchLinerEL07AB_artix7_PCBV01,    /*!< ePatch device with 8 EL07AB PCB V01 chips for Nanion's Patchliner (FPGA artix7). */
-    DeviceE8PPatchLinerEL07CD_artix7_PCBV02,    /*!< ePatch device with 8 EL07CD PCB V02 chips for Nanion's Patchliner (FPGA artix7). */
-    DeviceE8PPatchLinerEL07CD_artix7_PCBV01,    /*!< ePatch device with 8 EL07CD PCB V01 chips for Nanion's Patchliner (FPGA artix7). */
+    DeviceE4PPatch,                             /*!< ePatch device with 4 EL04F chips. */
+    DeviceE8PPatch,                             /*!< ePatch device with 8 EL04F chips. */
+    DeviceE4PPatchEL07AB,                       /*!< ePatch device with 1 EL07AB chips. */
+    DeviceE8PPatchEL07AB,                       /*!< ePatch device with 1 EL07AB chips. */
+    DeviceE8PPatchEL07AB_artix7_PCBV02_V02,     /*!< ePatch device with 1 EL07AB chips PCB V02 (FPGA artix7). Increased protocol items to 256. */
+    DeviceE8PPatchEL07AB_artix7_PCBV02_V01,     /*!< ePatch device with 1 EL07AB chips PCB V02 (FPGA artix7). */
+    DeviceE8PPatchEL07AB_artix7_PCBV01,         /*!< ePatch device with 1 EL07AB chips PCB V01 (FPGA artix7). */
+    DeviceE8PPatchEL07CD_artix7_PCBV02,         /*!< ePatch device with 1 EL07CD chips PCB V02 (FPGA artix7). */
+    DeviceE8PPatchEL07CD_artix7_PCBV01,         /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7). */
+    DeviceE4PPatchEL07CD_artix7_PCBV01,         /*!< ePatch device with 1 EL07CD chips and 4 channels PCB V01 (FPGA artix7). */
+    DeviceE4PPatchEL07CD_artix7_PCBV02,         /*!< ePatch device with 1 EL07CD chips and 4 channels PCB V01 (FPGA artix7). */
     DeviceEPatchDlp,                            /*!< ePatch device with dlp fpga. */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
@@ -251,7 +256,7 @@ typedef enum DeviceTypes {
     Device2x10MHzFake,          /*!< Fake 2x10MHz device */
     Device10MHzFake,            /*!< Fake 10MHz device */
     DeviceFakePatch,            /*!< Fake ePatch device resembling EL04F chip. */
-    DeviceFakeP8,               /*!< Fake patchliner device resembling EL07AB chip. */
+    DeviceFakeP8,               /*!< Fake 8Patch device resembling EL07AB chip. */
 #endif
     DeviceUnknown,              /*!< Invalid item used only for initiliazation purposes. */
     DevicesNum
@@ -272,7 +277,7 @@ typedef struct RxOutput {
     uint16_t protocolItemIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the item index of the following data in the current protocol */
     uint16_t protocolRepsIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the iteration of an interal loop of the following data in the current protocol */
     uint16_t protocolSweepIdx = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the sweep index of the following data in the current protocol */
-    uint32_t itemFirstSampleDistance = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field holds the distance from the end to the first sample of a new item */
+    uint32_t itemFirstSampleDistance = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionHeader this field indicates the index of the first sample of a new protocol item in the last received packet */
     uint32_t firstSampleOffset = 0; /*!< When #msgTypeId is MsgDirectionDeviceToPc + MsgTypeIdAcquisitionData this field holds the data offset wrt the protocol first sample */
     uint32_t dataLen = 0; /*!< Number of data samples available in field data.
                            * \note In case msgTypeId = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionDataLoss this equals 2, and the 2 values in data has to be converted into a single uint32_t value

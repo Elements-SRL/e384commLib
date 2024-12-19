@@ -22,3 +22,4 @@ else:msvc:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_P
 include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
 include($$(FTD2XX_PATH)includeftd2xx.pri)
+include($$(LIBMPSSE_PATH)includelibmpsse.pri)

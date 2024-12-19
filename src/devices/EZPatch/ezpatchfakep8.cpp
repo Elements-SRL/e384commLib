@@ -11,7 +11,7 @@
 \*****************/
 
 EZPatchFakeP8::EZPatchFakeP8(std::string di) :
-    EZPatche8PPatchliner_el07ab(di) {
+    EZPatche8PPatch_el07ab(di) {
 
     /*! Sampling rates */
     samplingRatesNum = 4;
@@ -245,7 +245,7 @@ ErrorCodes_t EZPatchFakeP8::resetFpga() {
 \*********************/
 
 void EZPatchFakeP8::selectChannelsResolutions() {
-    EZPatche8PPatchliner_el07ab::selectChannelsResolutions();
+    EZPatche8PPatch_el07ab::selectChannelsResolutions();
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         if (selectedSourceForVoltageChannelIdx == ChannelSourceCurrentFromVoltageClamp) {
             genCurrentNorm = 1.0/genVcCurrentRange.step;

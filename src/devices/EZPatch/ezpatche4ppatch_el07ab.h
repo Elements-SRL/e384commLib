@@ -1,11 +1,11 @@
-#ifndef EZPATCHE8PPATCHLINER_EL07CD_H
-#define EZPATCHE8PPATCHLINER_EL07CD_H
+#ifndef EZPATCHE4PPATCH_EL07AB_H
+#define EZPATCHE4PPATCH_EL07AB_H
 
 #include "ezpatchftdidevice.h"
 
-class EZPatche8PPatchliner_el07cd_artix7_PCBV01 : public EZPatchFtdiDevice {
+class EZPatche4PPatch_el07ab : public EZPatchFtdiDevice {
 public:
-    EZPatche8PPatchliner_el07cd_artix7_PCBV01(std::string di);
+    EZPatche4PPatch_el07ab(std::string di);
 
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
@@ -33,13 +33,11 @@ protected:
 
     enum CCCurrentRanges {
         CCCurrentRange8nA,
-        CCCurrentRange2nA,
         CCCurrentRangesNum
     };
 
     enum CCCurrentRangesSwitches {
-        CCCurrentRangesSwtichRange1,
-        CCCurrentRangesSwitchesNum
+        CCCurrentRangesSwitchesNum = 0
     };
 
     enum VCVoltageRanges {
@@ -52,38 +50,12 @@ protected:
     };
 
     enum CCVoltageRanges {
-        CCVoltageRange250mV,
+        CCVoltageRange1000mV,
         CCVoltageRangesNum
     };
 
     enum CCVoltageRangesSwitches {
         CCVoltageRangesSwitchesNum = 0
-    };
-
-    enum InputSwitches {
-        InputSw,
-        InputSwitchesNum
-    };
-
-    enum CalSwitches {
-        CalSw,
-        CalSwitchesNum
-    };
-
-    enum VcSwitches {
-        VcSw,
-        VcSwitchesNum
-    };
-
-    enum CcSwitches {
-        CcSw,
-        GrEn,
-        CcSwitchesNum
-    };
-
-    enum AdcCoreSwitches {
-        VcSelAdc,
-        AdcCoreSwitchesNum
     };
 
     enum VCStimulusSwitches {
@@ -98,24 +70,21 @@ protected:
 
     enum VCReaderSwitches {
         VCReaderSwitch_VcSel,
-        VCReaderSwitch_CfastSw,
-        VCReaderSwitch_ClampingMode0,
         VCReaderSwitchesNum
     };
 
     enum CCReaderSwitches {
         CCReaderSwitch_CcSW,
-        CCReaderSwitch_GrEn,
         CCReaderSwitchesNum
     };
 
     enum SamplingRates {
-        SamplingRate5kHz,
-        SamplingRate10kHz,
-        SamplingRate20kHz,
-        SamplingRate40kHz,
-        SamplingRate80kHz,
-        SamplingRate160kHz,
+        SamplingRate6_25kHz,
+        SamplingRate12_5kHz,
+        SamplingRate25kHz,
+        SamplingRate50kHz,
+        SamplingRate100kHz,
+        SamplingRate200kHz,
         SamplingRatesNum
     };
 
@@ -123,8 +92,6 @@ protected:
         SamplingRateSwitchVcAdcFilter2,
         SamplingRateSwitchVcAdcFilter1,
         SamplingRateSwitchVcAdcFilter0,
-        SamplingRateSwitchClockDiv1,
-        SamplingRateSwitchClockDiv0,
         SamplingRatesSwitchesNum
     };
 
@@ -142,8 +109,7 @@ protected:
     enum VCStimulusLpfs {
         VCStimulusLpf1kHz,
         VCStimulusLpf10kHz,
-        VCStimulusLpf20kHz,
-        VCStimulusLpf50kHz,
+        VCStimulusLpf35kHz,
         VCStimulusLpfsNum
     };
 
@@ -156,8 +122,7 @@ protected:
     enum CCStimulusLpfs {
         CCStimulusLpf1kHz,
         CCStimulusLpf10kHz,
-        CCStimulusLpf20kHz,
-        CCStimulusLpf50kHz,
+        CCStimulusLpf35kHz,
         CCStimulusLpfsNum
     };
 
@@ -173,49 +138,13 @@ protected:
         ConstantSwitchCalibrateDacData,
         ConstantSwitchCh1InSW,
         ConstantSwitchCh1CalibEn,
-        ConstantSwitchCh1RingEn,
-        ConstantSwitchCh1PIn_En,
         ConstantSwitchCh2InSW,
         ConstantSwitchCh2CalibEn,
-        ConstantSwitchCh2RingEn,
-        ConstantSwitchCh2PIn_En,
         ConstantSwitchCh3InSW,
         ConstantSwitchCh3CalibEn,
-        ConstantSwitchCh3RingEn,
-        ConstantSwitchCh3PIn_En,
         ConstantSwitchCh4InSW,
         ConstantSwitchCh4CalibEn,
-        ConstantSwitchCh4RingEn,
-        ConstantSwitchCh4PIn_En,
-        ConstantSwitchCh5InSW,
-        ConstantSwitchCh5CalibEn,
-        ConstantSwitchCh5RingEn,
-        ConstantSwitchCh5PIn_En,
-        ConstantSwitchCh6InSW,
-        ConstantSwitchCh6CalibEn,
-        ConstantSwitchCh6RingEn,
-        ConstantSwitchCh6PIn_En,
-        ConstantSwitchCh7InSW,
-        ConstantSwitchCh7CalibEn,
-        ConstantSwitchCh7RingEn,
-        ConstantSwitchCh7PIn_En,
-        ConstantSwitchCh8InSW,
-        ConstantSwitchCh8CalibEn,
-        ConstantSwitchCh8RingEn,
-        ConstantSwitchCh8PIn_En,
         ConstantSwitchesNum
-    };
-
-    enum ConstantRegisters {
-        ConstantRegisterOffsetCh1,
-        ConstantRegisterOffsetCh2,
-        ConstantRegisterOffsetCh3,
-        ConstantRegisterOffsetCh4,
-        ConstantRegisterOffsetCh5,
-        ConstantRegisterOffsetCh6,
-        ConstantRegisterOffsetCh7,
-        ConstantRegisterOffsetCh8,
-        ConstantRegistersNum
     };
 
     enum CompensationsSwitches {
@@ -264,11 +193,6 @@ protected:
     std::string vcStimulusLpfSwitchesLutStrings[VCStimulusLpfsNum];
     std::string ccStimulusLpfSwitchesLutStrings[CCStimulusLpfsNum];
     std::string constantSwitchesLutStrings;
-    std::string inputSwitchesLutStrings;
-    std::string calSwitchesLutStrings;
-    std::string vcSwitchesLutStrings;
-    std::string ccSwitchesLutStrings;
-    std::string adcCoreSwitchesLutStrings;
     std::string vcStimulusSwitchesLutStrings;
     std::string vcReaderSwitchesLutStrings;
     std::string ccStimulusSwitchesLutStrings;
@@ -286,58 +210,66 @@ protected:
     const std::string liquidJunctionUnit = "V";
     const std::string liquidJunctionName = "Offset";
 
-    const double pipetteVarConductance = 320.0; // uS
-    const double pipetteFixedResistance1 = 100.0e-3; // MOhm
-    const double pipetteFixedResistance2 = 160.0e-3/27.0; // 5.92592 MOhm
-    const double pipetteInjCapacitance1 = 3.0;
-    const double pipetteInjCapacitance2 = 9.0;
-    const double pipetteInjCapacitance3 = 27.0;
-    const double pipetteCapacitanceSteps1 = 256.0;
-    const double pipetteCapacitanceSteps2 = 256.0;
-    const double pipetteCapacitanceSteps3 = 256.0;
+    const double pipetteVarResistance = 100.0e-3;
+    const double pipetteFixedResistance = 80.0e-3;
+    const double pipetteInjCapacitance1 = 2.5;
+    const double pipetteInjCapacitance2 = 5.0;
+    const double pipetteInjCapacitance3 = 10.0;
+    const double pipetteInjCapacitance4 = 20.0;
+    const double pipetteCapacitanceSteps1 = 64.0;
+    const double pipetteCapacitanceSteps2 = 64.0;
+    const double pipetteCapacitanceSteps3 = 64.0;
+    const double pipetteCapacitanceSteps4 = 64.0;
 
-    const double pipetteCapacitanceStep1 = pipetteVarConductance/pipetteCapacitanceSteps1*pipetteFixedResistance2*pipetteInjCapacitance1;
-    const double minPipetteCapacitance1 = (pipetteVarConductance/pipetteCapacitanceSteps1+1.0/pipetteFixedResistance1)*pipetteFixedResistance2*pipetteInjCapacitance1;
+    const double pipetteCapacitanceStep1 = pipetteVarResistance/pipetteFixedResistance/pipetteCapacitanceSteps1*pipetteInjCapacitance1;
+    const double minPipetteCapacitance1 = pipetteCapacitanceStep1*(pipetteCapacitanceSteps1+1.0);
     const double maxPipetteCapacitance1 = minPipetteCapacitance1+(pipetteCapacitanceSteps1-1.0)*pipetteCapacitanceStep1;
-    const double pipetteCapacitanceStep2 = pipetteVarConductance/pipetteCapacitanceSteps2*pipetteFixedResistance2*pipetteInjCapacitance2;
-    const double minPipetteCapacitance2 = (pipetteVarConductance/pipetteCapacitanceSteps2+1.0/pipetteFixedResistance1)*pipetteFixedResistance2*pipetteInjCapacitance2;
+    const double pipetteCapacitanceStep2 = pipetteVarResistance/pipetteFixedResistance/pipetteCapacitanceSteps2*pipetteInjCapacitance2;
+    const double minPipetteCapacitance2 = pipetteCapacitanceStep2*(pipetteCapacitanceSteps2+1.0);
     const double maxPipetteCapacitance2 = minPipetteCapacitance2+(pipetteCapacitanceSteps2-1.0)*pipetteCapacitanceStep2;
-    const double pipetteCapacitanceStep3 = pipetteVarConductance/pipetteCapacitanceSteps3*pipetteFixedResistance2*pipetteInjCapacitance3;
-    const double minPipetteCapacitance3 = (pipetteVarConductance/pipetteCapacitanceSteps3+1.0/pipetteFixedResistance1)*pipetteFixedResistance2*pipetteInjCapacitance3;
+    const double pipetteCapacitanceStep3 = pipetteVarResistance/pipetteFixedResistance/pipetteCapacitanceSteps3*pipetteInjCapacitance3;
+    const double minPipetteCapacitance3 = pipetteCapacitanceStep3*(pipetteCapacitanceSteps3+1.0);
     const double maxPipetteCapacitance3 = minPipetteCapacitance3+(pipetteCapacitanceSteps3-1.0)*pipetteCapacitanceStep3;
+    const double pipetteCapacitanceStep4 = pipetteVarResistance/pipetteFixedResistance/pipetteCapacitanceSteps4*pipetteInjCapacitance4;
+    const double minPipetteCapacitance4 = pipetteCapacitanceStep4*(pipetteCapacitanceSteps4+1.0);
+    const double maxPipetteCapacitance4 = minPipetteCapacitance4+(pipetteCapacitanceSteps4-1.0)*pipetteCapacitanceStep4;
+    double additionalPipetteCapacitanceFromMembrane = 0.0;
 
     /*! Using smaller resolution to cover both ranges */
     const double pipetteCapacitanceStep = pipetteCapacitanceStep1;
     const double minPipetteCapacitance = minPipetteCapacitance1;
-    const double maxPipetteCapacitance = maxPipetteCapacitance3;
+    const double maxPipetteCapacitance = maxPipetteCapacitance4;
     const double pipetteCapacitanceSteps = (maxPipetteCapacitance-minPipetteCapacitance)/pipetteCapacitanceStep+1.0;
     const int pipetteCapacitanceDecimals = 2;
     const UnitPfx_t pipetteCapacitancePrefix = UnitPfxPico;
     const std::string pipetteCapacitanceUnit = "F";
     const std::string pipetteCapacitanceName = "Pipette\nCapacitance";
 
-    const double membraneVarConductance = 320.0; // uS
-    const double membraneFixedResistance8 = 61.5e-3; //MOhm
-    const double membraneFixedResistance9 = 5.5e-3; //MOhm
-    const int membraneCapValueRanges = 4;
-    const double membraneCapacitanceValuesNum = 256.0;
-    const double membraneInjCapacitance1 = 100.0/33.0;
-    const double membraneInjCapacitance2 = 400.0/33.0;
-    const double membraneInjCapacitance3 = 1600.0/33.0;
-    const double membraneInjCapacitance4 = 1600.0/11.0;
+    const double membraneGainSteps = 64.0;
+    const double membraneGainStep = 2.0/membraneGainSteps;
+    const double minMembraneGain = 1.0+membraneGainStep;
+    const double maxMembraneGain = minMembraneGain+(membraneGainSteps-1.0)*membraneGainStep;
+    const double membraneInjCapacitance1 = 5.0;
+    const double membraneInjCapacitance2 = 15.0;
+    const double membraneInjCapacitance3 = 45.0;
+    const double membraneInjCapacitance4 = 135.0;
+    const double membraneCapacitanceSteps1 = 64.0;
+    const double membraneCapacitanceSteps2 = 64.0;
+    const double membraneCapacitanceSteps3 = 64.0;
+    const double membraneCapacitanceSteps4 = 64.0;
 
-    const double membraneCapacitanceStep1 = membraneVarConductance/membraneCapacitanceValuesNum*membraneFixedResistance9*membraneInjCapacitance1;
-    const double minMembraneCapacitance1 = (membraneVarConductance/membraneCapacitanceValuesNum+1.0/membraneFixedResistance8)*membraneFixedResistance9*membraneInjCapacitance1;
-    const double maxMembraneCapacitance1 = minMembraneCapacitance1+(membraneCapacitanceValuesNum-1.0)*minMembraneCapacitance1;
-    const double membraneCapacitanceStep2 = membraneVarConductance/membraneCapacitanceValuesNum*membraneFixedResistance9*membraneInjCapacitance2;
-    const double minMembraneCapacitance2 = (membraneVarConductance/membraneCapacitanceValuesNum+1.0/membraneFixedResistance8)*membraneFixedResistance9*membraneInjCapacitance2;
-    const double maxMembraneCapacitance2 = minMembraneCapacitance2+(membraneCapacitanceValuesNum-1.0)*minMembraneCapacitance2;
-    const double membraneCapacitanceStep3 = membraneVarConductance/membraneCapacitanceValuesNum*membraneFixedResistance9*membraneInjCapacitance3;
-    const double minMembraneCapacitance3 = (membraneVarConductance/membraneCapacitanceValuesNum+1.0/membraneFixedResistance8)*membraneFixedResistance9*membraneInjCapacitance3;
-    const double maxMembraneCapacitance3 = minMembraneCapacitance3+(membraneCapacitanceValuesNum-1.0)*minMembraneCapacitance3;
-    const double membraneCapacitanceStep4 = membraneVarConductance/membraneCapacitanceValuesNum*membraneFixedResistance9*membraneInjCapacitance4;
-    const double minMembraneCapacitance4 = (membraneVarConductance/membraneCapacitanceValuesNum+1.0/membraneFixedResistance8)*membraneFixedResistance9*membraneInjCapacitance4;
-    const double maxMembraneCapacitance4 = minMembraneCapacitance4+(membraneCapacitanceValuesNum-1.0)*minMembraneCapacitance4;
+    const double membraneCapacitanceStep1 = membraneGainStep*membraneInjCapacitance1;
+    const double minMembraneCapacitance1 = minMembraneGain*membraneInjCapacitance1;
+    const double maxMembraneCapacitance1 = maxMembraneGain*membraneInjCapacitance1;
+    const double membraneCapacitanceStep2 = membraneGainStep*membraneInjCapacitance2;
+    const double minMembraneCapacitance2 = minMembraneGain*membraneInjCapacitance2;
+    const double maxMembraneCapacitance2 = maxMembraneGain*membraneInjCapacitance2;
+    const double membraneCapacitanceStep3 = membraneGainStep*membraneInjCapacitance3;
+    const double minMembraneCapacitance3 = minMembraneGain*membraneInjCapacitance3;
+    const double maxMembraneCapacitance3 = maxMembraneGain*membraneInjCapacitance3;
+    const double membraneCapacitanceStep4 = membraneGainStep*membraneInjCapacitance4;
+    const double minMembraneCapacitance4 = minMembraneGain*membraneInjCapacitance4;
+    const double maxMembraneCapacitance4 = maxMembraneGain*membraneInjCapacitance4;
 
     /*! Using smaller resolution to cover both ranges */
     const double membraneCapacitanceStep = membraneCapacitanceStep1;
@@ -419,9 +351,4 @@ protected:
     std::vector <uint16_t> ccPipetteCapacitanceRegValue;
 };
 
-class EZPatche8PPatchliner_el07cd_artix7_PCBV02 : public EZPatche8PPatchliner_el07cd_artix7_PCBV01 {
-public:
-    EZPatche8PPatchliner_el07cd_artix7_PCBV02(std::string di);
-};
-
-#endif // EZPATCHE8PPATCHLINER_EL07CD_H
+#endif // EZPATCHE4PPATCH_EL07AB_H

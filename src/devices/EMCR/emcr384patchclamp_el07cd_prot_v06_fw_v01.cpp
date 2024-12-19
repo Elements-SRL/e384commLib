@@ -33,6 +33,9 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
     rxWordLengths[RxMessageStatus] = 2;
 
+    rxWordOffsets[RxMessageTemperature] = rxWordOffsets[RxMessageStatus] + rxWordLengths[RxMessageStatus];
+    rxWordLengths[RxMessageTemperature] = 2;
+
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
@@ -43,13 +46,33 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
+    temperatureChannelsNum = TemperatureChannelsNum;
+
+    temperatureChannelsNames.resize(temperatureChannelsNum);
+    temperatureChannelsNames[TemperatureSensor0] = "Sensor0";
+    temperatureChannelsNames[TemperatureSensor1] = "Sensor1";
+
+    temperatureChannelsRanges.resize(temperatureChannelsNum);
+    temperatureChannelsRanges[TemperatureSensor0].step = 0.0625;
+    temperatureChannelsRanges[TemperatureSensor0].min = -2048.0;
+    temperatureChannelsRanges[TemperatureSensor0].max = temperatureChannelsRanges[TemperatureSensor0].min+temperatureChannelsRanges[TemperatureSensor0].step*USHORT_MAX;
+    temperatureChannelsRanges[TemperatureSensor0].prefix = UnitPfxNone;
+    temperatureChannelsRanges[TemperatureSensor0].unit = "°C";
+    temperatureChannelsRanges[TemperatureSensor1].step = 0.0625;
+    temperatureChannelsRanges[TemperatureSensor1].min = -2048.0;
+    temperatureChannelsRanges[TemperatureSensor1].max = temperatureChannelsRanges[TemperatureSensor1].min+temperatureChannelsRanges[TemperatureSensor1].step*USHORT_MAX;
+    temperatureChannelsRanges[TemperatureSensor1].prefix = UnitPfxNone;
+    temperatureChannelsRanges[TemperatureSensor1].unit = "°C";
+
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
     clampingModalitiesArray[VoltageClamp] = ClampingModality_t::VOLTAGE_CLAMP;
+    clampingModalitiesArray[ZeroCurrentClamp] = ClampingModality_t::ZERO_CURRENT_CLAMP;
     clampingModalitiesArray[CurrentClamp] = ClampingModality_t::CURRENT_CLAMP;
 #ifdef CALIBRATION
     clampingModalitiesArray[VoltageClampVoltageRead] = ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ;
+    clampingModalitiesArray[CurrentClampCurrentRead] = ClampingModality_t::CURRENT_CLAMP_CURRENT_READ;
 #endif
     defaultClampingModalityIdx = VoltageClamp;
 
@@ -314,6 +337,13 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     defaultVoltageHalfTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
     defaultCurrentHalfTuner = {0.0, ccCurrentRangesArray[CCCurrentRange8nA].prefix, ccCurrentRangesArray[CCCurrentRange8nA].unit};
 
+    /*! Zap */
+    zapDurationRange.step = 0.1;
+    zapDurationRange.min = 0.0;
+    zapDurationRange.max = zapDurationRange.min+zapDurationRange.step*(double)UINT16_MAX;
+    zapDurationRange.prefix = UnitPfxMilli;
+    zapDurationRange.unit = "s";
+
     /*! VC leak calibration (shunt resistance)*/
     rRShuntConductanceCalibRange.resize(VCCurrentRangesNum);
     rRShuntConductanceCalibRange[VCCurrentRange10nA].step = (vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step)/16384.0;
@@ -410,6 +440,15 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         pipetteCapacitanceRange[idx].max = pipetteCapacitanceRange[idx].min+(pipetteCapacitanceValuesNum-1.0)*pipetteCapacitanceRange[idx].step;
         pipetteCapacitanceRange[idx].prefix = UnitPfxPico;
         pipetteCapacitanceRange[idx].unit = "F";
+    }
+
+    ccPipetteCapacitanceRange.resize(pipetteCapacitanceRanges);
+    for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
+        ccPipetteCapacitanceRange[idx].step = (4.0*pipetteVarConductance/pipetteCapacitanceValuesNum*pipetteFixedResistance2)*pipetteInjCapacitance[idx];
+        ccPipetteCapacitanceRange[idx].min = (4.0*(pipetteVarConductance/pipetteCapacitanceValuesNum+1.0/pipetteFixedResistance1)*pipetteFixedResistance2+3.0)*pipetteInjCapacitance[idx];
+        ccPipetteCapacitanceRange[idx].max = ccPipetteCapacitanceRange[idx].min+(pipetteCapacitanceValuesNum-1.0)*ccPipetteCapacitanceRange[idx].step;
+        ccPipetteCapacitanceRange[idx].prefix = UnitPfxPico;
+        ccPipetteCapacitanceRange[idx].unit = "F";
     }
 
     /*! FEATURES ASIC DOMAIN Membrane capacitance*/
@@ -516,7 +555,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     defaultUserDomainParams[U_Rs] = membraneCapTauValueRange[0].min/membraneCapValueRange[0].min;
     defaultUserDomainParams[U_RsCp] = 1.0;
     defaultUserDomainParams[U_RsPg] = rsPredGainRange.min;
-    defaultUserDomainParams[U_CpCc] = pipetteCapacitanceRange[0].min;
+    defaultUserDomainParams[U_CpCc] = ccPipetteCapacitanceRange[0].min;
 
     // Selected default Idx
     selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
@@ -687,6 +726,30 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
             boolConfig.initialWord++;
         }
     }
+
+    /*! Zap */
+    boolConfig.initialWord = 180;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    zapCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        zapCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(zapCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    doubleConfig.initialWord = 5;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = zapDurationRange.step;
+    doubleConfig.minValue = zapDurationRange.min;
+    doubleConfig.maxValue = zapDurationRange.max;
+    zapDurationCoder = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(zapDurationCoder);
 
     /*! Turn channels on */
     boolConfig.initialWord = 60;
@@ -1231,7 +1294,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         }
     }
 
-    /*! Cfast / pipette capacitance compensation VALUE*/
+    /*! Cfast / pipette capacitance compensation VALUE */
     pipetteCapValCompensationMultiCoders.resize(currentChannelsNum);
 
     boolConfig.initialWord = 3640;
@@ -1346,13 +1409,13 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     /*! Cslow / membrane capacitance compensation TAU and TAU RANGES */
     membraneCapTauValCompensationMultiCoders.resize(currentChannelsNum);
 
-    doubleConfig.initialWord = 3952;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 8;
-
     boolConfig.initialWord = 4144;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
+
+    doubleConfig.initialWord = 3952;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 8;
 
     multiCoderConfig.doubleCoderVector.resize(membraneCapTauValueRanges);
     multiCoderConfig.thresholdVector.resize(membraneCapTauValueRanges-1);
@@ -1532,15 +1595,15 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x3);
         coders.push_back(multiCoderConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
-            doubleConfig.minValue = pipetteCapacitanceRange[rangeIdx].min;
-            doubleConfig.maxValue = pipetteCapacitanceRange[rangeIdx].max;
-            doubleConfig.resolution = pipetteCapacitanceRange[rangeIdx].step;
+            doubleConfig.minValue = ccPipetteCapacitanceRange[rangeIdx].min;
+            doubleConfig.maxValue = ccPipetteCapacitanceRange[rangeIdx].max;
+            doubleConfig.resolution = ccPipetteCapacitanceRange[rangeIdx].step;
 
             multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < pipetteCapacitanceRanges-1) {
-                multiCoderConfig.thresholdVector[rangeIdx] = pipetteCapacitanceRange[rangeIdx].max + pipetteCapacitanceRange[rangeIdx].step;
+                multiCoderConfig.thresholdVector[rangeIdx] = ccPipetteCapacitanceRange[rangeIdx].max + ccPipetteCapacitanceRange[rangeIdx].step;
             }
         }
         pipetteCapCcValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
@@ -2295,9 +2358,9 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::asic2UserDomainCompensable
     compensationControls[U_RsPg][chIdx].step = rsPredGainRange.step;
 
     /*! Compensable for U_CpCc*/
-    compensationControls[U_CpCc][chIdx].maxCompensable = pipetteCapacitanceRange.back().max;
-    compensationControls[U_CpCc][chIdx].minCompensable = pipetteCapacitanceRange.front().min;
-    compensationControls[U_CpCc][chIdx].step = pipetteCapacitanceRange.front().step;
+    compensationControls[U_CpCc][chIdx].maxCompensable = ccPipetteCapacitanceRange.back().max;
+    compensationControls[U_CpCc][chIdx].minCompensable = ccPipetteCapacitanceRange.front().min;
+    compensationControls[U_CpCc][chIdx].step = ccPipetteCapacitanceRange.front().step;
 
     return Success;
 }
@@ -2321,16 +2384,16 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::getCompensationControl(Com
 
     case U_CpCc:
         control.implemented = true;
-        control.min = pipetteCapacitanceRange.front().min;
-        control.max = pipetteCapacitanceRange.back().max;
-        control.minCompensable = pipetteCapacitanceRange.front().min;
-        control.maxCompensable = pipetteCapacitanceRange.back().max;
-        control.step = pipetteCapacitanceRange.front().step;
+        control.min = ccPipetteCapacitanceRange.front().min;
+        control.max = ccPipetteCapacitanceRange.back().max;
+        control.minCompensable = ccPipetteCapacitanceRange.front().min;
+        control.maxCompensable = ccPipetteCapacitanceRange.back().max;
+        control.step = ccPipetteCapacitanceRange.front().step;
         control.steps = round(1.0+(control.max-control.min)/control.step);
-        control.decimals = pipetteCapacitanceRange.front().decimals();
-        control.value = pipetteCapacitanceRange.front().min;
-        control.prefix = pipetteCapacitanceRange.front().prefix;
-        control.unit = pipetteCapacitanceRange.front().unit;
+        control.decimals = ccPipetteCapacitanceRange.front().decimals();
+        control.value = ccPipetteCapacitanceRange.front().min;
+        control.prefix = ccPipetteCapacitanceRange.front().prefix;
+        control.unit = ccPipetteCapacitanceRange.front().unit;
         control.name = "Pipette Capacitance (CC)";
         return Success;
 

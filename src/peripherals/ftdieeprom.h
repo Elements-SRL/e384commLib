@@ -13,7 +13,7 @@ using namespace e384CommLib;
 #define NOMINMAX
 #ifdef _WIN32 /*! _WIN32 isolates both 32 and 64 bit windows systems, _WIN64 isolates only 64 */
 #include <windows.h>
-#include "ftd2xx_win.h"
+#include "ftd2xx.h"
 
 #else /*! Same FTDI header file name also for linux and macOS */
 /*! libftdi must be properly set in system folders (/usr/local/lib ... ecc) */
@@ -52,17 +52,20 @@ typedef enum {
     DeviceSubversionEl03F_4F_PCBV03 = 8,
     DeviceSubversionEl03F_4F_PCBV01_AnalogOut = 9,
     DeviceSubversionEl03F_4F_PCBV02 = 10,
+    DeviceSubversionEl03F_4F_PCBV03b = 11,
 
     /*! Subversions used for ver = 10 */
     DeviceSubversionEl04Fx4 = 1,
-    DeviceSubversionEl04Fx4PatchLiner = 2,
-    DeviceSubversionEl04Fx8PatchLiner = 3,
-    DeviceSubversionEl07ABx4PatchLiner = 5,
-    DeviceSubversionEl07ABx8PatchLiner = 6,
-    DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV01 = 8,
-    DeviceSubversionEl07ABx8PatchLiner_artix7_PCBV02 = 10,
-    DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV01 = 12,
-    DeviceSubversionEl07CDx8PatchLiner_artix7_PCBV02 = 14,
+    DeviceSubversionEl04Fx4Patch = 2,
+    DeviceSubversionEl04Fx8Patch = 3,
+    DeviceSubversionEl07ABx4Patch = 5,
+    DeviceSubversionEl07ABx8Patch = 6,
+    DeviceSubversionEl07ABx8Patch_artix7_PCBV01 = 8,
+    DeviceSubversionEl07ABx8Patch_artix7_PCBV02 = 10,
+    DeviceSubversionEl07CDx8Patch_artix7_PCBV01 = 12,
+    DeviceSubversionEl07CDx8Patch_artix7_PCBV02 = 14,
+    DeviceSubversionEl07CDx4Patch_artix7_PCBV01 = 16,
+    DeviceSubversionEl07CDx4Patch_artix7_PCBV02 = 17,
 
     /*! Subversions used for ver = FD */
     DeviceSubversionDemo = 1,

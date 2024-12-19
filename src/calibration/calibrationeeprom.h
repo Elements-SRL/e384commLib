@@ -3,7 +3,7 @@
 
 #include <windows.h>
 
-#include "ftd2xx_win.h"
+#include "ftd2xx.h"
 #include "libMPSSE_spi.h"
 #include "e384commlib_errorcodes.h"
 #include "stdint.h"

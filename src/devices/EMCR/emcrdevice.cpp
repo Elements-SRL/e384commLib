@@ -23,6 +23,7 @@ EmcrDevice::EmcrDevice(std::string deviceId) :
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdInvalid] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus] = false;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature] = true;
 
     /*! Initialize rx word offsets and lengths with default values */
     rxWordOffsets.resize(RxMessageNum);
@@ -33,10 +34,9 @@ EmcrDevice::EmcrDevice(std::string deviceId) :
 }
 
 EmcrDevice::~EmcrDevice() {
-    /*! \todo FCON per qualche ragione crasha dalla 0.10.0, capire perchè */
-//    for (auto coder : coders) {
-//        delete coder;
-//    }
+    for (auto coder : coders) {
+        delete coder;
+    }
     coders.clear();
 }
 
@@ -308,7 +308,7 @@ ErrorCodes_t EmcrDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool a
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
 
-        } else if (compensationsEnableFlags[CompRsCorr][channelIdx]) {
+        } else if (compensationsEnableFlags[CompRsCorr][channelIdx] && !(calibrationParams.rsCorrOffsetDac.empty())) {
             calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value+calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord)-calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIdx].value;
@@ -1036,6 +1036,10 @@ ErrorCodes_t EmcrDevice::setAdcCore(std::vector <uint16_t> channelIndexes, std::
             vcCcSelCoders[channelIndexes[i]]->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
             break;
 
+        case CURRENT_CLAMP_CURRENT_READ:
+            vcCcSelCoders[channelIndexes[i]]->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            break;
+
         case UNDEFINED_CLAMP:
             return ErrorFeatureNotImplemented;
         }
@@ -1097,7 +1101,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
         /*! Restore liquid junction and remove it from the voltage reading */
         for (uint32_t i = 0; i < currentChannelsNum; i++) {
             this->updateLiquidJunctionVoltage(i, false);
-            ccLiquidJunctionVector[i] = 0;
+            ccLiquidJunctionVectorApplied[i] = 0;
         }
 
         this->enableCcCompensations(false, false);
@@ -1129,6 +1133,9 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
             this->updateLiquidJunctionVoltage(i, false);
             selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+            if (subtractLiquidJunctionFromCcFlag) {
+                ccLiquidJunctionVectorApplied[i] = ccLiquidJunctionVector[i];
+            }
         }
 
         if (previousClampingModality == VOLTAGE_CLAMP) {
@@ -1163,6 +1170,9 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
             this->updateLiquidJunctionVoltage(i, false);
             selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+            if (subtractLiquidJunctionFromCcFlag) {
+                ccLiquidJunctionVectorApplied[i] = ccLiquidJunctionVector[i];
+            }
         }
 
         if (previousClampingModality == VOLTAGE_CLAMP || previousClampingModality == VOLTAGE_CLAMP_VOLTAGE_READ) {
@@ -1202,6 +1212,9 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
             this->updateLiquidJunctionVoltage(i, false);
             selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
             ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+            if (subtractLiquidJunctionFromCcFlag) {
+                ccLiquidJunctionVectorApplied[i] = ccLiquidJunctionVector[i];
+            }
         }
 
         if (previousClampingModality != VOLTAGE_CLAMP_VOLTAGE_READ) {
@@ -1210,7 +1223,6 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
         }
         this->turnVoltageReaderOn(true, false);
         this->turnVoltageStimulusOn(true, false);
-        /*! Apply on previous command to turn the current clamp on then */
         this->turnCurrentReaderOn(false, false);
         this->turnCurrentStimulusOn(false, true);
 
@@ -1221,6 +1233,29 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
 
         this->setSourceForVoltageChannel(1, false);
         this->setSourceForCurrentChannel(1, false);
+
+        break;
+
+    case CURRENT_CLAMP_CURRENT_READ:
+        rawDataFilterVoltageFlag = false;
+        rawDataFilterCurrentFlag = true;
+
+        if (previousClampingModality != CURRENT_CLAMP_CURRENT_READ) {
+            this->enableVcCompensations(false, false);
+            this->enableCcCompensations(false, false);
+        }
+        this->turnCurrentReaderOn(true, false);
+        this->turnCurrentStimulusOn(true, false);
+        this->turnVoltageReaderOn(false, false);
+        this->turnVoltageStimulusOn(false, true);
+
+        this->turnCcSwOn(allChannelIndexes, trues, false);
+
+        this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
+        this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
+
+        this->setSourceForVoltageChannel(0, false);
+        this->setSourceForCurrentChannel(0, false);
 
         break;
     }
@@ -1328,6 +1363,7 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
 ErrorCodes_t EmcrDevice::setAdcFilter(bool applyFlag) {
     switch (selectedClampingModality) {
     case VOLTAGE_CLAMP:
+    case CURRENT_CLAMP_CURRENT_READ:
         if (vcCurrentFilterCoder != nullptr) {
             vcCurrentFilterCoder->encode(sr2LpfVcCurrentMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
             selectedVcCurrentFilterIdx = sr2LpfVcCurrentMap[selectedSamplingRateIdx];
@@ -1364,6 +1400,7 @@ ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFla
     this->computeRawDataFilterCoefficients();
     switch (selectedClampingModality) {
     case VOLTAGE_CLAMP:
+    case CURRENT_CLAMP_CURRENT_READ:
         this->updateCalibVcCurrentGain(allChannelIndexes, false);
         this->updateCalibVcCurrentOffset(allChannelIndexes, false);
         break;
@@ -1653,6 +1690,10 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextIt
 }
 
 ErrorCodes_t EmcrDevice::setCompRanges(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) {
+    if (compValueMatrix.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+
     if (!allLessThan(newRanges, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
@@ -1844,7 +1885,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 rxOutput.protocolRepsIdx = rxDataBuffer[(dataOffset+2) & RX_DATA_BUFFER_MASK];
                 rxOutput.protocolSweepIdx = rxDataBuffer[(dataOffset+3) & RX_DATA_BUFFER_MASK];
                 if (rxWordLengths[RxMessageDataHeader] > 4) {
-                    rxOutput.itemFirstSampleDistance = (uint32_t)rxDataBuffer[(dataOffset+4) & RX_DATA_BUFFER_MASK] + 65536*(uint32_t)rxDataBuffer[(dataOffset+5) & RX_DATA_BUFFER_MASK];
+                    rxOutput.itemFirstSampleDistance = (uint32_t)rxDataBuffer[(dataOffset+4) & RX_DATA_BUFFER_MASK] + (((uint32_t)rxDataBuffer[(dataOffset+5) & RX_DATA_BUFFER_MASK]) << 16);
                 }
 
                 lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader;
@@ -1882,7 +1923,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                             downsamplingOffset = 0;
                             downsamplingCount++;
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
+                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
 #ifdef FILTER_CLIP_NEEDED
                                 xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                                 data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
@@ -1912,8 +1953,8 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
                         } else {
                             for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
-                                xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
+                                this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                                 dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                             }
 
@@ -1945,7 +1986,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                     timeSamplesNum = samplesNum/totalChannelsNum;
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
+                            rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
 #ifdef FILTER_CLIP_NEEDED
                             xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                             data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
@@ -1986,7 +2027,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                     timeSamplesNum = samplesNum/totalChannelsNum;
                     for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                         for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            data[dataWritten+sampleIdx++] = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVector[voltageChannelIdx];
+                            data[dataWritten+sampleIdx++] = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
                             dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
                         }
 
@@ -2080,7 +2121,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
             break;
 
         case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
-            //            not really managed, ignore it
+            // not really managed, ignore it
             if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
                 lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus;
                 rxOutput.dataLen = 0;
@@ -2094,6 +2135,28 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 messageReadFlag = false;
             }
 
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature):
+            if (lastParsedMsgType == MsgDirectionDeviceToPc + MsgTypeIdInvalid) {
+                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
+                rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
+                /*! \todo FCON check sulla lunghezza del messaggio */
+                for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
+                    data[temperatureChannelIdx] = (int16_t)rxDataBuffer[dataOffset];
+                }
+                dataOffset = (dataOffset + temperatureChannelsNum) & RX_DATA_BUFFER_MASK;
+
+                lastParsedMsgType = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionTemperature;
+
+                exitLoop = true;
+                messageReadFlag = true;
+            }
+            else {
+                /*! Exit the loop in case this message type is different from the previous one */
+                exitLoop = true;
+                messageReadFlag = false;
+            }
             break;
 
         default:
@@ -2590,6 +2653,7 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
     case RxMessageDataHeader:
     case RxMessageDataTail:
     case RxMessageStatus:
+    case RxMessageTemperature:
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
         }

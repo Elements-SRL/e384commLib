@@ -21,7 +21,7 @@ CONFIG(release, debug|release) {
 #    DEFINES += DEBUG
 #    DEFINES += DEBUG_RX_RAW_DATA_PRINT
 #    DEFINES += DEBUG_RX_DATA_PRINT
-#    DEFINES += DEBUG_TX_DATA_PRINT
+#   DEFINES += DEBUG_TX_DATA_PRINT
 #    DEFINES += DEBUG_MAX_SPEED
 }
 
@@ -69,8 +69,10 @@ SOURCES += \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v05.cpp \
     src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.cpp \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v01.cpp \
+    src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v02.cpp \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.cpp \
     src/devices/EMCR/emcr10mhz.cpp \
+    src/devices/EMCR/emcr10mhzsb.cpp \
     src/devices/EMCR/emcr2x10mhz.cpp \
     src/devices/EMCR/emcr4x10mhz.cpp \
     src/devices/EMCR/emcrtestboardel07ab.cpp \
@@ -85,11 +87,11 @@ SOURCES += \
     src/devices/EZPatch/ezpatchepatchel03f_4e.cpp \
     src/devices/EZPatch/ezpatchepatchel03f_4f.cpp \
     src/devices/EZPatch/ezpatche4pel04f.cpp \
-    src/devices/EZPatch/ezpatche4ppatchliner.cpp \
-    src/devices/EZPatch/ezpatche8ppatchliner.cpp \
-    src/devices/EZPatch/ezpatche4ppatchliner_el07ab.cpp \
-    src/devices/EZPatch/ezpatche8ppatchliner_el07ab.cpp \
-    src/devices/EZPatch/ezpatche8ppatchliner_el07cd.cpp \
+    src/devices/EZPatch/ezpatche4ppatch.cpp \
+    src/devices/EZPatch/ezpatche4ppatch_el07ab.cpp \
+    src/devices/EZPatch/ezpatche8ppatch.cpp \
+    src/devices/EZPatch/ezpatche8ppatch_el07ab.cpp \
+    src/devices/EZPatch/ezpatche8ppatch_el07cd.cpp \
     src/model/boardmodel.cpp \
     src/model/channelmodel.cpp \
     src/calibration/tomlcalibrationmanager.cpp \
@@ -120,8 +122,10 @@ HEADERS += \
     src/devices/EMCR/emcr384patchclamp_prot_v04_fw_v05.h \
     src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.h \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v01.h \
+    src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v02.h \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.h \
     src/devices/EMCR/emcr10mhz.h \
+    src/devices/EMCR/emcr10mhzsb.h \
     src/devices/EMCR/emcr2x10mhz.h \
     src/devices/EMCR/emcr4x10mhz.h \
     src/devices/EMCR/emcrtestboardel07ab.h \
@@ -136,11 +140,11 @@ HEADERS += \
     src/devices/EZPatch/ezpatchepatchel03f_4e.h \
     src/devices/EZPatch/ezpatchepatchel03f_4f.h \
     src/devices/EZPatch/ezpatche4pel04f.h \
-    src/devices/EZPatch/ezpatche4ppatchliner.h \
-    src/devices/EZPatch/ezpatche8ppatchliner.h \
-    src/devices/EZPatch/ezpatche4ppatchliner_el07ab.h \
-    src/devices/EZPatch/ezpatche8ppatchliner_el07ab.h \
-    src/devices/EZPatch/ezpatche8ppatchliner_el07cd.h \
+    src/devices/EZPatch/ezpatche4ppatch.h \
+    src/devices/EZPatch/ezpatche4ppatch_el07ab.h \
+    src/devices/EZPatch/ezpatche8ppatch.h \
+    src/devices/EZPatch/ezpatche8ppatch_el07ab.h \
+    src/devices/EZPatch/ezpatche8ppatch_el07cd.h \
     src/model/boardmodel.h \
     src/model/channelmodel.h \
     src/calibration/tomlcalibrationmanager.h \
@@ -195,4 +199,5 @@ DEPENDPATH += \
 include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
 include($$(FTD2XX_PATH)includeftd2xx.pri)
+include($$(LIBMPSSE_PATH)includelibmpsse.pri)
 include($$(TOML_PP_PATH)includetoml++.pri)

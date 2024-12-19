@@ -28,11 +28,19 @@ protected:
 
     std::vector <BoolArrayCoder *> grEnCoders;
 
+    enum TemperatureChannels {
+        TemperatureSensor0,
+        TemperatureSensor1,
+        TemperatureChannelsNum
+    };
+
     enum ClampingModalities {
         VoltageClamp,
+        ZeroCurrentClamp,
         CurrentClamp,
 #ifdef CALIBRATION
         VoltageClampVoltageRead,
+        CurrentClampCurrentRead,
 #endif
         ClampingModalitiesNum
     };

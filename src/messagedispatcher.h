@@ -350,6 +350,13 @@ public:
      */
     virtual ErrorCodes_t setCurrentHalf(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag);
 
+    /*! \brief Activate or deactivate the automatic subtraction of the liquid junction compensated in VC from the CC readout.
+     *
+     * \param flag [in] true: the liquid junction potential is subtracted from the CC readout; false: the CC readout is unaffected.
+     * \return Error code.
+     */
+    ErrorCodes_t subtractLiquidJunctionFromCc(bool flag);
+
     /*! \brief Set the current offset to the default value.
      *
      * \param channelIndexes [in] Vector of Indexes for the channels to control.
@@ -1250,7 +1257,7 @@ public:
      * \param valuesNum [in] Number of values in the array.
      * \return Error code.
      */
-    ErrorCodes_t convertVoltageValues(int16_t * intValue, double * fltValue, int valuesNum);
+    ErrorCodes_t convertVoltageValues(int16_t * intValues, double * fltValues, int valuesNum);
 
     /*! \brief Convert an array of current values returned by getNextMessage from integer to floating point.
      *
@@ -1259,7 +1266,16 @@ public:
      * \param valuesNum [in] Number of values in the array.
      * \return Error code.
      */
-    ErrorCodes_t convertCurrentValues(int16_t * intValue, double * fltValue, int valuesNum);
+    ErrorCodes_t convertCurrentValues(int16_t * intValues, double * fltValues, int valuesNum);
+
+    /*! \brief Convert an array of current values returned by getNextMessage from integer to floating point.
+     *
+     * \param intValue [in] Array of integer temperature values obtained with the getNextMessage method.
+     * \param fltValue [out] Array of floating point temperature values expressed in the unit of the temperature range for the corresponding channel.
+     * \note The number of items must match the number of temperature channels.
+     * \return Error code.
+     */
+    ErrorCodes_t convertTemperatureValues(int16_t * intValues, double * fltValues);
 
     /*! \brief Get the current status of the readout offset recalibration algorithm for each channel.
      *
@@ -1581,6 +1597,15 @@ public:
      */
     ErrorCodes_t getMinCCVoltageRange(RangedMeasurement_t &range, uint32_t &idx);
 
+    /*! \brief Get information on the temperature channels.
+     *
+     * \param names [out] Array containing the name of each temperature channel.
+     * \param ranges [out] Array containing the range for each temperature channel.
+     *
+     * \return Error code.
+     */
+    ErrorCodes_t getTemperatureChannelsFeatures(std::vector <std::string> &names, std::vector <RangedMeasurement_t> &ranges);
+
     /*! \brief Get the sampling rates available for the device.
      *
      * \param samplingRates [out] Array containing all the available sampling rates.
@@ -1896,7 +1921,7 @@ public:
     /*! \brief Get the state of a compensation type for some channels.
      *
      * \param matrix [in]: Matrix of compensated values; the external vector has an item for each channel,
-     * each internal vector has an item for each CompensationTypes_t.
+     * each internal vector has an item for each CompensationUserParams_t.
      * \note columns corresponding to not implemented compensation types are always zero and can be ignored.
      * \note the values might differ from the values set by user because of rounding factors, clipping and interactions with other compensations.
      * \return Success if the device implements any compensation.
@@ -1957,6 +1982,7 @@ protected:
         RxMessageDataHeader,
         RxMessageDataTail,
         RxMessageStatus,
+        RxMessageTemperature,
         RxMessageNum
     } RxMessageTypes_t;
 
@@ -2053,6 +2079,10 @@ protected:
 
     uint16_t totalBoardsNum = 1;
     uint16_t channelsPerBoard = 1;
+
+    uint16_t temperatureChannelsNum = 0;
+    std::vector <std::string> temperatureChannelsNames;
+    std::vector <RangedMeasurement_t> temperatureChannelsRanges;
 
     bool resetStateFlag = false;
 
@@ -2161,6 +2191,8 @@ protected:
 
     std::vector <Measurement_t> selectedLiquidJunctionVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector <int16_t> ccLiquidJunctionVector;
+    std::vector <int16_t> ccLiquidJunctionVectorApplied;
+    bool subtractLiquidJunctionFromCcFlag = false;
 
     RangedMeasurement_t gateVoltageRange;
     std::vector <Measurement_t> selectedGateVoltageVector;
@@ -2181,6 +2213,7 @@ protected:
 
     /*! Features in ASIC domain, depend on asic*/
     std::vector <RangedMeasurement> pipetteCapacitanceRange;
+    std::vector <RangedMeasurement> ccPipetteCapacitanceRange;
     std::vector <RangedMeasurement> membraneCapValueRange;
     std::vector <RangedMeasurement> membraneCapTauValueRange;
     RangedMeasurement_t rsCorrValueRange;

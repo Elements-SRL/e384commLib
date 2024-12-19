@@ -323,6 +323,13 @@ ErrorCodes_t setCurrentHalf(
     return messageDispatcher->setCurrentHalf(channelIndexes, currents, applyFlagIn);
 }
 
+ErrorCodes_t subtractLiquidJunctionFromCc(bool flag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->subtractLiquidJunctionFromCc(flag);
+}
+
 ErrorCodes_t setLiquidJunctionVoltage(
         uint16_t * channelIndexesIn,
         LMeasHandle * voltagesIn,
@@ -1428,7 +1435,6 @@ ErrorCodes_t purgeData() {
         return ErrorDeviceNotConnected;
     }
     return messageDispatcher->purgeData();
-
 }
 
 ErrorCodes_t getChannelsNumber(
@@ -1609,6 +1615,20 @@ ErrorCodes_t getCCVoltageRange(
     RangedMeasurement_t voltageRange;
     ErrorCodes_t ret = messageDispatcher->getCCVoltageRange(voltageRange);
     rangedMeasurement2Output(voltageRange, rangeOut);
+    return ret;
+}
+
+ErrorCodes_t getTemperatureChannelsInfo(
+        LStrHandle * namesOut,
+        LRangeHandle * rangesOut) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <std::string> names;
+    std::vector <RangedMeasurement_t> ranges;
+    ErrorCodes_t ret = messageDispatcher->getTemperatureChannelsFeatures(names, ranges);
+    vectorRangedMeasurement2Output(ranges, rangesOut);
+    vectorString2Output(names, namesOut);
     return ret;
 }
 

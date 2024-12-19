@@ -10,12 +10,13 @@
 #include "emcr384patchclamp_prot_v04_fw_v04.h"
 #include "emcr384patchclamp_prot_v04_fw_v05.h"
 #include "emcr384patchclamp_prot_v05_fw_v06.h"
-#include "emcr384patchclamp_el07cd_prot_v06_fw_v01.h"
+#include "emcr384patchclamp_el07cd_prot_v06_fw_v02.h"
 #include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
 #include "emcrtestboardel07cd.h"
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
+#include "emcr10mhzsb.h"
 #ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "emcr384nanoporesfake.h"
@@ -29,13 +30,15 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000107S", Device384Nanopores_SR7p5kHz},
     {"221000108T", Device384Nanopores_SR7p5kHz},
     {"22510013B4", Device384Nanopores},
-    {"23210014U9", Device192Blm_el03c_prot_v01_fw_v01},
+    {"23210014U9", Device384PatchClamp_prot_el07c_v06_fw_v02},
     {"23210014UP", Device384Nanopores},
     {"23190014UX", Device384PatchClamp_prot_v05_fw_v06},
     {"23210014U6", Device384PatchClamp_prot_v05_fw_v06},
-    {"2210001076", Device384PatchClamp_prot_el07c_v06_fw_v01},
+    {"2210001076", Device384PatchClamp_prot_el07c_v06_fw_v02},
     {"23210014UF", Device192Blm_el03c_prot_v01_fw_v01},
     {"221000106B", Device384VoltageClamp_prot_v04_fw_v03},
+    {"233600161K", Device10MHz_SB_V01},
+    {"224800130Y", Device10MHz_SB_V01},
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
     {"233600161X", Device4x10MHz_PCBV03},
@@ -45,7 +48,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"23230014TO", Device4x10MHz_SB_PCBV01},
     {"23230014TE", Device4x10MHz_SB_PCBV01},
     {"2336001642", DeviceTestBoardEL07c},
-    {"233600165Q", DeviceTestBoardEL07d}
+    {"233600165Q", DeviceTestBoardEL07c}
     #ifdef DEBUG
     ,{"DEMO_384_SSN", Device384Fake},
     {"DEMO_384_Patch", Device384FakePatchClamp},
@@ -189,8 +192,8 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr384PatchClamp_prot_v05_fw_v06(deviceId);
         break;
 
-    case Device384PatchClamp_prot_el07c_v06_fw_v01:
-        messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v06_fw_v01(deviceId);
+    case Device384PatchClamp_prot_el07c_v06_fw_v02:
+        messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v06_fw_v02(deviceId);
         break;
 
     case Device384VoltageClamp_prot_v04_fw_v03:
@@ -207,6 +210,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case DeviceTestBoardEL07d:
         messageDispatcher = new EmcrTestBoardEl07d(deviceId);
+        break;
+
+    case Device10MHz_SB_V01:
+        messageDispatcher = new Emcr10MHzSB_V01(deviceId);
         break;
 
     case Device2x10MHz_PCBV01:
@@ -528,10 +535,6 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
     fflush(rxProcFid);
 #endif
 
-//    int okWrites = 0;
-//    std::chrono::steady_clock::time_point startPrintfTime;
-//    std::chrono::steady_clock::time_point currentPrintfTime;
-//    startPrintfTime = std::chrono::steady_clock::now();
     /*! Read the data */
     bytesRead = dev.ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, okTransferSize, rxRawBuffer+rxRawBufferWriteOffset);
 
@@ -551,10 +554,10 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
         fflush(rxProcFid);
 #endif
 
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-        fprintf(rxRawFid, "Error %x\n", bytesRead);
-        fflush(rxRawFid);
-#endif
+//#ifdef DEBUG_RX_RAW_DATA_PRINT
+//        fprintf(rxRawFid, "Error %x\n", bytesRead);
+//        fflush(rxRawFid);
+//#endif
 
     } else {
 
@@ -564,9 +567,10 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
 #endif
 
 #ifdef DEBUG_RX_RAW_DATA_PRINT
-        fprintf(rxRawFid, "Bytes read %d\n", bytesRead);
+        fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(rxRawBuffer[0]), bytesRead, rxRawFid);
         fflush(rxRawFid);
 #endif
+
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & rxRawBufferMask;
     }
     /*! Update buffer writing point */
@@ -597,7 +601,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
     while (!stopConnectionFlag) {
         rxRawMutexLock.lock();
-        /*! Since OKY_RX_TRANSFER_SIZE bytes are obtained each time from the opal kelly, wait that at least these many are available,
+        /*! Since okTransferSize bytes are obtained each time from the opal kelly, wait that at least these many are available,
          *  Otherwise it means that no reads from the Opal kelly took place. */
         while (rxRawBufferReadLength < okTransferSize && !stopConnectionFlag) {
             rxRawBufferNotEmpty.wait_for (rxRawMutexLock, std::chrono::milliseconds(3));
@@ -714,6 +718,9 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
                         if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
 
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageThenCurrentDataLoad]) {
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageVoltageThenCurrentDataLoad);
+
                         } else if (rxWordOffset == rxWordOffsets[RxMessageCurrentDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageCurrentDataLoad);
 
@@ -728,6 +735,9 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageStatus]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus, RxMessageStatus);
+
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageTemperature]) {
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature, RxMessageTemperature);
                         }
 
                         rxFrameOffset = rxRawBufferReadOffset;

@@ -259,6 +259,16 @@ ErrorCodes_t setCurrentHalf(
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
+/*! \brief Activate or deactivate the automatic subtraction of the liquid junction compensated in VC from the CC readout.
+ *
+ * \param flag [in] true: the liquid junction potential is subtracted from the CC readout; false: the CC readout is unaffected.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t subtractLiquidJunctionFromCc(
+        E384CL_ARGIN bool flag);
+
 /*! \brief Set the current offset to the default value.
  *
  * \param channelIndexes [in] Vector of Indexes for the channels to control.
@@ -2089,6 +2099,19 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCVoltageRange(
         E384CL_ARGOUT LVRangedMeasurement_t &rangeOut);
+
+/*! \brief Get information on the temperature channels.
+ *
+ * \param names [out] String containing the name of each temperature channel, separated by commas.
+ * \param ranges [out] Array containing the range for each temperature channel.
+ *
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getTemperatureChannelsInfo(
+        E384CL_ARGOUT LStrHandle * names,
+        E384CL_ARGOUT LRangeHandle * ranges);
 
 /*! \brief Get the sampling rates available for the device.
  *
