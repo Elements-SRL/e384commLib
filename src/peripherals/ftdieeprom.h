@@ -13,7 +13,7 @@ using namespace e384CommLib;
 #define NOMINMAX
 #ifdef _WIN32 /*! _WIN32 isolates both 32 and 64 bit windows systems, _WIN64 isolates only 64 */
 #include <windows.h>
-#include "ftd2xx_win.h"
+#include "ftd2xx.h"
 
 #else /*! Same FTDI header file name also for linux and macOS */
 /*! libftdi must be properly set in system folders (/usr/local/lib ... ecc) */
