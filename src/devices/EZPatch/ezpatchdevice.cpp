@@ -2663,7 +2663,7 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
     if (maxMsgRead > RX_MSG_BUFFER_SIZE && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow]) {
         rxOutput.dataLen = 2;
         rxOutput.msgTypeId = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionDataOverflow;
-        rxOutput.itemFirstSampleDistance = maxMsgRead;
+        rxOutput.totalMessages = maxMsgRead;
         uint32_t skipped = maxMsgRead - RX_MSG_BUFFER_SIZE;
         rxMsgBufferReadOffset = (rxMsgBufferReadOffset + skipped) & RX_MSG_BUFFER_MASK;
         rxMsgBufferReadLength -= skipped;

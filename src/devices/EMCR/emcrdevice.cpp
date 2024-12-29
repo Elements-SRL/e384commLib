@@ -1829,7 +1829,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     rxOutput.dataLen = 0; /*! Initialize data length in case more messages are merged or if an error is returned before this can be set to its proper value */
 
     std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
-    if (rxMsgBufferReadLength <= 0) {
+    if (rxMsgBufferReadLength <= 1) {
         if (parsingStatus == ParsingNone) {
             gettingNextDataFlag = false;
             return ErrorDeviceNotConnected;
@@ -1837,25 +1837,25 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 #ifdef NEXT_MESSAGE_NO_WAIT
         return ErrorNoDataAvailable;
 #else
-        rxMsgBufferNotEmpty.wait_for (rxMutexLock, std::chrono::milliseconds(3));
-        if (rxMsgBufferReadLength <= 0) {
+        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(3));
+        if (rxMsgBufferReadLength <= 1) {
             return ErrorNoDataAvailable;
         }
 #endif
     }
-    uint32_t maxMsgRead = rxMsgBufferReadLength;
-    if (maxMsgRead > RX_MSG_BUFFER_SIZE && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow]) {
+    if (rxMsgBufferReadLength > RX_MSG_BUFFER_SIZE && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow]) {
         rxOutput.dataLen = 2;
         rxOutput.msgTypeId = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionDataOverflow;
-        rxOutput.itemFirstSampleDistance = maxMsgRead;
-        uint32_t skipped = maxMsgRead - RX_MSG_BUFFER_SIZE;
+        rxOutput.totalMessages = rxMsgBufferReadLength;
+        uint32_t skipped = rxMsgBufferReadLength - RX_MSG_BUFFER_SIZE;
         rxMsgBufferReadOffset = (rxMsgBufferReadOffset + skipped) & RX_MSG_BUFFER_MASK;
         rxMsgBufferReadLength -= skipped;
-        maxMsgRead = rxMsgBufferReadLength;
         data[0] = (int16_t)(skipped & (0xFFFF));
         data[1] = (int16_t)((skipped >> 16) & (0xFFFF));
         return Success;
     }
+    /*! Read up to the second to last message, since the last 2 messages might need to be swapped */
+    uint32_t maxMsgRead = rxMsgBufferReadLength-1;
     gettingNextDataFlag = true;
     rxMutexLock.unlock();
 
@@ -1884,9 +1884,6 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 rxOutput.protocolItemIdx = rxDataBuffer[(dataOffset+1) & RX_DATA_BUFFER_MASK];
                 rxOutput.protocolRepsIdx = rxDataBuffer[(dataOffset+2) & RX_DATA_BUFFER_MASK];
                 rxOutput.protocolSweepIdx = rxDataBuffer[(dataOffset+3) & RX_DATA_BUFFER_MASK];
-                if (rxWordLengths[RxMessageDataHeader] > 4) {
-                    rxOutput.itemFirstSampleDistance = (uint32_t)rxDataBuffer[(dataOffset+4) & RX_DATA_BUFFER_MASK] + (((uint32_t)rxDataBuffer[(dataOffset+5) & RX_DATA_BUFFER_MASK]) << 16);
-                }
 
                 lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader;
 
@@ -2563,6 +2560,8 @@ void EmcrDevice::updateCurrentHoldTuner(bool applyFlag) {
 
 void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType) {
     uint32_t rxDataWords = rxWordLengths[rxMessageType];
+    bool swapLastMsgFlag = false;
+    bool splitLastMsgFlag = false;
 
 #ifdef DEBUG_RX_PROCESSING_PRINT
     fprintf(rxProcFid, "Store data frame: %x\n", rxMessageType);
@@ -2597,7 +2596,7 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
             }
         }
 
-        /* The size of the data returned by the message dispatcher is different from the size of the packet fram returned by the FPGA */
+        /*! The size of the data returned by the message dispatcher is different from the size of the packet from returned by the FPGA */
         rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataBufferWriteIdx;
         break;
     }
@@ -2643,17 +2642,21 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
             rxDataBufferWriteIdx++;
         }
 
-        /* The size of the data returned by the message dispatcher is different from the size of the packet fram returned by the FPGA */
+        /*! The size of the data returned by the message dispatcher is different from the size of the packet from returned by the FPGA */
         rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataBufferWriteIdx;
         break;
     }
-        break;
 
-    case RxMessageDataLoad:
     case RxMessageDataHeader:
+        if (rxWordLengths[RxMessageDataHeader] > 4) {
+            splitLastMsgFlag = true;
+        }
     case RxMessageDataTail:
     case RxMessageStatus:
     case RxMessageTemperature:
+        /*! Swap the last 2 messages if the last one is not a data message */
+        swapLastMsgFlag = true;
+    case RxMessageDataLoad:
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
         }
@@ -2668,11 +2671,40 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
     }
 
     if (rxEnabledTypesMap[rxMsgTypeId]) {
+        if (splitLastMsgFlag) {
+            uint32_t newProtocolItemFirstIndex = ((uint32_t)this->readUint16FromRxRawBuffer(4)) + ((this->readUint16FromRxRawBuffer(5)) << 16);
+            MsgResume_t prevMsg = rxMsgBuffer[rxPrevMsgBufferWriteOffset];
+            MsgResume_t lastMsg = prevMsg;
+
+            /*! words in the previous data message that belong to the previous item */
+            uint32_t wordsInPreviousItem = totalChannelsNum*newProtocolItemFirstIndex;
+            prevMsg.dataLength = wordsInPreviousItem; /*! fix length of previous data item */
+            lastMsg.dataLength -= wordsInPreviousItem; /*! fix length of new data item */
+            lastMsg.startDataPtr = (lastMsg.startDataPtr+wordsInPreviousItem) & RX_DATA_BUFFER_MASK; /*! fix start of new data item */
+
+            /*! The previous item message remains before the header */
+            rxMsgBuffer[rxPrevMsgBufferWriteOffset] = prevMsg;
+            /*! The header is already in the right position */
+            /*! Create a new message for the remainder of data belonging to the new item */
+            rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
+            rxMsgBuffer[rxMsgBufferWriteOffset] = lastMsg;
+        }
+        else if (swapLastMsgFlag) {
+            MsgResume_t prevMsg = rxMsgBuffer[rxPrevMsgBufferWriteOffset];
+            rxMsgBuffer[rxPrevMsgBufferWriteOffset] = rxMsgBuffer[rxMsgBufferWriteOffset];
+            rxMsgBuffer[rxMsgBufferWriteOffset] = prevMsg;
+        }
+        rxPrevMsgBufferWriteOffset = rxMsgBufferWriteOffset;
         /*! Update the message buffer only if the message is not filtered out */
         rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
         /*! change the message buffer length */
         std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-        rxMsgBufferReadLength++;
+        if (splitLastMsgFlag) {
+            rxMsgBufferReadLength += 2;
+        }
+        else {
+            rxMsgBufferReadLength++;
+        }
         rxMutexLock.unlock();
         rxMsgBufferNotEmpty.notify_all();
     }
