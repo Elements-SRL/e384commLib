@@ -117,6 +117,7 @@ public:
     ErrorCodes_t purgeData() override;
 
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures) override;
+    ErrorCodes_t getVoltageHoldTuner(std::vector <Measurement_t> &voltages) override;
     ErrorCodes_t getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &voltageHalfTunerFeatures) override;
     ErrorCodes_t getCurrentHoldTunerFeatures(std::vector <RangedMeasurement_t> &currentHoldTunerFeatures) override;
     ErrorCodes_t getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &currentHalfTunerFeatures) override;

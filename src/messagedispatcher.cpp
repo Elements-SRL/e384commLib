@@ -773,6 +773,10 @@ ErrorCodes_t MessageDispatcher::getVoltageHoldTunerFeatures(std::vector <RangedM
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::getVoltageHoldTuner(std::vector <Measurement_t> &) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &) {
     return ErrorFeatureNotImplemented;
 }

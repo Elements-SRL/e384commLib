@@ -1308,6 +1308,13 @@ public:
      */
     virtual ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTuner);
 
+    /*! \brief Get the voltage currently applied by the hold tuner
+     *
+     * \param voltageHoldTuner [out] Vector of measurements.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t getVoltageHoldTuner(std::vector <Measurement_t> &voltages);
+
     /*! \brief Get the voltage half features, e.g. ranges, step, ...
      *
      * \param voltageHalf [out] Vector of ranges for VoltageHalf in each stimulus range.
