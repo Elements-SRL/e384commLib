@@ -2208,6 +2208,14 @@ ErrorCodes_t EmcrDevice::getVoltageHoldTunerFeatures(std::vector <RangedMeasurem
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::getVoltageHoldTuner(std::vector <Measurement_t> &voltages) {
+    if (vHoldTunerCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    voltages = selectedVoltageHoldVector;
+    return Success;
+}
+
 ErrorCodes_t EmcrDevice::getVoltageHalfFeatures(std::vector <RangedMeasurement_t> &voltageHalfTunerFeatures) {
     if (vHalfTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
