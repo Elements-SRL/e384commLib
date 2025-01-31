@@ -479,6 +479,20 @@ inline Measurement_t operator + (E384CL_ARGIN const Measurement_t &a, E384CL_ARG
     return c;
 }
 
+/*! \brief Overloaded incremental sum for #Measurement_t.
+ *
+ * \param a [in] Incremented operand.
+ * \param b [in] Summed operand.
+ * \return a incremented by b.
+ * \note This method assumes the units are compatible and won't check for the sake of speed.
+*/
+inline Measurement_t operator += (E384CL_ARGIN Measurement_t &a, E384CL_ARGIN const Measurement_t &b) {
+    Measurement_t c = b;
+    c.convertValue(a.prefix);
+    a.value += c.value;
+    return a;
+}
+
 /*! \brief Overloaded subtraction for #Measurement_t.
  *
  * \param a [in] First operand.
