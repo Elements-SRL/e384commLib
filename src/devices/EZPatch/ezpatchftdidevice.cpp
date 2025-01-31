@@ -117,11 +117,11 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 131, DeviceE8PPatchEL07AB},                                           //  10, 6,  131 : VC-CC device with 8 channels (EL07AB). */
     {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 130, DeviceE8PPatchEL07AB},                                           //  10, 6,  130 : VC-CC device with 8 channels (EL07AB). */
     {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 129, DeviceE8PPatchEL07AB},                                           //  10, 6,  129 : VC-CC device with 8 channels (EL07AB). */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV02, 131, DeviceE8PPatchEL07AB_artix7_PCBV02_V02},           //  10,10,  131 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V02. increased protocol items to 256. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV02, 129, DeviceE8PPatchEL07AB_artix7_PCBV02_V01},           //  10,10,  129 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V02. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV01, 129, DeviceE8PPatchEL07AB_artix7_PCBV01},               //  10, 8,  129 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V01. */
-    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV02, 129, DeviceE8PPatchEL07CD_artix7_PCBV02},               //  10,14,  129 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V02. */
-    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 129, DeviceE8PPatchEL07CD_artix7_PCBV01},               //  10,12,  129 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV00_2, 131, DeviceE8PPatchEL07AB_artix7_PCBV00_2_V02},       //  10,10,  131 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V02. increased protocol items to 256. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV00_2, 129, DeviceE8PPatchEL07AB_artix7_PCBV00_2_V01},       //  10,10,  129 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V02. */
+    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV00_1, 129, DeviceE8PPatchEL07AB_artix7_PCBV00_1},           //  10, 8,  129 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV00_2, 129, DeviceE8PPatchEL07CD_artix7_PCBV00_2},           //  10,14,  129 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V02. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV00_1, 129, DeviceE8PPatchEL07CD_artix7_PCBV00_1},           //  10,12,  129 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
     /*! Test boards */
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04d, 129, DeviceEPatchEL04E},                                       //  6,  9,  129 : test board for EL04d chips (only current clamp works)
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04e, 129, DeviceEPatchEL04E},                                       //  6, 10,  129 : test board for EL04e chips
@@ -409,23 +409,23 @@ ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispa
         messageDispatcher = new EZPatche8PPatch_el07ab(deviceId);
         break;
 
-    case DeviceE8PPatchEL07AB_artix7_PCBV01:
+    case DeviceE8PPatchEL07AB_artix7_PCBV00_1:
         messageDispatcher = new EZPatche8PPatch_el07ab_artix7_PCBV01(deviceId);
         break;
 
-    case DeviceE8PPatchEL07CD_artix7_PCBV02:
+    case DeviceE8PPatchEL07CD_artix7_PCBV00_2:
         messageDispatcher = new EZPatche8PPatch_el07cd_artix7_PCBV02(deviceId);
         break;
 
-    case DeviceE8PPatchEL07CD_artix7_PCBV01:
+    case DeviceE8PPatchEL07CD_artix7_PCBV00_1:
         messageDispatcher = new EZPatche8PPatch_el07cd_artix7_PCBV01(deviceId);
         break;
 
-    case DeviceE8PPatchEL07AB_artix7_PCBV02_V02:
+    case DeviceE8PPatchEL07AB_artix7_PCBV00_2_V02:
         messageDispatcher = new EZPatche8PPatch_el07ab_artix7_PCBV02_V02(deviceId);
         break;
 
-    case DeviceE8PPatchEL07AB_artix7_PCBV02_V01:
+    case DeviceE8PPatchEL07AB_artix7_PCBV00_2_V01:
         messageDispatcher = new EZPatche8PPatch_el07ab_artix7_PCBV02_V01(deviceId);
         break;
 

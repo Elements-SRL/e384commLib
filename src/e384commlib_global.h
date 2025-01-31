@@ -240,13 +240,13 @@ typedef enum DeviceTypes {
     DeviceE8PPatch,                             /*!< ePatch device with 8 EL04F chips. */
     DeviceE4PPatchEL07AB,                       /*!< ePatch device with 1 EL07AB chips. */
     DeviceE8PPatchEL07AB,                       /*!< ePatch device with 1 EL07AB chips. */
-    DeviceE8PPatchEL07AB_artix7_PCBV02_V02,     /*!< ePatch device with 1 EL07AB chips PCB V02 (FPGA artix7). Increased protocol items to 256. */
-    DeviceE8PPatchEL07AB_artix7_PCBV02_V01,     /*!< ePatch device with 1 EL07AB chips PCB V02 (FPGA artix7). */
-    DeviceE8PPatchEL07AB_artix7_PCBV01,         /*!< ePatch device with 1 EL07AB chips PCB V01 (FPGA artix7). */
-    DeviceE8PPatchEL07CD_artix7_PCBV02,         /*!< ePatch device with 1 EL07CD chips PCB V02 (FPGA artix7). */
-    DeviceE8PPatchEL07CD_artix7_PCBV01,         /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7). */
-    DeviceE4PPatchEL07CD_artix7_PCBV01,         /*!< ePatch device with 1 EL07CD chips and 4 channels PCB V01 (FPGA artix7). */
-    DeviceE4PPatchEL07CD_artix7_PCBV02,         /*!< ePatch device with 1 EL07CD chips and 4 channels PCB V01 (FPGA artix7). */
+    DeviceE8PPatchEL07AB_artix7_PCBV00_2_V02,   /*!< ePatch device with 1 EL07AB chips PCB V02 (FPGA artix7). Increased protocol items to 256. */
+    DeviceE8PPatchEL07AB_artix7_PCBV00_2_V01,   /*!< ePatch device with 1 EL07AB chips PCB V02 (FPGA artix7). */
+    DeviceE8PPatchEL07AB_artix7_PCBV00_1,       /*!< ePatch device with 1 EL07AB chips PCB V01 (FPGA artix7). */
+    DeviceE8PPatchEL07CD_artix7_PCBV00_2,       /*!< ePatch device with 1 EL07CD chips PCB V02 (FPGA artix7). */
+    DeviceE8PPatchEL07CD_artix7_PCBV00_1,       /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7). */
+    DeviceE4PPatchEL07CD_artix7_PCBV00_1,       /*!< ePatch device with 1 EL07CD chips and 4 channels PCB V01 (FPGA artix7). */
+    DeviceE4PPatchEL07CD_artix7_PCBV00_2,       /*!< ePatch device with 1 EL07CD chips and 4 channels PCB V01 (FPGA artix7). */
     DeviceEPatchDlp,                            /*!< ePatch device with dlp fpga. */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
