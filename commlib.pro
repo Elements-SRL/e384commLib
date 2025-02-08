@@ -100,6 +100,7 @@ SOURCES += \
     src/peripherals/ftdieeprom.cpp \
     src/peripherals/ftdieeprom56.cpp \
     src/peripherals/ftdieepromdemo.cpp \
+    src/peripherals/okprogrammer.cpp \
     src/peripherals/udbprogrammer.cpp \
     src/peripherals/udbutils.cpp
 
@@ -151,6 +152,7 @@ HEADERS += \
     src/calibration/csvcalibrationmanager.h \
     src/calibration/calibrationeeprom.h \
     src/peripherals/ftdiutils.h \
+    src/peripherals/okprogrammer.h \
     src/peripherals/udbprogrammer.h \
     src/peripherals/ftdieeprom.h \
     src/peripherals/ftdieeprom56.h \

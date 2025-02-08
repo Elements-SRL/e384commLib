@@ -2,6 +2,8 @@
 
 #include <fstream>
 
+#include "okprogrammer.h"
+
 #include "emcr192blm_el03c_prot_v01_fw_v01.h"
 #include "emcr384nanopores.h"
 #include "emcr384nanopores_sr7p5khz_v01.h"
@@ -26,6 +28,10 @@
 #include "emcr2x10mhzfake.h"
 #endif
 
+static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 1, Device4x10MHz_SB_PCBV01},                  //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
+};
+
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000107S", Device384Nanopores_SR7p5kHz},
     {"221000108T", Device384Nanopores_SR7p5kHz},
@@ -46,7 +52,7 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"224800130Y", Device4x10MHz_PCBV03},
     {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
     {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
-    {"23230014TO", Device4x10MHz_SB_PCBV01},
+    // {"23230014TO", Device4x10MHz_SB_PCBV01},
     {"23230014TE", Device4x10MHz_SB_PCBV01},
     {"2336001642", DeviceTestBoardEL07c},
     {"233600165Q", DeviceTestBoardEL07c}
@@ -108,6 +114,27 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
+    OkProgrammer::InfoStruct_t tuple;
+    OkProgrammer * programmer = new OkProgrammer;
+    programmer->connect(deviceId, true);
+    programmer->getDeviceInfo(tuple);
+    programmer->connect(deviceId, false);
+
+    bool deviceFound = false;
+    for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
+        if (tuple.deviceVersion == deviceTupleMapping[mappingIdx][0] &&
+            tuple.deviceSubVersion == deviceTupleMapping[mappingIdx][1] &&
+            tuple.fpgaFwVersion.minor == deviceTupleMapping[mappingIdx][2]) {
+            type = (DeviceTypes_t)deviceTupleMapping[mappingIdx][3];
+            deviceFound = true;
+            break;
+        }
+    }
+
+    if (deviceFound) {
+        return Success;
+    }
+
     if (deviceIdMapping.count(deviceId) == 0) {
         return ErrorDeviceTypeNotRecognized;
     }
@@ -333,6 +360,9 @@ bool EmcrOpalKellyDevice::getDeviceCount(int &numDevs) {
 ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
     okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
 
+    if (dev.IsFrontPanelEnabled()) {
+        return Success;
+    }
     if (error != okCFrontPanel::NoError) {
         return ErrorDeviceConnectionFailed;
     }

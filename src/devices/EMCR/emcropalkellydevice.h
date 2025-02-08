@@ -26,6 +26,20 @@ public:
     EmcrOpalKellyDevice(std::string deviceId);
     virtual ~EmcrOpalKellyDevice();
 
+    typedef enum {
+        DeviceVersion10MHz = 0x0B,
+        DeviceVersionUndefined = 0xFF
+    } DeviceVersion_t;
+
+    typedef enum {
+        /*! Subversions used for version = 0x0B */
+        DeviceSubversion4x10MHz_SB_EL05a = 0x09,
+        DeviceSubversionOk_FAKE = 0xFE,
+
+        /*! Subversions used for Version = 0xFF */
+        DeviceSubversionUndefined = 0xFF
+    } DeviceSubversion_t ;
+
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
