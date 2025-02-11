@@ -30,8 +30,9 @@
 #endif
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},           //   11,  3,  1 : channels 10MHz nanopore reader, single board with EL05a
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 1, Device4x10MHz_SB_PCBV01},    //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
-    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 1, DeviceTestBoardQC01a},     //    6, 13,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 1, DeviceTestBoardQC01a},     //    6, 13,  1 : QC01a test board
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
@@ -127,7 +128,7 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceType
     for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
         if (tuple.deviceVersion == deviceTupleMapping[mappingIdx][0] &&
             tuple.deviceSubVersion == deviceTupleMapping[mappingIdx][1] &&
-            tuple.fpgaFwVersion.minor == deviceTupleMapping[mappingIdx][2]) {
+            tuple.fpgaFwVersion.major == deviceTupleMapping[mappingIdx][2]) {
             type = (DeviceTypes_t)deviceTupleMapping[mappingIdx][3];
             deviceFound = true;
             break;

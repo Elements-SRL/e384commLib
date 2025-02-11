@@ -37,6 +37,7 @@ public:
         DeviceSubversionTestBoardQC01a = 0x0D,
 
         /*! Subversions used for version = 0x0B */
+        DeviceSubversion10MHz_SB_EL05a = 0x03,
         DeviceSubversion4x10MHz_SB_EL05a = 0x09,
         DeviceSubversionOk_FAKE = 0xFE,
 
