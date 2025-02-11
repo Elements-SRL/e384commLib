@@ -19,6 +19,7 @@
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
 #include "emcr10mhzsb.h"
+#include "emcrqc01atb_v01.h"
 #ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "emcr384nanoporesfake.h"
@@ -29,7 +30,8 @@
 #endif
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 1, Device4x10MHz_SB_PCBV01},                  //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 1, Device4x10MHz_SB_PCBV01},    //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 1, DeviceTestBoardQC01a},     //    6, 13,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
@@ -55,7 +57,8 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     // {"23230014TO", Device4x10MHz_SB_PCBV01},
     {"23230014TE", Device4x10MHz_SB_PCBV01},
     {"2336001642", DeviceTestBoardEL07c},
-    {"233600165Q", DeviceTestBoardEL07c}
+    {"233600165Q", DeviceTestBoardEL07c},
+    {"2416001B8N", DeviceTestBoardQC01a}
     #ifdef DEBUG
     ,{"DEMO_384_SSN", Device384Fake},
     {"DEMO_384_Patch", Device384FakePatchClamp},
@@ -270,6 +273,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device4x10MHz_QuadAnalog_PCBV01_DIGV01:
         messageDispatcher = new Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05(deviceId);
+        break;
+
+    case DeviceTestBoardQC01a:
+        messageDispatcher = new EmcrQc01aTB_V01(deviceId);
         break;
 
 #ifdef DEBUG

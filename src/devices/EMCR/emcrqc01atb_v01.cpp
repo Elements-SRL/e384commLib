@@ -5,7 +5,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
 
     deviceName = "QC01aTB";
 
-    fwName = "QC01aTB.bit";
+    fwName = "TB_QC01a_V1.bit";
 
     waitingTimeBeforeReadingData = 2; //s
 
@@ -748,6 +748,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[1] = 0x0003; /*! DS of AC cores enabled */
+    txStatus[3] = 0x000C; /*! Vcm generated internally */
     txStatus[6] = 0x0005; /*! FPGA and DCM in reset by default */
     txStatus[7] = 0x0001; /*! one voltage frame every current frame */
     txStatus[8] = 0x0040; /*! null offset on secondary DAC for core 1 */

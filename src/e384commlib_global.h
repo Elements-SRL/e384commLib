@@ -198,6 +198,7 @@ typedef enum DeviceTypes {
     DeviceTestBoardEL07ab,
     DeviceTestBoardEL07c,
     DeviceTestBoardEL07d,
+    DeviceTestBoardQC01a,
     Device10MHz_SB_V01,                         /*!< 10MHz nanopore reader, single board */
     Device2x10MHz_PCBV01,                       /*!< 2 channels 10MHz nanopore reader */
     Device2x10MHz_PCBV02,                       /*!< 2 channels 10MHz nanopore reader */
