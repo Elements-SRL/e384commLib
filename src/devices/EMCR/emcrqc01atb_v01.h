@@ -40,7 +40,7 @@ protected:
     enum VCCurrentFilters {
         VCCurrentFilter20kHz,
         VCCurrentFilter100kHz,
-        VCCurrentFiltersNum = 0
+        VCCurrentFiltersNum
     };
 
     enum VCVoltageFilters {

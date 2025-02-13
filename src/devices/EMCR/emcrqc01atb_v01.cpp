@@ -76,7 +76,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
 
     voltageProtocolStepImplemented = true;
     voltageProtocolRampImplemented = true;
-    voltageProtocolSinImplemented = true;
+    // voltageProtocolSinImplemented = true;
 
     protocolMaxItemsNum = 20;
     protocolWordOffset = 14;
