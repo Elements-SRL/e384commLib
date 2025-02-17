@@ -28,7 +28,7 @@ CONFIG(release, debug|release) {
 TEMPLATE = lib
 CONFIG += c++17
 
-#DEFINES += E384COMMLIB_LABVIEW_WRAPPER
+# DEFINES += E384COMMLIB_LABVIEW_WRAPPER
 #DEFINES += E384COMMLIB_LIBRARY
 
 contains(DEFINES, E384COMMLIB_LABVIEW_WRAPPER) {
@@ -55,6 +55,7 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
+    src/devices/EMCR/emcrqc01atb_v01.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
     src/devices/EMCR/emcropalkellydevice.cpp \
@@ -100,10 +101,12 @@ SOURCES += \
     src/peripherals/ftdieeprom.cpp \
     src/peripherals/ftdieeprom56.cpp \
     src/peripherals/ftdieepromdemo.cpp \
+    src/peripherals/okprogrammer.cpp \
     src/peripherals/udbprogrammer.cpp \
     src/peripherals/udbutils.cpp
 
 HEADERS += \
+    src/devices/EMCR/emcrqc01atb_v01.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
@@ -151,6 +154,7 @@ HEADERS += \
     src/calibration/csvcalibrationmanager.h \
     src/calibration/calibrationeeprom.h \
     src/peripherals/ftdiutils.h \
+    src/peripherals/okprogrammer.h \
     src/peripherals/udbprogrammer.h \
     src/peripherals/ftdieeprom.h \
     src/peripherals/ftdieeprom56.h \

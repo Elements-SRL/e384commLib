@@ -2,6 +2,8 @@
 
 #include <fstream>
 
+#include "okprogrammer.h"
+
 #include "emcr192blm_el03c_prot_v01_fw_v01.h"
 #include "emcr384nanopores.h"
 #include "emcr384nanopores_sr7p5khz_v01.h"
@@ -17,6 +19,7 @@
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
 #include "emcr10mhzsb.h"
+#include "emcrqc01atb_v01.h"
 #ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "emcr384nanoporesfake.h"
@@ -25,6 +28,12 @@
 #include "emcr4x10mhzfake.h"
 #include "emcr2x10mhzfake.h"
 #endif
+
+static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},           //   11,  3,  1 : channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 1, Device4x10MHz_SB_PCBV01},    //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 1, DeviceTestBoardQC01a},     //    6, 13,  1 : QC01a test board
+};
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000107S", Device384Nanopores_SR7p5kHz},
@@ -39,16 +48,18 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"221000106B", Device384VoltageClamp_prot_v04_fw_v03},
     {"233600161K", Device10MHz_SB_V01},
     {"224800130Y", Device10MHz_SB_V01},
+    {"22370012CI", Device10MHz_SB_V01},
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
     {"233600161X", Device4x10MHz_PCBV03},
     {"224800130Y", Device4x10MHz_PCBV03},
     {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
     {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
-    {"23230014TO", Device4x10MHz_SB_PCBV01},
+    // {"23230014TO", Device4x10MHz_SB_PCBV01},
     {"23230014TE", Device4x10MHz_SB_PCBV01},
     {"2336001642", DeviceTestBoardEL07c},
-    {"233600165Q", DeviceTestBoardEL07c}
+    {"233600165Q", DeviceTestBoardEL07c},
+    {"2416001B8N", DeviceTestBoardQC01a}
     #ifdef DEBUG
     ,{"DEMO_384_SSN", Device384Fake},
     {"DEMO_384_Patch", Device384FakePatchClamp},
@@ -107,6 +118,27 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
+    OkProgrammer::InfoStruct_t tuple;
+    OkProgrammer * programmer = new OkProgrammer;
+    programmer->connect(deviceId, true);
+    programmer->getDeviceInfo(tuple);
+    programmer->connect(deviceId, false);
+
+    bool deviceFound = false;
+    for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
+        if (tuple.deviceVersion == deviceTupleMapping[mappingIdx][0] &&
+            tuple.deviceSubVersion == deviceTupleMapping[mappingIdx][1] &&
+            tuple.fpgaFwVersion.major == deviceTupleMapping[mappingIdx][2]) {
+            type = (DeviceTypes_t)deviceTupleMapping[mappingIdx][3];
+            deviceFound = true;
+            break;
+        }
+    }
+
+    if (deviceFound) {
+        return Success;
+    }
+
     if (deviceIdMapping.count(deviceId) == 0) {
         return ErrorDeviceTypeNotRecognized;
     }
@@ -244,6 +276,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05(deviceId);
         break;
 
+    case DeviceTestBoardQC01a:
+        messageDispatcher = new EmcrQc01aTB_V01(deviceId);
+        break;
+
 #ifdef DEBUG
     case Device384Fake:
         messageDispatcher = new Emcr384FakeNanopores(deviceId);
@@ -332,6 +368,9 @@ bool EmcrOpalKellyDevice::getDeviceCount(int &numDevs) {
 ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
     okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
 
+    if (dev.IsFrontPanelEnabled()) {
+        return Success;
+    }
     if (error != okCFrontPanel::NoError) {
         return ErrorDeviceConnectionFailed;
     }

@@ -421,6 +421,7 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     const double pipetteFixedResistance2 = 5.92592592592592e-3; //MOhm
     const int pipetteCapacitanceRanges = 3;
     const double pipetteCapacitanceValuesNum = 256.0;
+    const double additionalInputCapacitance = 6.8; // pF
 
     std::vector <double> pipetteInjCapacitance = {3.0, 9.0, 27.0};
     pipetteCapacitanceRange.resize(pipetteCapacitanceRanges);
@@ -435,7 +436,7 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     ccPipetteCapacitanceRange.resize(pipetteCapacitanceRanges);
     for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
         ccPipetteCapacitanceRange[idx].step = (4.0*pipetteVarConductance/pipetteCapacitanceValuesNum*pipetteFixedResistance2)*pipetteInjCapacitance[idx];
-        ccPipetteCapacitanceRange[idx].min = (4.0*(pipetteVarConductance/pipetteCapacitanceValuesNum+1.0/pipetteFixedResistance1)*pipetteFixedResistance2+3.0)*pipetteInjCapacitance[idx];
+        ccPipetteCapacitanceRange[idx].min = (4.0*(pipetteVarConductance/pipetteCapacitanceValuesNum+1.0/pipetteFixedResistance1)*pipetteFixedResistance2+3.0)*pipetteInjCapacitance[idx]-additionalInputCapacitance;
         ccPipetteCapacitanceRange[idx].max = ccPipetteCapacitanceRange[idx].min+(pipetteCapacitanceValuesNum-1.0)*ccPipetteCapacitanceRange[idx].step;
         ccPipetteCapacitanceRange[idx].prefix = UnitPfxPico;
         ccPipetteCapacitanceRange[idx].unit = "F";
@@ -447,13 +448,12 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     const double membraneFixedResistance9 = 5.5e-3; //MOhm
     const int membraneCapValueRanges = 4;
     const double membraneCapacitanceValuesNum = 256.0;
-    const double additionalInputCapacitance = 6.8; // pF
 
     membraneCapValueInjCapacitance = {100.0/33.0, 400.0/33.0, 1600.0/33.0, 1600.0/11.0};
     membraneCapValueRange.resize(membraneCapValueRanges);
     for (int idx = 0; idx < membraneCapValueRanges; idx++) {
         membraneCapValueRange[idx].step = membraneVarConductance/membraneCapacitanceValuesNum*membraneFixedResistance9*membraneCapValueInjCapacitance[idx];
-        membraneCapValueRange[idx].min = (membraneVarConductance/membraneCapacitanceValuesNum+1.0/membraneFixedResistance8)*membraneFixedResistance9*membraneCapValueInjCapacitance[idx]-additionalInputCapacitance;
+        membraneCapValueRange[idx].min = (membraneVarConductance/membraneCapacitanceValuesNum+1.0/membraneFixedResistance8)*membraneFixedResistance9*membraneCapValueInjCapacitance[idx];
         membraneCapValueRange[idx].max = membraneCapValueRange[idx].min+(membraneCapacitanceValuesNum-1.0)*membraneCapValueRange[idx].step;
         membraneCapValueRange[idx].prefix = UnitPfxPico;
         membraneCapValueRange[idx].unit = "F";
