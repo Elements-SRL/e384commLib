@@ -784,3 +784,18 @@ ErrorCodes_t EmcrQc01aTB_V01::initializeHW() {
 
     return Success;
 }
+
+ErrorCodes_t EmcrQc01aTB_V01::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
+    EmcrOpalKellyDevice::setSamplingRate(samplingRateIdx, applyFlag);
+
+    if (samplingRateIdx == SamplingRate156kHz) {
+        std::this_thread::sleep_for (std::chrono::milliseconds(100));
+        writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        this->stackOutgoingMessage(txStatus);
+
+        std::this_thread::sleep_for (std::chrono::milliseconds(100));
+
+        writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+    return Success;
+}

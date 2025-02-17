@@ -94,6 +94,7 @@ protected:
     };
 
     virtual ErrorCodes_t initializeHW() override;
+    virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
 
     BoolArrayCoder * dcmResetCoder = nullptr;
     BoolArrayCoder * writeAdcSpiCoder = nullptr;
