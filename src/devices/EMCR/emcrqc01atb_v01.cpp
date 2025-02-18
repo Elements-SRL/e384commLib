@@ -407,8 +407,8 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
 
     for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
-        doubleConfig.maxValue = -doubleConfig.resolution*32768.0;
-        doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
+        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         voltageProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(voltageProtocolRestCoders[rangeIdx]);
     }
@@ -428,8 +428,8 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
         voltageProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
 
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
-        doubleConfig.maxValue = -doubleConfig.resolution*32768.0;
-        doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
+        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
 
         for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
             doubleConfig.initialWord = protocolWordOffset+4+protocolItemsWordsNum*itemIdx;
