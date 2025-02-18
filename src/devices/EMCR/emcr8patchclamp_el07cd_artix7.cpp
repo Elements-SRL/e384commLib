@@ -2372,10 +2372,10 @@ Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr4PatchClamp_EL07c_artix7_PCBV01_
     rxWordOffsets[RxMessageDataLoad] = 0;
     rxWordLengths[RxMessageDataLoad] = totalChannelsNum*packetsPerFrame;
 
-    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
+    rxWordOffsets[RxMessageDataHeader] = 16; /*!< Gap in the offset to match the 8-channel device's protocol */
     rxWordLengths[RxMessageDataHeader] = 4;
 
-    rxWordOffsets[RxMessageDataTail] = 16; /*!< Gap in the offset to match the 8-channel device's protocol */
+    rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
     rxWordLengths[RxMessageDataTail] = 1;
 
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
