@@ -1001,13 +1001,6 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                             this->ack(rxHeartbeat);
 
                         } else {
-#ifdef LOCK_EZPATCH_ON_RX_BUFFER_FULL
-                            std::unique_lock <std::mutex> rxMutexLock (rxMutex);
-                            while (rxMsgBufferReadLength >= EZP_RX_MSG_BUFFER_SIZE) {
-                                txMsgBufferNotFull.wait(rxMutexLock);
-                            }
-                            rxMutexLock.unlock();
-#endif
 
                             rxMsgBuffer[rxMsgBufferWriteOffset].heartbeat = rxHeartbeat;
                             rxMsgBuffer[rxMsgBufferWriteOffset].typeId = rxMsgTypeId;
