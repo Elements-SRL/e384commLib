@@ -184,9 +184,30 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     realSamplingRatesArray[SamplingRate833kHz].value = 80.0/6.0/16.0;
     realSamplingRatesArray[SamplingRate833kHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate833kHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate156kHz].value = 80.0/8.0/64.0;
-    realSamplingRatesArray[SamplingRate156kHz].prefix = UnitPfxMega;
-    realSamplingRatesArray[SamplingRate156kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate200kHz].value = 80.0/8.0/50.0;
+    realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate100kHz].value = 80.0/8.0/100.0;
+    realSamplingRatesArray[SamplingRate100kHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate100kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate50kHz].value = 80.0/8.0/200.0;
+    realSamplingRatesArray[SamplingRate50kHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate50kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate20kHz].value = 80.0/8.0/512.0;
+    realSamplingRatesArray[SamplingRate20kHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate20kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate10kHz].value = 80.0/8.0/1024.0;
+    realSamplingRatesArray[SamplingRate10kHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate10kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate5kHz].value = 80.0/8.0/2048.0;
+    realSamplingRatesArray[SamplingRate5kHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate5kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate2_5kHz].value = 80.0/8.0/4096.0;
+    realSamplingRatesArray[SamplingRate2_5kHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate2_5kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate1_25kHz].value = 80.0/8.0/8192.0;
+    realSamplingRatesArray[SamplingRate1_25kHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate1_25kHz].unit = "Hz";
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate26_7MHz].value = 0.5*6.0/80.0;
@@ -207,9 +228,30 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     integrationStepArray[SamplingRate833kHz].value = 16.0*6.0/80.0;
     integrationStepArray[SamplingRate833kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate833kHz].unit = "s";
-    integrationStepArray[SamplingRate156kHz].value = 64.0*8.0/10.0;
-    integrationStepArray[SamplingRate156kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate156kHz].unit = "s";
+    integrationStepArray[SamplingRate200kHz].value = 50.0*8.0/80.0;
+    integrationStepArray[SamplingRate200kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate200kHz].unit = "s";
+    integrationStepArray[SamplingRate100kHz].value = 100.0*8.0/80.0;
+    integrationStepArray[SamplingRate100kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate100kHz].unit = "s";
+    integrationStepArray[SamplingRate50kHz].value = 200.0*8.0/80.0;
+    integrationStepArray[SamplingRate50kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate50kHz].unit = "s";
+    integrationStepArray[SamplingRate20kHz].value = 512.0*8.0/80.0;
+    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate20kHz].unit = "s";
+    integrationStepArray[SamplingRate10kHz].value = 1024.0*8.0/80.0;
+    integrationStepArray[SamplingRate10kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate10kHz].unit = "s";
+    integrationStepArray[SamplingRate5kHz].value = 2048.0*8.0/80.0;
+    integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate5kHz].unit = "s";
+    integrationStepArray[SamplingRate2_5kHz].value = 4096.0*8.0/80.0;
+    integrationStepArray[SamplingRate2_5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate2_5kHz].unit = "s";
+    integrationStepArray[SamplingRate1_25kHz].value = 8192.0*8.0/80.0;
+    integrationStepArray[SamplingRate1_25kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate1_25kHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
@@ -219,7 +261,14 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
         {SamplingRate3_33MHz, VCCurrentFilter100kHz},
         {SamplingRate1_67MHz, VCCurrentFilter100kHz},
         {SamplingRate833kHz, VCCurrentFilter100kHz},
-        {SamplingRate156kHz, VCCurrentFilter100kHz}
+        {SamplingRate200kHz, VCCurrentFilter100kHz},
+        {SamplingRate100kHz, VCCurrentFilter100kHz},
+        {SamplingRate50kHz, VCCurrentFilter100kHz},
+        {SamplingRate20kHz, VCCurrentFilter20kHz},
+        {SamplingRate10kHz, VCCurrentFilter20kHz},
+        {SamplingRate5kHz, VCCurrentFilter20kHz},
+        {SamplingRate2_5kHz, VCCurrentFilter20kHz},
+        {SamplingRate1_25kHz, VCCurrentFilter20kHz}
     };
 
     // mapping ADC Current Clamp
@@ -297,13 +346,6 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     writeAdcSpiCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(writeAdcSpiCoder);
 
-    // /*! Write DAC SPI */
-    // boolConfig.initialWord = 1;
-    // boolConfig.initialBit = 1;
-    // boolConfig.bitsNum = 1;
-    // writeDacSpiCoder = new BoolArrayCoder(boolConfig);
-    // coders.push_back(writeDacSpiCoder);
-
     /*! Sampling rate */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 1;
@@ -315,7 +357,14 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(3);
     static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(4);
     static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(5);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(22);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(24);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(25);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(26);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(27);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(28);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(29);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(30);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(31);
     coders.push_back(samplingRateCoder);
 
     /*! Current range VC */
@@ -786,16 +835,18 @@ ErrorCodes_t EmcrQc01aTB_V01::initializeHW() {
 }
 
 ErrorCodes_t EmcrQc01aTB_V01::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
+    bool adcToBeRenabled = (selectedSamplingRateIdx >= SamplingRate200kHz && samplingRateIdx < SamplingRate200kHz);
+    if (adcToBeRenabled) {
+        /*! Prepare the bit but don't send it yet, send it together with the sampling rate command */
+        writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    }
+
     EmcrOpalKellyDevice::setSamplingRate(samplingRateIdx, applyFlag);
 
-    if (samplingRateIdx == SamplingRate156kHz) {
+    if (adcToBeRenabled) {
         std::this_thread::sleep_for (std::chrono::milliseconds(100));
-        writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        this->stackOutgoingMessage(txStatus);
-
-        std::this_thread::sleep_for (std::chrono::milliseconds(100));
-
         writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        this->stackOutgoingMessage(txStatus);
     }
     return Success;
 }

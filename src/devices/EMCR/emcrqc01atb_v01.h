@@ -65,7 +65,14 @@ protected:
         SamplingRate3_33MHz,
         SamplingRate1_67MHz,
         SamplingRate833kHz,
-        SamplingRate156kHz,
+        SamplingRate200kHz,
+        SamplingRate100kHz,
+        SamplingRate50kHz,
+        SamplingRate20kHz,
+        SamplingRate10kHz,
+        SamplingRate5kHz,
+        SamplingRate2_5kHz,
+        SamplingRate1_25kHz,
         SamplingRatesNum
     };
 
