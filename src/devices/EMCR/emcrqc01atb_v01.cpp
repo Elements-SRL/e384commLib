@@ -407,8 +407,8 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
 
     for (unsigned int rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
-        doubleConfig.maxValue = -doubleConfig.resolution*32768.0;
-        doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
+        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         voltageProtocolRestCoders[rangeIdx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(voltageProtocolRestCoders[rangeIdx]);
     }
@@ -428,8 +428,8 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
         voltageProtocolStim1StepCoders[rangeIdx].resize(protocolMaxItemsNum);
 
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
-        doubleConfig.maxValue = -doubleConfig.resolution*32768.0;
-        doubleConfig.minValue = doubleConfig.maxValue+doubleConfig.resolution*65535.0;
+        doubleConfig.minValue = -doubleConfig.resolution*32768.0;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
 
         for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
             doubleConfig.initialWord = protocolWordOffset+4+protocolItemsWordsNum*itemIdx;
@@ -680,17 +680,17 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     customOptionsDescriptions[DacExtFilter][1] = "180kHz";
     customOptionsDefault.resize(customOptionsNum);
     customOptionsDefault[DrvIn1] = 0;
-    customOptionsDefault[DrvIn2] = 0;
+    customOptionsDefault[DrvIn2] = 1;
     customOptionsDefault[DacExtFilter] = 0;
     customOptionsCoders.resize(customOptionsNum);
     boolConfig.initialWord = 1;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 1;
-    customOptionsCoders[DrvIn1] = new BoolNegatedArrayCoder(boolConfig);
+    customOptionsCoders[DrvIn1] = new BoolArrayCoder(boolConfig);
     boolConfig.initialWord = 1;
     boolConfig.initialBit = 5;
     boolConfig.bitsNum = 1;
-    customOptionsCoders[DrvIn2] = new BoolNegatedArrayCoder(boolConfig);
+    customOptionsCoders[DrvIn2] = new BoolArrayCoder(boolConfig);
     boolConfig.initialWord = 4;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
@@ -747,7 +747,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[1] = 0x0003; /*! DS of AC cores enabled */
+    txStatus[1] = 0x0023; /*! DS of AC cores enabled, inputs AC1 DC1 */
     txStatus[3] = 0x000C; /*! Vcm generated internally */
     txStatus[6] = 0x0005; /*! FPGA and DCM in reset by default */
     txStatus[7] = 0x0001; /*! one voltage frame every current frame */
