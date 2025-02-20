@@ -8,6 +8,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     fwName = "TB_QC01a_V1.bit";
 
     waitingTimeBeforeReadingData = 2; //s
+    okTransferSize = 0x10000;
 
     rxSyncWord = 0x5aa5;
 
