@@ -368,6 +368,13 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(31);
     coders.push_back(samplingRateCoder);
 
+    /*! Protocol reset */
+    boolConfig.initialWord = 6;
+    boolConfig.initialBit = 3;
+    boolConfig.bitsNum = 1;
+    protocolResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolResetCoder);
+
     /*! Current range VC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
