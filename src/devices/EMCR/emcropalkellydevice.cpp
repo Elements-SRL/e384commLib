@@ -265,7 +265,7 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         break;
 
     case Device4x10MHz_SB_PCBV01:
-        messageDispatcher = new Emcr4x10MHz_SB_PCBV01_V05(deviceId);
+        messageDispatcher = new Emcr4x10MHz_SB_PCBV01_V06(deviceId);
         break;
 
     case Device4x10MHz_QuadAnalog_PCBV01:
