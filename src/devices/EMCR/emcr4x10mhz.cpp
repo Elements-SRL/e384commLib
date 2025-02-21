@@ -1721,7 +1721,7 @@ Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V
 Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
     Emcr4x10MHz_QuadAnalog_PCBV01_V05(id) {
 
-    fwName = "4x10MHz_SB_EL05a_V01.bit";
+    fwName = "4x10MHz_SB_EL05a_V3_1_1_0.bit";
 
     /*! Voltage filters */
     /*! VC */
@@ -1754,4 +1754,24 @@ Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
     static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0xAA); // 1.6kHz on all channels
     static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0xFF); // 160Hz on all channels
     coders.push_back(vcVoltageFilterCoder);
+}
+
+Emcr4x10MHz_SB_PCBV01_V06::Emcr4x10MHz_SB_PCBV01_V06(std::string id) :
+    Emcr4x10MHz_SB_PCBV01_V05(id) {
+
+    fwName = "4x10MHz_SB_EL05a_V3_2_1_0.bit";
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Input controls */
+    BoolCoder::CoderConfig_t boolConfig;
+
+    /*! Protocol reset */
+    boolConfig.initialWord = 1;
+    boolConfig.initialBit = 2;
+    boolConfig.bitsNum = 1;
+    protocolResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolResetCoder);
 }

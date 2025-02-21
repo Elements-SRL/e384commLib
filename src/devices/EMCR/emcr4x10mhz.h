@@ -187,4 +187,9 @@ protected:
     };
 };
 
+class Emcr4x10MHz_SB_PCBV01_V06: public Emcr4x10MHz_SB_PCBV01_V05 {
+public:
+    Emcr4x10MHz_SB_PCBV01_V06(std::string di);
+};
+
 #endif // EMCR4x10MHZ_H
