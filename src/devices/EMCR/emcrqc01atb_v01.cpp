@@ -805,7 +805,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[1] = 0x0023; /*! DS of AC cores enabled, inputs AC1 DC1 */
-    txStatus[3] = 0x000C; /*! Vcm generated internally */
+    txStatus[3] = 0x0004; /*! Vcm generated internally */
     txStatus[6] = 0x0005; /*! FPGA and DCM in reset by default */
     txStatus[7] = 0x0001; /*! one voltage frame every current frame */
     txStatus[8] = 0x0040; /*! null offset on secondary DAC for core 1 */
@@ -857,4 +857,12 @@ ErrorCodes_t EmcrQc01aTB_V01::setSamplingRate(uint16_t samplingRateIdx, bool app
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
+}
+
+EmcrQc01aTB_ExtVcm_V01::EmcrQc01aTB_ExtVcm_V01(std::string di) :
+    EmcrQc01aTB_V01(di) {
+
+    fwName = "TB_QC01a_V1.bit";
+
+    txStatus[3] = 0x0000; /*! Vcm obtained externally */
 }

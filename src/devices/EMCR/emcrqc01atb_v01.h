@@ -108,4 +108,9 @@ protected:
     // BoolArrayCoder * writeDacSpiCoder = nullptr;
 };
 
+class EmcrQc01aTB_ExtVcm_V01 : public EmcrQc01aTB_V01 {
+public:
+    EmcrQc01aTB_ExtVcm_V01(std::string di);
+};
+
 #endif // EMCRQC01ATB_V01_H

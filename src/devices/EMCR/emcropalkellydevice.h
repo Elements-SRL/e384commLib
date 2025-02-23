@@ -35,6 +35,7 @@ public:
     typedef enum {
         /*! Subversions used for version = 0x06 */
         DeviceSubversionTestBoardQC01a = 0x0D,
+        DeviceSubversionTestBoardQC01aExtVcm = 0x0E,
 
         /*! Subversions used for version = 0x0B */
         DeviceSubversion10MHz_SB_EL05a = 0x03,
