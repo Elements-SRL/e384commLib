@@ -30,9 +30,10 @@
 #endif
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},           //   11,  3,  1 : channels 10MHz nanopore reader, single board with EL05a
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 1, Device4x10MHz_SB_PCBV01},    //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
-    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},     //    6, 13,  0 : QC01a test board
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                      //   11,  3,  1 : channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 1, Device4x10MHz_SB_PCBV01},               //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                //    6, 13,  0 : QC01a test board
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},    //    6, 14,  0 : QC01a test board
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
@@ -278,6 +279,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case DeviceTestBoardQC01a:
         messageDispatcher = new EmcrQc01aTB_V01(deviceId);
+        break;
+
+    case DeviceTestBoardQC01aExtVcm:
+        messageDispatcher = new EmcrQc01aTB_ExtVcm_V01(deviceId);
         break;
 
 #ifdef DEBUG
