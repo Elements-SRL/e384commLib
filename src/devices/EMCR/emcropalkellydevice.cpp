@@ -13,6 +13,7 @@
 #include "emcr384patchclamp_prot_v04_fw_v05.h"
 #include "emcr384patchclamp_prot_v05_fw_v06.h"
 #include "emcr384patchclamp_el07cd_prot_v06_fw_v02.h"
+#include "emcr384patchclamp_el07c_prot_v07_fw_v03.h"
 #include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
 #include "emcrtestboardel07cd.h"
@@ -229,6 +230,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device384PatchClamp_prot_el07c_v06_fw_v02:
         messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v06_fw_v02(deviceId);
+        break;
+
+    case Device384PatchClamp_prot_el07c_v07_fw_v03:
+        messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v07_fw_v03(deviceId);
         break;
 
     case Device384VoltageClamp_prot_v04_fw_v03:
