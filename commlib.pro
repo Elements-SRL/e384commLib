@@ -55,7 +55,6 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
-    src/devices/EMCR/emcrqc01atb_v01.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
     src/devices/EMCR/emcropalkellydevice.cpp \
@@ -71,6 +70,7 @@ SOURCES += \
     src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.cpp \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v01.cpp \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v02.cpp \
+    src/devices/EMCR/emcr384patchclamp_el07c_prot_v07_fw_v03.cpp \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.cpp \
     src/devices/EMCR/emcr10mhz.cpp \
     src/devices/EMCR/emcr10mhzsb.cpp \
@@ -78,6 +78,7 @@ SOURCES += \
     src/devices/EMCR/emcr4x10mhz.cpp \
     src/devices/EMCR/emcrtestboardel07ab.cpp \
     src/devices/EMCR/emcrtestboardel07cd.cpp \
+    src/devices/EMCR/emcrqc01atb_v01.cpp \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.cpp \
     src/devices/EZPatch/ezpatchdevice.cpp \
     src/devices/EZPatch/ezpatchftdidevice.cpp \
@@ -106,7 +107,6 @@ SOURCES += \
     src/peripherals/udbutils.cpp
 
 HEADERS += \
-    src/devices/EMCR/emcrqc01atb_v01.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
@@ -126,6 +126,7 @@ HEADERS += \
     src/devices/EMCR/emcr384patchclamp_prot_v05_fw_v06.h \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v01.h \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v02.h \
+    src/devices/EMCR/emcr384patchclamp_el07c_prot_v07_fw_v03.h \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.h \
     src/devices/EMCR/emcr10mhz.h \
     src/devices/EMCR/emcr10mhzsb.h \
@@ -133,6 +134,7 @@ HEADERS += \
     src/devices/EMCR/emcr4x10mhz.h \
     src/devices/EMCR/emcrtestboardel07ab.h \
     src/devices/EMCR/emcrtestboardel07cd.h \
+    src/devices/EMCR/emcrqc01atb_v01.h \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.h \
     src/devices/EZPatch/ezpatchdevice.h \
     src/devices/EZPatch/ezpatchftdidevice.h \

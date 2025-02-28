@@ -13,6 +13,7 @@
 #include "emcr384patchclamp_prot_v04_fw_v05.h"
 #include "emcr384patchclamp_prot_v05_fw_v06.h"
 #include "emcr384patchclamp_el07cd_prot_v06_fw_v02.h"
+#include "emcr384patchclamp_el07c_prot_v07_fw_v03.h"
 #include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
 #include "emcrtestboardel07cd.h"
@@ -30,10 +31,12 @@
 #endif
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                      //   11,  3,  1 : channels 10MHz nanopore reader, single board with EL05a
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 1, Device4x10MHz_SB_PCBV01},               //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
-    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                //    6, 13,  0 : QC01a test board
-    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},    //    6, 14,  0 : QC01a test board
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                                              //   11,  3,  1 : channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 1, Device4x10MHz_SB_PCBV01},                                       //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},         //   15,  1,  2 : First working protoype for 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 2, Device384PatchClamp_prot_el07c_v07_fw_v03}, //   15,  1,  2 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                                        //    6, 13,  0 : QC01a test board
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},                            //    6, 14,  0 : QC01a test board
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
@@ -227,6 +230,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device384PatchClamp_prot_el07c_v06_fw_v02:
         messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v06_fw_v02(deviceId);
+        break;
+
+    case Device384PatchClamp_prot_el07c_v07_fw_v03:
+        messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v07_fw_v03(deviceId);
         break;
 
     case Device384VoltageClamp_prot_v04_fw_v03:

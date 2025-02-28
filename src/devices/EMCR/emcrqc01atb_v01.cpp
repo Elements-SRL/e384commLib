@@ -699,26 +699,32 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     customFlagsCoders[AcDsEn1] = new BoolArrayCoder(boolConfig);
+    coders.push_back(customFlagsCoders[AcDsEn1]);
     boolConfig.initialWord = 1;
     boolConfig.initialBit = 1;
     boolConfig.bitsNum = 1;
     customFlagsCoders[AcDsEn2] = new BoolArrayCoder(boolConfig);
+    coders.push_back(customFlagsCoders[AcDsEn2]);
     boolConfig.initialWord = 1;
     boolConfig.initialBit = 2;
     boolConfig.bitsNum = 1;
     customFlagsCoders[DcDsEn1] = new BoolArrayCoder(boolConfig);
+    coders.push_back(customFlagsCoders[DcDsEn1]);
     boolConfig.initialWord = 1;
     boolConfig.initialBit = 3;
     boolConfig.bitsNum = 1;
     customFlagsCoders[DcDsEn2] = new BoolArrayCoder(boolConfig);
+    coders.push_back(customFlagsCoders[DcDsEn2]);
     boolConfig.initialWord = 2;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     customFlagsCoders[DcSepEn1] = new BoolArrayCoder(boolConfig);
+    coders.push_back(customFlagsCoders[DcSepEn1]);
     boolConfig.initialWord = 2;
     boolConfig.initialBit = 1;
     boolConfig.bitsNum = 1;
     customFlagsCoders[DcSepEn2] = new BoolArrayCoder(boolConfig);
+    coders.push_back(customFlagsCoders[DcSepEn2]);
 
     customOptionsNum = CustomOptionsNum;
     customOptionsNames.resize(customOptionsNum);
@@ -744,14 +750,17 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 1;
     customOptionsCoders[DrvIn1] = new BoolArrayCoder(boolConfig);
+    coders.push_back(customOptionsCoders[DrvIn1]);
     boolConfig.initialWord = 1;
     boolConfig.initialBit = 5;
     boolConfig.bitsNum = 1;
     customOptionsCoders[DrvIn2] = new BoolArrayCoder(boolConfig);
+    coders.push_back(customOptionsCoders[DrvIn2]);
     boolConfig.initialWord = 4;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     customOptionsCoders[DacExtFilter] = new BoolNegatedArrayCoder(boolConfig);
+    coders.push_back(customOptionsCoders[DacExtFilter]);
 
     customDoublesNum = CustomDoublesNum;
     customDoublesNames.resize(customDoublesNum);
@@ -786,6 +795,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     doubleConfig.maxValue = customDoublesRanges[DacExt].max;
     doubleConfig.resolution = customDoublesRanges[DacExt].step;
     customDoublesCoders[DacExt] = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(customDoublesCoders[DacExt]);
     doubleConfig.initialWord = 8;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 7;
@@ -793,6 +803,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     doubleConfig.maxValue = customDoublesRanges[SecondaryDacCore1].max;
     doubleConfig.resolution = customDoublesRanges[SecondaryDacCore1].step;
     customDoublesCoders[SecondaryDacCore1] = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(customDoublesCoders[SecondaryDacCore1]);
     doubleConfig.initialWord = 9;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 7;
@@ -800,6 +811,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     doubleConfig.maxValue = customDoublesRanges[SecondaryDacCore2].max;
     doubleConfig.resolution = customDoublesRanges[SecondaryDacCore2].step;
     customDoublesCoders[SecondaryDacCore2] = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(customDoublesCoders[SecondaryDacCore2]);
 
     /*! Default status */
     txStatus.resize(txDataWords);
