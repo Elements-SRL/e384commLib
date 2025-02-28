@@ -1631,24 +1631,6 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
         asic2UserDomainCompensable(i, defaultAsicDomainParams, defaultUserDomainParams);
     }
 
-    doubleConfig.initialWord = 1312;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 7;
-    customDoublesCoders.resize(customDoublesNum);
-    for (int idx = 0; idx < customDoublesNum; idx++) {
-        doubleConfig.minValue = customDoublesRanges[idx].min;
-        doubleConfig.maxValue = customDoublesRanges[idx].max;
-        doubleConfig.resolution = customDoublesRanges[idx].step;
-        customDoublesCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
-        coders.push_back(customDoublesCoders[idx]);
-
-        doubleConfig.initialBit += 8;
-        if (doubleConfig.initialBit > 8) {
-            doubleConfig.initialWord++;
-            doubleConfig.initialBit = 0;
-        }
-    }
-
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
