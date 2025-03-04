@@ -1396,6 +1396,13 @@ public:
      */
     ErrorCodes_t getAvailableChannelsSourcesFeatures(ChannelSources_t &voltageSourcesIdxs, ChannelSources_t &currentSourcesIdxs);
 
+    /*! \brief return wether or not a device is capable of episodic plot.
+     *
+     * \param flag [out] True if the device is capable of episodic plot.
+     * \return Error code.
+     */
+    ErrorCodes_t isEpisodic(bool &flag);
+
     /*! \brief Get the number of boards for the device.
      *
      * \param boardsNumber [out] Number of current channels.
@@ -2092,7 +2099,7 @@ protected:
     std::vector <RangedMeasurement_t> temperatureChannelsRanges;
 
     bool resetStateFlag = false;
-
+    bool canDoEpisodic = false;
     /*! State array params */
     unsigned int stateMaxNum;
     unsigned int stateWordOffset;

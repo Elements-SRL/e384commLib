@@ -157,6 +157,11 @@ ErrorCodes_t MessageDispatcher::upgradeDevice(std::string deviceId) {
     return ErrorDeviceTypeNotRecognized;
 }
 
+ErrorCodes_t MessageDispatcher::isEpisodic(bool &flag) {
+    flag = this->canDoEpisodic;
+    return Success;
+}
+
 //ErrorCodes_t MessageDispatcher::getUpgradeProgress(int32_t &progress) {
 //    if ((MessageDispatcher::isDeviceUpgradable(deviceId)) != Success) {
 //        return ErrorDeviceNotUpgradable;
