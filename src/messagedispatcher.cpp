@@ -1539,10 +1539,10 @@ void MessageDispatcher::computeLiquidJunction() {
             ljMutexLock.unlock();
 
             liquidJunctionControlPending = true;
-            this->setCalibVcCurrentOffset(channelIndexes, offsetRecalibCorrection, true);
-
-            /*! This is to ensure that the calibration command has been submitted to the FPGA */
             if (!channelIndexes.empty()) {
+                this->setCalibVcCurrentOffset(channelIndexes, offsetRecalibCorrection, true);
+
+                /*! This is to ensure that the calibration command has been submitted to the FPGA */
                 std::unique_lock <std::mutex> txMutexLock (txMutex);
                 while (liquidJunctionControlPending && !stopConnectionFlag) {
                     txMsgBufferNotFull.wait_for (txMutexLock, std::chrono::milliseconds(100));
@@ -1828,10 +1828,10 @@ void MessageDispatcher::computeLiquidJunction() {
             ljMutexLock.unlock();
 
             liquidJunctionControlPending = true;
-            this->setLiquidJunctionVoltage(channelIndexes, voltages, true);
-
-            /*! This is to ensure that the voltage command has been submitted to the FPGA */
             if (!channelIndexes.empty()) {
+                this->setLiquidJunctionVoltage(channelIndexes, voltages, true);
+
+                /*! This is to ensure that the voltage command has been submitted to the FPGA */
                 std::unique_lock <std::mutex> txMutexLock (txMutex);
                 while (liquidJunctionControlPending && !stopConnectionFlag) {
                     txMsgBufferNotFull.wait_for (txMutexLock, std::chrono::milliseconds(100));
