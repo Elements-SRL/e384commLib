@@ -25,7 +25,8 @@ static void rangedMeasurement2Output(RangedMeasurement_t r, LVRangedMeasurement_
 static void compensationControl2Output(CompensationControl_t c, LVCompensationControl_t &o);
 static void vectorString2Output(std::vector <std::string> v, LStrHandle * o);
 static void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o);
-static void matrixMeasurement2Output(std::vector <std::vector <Measurement_t> > v, LVecMeasHandle * o);
+static void calibrationRanges2Output(CalibrationRanges_t ranges, LVecMeasHandle * o);
+static void calibrationRanges2MatrixMeasurement(CalibrationRanges_t ranges, std::vector <std::vector <Measurement_t> > &v);
 static void vectorRangedMeasurement2Output(std::vector <RangedMeasurement_t> v, LRangeHandle * o);
 
 template <typename I_t, typename O_t> void numericVector2Output(I_t v, O_t * o);
@@ -1954,7 +1955,7 @@ ErrorCodes_t getVcAdcGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.vcGainAdc[samplingRateIdx], meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesVcGainAdc, samplingRateIdx), meas);
     return ret;
 }
 
@@ -1968,7 +1969,7 @@ ErrorCodes_t getVcAdcOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.vcOffsetAdc[samplingRateIdx], meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesVcOffsetAdc, samplingRateIdx), meas);
     return ret;
 }
 
@@ -1981,7 +1982,7 @@ ErrorCodes_t getVcDacGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.vcGainDac[0], meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesVcGainDac, 0), meas);
     return ret;
 }
 
@@ -1994,7 +1995,7 @@ ErrorCodes_t getVcDacOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.vcOffsetDac[0], meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesVcOffsetDac, 0), meas);
     return ret;
 }
 
@@ -2008,7 +2009,7 @@ ErrorCodes_t getCcAdcGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.ccGainAdc[samplingRateIdx], meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesCcGainAdc, samplingRateIdx), meas);
     return ret;
 }
 
@@ -2022,7 +2023,7 @@ ErrorCodes_t getCcAdcOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.ccOffsetAdc[samplingRateIdx], meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesCcOffsetAdc, samplingRateIdx), meas);
     return ret;
 }
 
@@ -2035,7 +2036,7 @@ ErrorCodes_t getCcDacGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.ccGainDac[0], meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesCcGainDac, 0), meas);
     return ret;
 }
 
@@ -2048,7 +2049,7 @@ ErrorCodes_t getCcDacOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.ccOffsetDac[0], meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesCcOffsetDac, 0), meas);
     return ret;
 }
 
@@ -2061,7 +2062,7 @@ ErrorCodes_t getRsCorrDacOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.rsCorrOffsetDac[0], meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesRsCorrOffsetDac, 0), meas);
     return ret;
 }
 
@@ -2074,7 +2075,7 @@ ErrorCodes_t getRsShuntConductanceCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    matrixMeasurement2Output(calibParams.rShuntConductance[0], meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesRShuntConductance, 0), meas);
     return ret;
 }
 
@@ -2217,7 +2218,9 @@ void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o) {
     }
 }
 
-void matrixMeasurement2Output(std::vector <std::vector <Measurement_t> > v2, LVecMeasHandle * o) {
+void calibrationRanges2Output(CalibrationRanges_t ranges, LVecMeasHandle * o) {
+    std::vector <std::vector <Measurement_t> > v2;
+    calibrationRanges2MatrixMeasurement(ranges, v2);
     int offset = 0;
     MgErr err = 0;
     if (o == nullptr) {
@@ -2236,6 +2239,13 @@ void matrixMeasurement2Output(std::vector <std::vector <Measurement_t> > v2, LVe
         }
         LMatS1(** o) = v2.size();
         LMatS2(** o) = v2[0].size();
+    }
+}
+
+void calibrationRanges2MatrixMeasurement(CalibrationRanges_t ranges, std::vector <std::vector <Measurement_t> > &v2) {
+    v2.resize(ranges.ranges.size());
+    for (int idx = 0; idx < ranges.ranges.size(); idx++) {
+        v2[idx] = ranges.getValues(idx);
     }
 }
 

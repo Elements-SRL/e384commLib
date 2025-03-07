@@ -463,9 +463,9 @@ ErrorCodes_t EmcrFtdiDevice::stopCommunication() {
 void EmcrFtdiDevice::initializeCalibration() {
     calibrationEeprom = new CalibrationEeprom(this->getDeviceIndex(deviceId+spiChannel));
     Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
-    calibrationParams.initialize(e384CommLib::CalTypesVcOffsetAdc, this->getSamplingRateModesNum(), vcCurrentRangesNum, currentChannelsNum, zeroA);
+    calibrationParams.initialize(CalTypesVcOffsetAdc, this->getSamplingRateModesNum(), vcCurrentRangesNum, currentChannelsNum, zeroA);
     Measurement_t zeroV = {0.0, UnitPfxNone, "V"};
-    calibrationParams.initialize(e384CommLib::CalTypesCcOffsetAdc, this->getSamplingRateModesNum(), ccVoltageRangesNum, voltageChannelsNum, zeroV);
+    calibrationParams.initialize(CalTypesCcOffsetAdc, this->getSamplingRateModesNum(), ccVoltageRangesNum, voltageChannelsNum, zeroV);
 }
 
 void EmcrFtdiDevice::deinitializeCalibration() {

@@ -1023,11 +1023,20 @@ typedef struct CalibrationRanges {
     }
 } CalibrationRanges_t;
 
+static CalibrationRanges_t rangeErr;
+
 /*! \struct CalibrationSamplingModes_t
  * \brief Structure used to contain the calibration values for all the relevant sampling modes (groups of sampling rates).
  */
 typedef struct CalibrationSamplingModes {
     std::vector <CalibrationRanges_t> modes;
+
+    const CalibrationRanges_t& getRanges(int modeIdx) const {
+        if (modeIdx < modes.size()) {
+            return modes[modeIdx];
+        }
+        return rangeErr;
+    }
 
     const std::vector <Measurement_t>& getValues(int modeIdx, int rangeIdx) const {
         if (modeIdx < modes.size()) {
@@ -1101,6 +1110,14 @@ typedef struct CalibrationParams {
             return true;
         }
         return false;
+    }
+
+    const CalibrationRanges_t& getRanges(CalibrationTypes_t type, int samplingRateIdx) const {
+        int samplingModeIdx = 0;
+        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+            return types[type].getRanges(samplingModeIdx);
+        }
+        return rangeErr;
     }
 
     const std::vector <Measurement_t>& getValues(CalibrationTypes_t type, int samplingRateIdx, int rangeIdx) const {
