@@ -359,9 +359,11 @@ ErrorCodes_t EmcrUdbDevice::initializeHW() {
 }
 
 ErrorCodes_t EmcrUdbDevice::stopCommunication() {
-    dev->Close();
-    delete dev;
-    dev = nullptr;
+    if (dev != nullptr) {
+        dev->Close();
+        delete dev;
+        dev = nullptr;
+    }
     return Success;
 }
 

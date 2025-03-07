@@ -692,20 +692,11 @@ ErrorCodes_t EZPatchFtdiDevice::startCommunication(std::string) {
 
 ErrorCodes_t EZPatchFtdiDevice::stopCommunication() {
     FT_STATUS ftRet;
-    ftRet = FT_Close(* ftdiRxHandle);
-    if (ftRet != FT_OK) {
-        return ErrorDeviceDisconnectionFailed;
-    }
-
-    if (rxChannel != txChannel) {
-        FT_STATUS ftRet;
-        ftRet = FT_Close(* ftdiTxHandle);
+    if (ftdiRxHandle != nullptr) {
+        ftRet = FT_Close(* ftdiRxHandle);
         if (ftRet != FT_OK) {
             return ErrorDeviceDisconnectionFailed;
         }
-    }
-
-    if (ftdiRxHandle != nullptr) {
         delete ftdiRxHandle;
         ftdiRxHandle = nullptr;
         if (txChannel == rxChannel) {
@@ -714,6 +705,13 @@ ErrorCodes_t EZPatchFtdiDevice::stopCommunication() {
     }
 
     if (ftdiTxHandle != nullptr) {
+        if (rxChannel != txChannel) {
+            FT_STATUS ftRet;
+            ftRet = FT_Close(* ftdiTxHandle);
+            if (ftRet != FT_OK) {
+                return ErrorDeviceDisconnectionFailed;
+            }
+        }
         delete ftdiTxHandle;
         ftdiTxHandle = nullptr;
     }

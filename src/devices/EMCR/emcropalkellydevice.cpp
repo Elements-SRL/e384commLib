@@ -413,7 +413,9 @@ ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::stopCommunication() {
-    dev.Close();
+    if (dev.IsOpen()) {
+        dev.Close();
+    }
     return Success;
 }
 

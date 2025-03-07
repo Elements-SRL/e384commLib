@@ -2369,6 +2369,8 @@ void EmcrDevice::deinitialize() {
 
     this->deinitializeMemory();
 
+    this->stopCommunication();
+
     this->closeDebugFiles();
 }
 

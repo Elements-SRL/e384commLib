@@ -3217,6 +3217,8 @@ void EZPatchDevice::deinitialize() {
 
     this->deinitializeMemory();
 
+    this->stopCommunication();
+
     this->closeDebugFiles();
 }
 
