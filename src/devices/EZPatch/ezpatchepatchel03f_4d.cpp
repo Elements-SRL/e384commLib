@@ -205,6 +205,14 @@ EZPatchePatchEL03F_4D_PCBV03_V04::EZPatchePatchEL03F_4D_PCBV03_V04(std::string d
     realSamplingRatesArray[SamplingRate200kHz].value = 200.0;
     realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate1_25kHz] = 0;
+    sr2srm[SamplingRate5kHz] = 0;
+    sr2srm[SamplingRate10kHz] = 0;
+    sr2srm[SamplingRate20kHz] = 0;
+    sr2srm[SamplingRate50kHz] = 1;
+    sr2srm[SamplingRate100kHz] = 1;
+    sr2srm[SamplingRate200kHz] = 1;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate1_25kHz].value = 1024.0/1.25;

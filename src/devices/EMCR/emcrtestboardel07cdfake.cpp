@@ -11,6 +11,8 @@ EmcrTestBoardEl07cdFake::EmcrTestBoardEl07cdFake(std::string id) :
     realSamplingRatesArray[SamplingRate5kHz].value = 5.0;
     realSamplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate5kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate5kHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate5kHz].value = 200.0;

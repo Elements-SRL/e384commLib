@@ -180,6 +180,13 @@ EZPatche4PPatch_el07ab::EZPatche4PPatch_el07ab(std::string di) :
     realSamplingRatesArray[SamplingRate200kHz].value = 200.0;
     realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate6_25kHz] = 0;
+    sr2srm[SamplingRate12_5kHz] = 0;
+    sr2srm[SamplingRate25kHz] = 0;
+    sr2srm[SamplingRate50kHz] = 0;
+    sr2srm[SamplingRate100kHz] = 0;
+    sr2srm[SamplingRate200kHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate6_25kHz].value = 160.0;

@@ -147,9 +147,16 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     realSamplingRatesArray[SamplingRate2_5MHz].value = 80.0/32.0;
     realSamplingRatesArray[SamplingRate2_5MHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate2_5MHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate1_25kHz].value = 80.0/64.0;
-    realSamplingRatesArray[SamplingRate1_25kHz].prefix = UnitPfxMega;
-    realSamplingRatesArray[SamplingRate1_25kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate1_25MHz].value = 80.0/64.0;
+    realSamplingRatesArray[SamplingRate1_25MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate1_25MHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate40MHz] = 0;
+    sr2srm[SamplingRate20MHz] = 0;
+    sr2srm[SamplingRate10MHz] = 0;
+    sr2srm[SamplingRate5MHz] = 0;
+    sr2srm[SamplingRate2_5MHz] = 0;
+    sr2srm[SamplingRate1_25MHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate40MHz].value = 2.0/80.0;
@@ -167,9 +174,9 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     integrationStepArray[SamplingRate2_5MHz].value = 32.0/80.0;
     integrationStepArray[SamplingRate2_5MHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate2_5MHz].unit = "s";
-    integrationStepArray[SamplingRate1_25kHz].value = 64.0/80.0;
-    integrationStepArray[SamplingRate1_25kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate1_25kHz].unit = "s";
+    integrationStepArray[SamplingRate1_25MHz].value = 64.0/80.0;
+    integrationStepArray[SamplingRate1_25MHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate1_25MHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
@@ -178,7 +185,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
         {SamplingRate10MHz, -1},
         {SamplingRate5MHz, -1},
         {SamplingRate2_5MHz, -1},
-        {SamplingRate1_25kHz, -1}
+        {SamplingRate1_25MHz, -1}
     };
 
     // mapping ADC Current Clamp

@@ -58,7 +58,7 @@ protected:
         SamplingRate10MHz,
         SamplingRate5MHz,
         SamplingRate2_5MHz,
-        SamplingRate1_25kHz,
+        SamplingRate1_25MHz,
         SamplingRatesNum
     };
 };

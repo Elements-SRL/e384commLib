@@ -20,7 +20,8 @@ public:
                            uint16_t vcVoltageRangesNum,
                            uint16_t ccVoltageRangesNum,
                            uint16_t ccCurrentRangesNum,
-                           uint16_t samplingRatesNum);
+                           uint16_t samplingRatesNum,
+                           uint16_t samplingRateModesNum);
 
     CalibrationParams_t getCalibrationParams(ErrorCodes_t &error);
     std::string getCalibrationFileName();
@@ -31,22 +32,8 @@ private:
     void loadDefaultSamplingRatesModeMapping();
     bool loadSamplingRatesModeMapping(toml::node_view <toml::node> node);
     void loadDefaultParams();
-    bool loadVcAdc(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadVcDac(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadRsCorrOffset(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadRShuntConductance(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadCcAdc(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadCcDac(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadSetOfParams(toml::node_view <toml::node> node, uint32_t boardIdx,
-                         std::vector <std::vector <std::vector <Measurement_t> > > &outGains,
-                         std::vector <std::vector <std::vector <Measurement_t> > > &outOffsets, std::string offsetUnit);
-    void loadSetOfDefaultParams(uint32_t boardIdx,
-                                std::vector <std::vector <std::vector <Measurement_t> > > &outGains,
-                                std::vector <std::vector <std::vector <Measurement_t> > > &outOffsets, std::string offsetUnit);
-    bool loadSetOfOffsets(toml::node_view <toml::node> node, uint32_t boardIdx,
-                          std::vector <std::vector <std::vector <Measurement_t> > > &outOffsets, std::string offsetUnit);
-    void loadSetOfDefaultOffsets(uint32_t boardIdx,
-                                 std::vector <std::vector <std::vector <Measurement_t>  >> &outOffsets, std::string offsetUnit);
+    bool loadSetOfParams(CalibrationTypes_t type, toml::node_view <toml::node> node, uint32_t boardIdx,
+                          CalibrationSamplingModes_t &outParams);
 
     ErrorCodes_t status = Success;
 
@@ -62,6 +49,7 @@ private:
     uint16_t ccVoltageRangesNum;
     uint16_t ccCurrentRangesNum;
     uint16_t samplingRatesNum;
+    uint16_t samplingRateModesNum;
 
     std::string calibrationFileName;
 

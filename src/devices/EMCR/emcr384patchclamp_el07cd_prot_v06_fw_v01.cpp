@@ -64,6 +64,9 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     temperatureChannelsRanges[TemperatureSensor1].prefix = UnitPfxNone;
     temperatureChannelsRanges[TemperatureSensor1].unit = "°C";
 
+    properHeaderPackets = true;
+    canDoEpisodic = true;
+
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
@@ -295,6 +298,12 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     realSamplingRatesArray[SamplingRate80kHz].value = 80.0;
     realSamplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate80kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate5kHz] = 0;
+    sr2srm[SamplingRate10kHz] = 0;
+    sr2srm[SamplingRate20kHz] = 0;
+    sr2srm[SamplingRate40kHz] = 1;
+    sr2srm[SamplingRate80kHz] = 1;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate5kHz].value = 200.0;

@@ -14,6 +14,8 @@ Emcr384FakePatchClamp::Emcr384FakePatchClamp(std::string id) :
     realSamplingRatesArray[SamplingRate6kHz].value = 6.0;
     realSamplingRatesArray[SamplingRate6kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate6kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate6kHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate6kHz].value = 1.0/6.0;

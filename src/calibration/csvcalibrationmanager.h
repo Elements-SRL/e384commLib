@@ -23,7 +23,8 @@ public:
                           uint16_t vcVoltageRangesNum,
                           uint16_t ccVoltageRangesNum,
                           uint16_t ccCurrentRangesNum,
-                          uint16_t samplingRatesNum);
+                          uint16_t samplingRatesNum,
+                          uint16_t samplingRateModesNum);
 
     CalibrationParams_t getCalibrationParams(ErrorCodes_t &error);
     std::vector <std::string> getCalibrationFileNames();
@@ -41,10 +42,10 @@ private:
     bool loadRShuntConductance(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
     bool loadCcAdc(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
     bool loadCcDac(std::fstream &stream, uint32_t boardIdx, bool defaultFlag = false);
-    bool loadSetOfParams(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
-    void loadSetOfDefaultParams(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outGains, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
-    bool loadSetOfOffsets(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
-    void loadSetOfDefaultOffsets(uint32_t boardIdx, uint32_t rangesNum, std::vector <std::vector <Measurement_t> > &outOffsets, std::string offsetUnit);
+    bool loadSetOfParams(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, CalibrationRanges_t &outGains, CalibrationRanges_t &outOffsets, std::string offsetUnit);
+    void loadSetOfDefaultParams(uint32_t boardIdx, uint32_t rangesNum, CalibrationRanges_t &outGains, CalibrationRanges_t &outOffsets, std::string offsetUnit);
+    bool loadSetOfOffsets(std::fstream &stream, uint32_t boardIdx, uint32_t rangesNum, CalibrationRanges_t &outOffsets, std::string offsetUnit);
+    void loadSetOfDefaultOffsets(uint32_t boardIdx, uint32_t rangesNum, CalibrationRanges_t &outOffsets, std::string offsetUnit);
 
     bool readCsvPortion(std::fstream &stream, std::vector <std::vector <std::string> > &out);
     void discardCsvLine(std::fstream &stream);
@@ -61,6 +62,7 @@ private:
     uint16_t ccVoltageRangesNum;
     uint16_t ccCurrentRangesNum;
     uint16_t samplingRatesNum;
+    uint16_t samplingRateModesNum;
 
     std::string mappingFileDir;
     std::string mappingFilePath;

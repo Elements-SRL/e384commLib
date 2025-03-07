@@ -13,6 +13,8 @@ Emcr4x10MHzFake::Emcr4x10MHzFake(std::string id) :
     realSamplingRatesArray[SamplingRate1MHz].value = 1.0;
     realSamplingRatesArray[SamplingRate1MHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate1MHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate1MHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate1MHz].value = 1.0;

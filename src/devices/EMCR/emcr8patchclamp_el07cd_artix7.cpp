@@ -46,6 +46,9 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
+    properHeaderPackets = true;
+    canDoEpisodic = true;
+
     /*! Clamping modalities */
     clampingModalitiesNum = ClampingModalitiesNum;
     clampingModalitiesArray.resize(clampingModalitiesNum);
@@ -280,6 +283,13 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     realSamplingRatesArray[SamplingRate160kHz].value = 160.0;
     realSamplingRatesArray[SamplingRate160kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate160kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate5kHz] = 0;
+    sr2srm[SamplingRate10kHz] = 0;
+    sr2srm[SamplingRate20kHz] = 0;
+    sr2srm[SamplingRate40kHz] = 1;
+    sr2srm[SamplingRate80kHz] = 1;
+    sr2srm[SamplingRate160kHz] = 1;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate5kHz].value = 200.0;

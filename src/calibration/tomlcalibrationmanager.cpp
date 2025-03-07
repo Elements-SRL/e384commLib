@@ -3,6 +3,112 @@
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
 namespace e384CommLib {
 #endif
+
+std::string getParamName(CalibrationTypes_t type) {
+    switch(type) {
+    case CalTypesVcGainAdc:
+        return "gains";
+
+    case CalTypesVcOffsetAdc:
+        return "offsets";
+
+    case CalTypesVcGainDac:
+        return "gains";
+
+    case CalTypesVcOffsetDac:
+        return "offsets";
+
+    case CalTypesRsCorrOffsetDac:
+        return "offsets";
+
+    case CalTypesRShuntConductance:
+        return "offsets";
+
+    case CalTypesCcGainAdc:
+        return "gains";
+
+    case CalTypesCcOffsetAdc:
+        return "offsets";
+
+    case CalTypesCcGainDac:
+        return "gains";
+
+    case CalTypesCcOffsetDac:
+        return "offsets";
+    }
+    return "";
+}
+
+std::string getParamUnit(CalibrationTypes_t type) {
+    switch(type) {
+    case CalTypesVcGainAdc:
+        return "";
+
+    case CalTypesVcOffsetAdc:
+        return "A";
+
+    case CalTypesVcGainDac:
+        return "";
+
+    case CalTypesVcOffsetDac:
+        return "V";
+
+    case CalTypesRsCorrOffsetDac:
+        return "V";
+
+    case CalTypesRShuntConductance:
+        return "S";
+
+    case CalTypesCcGainAdc:
+        return "";
+
+    case CalTypesCcOffsetAdc:
+        return "V";
+
+    case CalTypesCcGainDac:
+        return "";
+
+    case CalTypesCcOffsetDac:
+        return "A";
+    }
+    return "";
+}
+
+std::string getParamKey(CalibrationTypes_t type) {
+    switch(type) {
+    case CalTypesVcGainAdc:
+        return "current_adc";
+
+    case CalTypesVcOffsetAdc:
+        return "current_adc";
+
+    case CalTypesVcGainDac:
+        return "voltage_dac";
+
+    case CalTypesVcOffsetDac:
+        return "voltage_dac";
+
+    case CalTypesRsCorrOffsetDac:
+        return "rs_correction";
+
+    case CalTypesRShuntConductance:
+        return "shunt_resistance";
+
+    case CalTypesCcGainAdc:
+        return "voltage_adc";
+
+    case CalTypesCcOffsetAdc:
+        return "voltage_adc";
+
+    case CalTypesCcGainDac:
+        return "current_dac";
+
+    case CalTypesCcOffsetDac:
+        return "current_dac";
+    }
+    return "";
+}
+
 TomlCalibrationManager::TomlCalibrationManager(std::string serialNumber,
                                                uint16_t currentChannelsNum,
                                                uint16_t boardsNum,
@@ -10,7 +116,8 @@ TomlCalibrationManager::TomlCalibrationManager(std::string serialNumber,
                                                uint16_t vcVoltageRangesNum,
                                                uint16_t ccVoltageRangesNum,
                                                uint16_t ccCurrentRangesNum,
-                                               uint16_t samplingRatesNum) :
+                                               uint16_t samplingRatesNum,
+                                               uint16_t samplingRateModesNum) :
     serialNumber(serialNumber),
     currentChannelsNum(currentChannelsNum),
     boardsNum(boardsNum),
@@ -18,7 +125,8 @@ TomlCalibrationManager::TomlCalibrationManager(std::string serialNumber,
     vcVoltageRangesNum(vcVoltageRangesNum),
     ccVoltageRangesNum(ccVoltageRangesNum),
     ccCurrentRangesNum(ccCurrentRangesNum),
-    samplingRatesNum(samplingRatesNum) {
+    samplingRatesNum(samplingRatesNum),
+    samplingRateModesNum(samplingRateModesNum) {
 
     calibrationFileName = TOML_CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR + "calibration_file.toml";
 
@@ -73,46 +181,12 @@ bool TomlCalibrationManager::loadCalibrationFile() {
     for (uint32_t boardIdx = 0; boardIdx < boardsNum; boardIdx++) {
         auto boardNode = tbl["boards"][boardIdx];
 
-        if (!boardNode.as_table()->contains("current_adc")) { /*! Check if the field current_adc exists */
-            this->loadVcAdc(boardNode, boardIdx, true); /*! otherwise load default params */
-
-        } else if (!this->loadVcAdc(boardNode, boardIdx)) { /*! try to load ADC */
-            this->loadVcAdc(boardNode, boardIdx, true); /*! otherwise load default params */
-        }
-
-        if (!boardNode.as_table()->contains("voltage_dac")) { /*! Check if the field voltage_dac exists */
-            this->loadVcDac(boardNode, boardIdx, true); /*! otherwise load default params */
-
-        } else if (!this->loadVcDac(boardNode, boardIdx)) { /*! try to load DAC */
-            this->loadVcDac(boardNode, boardIdx, true); /*! otherwise load default params */
-        }
-
-        if (!boardNode.as_table()->contains("rs_correction")) { /*! Check if the field rs_correction exists */
-            this->loadRsCorrOffset(boardNode, boardIdx, true); /*! otherwise load default params */
-
-        } else if (!this->loadRsCorrOffset(boardNode, boardIdx)) { /*! try to load offsets */
-            this->loadRsCorrOffset(boardNode, boardIdx, true); /*! otherwise load default params */
-        }
-
-        if (!boardNode.as_table()->contains("shunt_resistance")) { /*! Check if the field shunt_resistance exists */
-            this->loadRShuntConductance(boardNode, boardIdx, true); /*! otherwise load default params */
-
-        } else if (!this->loadRShuntConductance(boardNode, boardIdx)) { /*! try to load offsets */
-            this->loadRShuntConductance(boardNode, boardIdx, true); /*! otherwise load default params */
-        }
-
-        if (!boardNode.as_table()->contains("voltage_adc")) { /*! Check if the field voltage_adc exists */
-            this->loadCcAdc(boardNode, boardIdx, true); /*! otherwise load default params */
-
-        } else if (!this->loadCcAdc(boardNode, boardIdx)) { /*! try to load ADC */
-            this->loadCcAdc(boardNode, boardIdx, true); /*! otherwise load default params */
-        }
-
-        if (!boardNode.as_table()->contains("current_dac")) { /*! Check if the field current_dac exists */
-            this->loadCcDac(boardNode, boardIdx, true); /*! otherwise load default params */
-
-        } else if (!this->loadCcDac(boardNode, boardIdx)) { /*! try to load DAC */
-            this->loadCcDac(boardNode, boardIdx, true); /*! otherwise load default params */
+        for (int typeInt = 0; typeInt < CalTypesNum; typeInt++) {
+            const auto type = (CalibrationTypes_t)typeInt;
+            const auto key = getParamKey(type);
+            if (boardNode.as_table()->contains(key)) { /*! Check if the field current_adc exists */
+                loadSetOfParams(type, boardNode[key], boardIdx, calibrationParams.types[type]); /*! try to load ADC */
+            }
         }
     }
 
@@ -120,7 +194,7 @@ bool TomlCalibrationManager::loadCalibrationFile() {
 }
 
 void TomlCalibrationManager::loadDefaultSamplingRatesModeMapping() {
-    for (int srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
+    for (int srIdx = 0; srIdx < samplingRateModesNum; srIdx++) {
         srModeMapping[srIdx] = 0;
     }
 }
@@ -152,217 +226,42 @@ void TomlCalibrationManager::loadDefaultParams() {
     Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
     Measurement_t zeroS = {0.0, UnitPfxNone, "S"};
 
-    calibrationParams.vcGainAdc.resize(samplingRatesNum);
-    calibrationParams.vcOffsetAdc.resize(samplingRatesNum);
-    for (uint32_t srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
-        calibrationParams.vcGainAdc[srIdx].resize(vcCurrentRangesNum);
-        calibrationParams.vcOffsetAdc[srIdx].resize(vcCurrentRangesNum);
-        for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-            calibrationParams.vcGainAdc[srIdx][rangeIdx].resize(currentChannelsNum);
-            calibrationParams.vcOffsetAdc[srIdx][rangeIdx].resize(currentChannelsNum);
-            std::fill(calibrationParams.vcGainAdc[srIdx][rangeIdx].begin(), calibrationParams.vcGainAdc[srIdx][rangeIdx].end(), one);
-            std::fill(calibrationParams.vcOffsetAdc[srIdx][rangeIdx].begin(), calibrationParams.vcOffsetAdc[srIdx][rangeIdx].end(), zeroA);
-        }
-    }
+    calibrationParams.initialize(CalTypesVcGainAdc, samplingRateModesNum, vcCurrentRangesNum, currentChannelsNum, one);
+    calibrationParams.initialize(CalTypesVcOffsetAdc, samplingRateModesNum, vcCurrentRangesNum, currentChannelsNum, zeroA);
 
-    calibrationParams.vcGainDac.resize(1);
-    calibrationParams.vcOffsetDac.resize(1);
-    calibrationParams.vcGainDac[0].resize(vcVoltageRangesNum);
-    calibrationParams.vcOffsetDac[0].resize(vcVoltageRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        calibrationParams.vcGainDac[0][rangeIdx].resize(currentChannelsNum);
-        calibrationParams.vcOffsetDac[0][rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.vcGainDac[0][rangeIdx].begin(), calibrationParams.vcGainDac[0][rangeIdx].end(), one);
-        std::fill(calibrationParams.vcOffsetDac[0][rangeIdx].begin(), calibrationParams.vcOffsetDac[0][rangeIdx].end(), zeroV);
-    }
+    calibrationParams.initialize(CalTypesVcGainDac, 1, vcVoltageRangesNum, currentChannelsNum, one);
+    calibrationParams.initialize(CalTypesVcOffsetDac, 1, vcVoltageRangesNum, currentChannelsNum, zeroV);
 
-    calibrationParams.rsCorrOffsetDac.resize(1);
-    calibrationParams.rsCorrOffsetDac[0].resize(vcCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        calibrationParams.rsCorrOffsetDac[0][rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.rsCorrOffsetDac[0][rangeIdx].begin(), calibrationParams.rsCorrOffsetDac[0][rangeIdx].end(), zeroV);
-    }
+    calibrationParams.initialize(CalTypesRsCorrOffsetDac, 1, vcCurrentRangesNum, currentChannelsNum, zeroV);
 
-    calibrationParams.rShuntConductance.resize(1);
-    calibrationParams.rShuntConductance[0].resize(vcCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        calibrationParams.rShuntConductance[0][rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.rShuntConductance[0][rangeIdx].begin(), calibrationParams.rShuntConductance[0][rangeIdx].end(), zeroS);
-    }
+    calibrationParams.initialize(CalTypesRShuntConductance, 1, vcCurrentRangesNum, currentChannelsNum, zeroS);
 
-    calibrationParams.ccGainAdc.resize(samplingRatesNum);
-    calibrationParams.ccOffsetAdc.resize(samplingRatesNum);
-    for (uint32_t srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
-        calibrationParams.ccGainAdc[srIdx].resize(ccVoltageRangesNum);
-        calibrationParams.ccOffsetAdc[srIdx].resize(ccVoltageRangesNum);
-        for (uint32_t rangeIdx = 0; rangeIdx < ccVoltageRangesNum; rangeIdx++) {
-            calibrationParams.ccGainAdc[srIdx][rangeIdx].resize(currentChannelsNum);
-            calibrationParams.ccOffsetAdc[srIdx][rangeIdx].resize(currentChannelsNum);
-            std::fill(calibrationParams.ccGainAdc[srIdx][rangeIdx].begin(), calibrationParams.ccGainAdc[srIdx][rangeIdx].end(), one);
-            std::fill(calibrationParams.ccOffsetAdc[srIdx][rangeIdx].begin(), calibrationParams.ccOffsetAdc[srIdx][rangeIdx].end(), zeroV);
-        }
-    }
+    calibrationParams.initialize(CalTypesCcGainAdc, samplingRateModesNum, ccVoltageRangesNum, currentChannelsNum, one);
+    calibrationParams.initialize(CalTypesCcOffsetAdc, samplingRateModesNum, ccVoltageRangesNum, currentChannelsNum, zeroV);
 
-    calibrationParams.ccGainDac.resize(1);
-    calibrationParams.ccOffsetDac.resize(1);
-    calibrationParams.ccGainDac[0].resize(ccCurrentRangesNum);
-    calibrationParams.ccOffsetDac[0].resize(ccCurrentRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < ccCurrentRangesNum; rangeIdx++) {
-        calibrationParams.ccGainDac[0][rangeIdx].resize(currentChannelsNum);
-        calibrationParams.ccOffsetDac[0][rangeIdx].resize(currentChannelsNum);
-        std::fill(calibrationParams.ccGainDac[0][rangeIdx].begin(), calibrationParams.ccGainDac[0][rangeIdx].end(), one);
-        std::fill(calibrationParams.ccOffsetDac[0][rangeIdx].begin(), calibrationParams.ccOffsetDac[0][rangeIdx].end(), zeroA);
-    }
+    calibrationParams.initialize(CalTypesCcGainDac, 1, ccCurrentRangesNum, currentChannelsNum, one);
+    calibrationParams.initialize(CalTypesCcOffsetDac, 1, ccCurrentRangesNum, currentChannelsNum, zeroA);
 }
 
-bool TomlCalibrationManager::loadVcAdc(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag) {
-    bool ret;
-    if (defaultFlag) {
-        this->loadSetOfDefaultParams(boardIdx, calibrationParams.vcGainAdc, calibrationParams.vcOffsetAdc, "A");
-        ret = true;
-
-    } else {
-        ret = loadSetOfParams(node["current_adc"], boardIdx, calibrationParams.vcGainAdc, calibrationParams.vcOffsetAdc, "A");
-    }
-    return ret;
-}
-
-bool TomlCalibrationManager::loadVcDac(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag) {
-    bool ret;
-    if (defaultFlag) {
-        this->loadSetOfDefaultParams(boardIdx, calibrationParams.vcGainDac, calibrationParams.vcOffsetDac, "V");
-        ret = true;
-
-    } else {
-        ret = loadSetOfParams(node["voltage_dac"], boardIdx, calibrationParams.vcGainDac, calibrationParams.vcOffsetDac, "V");
-    }
-    return ret;
-}
-
-bool TomlCalibrationManager::loadRsCorrOffset(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag) {
-    bool ret;
-    if (defaultFlag) {
-        this->loadSetOfDefaultOffsets(boardIdx, calibrationParams.rsCorrOffsetDac, "V");
-        ret = true;
-
-    } else {
-        ret = loadSetOfOffsets(node["rs_correction"], boardIdx, calibrationParams.rsCorrOffsetDac, "V");
-    }
-    return ret;
-}
-
-bool TomlCalibrationManager::loadRShuntConductance(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag) {
-    bool ret;
-    if (defaultFlag) {
-        this->loadSetOfDefaultOffsets(boardIdx, calibrationParams.rShuntConductance, "S");
-        ret = true;
-
-    } else {
-        ret = loadSetOfOffsets(node["shunt_resistance"], boardIdx, calibrationParams.rShuntConductance, "S");
-    }
-    return ret;
-}
-
-bool TomlCalibrationManager::loadCcAdc(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag) {
-    bool ret;
-    if (defaultFlag) {
-        this->loadSetOfDefaultParams(boardIdx, calibrationParams.ccGainAdc, calibrationParams.ccOffsetAdc, "V");
-        ret = true;
-
-    } else {
-        ret = loadSetOfParams(node["voltage_adc"], boardIdx, calibrationParams.ccGainAdc, calibrationParams.ccOffsetAdc, "V");
-    }
-    return ret;
-}
-
-bool TomlCalibrationManager::loadCcDac(toml::node_view <toml::node> node, uint32_t boardIdx, bool defaultFlag) {
-    bool ret;
-    if (defaultFlag) {
-        this->loadSetOfDefaultParams(boardIdx, calibrationParams.ccGainDac, calibrationParams.ccOffsetDac, "A");
-        ret = true;
-
-    } else {
-        ret = loadSetOfParams(node["current_dac"], boardIdx, calibrationParams.ccGainDac, calibrationParams.ccOffsetDac, "A");
-    }
-    return ret;
-}
-
-bool TomlCalibrationManager::loadSetOfParams(toml::node_view <toml::node> node, uint32_t boardIdx, std::vector <std::vector <std::vector <Measurement_t> > > &outGains, std::vector <std::vector <std::vector <Measurement_t> > > &outOffsets, std::string offsetUnit) {
+bool TomlCalibrationManager::loadSetOfParams(CalibrationTypes_t type, toml::node_view <toml::node> node, uint32_t boardIdx,
+                                             CalibrationSamplingModes_t &outParams) {
     bool ret = true;
-    if (node.as_array()->size() < outGains[0].size()) {
+    if (node.as_array()->size() < outParams.modes[0].ranges.size()) {
         ret = false;
     }
-    for (uint32_t rangeIdx = 0; rangeIdx < outGains[0].size() && ret; rangeIdx++) {
+    for (uint32_t rangeIdx = 0; rangeIdx < outParams.modes[0].ranges.size() && ret; rangeIdx++) {
         auto rangeNode = node[rangeIdx];
         if (!rangeNode.as_table()->contains("sampling_rates")) {
             ret = false;
             break;
         }
 
-        for (uint32_t srIdx = 0; srIdx < outGains.size() && ret; srIdx++) {
-            if (rangeNode["sampling_rates"].as_array()->size() <= srModeMapping[srIdx]) {
-                ret = false;
-                break;
-            }
-
-            auto srNode = rangeNode["sampling_rates"][srModeMapping[srIdx]];
-
-            if (!srNode.as_table()->contains("calibrations")) {
-                ret = false;
-                break;
-            }
-
-            if (!(srNode["calibrations"].as_table()->contains("gains") && srNode["calibrations"].as_table()->contains("offsets"))) {
-                ret = false;
-                break;
-            }
-
-            auto gainsArray = srNode["calibrations"]["gains"].as_array();
-            auto offsetsArray = srNode["calibrations"]["offsets"].as_array();
-
-            for (uint32_t idx = 0; idx < channelsPerBoard; idx++) {
-                outGains[srIdx][rangeIdx][idx+boardIdx*channelsPerBoard] = {gainsArray->get(idx)->value_or(1.0), UnitPfxNone, ""};
-                outOffsets[srIdx][rangeIdx][idx+boardIdx*channelsPerBoard] = {offsetsArray->get(idx)->value_or(0.0), UnitPfxNone, offsetUnit};
-            }
-        }
-    }
-
-    if (!ret) {
-        this->loadSetOfDefaultParams(boardIdx, outGains, outOffsets, offsetUnit);
-    }
-
-    return ret;
-}
-
-void TomlCalibrationManager::loadSetOfDefaultParams(uint32_t boardIdx, std::vector <std::vector <std::vector <Measurement_t> > > &outGains, std::vector <std::vector <std::vector <Measurement_t> > > &outOffsets, std::string offsetUnit) {
-    for (uint32_t srIdx = 0; srIdx < outGains.size(); srIdx++) {
-        for (uint32_t rangeIdx = 0; rangeIdx < outGains[srIdx].size(); rangeIdx++) {
-            Measurement_t one = {1.0, UnitPfxNone, ""};
-            Measurement_t zero = {0.0, UnitPfxNone, offsetUnit};
-            std::fill(outGains[srIdx][rangeIdx].begin()+boardIdx*channelsPerBoard, outGains[srIdx][rangeIdx].begin()+(boardIdx+1)*channelsPerBoard, one);
-            std::fill(outOffsets[srIdx][rangeIdx].begin()+boardIdx*channelsPerBoard, outOffsets[srIdx][rangeIdx].begin()+(boardIdx+1)*channelsPerBoard, zero);
-        }
-    }
-}
-
-bool TomlCalibrationManager::loadSetOfOffsets(toml::node_view <toml::node> node, uint32_t boardIdx, std::vector <std::vector <std::vector <Measurement_t> > > &outOffsets, std::string offsetUnit) {
-    bool ret = true;
-    if (node.as_array()->size() < outOffsets[0].size()) {
-        ret = false;
-    }
-    for (uint32_t rangeIdx = 0; rangeIdx < outOffsets[0].size() && ret; rangeIdx++) {
-        auto rangeNode = node[rangeIdx];
-        if (!rangeNode.as_table()->contains("sampling_rates")) {
+        if (rangeNode["sampling_rates"].as_array()->size() < outParams.modes.size()) {
             ret = false;
             break;
         }
 
-        if (rangeNode["sampling_rates"].as_array()->size() < outOffsets.size()) {
-            ret = false;
-            break;
-        }
-
-        for (uint32_t srIdx = 0; srIdx < outOffsets.size() && ret; srIdx++) {
+        for (uint32_t srIdx = 0; srIdx < outParams.modes.size() && ret; srIdx++) {
             auto srNode = rangeNode["sampling_rates"][srIdx];
 
             if (!srNode.as_table()->contains("calibrations")) {
@@ -370,33 +269,20 @@ bool TomlCalibrationManager::loadSetOfOffsets(toml::node_view <toml::node> node,
                 break;
             }
 
-            if (!srNode["calibrations"].as_table()->contains("offsets")) {
+            if (!srNode["calibrations"].as_table()->contains(getParamName(type))) {
                 ret = false;
                 break;
             }
 
-            auto offsetsArray = srNode["calibrations"]["offsets"].as_array();
+            auto offsetsArray = srNode["calibrations"][getParamName(type)].as_array();
 
             for (uint32_t idx = 0; idx < channelsPerBoard; idx++) {
-                outOffsets[srIdx][rangeIdx][idx+boardIdx*channelsPerBoard] = {offsetsArray->get(idx)->value_or(0.0), UnitPfxNone, offsetUnit};
+                outParams.modes[srIdx].ranges[rangeIdx].channels[idx+boardIdx*channelsPerBoard] = {offsetsArray->get(idx)->value_or(0.0), UnitPfxNone, getParamUnit(type)};
             }
         }
     }
 
-    if (!ret) {
-        this->loadSetOfDefaultOffsets(boardIdx, outOffsets, offsetUnit);
-    }
-
     return ret;
-}
-
-void TomlCalibrationManager::loadSetOfDefaultOffsets(uint32_t boardIdx, std::vector <std::vector <std::vector <Measurement_t> > > &outOffsets, std::string offsetUnit) {
-    for (uint32_t srIdx = 0; srIdx < outOffsets.size(); srIdx++) {
-        for (uint32_t rangeIdx = 0; rangeIdx < outOffsets[srIdx].size(); rangeIdx++) {
-            Measurement_t zero = {0.0, UnitPfxNone, offsetUnit};
-            std::fill(outOffsets[srIdx][rangeIdx].begin()+boardIdx*channelsPerBoard, outOffsets[srIdx][rangeIdx].begin()+(boardIdx+1)*channelsPerBoard, zero);
-        }
-    }
 }
 
 #ifndef E384COMMLIB_LABVIEW_WRAPPER

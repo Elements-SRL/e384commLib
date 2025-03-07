@@ -29,6 +29,11 @@ EZPatchFakeP8::EZPatchFakeP8(std::string di) :
     realSamplingRatesArray[SamplingRate20kHz].value = 20.0;
     realSamplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate20kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate1_25kHz] = 0;
+    sr2srm[SamplingRate5kHz] = 0;
+    sr2srm[SamplingRate10kHz] = 0;
+    sr2srm[SamplingRate20kHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate1_25kHz].value = 800.0;

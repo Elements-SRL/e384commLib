@@ -463,23 +463,9 @@ ErrorCodes_t EmcrFtdiDevice::stopCommunication() {
 void EmcrFtdiDevice::initializeCalibration() {
     calibrationEeprom = new CalibrationEeprom(this->getDeviceIndex(deviceId+spiChannel));
     Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
-    calibrationParams.vcOffsetAdc.resize(samplingRatesNum);
-    for (uint32_t srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
-        calibrationParams.vcOffsetAdc[srIdx].resize(vcCurrentRangesNum);
-        for (auto &v : calibrationParams.vcOffsetAdc[srIdx]) {
-            v.resize(currentChannelsNum);
-            std::fill(v.begin(), v.end(), zeroA);
-        }
-    }
+    calibrationParams.initialize(e384CommLib::CalTypesVcOffsetAdc, this->getSamplingRateModesNum(), vcCurrentRangesNum, currentChannelsNum, zeroA);
     Measurement_t zeroV = {0.0, UnitPfxNone, "V"};
-    calibrationParams.ccOffsetAdc.resize(samplingRatesNum);
-    for (uint32_t srIdx = 0; srIdx < samplingRatesNum; srIdx++) {
-        calibrationParams.ccOffsetAdc[srIdx].resize(ccVoltageRangesNum);
-        for (auto &v : calibrationParams.ccOffsetAdc[srIdx]) {
-            v.resize(voltageChannelsNum);
-            std::fill(v.begin(), v.end(), zeroV);
-        }
-    }
+    calibrationParams.initialize(e384CommLib::CalTypesCcOffsetAdc, this->getSamplingRateModesNum(), ccVoltageRangesNum, voltageChannelsNum, zeroV);
 }
 
 void EmcrFtdiDevice::deinitializeCalibration() {

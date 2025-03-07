@@ -24,6 +24,12 @@ Emcr384NanoPores_SR7p5kHz_V01::Emcr384NanoPores_SR7p5kHz_V01(std::string di):
     realSamplingRatesArray[SamplingRate120kHz].value = 120.0;
     realSamplingRatesArray[SamplingRate120kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate120kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate7_5kHz] = 0;
+    sr2srm[SamplingRate15kHz] = 0;
+    sr2srm[SamplingRate30kHz] = 0;
+    sr2srm[SamplingRate60kHz] = 0;
+    sr2srm[SamplingRate120kHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate7_5kHz].value = 1.0/7.5;

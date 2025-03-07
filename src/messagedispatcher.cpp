@@ -6,6 +6,7 @@
 #include <math.h>
 #include <random>
 #include <algorithm>
+#include <unordered_set>
 
 #include "emcropalkellydevice.h"
 #include "emcrudbdevice.h"
@@ -157,11 +158,6 @@ ErrorCodes_t MessageDispatcher::upgradeDevice(std::string deviceId) {
     return ErrorDeviceTypeNotRecognized;
 }
 
-ErrorCodes_t MessageDispatcher::isEpisodic(bool &flag) {
-    flag = this->canDoEpisodic;
-    return Success;
-}
-
 //ErrorCodes_t MessageDispatcher::getUpgradeProgress(int32_t &progress) {
 //    if ((MessageDispatcher::isDeviceUpgradable(deviceId)) != Success) {
 //        return ErrorDeviceNotUpgradable;
@@ -309,7 +305,7 @@ ErrorCodes_t MessageDispatcher::resetOffsetRecalibration(std::vector <uint16_t> 
     int offsetIdx = 0;
     for (auto channelIdx : channelIndexes) {
         liquidJunctionStatuses[channelIdx] = LiquidJunctionResetted;
-        offsets[offsetIdx++] = originalCalibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIdx];
+        offsets[offsetIdx++] = originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx);
     }
     ljMutexLock.unlock();
     return this->setCalibVcCurrentOffset(channelIndexes, offsets, applyFlag);
@@ -830,6 +826,20 @@ ErrorCodes_t MessageDispatcher::getAvailableChannelsSourcesFeatures(ChannelSourc
     voltageSourcesIdxs = availableVoltageSourcesIdxs;
     currentSourcesIdxs = availableCurrentSourcesIdxs;
     return Success;
+}
+
+ErrorCodes_t MessageDispatcher::isEpisodic() {
+    if (canDoEpisodic) {
+        return Success;
+    }
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::hasProperHeaderPackets() {
+    if (properHeaderPackets) {
+        return Success;
+    }
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::getBoardsNumberFeatures(uint16_t &boardsNumberFeatures) {
@@ -1376,6 +1386,9 @@ void MessageDispatcher::initializeVariables() {
 }
 
 ErrorCodes_t MessageDispatcher::deviceConfiguration() {
+    if (this->hasProperHeaderPackets() == Success) {
+        this->enableRxMessageType(MsgTypeIdAcquisitionHeader, true);
+    }
     /*! Some default values*/
     std::vector <bool> allTrue(currentChannelsNum, true);
     std::vector <bool> allFalse(currentChannelsNum, false);
@@ -1419,7 +1432,7 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
 
     } else {
         /*! Initialization in current clamp */
-        /*! \todo FCON ... Noone deafults in current clamp, why bother? */
+        /*! \todo FCON ... Noone defaults in current clamp, why bother? */
     }
 
     /*! Make sure that at the beginning all the constant values tha might not be written later on are sent to the FPGA */
@@ -1495,7 +1508,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     activeFlag = true;
                     readoutOffsetInt = (int16_t)(((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum);
                     this->convertCurrentValue(readoutOffsetInt, readoutOffset);
-                    offsetRecalibCorrection.push_back(calibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIdx]);
+                    offsetRecalibCorrection.push_back(calibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx));
                     offsetRecalibCorrection.back().value -= readoutOffset;
                     offsetRecalibStates[channelIdx] = OffsetRecalibCheck;
                     channelIndexes.push_back(channelIdx);
@@ -1522,7 +1535,7 @@ void MessageDispatcher::computeLiquidJunction() {
                 case OffsetRecalibFail:
                     activeFlag = true;
                     channelIndexes.push_back(channelIdx);
-                    offsetRecalibCorrection.push_back(originalCalibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIdx]);
+                    offsetRecalibCorrection.push_back(originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx));
                     offsetRecalibStates[channelIdx] = OffsetRecalibTerminate;
                     offsetRecalibStatuses[channelIdx] = OffsetRecalibFailed;
                     break;
@@ -2199,6 +2212,14 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
 
     iirY[channelIdx][iirOff] = y;
     return y;
+}
+
+uint32_t MessageDispatcher::getSamplingRateModesNum() {
+    std::unordered_set <uint32_t> uniqueValues;
+    for (const auto& pair : sr2srm) {
+        uniqueValues.insert(pair.second);
+    }
+    return uniqueValues.size();
 }
 
 ErrorCodes_t MessageDispatcher::enableCompensation(std::vector <uint16_t>, CompensationTypes_t, std::vector <bool>, bool) {

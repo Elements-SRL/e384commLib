@@ -361,6 +361,9 @@ typedef struct Measurement {
     }
 } Measurement_t;
 
+static Measurement_t measErr;
+static std::vector <Measurement_t> vecErr;
+
 /*! \brief Overloaded equality check for #Measurement_t. \note No conversion is performed, cause the multiplication can introduce rounding errors.
  *
  * \param a [in] First item of the comparison.
@@ -931,24 +934,211 @@ typedef struct CompensationControl {
     }
 } CompensationControl_t;
 
+typedef enum CalibrationTypes {
+    CalTypesVcGainAdc,
+    CalTypesVcOffsetAdc,
+    CalTypesVcGainDac,
+    CalTypesVcOffsetDac,
+    CalTypesRsCorrOffsetDac,
+    CalTypesRShuntConductance,
+    CalTypesCcGainAdc,
+    CalTypesCcOffsetAdc,
+    CalTypesCcGainDac,
+    CalTypesCcOffsetDac,
+    CalTypesNum
+} CalibrationTypes_t;
+
+/*! \struct CalibrationChannels_t
+ * \brief Structure used to contain the calibration values for all the channels.
+ */
+typedef struct CalibrationChannels {
+    std::vector <Measurement_t> channels;
+
+    const std::vector <Measurement_t>& getValues() const {
+        return channels;
+    }
+
+    const Measurement_t& getValue(int channelIdx) const {
+        if (channelIdx < channels.size()) {
+            return channels[channelIdx];
+        }
+        return measErr;
+    }
+
+    void setValues(std::vector <Measurement_t> values) {
+        if (values.size() == channels.size()) {
+            channels = values;
+        }
+    }
+
+    void setValue(int channelIdx, Measurement_t value) {
+        if (channelIdx < channels.size()) {
+            channels[channelIdx] = value;
+        }
+    }
+
+    void convertValue(int channelIdx, UnitPfx_t prefix) {
+        if (channelIdx < channels.size()) {
+            channels[channelIdx].convertValue(prefix);
+        }
+    }
+} CalibrationChannels_t;
+
+/*! \struct CalibrationRanges_t
+ * \brief Structure used to contain the calibration values for all the relevant ranges.
+ */
+typedef struct CalibrationRanges {
+    std::vector <CalibrationChannels_t> ranges;
+
+    const std::vector <Measurement_t>& getValues(int rangeIdx) const {
+        if (rangeIdx < ranges.size()) {
+            return ranges[rangeIdx].getValues();
+        }
+        return vecErr;
+    }
+
+    const Measurement_t& getValue(int rangeIdx, int channelIdx) const {
+        if (rangeIdx < ranges.size()) {
+            return ranges[rangeIdx].getValue(channelIdx);
+        }
+        return measErr;
+    }
+
+    void setValues(int rangeIdx, std::vector <Measurement_t> values) {
+        if (rangeIdx < ranges.size()) {
+            ranges[rangeIdx].setValues(values);
+        }
+    }
+
+    void setValue(int rangeIdx, int channelIdx, Measurement_t value) {
+        if (rangeIdx < ranges.size()) {
+            ranges[rangeIdx].setValue(channelIdx, value);
+        }
+    }
+
+    void convertValue(int rangeIdx, int channelIdx, UnitPfx_t prefix) {
+        if (rangeIdx < ranges.size()) {
+            ranges[rangeIdx].convertValue(channelIdx, prefix);
+        }
+    }
+} CalibrationRanges_t;
+
+/*! \struct CalibrationSamplingModes_t
+ * \brief Structure used to contain the calibration values for all the relevant sampling modes (groups of sampling rates).
+ */
+typedef struct CalibrationSamplingModes {
+    std::vector <CalibrationRanges_t> modes;
+
+    const std::vector <Measurement_t>& getValues(int modeIdx, int rangeIdx) const {
+        if (modeIdx < modes.size()) {
+            return modes[modeIdx].getValues(rangeIdx);
+        }
+        return vecErr;
+    }
+
+    const Measurement_t& getValue(int modeIdx, int rangeIdx, int channelIdx) const {
+        if (modeIdx < modes.size()) {
+            return modes[modeIdx].getValue(rangeIdx, channelIdx);
+        }
+        return measErr;
+    }
+
+    void setValues(int modeIdx, int rangeIdx, std::vector <Measurement_t> values) {
+        if (modeIdx < modes.size()) {
+            modes[modeIdx].setValues(rangeIdx, values);
+        }
+    }
+
+    void setValue(int modeIdx, int rangeIdx, int channelIdx, Measurement_t value) {
+        if (modeIdx < modes.size()) {
+            modes[modeIdx].setValue(rangeIdx, channelIdx, value);
+        }
+    }
+
+    void convertValue(int modeIdx, int rangeIdx, int channelIdx, UnitPfx_t prefix) {
+        if (modeIdx < modes.size()) {
+            modes[modeIdx].convertValue(rangeIdx, channelIdx, prefix);
+        }
+    }
+} CalibrationSamplingModes_t;
+
 /*! \struct CalibrationParams_t
  * \brief Structure used to return calibration values.
- * \note All fields are vectors of vectors of vectors
- *       - the first vector indexes sampling rates
- *       - the second vector indexes ranges
- *       - the third range indexes channels
  */
 typedef struct CalibrationParams {
-    std::vector <std::vector <std::vector <Measurement_t> > > vcGainAdc;
-    std::vector <std::vector <std::vector <Measurement_t> > > vcOffsetAdc;
-    std::vector <std::vector <std::vector <Measurement_t> > > vcGainDac;
-    std::vector <std::vector <std::vector <Measurement_t> > > vcOffsetDac;
-    std::vector <std::vector <std::vector <Measurement_t> > > rsCorrOffsetDac;
-    std::vector <std::vector <std::vector <Measurement_t> > > rShuntConductance;
-    std::vector <std::vector <std::vector <Measurement_t> > > ccGainAdc;
-    std::vector <std::vector <std::vector <Measurement_t> > > ccOffsetAdc;
-    std::vector <std::vector <std::vector <Measurement_t> > > ccGainDac;
-    std::vector <std::vector <std::vector <Measurement_t> > > ccOffsetDac;
+    CalibrationSamplingModes_t types[CalTypesNum];
+    std::unordered_map <uint32_t, uint32_t> sr2srm; /*! sampling rate to sampling rate mode mapping */
+
+    void initialize(CalibrationTypes_t type, uint32_t samplingRateModesNum, uint32_t rangesNum, uint32_t channelsNum, Measurement_t defaultValue) {
+        types[type].modes.resize(samplingRateModesNum);
+        for (uint32_t srIdx = 0; srIdx < samplingRateModesNum; srIdx++) {
+            types[type].modes[srIdx].ranges.resize(rangesNum);
+            for (uint32_t rangeIdx = 0; rangeIdx < rangesNum; rangeIdx++) {
+                types[type].modes[srIdx].ranges[rangeIdx].channels.resize(channelsNum);
+                std::fill(types[type].modes[srIdx].ranges[rangeIdx].channels.begin(), types[type].modes[srIdx].ranges[rangeIdx].channels.end(), defaultValue);
+            }
+        }
+    }
+
+    const bool getSamplingMode(CalibrationTypes_t type, int samplingRateIdx, int &samplingModeIdx) const {
+        switch (type) {
+        case CalTypesVcGainAdc:
+        case CalTypesVcOffsetAdc:
+        case CalTypesCcGainAdc:
+        case CalTypesCcOffsetAdc:
+            if (sr2srm.count(samplingRateIdx) > 0) {
+                samplingModeIdx = sr2srm.at(samplingRateIdx);
+                return true;
+            }
+            return false;
+        case CalTypesVcGainDac:
+        case CalTypesVcOffsetDac:
+        case CalTypesRsCorrOffsetDac:
+        case CalTypesRShuntConductance:
+        case CalTypesCcGainDac:
+        case CalTypesCcOffsetDac:
+            samplingModeIdx = 0;
+            return true;
+        }
+        return false;
+    }
+
+    const std::vector <Measurement_t>& getValues(CalibrationTypes_t type, int samplingRateIdx, int rangeIdx) const {
+        int samplingModeIdx = 0;
+        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+            return types[type].getValues(samplingModeIdx, rangeIdx);
+        }
+        return vecErr;
+    }
+
+    const Measurement_t& getValue(CalibrationTypes_t type, int samplingRateIdx, int rangeIdx, int channelIdx) const {
+        int samplingModeIdx = 0;
+        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+            return types[type].getValue(samplingModeIdx, rangeIdx, channelIdx);
+        }
+        return measErr;
+    }
+
+    void setValues(CalibrationTypes_t type, int samplingRateIdx, int rangeIdx, std::vector <Measurement_t> values) {
+        int samplingModeIdx = 0;
+        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+            types[type].setValues(samplingModeIdx, rangeIdx, values);
+        }
+    }
+
+    void setValue(CalibrationTypes_t type, int samplingRateIdx, int rangeIdx, int channelIdx, Measurement_t value) {
+        int samplingModeIdx = 0;
+        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+            types[type].setValue(samplingModeIdx, rangeIdx, channelIdx, value);
+        }
+    }
+
+    void convertValue(CalibrationTypes_t type, int samplingRateIdx, int rangeIdx, int channelIdx, UnitPfx_t prefix) {
+        int samplingModeIdx = 0;
+        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+            types[type].convertValue(samplingModeIdx, rangeIdx, channelIdx, prefix);
+        }
+    }
 } CalibrationParams_t;
 
 #ifndef E384COMMLIB_LABVIEW_WRAPPER

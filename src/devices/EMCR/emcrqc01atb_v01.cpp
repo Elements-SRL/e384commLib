@@ -209,6 +209,20 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     realSamplingRatesArray[SamplingRate1_25kHz].value = 80.0/8.0/8192.0;
     realSamplingRatesArray[SamplingRate1_25kHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate1_25kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate26_7MHz] = 0;
+    sr2srm[SamplingRate13_3MHz] = 0;
+    sr2srm[SamplingRate6_67MHz] = 0;
+    sr2srm[SamplingRate3_33MHz] = 0;
+    sr2srm[SamplingRate1_67MHz] = 0;
+    sr2srm[SamplingRate833kHz] = 0;
+    sr2srm[SamplingRate200kHz] = 1;
+    sr2srm[SamplingRate100kHz] = 1;
+    sr2srm[SamplingRate50kHz] = 1;
+    sr2srm[SamplingRate20kHz] = 2;
+    sr2srm[SamplingRate10kHz] = 2;
+    sr2srm[SamplingRate5kHz] = 2;
+    sr2srm[SamplingRate1_25kHz] = 2;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate26_7MHz].value = 0.5*6.0/80.0;

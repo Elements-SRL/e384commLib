@@ -15,9 +15,9 @@ EmcrDevice::EmcrDevice(std::string deviceId) :
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdPing] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdFpgaReset] = true;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdLiquidJunctionComp] = true;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader] = true;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData] = true;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail] = true;
+    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss] = false;
     rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow] = false;
@@ -308,10 +308,12 @@ ErrorCodes_t EmcrDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool a
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
 
-        } else if (compensationsEnableFlags[CompRsCorr][channelIdx] && !(calibrationParams.rsCorrOffsetDac.empty())) {
-            calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIdx].convertValue(liquidJunctionRange.prefix);
+        } else if (compensationsEnableFlags[CompRsCorr][channelIdx] && !(calibrationParams.types[CalTypesRsCorrOffsetDac].modes.empty())) {
+            calibrationParams.convertValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx, liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
-            selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value+calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord)-calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIdx].value;
+            selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(
+                                                                 selectedLiquidJunctionVector[channelIdx].value+calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx).value,
+                                                                 txStatus, txModifiedStartingWord, txModifiedEndingWord)-calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx).value;
 
         } else {
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
@@ -376,36 +378,10 @@ ErrorCodes_t EmcrDevice::setSourceVoltages(std::vector <uint16_t> boardIndexes, 
 }
 
 ErrorCodes_t EmcrDevice::setCalibParams(CalibrationParams_t calibParams) {
-    if (!calibParams.vcGainAdc.empty() && calibrationParams.vcGainAdc.empty()) {
-        calibrationParams.vcGainAdc = calibParams.vcGainAdc;
-    }
-
-    if (!calibParams.vcOffsetAdc.empty() && !calibrationParams.vcOffsetAdc.empty()) {
-        calibrationParams.vcOffsetAdc = calibParams.vcOffsetAdc;
-    }
-
-    if (!calibParams.vcGainDac.empty() && !calibrationParams.vcGainDac.empty()) {
-        calibrationParams.vcGainDac = calibParams.vcGainDac;
-    }
-
-    if (!calibParams.vcOffsetDac.empty() && !calibrationParams.vcOffsetDac.empty()) {
-        calibrationParams.vcOffsetDac = calibParams.vcOffsetDac;
-    }
-
-    if (!calibParams.ccGainAdc.empty() && !calibrationParams.ccGainAdc.empty()) {
-        calibrationParams.ccGainAdc = calibParams.ccGainAdc;
-    }
-
-    if (!calibParams.ccOffsetAdc.empty() && !calibrationParams.ccOffsetAdc.empty()) {
-        calibrationParams.ccOffsetAdc = calibParams.ccOffsetAdc;
-    }
-
-    if (!calibParams.ccGainDac.empty() && !calibrationParams.ccGainDac.empty()) {
-        calibrationParams.ccGainDac = calibParams.ccGainDac;
-    }
-
-    if (!calibParams.ccOffsetDac.empty() && !calibrationParams.ccOffsetDac.empty()) {
-        calibrationParams.ccOffsetDac = calibParams.ccOffsetDac;
+    for (int type = 0; type < CalTypesNum; type++) {
+        if (!calibParams.types[type].modes.empty() && calibrationParams.types[type].modes.empty()) {
+            calibrationParams.types[type] = calibParams.types[type];
+        }
     }
     return Success;
 }
@@ -419,7 +395,7 @@ ErrorCodes_t EmcrDevice::setCalibVcCurrentGain(std::vector <uint16_t> channelInd
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         gains[i].convertValue(calibVcCurrentGainRange.prefix);
-        calibrationParams.vcGainAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIndexes[i]] = gains[i];
+        calibrationParams.setValue(CalTypesVcGainAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i], gains[i]);
     }
     this->updateCalibVcCurrentGain(channelIndexes, applyFlag);
 
@@ -434,8 +410,8 @@ ErrorCodes_t EmcrDevice::updateCalibVcCurrentGain(std::vector <uint16_t> channel
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calibrationParams.vcGainAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(calibVcCurrentGainRange.prefix);
-        double gain = calibrationParams.vcGainAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIndexes[i]].value;
+        calibrationParams.convertValue(CalTypesVcGainAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i], calibVcCurrentGainRange.prefix);
+        double gain = calibrationParams.getValue(CalTypesVcGainAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i]).value;
         calibVcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
@@ -454,7 +430,7 @@ ErrorCodes_t EmcrDevice::setCalibVcCurrentOffset(std::vector <uint16_t> channelI
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         offsets[i].convertValue(calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
-        calibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIndexes[i]] = offsets[i];
+        calibrationParams.setValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i], offsets[i]);
     }
     this->updateCalibVcCurrentOffset(channelIndexes, applyFlag);
 
@@ -469,8 +445,8 @@ ErrorCodes_t EmcrDevice::updateCalibVcCurrentOffset(std::vector <uint16_t> chann
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
-        double offset = calibrationParams.vcOffsetAdc[selectedSamplingRateIdx][selectedVcCurrentRangeIdx][channelIndexes[i]].value;
+        calibrationParams.convertValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i], calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx].prefix);
+        double offset = calibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i]).value;
         calibVcCurrentOffsetCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
@@ -489,7 +465,7 @@ ErrorCodes_t EmcrDevice::setCalibCcVoltageGain(std::vector <uint16_t> channelInd
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         gains[i].convertValue(calibCcVoltageGainRange.prefix);
-        calibrationParams.ccGainAdc[selectedSamplingRateIdx][selectedCcVoltageRangeIdx][channelIndexes[i]] = gains[i];
+        calibrationParams.setValue(CalTypesCcGainAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx, channelIndexes[i], gains[i]);
     }
     this->updateCalibCcVoltageGain(channelIndexes, applyFlag);
 
@@ -504,8 +480,8 @@ ErrorCodes_t EmcrDevice::updateCalibCcVoltageGain(std::vector <uint16_t> channel
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calibrationParams.ccGainAdc[selectedSamplingRateIdx][selectedCcVoltageRangeIdx][channelIndexes[i]].convertValue(calibCcVoltageGainRange.prefix);
-        double gain = calibrationParams.ccGainAdc[selectedSamplingRateIdx][selectedCcVoltageRangeIdx][channelIndexes[i]].value;
+        calibrationParams.convertValue(CalTypesCcGainAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx, channelIndexes[i], calibCcVoltageGainRange.prefix);
+        double gain = calibrationParams.getValue(CalTypesCcGainAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx, channelIndexes[i]).value;
         calibCcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
@@ -524,7 +500,7 @@ ErrorCodes_t EmcrDevice::setCalibCcVoltageOffset(std::vector <uint16_t> channelI
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         offsets[i].convertValue(calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].prefix);
-        calibrationParams.ccOffsetAdc[selectedSamplingRateIdx][selectedCcVoltageRangeIdx][channelIndexes[i]] = offsets[i];
+        calibrationParams.setValue(CalTypesCcOffsetAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx, channelIndexes[i], offsets[i]);
     }
     this->updateCalibCcVoltageOffset(channelIndexes, applyFlag);
 
@@ -539,8 +515,8 @@ ErrorCodes_t EmcrDevice::updateCalibCcVoltageOffset(std::vector <uint16_t> chann
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calibrationParams.ccOffsetAdc[selectedSamplingRateIdx][selectedCcVoltageRangeIdx][channelIndexes[i]].convertValue(calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].prefix);
-        double offset = calibrationParams.ccOffsetAdc[selectedSamplingRateIdx][selectedCcVoltageRangeIdx][channelIndexes[i]].value;
+        calibrationParams.convertValue(CalTypesCcOffsetAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx, channelIndexes[i], calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx].prefix);
+        double offset = calibrationParams.getValue(CalTypesCcOffsetAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx, channelIndexes[i]).value;
         calibCcVoltageOffsetCoders[selectedCcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
@@ -559,7 +535,7 @@ ErrorCodes_t EmcrDevice::setCalibVcVoltageGain(std::vector <uint16_t> channelInd
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         gains[i].convertValue(calibVcVoltageGainRange.prefix);
-        calibrationParams.vcGainDac[0][selectedVcVoltageRangeIdx][channelIndexes[i]] = gains[i];
+        calibrationParams.setValue(CalTypesVcGainDac, selectedSamplingRateIdx, selectedVcVoltageRangeIdx, channelIndexes[i], gains[i]);
     }
     this->updateCalibVcVoltageGain(channelIndexes, applyFlag);
 
@@ -574,8 +550,8 @@ ErrorCodes_t EmcrDevice::updateCalibVcVoltageGain(std::vector <uint16_t> channel
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calibrationParams.vcGainDac[0][selectedVcVoltageRangeIdx][channelIndexes[i]].convertValue(calibVcVoltageGainRange.prefix);
-        double gain = calibrationParams.vcGainDac[0][selectedVcVoltageRangeIdx][channelIndexes[i]].value;
+        calibrationParams.convertValue(CalTypesVcGainDac, selectedSamplingRateIdx, selectedVcVoltageRangeIdx, channelIndexes[i], calibVcVoltageGainRange.prefix);
+        double gain = calibrationParams.getValue(CalTypesVcGainDac, selectedSamplingRateIdx, selectedVcVoltageRangeIdx, channelIndexes[i]).value;
         calibVcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
@@ -594,7 +570,7 @@ ErrorCodes_t EmcrDevice::setCalibVcVoltageOffset(std::vector <uint16_t> channelI
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         offsets[i].convertValue(calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
-        calibrationParams.vcOffsetDac[0][selectedVcVoltageRangeIdx][channelIndexes[i]] = offsets[i];
+        calibrationParams.setValue(CalTypesVcOffsetDac, selectedSamplingRateIdx, selectedVcVoltageRangeIdx, channelIndexes[i], offsets[i]);
     }
     this->updateCalibVcVoltageOffset(channelIndexes, applyFlag);
 
@@ -609,8 +585,8 @@ ErrorCodes_t EmcrDevice::updateCalibVcVoltageOffset(std::vector <uint16_t> chann
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calibrationParams.vcOffsetDac[0][selectedVcVoltageRangeIdx][channelIndexes[i]].convertValue(calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
-        double offset = calibrationParams.vcOffsetDac[0][selectedVcVoltageRangeIdx][channelIndexes[i]].value;
+        calibrationParams.convertValue(CalTypesVcOffsetDac, selectedSamplingRateIdx, selectedVcVoltageRangeIdx, channelIndexes[i], calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
+        double offset = calibrationParams.getValue(CalTypesVcOffsetDac, selectedSamplingRateIdx, selectedVcVoltageRangeIdx, channelIndexes[i]).value;
         calibVcVoltageOffsetCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
@@ -629,7 +605,7 @@ ErrorCodes_t EmcrDevice::setCalibCcCurrentGain(std::vector <uint16_t> channelInd
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         gains[i].convertValue(calibCcCurrentGainRange.prefix);
-        calibrationParams.ccGainDac[0][selectedCcCurrentRangeIdx][channelIndexes[i]] = gains[i];
+        calibrationParams.setValue(CalTypesCcGainDac, selectedSamplingRateIdx, selectedCcCurrentRangeIdx, channelIndexes[i], gains[i]);
     }
     this->updateCalibCcCurrentGain(channelIndexes, applyFlag);
 
@@ -644,8 +620,8 @@ ErrorCodes_t EmcrDevice::updateCalibCcCurrentGain(std::vector <uint16_t> channel
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calibrationParams.ccGainDac[0][selectedCcCurrentRangeIdx][channelIndexes[i]].convertValue(calibCcCurrentGainRange.prefix);
-        double gain = calibrationParams.ccGainDac[0][selectedCcCurrentRangeIdx][channelIndexes[i]].value;
+        calibrationParams.convertValue(CalTypesCcGainDac, selectedSamplingRateIdx, selectedCcCurrentRangeIdx, channelIndexes[i], calibCcCurrentGainRange.prefix);
+        double gain = calibrationParams.getValue(CalTypesCcGainDac, selectedSamplingRateIdx, selectedCcCurrentRangeIdx, channelIndexes[i]).value;
         calibCcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
@@ -664,7 +640,7 @@ ErrorCodes_t EmcrDevice::setCalibCcCurrentOffset(std::vector <uint16_t> channelI
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         offsets[i].convertValue(calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
-        calibrationParams.ccOffsetDac[0][selectedCcCurrentRangeIdx][channelIndexes[i]] = offsets[i];
+        calibrationParams.setValue(CalTypesCcOffsetDac, selectedSamplingRateIdx, selectedCcCurrentRangeIdx, channelIndexes[i], offsets[i]);
     }
     this->updateCalibCcCurrentOffset(channelIndexes, applyFlag);
 
@@ -679,8 +655,8 @@ ErrorCodes_t EmcrDevice::updateCalibCcCurrentOffset(std::vector <uint16_t> chann
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calibrationParams.ccOffsetDac[0][selectedCcCurrentRangeIdx][channelIndexes[i]].convertValue(calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
-        double offset = calibrationParams.ccOffsetDac[0][selectedCcCurrentRangeIdx][channelIndexes[i]].value;
+        calibrationParams.convertValue(CalTypesCcOffsetDac, selectedSamplingRateIdx, selectedCcCurrentRangeIdx, channelIndexes[i], calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
+        double offset = calibrationParams.getValue(CalTypesCcOffsetDac, selectedSamplingRateIdx, selectedCcCurrentRangeIdx, channelIndexes[i]).value;
         calibCcCurrentOffsetCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
@@ -699,7 +675,7 @@ ErrorCodes_t EmcrDevice::setCalibRsCorrOffsetDac(std::vector <uint16_t> channelI
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         offsets[i].convertValue(liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx].prefix);
-        calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIndexes[i]] = offsets[i];
+        calibrationParams.setValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i], offsets[i]);
     }
     this->updateCalibRsCorrOffsetDac(channelIndexes, applyFlag);
 
@@ -714,8 +690,8 @@ ErrorCodes_t EmcrDevice::updateCalibRsCorrOffsetDac(std::vector <uint16_t> chann
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx].prefix);
-        double offset = calibrationParams.rsCorrOffsetDac[0][selectedVcCurrentRangeIdx][channelIndexes[i]].value;
+        calibrationParams.convertValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i], liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx].prefix);
+        double offset = calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i]).value;
         calibRsCorrOffsetDacCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
@@ -734,7 +710,7 @@ ErrorCodes_t EmcrDevice::setCalibRShuntConductance(std::vector <uint16_t> channe
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         conductances[i].convertValue(rRShuntConductanceCalibRange[selectedVcCurrentRangeIdx].prefix);
-        calibrationParams.rShuntConductance[0][selectedVcCurrentRangeIdx][channelIndexes[i]] = conductances[i];
+        calibrationParams.setValue(CalTypesRShuntConductance, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i], conductances[i]);
     }
     this->updateCalibRShuntConductance(channelIndexes, applyFlag);
 
@@ -749,8 +725,8 @@ ErrorCodes_t EmcrDevice::updateCalibRShuntConductance(std::vector <uint16_t> cha
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calibrationParams.rShuntConductance[0][selectedVcCurrentRangeIdx][channelIndexes[i]].convertValue(rRShuntConductanceCalibRange[selectedVcCurrentRangeIdx].prefix);
-        double conductance = calibrationParams.rShuntConductance[0][selectedVcCurrentRangeIdx][channelIndexes[i]].value;
+        calibrationParams.convertValue(CalTypesRShuntConductance, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i], rRShuntConductanceCalibRange[selectedVcCurrentRangeIdx].prefix);
+        double conductance = calibrationParams.getValue(CalTypesRShuntConductance, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIndexes[i]).value;
         calibRShuntConductanceCoders[selectedVcCurrentRangeIdx][channelIndexes[i]]->encode(conductance, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
 
@@ -2323,37 +2299,12 @@ ErrorCodes_t EmcrDevice::getZapFeatures(RangedMeasurement_t &durationRange) {
 }
 
 ErrorCodes_t EmcrDevice::getCalibParams(CalibrationParams_t &calibParams) {
-    if (!calibrationParams.vcGainAdc.empty()) {
-        calibParams.vcGainAdc = calibrationParams.vcGainAdc;
+    for (int type = 0; type < CalTypesNum; type++) {
+        if (!calibrationParams.types[type].modes.empty()) {
+            calibParams.types[type] = calibrationParams.types[type];
+        }
     }
-
-    if (!calibrationParams.vcOffsetAdc.empty()) {
-        calibParams.vcOffsetAdc = calibrationParams.vcOffsetAdc;
-    }
-
-    if (!calibrationParams.vcGainDac.empty()) {
-        calibParams.vcGainDac = calibrationParams.vcGainDac;
-    }
-
-    if (!calibrationParams.vcOffsetDac.empty()) {
-        calibParams.vcOffsetDac = calibrationParams.vcOffsetDac;
-    }
-
-    if (!calibrationParams.ccGainAdc.empty()) {
-        calibParams.ccGainAdc = calibrationParams.ccGainAdc;
-    }
-
-    if (!calibrationParams.ccOffsetAdc.empty()) {
-        calibParams.ccOffsetAdc = calibrationParams.ccOffsetAdc;
-    }
-
-    if (!calibrationParams.ccGainDac.empty()) {
-        calibParams.ccGainDac = calibrationParams.ccGainDac;
-    }
-
-    if (!calibrationParams.ccOffsetDac.empty()) {
-        calibParams.ccOffsetDac = calibrationParams.ccOffsetDac;
-    }
+    calibParams.sr2srm = calibrationParams.sr2srm;
     return calibrationLoadingError;
 }
 
@@ -2515,22 +2466,23 @@ void EmcrDevice::joinCommunicationThreads() {
 }
 
 void EmcrDevice::initializeCalibration() {
-    TomlCalibrationManager tomlCalibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum, samplingRatesNum);
+    TomlCalibrationManager tomlCalibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum, samplingRatesNum, this->getSamplingRateModesNum());
     calibrationParams = tomlCalibrationManager.getCalibrationParams(calibrationLoadingError);
     if (calibrationLoadingError == Success) {
         calibrationFileNames = {tomlCalibrationManager.getCalibrationFileName()};
         calibrationFilesOkFlags = {{tomlCalibrationManager.getCalibrationFilesOkFlag()}};
-
-    } else {
-        CsvCalibrationManager csvCalibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum, samplingRatesNum);
+    }
+    else {
+        CsvCalibrationManager csvCalibrationManager(deviceId, currentChannelsNum, totalBoardsNum, vcCurrentRangesNum, vcVoltageRangesNum, ccVoltageRangesNum, ccCurrentRangesNum, samplingRatesNum, this->getSamplingRateModesNum());
 
         calibrationParams = csvCalibrationManager.getCalibrationParams(calibrationLoadingError);
-        originalCalibrationParams = calibrationParams;
         calibrationFileNames = csvCalibrationManager.getCalibrationFileNames();
         calibrationFilesOkFlags = csvCalibrationManager.getCalibrationFilesOkFlags();
         calibrationMappingFileDir = csvCalibrationManager.getMappingFileDir();
         calibrationMappingFilePath = csvCalibrationManager.getMappingFilePath();
     }
+    calibrationParams.sr2srm = sr2srm;
+    originalCalibrationParams = calibrationParams;
 }
 
 void EmcrDevice::forceOutMessage() {

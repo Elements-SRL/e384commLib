@@ -259,6 +259,12 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     realSamplingRatesArray[SamplingRate80kHz].value = 80.0;
     realSamplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate80kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate5kHz] = 0;
+    sr2srm[SamplingRate10kHz] = 0;
+    sr2srm[SamplingRate20kHz] = 0;
+    sr2srm[SamplingRate40kHz] = 0;
+    sr2srm[SamplingRate80kHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate5kHz].value = 200.0;

@@ -166,6 +166,13 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
     realSamplingRatesArray[SamplingRate833kHz].value = 80.0/6.0/16.0;
     realSamplingRatesArray[SamplingRate833kHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate833kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate26_7MHz] = 0;
+    sr2srm[SamplingRate13_3MHz] = 0;
+    sr2srm[SamplingRate6_67MHz] = 0;
+    sr2srm[SamplingRate3_33MHz] = 0;
+    sr2srm[SamplingRate1_67MHz] = 0;
+    sr2srm[SamplingRate833kHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate26_7MHz].value = 0.5*6.0/80.0;
@@ -796,6 +803,13 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
     realSamplingRatesArray[SamplingRate833kHz].value = 80.0/6.0/16.0;
     realSamplingRatesArray[SamplingRate833kHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate833kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate26_7MHz] = 0;
+    sr2srm[SamplingRate13_3MHz] = 0;
+    sr2srm[SamplingRate6_67MHz] = 0;
+    sr2srm[SamplingRate3_33MHz] = 0;
+    sr2srm[SamplingRate1_67MHz] = 0;
+    sr2srm[SamplingRate833kHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate26_7MHz].value = 0.5*6.0/80.0;

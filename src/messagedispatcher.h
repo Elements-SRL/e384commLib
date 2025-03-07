@@ -1398,10 +1398,15 @@ public:
 
     /*! \brief return wether or not a device is capable of episodic plot.
      *
-     * \param flag [out] True if the device is capable of episodic plot.
-     * \return Error code.
+     * \return Success True if the device is capable of episodic plot.
      */
-    ErrorCodes_t isEpisodic(bool &flag);
+    ErrorCodes_t isEpisodic();
+
+    /*! \brief return wether or not a device provides proper header packets.
+     *
+     * \return Success if the device provides proper header packets.
+     */
+    ErrorCodes_t hasProperHeaderPackets();
 
     /*! \brief Get the number of boards for the device.
      *
@@ -2068,6 +2073,7 @@ protected:
     void computeRawDataFilterCoefficients();
     double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
 
+    uint32_t getSamplingRateModesNum();
     virtual std::vector <double> user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams);
     virtual std::vector <double> asic2UserDomainTransform(int chIdx, std::vector <double> asicDomainParams, double oldUCpVc, double oldUCpCc);
     virtual ErrorCodes_t asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams);
@@ -2098,8 +2104,10 @@ protected:
     std::vector <std::string> temperatureChannelsNames;
     std::vector <RangedMeasurement_t> temperatureChannelsRanges;
 
-    bool resetStateFlag = false;
     bool canDoEpisodic = false;
+    bool properHeaderPackets = false;
+
+    bool resetStateFlag = false;
     /*! State array params */
     unsigned int stateMaxNum;
     unsigned int stateWordOffset;
@@ -2187,6 +2195,7 @@ protected:
     uint16_t defaultCcVoltageFilterIdx = 0;
 
     uint32_t samplingRatesNum;
+    std::unordered_map <uint32_t, uint32_t> sr2srm; /*! sampling rate to sampling rate mode mapping */
     std::vector <Measurement_t> realSamplingRatesArray;
     std::vector <Measurement_t> integrationStepArray;
     unsigned int defaultSamplingRateIdx = 0;

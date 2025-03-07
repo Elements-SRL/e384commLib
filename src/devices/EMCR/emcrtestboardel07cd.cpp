@@ -279,6 +279,13 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     realSamplingRatesArray[SamplingRate160kHz].value = 160.0;
     realSamplingRatesArray[SamplingRate160kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate160kHz].unit = "Hz";
+    sr2srm.clear();
+    sr2srm[SamplingRate5kHz] = 0;
+    sr2srm[SamplingRate10kHz] = 0;
+    sr2srm[SamplingRate20kHz] = 0;
+    sr2srm[SamplingRate40kHz] = 1;
+    sr2srm[SamplingRate80kHz] = 1;
+    sr2srm[SamplingRate160kHz] = 1;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate5kHz].value = 200.0;
