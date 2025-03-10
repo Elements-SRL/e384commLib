@@ -41,8 +41,25 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     doubleConfig.minValue = customDoublesRanges[FanTrimmer].min;
     doubleConfig.maxValue = customDoublesRanges[FanTrimmer].max;
     doubleConfig.resolution = customDoublesRanges[FanTrimmer].step;
+    customDoublesCoders.resize(customDoublesNum);
     customDoublesCoders[FanTrimmer] = new DoubleOffsetBinaryCoder(doubleConfig);
+    customDoublesDefault.resize(customDoublesNum);
+    customDoublesDefault[FanTrimmer] = customDoublesRanges[FanTrimmer].min;
     coders.push_back(customDoublesCoders[FanTrimmer]);
+
+    /*! Default status */
+    txStatus.resize(txDataWords);
+    fill(txStatus.begin(), txStatus.end(), 0x0000);
+    txStatus[2] = 0x0555; // fans on
+    for (int idx = 132; idx < 156; idx++) {
+        txStatus[idx] = 0x1111; // GR_EN active
+    }
+    for (int idx = 1312; idx < 1504; idx++) {
+        txStatus[idx] = 0x4040; // Set 0 of secondary DAC
+    }
+    for (int idx = 4384; idx < 4480; idx++) {
+        txStatus[idx] = 0x1111; // rs bw avoid configuration with all zeros
+    }
 }
 
 Emcr384PatchClamp_EL07d_prot_v07_fw_v03::Emcr384PatchClamp_EL07d_prot_v07_fw_v03(std::string di) :

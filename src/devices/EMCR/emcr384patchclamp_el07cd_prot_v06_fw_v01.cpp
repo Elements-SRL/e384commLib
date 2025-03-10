@@ -1663,13 +1663,9 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::initializeHW() {
     std::this_thread::sleep_for (std::chrono::milliseconds(1000));
 
     this->resetAsic(true, true);
-    // resetAsicClock(true, true);
-    // resetFpgaFifo(true, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(1));
-    // resetFpgaFifo(false, true);
     this->resetAsic(false, true); /*! Not synchronous across MB's FGPAs */
     std::this_thread::sleep_for (std::chrono::milliseconds(10));
-    // resetAsicClock(false, true); /*! Synchronous across MB's FGPAs, the wait time ensures that all asic resets have been offed */
 
     return Success;
 }
