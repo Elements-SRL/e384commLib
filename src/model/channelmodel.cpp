@@ -40,8 +40,8 @@ bool ChannelModel::isCompensatingRsPg() {
     return this->compensatingRSPg;
 }
 
-bool ChannelModel::isInStimActive() {
-    return this->inStimActive;
+bool ChannelModel::isStimActive() {
+    return this->stimActive;
 }
 
 bool ChannelModel::isSelected() {
@@ -108,8 +108,8 @@ void ChannelModel::setCompensatingCcCfast(bool compensating) {
     this->compensatingCcCfast = compensating;
 }
 
-void ChannelModel::setInStimActive(bool active) {
-    this->inStimActive = active;
+void ChannelModel::setStimActive(bool active) {
+    this->stimActive = active;
 }
 
 void ChannelModel::setSelected(bool selected) {

@@ -902,7 +902,7 @@ ErrorCodes_t EmcrDevice::enableStimulus(std::vector <uint16_t> channelIndexes, s
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         enableStimulusCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        channelModels[channelIndexes[i]]->setInStimActive(onValues[i]);
+        channelModels[channelIndexes[i]]->setStimActive(onValues[i]);
     }
 
     if (applyFlag) {

@@ -1369,7 +1369,7 @@ ErrorCodes_t EZPatchDevice::enableStimulus(std::vector <uint16_t> channelIndexes
 //    }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         this->enableStimulus(channelIndexes[i], onValues[i]);
-        channelModels[channelIndexes[i]]->setInStimActive(onValues[i]);
+        channelModels[channelIndexes[i]]->setStimActive(onValues[i]);
     }
     return Success;
 }
