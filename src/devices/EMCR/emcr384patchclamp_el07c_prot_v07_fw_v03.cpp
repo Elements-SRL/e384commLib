@@ -44,13 +44,13 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     customDoublesCoders.resize(customDoublesNum);
     customDoublesCoders[FanTrimmer] = new DoubleOffsetBinaryCoder(doubleConfig);
     customDoublesDefault.resize(customDoublesNum);
-    customDoublesDefault[FanTrimmer] = customDoublesRanges[FanTrimmer].min;
+    customDoublesDefault[FanTrimmer] = customDoublesRanges[FanTrimmer].max;
     coders.push_back(customDoublesCoders[FanTrimmer]);
 
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x0555; // fans on
+    txStatus[2] = 0x0AAA; // fans on
     for (int idx = 132; idx < 156; idx++) {
         txStatus[idx] = 0x1111; // GR_EN active
     }
