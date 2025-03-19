@@ -14,6 +14,10 @@ public:
     virtual void createCommunicationThreads() override;
     virtual void joinCommunicationThreads() override;
 
+    virtual ErrorCodes_t startCommunication(std::string fwPath) override;
+
+    virtual ErrorCodes_t stopCommunication() override;
+
     /*******************************\
      *  Rx methods from generator  *
     \*******************************/

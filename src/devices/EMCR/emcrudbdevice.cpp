@@ -52,13 +52,13 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
     bool devCountOk = UdbUtils::getDeviceCount(numDevs);
     if (!devCountOk) {
         return ErrorListDeviceFailed;
-
+    }
 #ifndef DEBUG
-    } else if (numDevs == 0) {
+    else if (numDevs == 0) {
         deviceIds.clear();
         return ErrorNoDeviceFound;
-#endif
     }
+#endif
 
     deviceIds.clear();
 
@@ -81,8 +81,8 @@ ErrorCodes_t EmcrUdbDevice::getDeviceInfo(std::string deviceId, unsigned int &de
         deviceVersion = tuple.version;
         deviceSubVersion = tuple.subversion;
         fwVersion = tuple.fwVersion;
-
-    } else {
+    }
+    else {
         deviceVersion = DeviceVersion10MHz;
         deviceSubVersion = DeviceSubversionUDB_FAKE;
         fwVersion = 254;

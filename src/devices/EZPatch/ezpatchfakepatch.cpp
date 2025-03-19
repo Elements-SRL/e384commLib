@@ -104,6 +104,16 @@ void EZPatchFakePatch::joinCommunicationThreads() {
     }
 }
 
+ErrorCodes_t EZPatchFakePatch::startCommunication(std::string fwPath) {
+    /*! Nothing to be done */
+    return Success;
+}
+
+ErrorCodes_t EZPatchFakePatch::stopCommunication() {
+    /*! Nothing to be done */
+    return Success;
+}
+
 /*******************************\
  *  Rx methods from generator  *
 \*******************************/

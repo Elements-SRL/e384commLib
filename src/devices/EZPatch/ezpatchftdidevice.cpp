@@ -153,11 +153,13 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
     bool devCountOk = getDeviceCount(numDevs);
     if (!devCountOk) {
         return ErrorListDeviceFailed;
-
-    } else if (numDevs == 0) {
+    }
+#ifndef DEBUG
+    else if (numDevs == 0) {
         deviceIds.clear();
         return ErrorNoDeviceFound;
     }
+#endif
 
     deviceIds.clear();
     std::string deviceName;
@@ -174,24 +176,43 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
         }
     }
 
+#ifdef DEBUG
+    numDevs++;
+    deviceIds.push_back("DEMO_ePatch");
+    numDevs++;
+    deviceIds.push_back("DEMO_e8Patch");
+#endif
+
     return Success;
 }
 
 ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
-    FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
-    DeviceTuple_t tuple;
-    switch (ftdiEepromId) {
-    case FtdiEepromId56:
-        tuple = FtdiEeprom56(deviceId).getDeviceTuple();
-        break;
-
-    case FtdiEepromIdDemo:
-        tuple = FtdiEepromDemo(deviceId).getDeviceTuple();
-        break;
+    if (deviceId == "DEMO_ePatch") {
+        deviceVersion = DeviceVersionDemo;
+        deviceSubVersion = DeviceSubversionDemo;
+        fwVersion = 129;
     }
-    deviceVersion = tuple.version;
-    deviceSubVersion = tuple.subversion;
-    fwVersion = tuple.fwVersion;
+    else if (deviceId == "DEMO_e8Patch") {
+        deviceVersion = DeviceVersionDemo;
+        deviceSubVersion = DeviceSubversionDemox8;
+        fwVersion = 129;
+    }
+    else {
+        FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
+        DeviceTuple_t tuple;
+        switch (ftdiEepromId) {
+        case FtdiEepromId56:
+            tuple = FtdiEeprom56(deviceId).getDeviceTuple();
+            break;
+
+        case FtdiEepromIdDemo:
+            tuple = FtdiEepromDemo(deviceId).getDeviceTuple();
+            break;
+        }
+        deviceVersion = tuple.version;
+        deviceSubVersion = tuple.subversion;
+        fwVersion = tuple.fwVersion;
+    }
     return Success;
 }
 
@@ -209,19 +230,33 @@ ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string &deviceId, std::string
 }
 
 ErrorCodes_t EZPatchFtdiDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
-    FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
     DeviceTuple_t tuple;
-    switch (ftdiEepromId) {
-    case FtdiEepromId56:
-        tuple = FtdiEeprom56(deviceId).getDeviceTuple();
-        break;
+    bool deviceFound = false;
+    if (deviceId == "DEMO_ePatch") {
+        tuple.version = DeviceVersionDemo;
+        tuple.subversion = DeviceSubversionDemo;
+        tuple.fwVersion = 129;
+        deviceFound = true;
+    }
+    else if (deviceId == "DEMO_e8Patch") {
+        tuple.version = DeviceVersionDemo;
+        tuple.subversion = DeviceSubversionDemox8;
+        tuple.fwVersion = 129;
+        deviceFound = true;
+    }
+    else {
+        FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
+        switch (ftdiEepromId) {
+        case FtdiEepromId56:
+            tuple = FtdiEeprom56(deviceId).getDeviceTuple();
+            break;
 
-    case FtdiEepromIdDemo:
-        tuple = FtdiEepromDemo(deviceId).getDeviceTuple();
-        break;
+        case FtdiEepromIdDemo:
+            tuple = FtdiEepromDemo(deviceId).getDeviceTuple();
+            break;
+        }
     }
 
-    bool deviceFound = false;
     for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
         if (tuple.version == deviceTupleMapping[mappingIdx][0] &&
                 tuple.subversion == deviceTupleMapping[mappingIdx][1] &&
@@ -234,10 +269,8 @@ ErrorCodes_t EZPatchFtdiDevice::getDeviceType(std::string deviceId, DeviceTypes_
 
     if (deviceFound) {
         return Success;
-
-    } else {
-        return ErrorDeviceTypeNotRecognized;
     }
+    return ErrorDeviceTypeNotRecognized;
 }
 
 ErrorCodes_t EZPatchFtdiDevice::isDeviceSerialDetected(std::string deviceId) {
