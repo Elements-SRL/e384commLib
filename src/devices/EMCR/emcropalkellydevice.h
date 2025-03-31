@@ -29,6 +29,7 @@ public:
     typedef enum {
         DeviceVersionTestBoard = 0x06,
         DeviceVersion10MHz = 0x0B,
+        DeviceVersion192Blm = 0x0D,
         DeviceVersion384Patch = 0x0F,
         DeviceVersionUndefined = 0xFF
     } DeviceVersion_t;
@@ -42,6 +43,9 @@ public:
         DeviceSubversion10MHz_SB_EL05a = 0x03,
         DeviceSubversion4x10MHz_SB_EL05a = 0x09,
         DeviceSubversionOk_FAKE = 0xFE,
+
+        /*! Subversions used for version = 0x0D */
+        DeviceSubversion192Blm_EL03c_FirstProto = 0x01,
 
         /*! Subversions used for version = 0x0F */
         DeviceSubversion384Patch_EL07c_FirstProto = 0x01,

@@ -49,7 +49,7 @@ public:
 
 private:
     uint16_t id = 65535;                                                // Channel ID
-    bool on = false;                                                    // Channel is ON (true) or off (false)
+    bool on = true;                                                     // Channel is ON (true) or off (false)
     bool expanded = false;                                              // The channel is currently shown in the big central plot
     bool recalibratingReadoutOffset = false;                            // The channel is currently being recalibrated
     bool compensatingLiquidJunction = false;                            // The channel is currently compensating the liquid junction
@@ -58,7 +58,7 @@ private:
     bool compensatingRsCp = false;                                      // The channel is currently compensating RsCp
     bool compensatingRSPg = false;                                      // The channel is currently compensating RsPg
     bool compensatingCcCfast = false;                                   // The channel is currently compensating Cfast in CURRENT CLAMP
-    bool stimActive = false;                                            // The channel currently has active stimulus (true)
+    bool stimActive = true;                                             // The channel currently has active stimulus (true)
     bool selected = false;                                              // The channel is selected in the GUI
     Measurement_t vHold = {0.0, UnitPfxMilli, "V"};                     // holding voltage
     Measurement_t cHold = {0.0, UnitPfxNano, "A"};                      // holding current
