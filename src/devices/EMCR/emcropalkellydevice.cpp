@@ -380,11 +380,11 @@ bool EmcrOpalKellyDevice::getDeviceCount(int &numDevs) {
 ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
     okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
 
-    if (dev.IsFrontPanelEnabled()) {
-        return Success;
-    }
     if (error != okCFrontPanel::NoError) {
         return ErrorDeviceConnectionFailed;
+    }
+    if (dev.IsFrontPanelEnabled()) {
+        return Success;
     }
     fwPath = (!fwPath.empty() && fwPath.back() == '\\')?fwPath : fwPath + '\\';
 
