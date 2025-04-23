@@ -2149,8 +2149,8 @@ protected:
     uint16_t defaultClampingModalityIdx = 0;
 
     uint32_t vcCurrentRangesNum = 0;
-    uint32_t selectedVcCurrentRangeIdx = 0;
-    uint32_t storedVcCurrentRangeIdx = 0;
+    std::vector <uint32_t> selectedVcCurrentRangeIdx;
+    std::vector <uint32_t> storedVcCurrentRangeIdx;
     std::vector <RangedMeasurement_t> vcCurrentRangesArray;
     uint16_t defaultVcCurrentRangeIdx = 0;
 
@@ -2170,7 +2170,7 @@ protected:
     uint16_t defaultCcCurrentRangeIdx = 0;
 
     uint32_t ccVoltageRangesNum = 0;
-    uint32_t selectedCcVoltageRangeIdx = 0;
+    std::vector <uint32_t> selectedCcVoltageRangeIdx;
     std::vector <RangedMeasurement_t> ccVoltageRangesArray;
     uint16_t defaultCcVoltageRangeIdx = 0;
 
@@ -2290,13 +2290,13 @@ protected:
 
     uint16_t selectedSamplingRateIdx = 0;
 
-    double currentResolution = 1.0;
-    double voltageResolution = 1.0;
+    std::vector <double> currentResolutions;
+    std::vector <double> voltageResolutions;
     double liquidJunctionResolution = 1.0;
     bool liquidJunctionSameRangeAsVcDac = true;
 
-    RangedMeasurement_t voltageRange;
-    RangedMeasurement_t currentRange;
+    std::vector <RangedMeasurement_t> voltageRanges;
+    std::vector <RangedMeasurement_t> currentRanges;
     RangedMeasurement_t liquidJunctionRange;
 
     Measurement_t samplingRate = {200.0, UnitPfxKilo, "Hz"};

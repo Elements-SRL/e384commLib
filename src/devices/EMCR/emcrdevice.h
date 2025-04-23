@@ -258,10 +258,10 @@ protected:
     BoolCoder * fpgaResetCoder = nullptr;
 
     BoolCoder * clampingModeCoder = nullptr;
-    BoolCoder * vcCurrentRangeCoder = nullptr;
-    BoolCoder * vcVoltageRangeCoder = nullptr;
-    BoolCoder * ccCurrentRangeCoder = nullptr;
-    BoolCoder * ccVoltageRangeCoder = nullptr;
+    std::vector <BoolCoder *> vcCurrentRangeCoders;
+    std::vector <BoolCoder *> vcVoltageRangeCoders;
+    std::vector <BoolCoder *> ccCurrentRangeCoders;
+    std::vector <BoolCoder *> ccVoltageRangeCoders;
     BoolCoder * vcCurrentFilterCoder = nullptr;
     BoolCoder * vcVoltageFilterCoder = nullptr;
     BoolCoder * ccCurrentFilterCoder = nullptr;

@@ -305,7 +305,7 @@ ErrorCodes_t MessageDispatcher::resetOffsetRecalibration(std::vector <uint16_t> 
     int offsetIdx = 0;
     for (auto channelIdx : channelIndexes) {
         liquidJunctionStatuses[channelIdx] = LiquidJunctionResetted;
-        offsets[offsetIdx++] = originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx);
+        offsets[offsetIdx++] = originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx);
     }
     ljMutexLock.unlock();
     return this->setCalibVcCurrentOffset(channelIndexes, offsets, applyFlag);
@@ -917,7 +917,7 @@ ErrorCodes_t MessageDispatcher::getVCCurrentRange(RangedMeasurement_t &range) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    range = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
+    range = vcCurrentRangesArray[selectedVcCurrentRangeIdx[0]];
     return Success;
 }
 
@@ -949,7 +949,7 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRange(RangedMeasurement_t &range) {
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    range = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
+    range = ccVoltageRangesArray[selectedCcVoltageRangeIdx[0]];
     return Success;
 }
 
@@ -957,7 +957,7 @@ ErrorCodes_t MessageDispatcher::getVCCurrentRangeIdx(uint32_t &idx) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = selectedVcCurrentRangeIdx;
+    idx = selectedVcCurrentRangeIdx[0];
     return Success;
 }
 
@@ -981,17 +981,17 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(uint32_t &idx) {
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = selectedCcVoltageRangeIdx;
+    idx = selectedCcVoltageRangeIdx[0];
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageRange(RangedMeasurement_t &range) {
-    range = voltageRange;
+    range = voltageRange[0];
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCurrentRange(RangedMeasurement_t &range) {
-    range = currentRange;
+    range = currentRange[0];
     return Success;
 }
 
@@ -1508,7 +1508,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     activeFlag = true;
                     readoutOffsetInt = (int16_t)(((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum);
                     this->convertCurrentValue(readoutOffsetInt, readoutOffset);
-                    offsetRecalibCorrection.push_back(calibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx));
+                    offsetRecalibCorrection.push_back(calibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx));
                     offsetRecalibCorrection.back().value -= readoutOffset;
                     offsetRecalibStates[channelIdx] = OffsetRecalibCheck;
                     channelIndexes.push_back(channelIdx);
@@ -1535,7 +1535,7 @@ void MessageDispatcher::computeLiquidJunction() {
                 case OffsetRecalibFail:
                     activeFlag = true;
                     channelIndexes.push_back(channelIdx);
-                    offsetRecalibCorrection.push_back(originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx));
+                    offsetRecalibCorrection.push_back(originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx));
                     offsetRecalibStates[channelIdx] = OffsetRecalibTerminate;
                     offsetRecalibStatuses[channelIdx] = OffsetRecalibFailed;
                     break;

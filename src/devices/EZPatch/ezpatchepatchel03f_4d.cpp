@@ -613,10 +613,14 @@ EZPatchePatchEL03F_4D_PCBV03_V04::EZPatchePatchEL03F_4D_PCBV03_V04(std::string d
     notificationTag = deviceName;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[VCCurrentRange200pA];
-    voltageRange = vcVoltageRangesArray[VCVoltageRange500mV];
-    currentResolution = currentRange.step;
-    voltageResolution = voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[VCCurrentRange200pA]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[VCVoltageRange500mV]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[SamplingRate1_25kHz];
 }
 

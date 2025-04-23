@@ -255,10 +255,14 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
-    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
-    voltageResolution =voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[defaultVcVoltageRangeIdx]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
@@ -296,19 +300,21 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
-    vcCurrentRangeCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(0); /*! 200pA 0b000 */
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(2); /*!   2nA 0b010 */
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(3); /*!  20nA 0b011 */
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(7); /*! 200nA 0b111 */
-    coders.push_back(vcCurrentRangeCoder);
+    vcCurrentRangeCoders.clear();
+    vcCurrentRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(0); /*! 200pA 0b000 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(2); /*!   2nA 0b010 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(3); /*!  20nA 0b011 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(7); /*! 200nA 0b111 */
+    coders.push_back(vcCurrentRangeCoders[0]);
 
     /*! Voltage range VC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    vcVoltageRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(vcVoltageRangeCoder);
+    vcVoltageRangeCoders.clear();
+    vcVoltageRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(vcVoltageRangeCoders[0]);
 
     /*! Current range CC */
 

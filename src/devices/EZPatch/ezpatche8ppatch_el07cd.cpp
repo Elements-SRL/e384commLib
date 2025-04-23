@@ -1036,10 +1036,14 @@ EZPatche8PPatch_el07cd_artix7_PCBV01::EZPatche8PPatch_el07cd_artix7_PCBV01(std::
     notificationTag = deviceName;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[VCCurrentRange10nA];
-    voltageRange = vcVoltageRangesArray[VCVoltageRange500mV];
-    currentResolution = currentRange.step;
-    voltageResolution = voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[VCCurrentRange10nA]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[VCVoltageRange500mV]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[SamplingRate5kHz];
 }
 
