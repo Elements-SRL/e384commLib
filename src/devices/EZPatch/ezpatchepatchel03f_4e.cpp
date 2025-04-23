@@ -94,6 +94,6 @@ void EZPatchePatchEL03F_4E_PCBV02_V00::selectVoltageOffsetResolution() {
     Measurement_t correctedValue;
     correctedValue.value = voltageOffsetCorrected;
     correctedValue.prefix = liquidJunctionPrefix;
-    correctedValue.convertValue(voltageRange.prefix);
+    correctedValue.convertValue(voltageRanges[0].prefix);
     voltageOffsetCorrection = correctedValue.value;
 }

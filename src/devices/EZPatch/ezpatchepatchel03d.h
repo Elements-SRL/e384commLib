@@ -205,7 +205,7 @@ protected:
 
     const double minResistanceCorrection = 0.0;
     inline double maxResistanceCorrection() const {
-        return transImpedance[selectedVcCurrentRangeIdx];
+        return transImpedance[selectedVcCurrentRangeIdx[0]];
     }
 
     const double maxResistanceCorrectionPercentage = 100.0;

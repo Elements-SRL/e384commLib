@@ -693,28 +693,36 @@ ErrorCodes_t MessageDispatcher::purgeData() {
 }
 
 ErrorCodes_t MessageDispatcher::convertVoltageValue(int16_t intValue, double &fltValue) {
-    fltValue = voltageResolution*(double)intValue;
+    fltValue = voltageResolutions[0]*(double)intValue;
 
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::convertCurrentValue(int16_t intValue, double &fltValue) {
-    fltValue = currentResolution*(double)intValue;
+    fltValue = currentResolutions[0]*(double)intValue;
 
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::convertVoltageValues(int16_t * intValues, double * fltValues, int valuesNum) {
-    for (int idx = 0; idx < valuesNum; idx++) {
-        fltValues[idx] = voltageResolution*(double)intValues[idx];
+    int idx = 0;
+    while (idx < valuesNum) {
+        for (int chIdx = 0; chIdx < voltageChannelsNum; chIdx++) {
+            idx++;
+            fltValues[idx] = voltageResolutions[chIdx]*(double)intValues[idx];
+        }
     }
 
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::convertCurrentValues(int16_t * intValues, double * fltValues, int valuesNum) {
-    for (int idx = 0; idx < valuesNum; idx++) {
-        fltValues[idx] = currentResolution*(double)intValues[idx];
+    int idx = 0;
+    while (idx < valuesNum) {
+        for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+            idx++;
+            fltValues[idx] = currentResolutions[chIdx]*(double)intValues[idx];
+        }
     }
 
     return Success;
@@ -986,12 +994,12 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(uint32_t &idx) {
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageRange(RangedMeasurement_t &range) {
-    range = voltageRange[0];
+    range = voltageRanges[0];
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCurrentRange(RangedMeasurement_t &range) {
-    range = currentRange[0];
+    range = currentRanges[0];
     return Success;
 }
 

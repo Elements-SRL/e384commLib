@@ -1112,7 +1112,7 @@ void EZPatche8PPatch_el07cd_artix7_PCBV01::selectVoltageOffsetResolution() {
         Measurement_t correctedValue;
         correctedValue.value = voltageOffsetCorrected;
         correctedValue.prefix = liquidJunctionPrefix;
-        correctedValue.convertValue(voltageRange.prefix);
+        correctedValue.convertValue(voltageRanges[0].prefix);
         voltageOffsetCorrection = correctedValue.value;
     }
 }

@@ -766,8 +766,8 @@ ErrorCodes_t EmcrDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool applyF
     for (auto & idx : selectedVcCurrentRangeIdx) {
         idx = currentRangeIdx;
     }
-    currentRange = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
+    currentRanges[0] = vcCurrentRangesArray[selectedVcCurrentRangeIdx[0]];
+    currentResolutions[0] = currentRanges[0].step;
 
     this->updateCalibVcCurrentGain(allChannelIndexes, false);
     this->updateCalibVcCurrentOffset(allChannelIndexes, false);
@@ -793,8 +793,8 @@ ErrorCodes_t EmcrDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyF
     for (auto coder : vcVoltageRangeCoders) {
         coder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
-    voltageRange = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
-    voltageResolution = voltageRange.step;
+    voltageRanges[0] = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
+    voltageResolutions[0] = voltageRanges[0].step;
 
     this->updateCalibVcVoltageGain(allChannelIndexes, false);
     this->updateCalibVcVoltageOffset(allChannelIndexes, false);
@@ -823,8 +823,8 @@ ErrorCodes_t EmcrDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool applyF
     for (auto coder : ccCurrentRangeCoders) {
         coder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
-    currentRange = ccCurrentRangesArray[selectedCcCurrentRangeIdx];
-    currentResolution = currentRange.step;
+    currentRanges[0] = ccCurrentRangesArray[selectedCcCurrentRangeIdx];
+    currentResolutions[0] = currentRanges[0].step;
 
     this->updateCalibCcCurrentGain(allChannelIndexes, false);
     this->updateCalibCcCurrentOffset(allChannelIndexes, false);
@@ -850,8 +850,8 @@ ErrorCodes_t EmcrDevice::setCCVoltageRange(uint16_t voltageRangeIdx, bool applyF
     for (auto & idx : selectedCcVoltageRangeIdx) {
         idx = voltageRangeIdx;
     }
-    voltageRange = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
-    voltageResolution = voltageRange.step;
+    voltageRanges[0] = ccVoltageRangesArray[selectedCcVoltageRangeIdx[0]];
+    voltageResolutions[0] = voltageRanges[0].step;
 
     this->updateCalibCcVoltageGain(allChannelIndexes, false);
     this->updateCalibCcVoltageOffset(allChannelIndexes, false);
@@ -1099,10 +1099,10 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
         this->turnCurrentStimulusOn(false, false);
         this->turnVoltageReaderOn(false, false);
         if (previousClampingModality == VOLTAGE_CLAMP) {
-            this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
+            this->setVCCurrentRange(selectedVcCurrentRangeIdx[0], false);
 
         } else {
-            this->setVCCurrentRange(storedVcCurrentRangeIdx, false);
+            this->setVCCurrentRange(storedVcCurrentRangeIdx[0], false);
         }
         this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
         this->enableVcCompensations(true, false);
@@ -1141,7 +1141,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
         this->turnVoltageStimulusOn(false, false);
         this->turnCurrentReaderOn(false, false);
         this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
-        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx[0], false);
         this->enableCcCompensations(true, false);
 
         this->setSourceForVoltageChannel(1, false);
@@ -1178,7 +1178,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
         this->turnVoltageStimulusOn(false, false);
         this->turnCurrentReaderOn(false, false);
         this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
-        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx[0], false);
         this->enableCcCompensations(true, false);
 
         this->setSourceForVoltageChannel(1, false);
@@ -1217,7 +1217,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
         this->turnVcSwOn(allChannelIndexes, trues, false);
 
         this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
-        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx[0], false);
 
         this->setSourceForVoltageChannel(1, false);
         this->setSourceForCurrentChannel(1, false);
@@ -1240,7 +1240,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
         this->turnCcSwOn(allChannelIndexes, trues, false);
 
         this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
-        this->setVCCurrentRange(selectedVcCurrentRangeIdx, false);
+        this->setVCCurrentRange(selectedVcCurrentRangeIdx[0], false);
 
         this->setSourceForVoltageChannel(0, false);
         this->setSourceForCurrentChannel(0, false);

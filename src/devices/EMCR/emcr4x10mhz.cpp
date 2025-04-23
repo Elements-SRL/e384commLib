@@ -1052,10 +1052,11 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     boolConfig.initialWord = 13;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    vcVoltageRangeCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoder)->addMapItem(0xF); // x1 on all channels
-    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoder)->addMapItem(0x0); // x20 on all channels
-    coders.push_back(vcVoltageRangeCoder);
+    vcVoltageRangeCoders.clear();
+    vcVoltageRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
+    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoders[0])->addMapItem(0xF); // x1 on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoders[0])->addMapItem(0x0); // x20 on all channels
+    coders.push_back(vcVoltageRangeCoders[0]);
 
     /*! Current range CC */
     // undefined
