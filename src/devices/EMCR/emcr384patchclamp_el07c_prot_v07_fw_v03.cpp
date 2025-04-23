@@ -50,7 +50,7 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x0AAA; // fans on
+    txStatus[2] = 0x1AAA; // fans on
     for (int idx = 132; idx < 156; idx++) {
         txStatus[idx] = 0x1111; // GR_EN active
     }
