@@ -1804,10 +1804,9 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     double xFlt;
     rxOutput.dataLen = 0; /*! Initialize data length in case more messages are merged or if an error is returned before this can be set to its proper value */
 
-    std::unique_lock <std::mutex> rxMutexLock (rxMsgMutex);
+    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (rxMsgBufferReadLength <= 1) {
         if (parsingStatus == ParsingNone) {
-            gettingNextDataFlag = false;
             return ErrorDeviceNotConnected;
         }
 #ifdef NEXT_MESSAGE_NO_WAIT
@@ -2166,7 +2165,7 @@ ErrorCodes_t EmcrDevice::purgeData() {
     std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     while (gettingNextDataFlag) {
         /*! Wait for the getNextMessage method to be outside of its loop, because the rxMsgBufferReadLength and rxMsgBufferReadOffset variables must not change during its execution */
-        rxMsgBufferNotFull.wait_for (rxMutexLock, std::chrono::milliseconds(1));
+        rxMsgBufferNotFull.wait_for(rxMutexLock, std::chrono::milliseconds(1));
     }
     rxMsgBufferReadOffset = (rxMsgBufferReadOffset+rxMsgBufferReadLength) & RX_MSG_BUFFER_MASK;
     rxMsgBufferReadLength = 0;
