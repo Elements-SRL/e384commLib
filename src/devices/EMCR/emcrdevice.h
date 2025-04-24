@@ -230,6 +230,9 @@ protected:
 
     std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
 
+    bool independentVcCurrentRanges = false;
+    bool independentCcVoltageRanges = false;
+
     // Calibration DAC ranges
     RangedMeasurement_t calibCcCurrentGainRange;
     std::vector <RangedMeasurement_t> calibCcCurrentOffsetRanges;

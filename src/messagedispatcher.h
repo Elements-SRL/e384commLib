@@ -588,8 +588,8 @@ public:
     virtual ErrorCodes_t updateCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set the current range for voltage clamp for all channels.
+     * \note set range for all channels for devices which can set different ranges to different channels.
      *
-     * \note set range for all channels for devices which can apply different ranges to different channels
      * \param currentRangeIdx [in] Index of the current range to be set.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
@@ -597,8 +597,8 @@ public:
     virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag);
 
     /*! \brief Set the current range for voltage clamp for the selected channels.
+     * \note usable only for devices which can set different ranges to different channels.
      *
-     * \note usable only for devices which can apply different ranges to different channels
      * \param channelIndexes [in] Vector of Indexes for the channels to update.
      * \param currentRangeIdx [in] Vector of indexes of the current range to be set.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
@@ -623,8 +623,8 @@ public:
     virtual ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag);
 
     /*! \brief Set the voltage range for current clamp for all channels.
+     * \note set range for all channels for devices which can set different ranges to different channels.
      *
-     * \note set range for all channels for devices which can apply different ranges to different channels
      * \param voltageRangeIdx [in] Index of the voltage range to be set.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
@@ -632,8 +632,8 @@ public:
     virtual ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag);
 
     /*! \brief Set the voltage range for current clamp for all channels.
+     * \note usable only for devices which can set different ranges to different channels.
      *
-     * \note usable only for devices which can apply different ranges to different channels
      * \param channelIndexes [in] Vector of Indexes for the channels to update.
      * \param voltageRangeIdx [in] Vector of indexes of the voltage range to be set.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
@@ -1257,6 +1257,7 @@ public:
     virtual ErrorCodes_t purgeData();
 
     /*! \brief Convert a voltage value returned by getNextMessage from integer to floating point.
+     * \note To be used for devices which can set a single range to all channels.
      *
      * \param intValue [in] Integer voltage value obtained with the getNextMessage method.
      * \param fltValue [out] Floating point voltage value expressed in the unit of the selected voltage range.
@@ -1264,13 +1265,34 @@ public:
      */
     ErrorCodes_t convertVoltageValue(int16_t intValue, double &fltValue);
 
+    /*! \brief Convert a voltage value returned by getNextMessage from integer to floating point.
+     * \note To be used for devices which can set different ranges to different channels.
+     *
+     * \param intValue [in] Integer voltage value obtained with the getNextMessage method.
+     * \param channelIdx [in] Index of the channel.
+     * \param fltValue [out] Floating point voltage value expressed in the unit of the selected voltage range.
+     * \return Error code.
+     */
+    ErrorCodes_t convertVoltageValue(int16_t intValue, uint16_t channelIdx, double &fltValue);
+
     /*! \brief Convert a current value returned by getNextMessage from integer to floating point.
+     * \note To be used for devices which can set a single range to all channels.
      *
      * \param intValue [in] Integer current value obtained with the getNextMessage method.
      * \param fltValue [out] Floating point current value expressed in the unit of the selected current range.
      * \return Error code.
      */
     ErrorCodes_t convertCurrentValue(int16_t intValue, double &fltValue);
+
+    /*! \brief Convert a current value returned by getNextMessage from integer to floating point.
+     * \note To be used for devices which can set different ranges to different channels.
+     *
+     * \param intValue [in] Integer current value obtained with the getNextMessage method.
+     * \param channelIdx [in] Index of the channel.
+     * \param fltValue [out] Floating point current value expressed in the unit of the selected current range.
+     * \return Error code.
+     */
+    ErrorCodes_t convertCurrentValue(int16_t intValue, uint16_t channelIdx, double &fltValue);
 
     /*! \brief Convert an array of voltage values returned by getNextMessage from integer to floating point.
      *
@@ -2171,8 +2193,8 @@ protected:
     uint16_t defaultClampingModalityIdx = 0;
 
     uint32_t vcCurrentRangesNum = 0;
-    std::vector <uint32_t> selectedVcCurrentRangeIdx;
-    std::vector <uint32_t> storedVcCurrentRangeIdx;
+    std::vector <uint16_t> selectedVcCurrentRangeIdx;
+    std::vector <uint16_t> storedVcCurrentRangeIdx;
     std::vector <RangedMeasurement_t> vcCurrentRangesArray;
     uint16_t defaultVcCurrentRangeIdx = 0;
 
@@ -2192,7 +2214,7 @@ protected:
     uint16_t defaultCcCurrentRangeIdx = 0;
 
     uint32_t ccVoltageRangesNum = 0;
-    std::vector <uint32_t> selectedCcVoltageRangeIdx;
+    std::vector <uint16_t> selectedCcVoltageRangeIdx;
     std::vector <RangedMeasurement_t> ccVoltageRangesArray;
     uint16_t defaultCcVoltageRangeIdx = 0;
 

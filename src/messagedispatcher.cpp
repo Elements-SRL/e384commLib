@@ -706,8 +706,20 @@ ErrorCodes_t MessageDispatcher::convertVoltageValue(int16_t intValue, double &fl
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::convertVoltageValue(int16_t intValue, uint16_t channelIdx, double &fltValue) {
+    fltValue = voltageResolutions[channelIdx]*(double)intValue;
+
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::convertCurrentValue(int16_t intValue, double &fltValue) {
     fltValue = currentResolutions[0]*(double)intValue;
+
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::convertCurrentValue(int16_t intValue, uint16_t channelIdx, double &fltValue) {
+    fltValue = currentResolutions[channelIdx]*(double)intValue;
 
     return Success;
 }
@@ -716,8 +728,8 @@ ErrorCodes_t MessageDispatcher::convertVoltageValues(int16_t * intValues, double
     int idx = 0;
     while (idx < valuesNum) {
         for (int chIdx = 0; chIdx < voltageChannelsNum; chIdx++) {
-            idx++;
             fltValues[idx] = voltageResolutions[chIdx]*(double)intValues[idx];
+            idx++;
         }
     }
 
@@ -728,8 +740,8 @@ ErrorCodes_t MessageDispatcher::convertCurrentValues(int16_t * intValues, double
     int idx = 0;
     while (idx < valuesNum) {
         for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
-            idx++;
             fltValues[idx] = currentResolutions[chIdx]*(double)intValues[idx];
+            idx++;
         }
     }
 
@@ -1418,6 +1430,8 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
     for (uint16_t idx = 0; idx < totalBoardsNum; idx++) {
         boardIndexes[idx] = idx;
     }
+
+    storedVcCurrentRangeIdx = selectedVcCurrentRangeIdx;
 
     if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
         /*! Initialization in voltage clamp */
