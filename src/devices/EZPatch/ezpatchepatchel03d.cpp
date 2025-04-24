@@ -430,13 +430,13 @@ EZPatchePatchEL03D_V04::EZPatchePatchEL03D_V04(std::string di) :
     notificationTag = deviceName;
 
     /*! Default values */
-    currentRanges.resize(currentChannelsNum);
+    currentRanges.resize(1);
     std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[VCCurrentRange200pA]);
-    currentResolutions.resize(currentChannelsNum);
+    currentResolutions.resize(1);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
-    voltageRanges.resize(voltageChannelsNum);
+    voltageRanges.resize(1);
     std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[VCVoltageRange500mV]);
-    voltageResolutions.resize(voltageChannelsNum);
+    voltageResolutions.resize(1);
     std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[SamplingRate1_25kHz];
 }

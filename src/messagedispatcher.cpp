@@ -421,6 +421,10 @@ ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::setVCCurrentRange(std::vector <uint16_t>, std::vector <uint16_t>, bool) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
@@ -430,6 +434,10 @@ ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t, bool) {
 }
 
 ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t, bool) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setCCVoltageRange(std::vector <uint16_t>, std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 

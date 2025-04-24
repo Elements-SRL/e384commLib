@@ -57,9 +57,11 @@ public:
     ErrorCodes_t resetCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag);
 
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
+    ErrorCodes_t setVCCurrentRange(std::vector <uint16_t> channelIndexes, std::vector <uint16_t> currentRangeIdx, bool applyFlag) override;
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
     ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
     ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
+    ErrorCodes_t setCCVoltageRange(std::vector <uint16_t> channelIndexes, std::vector <uint16_t> voltageRangeIdx, bool applyFlag) override;
     ErrorCodes_t setLiquidJunctionRange(uint16_t idx) override;
 
     ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag) override;

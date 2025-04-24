@@ -587,13 +587,24 @@ public:
      */
     virtual ErrorCodes_t updateCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag);
 
-    /*! \brief Set the current range for voltage clamp.
+    /*! \brief Set the current range for voltage clamp for all channels.
      *
+     * \note set range for all channels for devices which can apply different ranges to different channels
      * \param currentRangeIdx [in] Index of the current range to be set.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
     virtual ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag);
+
+    /*! \brief Set the current range for voltage clamp for the selected channels.
+     *
+     * \note usable only for devices which can apply different ranges to different channels
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param currentRangeIdx [in] Vector of indexes of the current range to be set.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setVCCurrentRange(std::vector <uint16_t> channelIndexes, std::vector <uint16_t> currentRangeIdx, bool applyFlag);
 
     /*! \brief Set the voltage range for voltage clamp.
      *
@@ -611,13 +622,24 @@ public:
      */
     virtual ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag);
 
-    /*! \brief Set the voltage range for current clamp.
+    /*! \brief Set the voltage range for current clamp for all channels.
      *
+     * \note set range for all channels for devices which can apply different ranges to different channels
      * \param voltageRangeIdx [in] Index of the voltage range to be set.
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
     virtual ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag);
+
+    /*! \brief Set the voltage range for current clamp for all channels.
+     *
+     * \note usable only for devices which can apply different ranges to different channels
+     * \param channelIndexes [in] Vector of Indexes for the channels to update.
+     * \param voltageRangeIdx [in] Vector of indexes of the voltage range to be set.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setCCVoltageRange(std::vector <uint16_t> channelIndexes, std::vector <uint16_t> voltageRangeIdx, bool applyFlag);
 
     /*! \brief Set the voltage range for liquid junction correction voltage clamp.
      *

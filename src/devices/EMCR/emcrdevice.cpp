@@ -763,17 +763,48 @@ ErrorCodes_t EmcrDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool applyF
     for (auto coder : vcCurrentRangeCoders) {
         coder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
-    for (auto & idx : selectedVcCurrentRangeIdx) {
-        idx = currentRangeIdx;
+    for (int chIdx = 0; currentChannelsNum; chIdx++) {
+        selectedVcCurrentRangeIdx[chIdx] = currentRangeIdx;
+        currentRanges[chIdx] = vcCurrentRangesArray[selectedVcCurrentRangeIdx[chIdx]];
+        currentResolutions[chIdx] = currentRanges[chIdx].step;
     }
-    currentRanges[0] = vcCurrentRangesArray[selectedVcCurrentRangeIdx[0]];
-    currentResolutions[0] = currentRanges[0].step;
 
     this->updateCalibVcCurrentGain(allChannelIndexes, false);
     this->updateCalibVcCurrentOffset(allChannelIndexes, false);
     this->updateCalibRShuntConductance(allChannelIndexes, false);
     for (unsigned int channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
         this->updateLiquidJunctionVoltage(channelIdx, false);
+    }
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::setVCCurrentRange(std::vector <uint16_t> channelIndexes, std::vector <uint16_t> currentRangeIdx, bool applyFlag) {
+    if (vcCurrentRangeCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    if (!allLessThan(currentRangeIdx, (uint16_t)vcCurrentRangesNum)) {
+        return ErrorValueOutOfRange;
+    }
+    for (int idx = 0; idx < channelIndexes.size(); idx++) {
+        auto chIdx = channelIndexes[idx];
+        vcCurrentRangeCoders[chIdx]->encode(currentRangeIdx[idx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedVcCurrentRangeIdx[chIdx] = currentRangeIdx[idx];
+        currentRanges[chIdx] = vcCurrentRangesArray[selectedVcCurrentRangeIdx[chIdx]];
+        currentResolutions[chIdx] = currentRanges[chIdx].step;
+    }
+
+    this->updateCalibVcCurrentGain(channelIndexes, false);
+    this->updateCalibVcCurrentOffset(channelIndexes, false);
+    this->updateCalibRShuntConductance(channelIndexes, false);
+    for (auto chIdx : channelIndexes) {
+        this->updateLiquidJunctionVoltage(chIdx, false);
     }
 
     if (applyFlag) {
@@ -789,12 +820,14 @@ ErrorCodes_t EmcrDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyF
     if (voltageRangeIdx >= vcVoltageRangesNum) {
         return ErrorValueOutOfRange;
     }
-    selectedVcVoltageRangeIdx = voltageRangeIdx;
     for (auto coder : vcVoltageRangeCoders) {
         coder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
-    voltageRanges[0] = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
-    voltageResolutions[0] = voltageRanges[0].step;
+    selectedVcVoltageRangeIdx = voltageRangeIdx;
+    for (int chIdx = 0; currentChannelsNum; chIdx++) {
+        voltageRanges[chIdx] = vcVoltageRangesArray[selectedVcVoltageRangeIdx];
+        voltageResolutions[chIdx] = voltageRanges[chIdx].step;
+    }
 
     this->updateCalibVcVoltageGain(allChannelIndexes, false);
     this->updateCalibVcVoltageOffset(allChannelIndexes, false);
@@ -819,12 +852,14 @@ ErrorCodes_t EmcrDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool applyF
     if (currentRangeIdx >= ccCurrentRangesNum) {
         return ErrorValueOutOfRange;
     }
-    selectedCcCurrentRangeIdx = currentRangeIdx;
     for (auto coder : ccCurrentRangeCoders) {
         coder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
-    currentRanges[0] = ccCurrentRangesArray[selectedCcCurrentRangeIdx];
-    currentResolutions[0] = currentRanges[0].step;
+    selectedCcCurrentRangeIdx = currentRangeIdx;
+    for (int chIdx = 0; currentChannelsNum; chIdx++) {
+        currentRanges[chIdx] = ccCurrentRangesArray[selectedCcCurrentRangeIdx];
+        currentResolutions[chIdx] = currentRanges[chIdx].step;
+    }
 
     this->updateCalibCcCurrentGain(allChannelIndexes, false);
     this->updateCalibCcCurrentOffset(allChannelIndexes, false);
@@ -847,14 +882,41 @@ ErrorCodes_t EmcrDevice::setCCVoltageRange(uint16_t voltageRangeIdx, bool applyF
     for (auto coder : ccVoltageRangeCoders) {
         coder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
     }
-    for (auto & idx : selectedCcVoltageRangeIdx) {
-        idx = voltageRangeIdx;
+    for (int chIdx = 0; voltageChannelsNum; chIdx++) {
+        selectedCcVoltageRangeIdx[chIdx] = voltageRangeIdx;
+        voltageRanges[chIdx] = ccVoltageRangesArray[selectedCcVoltageRangeIdx[chIdx]];
+        voltageResolutions[chIdx] = voltageRanges[chIdx].step;
     }
-    voltageRanges[0] = ccVoltageRangesArray[selectedCcVoltageRangeIdx[0]];
-    voltageResolutions[0] = voltageRanges[0].step;
 
     this->updateCalibCcVoltageGain(allChannelIndexes, false);
     this->updateCalibCcVoltageOffset(allChannelIndexes, false);
+
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::setCCVoltageRange(std::vector <uint16_t> channelIndexes, std::vector <uint16_t> voltageRangeIdx, bool applyFlag) {
+    if (ccVoltageRangeCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    if (!allLessThan(voltageRangeIdx, (uint16_t)ccVoltageRangesNum)) {
+        return ErrorValueOutOfRange;
+    }
+    for (int idx = 0; idx < channelIndexes.size(); idx++) {
+        auto chIdx = channelIndexes[idx];
+        ccVoltageRangeCoders[chIdx]->encode(voltageRangeIdx[idx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        selectedCcVoltageRangeIdx[chIdx] = voltageRangeIdx[idx];
+        voltageRanges[chIdx] = ccVoltageRangesArray[selectedCcVoltageRangeIdx[chIdx]];
+        voltageResolutions[chIdx] = voltageRanges[chIdx].step;
+    }
+
+    this->updateCalibCcVoltageGain(channelIndexes, false);
+    this->updateCalibCcVoltageOffset(channelIndexes, false);
 
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
