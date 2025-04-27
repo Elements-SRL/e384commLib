@@ -905,6 +905,14 @@ ErrorCodes_t MessageDispatcher::getClampingModalityIdx(uint32_t &idx) {
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::hasIndependentVCCurrentRanges() {
+    return (independentVcCurrentRanges ? Success : ErrorFeatureNotImplemented);
+}
+
+ErrorCodes_t MessageDispatcher::hasIndependentCCVoltageRanges() {
+    return (independentCcVoltageRanges ? Success : ErrorFeatureNotImplemented);
+}
+
 ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultRangeIdx) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;

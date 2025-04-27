@@ -1487,6 +1487,18 @@ public:
      */
     ErrorCodes_t getClampingModalityIdx(uint32_t &idx);
 
+    /*! \brief Check if the device can set different current ranges for different channels in voltage clamp.
+     *
+     * \return Success if the device can set different current ranges for different channels in voltage clamp.
+     */
+    virtual ErrorCodes_t hasIndependentVCCurrentRanges();
+
+    /*! \brief Check if the device can set different voltage ranges for different channels in current clamp.
+     *
+     * \return Success if the device can set different voltage ranges for different channels in current clamp.
+     */
+    virtual ErrorCodes_t hasIndependentCCVoltageRanges();
+
     /*! \brief Get the current ranges available in voltage clamp for the device.
      *
      * \param currentRanges [out] Array containing all the available current ranges in voltage clamp.
@@ -2245,6 +2257,9 @@ protected:
     uint32_t previousClampingModality = UNDEFINED_CLAMP;
     std::vector <ClampingModality_t> clampingModalitiesArray;
     uint16_t defaultClampingModalityIdx = 0;
+
+    bool independentVcCurrentRanges = false;
+    bool independentCcVoltageRanges = false;
 
     uint32_t vcCurrentRangesNum = 0;
     std::vector <uint16_t> selectedVcCurrentRangeIdx;
