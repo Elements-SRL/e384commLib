@@ -69,6 +69,12 @@ protected:
         SamplingRatesNum
     };
 
+    enum CustomDoubles {
+        TransVoltage,
+        DrainVoltage,
+        CustomDoublesNum
+    };
+
     virtual ErrorCodes_t initializeHW() override;
 
     BoolArrayCoder * dcmResetCoder = nullptr;

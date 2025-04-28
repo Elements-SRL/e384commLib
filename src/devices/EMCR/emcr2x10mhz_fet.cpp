@@ -82,6 +82,7 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
 
     /*! Current ranges */
     /*! VC */
+    independentVcCurrentRanges = true;
     vcCurrentRangesNum = VCCurrentRangesNum;
     vcCurrentRangesArray.resize(vcCurrentRangesNum);
     vcCurrentRangesArray[VCCurrentRange100nA].min = -100.0;
@@ -331,8 +332,8 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 8;
     vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0xDD); // 16kHz on channels 1 and 3
-    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0xFF); // 1.6kHz on channels 1 and 3
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x55); // 16kHz on channels 1 and 3
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x77); // 1.6kHz on channels 1 and 3
     coders.push_back(vcVoltageFilterCoder);
 
     /*! Current filter CC */
@@ -636,13 +637,38 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
         }
     }
 
+    /*! Custom controls */
+
+    customDoublesNum = CustomDoublesNum;
+    customDoublesNames.resize(customDoublesNum);
+    customDoublesNames[TransVoltage] = "Trans Voltage";
+    customDoublesNames[DrainVoltage] = "Drain Voltage";
+    customDoublesRanges.resize(customDoublesNum);
+    customDoublesRanges[TransVoltage] = gpRangesArray[GpRange1000mV];
+    customDoublesRanges[DrainVoltage] = gpRangesArray[GpRange1000mV];
+
+    doubleConfig.initialWord = 259;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.resolution = gpRangesArray[GpRange1000mV].step;
+    doubleConfig.minValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
+    doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
+    customDoublesCoders.resize(customDoublesNum);
+    customDoublesDefault.resize(customDoublesNum);
+    for (uint32_t channelIdx = 0; channelIdx < gpChannelsNum; channelIdx++) {
+        customDoublesCoders[channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        customDoublesDefault[channelIdx] = 0.0;
+        coders.push_back(customDoublesCoders[channelIdx]);
+        doubleConfig.initialWord += 2;
+    }
+
     /*! Default status */
     txStatus.resize(txDataWords);
     fill(txStatus.begin(), txStatus.end(), 0x0000);
     txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
     txStatus[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus[11] = 0x00DD; /*! default stimuli filter: min BW for refs and high BW for inputs */
-    txStatus[13] = 0x00F0; /*! disable the x20 amplification on startup */
+    txStatus[11] = 0x0077; /*! default stimuli filter: min BW for refs and high BW for inputs */
+    txStatus[13] = 0x00FA; /*! disable the x20 amplification on startup; enable stimuli on reference pins */
     txStatus[259] = 0x9C40; /*! 0mV on ref for channel 1 */
     txStatus[261] = 0x9C40; /*! 0mV on ref for channel 2 */
     txStatus[262] = 0x0400; /*! current gain 1 */
