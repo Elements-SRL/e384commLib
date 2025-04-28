@@ -73,7 +73,6 @@ using namespace e384CommLib;
 
 class E384COMMLIBSHARED_EXPORT MessageDispatcher {
 public:
-
     typedef struct FwUpgradeInfo { /*! Defaults to "no upgrades available" */
         bool available = false;
         unsigned char fwVersion = 0xFF;
@@ -2108,6 +2107,7 @@ protected:
         RxMessageVoltageThenCurrentDataLoad,
         RxMessageCurrentDataLoad,
         RxMessageVoltageDataLoad,
+        RxMessageVoltageAndGpDataLoad,
         RxMessageDataHeader,
         RxMessageDataTail,
         RxMessageStatus,
@@ -2202,7 +2202,8 @@ protected:
 
     uint16_t voltageChannelsNum = 1;
     uint16_t currentChannelsNum = 1;
-    uint16_t totalChannelsNum = voltageChannelsNum+currentChannelsNum;
+    uint16_t gpChannelsNum = 0;
+    uint16_t totalChannelsNum = voltageChannelsNum+currentChannelsNum+gpChannelsNum;
 
     ChannelSources_t availableVoltageSourcesIdxs;
     ChannelSources_t availableCurrentSourcesIdxs;
@@ -2286,6 +2287,11 @@ protected:
     std::vector <uint16_t> selectedCcVoltageRangeIdx;
     std::vector <RangedMeasurement_t> ccVoltageRangesArray;
     uint16_t defaultCcVoltageRangeIdx = 0;
+
+    uint32_t gpRangesNum = 0;
+    std::vector <uint16_t> selectedGpRangeIdx;
+    std::vector <RangedMeasurement_t> gpRangesArray;
+    uint16_t defaultGpRangeIdx = 0;
 
     uint32_t vcCurrentFiltersNum = 0;
     uint32_t selectedVcCurrentFilterIdx = 0;
@@ -2405,11 +2411,13 @@ protected:
 
     std::vector <double> currentResolutions;
     std::vector <double> voltageResolutions;
+    std::vector <double> gpResolutions;
     double liquidJunctionResolution = 1.0;
     bool liquidJunctionSameRangeAsVcDac = true;
 
     std::vector <RangedMeasurement_t> voltageRanges;
     std::vector <RangedMeasurement_t> currentRanges;
+    std::vector <RangedMeasurement_t> gpRanges;
     RangedMeasurement_t liquidJunctionRange;
 
     Measurement_t samplingRate = {200.0, UnitPfxKilo, "Hz"};

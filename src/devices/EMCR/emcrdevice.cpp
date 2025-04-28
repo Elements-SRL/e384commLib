@@ -2456,6 +2456,8 @@ ErrorCodes_t EmcrDevice::initializeMemory() {
     /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
     voltageDataValues.resize(voltageChannelsNum);
     std::fill(voltageDataValues.begin(), voltageDataValues.end(), 0);
+    gpDataValues.resize(gpChannelsNum);
+    std::fill(gpDataValues.begin(), gpDataValues.end(), 0);
 
     return Success;
 }
@@ -2600,6 +2602,11 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
             for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
                 rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx++) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
             }
+
+            // /*! Finally for each gp packet retrieve the last recevied GP values */
+            // for (uint32_t idx = 0; idx < gpChannelsNum; idx++) {
+            //     rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx++) & RX_DATA_BUFFER_MASK] = gpDataValues[idx];
+            // }
         }
 
         /*! The size of the data returned by the message dispatcher is different from the size of the packet from returned by the FPGA */
@@ -2610,6 +2617,15 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
     case RxMessageVoltageDataLoad:
         for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
             voltageDataValues[idx] = this->popUint16FromRxRawBuffer();
+        }
+        break;
+
+    case RxMessageVoltageAndGpDataLoad:
+        for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
+            voltageDataValues[idx] = this->popUint16FromRxRawBuffer();
+        }
+        for (uint32_t idx = 0; idx < gpChannelsNum; idx++) {
+            gpDataValues[idx] = this->popUint16FromRxRawBuffer();
         }
         break;
 

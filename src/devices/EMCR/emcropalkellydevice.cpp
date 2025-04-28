@@ -19,6 +19,7 @@
 #include "emcrtestboardel07cd.h"
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
+#include "emcr2x10mhz_fet.h"
 #include "emcr10mhzsb.h"
 #include "emcrqc01atb_v01.h"
 #ifdef DEBUG
@@ -38,6 +39,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03}, //   15,  2,  3 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                                        //    6, 13,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},                            //    6, 14,  0 : QC01a test board
+    {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET, 1, Device2x10MHz_FET},                                              //  254, 25,  1 : 2x10MHz with controllable reference voltages
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
@@ -290,6 +292,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case DeviceTestBoardQC01aExtVcm:
         messageDispatcher = new EmcrQc01aTB_ExtVcm_V01(deviceId);
+        break;
+
+    case Device2x10MHz_FET:
+        messageDispatcher = new Emcr2x10MHz_FET_SB_PCBV01_V01(deviceId);
         break;
 
 #ifdef DEBUG
@@ -779,6 +785,9 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdInvalid, RxMessageVoltageDataLoad);
+
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageAndGpDataLoad]) {
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdInvalid, RxMessageVoltageAndGpDataLoad);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageDataHeader]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader, RxMessageDataHeader);
