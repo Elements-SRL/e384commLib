@@ -73,7 +73,7 @@ ErrorCodes_t EmcrDevice::startProtocol() {
             this->stopProtocol();
         }
         this->stackOutgoingMessage(txStatus); /*! Make sure the registers are submitted */
-        protocolResetCoder->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolResetCoder->encode(0, txStatus);
         this->stackOutgoingMessage(txStatus); /*! Then take the protocol out of the reset state */
         protocolResetFlag = false;
     }
@@ -94,7 +94,7 @@ ErrorCodes_t EmcrDevice::stopProtocol() {
         return this->startProtocol();
 
     } else {
-        protocolResetCoder->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolResetCoder->encode(1, txStatus);
         this->stackOutgoingMessage(txStatus, {TxTriggerStartProtocol, ResetIndifferent});
         protocolResetFlag = true;
         return Success;
@@ -122,15 +122,15 @@ ErrorCodes_t EmcrDevice::zap(std::vector <uint16_t> channelIndexes, Measurement_
         return ErrorValueOutOfRange;
     }
     duration.convertValue(zapDurationRange.prefix);
-    zapDurationCoder->encode(duration.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    zapDurationCoder->encode(duration.value, txStatus);
     for (auto chIdx : channelIndexes) {
-        zapCoders[chIdx]->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        zapCoders[chIdx]->encode(1, txStatus);
     }
 
     this->stackOutgoingMessage(txStatus, {TxTriggerZap, ResetIndifferent});
 
     for (auto chIdx : channelIndexes) {
-        zapCoders[chIdx]->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        zapCoders[chIdx]->encode(0, txStatus);
     }
     return Success;
 }
@@ -139,7 +139,7 @@ ErrorCodes_t EmcrDevice::resetAsic(bool resetFlag, bool applyFlag) {
     if (asicResetCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
-    asicResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    asicResetCoder->encode(resetFlag, txStatus);
 
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus, {TxTriggerParameteresUpdated, resetFlag ? ResetTrue : ResetFalse});
@@ -151,7 +151,7 @@ ErrorCodes_t EmcrDevice::resetFpga(bool resetFlag, bool applyFlag) {
     if (fpgaResetCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
-    fpgaResetCoder->encode(resetFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    fpgaResetCoder->encode(resetFlag, txStatus);
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
@@ -171,7 +171,7 @@ ErrorCodes_t EmcrDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIndex
 
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         voltages[i].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
-        voltages[i].value = vHoldTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        voltages[i].value = vHoldTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus);
         selectedVoltageHoldVector[channelIndexes[i]] = voltages[i];
         channelModels[channelIndexes[i]]->setVhold(voltages[i]);
     }
@@ -198,7 +198,7 @@ ErrorCodes_t EmcrDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIndex
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         currents[i].convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
-        currents[i].value = cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        currents[i].value = cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus);
         selectedCurrentHoldVector[channelIndexes[i]] = currents[i];
         channelModels[channelIndexes[i]]->setChold(currents[i]);
     }
@@ -225,7 +225,7 @@ ErrorCodes_t EmcrDevice::setVoltageHalf(std::vector <uint16_t> channelIndexes, s
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         voltages[i].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
-        voltages[i].value = vHalfTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        voltages[i].value = vHalfTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus);
         selectedVoltageHalfVector[channelIndexes[i]] = voltages[i];
         channelModels[channelIndexes[i]]->setVhalf(voltages[i]);
     }
@@ -252,7 +252,7 @@ ErrorCodes_t EmcrDevice::setCurrentHalf(std::vector <uint16_t> channelIndexes, s
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         currents[i].convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
-        currents[i].value = cHalfTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        currents[i].value = cHalfTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus);
         selectedCurrentHalfVector[channelIndexes[i]] = currents[i];
         channelModels[channelIndexes[i]]->setChalf(currents[i]);
     }
@@ -306,22 +306,22 @@ ErrorCodes_t EmcrDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool a
     if (selectedClampingModality == VOLTAGE_CLAMP || selectedClampingModality == VOLTAGE_CLAMP_VOLTAGE_READ) {
         if (compensationsEnableFlags[CompRsCorr].empty()) {
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
-            selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus);
 
         } else if (compensationsEnableFlags[CompRsCorr][channelIdx] && !(calibrationParams.types[CalTypesRsCorrOffsetDac].modes.empty())) {
             calibrationParams.convertValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx, liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(
                                                                  selectedLiquidJunctionVector[channelIdx].value+calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx).value,
-                                                                 txStatus, txModifiedStartingWord, txModifiedEndingWord)-calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx).value;
+                                                                 txStatus)-calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx).value;
 
         } else {
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
-            selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus);
         }
 
     } else {
-        liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(0.0, txStatus);
     }
 
     if (applyFlag) {
@@ -340,7 +340,7 @@ ErrorCodes_t EmcrDevice::setGateVoltages(std::vector <uint16_t> boardIndexes, st
     }
     for (uint32_t i = 0; i < boardIndexes.size(); i++) {
         gateVoltages[i].convertValue(gateVoltageRange.prefix);
-        gateVoltages[i].value = gateVoltageCoders[boardIndexes[i]]->encode(gateVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        gateVoltages[i].value = gateVoltageCoders[boardIndexes[i]]->encode(gateVoltages[i].value, txStatus);
         selectedGateVoltageVector[boardIndexes[i]] = gateVoltages[i];
     }
 
@@ -363,7 +363,7 @@ ErrorCodes_t EmcrDevice::setSourceVoltages(std::vector <uint16_t> boardIndexes, 
     }
     for (uint32_t i = 0; i < boardIndexes.size(); i++) {
         sourceVoltages[i].convertValue(sourceVoltageRange.prefix);
-        sourceVoltages[i].value = sourceVoltageCoders[boardIndexes[i]]->encode(sourceVoltages[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        sourceVoltages[i].value = sourceVoltageCoders[boardIndexes[i]]->encode(sourceVoltages[i].value, txStatus);
         selectedSourceVoltageVector[boardIndexes[i]] = sourceVoltages[i];
     }
 
@@ -412,7 +412,7 @@ ErrorCodes_t EmcrDevice::updateCalibVcCurrentGain(std::vector <uint16_t> channel
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.convertValue(CalTypesVcGainAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i], calibVcCurrentGainRange.prefix);
         double gain = calibrationParams.getValue(CalTypesVcGainAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i]).value;
-        calibVcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calibVcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus);
     }
 
     if (applyFlag) {
@@ -447,7 +447,7 @@ ErrorCodes_t EmcrDevice::updateCalibVcCurrentOffset(std::vector <uint16_t> chann
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.convertValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i], calibVcCurrentOffsetRanges[selectedVcCurrentRangeIdx[channelIndexes[i]]].prefix);
         double offset = calibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i]).value;
-        calibVcCurrentOffsetCoders[selectedVcCurrentRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calibVcCurrentOffsetCoders[selectedVcCurrentRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(offset, txStatus);
     }
 
     if (applyFlag) {
@@ -482,7 +482,7 @@ ErrorCodes_t EmcrDevice::updateCalibCcVoltageGain(std::vector <uint16_t> channel
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.convertValue(CalTypesCcGainAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx[channelIndexes[i]], channelIndexes[i], calibCcVoltageGainRange.prefix);
         double gain = calibrationParams.getValue(CalTypesCcGainAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx[channelIndexes[i]], channelIndexes[i]).value;
-        calibCcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calibCcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus);
     }
 
     if (applyFlag) {
@@ -517,7 +517,7 @@ ErrorCodes_t EmcrDevice::updateCalibCcVoltageOffset(std::vector <uint16_t> chann
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.convertValue(CalTypesCcOffsetAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx[channelIndexes[i]], channelIndexes[i], calibCcVoltageOffsetRanges[selectedCcVoltageRangeIdx[channelIndexes[i]]].prefix);
         double offset = calibrationParams.getValue(CalTypesCcOffsetAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx[channelIndexes[i]], channelIndexes[i]).value;
-        calibCcVoltageOffsetCoders[selectedCcVoltageRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calibCcVoltageOffsetCoders[selectedCcVoltageRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(offset, txStatus);
     }
 
     if (applyFlag) {
@@ -552,7 +552,7 @@ ErrorCodes_t EmcrDevice::updateCalibVcVoltageGain(std::vector <uint16_t> channel
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.convertValue(CalTypesVcGainDac, selectedSamplingRateIdx, selectedVcVoltageRangeIdx, channelIndexes[i], calibVcVoltageGainRange.prefix);
         double gain = calibrationParams.getValue(CalTypesVcGainDac, selectedSamplingRateIdx, selectedVcVoltageRangeIdx, channelIndexes[i]).value;
-        calibVcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calibVcVoltageGainCoders[channelIndexes[i]]->encode(gain, txStatus);
     }
 
     if (applyFlag) {
@@ -587,7 +587,7 @@ ErrorCodes_t EmcrDevice::updateCalibVcVoltageOffset(std::vector <uint16_t> chann
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.convertValue(CalTypesVcOffsetDac, selectedSamplingRateIdx, selectedVcVoltageRangeIdx, channelIndexes[i], calibVcVoltageOffsetRanges[selectedVcVoltageRangeIdx].prefix);
         double offset = calibrationParams.getValue(CalTypesVcOffsetDac, selectedSamplingRateIdx, selectedVcVoltageRangeIdx, channelIndexes[i]).value;
-        calibVcVoltageOffsetCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calibVcVoltageOffsetCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(offset, txStatus);
     }
 
     if (applyFlag) {
@@ -622,7 +622,7 @@ ErrorCodes_t EmcrDevice::updateCalibCcCurrentGain(std::vector <uint16_t> channel
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.convertValue(CalTypesCcGainDac, selectedSamplingRateIdx, selectedCcCurrentRangeIdx, channelIndexes[i], calibCcCurrentGainRange.prefix);
         double gain = calibrationParams.getValue(CalTypesCcGainDac, selectedSamplingRateIdx, selectedCcCurrentRangeIdx, channelIndexes[i]).value;
-        calibCcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calibCcCurrentGainCoders[channelIndexes[i]]->encode(gain, txStatus);
     }
 
     if (applyFlag) {
@@ -657,7 +657,7 @@ ErrorCodes_t EmcrDevice::updateCalibCcCurrentOffset(std::vector <uint16_t> chann
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.convertValue(CalTypesCcOffsetDac, selectedSamplingRateIdx, selectedCcCurrentRangeIdx, channelIndexes[i], calibCcCurrentOffsetRanges[selectedCcCurrentRangeIdx].prefix);
         double offset = calibrationParams.getValue(CalTypesCcOffsetDac, selectedSamplingRateIdx, selectedCcCurrentRangeIdx, channelIndexes[i]).value;
-        calibCcCurrentOffsetCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calibCcCurrentOffsetCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(offset, txStatus);
     }
 
     if (applyFlag) {
@@ -692,7 +692,7 @@ ErrorCodes_t EmcrDevice::updateCalibRsCorrOffsetDac(std::vector <uint16_t> chann
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.convertValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i], liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx].prefix);
         double offset = calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i]).value;
-        calibRsCorrOffsetDacCoders[selectedVcCurrentRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(offset, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calibRsCorrOffsetDacCoders[selectedVcCurrentRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(offset, txStatus);
     }
 
     if (applyFlag) {
@@ -727,7 +727,7 @@ ErrorCodes_t EmcrDevice::updateCalibRShuntConductance(std::vector <uint16_t> cha
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.convertValue(CalTypesRShuntConductance, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i], rRShuntConductanceCalibRange[selectedVcCurrentRangeIdx[channelIndexes[i]]].prefix);
         double conductance = calibrationParams.getValue(CalTypesRShuntConductance, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i]).value;
-        calibRShuntConductanceCoders[selectedVcCurrentRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(conductance, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calibRShuntConductanceCoders[selectedVcCurrentRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(conductance, txStatus);
     }
 
     if (applyFlag) {
@@ -744,7 +744,7 @@ ErrorCodes_t EmcrDevice::resetCalibRShuntConductance(std::vector <uint16_t> chan
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calibRShuntConductanceCoders[selectedVcCurrentRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calibRShuntConductanceCoders[selectedVcCurrentRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(0.0, txStatus);
     }
 
     if (applyFlag) {
@@ -773,10 +773,10 @@ ErrorCodes_t EmcrDevice::setVCCurrentRange(std::vector <uint16_t> channelIndexes
     for (int idx = 0; idx < channelIndexes.size(); idx++) {
         auto chIdx = channelIndexes[idx];
         if (independentVcCurrentRanges) {
-            vcCurrentRangeCoders[chIdx]->encode(currentRangeIdx[idx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            vcCurrentRangeCoders[chIdx]->encode(currentRangeIdx[idx], txStatus);
         }
         else {
-            vcCurrentRangeCoders[0]->encode(currentRangeIdx[idx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            vcCurrentRangeCoders[0]->encode(currentRangeIdx[idx], txStatus);
         }
         selectedVcCurrentRangeIdx[chIdx] = currentRangeIdx[idx];
         currentRanges[chIdx] = vcCurrentRangesArray[selectedVcCurrentRangeIdx[chIdx]];
@@ -804,7 +804,7 @@ ErrorCodes_t EmcrDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyF
         return ErrorValueOutOfRange;
     }
     for (auto coder : vcVoltageRangeCoders) {
-        coder->encode(voltageRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        coder->encode(voltageRangeIdx, txStatus);
     }
     selectedVcVoltageRangeIdx = voltageRangeIdx;
     for (int chIdx = 0; chIdx < voltageChannelsNum; chIdx++) {
@@ -836,7 +836,7 @@ ErrorCodes_t EmcrDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool applyF
         return ErrorValueOutOfRange;
     }
     for (auto coder : ccCurrentRangeCoders) {
-        coder->encode(currentRangeIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        coder->encode(currentRangeIdx, txStatus);
     }
     selectedCcCurrentRangeIdx = currentRangeIdx;
     for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
@@ -875,10 +875,10 @@ ErrorCodes_t EmcrDevice::setCCVoltageRange(std::vector <uint16_t> channelIndexes
     for (int idx = 0; idx < channelIndexes.size(); idx++) {
         auto chIdx = channelIndexes[idx];
         if (independentVcCurrentRanges) {
-            ccVoltageRangeCoders[chIdx]->encode(voltageRangeIdx[idx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            ccVoltageRangeCoders[chIdx]->encode(voltageRangeIdx[idx], txStatus);
         }
         else {
-            ccVoltageRangeCoders[0]->encode(voltageRangeIdx[idx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            ccVoltageRangeCoders[0]->encode(voltageRangeIdx[idx], txStatus);
         }
         selectedCcVoltageRangeIdx[chIdx] = voltageRangeIdx[idx];
         voltageRanges[chIdx] = ccVoltageRangesArray[selectedCcVoltageRangeIdx[chIdx]];
@@ -914,7 +914,7 @@ ErrorCodes_t EmcrDevice::setVoltageStimulusLpf(uint16_t filterIdx, bool applyFla
     if (filterIdx >= vcVoltageFiltersNum) {
         return ErrorValueOutOfRange;
     }
-    vcVoltageFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    vcVoltageFilterCoder->encode(filterIdx, txStatus);
     selectedVcVoltageFilterIdx = filterIdx;
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -929,7 +929,7 @@ ErrorCodes_t EmcrDevice::setCurrentStimulusLpf(uint16_t filterIdx, bool applyFla
     if (filterIdx >= ccCurrentFiltersNum) {
         return ErrorValueOutOfRange;
     }
-    ccCurrentFilterCoder->encode(filterIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    ccCurrentFilterCoder->encode(filterIdx, txStatus);
     selectedCcCurrentFilterIdx = filterIdx;
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -945,7 +945,7 @@ ErrorCodes_t EmcrDevice::enableStimulus(std::vector <uint16_t> channelIndexes, s
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        enableStimulusCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        enableStimulusCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
         channelModels[channelIndexes[i]]->setStimActive(onValues[i]);
     }
 
@@ -963,7 +963,7 @@ ErrorCodes_t EmcrDevice::turnChannelsOn(std::vector <uint16_t> channelIndexes, s
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        turnChannelsOnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        turnChannelsOnCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
         channelModels[channelIndexes[i]]->setOn(onValues[i]);
     }
 
@@ -981,7 +981,7 @@ ErrorCodes_t EmcrDevice::turnCalSwOn(std::vector <uint16_t> channelIndexes, std:
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        calSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        calSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
     }
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1004,7 +1004,7 @@ ErrorCodes_t EmcrDevice::turnVcSwOn(std::vector <uint16_t> channelIndexes, std::
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        vcSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        vcSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
     }
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1020,7 +1020,7 @@ ErrorCodes_t EmcrDevice::turnCcSwOn(std::vector <uint16_t> channelIndexes, std::
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        ccSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        ccSwCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
     }
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1038,26 +1038,26 @@ ErrorCodes_t EmcrDevice::setAdcCore(std::vector <uint16_t> channelIndexes, std::
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         switch (clampingModes[i]) {
         case VOLTAGE_CLAMP:
-            vcCcSelCoders[channelIndexes[i]]->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            vcCcSelCoders[channelIndexes[i]]->encode(1, txStatus);
             break;
 
         case ZERO_CURRENT_CLAMP:
-            vcCcSelCoders[channelIndexes[i]]->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            vcCcSelCoders[channelIndexes[i]]->encode(0, txStatus);
             break;
 
         case CURRENT_CLAMP:
-            vcCcSelCoders[channelIndexes[i]]->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            vcCcSelCoders[channelIndexes[i]]->encode(0, txStatus);
             break;
 
         case DYNAMIC_CLAMP:
             return ErrorFeatureNotImplemented;
 
         case VOLTAGE_CLAMP_VOLTAGE_READ:
-            vcCcSelCoders[channelIndexes[i]]->encode(0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            vcCcSelCoders[channelIndexes[i]]->encode(0, txStatus);
             break;
 
         case CURRENT_CLAMP_CURRENT_READ:
-            vcCcSelCoders[channelIndexes[i]]->encode(1, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            vcCcSelCoders[channelIndexes[i]]->encode(1, txStatus);
             break;
 
         case UNDEFINED_CLAMP:
@@ -1078,7 +1078,7 @@ ErrorCodes_t EmcrDevice::enableCcStimulus(std::vector <uint16_t> channelIndexes,
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        ccStimEnCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        ccStimEnCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
     }
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1104,7 +1104,7 @@ ErrorCodes_t EmcrDevice::setClampingModality(uint32_t idx, bool applyFlag, bool 
     previousClampingModality = selectedClampingModality;
     selectedClampingModality = clampingModalitiesArray[selectedClampingModalityIdx];
     if (clampingModeCoder != nullptr) {
-        clampingModeCoder->encode(selectedClampingModalityIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        clampingModeCoder->encode(selectedClampingModalityIdx, txStatus);
     }
 
     std::vector <bool> trues(currentChannelsNum);
@@ -1290,7 +1290,7 @@ ErrorCodes_t EmcrDevice::setSourceForVoltageChannel(uint16_t source, bool applyF
     if (sourceForVoltageChannelCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
-    sourceForVoltageChannelCoder->encode(source, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    sourceForVoltageChannelCoder->encode(source, txStatus);
     selectedSourceForVoltageChannelIdx = source;
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1302,7 +1302,7 @@ ErrorCodes_t EmcrDevice::setSourceForCurrentChannel(uint16_t source, bool applyF
     if (sourceForCurrentChannelCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
-    sourceForCurrentChannelCoder->encode(source, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    sourceForCurrentChannelCoder->encode(source, txStatus);
     selectedSourceForCurrentChannelIdx = source;
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1324,7 +1324,7 @@ ErrorCodes_t EmcrDevice::readoutOffsetRecalibration(std::vector <uint16_t> chann
     std::unique_lock <std::mutex> ljMutexLock (ljMutex);
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
-        liquidJunctionCompensationCoders[chIdx]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord); /*!< Disables protocols and vhold */
+        liquidJunctionCompensationCoders[chIdx]->encode(onValues[i], txStatus); /*!< Disables protocols and vhold */
         channelModels[chIdx]->setRecalibratingReadoutOffset(onValues[i]);
         if (onValues[i] && (offsetRecalibStates[chIdx] == OffsetRecalibIdle)) {
             offsetRecalibStates[chIdx] = OffsetRecalibStarting;
@@ -1359,7 +1359,7 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
     std::unique_lock <std::mutex> ljMutexLock(ljMutex);
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
-        liquidJunctionCompensationCoders[chIdx]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord); /*!< Disables protocols and vhold */
+        liquidJunctionCompensationCoders[chIdx]->encode(onValues[i], txStatus); /*!< Disables protocols and vhold */
         channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
@@ -1385,7 +1385,7 @@ ErrorCodes_t EmcrDevice::setAdcFilter(bool applyFlag) {
     case VOLTAGE_CLAMP:
     case CURRENT_CLAMP_CURRENT_READ:
         if (vcCurrentFilterCoder != nullptr) {
-            vcCurrentFilterCoder->encode(sr2LpfVcCurrentMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            vcCurrentFilterCoder->encode(sr2LpfVcCurrentMap[selectedSamplingRateIdx], txStatus);
             selectedVcCurrentFilterIdx = sr2LpfVcCurrentMap[selectedSamplingRateIdx];
         }
         break;
@@ -1394,7 +1394,7 @@ ErrorCodes_t EmcrDevice::setAdcFilter(bool applyFlag) {
     case ZERO_CURRENT_CLAMP:
     case VOLTAGE_CLAMP_VOLTAGE_READ:
         if (ccVoltageFilterCoder != nullptr) {
-            ccVoltageFilterCoder->encode(sr2LpfCcVoltageMap[selectedSamplingRateIdx], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            ccVoltageFilterCoder->encode(sr2LpfCcVoltageMap[selectedSamplingRateIdx], txStatus);
             selectedCcVoltageFilterIdx = sr2LpfCcVoltageMap[selectedSamplingRateIdx];
         }
         break;
@@ -1412,7 +1412,7 @@ ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFla
     } else if (samplingRateIdx >= samplingRatesNum) {
         return ErrorValueOutOfRange;
     }
-    samplingRateCoder->encode(samplingRateIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    samplingRateCoder->encode(samplingRateIdx, txStatus);
     selectedSamplingRateIdx = samplingRateIdx;
     samplingRate = realSamplingRatesArray[selectedSamplingRateIdx];
     integrationStep = integrationStepArray[selectedSamplingRateIdx];
@@ -1433,7 +1433,7 @@ ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFla
         break;
     }
     if (stateArrayMovingAverageLengthCoder != nullptr) {
-        stateArrayMovingAverageLengthCoder->encode(stateArrayReactionTime.getNoPrefixValue()*samplingRate.getNoPrefixValue(), txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        stateArrayMovingAverageLengthCoder->encode(stateArrayReactionTime.getNoPrefixValue()*samplingRate.getNoPrefixValue(), txStatus);
     }
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1448,7 +1448,7 @@ ErrorCodes_t EmcrDevice::setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bo
     boolConfig.initialBit = bitOffset;
     boolConfig.bitsNum = 1;
     bitDebugCoder = new BoolArrayCoder(boolConfig);
-    bitDebugCoder->encode(status ? 1 : 0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    bitDebugCoder->encode(status ? 1 : 0, txStatus);
     this->stackOutgoingMessage(txStatus);
     delete bitDebugCoder;
     return Success;
@@ -1460,7 +1460,7 @@ ErrorCodes_t EmcrDevice::setDebugWord(uint16_t wordOffset, uint16_t wordValue) {
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 16;
     wordDebugCoder = new BoolArrayCoder(boolConfig);
-    wordDebugCoder->encode(wordValue, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    wordDebugCoder->encode(wordValue, txStatus);
     this->stackOutgoingMessage(txStatus);
     delete wordDebugCoder;
     return Success;
@@ -1480,11 +1480,11 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolStructure(uint16_t protId, uint16_t i
     selectedProtocolItemsNum = itemsNum;
     selectedProtocolVrest = vRest;
     UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
-    protocolIdCoder->encode(protId, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolItemsNumberCoder->encode(itemsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolSweepsNumberCoder->encode(sweepsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolIdCoder->encode(protId, txStatus);
+    protocolItemsNumberCoder->encode(itemsNum, txStatus);
+    protocolSweepsNumberCoder->encode(sweepsNum, txStatus);
     vRest.convertValue(voltagePrefix);
-    voltageProtocolRestCoders[selectedVcVoltageRangeIdx]->encode(vRest.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolRestCoders[selectedVcVoltageRangeIdx]->encode(vRest.value, txStatus);
 
     return Success;
 }
@@ -1499,24 +1499,24 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextI
     }
     UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
     UnitPfx_t timePrefix = protocolTimeRange.prefix;
-    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus);
     if (!protocolStimHalfCoders.empty()) {
-        protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus);
     }
-    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus);
     v0.convertValue(voltagePrefix);
-    voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus);
     v0Step.convertValue(voltagePrefix);
-    voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus);
+    voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(0.0, txStatus);
+    voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(0.0, txStatus);
     t0.convertValue(timePrefix);
-    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus);
     t0Step.convertValue(timePrefix);
-    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus);
     return Success;
 }
 
@@ -1531,26 +1531,26 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextI
     }
     UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
     UnitPfx_t timePrefix = protocolTimeRange.prefix;
-    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus);
     if (!protocolStimHalfCoders.empty()) {
-        protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus);
     }
-    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus);
     v0.convertValue(voltagePrefix);
-    voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus);
     v0Step.convertValue(voltagePrefix);
-    voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus);
     vFinal.convertValue(voltagePrefix);
-    voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vFinal.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vFinal.value, txStatus);
     vFinalStep.convertValue(voltagePrefix);
-    voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(vFinalStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(vFinalStep.value, txStatus);
     t0.convertValue(timePrefix);
-    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus);
     t0Step.convertValue(timePrefix);
-    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus);
     return Success;
 }
 
@@ -1565,26 +1565,26 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextIt
     }
     UnitPfx_t voltagePrefix = vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix;
     UnitPfx_t freqPrefix = protocolFrequencyRange.prefix;
-    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus);
     if (!protocolStimHalfCoders.empty()) {
-        protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus);
     }
-    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus);
     v0.convertValue(voltagePrefix);
-    voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus);
     v0Step.convertValue(voltagePrefix);
-    voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim0StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0Step.value, txStatus);
     vAmp.convertValue(voltagePrefix);
-    voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vAmp.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim1Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(vAmp.value, txStatus);
     vAmpStep.convertValue(voltagePrefix);
-    voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(vAmpStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    voltageProtocolStim1StepCoders[selectedVcVoltageRangeIdx][itemIdx]->encode(vAmpStep.value, txStatus);
     f0.convertValue(freqPrefix);
-    protocolFrequency0Coders[itemIdx]->encode(f0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolFrequency0Coders[itemIdx]->encode(f0.value, txStatus);
     f0Step.convertValue(freqPrefix);
-    protocolFrequency0StepCoders[itemIdx]->encode(f0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolFrequency0StepCoders[itemIdx]->encode(f0Step.value, txStatus);
     return Success;
 }
 
@@ -1602,11 +1602,11 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolStructure(uint16_t protId, uint16_t i
     selectedProtocolItemsNum = itemsNum;
     selectedProtocolIrest = iRest;
     UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
-    protocolIdCoder->encode(protId, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolItemsNumberCoder->encode(itemsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolSweepsNumberCoder->encode(sweepsNum, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolIdCoder->encode(protId, txStatus);
+    protocolItemsNumberCoder->encode(itemsNum, txStatus);
+    protocolSweepsNumberCoder->encode(sweepsNum, txStatus);
     iRest.convertValue(currentPrefix);
-    currentProtocolRestCoders[selectedCcCurrentRangeIdx]->encode(iRest.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolRestCoders[selectedCcCurrentRangeIdx]->encode(iRest.value, txStatus);
 
     return Success;
 }
@@ -1621,24 +1621,24 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextI
     }
     UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
     UnitPfx_t timePrefix = protocolTimeRange.prefix;
-    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus);
     if (!protocolStimHalfCoders.empty()) {
-        protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus);
     }
-    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus);
     i0.convertValue(currentPrefix);
-    currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus);
     i0Step.convertValue(currentPrefix);
-    currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(0.0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus);
+    currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(0.0, txStatus);
+    currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(0.0, txStatus);
     t0.convertValue(timePrefix);
-    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus);
     t0Step.convertValue(timePrefix);
-    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus);
     return Success;
 }
 
@@ -1653,26 +1653,26 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextI
     }
     UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
     UnitPfx_t timePrefix = protocolTimeRange.prefix;
-    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus);
     if (!protocolStimHalfCoders.empty()) {
-        protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus);
     }
-    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus);
     i0.convertValue(currentPrefix);
-    currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus);
     i0Step.convertValue(currentPrefix);
-    currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus);
     iFinal.convertValue(currentPrefix);
-    currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iFinal.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iFinal.value, txStatus);
     iFinalStep.convertValue(currentPrefix);
-    currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(iFinalStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(iFinalStep.value, txStatus);
     t0.convertValue(timePrefix);
-    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolTime0Coders[itemIdx]->encode(t0.value, txStatus);
     t0Step.convertValue(timePrefix);
-    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolTime0StepCoders[itemIdx]->encode(t0Step.value, txStatus);
     return Success;
 }
 
@@ -1686,26 +1686,26 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextIt
     }
     UnitPfx_t currentPrefix = ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix;
     UnitPfx_t freqPrefix = protocolFrequencyRange.prefix;
-    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemIdxCoders[itemIdx]->encode(itemIdx, txStatus);
+    protocolNextItemIdxCoders[itemIdx]->encode(nextItemIdx, txStatus);
+    protocolLoopRepetitionsCoders[itemIdx]->encode(loopReps, txStatus);
+    protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus);
     if (!protocolStimHalfCoders.empty()) {
-        protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus);
     }
-    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus);
     i0.convertValue(currentPrefix);
-    currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus);
     i0Step.convertValue(currentPrefix);
-    currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim0StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0Step.value, txStatus);
     iAmp.convertValue(currentPrefix);
-    currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iAmp.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim1Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(iAmp.value, txStatus);
     iAmpStep.convertValue(currentPrefix);
-    currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(iAmpStep.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    currentProtocolStim1StepCoders[selectedCcCurrentRangeIdx][itemIdx]->encode(iAmpStep.value, txStatus);
     f0.convertValue(freqPrefix);
-    protocolFrequency0Coders[itemIdx]->encode(f0.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolFrequency0Coders[itemIdx]->encode(f0.value, txStatus);
     f0Step.convertValue(freqPrefix);
-    protocolFrequency0StepCoders[itemIdx]->encode(f0Step.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    protocolFrequency0StepCoders[itemIdx]->encode(f0Step.value, txStatus);
     return Success;
 }
 
@@ -1732,7 +1732,7 @@ ErrorCodes_t EmcrDevice::setCompRanges(std::vector <uint16_t> channelIndexes, Co
 
         for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
             pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->setEncodingRange(newRanges[chIdx]);
-            newParams[chIdx] = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            newParams[chIdx] = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus);
         }
         break;
 
@@ -1743,7 +1743,7 @@ ErrorCodes_t EmcrDevice::setCompRanges(std::vector <uint16_t> channelIndexes, Co
 
         for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
             membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->setEncodingRange(newRanges[chIdx]);
-            newParams[chIdx] = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            newParams[chIdx] = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus);
         }
         break;
 
@@ -1754,7 +1754,7 @@ ErrorCodes_t EmcrDevice::setCompRanges(std::vector <uint16_t> channelIndexes, Co
 
         for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
             pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->setEncodingRange(newRanges[chIdx]);
-            newParams[chIdx] = pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            newParams[chIdx] = pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus);
         }
         break;
 
@@ -1771,11 +1771,11 @@ ErrorCodes_t EmcrDevice::setStateArrayStructure(int numberOfStates, int initialS
     if ((unsigned int)numberOfStates > stateMaxNum || initialState >= numberOfStates) {
         return ErrorValueOutOfRange;
     }
-    numberOfStatesCoder->encode(numberOfStates, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    initialStateCoder->encode(initialState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    numberOfStatesCoder->encode(numberOfStates, txStatus);
+    initialStateCoder->encode(initialState, txStatus);
     if (stateArrayMovingAverageLengthCoder != nullptr) {
         stateArrayReactionTime = reactionTime;
-        stateArrayMovingAverageLengthCoder->encode(reactionTime.getNoPrefixValue()*samplingRate.getNoPrefixValue(), txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        stateArrayMovingAverageLengthCoder->encode(reactionTime.getNoPrefixValue()*samplingRate.getNoPrefixValue(), txStatus);
     }
     return Success;
 }
@@ -1785,18 +1785,18 @@ ErrorCodes_t EmcrDevice::setSateArrayState(int stateIdx, Measurement_t voltage, 
         return ErrorFeatureNotImplemented;
     }
     voltage.convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
-    stateAppliedVoltageCoders[selectedVcVoltageRangeIdx][stateIdx]->encode(voltage.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stateTimeoutFlagCoders[stateIdx]->encode(timeoutStateFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stateTriggerFlagCoders[stateIdx]->encode(triggerFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stateTriggerDeltaFlagCoders[stateIdx]->encode(deltaFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stateTimeoutValueCoders[stateIdx]->encode(timeout.getNoPrefixValue(), txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stateTimeoutNextStateCoders[stateIdx]->encode(timeoutState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateAppliedVoltageCoders[selectedVcVoltageRangeIdx][stateIdx]->encode(voltage.value, txStatus);
+    stateTimeoutFlagCoders[stateIdx]->encode(timeoutStateFlag, txStatus);
+    stateTriggerFlagCoders[stateIdx]->encode(triggerFlag, txStatus);
+    stateTriggerDeltaFlagCoders[stateIdx]->encode(deltaFlag, txStatus);
+    stateTimeoutValueCoders[stateIdx]->encode(timeout.getNoPrefixValue(), txStatus);
+    stateTimeoutNextStateCoders[stateIdx]->encode(timeoutState, txStatus);
     /*! \todo FCON gli state array non sono implementati per gestire range diversi a livello FW */
     minTriggerValue.convertValue(vcCurrentRangesArray[selectedVcCurrentRangeIdx[0]].prefix);
     maxTriggerValue.convertValue(vcCurrentRangesArray[selectedVcCurrentRangeIdx[0]].prefix);
-    stateMinTriggerCurrentCoders[selectedVcCurrentRangeIdx[0]][stateIdx]->encode(minTriggerValue.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stateMaxTriggerCurrentCoders[selectedVcCurrentRangeIdx[0]][stateIdx]->encode(maxTriggerValue.value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    stateTriggerNextStateCoders[stateIdx]->encode(triggerState, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    stateMinTriggerCurrentCoders[selectedVcCurrentRangeIdx[0]][stateIdx]->encode(minTriggerValue.value, txStatus);
+    stateMaxTriggerCurrentCoders[selectedVcCurrentRangeIdx[0]][stateIdx]->encode(maxTriggerValue.value, txStatus);
+    stateTriggerNextStateCoders[stateIdx]->encode(triggerState, txStatus);
     return Success;
 }
 
@@ -1804,7 +1804,7 @@ ErrorCodes_t EmcrDevice::setStateArrayEnabled(int chIdx, bool enabledFlag) {
     if (enableStateArrayChannelsCoder.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    enableStateArrayChannelsCoder[chIdx]->encode(enabledFlag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    enableStateArrayChannelsCoder[chIdx]->encode(enabledFlag, txStatus);
     return Success;
 }
 
@@ -1812,7 +1812,7 @@ ErrorCodes_t EmcrDevice::setCustomFlag(uint16_t idx, bool flag, bool applyFlag) 
     if (idx >= customFlagsNum) {
         return ErrorValueOutOfRange;
     }
-    customFlagsCoders[idx]->encode(flag ? 1 : 0, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    customFlagsCoders[idx]->encode(flag ? 1 : 0, txStatus);
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
@@ -1826,7 +1826,7 @@ ErrorCodes_t EmcrDevice::setCustomOption(uint16_t idx, uint16_t value, bool appl
     if (value >= customOptionsDescriptions[idx].size()) {
         return ErrorValueOutOfRange;
     }
-    customOptionsCoders[idx]->encode(value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    customOptionsCoders[idx]->encode(value, txStatus);
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
@@ -1837,7 +1837,7 @@ ErrorCodes_t EmcrDevice::setCustomDouble(uint16_t idx, double value, bool applyF
     if (idx >= customDoublesNum) {
         return ErrorValueOutOfRange;
     }
-    customDoublesCoders[idx]->encode(value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    customDoublesCoders[idx]->encode(value, txStatus);
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
@@ -2437,8 +2437,7 @@ ErrorCodes_t EmcrDevice::initializeMemory() {
         return ErrorMemoryInitialization;
     }
 
-    txMsgOffsetWord.resize(TX_MSG_BUFFER_SIZE);
-    txMsgLength.resize(TX_MSG_BUFFER_SIZE);
+    txMsgToBeSentWords.resize(TX_MSG_BUFFER_SIZE);
     txMsgOption.resize(TX_MSG_BUFFER_SIZE);
 
     selectedVoltageHoldVector.resize(currentChannelsNum);
@@ -2534,8 +2533,7 @@ void EmcrDevice::initializeCalibration() {
 }
 
 void EmcrDevice::forceOutMessage() {
-    txModifiedStartingWord = 0;
-    txModifiedEndingWord = txDataWords;
+    txStatus.allChanged();
 }
 
 void EmcrDevice::updateVoltageHoldTuner(bool applyFlag) {
@@ -2544,7 +2542,7 @@ void EmcrDevice::updateVoltageHoldTuner(bool applyFlag) {
 
     }
     for (uint32_t i = 0; i < currentChannelsNum; i++) {
-        vHoldTunerCoders[selectedVcVoltageRangeIdx][i]->encode(selectedVoltageHoldVector[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        vHoldTunerCoders[selectedVcVoltageRangeIdx][i]->encode(selectedVoltageHoldVector[i].value, txStatus);
     }
 
     if (applyFlag) {
@@ -2558,7 +2556,7 @@ void EmcrDevice::updateCurrentHoldTuner(bool applyFlag) {
 
     }
     for (uint32_t i = 0; i < voltageChannelsNum; i++) {
-        cHoldTunerCoders[selectedCcCurrentRangeIdx][i]->encode(selectedCurrentHoldVector[i].value, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        cHoldTunerCoders[selectedCcCurrentRangeIdx][i]->encode(selectedCurrentHoldVector[i].value, txStatus);
     }
 
     if (applyFlag) {
@@ -2732,24 +2730,24 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
     }
 }
 
-void EmcrDevice::stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, CommandOptions_t commandOptions) {
-    if (txModifiedEndingWord > txModifiedStartingWord) {
+void EmcrDevice::stackOutgoingMessage(CommandStatus_t &txDataMessage, CommandOptions_t commandOptions) {
+    if (txStatus.anyChanged) {
         std::unique_lock <std::mutex> txMutexLock(txMutex);
         while (txMsgBufferReadLength >= TX_MSG_BUFFER_SIZE) {
             txMsgBufferNotFull.wait_for (txMutexLock, std::chrono::milliseconds(100));
         }
 
-        /*! The next 2 lines ensure that words are written in blocks of 32 bits in case any device libraries require it */
-        txModifiedStartingWord = (txModifiedStartingWord/2)*2; /*! Round to the biggest smaller even number */
-        txModifiedEndingWord = ((txModifiedEndingWord+1)/2)*2; /*! +1 : if odd, makes the number even and /2 followed by *2 doesn't change a thing. If even, makes the number odd and /2 truncates to the smaller integer and *2 drives you to the correct ending word. */
-
-        txMsgBuffer[txMsgBufferWriteOffset] = {txDataMessage.begin()+txModifiedStartingWord, txDataMessage.begin()+txModifiedEndingWord};
-        txMsgOffsetWord[txMsgBufferWriteOffset] = txModifiedStartingWord;
-        txMsgLength[txMsgBufferWriteOffset] = txModifiedEndingWord-txModifiedStartingWord;
+        txMsgBuffer[txMsgBufferWriteOffset].clear();
+        txMsgToBeSentWords[txMsgBufferWriteOffset].clear();
+        for (int idx = 0; idx < txDataMessage.size; idx++) {
+            if (txDataMessage.changedWords[idx]) {
+                txMsgBuffer[txMsgBufferWriteOffset].push_back(txDataMessage.encodingWords[idx]);
+                txMsgToBeSentWords[txMsgBufferWriteOffset].push_back(idx);
+            }
+        }
         txMsgOption[txMsgBufferWriteOffset] = commandOptions;
 
-        txModifiedStartingWord = txDataWords;
-        txModifiedEndingWord = 0;
+        txDataMessage.noneChanged();
 
         txMsgBufferWriteOffset = (txMsgBufferWriteOffset+1)&TX_MSG_BUFFER_MASK;
         txMsgBufferReadLength++;

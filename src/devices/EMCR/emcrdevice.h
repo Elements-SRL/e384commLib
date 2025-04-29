@@ -172,7 +172,7 @@ protected:
     void updateCurrentHoldTuner(bool applyFlag);
 
     void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);
-    void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
+    void stackOutgoingMessage(CommandStatus_t &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
     uint16_t popUint16FromRxRawBuffer();
     uint32_t popUint32FromRxRawBuffer();
     uint16_t readUint16FromRxRawBuffer(uint32_t n);
@@ -214,17 +214,14 @@ protected:
 
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer = nullptr; /*!< Buffer of arrays of bytes to communicate to the device */
-    std::vector <uint16_t> txMsgOffsetWord; /*!< Buffer of offset word in txMsgBuffer */
-    std::vector <uint16_t> txMsgLength; /*!< Buffer of txMsgBuffer length */
+    std::vector <std::vector <uint16_t>> txMsgToBeSentWords; /*!< Buffer of list of words in txMsgBuffer */
     std::vector <CommandOptions_t> txMsgOption; /*!< Buffer of commandOptions */
     uint32_t txMsgBufferWriteOffset = 0; /*!< Offset of the part of buffer to be written */
     uint32_t txMsgBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
     uint16_t txDataWords;
     uint16_t txMaxWords;
     uint16_t txMaxRegs;
-    std::vector <uint16_t> txStatus; /*!< Status of the words written */
-    uint16_t txModifiedStartingWord;
-    uint16_t txModifiedEndingWord;
+    CommandStatus_t txStatus; /*!< Status of the words written */
 
     std::vector <uint16_t> rxWordOffsets;
     std::vector <uint16_t> rxWordLengths;

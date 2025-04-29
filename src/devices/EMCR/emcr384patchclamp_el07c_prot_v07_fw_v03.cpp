@@ -48,17 +48,16 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     coders.push_back(customDoublesCoders[FanTrimmer]);
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x1AAA; // fans on
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[2] = 0x1AAA; // fans on
     for (int idx = 132; idx < 156; idx++) {
-        txStatus[idx] = 0x1111; // GR_EN active
+        txStatus.encodingWords[idx] = 0x1111; // GR_EN active
     }
     for (int idx = 1312; idx < 1504; idx++) {
-        txStatus[idx] = 0x4040; // Set 0 of secondary DAC
+        txStatus.encodingWords[idx] = 0x4040; // Set 0 of secondary DAC
     }
     for (int idx = 4384; idx < 4480; idx++) {
-        txStatus[idx] = 0x1111; // rs bw avoid configuration with all zeros
+        txStatus.encodingWords[idx] = 0x1111; // rs bw avoid configuration with all zeros
     }
 }
 

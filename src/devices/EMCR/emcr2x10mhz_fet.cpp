@@ -37,8 +37,6 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
 
     txDataWords = 277; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -663,29 +661,28 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus[11] = 0x0077; /*! default stimuli filter: min BW for refs and high BW for inputs */
-    txStatus[13] = 0x00FA; /*! disable the x20 amplification on startup; enable stimuli on reference pins */
-    txStatus[259] = 0x9C40; /*! 0mV on ref for channel 1 */
-    txStatus[261] = 0x9C40; /*! 0mV on ref for channel 2 */
-    txStatus[262] = 0x0400; /*! current gain 1 */
-    txStatus[263] = 0x0400; /*! current gain 1 */
-    txStatus[270] = 0x0400; /*! voltage gain 1 */
-    txStatus[271] = 0x0400; /*! voltage gain 1 */
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus.encodingWords[11] = 0x0077; /*! default stimuli filter: min BW for refs and high BW for inputs */
+    txStatus.encodingWords[13] = 0x00FA; /*! disable the x20 amplification on startup; enable stimuli on reference pins */
+    txStatus.encodingWords[259] = 0x9C40; /*! 0mV on ref for channel 1 */
+    txStatus.encodingWords[261] = 0x9C40; /*! 0mV on ref for channel 2 */
+    txStatus.encodingWords[262] = 0x0400; /*! current gain 1 */
+    txStatus.encodingWords[263] = 0x0400; /*! current gain 1 */
+    txStatus.encodingWords[270] = 0x0400; /*! voltage gain 1 */
+    txStatus.encodingWords[271] = 0x0400; /*! voltage gain 1 */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
 ErrorCodes_t Emcr2x10MHz_FET_SB_PCBV01_V01::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
-    dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    dcmResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     /*! After a short while the 10MHz clock starts */
@@ -696,13 +693,13 @@ ErrorCodes_t Emcr2x10MHz_FET_SB_PCBV01_V01::initializeHW() {
     this->resetFpga(false, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(true, txStatus);
+    writeDacSpiCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     return Success;

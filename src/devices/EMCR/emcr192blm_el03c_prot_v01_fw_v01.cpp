@@ -39,8 +39,6 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
 
     txDataWords = 1660;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -628,14 +626,13 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x0070; // fans on
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[2] = 0x0070; // fans on
     for (int c = 36; c < 48; c++) {
-        txStatus[c] = 0xFFFF; // VC_int on
+        txStatus.encodingWords[c] = 0xFFFF; // VC_int on
     }
     for (int c = 700; c < 892; c++) {
-        txStatus[c] = 0x200; // ODAC zero
+        txStatus.encodingWords[c] = 0x200; // ODAC zero
     }
 }
 

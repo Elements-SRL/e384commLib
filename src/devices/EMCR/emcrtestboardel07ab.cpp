@@ -40,8 +40,6 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
 
     txDataWords = 359;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -1571,8 +1569,7 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
+    txStatus.init(txDataWords);
 }
 
 ErrorCodes_t EmcrTestBoardEl07ab::initializeHW() {
@@ -1679,7 +1676,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::enableCompensation(std::vector <uint16_t> chan
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1698,7 +1695,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::enableCompensation(std::vector <uint16_t> chan
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCslowRs(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1717,7 +1714,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::enableCompensation(std::vector <uint16_t> chan
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingRsCp(onValues[i]);
             this->updateLiquidJunctionVoltage(channelIndexes[i], false);
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1737,7 +1734,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::enableCompensation(std::vector <uint16_t> chan
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingRsPg(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1756,7 +1753,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::enableCompensation(std::vector <uint16_t> chan
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCcCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1786,10 +1783,10 @@ ErrorCodes_t EmcrTestBoardEl07ab::enableVcCompensations(bool enable, bool applyF
     vcCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
-        pipetteCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCfast][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        membraneCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCslow][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsCorrEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsCorr][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsPredEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsPred][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCfast][i], txStatus);
+        membraneCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCslow][i], txStatus);
+        rsCorrEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsCorr][i], txStatus);
+        rsPredEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsPred][i], txStatus);
         this->updateLiquidJunctionVoltage(i, false);
     }
 
@@ -1808,7 +1805,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::enableCcCompensations(bool enable, bool applyF
     ccCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
-        pipetteCapCcEnCompensationCoders[i]->encode(ccCompensationsActivated && compensationsEnableFlags[CompCcCfast][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapCcEnCompensationCoders[i]->encode(ccCompensationsActivated && compensationsEnableFlags[CompCcCfast][i], txStatus);
     }
 
     if (applyFlag) {
@@ -1846,7 +1843,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::setCompValues(std::vector <uint16_t> channelIn
             debugString += "[U_CpVc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cp]) + "\n";
 #endif
             //encode
-            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_Cp] = temp;
             break;
@@ -1856,17 +1853,17 @@ ErrorCodes_t EmcrTestBoardEl07ab::setCompValues(std::vector <uint16_t> channelIn
             debugString += "[U_Cm chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cm]) + "\n";
 #endif
             //encode
-            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_Cp] = temp;
 
             //encode
-            temp = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cm], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_Cm] = temp;
 
             //encode
-            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_Taum] = temp;
             break;
@@ -1876,12 +1873,12 @@ ErrorCodes_t EmcrTestBoardEl07ab::setCompValues(std::vector <uint16_t> channelIn
             debugString += "[U_Rs chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Taum]) + "\n";
 #endif
             //encode
-            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_Taum] = temp;
 
             //encode
-            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_RsCr] = temp;
             break;
@@ -1891,7 +1888,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::setCompValues(std::vector <uint16_t> channelIn
             debugString += "[U_RsCp chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsCr]) + "\n";
 #endif
             //encode
-            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_RsCr] = temp;
             break;
@@ -1901,12 +1898,12 @@ ErrorCodes_t EmcrTestBoardEl07ab::setCompValues(std::vector <uint16_t> channelIn
             debugString += "[U_RsPg chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPg]) + "\n";
 #endif
             //encode
-            temp = rsPredGainCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = rsPredGainCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPg], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_RsPg] = temp;
 
             //encode
-            temp = rsPredTauCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = rsPredTauCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPtau], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_RsPtau] = temp;
             break;
@@ -1916,7 +1913,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::setCompValues(std::vector <uint16_t> channelIn
             debugString += "[U_CpCc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPtau]) + "\n";
 #endif
             //encode
-            temp = pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_RsPtau] = temp;
             break;
@@ -1957,7 +1954,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::setCompOptions(std::vector <uint16_t> channelI
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += "[CompRsCorr chan " + std::to_string(channelIndexes[i]+1) + "]: selected opt " + std::to_string(selectedRsCorrBws[i]) +"\n";
 #endif
-                rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+                rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus);
             }
 
             if (applyFlag) {

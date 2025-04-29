@@ -29,8 +29,6 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
 
     txDataWords = 260; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -542,9 +540,8 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[1] = 0x0002; /*! ADC power enable override */
-    txStatus[256] = 0x0400; /*! current gain 1 */
-    txStatus[258] = 0x0400; /*! voltage gain 1 */
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[1] = 0x0002; /*! ADC power enable override */
+    txStatus.encodingWords[256] = 0x0400; /*! current gain 1 */
+    txStatus.encodingWords[258] = 0x0400; /*! voltage gain 1 */
 }

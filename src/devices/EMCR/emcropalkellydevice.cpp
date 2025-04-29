@@ -504,10 +504,13 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
 
     bool notSentTxData;
 
+    int wordsNum = txMsgToBeSentWords[txMsgBufferReadOffset].size();
+    int regsNum = wordsNum/2;
+
     /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
-    regs.resize(txMsgLength[txMsgBufferReadOffset]/2);
-    for (uint32_t txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
-        regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
+    regs.resize(regsNum);
+    for (uint32_t txDataBufferReadIdx = 0; txDataBufferReadIdx < wordsNum; txDataBufferReadIdx += 2) {
+        regs[txDataBufferReadIdx/2].address = txMsgToBeSentWords[txMsgBufferReadOffset][txDataBufferReadIdx]/2;
         regs[txDataBufferReadIdx/2].data =
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
@@ -602,8 +605,7 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
             /*! The device cannot recover from timeout condition */
             dev.Close();
             std::this_thread::sleep_for (std::chrono::milliseconds(1000));
-            txModifiedStartingWord = 0;
-            txModifiedEndingWord = txMaxWords;
+            txStatus.allChanged();
             this->sendCommands();
             dev.OpenBySerial(deviceId);
         }

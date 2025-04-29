@@ -19,18 +19,19 @@ CommandCoder::CommandCoder(uint16_t initialWord, uint16_t initialBit, uint16_t b
     }
 }
 
-void CommandCoder::encodeUint(uint32_t uintValue, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
-    if (startingWord > initialWord) {
-        startingWord = initialWord;
+void CommandCoder::encodeUint(uint32_t uintValue, CommandStatus_t &status) {
+    /*! Ensure that the words are changed in blocks of, since the devices might accept only data in blocks of 32 bits */
+    if ((initialWord & 0x0001) > 0x0000) {
+        status.changedWords[initialWord-1] = true;
     }
-
-    if (endingWord < initialWord+wordsNum) {
-        endingWord = initialWord+wordsNum;
+    if (((initialWord+wordsNum) & 0x0001) == 0x0000) {
+        status.changedWords[initialWord+wordsNum] = true;
     }
-
+    status.anyChanged = true;
     for (uint16_t wordIdx = 0; wordIdx < wordsNum; wordIdx++) {
-        encodingWords[wordIdx+initialWord] &= ~bitMasks[wordIdx];
-        encodingWords[wordIdx+initialWord] |= (uintValue << bitOffsets[wordIdx]) & bitMasks[wordIdx];
+        status.encodingWords[wordIdx+initialWord] &= ~bitMasks[wordIdx];
+        status.encodingWords[wordIdx+initialWord] |= (uintValue << bitOffsets[wordIdx]) & bitMasks[wordIdx];
+        status.changedWords[wordIdx+initialWord] = true;
         uintValue >>= (CMC_BITS_PER_WORD-bitOffsets[wordIdx]);
     }
 }
@@ -46,8 +47,8 @@ BoolArrayCoder::BoolArrayCoder(CoderConfig_t config) :
 
 }
 
-void BoolArrayCoder::encode(uint32_t value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
-    this->encodeUint(value, encodingWords, startingWord, endingWord);
+void BoolArrayCoder::encode(uint32_t value, CommandStatus_t &status) {
+    this->encodeUint(value, status);
 }
 
 BoolNegatedArrayCoder::BoolNegatedArrayCoder(CoderConfig_t config) :
@@ -55,8 +56,8 @@ BoolNegatedArrayCoder::BoolNegatedArrayCoder(CoderConfig_t config) :
 
 }
 
-void BoolNegatedArrayCoder::encode(uint32_t value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
-    this->encodeUint(~value, encodingWords, startingWord, endingWord);
+void BoolNegatedArrayCoder::encode(uint32_t value, CommandStatus_t &status) {
+    this->encodeUint(~value, status);
 }
 
 BoolRandomArrayCoder::BoolRandomArrayCoder(CoderConfig_t config) :
@@ -66,8 +67,8 @@ BoolRandomArrayCoder::BoolRandomArrayCoder(CoderConfig_t config) :
     toNum = 0;
 }
 
-void BoolRandomArrayCoder::encode(uint32_t value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
-    this->encodeUint(this->map(value), encodingWords, startingWord, endingWord);
+void BoolRandomArrayCoder::encode(uint32_t value, CommandStatus_t &status) {
+    this->encodeUint(this->map(value), status);
 }
 
 void BoolRandomArrayCoder::addMapItem(uint32_t to) {
@@ -87,8 +88,8 @@ BoolOneHotCoder::BoolOneHotCoder(CoderConfig_t config) :
 
 }
 
-void BoolOneHotCoder::encode(uint32_t value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
-    this->encodeUint(1 << value, encodingWords, startingWord, endingWord);
+void BoolOneHotCoder::encode(uint32_t value, CommandStatus_t &status) {
+    this->encodeUint(1 << value, status);
 }
 
 DoubleCoder::DoubleCoder(CoderConfig_t config) :
@@ -120,17 +121,17 @@ DoubleTwosCompCoder::DoubleTwosCompCoder(CoderConfig_t config) :
 
 }
 
-double DoubleTwosCompCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
+double DoubleTwosCompCoder::encode(double value, CommandStatus_t &status) {
     if (!invertedScale) {
         value = this->clip(value);
         int32_t intValue = (int32_t)round(value/resolution);
-        this->encodeUint((uint32_t)intValue, encodingWords, startingWord, endingWord);
+        this->encodeUint((uint32_t)intValue, status);
         return resolution*(double)intValue;
 
     } else {
         value = this->clip(-value);
         int32_t intValue = (int32_t)round(value/resolution);
-        this->encodeUint((uint32_t)intValue, encodingWords, startingWord, endingWord);
+        this->encodeUint((uint32_t)intValue, status);
         return -resolution*(double)intValue;
     }
 }
@@ -140,17 +141,17 @@ DoubleOffsetBinaryCoder::DoubleOffsetBinaryCoder(CoderConfig_t config) :
 
 }
 
-double DoubleOffsetBinaryCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
+double DoubleOffsetBinaryCoder::encode(double value, CommandStatus_t &status) {
     if (!invertedScale) {
         value = this->clip(value);
         uint32_t uintValue = (uint32_t)round((value-minValue)/resolution);
-        this->encodeUint(uintValue, encodingWords, startingWord, endingWord);
+        this->encodeUint(uintValue, status);
         return minValue+resolution*(double)uintValue;
 
     } else {
         value = this->clip(-value);
         uint32_t uintValue = (uint32_t)round((value+maxValue)/resolution);
-        this->encodeUint(uintValue, encodingWords, startingWord, endingWord);
+        this->encodeUint(uintValue, status);
         return maxValue-resolution*(double)uintValue;
     }
 }
@@ -160,12 +161,12 @@ DoubleSignAbsCoder::DoubleSignAbsCoder(CoderConfig_t config) :
 
 }
 
-double DoubleSignAbsCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
+double DoubleSignAbsCoder::encode(double value, CommandStatus_t &status) {
     if (!invertedScale) {
         value = this->clip(value);
         uint32_t uintValue = (uint32_t)round(fabs(value)/resolution);
         uint32_t signValue = (value < 0.0 ? 1 << (bitsNum-1) : 0);
-        this->encodeUint(uintValue+signValue, encodingWords, startingWord, endingWord);
+        this->encodeUint(uintValue+signValue, status);
         if (value < 0.0) {
             return -resolution*(double)uintValue;
 
@@ -177,7 +178,7 @@ double DoubleSignAbsCoder::encode(double value, std::vector <uint16_t> &encoding
         value = this->clip(-value);
         uint32_t uintValue = (uint32_t)round(fabs(value)/resolution);
         uint32_t signValue = (value < 0.0 ? 1 << (bitsNum-1) : 0);
-        this->encodeUint(uintValue+signValue, encodingWords, startingWord, endingWord);
+        this->encodeUint(uintValue+signValue, status);
         if (value < 0.0) {
             return resolution*(double)uintValue;
 
@@ -193,10 +194,10 @@ FloatCoder::FloatCoder(CoderConfig_t config) :
 
 }
 
-double FloatCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
+double FloatCoder::encode(double value, CommandStatus_t &status) {
     float fltValue = (float)value;
     uint32_t uintValue = *(uint32_t *)(&fltValue);
-    this->encodeUint(uintValue, encodingWords, startingWord, endingWord);
+    this->encodeUint(uintValue, status);
     return (double)fltValue;
 }
 
@@ -207,25 +208,25 @@ MultiCoder::MultiCoder(MultiCoderConfig_t multiConfig) :
     rangesNum = multiConfig.thresholdVector.size();
 }
 
-double MultiCoder::encode(double value, std::vector <uint16_t> &encodingWords, uint16_t &startingWord, uint16_t &endingWord) {
+double MultiCoder::encode(double value, CommandStatus_t &status) {
     double ret;
     if (rangeSelectedFlag) {
-        multiConfig.boolCoder->encode(selectedRange, encodingWords, startingWord, endingWord);
-        ret = multiConfig.doubleCoderVector[selectedRange]->encode(value, encodingWords, startingWord, endingWord);
+        multiConfig.boolCoder->encode(selectedRange, status);
+        ret = multiConfig.doubleCoderVector[selectedRange]->encode(value, status);
 
     } else {
         bool done = false;
         int i;
         for (i = 0; i < rangesNum; i++) {
             if (value < multiConfig.thresholdVector[i] && !done) {
-                multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
-                ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);
+                multiConfig.boolCoder->encode(i, status);
+                ret = multiConfig.doubleCoderVector[i]->encode(value, status);
                 done = true;
             }
         }
         if (!done) {
-            multiConfig.boolCoder->encode(i, encodingWords, startingWord, endingWord);
-            ret = multiConfig.doubleCoderVector[i]->encode(value, encodingWords, startingWord, endingWord);
+            multiConfig.boolCoder->encode(i, status);
+            ret = multiConfig.doubleCoderVector[i]->encode(value, status);
             done = true;
         }
     }

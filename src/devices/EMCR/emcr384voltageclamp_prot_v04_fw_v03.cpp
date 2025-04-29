@@ -38,8 +38,6 @@ Emcr384VoltageClamp_prot_v04_fw_v03::Emcr384VoltageClamp_prot_v04_fw_v03(std::st
 
     txDataWords = 4888; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -710,14 +708,13 @@ Emcr384VoltageClamp_prot_v04_fw_v03::Emcr384VoltageClamp_prot_v04_fw_v03(std::st
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x0070; // fans on by default
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[2] = 0x0070; // fans on by default
     for (int idx = 108; idx < 132; idx++) {
-        txStatus[idx] = 0xFFFF; // VC_SW closed
+        txStatus.encodingWords[idx] = 0xFFFF; // VC_SW closed
     }
     for (int idx = 156; idx < 180; idx++) {
-        txStatus[idx] = 0xFFFF; // VC_CC_sel set to use data from voltage clamp
+        txStatus.encodingWords[idx] = 0xFFFF; // VC_CC_sel set to use data from voltage clamp
     }
 }
 

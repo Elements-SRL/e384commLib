@@ -38,8 +38,6 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
 
     txDataWords = 3063; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -711,19 +709,18 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     coders.push_back(minus24VCoder);
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x0070; // fans on by default
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[2] = 0x0070; // fans on by default
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
 ErrorCodes_t Emcr384NanoPores_V01::initializeHW() {
-    minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    minus24VCoder->encode(3, txStatus);
     stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(1000));
 
-    plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    plus24VCoder->encode(3, txStatus);
     stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));
