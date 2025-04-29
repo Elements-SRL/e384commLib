@@ -1738,7 +1738,7 @@ Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V
 Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
     Emcr4x10MHz_QuadAnalog_PCBV01_V05(id) {
 
-    fwName = "4x10MHz_SB_EL05a_V3_1_1_0.bit";
+    fwName = "4x10MHz_SB_EL05a_V1_0_0.bit";
 
     /*! Voltage filters */
     /*! VC */
@@ -1776,7 +1776,7 @@ Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
 Emcr4x10MHz_SB_PCBV01_V06::Emcr4x10MHz_SB_PCBV01_V06(std::string id) :
     Emcr4x10MHz_SB_PCBV01_V05(id) {
 
-    fwName = "4x10MHz_SB_EL05a_V3_2_1_0.bit";
+    fwName = "4x10MHz_SB_EL05a_V2_0_0.bit";
 
     /**********\
      * Coders *

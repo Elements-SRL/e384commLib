@@ -34,6 +34,7 @@
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                                              //   11,  3,  1 : channels 10MHz nanopore reader, single board with EL05a
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 1, Device4x10MHz_SB_PCBV01},                                       //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 2, Device4x10MHz_SB_PCBV01_V02},                                   //   11,  9,  2 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_FirstProto, 1, Device192Blm_el03c_prot_v01_fw_v01},                    //   13,  1,  1 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},         //   15,  1,  2 : First working protoype for 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03}, //   15,  2,  3 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
@@ -275,6 +276,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         break;
 
     case Device4x10MHz_SB_PCBV01:
+        messageDispatcher = new Emcr4x10MHz_SB_PCBV01_V05(deviceId);
+        break;
+
+    case Device4x10MHz_SB_PCBV01_V02:
         messageDispatcher = new Emcr4x10MHz_SB_PCBV01_V06(deviceId);
         break;
 

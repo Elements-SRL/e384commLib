@@ -24,7 +24,7 @@ void CommandCoder::encodeUint(uint32_t uintValue, CommandStatus_t &status) {
     if ((initialWord & 0x0001) > 0x0000) {
         status.changedWords[initialWord-1] = true;
     }
-    if (((initialWord+wordsNum) & 0x0001) == 0x0000) {
+    if (((initialWord+wordsNum) & 0x0001) > 0x0000) {
         status.changedWords[initialWord+wordsNum] = true;
     }
     status.anyChanged = true;

@@ -1531,20 +1531,19 @@ public:
     ErrorCodes_t getCCVoltageRanges(std::vector <RangedMeasurement_t> &voltageRanges, uint16_t &defaultRangeIdx);
 
     /*! \brief Get the current range currently applied for voltage clamp.
+     * \note usable only for devices which cannot set different ranges to different channels.
      *
      * \param range [out] Current range currently applied for voltage clamp.
      * \return Error code.
      */
     ErrorCodes_t getVCCurrentRange(RangedMeasurement_t &range);
 
-    /*! \brief Get the current ranges currently applied on the selected channels for voltage clamp.
-     * \note usable only for devices which can set different ranges to different channels.
+    /*! \brief Get the current ranges currently applied for voltage clamp.
      *
-     * \param channelIndexes [in] Vector of channel indexes.
      * \param range [out] Current range currently applied for voltage clamp.
      * \return Error code.
      */
-    ErrorCodes_t getVCCurrentRange(std::vector <uint16_t> &channelIndexes, std::vector <RangedMeasurement_t> &ranges);
+    ErrorCodes_t getVCCurrentRange(std::vector <RangedMeasurement_t> &ranges);
 
     /*! \brief Get the voltage range currently applied for voltage clamp.
      *
@@ -1568,36 +1567,34 @@ public:
     ErrorCodes_t getCCCurrentRange(RangedMeasurement_t &range);
 
     /*! \brief Get the voltage range currently applied for current clamp.
+     * \note usable only for devices which cannot set different ranges to different channels.
      *
      * \param range [out] Voltage range currently applied for current clamp.
      * \return Error code.
      */
     ErrorCodes_t getCCVoltageRange(RangedMeasurement_t &range);
 
-    /*! \brief Get the voltage ranges currently applied on the selected channels for current clamp.
-     * \note usable only for devices which can set different ranges to different channels.
+    /*! \brief Get the voltage ranges currently applied for current clamp.
      *
-     * \param channelIndexes [in] Vector of channel indexes.
      * \param range [out] Voltage range currently applied for current clamp.
      * \return Error code.
      */
-    ErrorCodes_t getCCVoltageRange(std::vector <uint16_t> &channelIndexes, std::vector <RangedMeasurement_t> &ranges);
+    ErrorCodes_t getCCVoltageRange(std::vector <RangedMeasurement_t> &ranges);
 
     /*! \brief Get the current range currently applied for voltage clamp.
+     * \note usable only for devices which cannot set different ranges to different channels.
      *
      * \param idx [out] Index of the current range currently applied for voltage clamp.
      * \return Error code.
      */
     ErrorCodes_t getVCCurrentRangeIdx(uint32_t &idx);
 
-    /*! \brief Get the current ranges currently applied on the selected channels for voltage clamp.
-     * \note usable only for devices which can set different ranges to different channels.
+    /*! \brief Get the current ranges currently applied for voltage clamp.
      *
-     * \param channelIndexes [in] Vector of channel indexes.
      * \param idxs [out] Index of the current range currently applied for voltage clamp.
      * \return Error code.
      */
-    ErrorCodes_t getVCCurrentRangeIdx(std::vector <uint16_t> &channelIndexes, std::vector <uint32_t> &idxs);
+    ErrorCodes_t getVCCurrentRangeIdx(std::vector <uint32_t> &idxs);
 
     /*! \brief Get the voltage range currently applied for voltage clamp.
      *
@@ -1614,22 +1611,22 @@ public:
     ErrorCodes_t getCCCurrentRangeIdx(uint32_t &idx);
 
     /*! \brief Get the voltage range currently applied for current clamp.
+     * \note usable only for devices which cannot set different ranges to different channels.
      *
      * \param idx [out] Index of the voltage range currently applied for current clamp.
      * \return Error code.
      */
     ErrorCodes_t getCCVoltageRangeIdx(uint32_t &idx);
 
-    /*! \brief Get the voltage ranges currently applied on the selected channels for current clamp.
-     * \note usable only for devices which can set different ranges to different channels.
+    /*! \brief Get the voltage ranges currently applied for current clamp.
      *
-     * \param channelIndexes [in] Vector of channel indexes.
      * \param idxs [out] Index of the voltage range currently applied for current clamp.
      * \return Error code.
      */
-    ErrorCodes_t getCCVoltageRangeIdx(std::vector <uint16_t> &channelIndexes, std::vector <uint32_t> &idxs);
+    ErrorCodes_t getCCVoltageRangeIdx(std::vector <uint32_t> &idxs);
 
     /*! \brief Get the voltage range currently applied independently of the clamping modality.
+     * \note usable only for devices which cannot set different ranges to different channels.
      *
      * \param range [out] Voltage range currently applied.
      * \return Error code.
@@ -1637,15 +1634,14 @@ public:
     ErrorCodes_t getVoltageRange(RangedMeasurement_t &range);
 
     /*! \brief Get the voltage range currently applied independently of the clamping modality.
-     * \note usable only for devices which can set different ranges to different channels.
      *
-     * \param channelIndexes [in] Vector of channel indexes.
      * \param ranges [out] Voltage range currently applied.
      * \return Error code.
      */
-    ErrorCodes_t getVoltageRange(std::vector <uint16_t> &channelIndexes, std::vector <RangedMeasurement_t> &ranges);
+    ErrorCodes_t getVoltageRange(std::vector <RangedMeasurement_t> &ranges);
 
     /*! \brief Get the current range currently applied independently of the clamping modality.
+     * \note usable only for devices which cannot set different ranges to different channels.
      *
      * \param range [out] Current range currently applied.
      * \return Error code.
@@ -1653,13 +1649,11 @@ public:
     ErrorCodes_t getCurrentRange(RangedMeasurement_t &range);
 
     /*! \brief Get the current range currently applied independently of the clamping modality.
-     * \note usable only for devices which can set different ranges to different channels.
      *
-     * \param channelIndexes [in] Vector of channel indexes.
      * \param ranges [out] Current range currently applied.
      * \return Error code.
      */
-    ErrorCodes_t getCurrentRange(std::vector <uint16_t> &channelIndexes, std::vector <RangedMeasurement_t> &ranges);
+    ErrorCodes_t getCurrentRange(std::vector <RangedMeasurement_t> &ranges);
 
     /*! \brief Get the max current range for voltage clamp.
      *

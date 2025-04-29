@@ -957,15 +957,12 @@ ErrorCodes_t MessageDispatcher::getVCCurrentRange(RangedMeasurement_t &range) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getVCCurrentRange(std::vector <uint16_t> &channelIndexes, std::vector <RangedMeasurement_t> &ranges) {
+ErrorCodes_t MessageDispatcher::getVCCurrentRange(std::vector <RangedMeasurement_t> &ranges) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    if (!allLessThan(channelIndexes, currentChannelsNum)) {
-        return ErrorValueOutOfRange;
-    }
     ranges.clear();
-    for (auto chIdx : channelIndexes) {
+    for (auto chIdx : allChannelIndexes) {
         ranges.push_back(vcCurrentRangesArray[selectedVcCurrentRangeIdx[chIdx]]);
     }
     return Success;
@@ -1003,15 +1000,12 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRange(RangedMeasurement_t &range) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCCVoltageRange(std::vector <uint16_t> &channelIndexes, std::vector <RangedMeasurement_t> &ranges) {
+ErrorCodes_t MessageDispatcher::getCCVoltageRange(std::vector <RangedMeasurement_t> &ranges) {
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    if (!allLessThan(channelIndexes, voltageChannelsNum)) {
-        return ErrorValueOutOfRange;
-    }
     ranges.clear();
-    for (auto chIdx : channelIndexes) {
+    for (auto chIdx : allChannelIndexes) {
         ranges.push_back(ccVoltageRangesArray[selectedCcVoltageRangeIdx[chIdx]]);
     }
     return Success;
@@ -1025,15 +1019,12 @@ ErrorCodes_t MessageDispatcher::getVCCurrentRangeIdx(uint32_t &idx) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getVCCurrentRangeIdx(std::vector <uint16_t> &channelIndexes, std::vector <uint32_t> &idxs) {
+ErrorCodes_t MessageDispatcher::getVCCurrentRangeIdx(std::vector <uint32_t> &idxs) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    if (!allLessThan(channelIndexes, currentChannelsNum)) {
-        return ErrorValueOutOfRange;
-    }
     idxs.clear();
-    for (auto chIdx : channelIndexes) {
+    for (auto chIdx : allChannelIndexes) {
         idxs.push_back(selectedVcCurrentRangeIdx[chIdx]);
     }
     return Success;
@@ -1063,15 +1054,12 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(uint32_t &idx) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(std::vector <uint16_t> &channelIndexes, std::vector <uint32_t> &idxs) {
+ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(std::vector <uint32_t> &idxs) {
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    if (!allLessThan(channelIndexes, voltageChannelsNum)) {
-        return ErrorValueOutOfRange;
-    }
     idxs.clear();
-    for (auto chIdx : channelIndexes) {
+    for (auto chIdx : allChannelIndexes) {
         idxs.push_back(selectedCcVoltageRangeIdx[chIdx]);
     }
     return Success;
@@ -1082,12 +1070,9 @@ ErrorCodes_t MessageDispatcher::getVoltageRange(RangedMeasurement_t &range) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getVoltageRange(std::vector <uint16_t> &channelIndexes, std::vector <RangedMeasurement_t> &ranges) {
-    if (!allLessThan(channelIndexes, voltageChannelsNum)) {
-        return ErrorValueOutOfRange;
-    }
+ErrorCodes_t MessageDispatcher::getVoltageRange(std::vector <RangedMeasurement_t> &ranges) {
     ranges.clear();
-    for (auto chIdx : channelIndexes) {
+    for (auto chIdx : allChannelIndexes) {
         ranges.push_back(voltageRanges[chIdx]);
     }
     return Success;
@@ -1098,12 +1083,9 @@ ErrorCodes_t MessageDispatcher::getCurrentRange(RangedMeasurement_t &range) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getCurrentRange(std::vector <uint16_t> &channelIndexes, std::vector <RangedMeasurement_t> &ranges) {
-    if (!allLessThan(channelIndexes, currentChannelsNum)) {
-        return ErrorValueOutOfRange;
-    }
+ErrorCodes_t MessageDispatcher::getCurrentRange(std::vector <RangedMeasurement_t> &ranges) {
     ranges.clear();
-    for (auto chIdx : channelIndexes) {
+    for (auto chIdx : allChannelIndexes) {
         ranges.push_back(currentRanges[chIdx]);
     }
     return Success;
@@ -1500,9 +1482,9 @@ void MessageDispatcher::initializeVariables() {
 }
 
 ErrorCodes_t MessageDispatcher::deviceConfiguration() {
-    if (this->hasProperHeaderPackets() == Success) {
-        this->enableRxMessageType(MsgTypeIdAcquisitionHeader, true);
-    }
+    // if (this->hasProperHeaderPackets() == Success) {
+    //     this->enableRxMessageType(MsgTypeIdAcquisitionHeader, true);
+    // }
     /*! Some default values*/
     std::vector <bool> allTrue(currentChannelsNum, true);
     std::vector <bool> allFalse(currentChannelsNum, false);
