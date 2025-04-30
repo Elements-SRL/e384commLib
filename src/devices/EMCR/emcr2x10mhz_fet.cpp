@@ -305,7 +305,14 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
     coders.push_back(samplingRateCoder);
 
     /*! Current range VC */
-    // undefined
+    boolConfig.initialWord = 10;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 4;
+    vcCurrentRangeCoders.clear();
+    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+        vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+        coders.push_back(vcCurrentRangeCoders[chIdx]);
+    }
 
     /*! Voltage range VC */
     boolConfig.initialWord = 13;
