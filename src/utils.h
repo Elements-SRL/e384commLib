@@ -23,7 +23,6 @@ template<typename I_t> bool allLessThan(std::vector <I_t> myVector, I_t maxValue
     } else {
         return true;
     }
-
 }
 
 template<typename I_t> bool allLessThanOrEqualTo(std::vector <I_t> myVector, I_t maxValue) {
@@ -97,6 +96,18 @@ template<typename I_t> bool allInRange(std::vector <I_t> myVector, I_t minValue,
     } else {
         return false;
     }
+}
+
+template<typename I_t> bool inRange(I_t value, I_t minValue, I_t maxValue) {
+    if (value > maxValue) {
+        return false;
+    }
+
+    if (value < minValue) {
+        return false;
+    }
+
+    return true;
 }
 
 static void createDebugFile(FILE * &fid, std::string fileName) {

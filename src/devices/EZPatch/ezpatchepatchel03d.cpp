@@ -430,10 +430,14 @@ EZPatchePatchEL03D_V04::EZPatchePatchEL03D_V04(std::string di) :
     notificationTag = deviceName;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[VCCurrentRange200pA];
-    voltageRange = vcVoltageRangesArray[VCVoltageRange500mV];
-    currentResolution = currentRange.step;
-    voltageResolution = voltageRange.step;
+    currentRanges.resize(1);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[VCCurrentRange200pA]);
+    currentResolutions.resize(1);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(1);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[VCVoltageRange500mV]);
+    voltageResolutions.resize(1);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[SamplingRate1_25kHz];
 }
 
@@ -641,7 +645,7 @@ bool EZPatchePatchEL03D_V04::fillCompensationsRegistersTxData(std::vector <uint1
     txDataMessage[4] = CompensationsRegisterExtDacCSlow+compensationsSettingChannel*coreSpecificRegistersNum;
     txDataMessage[5] = ((vcCompensationsActivated & compensationsEnableFlags[CompCslow][compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value-minMembraneTau)/membraneTauStep) : 0);
     txDataMessage[6] = CompensationsRegisterOdacRs+compensationsSettingChannel*coreSpecificRegistersNum;
-    txDataMessage[7] = ((vcCompensationsActivated & compensationsEnableFlags[CompRsComp][compensationsSettingChannel]) ? (uint16_t)round(compensationControls[U_RsCp][compensationsSettingChannel].value/resistanceCorrectionPercentageStep*compensationControls[U_Rs][compensationsSettingChannel].value/transImpedance[selectedVcCurrentRangeIdx]) : 0);
+    txDataMessage[7] = ((vcCompensationsActivated & compensationsEnableFlags[CompRsComp][compensationsSettingChannel]) ? (uint16_t)round(compensationControls[U_RsCp][compensationsSettingChannel].value/resistanceCorrectionPercentageStep*compensationControls[U_Rs][compensationsSettingChannel].value/transImpedance[selectedVcCurrentRangeIdx[0]]) : 0);
     txDataMessage[8] = CompensationsRegisterRsLag+compensationsSettingChannel*coreSpecificRegistersNum;
     txDataMessage[9] = ((vcCompensationsActivated & compensationsEnableFlags[CompRsComp][compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_RsCl][compensationsSettingChannel].value-minResistanceCorrectionLag)/resistanceCorrectionLagStep) : 0);
     txDataMessage[10] = CompensationsRegisterRsPrediction+compensationsSettingChannel*coreSpecificRegistersNum;

@@ -41,8 +41,6 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
 
     txDataWords = 5272;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -550,10 +548,14 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_36kHz] = rsCorrBwArray[CompensationRsCorrBw9_36kHz].niceLabel();
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
-    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
-    voltageResolution =voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[defaultVcVoltageRangeIdx]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
@@ -567,8 +569,9 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     defaultUserDomainParams[U_CpCc] = ccPipetteCapacitanceRange[0].min;
 
     // Selected default Idx
-    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
+    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
+    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
@@ -654,29 +657,33 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
-    vcCurrentRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(vcCurrentRangeCoder);
+    vcCurrentRangeCoders.clear();
+    vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(vcCurrentRangeCoders[0]);
 
     /*! Voltage range VC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    vcVoltageRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(vcVoltageRangeCoder);
+    vcVoltageRangeCoders.clear();
+    vcVoltageRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(vcVoltageRangeCoders[0]);
 
     /*! Current range CC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 8;
     boolConfig.bitsNum = 4;
-    ccCurrentRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(ccCurrentRangeCoder);
+    ccCurrentRangeCoders.clear();
+    ccCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(ccCurrentRangeCoders[0]);
 
     /*! Voltage range CC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 12;
     boolConfig.bitsNum = 4;
-    ccVoltageRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(ccVoltageRangeCoder);
+    ccVoltageRangeCoders.clear();
+    ccVoltageRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(ccVoltageRangeCoders[0]);
 
     /*! Current filter VC */
     boolConfig.initialWord = 11;
@@ -1641,17 +1648,16 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x0070; // fans on
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[2] = 0x0070; // fans on
     for (int idx = 132; idx < 156; idx++) {
-        txStatus[idx] = 0x1111; // GR_EN active
+        txStatus.encodingWords[idx] = 0x1111; // GR_EN active
     }
     for (int idx = 1312; idx < 1504; idx++) {
-        txStatus[idx] = 0x4040; // Set 0 of secondary DAC
+        txStatus.encodingWords[idx] = 0x4040; // Set 0 of secondary DAC
     }
     for (int idx = 4384; idx < 4480; idx++) {
-        txStatus[idx] = 0x1111; // rs bw avoid configuration with all zeros
+        txStatus.encodingWords[idx] = 0x1111; // rs bw avoid configuration with all zeros
     }
 }
 
@@ -1760,7 +1766,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableCompensation(std::ve
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1779,7 +1785,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableCompensation(std::ve
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCslowRs(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1798,7 +1804,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableCompensation(std::ve
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingRsCp(onValues[i]);
             this->updateLiquidJunctionVoltage(channelIndexes[i], false);
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1818,7 +1824,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableCompensation(std::ve
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingRsPg(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1837,7 +1843,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableCompensation(std::ve
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCcCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1867,10 +1873,10 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableVcCompensations(bool
     vcCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
-        pipetteCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCfast][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        membraneCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCslow][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsCorrEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsCorr][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsPredEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsPred][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCfast][i], txStatus);
+        membraneCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCslow][i], txStatus);
+        rsCorrEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsCorr][i], txStatus);
+        rsPredEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsPred][i], txStatus);
         this->updateLiquidJunctionVoltage(i, false);
     }
 
@@ -1889,7 +1895,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::enableCcCompensations(bool
     ccCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
-        pipetteCapCcEnCompensationCoders[i]->encode(ccCompensationsActivated && compensationsEnableFlags[CompCcCfast][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapCcEnCompensationCoders[i]->encode(ccCompensationsActivated && compensationsEnableFlags[CompCcCfast][i], txStatus);
     }
 
     if (applyFlag) {
@@ -1927,7 +1933,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompValues(std::vector 
             debugString += "[U_CpVc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cp]) + "\n";
 #endif
             //encode
-            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_Cp] = temp;
             break;
@@ -1937,12 +1943,12 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompValues(std::vector 
             debugString += "[U_Cm chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cm]) + "\n";
 #endif
             //encode
-            temp = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cm], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_Cm] = temp;
 
             //encode
-            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_Taum] = temp;
             break;
@@ -1952,12 +1958,12 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompValues(std::vector 
             debugString += "[U_Rs chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Taum]) + "\n";
 #endif
             //encode
-            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_Taum] = temp;
 
             //encode
-            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_RsCr] = temp;
             break;
@@ -1967,7 +1973,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompValues(std::vector 
             debugString += "[U_RsCp chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsCr]) + "\n";
 #endif
             //encode
-            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_RsCr] = temp;
             break;
@@ -1977,12 +1983,12 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompValues(std::vector 
             debugString += "[U_RsPg chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPg]) + "\n";
 #endif
             //encode
-            temp = rsPredGainCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = rsPredGainCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPg], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_RsPg] = temp;
 
             //encode
-            temp = rsPredTauCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = rsPredTauCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPtau], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_RsPtau] = temp;
             break;
@@ -1992,7 +1998,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompValues(std::vector 
             debugString += "[U_CpCc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPtau]) + "\n";
 #endif
             //encode
-            temp = pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus);
             // update asic domain vector with coder return value
             asicParams[A_RsPtau] = temp;
             break;
@@ -2033,7 +2039,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setCompOptions(std::vector
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += "[CompRsCorr chan " + std::to_string(channelIndexes[i]+1) + "]: selected opt " + std::to_string(selectedRsCorrBws[i]) +"\n";
 #endif
-                rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+                rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus);
             }
 
             if (applyFlag) {
@@ -2451,7 +2457,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::getCompensationControl(Com
 
 void Emcr384PatchClamp_EL07c_prot_v06_fw_v01::setGrEn(bool flag, bool applyFlag) {
     for (auto coder : grEnCoders) {
-        coder->encode(flag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        coder->encode(flag, txStatus);
     }
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);

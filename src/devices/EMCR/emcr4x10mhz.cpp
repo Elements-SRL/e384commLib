@@ -39,8 +39,6 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
 
     txDataWords = 440; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -239,16 +237,21 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     calibVcVoltageOffsetRanges = vcVoltageRangesArray;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
-    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
-    voltageResolution =voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[defaultVcVoltageRangeIdx]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
     // Selected default Idx
-    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
+    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
+    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
@@ -302,10 +305,11 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     boolConfig.initialWord = 13;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    vcVoltageRangeCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoder)->addMapItem(0xF); // x1 on all channels
-    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoder)->addMapItem(0x0); // x20 on all channels
-    coders.push_back(vcVoltageRangeCoder);
+    vcVoltageRangeCoders.clear();
+    vcVoltageRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
+    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoders[0])->addMapItem(0xF); // x1 on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoders[0])->addMapItem(0x0); // x20 on all channels
+    coders.push_back(vcVoltageRangeCoders[0]);
 
     /*! Current range CC */
     // undefined
@@ -701,22 +705,21 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus[13] = 0x00F0; /*! disable the x20 amplification on startup */
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus.encodingWords[13] = 0x00F0; /*! disable the x20 amplification on startup */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
 ErrorCodes_t Emcr4x10MHz_PCBV01_V02::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
-    dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    dcmResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     /*! After a short while the 10MHz clock starts */
@@ -727,13 +730,13 @@ ErrorCodes_t Emcr4x10MHz_PCBV01_V02::initializeHW() {
     this->resetFpga(false, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(true, txStatus);
+    writeDacSpiCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     return Success;
@@ -778,8 +781,6 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
 
     txDataWords = 440; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -978,16 +979,21 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     calibVcVoltageOffsetRanges = vcVoltageRangesArray;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
-    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
-    voltageResolution =voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[defaultVcVoltageRangeIdx]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
     // Selected default Idx
-    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
+    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
+    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
@@ -1041,10 +1047,11 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     boolConfig.initialWord = 13;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    vcVoltageRangeCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoder)->addMapItem(0xF); // x1 on all channels
-    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoder)->addMapItem(0x0); // x20 on all channels
-    coders.push_back(vcVoltageRangeCoder);
+    vcVoltageRangeCoders.clear();
+    vcVoltageRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
+    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoders[0])->addMapItem(0xF); // x1 on all channels
+    static_cast <BoolRandomArrayCoder *> (vcVoltageRangeCoders[0])->addMapItem(0x0); // x20 on all channels
+    coders.push_back(vcVoltageRangeCoders[0]);
 
     /*! Current range CC */
     // undefined
@@ -1472,22 +1479,21 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus[13] = 0x00F0; /*! disable the x20 amplification on startup */
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus.encodingWords[13] = 0x00F0; /*! disable the x20 amplification on startup */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
 ErrorCodes_t Emcr4x10MHz_PCBV01_V03::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
-    dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    dcmResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     /*! After a short while the 10MHz clock starts */
@@ -1498,13 +1504,13 @@ ErrorCodes_t Emcr4x10MHz_PCBV01_V03::initializeHW() {
     this->resetFpga(false, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(true, txStatus);
+    writeDacSpiCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     return Success;
@@ -1551,8 +1557,6 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
 
     txDataWords = 442; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -1665,11 +1669,10 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus[13] = 0x00F0; /*! disable the x20 amplification on startup */
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus.encodingWords[13] = 0x00F0; /*! disable the x20 amplification on startup */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
@@ -1723,7 +1726,7 @@ Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string
     static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x0);
     coders.push_back(customOptionsCoders[CustomOptionInterposer]);
 
-    txStatus[0] = (txStatus[0] & 0xFE7F) | 0x0180; /*! Set the default interposer configuration */
+    txStatus.encodingWords[0] = (txStatus.encodingWords[0] & 0xFE7F) | 0x0180; /*! Set the default interposer configuration */
 }
 
 Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05(std::string id) :
@@ -1735,7 +1738,7 @@ Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V
 Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
     Emcr4x10MHz_QuadAnalog_PCBV01_V05(id) {
 
-    fwName = "4x10MHz_SB_EL05a_V3_1_1_0.bit";
+    fwName = "4x10MHz_SB_EL05a_V1_0_0.bit";
 
     /*! Voltage filters */
     /*! VC */
@@ -1773,7 +1776,7 @@ Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
 Emcr4x10MHz_SB_PCBV01_V06::Emcr4x10MHz_SB_PCBV01_V06(std::string id) :
     Emcr4x10MHz_SB_PCBV01_V05(id) {
 
-    fwName = "4x10MHz_SB_EL05a_V3_2_1_0.bit";
+    fwName = "4x10MHz_SB_EL05a_V2_0_0.bit";
 
     /**********\
      * Coders *

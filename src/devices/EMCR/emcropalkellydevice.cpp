@@ -19,6 +19,7 @@
 #include "emcrtestboardel07cd.h"
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
+#include "emcr2x10mhz_fet.h"
 #include "emcr10mhzsb.h"
 #include "emcrqc01atb_v01.h"
 #ifdef DEBUG
@@ -33,11 +34,13 @@
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                                              //   11,  3,  1 : channels 10MHz nanopore reader, single board with EL05a
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 1, Device4x10MHz_SB_PCBV01},                                       //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a, 2, Device4x10MHz_SB_PCBV01_V02},                                   //   11,  9,  2 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_FirstProto, 1, Device192Blm_el03c_prot_v01_fw_v01},                    //   13,  1,  1 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},         //   15,  1,  2 : First working protoype for 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03}, //   15,  2,  3 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                                        //    6, 13,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},                            //    6, 14,  0 : QC01a test board
+    {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET, 1, Device2x10MHz_FET},                                              //  254, 25,  1 : 2x10MHz with controllable reference voltages
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
@@ -273,6 +276,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         break;
 
     case Device4x10MHz_SB_PCBV01:
+        messageDispatcher = new Emcr4x10MHz_SB_PCBV01_V05(deviceId);
+        break;
+
+    case Device4x10MHz_SB_PCBV01_V02:
         messageDispatcher = new Emcr4x10MHz_SB_PCBV01_V06(deviceId);
         break;
 
@@ -290,6 +297,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case DeviceTestBoardQC01aExtVcm:
         messageDispatcher = new EmcrQc01aTB_ExtVcm_V01(deviceId);
+        break;
+
+    case Device2x10MHz_FET:
+        messageDispatcher = new Emcr2x10MHz_FET_SB_PCBV01_V01(deviceId);
         break;
 
 #ifdef DEBUG
@@ -498,10 +509,13 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
 
     bool notSentTxData;
 
+    int wordsNum = txMsgToBeSentWords[txMsgBufferReadOffset].size();
+    int regsNum = wordsNum/2;
+
     /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
-    regs.resize(txMsgLength[txMsgBufferReadOffset]/2);
-    for (uint32_t txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
-        regs[txDataBufferReadIdx/2].address = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
+    regs.resize(regsNum);
+    for (uint32_t txDataBufferReadIdx = 0; txDataBufferReadIdx < wordsNum; txDataBufferReadIdx += 2) {
+        regs[txDataBufferReadIdx/2].address = txMsgToBeSentWords[txMsgBufferReadOffset][txDataBufferReadIdx]/2;
         regs[txDataBufferReadIdx/2].data =
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
@@ -596,8 +610,7 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
             /*! The device cannot recover from timeout condition */
             dev.Close();
             std::this_thread::sleep_for (std::chrono::milliseconds(1000));
-            txModifiedStartingWord = 0;
-            txModifiedEndingWord = txMaxWords;
+            txStatus.allChanged();
             this->sendCommands();
             dev.OpenBySerial(deviceId);
         }
@@ -779,6 +792,9 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageDataLoad]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdInvalid, RxMessageVoltageDataLoad);
+
+                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageAndGpDataLoad]) {
+                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdInvalid, RxMessageVoltageAndGpDataLoad);
 
                         } else if (rxWordOffset == rxWordOffsets[RxMessageDataHeader]) {
                             this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader, RxMessageDataHeader);

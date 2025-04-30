@@ -745,7 +745,7 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
         this->turnVoltageReaderOn(false, false);
         if ((previousClampingModality == CURRENT_CLAMP) ||
                 (previousClampingModality == ZERO_CURRENT_CLAMP)) {
-            this->setVCCurrentRange(storedVcCurrentRangeIdx, false);
+            this->setVCCurrentRange(storedVcCurrentRangeIdx[0], false);
         }
         this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
         this->enableVcCompensations(true, false);
@@ -762,8 +762,8 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
         /*! Remove liquid junction and subtract it from voltage reading */
         for (uint32_t i = 0; i < currentChannelsNum; i++) {
             this->updateLiquidJunctionVoltage(i, false);
-            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
-            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx[0]].prefix);
+            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx[0]].step);
         }
 
         if (previousClampingModality == VOLTAGE_CLAMP) {
@@ -781,7 +781,7 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
         this->turnVoltageStimulusOn(false, false);
         this->turnCurrentReaderOn(false, false);
         this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
-        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx[0], false);
         this->enableCcCompensations(true, false);
 
         this->setSourceForVoltageChannel(1, false);
@@ -796,8 +796,8 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
         /*! Remove liquid junction and subtract it from voltage reading */
         for (uint32_t i = 0; i < currentChannelsNum; i++) {
             this->updateLiquidJunctionVoltage(i, false);
-            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx].prefix);
-            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx].step);
+            selectedLiquidJunctionVector[i].convertValue(ccVoltageRangesArray[selectedCcVoltageRangeIdx[0]].prefix);
+            ccLiquidJunctionVector[i] = (int16_t)(selectedLiquidJunctionVector[i].value/ccVoltageRangesArray[selectedCcVoltageRangeIdx[0]].step);
         }
 
         if (previousClampingModality == VOLTAGE_CLAMP) {
@@ -815,7 +815,7 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
         this->turnVoltageStimulusOn(false, false);
         this->turnCurrentReaderOn(false, false);
         this->setCCCurrentRange(selectedCcCurrentRangeIdx, false);
-        this->setCCVoltageRange(selectedCcVoltageRangeIdx, false);
+        this->setCCVoltageRange(selectedCcVoltageRangeIdx[0], false);
         this->enableCcCompensations(true, false);
 
         this->setSourceForVoltageChannel(1, false);
@@ -883,7 +883,7 @@ ErrorCodes_t EZPatchDevice::setCalibVcCurrentOffset(std::vector <uint16_t> chann
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
-    RangedMeasurement_t range = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
+    RangedMeasurement_t range = vcCurrentRangesArray[selectedVcCurrentRangeIdx[0]];
     if (!allInRange(offsets, range.getMin(), range.getMax())) {
         return ErrorValueOutOfRange;
     }
@@ -896,7 +896,7 @@ ErrorCodes_t EZPatchDevice::setCalibVcCurrentOffset(std::vector <uint16_t> chann
         Measurement_t current = e.second;
 
         current.convertValue(range.prefix);
-        calibrationParams.setValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, chIdx, current);
+        calibrationParams.setValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[0], chIdx, current);
     }
     return this->updateCalibVcCurrentOffset(channelIndexes, applyFlag);
 }
@@ -908,14 +908,14 @@ ErrorCodes_t EZPatchDevice::updateCalibVcCurrentOffset(std::vector <uint16_t> ch
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
-    RangedMeasurement_t range = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
+    RangedMeasurement_t range = vcCurrentRangesArray[selectedVcCurrentRangeIdx[0]];
     uint16_t dataLength = 2*channelIndexes.size();
     std::vector <uint16_t> txDataMessage(dataLength);
     for (auto chIdx : channelIndexes) {
-        calibrationParams.convertValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, chIdx, range.prefix);
+        calibrationParams.convertValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[0], chIdx, range.prefix);
 
         txDataMessage[0+chIdx*2] = vcCurrentOffsetDeltaRegisterOffset+chIdx*coreSpecificRegistersNum;
-        txDataMessage[1+chIdx*2] = (uint16_t)((int16_t)round(calibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, chIdx).value*SHORT_MAX/range.max));
+        txDataMessage[1+chIdx*2] = (uint16_t)((int16_t)round(calibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[0], chIdx).value*SHORT_MAX/range.max));
     }
 
     return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
@@ -928,7 +928,7 @@ ErrorCodes_t EZPatchDevice::setCalibCcVoltageOffset(std::vector <uint16_t> chann
     if (!allLessThan(channelIndexes, voltageChannelsNum)) {
         return ErrorValueOutOfRange;
     }
-    RangedMeasurement_t range = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
+    RangedMeasurement_t range = ccVoltageRangesArray[selectedCcVoltageRangeIdx[0]];
     if (!allInRange(offsets, range.getMin(), range.getMax())) {
         return ErrorValueOutOfRange;
     }
@@ -941,7 +941,7 @@ ErrorCodes_t EZPatchDevice::setCalibCcVoltageOffset(std::vector <uint16_t> chann
         Measurement_t voltage = e.second;
 
         voltage.convertValue(range.prefix);
-        calibrationParams.setValue(CalTypesCcOffsetAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx, chIdx, voltage);
+        calibrationParams.setValue(CalTypesCcOffsetAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx[0], chIdx, voltage);
     }
     return this->updateCalibCcVoltageOffset(channelIndexes, applyFlag);
 }
@@ -953,14 +953,14 @@ ErrorCodes_t EZPatchDevice::updateCalibCcVoltageOffset(std::vector <uint16_t> ch
     if (!allLessThan(channelIndexes, voltageChannelsNum)) {
         return ErrorValueOutOfRange;
     }
-    RangedMeasurement_t range = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
+    RangedMeasurement_t range = ccVoltageRangesArray[selectedCcVoltageRangeIdx[0]];
     uint16_t dataLength = 2*channelIndexes.size();
     std::vector <uint16_t> txDataMessage(dataLength);
     for (auto chIdx : channelIndexes) {
-        calibrationParams.convertValue(CalTypesCcOffsetAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx, chIdx, range.prefix);
+        calibrationParams.convertValue(CalTypesCcOffsetAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx[0], chIdx, range.prefix);
 
         txDataMessage[0+chIdx*2] = ccVoltageOffsetDeltaRegisterOffset+chIdx*coreSpecificRegistersNum;
-        txDataMessage[1+chIdx*2] = (uint16_t)((int16_t)round(calibrationParams.getValue(CalTypesCcOffsetAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx, chIdx).value*SHORT_MAX/range.max));
+        txDataMessage[1+chIdx*2] = (uint16_t)((int16_t)round(calibrationParams.getValue(CalTypesCcOffsetAdc, selectedSamplingRateIdx, selectedCcVoltageRangeIdx[0], chIdx).value*SHORT_MAX/range.max));
     }
 
     return this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdRegistersCtrl, txDataMessage, dataLength);
@@ -988,9 +988,9 @@ ErrorCodes_t EZPatchDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool app
         ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
         if (ret == Success) {
             this->dataMessage2Switches(txDataMessage);
-            currentRange = vcCurrentRangesArray[currentRangeIdx];
-            selectedVcCurrentRangeIdx = currentRangeIdx;
-            currentResolution = currentRange.step;
+            currentRanges[0] = vcCurrentRangesArray[currentRangeIdx];
+            selectedVcCurrentRangeIdx[0] = currentRangeIdx;
+            currentResolutions[0] = currentRanges[0].step;
             this->selectChannelsResolutions();
         }
 
@@ -1023,10 +1023,10 @@ ErrorCodes_t EZPatchDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool app
         ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
         if (ret == Success) {
             this->dataMessage2Switches(txDataMessage);
-            currentRange = ccCurrentRangesArray[currentRangeIdx];
+            currentRanges[0] = ccCurrentRangesArray[currentRangeIdx];
             selectedCcCurrentRangeIdx = currentRangeIdx;
-            currentResolution = currentRange.step;
-            currentCommandResolution = currentResolution*ccCurrentCommandResolutionGain;
+            currentResolutions[0] = currentRanges[0].step;
+            currentCommandResolution = currentResolutions[0]*ccCurrentCommandResolutionGain;
             this->selectChannelsResolutions();
         }
 
@@ -1059,10 +1059,10 @@ ErrorCodes_t EZPatchDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool app
         ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
         if (ret == Success) {
             this->dataMessage2Switches(txDataMessage);
-            voltageRange = vcVoltageRangesArray[voltageRangeIdx];
+            voltageRanges[0] = vcVoltageRangesArray[voltageRangeIdx];
             selectedVcVoltageRangeIdx = voltageRangeIdx;
-            voltageResolution = voltageRange.step;
-            voltageCommandResolution = voltageResolution*vcVoltageCommandResolutionGain;
+            voltageResolutions[0] = voltageRanges[0].step;
+            voltageCommandResolution = voltageResolutions[0]*vcVoltageCommandResolutionGain;
             this->selectChannelsResolutions();
         }
 
@@ -1095,9 +1095,9 @@ ErrorCodes_t EZPatchDevice::setCCVoltageRange(uint16_t voltageRangeIdx, bool app
         ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
         if (ret == Success) {
             this->dataMessage2Switches(txDataMessage);
-            voltageRange = ccVoltageRangesArray[voltageRangeIdx];
-            selectedCcVoltageRangeIdx = voltageRangeIdx;
-            voltageResolution = voltageRange.step;
+            voltageRanges[0] = ccVoltageRangesArray[voltageRangeIdx];
+            selectedCcVoltageRangeIdx[0] = voltageRangeIdx;
+            voltageResolutions[0] = voltageRanges[0].step;
             this->selectChannelsResolutions();
         }
 
@@ -2800,13 +2800,13 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                         /*! \todo FCON questo doppio ciclo va modificato per raccogliere i dati di impedenza in modalità lock-in */
                         for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
                             rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(channelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY)+(voltageOffsetCorrection+voltageTunerCorrection[channelIdx])/voltageResolution, iirVNum, iirVDen);
+                            this->applyRawDataFilter(channelIdx, (((double)rawFloat)-SHORT_OFFSET_BINARY)+(voltageOffsetCorrection+voltageTunerCorrection[channelIdx])/voltageResolutions[0], iirVNum, iirVDen);
                             xFlt = iirY[channelIdx][iirOff];
                             data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
 
                             rawFloat = * (rxDataBuffer+dataOffset);
-                            this->applyRawDataFilter(channelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY)+currentTunerCorrection[channelIdx]/currentResolution, iirINum, iirIDen);
+                            this->applyRawDataFilter(channelIdx+voltageChannelsNum, (((double)rawFloat)-SHORT_OFFSET_BINARY)+currentTunerCorrection[channelIdx]/currentResolutions[0], iirINum, iirIDen);
                             xFlt = iirY[channelIdx+voltageChannelsNum][iirOff];
                             data[dataWritten+sampleIdx+voltageChannelsNum] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
                             dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;

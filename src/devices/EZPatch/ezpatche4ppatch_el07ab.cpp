@@ -763,10 +763,14 @@ EZPatche4PPatch_el07ab::EZPatche4PPatch_el07ab(std::string di) :
     notificationTag = deviceName;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[VCCurrentRange10nA];
-    voltageRange = vcVoltageRangesArray[VCVoltageRange500mV];
-    currentResolution = currentRange.step;
-    voltageResolution = voltageRange.step;
+    currentRanges.resize(1);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[VCCurrentRange10nA]);
+    currentResolutions.resize(1);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(1);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[VCVoltageRange500mV]);
+    voltageResolutions.resize(1);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[SamplingRate6_25kHz];
 }
 
@@ -837,7 +841,7 @@ void EZPatche4PPatch_el07ab::selectVoltageOffsetResolution() {
         Measurement_t correctedValue;
         correctedValue.value = voltageOffsetCorrected;
         correctedValue.prefix = liquidJunctionPrefix;
-        correctedValue.convertValue(voltageRange.prefix);
+        correctedValue.convertValue(voltageRanges[0].prefix);
         voltageOffsetCorrection = correctedValue.value;
     }
 }

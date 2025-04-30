@@ -32,12 +32,12 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     customDoublesRanges.resize(customDoublesNum);
     customDoublesRanges[FanTrimmer].step = 50.0/256.0;
     customDoublesRanges[FanTrimmer].min = 60.0e-3;
-    customDoublesRanges[FanTrimmer].max = customDoublesRanges[FanTrimmer].min+customDoublesRanges[FanTrimmer].step*USHORT_MAX;
+    customDoublesRanges[FanTrimmer].max = customDoublesRanges[FanTrimmer].min+customDoublesRanges[FanTrimmer].step*255.0;
     customDoublesRanges[FanTrimmer].prefix = UnitPfxKilo;
     customDoublesRanges[FanTrimmer].unit = "Ohm";
-    doubleConfig.initialWord = 260;
+    doubleConfig.initialWord = 7;
     doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
+    doubleConfig.bitsNum = 8;
     doubleConfig.minValue = customDoublesRanges[FanTrimmer].min;
     doubleConfig.maxValue = customDoublesRanges[FanTrimmer].max;
     doubleConfig.resolution = customDoublesRanges[FanTrimmer].step;
@@ -48,17 +48,15 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     coders.push_back(customDoublesCoders[FanTrimmer]);
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x1AAA; // fans on
+    txStatus.init(txDataWords);
     for (int idx = 132; idx < 156; idx++) {
-        txStatus[idx] = 0x1111; // GR_EN active
+        txStatus.encodingWords[idx] = 0x1111; // GR_EN active
     }
     for (int idx = 1312; idx < 1504; idx++) {
-        txStatus[idx] = 0x4040; // Set 0 of secondary DAC
+        txStatus.encodingWords[idx] = 0x4040; // Set 0 of secondary DAC
     }
     for (int idx = 4384; idx < 4480; idx++) {
-        txStatus[idx] = 0x1111; // rs bw avoid configuration with all zeros
+        txStatus.encodingWords[idx] = 0x1111; // rs bw avoid configuration with all zeros
     }
 }
 

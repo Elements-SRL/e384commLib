@@ -40,8 +40,6 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
 
     txDataWords = 278; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -312,16 +310,21 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     calibVcVoltageOffsetRanges = vcVoltageRangesArray;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
-    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
-    voltageResolution =voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[defaultVcVoltageRangeIdx]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
     // Selected default Idx
-    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
+    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
+    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
@@ -393,18 +396,20 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 8;
-    vcCurrentRangeCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(36); /*! 0b00100100 */
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(72); /*! 0b01001000*/
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(147); /*! 0b10010011 */
-    coders.push_back(vcCurrentRangeCoder);
+    vcCurrentRangeCoders.clear();
+    vcCurrentRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(36);  /*! 0b00100100 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(72);  /*! 0b01001000 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(147); /*! 0b10010011 */
+    coders.push_back(vcCurrentRangeCoders[0]);
 
     /*! Voltage range VC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 8;
     boolConfig.bitsNum = 1;
-    vcVoltageRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(vcVoltageRangeCoder);
+    vcVoltageRangeCoders.clear();
+    vcVoltageRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(vcVoltageRangeCoders[0]);
 
     /*! Current range CC */
     // undefined
@@ -828,24 +833,23 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     coders.push_back(customDoublesCoders[SecondaryDacCore2]);
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[1] = 0x0023; /*! DS of AC cores enabled, inputs AC1 DC1 */
-    txStatus[3] = 0x0004; /*! Vcm generated internally */
-    txStatus[6] = 0x0005; /*! FPGA and DCM in reset by default */
-    txStatus[7] = 0x0001; /*! one voltage frame every current frame */
-    txStatus[8] = 0x0040; /*! null offset on secondary DAC for core 1 */
-    txStatus[9] = 0x0040; /*! null offset on secondary DAC for core 2 */
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[1] = 0x0023; /*! DS of AC cores enabled, inputs AC1 DC1 */
+    txStatus.encodingWords[3] = 0x0004; /*! Vcm generated internally */
+    txStatus.encodingWords[6] = 0x0005; /*! FPGA and DCM in reset by default */
+    txStatus.encodingWords[7] = 0x0001; /*! one voltage frame every current frame */
+    txStatus.encodingWords[8] = 0x0040; /*! null offset on secondary DAC for core 1 */
+    txStatus.encodingWords[9] = 0x0040; /*! null offset on secondary DAC for core 2 */
 }
 
 ErrorCodes_t EmcrQc01aTB_V01::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
-    dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    dcmResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     /*! After a short while the 10MHz clock starts */
@@ -856,13 +860,13 @@ ErrorCodes_t EmcrQc01aTB_V01::initializeHW() {
     this->resetFpga(false, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    // writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(true, txStatus);
+    // writeDacSpiCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     return Success;
@@ -872,14 +876,14 @@ ErrorCodes_t EmcrQc01aTB_V01::setSamplingRate(uint16_t samplingRateIdx, bool app
     bool adcToBeRenabled = (selectedSamplingRateIdx >= SamplingRate200kHz && samplingRateIdx < SamplingRate200kHz);
     if (adcToBeRenabled) {
         /*! Prepare the bit but don't send it yet, send it together with the sampling rate command */
-        writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        writeAdcSpiCoder->encode(true, txStatus);
     }
 
     EmcrOpalKellyDevice::setSamplingRate(samplingRateIdx, applyFlag);
 
     if (adcToBeRenabled) {
         std::this_thread::sleep_for (std::chrono::milliseconds(100));
-        writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        writeAdcSpiCoder->encode(false, txStatus);
         this->stackOutgoingMessage(txStatus);
     }
     return Success;
@@ -890,5 +894,5 @@ EmcrQc01aTB_ExtVcm_V01::EmcrQc01aTB_ExtVcm_V01(std::string di) :
 
     fwName = "TB_QC01a_V1.bit";
 
-    txStatus[3] = 0x0000; /*! Vcm obtained externally */
+    txStatus.encodingWords[3] = 0x0000; /*! Vcm obtained externally */
 }

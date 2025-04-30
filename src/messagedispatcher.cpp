@@ -305,7 +305,7 @@ ErrorCodes_t MessageDispatcher::resetOffsetRecalibration(std::vector <uint16_t> 
     int offsetIdx = 0;
     for (auto channelIdx : channelIndexes) {
         liquidJunctionStatuses[channelIdx] = LiquidJunctionResetted;
-        offsets[offsetIdx++] = originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx);
+        offsets[offsetIdx++] = originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx);
     }
     ljMutexLock.unlock();
     return this->setCalibVcCurrentOffset(channelIndexes, offsets, applyFlag);
@@ -421,6 +421,10 @@ ErrorCodes_t MessageDispatcher::setVCCurrentRange(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::setVCCurrentRange(std::vector <uint16_t>, std::vector <uint16_t>, bool) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::setVCVoltageRange(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
@@ -430,6 +434,10 @@ ErrorCodes_t MessageDispatcher::setCCCurrentRange(uint16_t, bool) {
 }
 
 ErrorCodes_t MessageDispatcher::setCCVoltageRange(uint16_t, bool) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setCCVoltageRange(std::vector <uint16_t>, std::vector <uint16_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -693,28 +701,48 @@ ErrorCodes_t MessageDispatcher::purgeData() {
 }
 
 ErrorCodes_t MessageDispatcher::convertVoltageValue(int16_t intValue, double &fltValue) {
-    fltValue = voltageResolution*(double)intValue;
+    fltValue = voltageResolutions[0]*(double)intValue;
+
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::convertVoltageValue(int16_t intValue, uint16_t channelIdx, double &fltValue) {
+    fltValue = voltageResolutions[channelIdx]*(double)intValue;
 
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::convertCurrentValue(int16_t intValue, double &fltValue) {
-    fltValue = currentResolution*(double)intValue;
+    fltValue = currentResolutions[0]*(double)intValue;
+
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::convertCurrentValue(int16_t intValue, uint16_t channelIdx, double &fltValue) {
+    fltValue = currentResolutions[channelIdx]*(double)intValue;
 
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::convertVoltageValues(int16_t * intValues, double * fltValues, int valuesNum) {
-    for (int idx = 0; idx < valuesNum; idx++) {
-        fltValues[idx] = voltageResolution*(double)intValues[idx];
+    int idx = 0;
+    while (idx < valuesNum) {
+        for (int chIdx = 0; chIdx < voltageChannelsNum; chIdx++) {
+            fltValues[idx] = voltageResolutions[chIdx]*(double)intValues[idx];
+            idx++;
+        }
     }
 
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::convertCurrentValues(int16_t * intValues, double * fltValues, int valuesNum) {
-    for (int idx = 0; idx < valuesNum; idx++) {
-        fltValues[idx] = currentResolution*(double)intValues[idx];
+    int idx = 0;
+    while (idx < valuesNum) {
+        for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+            fltValues[idx] = currentResolutions[chIdx]*(double)intValues[idx];
+            idx++;
+        }
     }
 
     return Success;
@@ -877,6 +905,14 @@ ErrorCodes_t MessageDispatcher::getClampingModalityIdx(uint32_t &idx) {
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::hasIndependentVCCurrentRanges() {
+    return (independentVcCurrentRanges ? Success : ErrorFeatureNotImplemented);
+}
+
+ErrorCodes_t MessageDispatcher::hasIndependentCCVoltageRanges() {
+    return (independentCcVoltageRanges ? Success : ErrorFeatureNotImplemented);
+}
+
 ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultRangeIdx) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
@@ -917,7 +953,18 @@ ErrorCodes_t MessageDispatcher::getVCCurrentRange(RangedMeasurement_t &range) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    range = vcCurrentRangesArray[selectedVcCurrentRangeIdx];
+    range = vcCurrentRangesArray[selectedVcCurrentRangeIdx[0]];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getVCCurrentRange(std::vector <RangedMeasurement_t> &ranges) {
+    if (vcCurrentRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    ranges.clear();
+    for (auto chIdx : allChannelIndexes) {
+        ranges.push_back(vcCurrentRangesArray[selectedVcCurrentRangeIdx[chIdx]]);
+    }
     return Success;
 }
 
@@ -949,7 +996,18 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRange(RangedMeasurement_t &range) {
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    range = ccVoltageRangesArray[selectedCcVoltageRangeIdx];
+    range = ccVoltageRangesArray[selectedCcVoltageRangeIdx[0]];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCCVoltageRange(std::vector <RangedMeasurement_t> &ranges) {
+    if (ccVoltageRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    ranges.clear();
+    for (auto chIdx : allChannelIndexes) {
+        ranges.push_back(ccVoltageRangesArray[selectedCcVoltageRangeIdx[chIdx]]);
+    }
     return Success;
 }
 
@@ -957,7 +1015,18 @@ ErrorCodes_t MessageDispatcher::getVCCurrentRangeIdx(uint32_t &idx) {
     if (vcCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = selectedVcCurrentRangeIdx;
+    idx = selectedVcCurrentRangeIdx[0];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getVCCurrentRangeIdx(std::vector <uint32_t> &idxs) {
+    if (vcCurrentRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    idxs.clear();
+    for (auto chIdx : allChannelIndexes) {
+        idxs.push_back(selectedVcCurrentRangeIdx[chIdx]);
+    }
     return Success;
 }
 
@@ -981,17 +1050,44 @@ ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(uint32_t &idx) {
     if (ccVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
     }
-    idx = selectedCcVoltageRangeIdx;
+    idx = selectedCcVoltageRangeIdx[0];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCCVoltageRangeIdx(std::vector <uint32_t> &idxs) {
+    if (ccVoltageRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    idxs.clear();
+    for (auto chIdx : allChannelIndexes) {
+        idxs.push_back(selectedCcVoltageRangeIdx[chIdx]);
+    }
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getVoltageRange(RangedMeasurement_t &range) {
-    range = voltageRange;
+    range = voltageRanges[0];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getVoltageRange(std::vector <RangedMeasurement_t> &ranges) {
+    ranges.clear();
+    for (auto chIdx : allChannelIndexes) {
+        ranges.push_back(voltageRanges[chIdx]);
+    }
     return Success;
 }
 
 ErrorCodes_t MessageDispatcher::getCurrentRange(RangedMeasurement_t &range) {
-    range = currentRange;
+    range = currentRanges[0];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getCurrentRange(std::vector <RangedMeasurement_t> &ranges) {
+    ranges.clear();
+    for (auto chIdx : allChannelIndexes) {
+        ranges.push_back(currentRanges[chIdx]);
+    }
     return Success;
 }
 
@@ -1386,9 +1482,9 @@ void MessageDispatcher::initializeVariables() {
 }
 
 ErrorCodes_t MessageDispatcher::deviceConfiguration() {
-    if (this->hasProperHeaderPackets() == Success) {
-        this->enableRxMessageType(MsgTypeIdAcquisitionHeader, true);
-    }
+    // if (this->hasProperHeaderPackets() == Success) {
+    //     this->enableRxMessageType(MsgTypeIdAcquisitionHeader, true);
+    // }
     /*! Some default values*/
     std::vector <bool> allTrue(currentChannelsNum, true);
     std::vector <bool> allFalse(currentChannelsNum, false);
@@ -1402,6 +1498,8 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
     for (uint16_t idx = 0; idx < totalBoardsNum; idx++) {
         boardIndexes[idx] = idx;
     }
+
+    storedVcCurrentRangeIdx = selectedVcCurrentRangeIdx;
 
     if (clampingModalitiesArray[defaultClampingModalityIdx] == VOLTAGE_CLAMP) {
         /*! Initialization in voltage clamp */
@@ -1508,7 +1606,7 @@ void MessageDispatcher::computeLiquidJunction() {
                     activeFlag = true;
                     readoutOffsetInt = (int16_t)(((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum);
                     this->convertCurrentValue(readoutOffsetInt, readoutOffset);
-                    offsetRecalibCorrection.push_back(calibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx));
+                    offsetRecalibCorrection.push_back(calibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx));
                     offsetRecalibCorrection.back().value -= readoutOffset;
                     offsetRecalibStates[channelIdx] = OffsetRecalibCheck;
                     channelIndexes.push_back(channelIdx);
@@ -1535,7 +1633,7 @@ void MessageDispatcher::computeLiquidJunction() {
                 case OffsetRecalibFail:
                     activeFlag = true;
                     channelIndexes.push_back(channelIdx);
-                    offsetRecalibCorrection.push_back(originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx, channelIdx));
+                    offsetRecalibCorrection.push_back(originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx));
                     offsetRecalibStates[channelIdx] = OffsetRecalibTerminate;
                     offsetRecalibStatuses[channelIdx] = OffsetRecalibFailed;
                     break;

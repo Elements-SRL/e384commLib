@@ -41,8 +41,6 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
 
     txDataWords = 337;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -542,10 +540,14 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     compensationOptionStrings[CompRsCorr][CompensationRsCorrBw9_36kHz] = rsCorrBwArray[CompensationRsCorrBw9_36kHz].niceLabel();
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
-    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
-    voltageResolution =voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[defaultVcVoltageRangeIdx]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
@@ -559,8 +561,9 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     defaultUserDomainParams[U_CpCc] = ccPipetteCapacitanceRange[0].min;
 
     // Selected default Idx
-    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
+    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
+    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
@@ -647,29 +650,33 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
-    vcCurrentRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(vcCurrentRangeCoder);
+    vcCurrentRangeCoders.clear();
+    vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(vcCurrentRangeCoders[0]);
 
     /*! Voltage range VC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    vcVoltageRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(vcVoltageRangeCoder);
+    vcVoltageRangeCoders.clear();
+    vcVoltageRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(vcVoltageRangeCoders[0]);
 
     /*! Current range CC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 8;
     boolConfig.bitsNum = 4;
-    ccCurrentRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(ccCurrentRangeCoder);
+    ccCurrentRangeCoders.clear();
+    ccCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(ccCurrentRangeCoders[0]);
 
     /*! Voltage range CC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 12;
     boolConfig.bitsNum = 4;
-    ccVoltageRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(ccVoltageRangeCoder);
+    ccVoltageRangeCoders.clear();
+    ccVoltageRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(ccVoltageRangeCoders[0]);
 
     /*! Current filter VC */
     boolConfig.initialWord = 11;
@@ -1524,15 +1531,14 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[17] = 0x00FF; // GR_EN active
-    txStatus[292] = 0x4040; // Secondary DAC
-    txStatus[293] = 0x4040;
-    txStatus[294] = 0x4040;
-    txStatus[295] = 0x4040;
-    txStatus[326] = 0x1111; // rs bw avoid configuration with all zeros
-    txStatus[327] = 0x1111;
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[17] = 0x00FF; // GR_EN active
+    txStatus.encodingWords[292] = 0x4040; // Secondary DAC
+    txStatus.encodingWords[293] = 0x4040;
+    txStatus.encodingWords[294] = 0x4040;
+    txStatus.encodingWords[295] = 0x4040;
+    txStatus.encodingWords[326] = 0x1111; // rs bw avoid configuration with all zeros
+    txStatus.encodingWords[327] = 0x1111;
 }
 
 ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::initializeHW() {
@@ -1639,7 +1645,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCompensation(std:
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1658,7 +1664,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCompensation(std:
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCslowRs(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1677,7 +1683,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCompensation(std:
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingRsCp(onValues[i]);
             this->updateLiquidJunctionVoltage(channelIndexes[i], false);
 #ifdef DEBUG_TX_DATA_PRINT
@@ -1697,7 +1703,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCompensation(std:
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingRsPg(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1716,7 +1722,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCompensation(std:
 #endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[compTypeToEnable][channelIndexes[i]] = onValues[i];
-            pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCcCfast(onValues[i]);
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
@@ -1746,10 +1752,10 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableVcCompensations(b
     vcCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
-        pipetteCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCfast][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        membraneCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCslow][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsCorrEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsCorr][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-        rsPredEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsPred][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCfast][i], txStatus);
+        membraneCapEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompCslow][i], txStatus);
+        rsCorrEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsCorr][i], txStatus);
+        rsPredEnCompensationCoders[i]->encode(vcCompensationsActivated && compensationsEnableFlags[CompRsPred][i], txStatus);
         this->updateLiquidJunctionVoltage(i, false);
     }
 
@@ -1768,7 +1774,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCcCompensations(b
     ccCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
-        pipetteCapCcEnCompensationCoders[i]->encode(ccCompensationsActivated && compensationsEnableFlags[CompCcCfast][i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        pipetteCapCcEnCompensationCoders[i]->encode(ccCompensationsActivated && compensationsEnableFlags[CompCcCfast][i], txStatus);
     }
 
     if (applyFlag) {
@@ -1799,45 +1805,45 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompValues(std::vect
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += "[U_CpVc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cp]) + "\n";
 #endif
-            asicParams[A_Cp] = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            asicParams[A_Cp] = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus);
             break;
 
         case U_Cm:
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += "[U_Cm chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cm]) + "\n";
 #endif
-            asicParams[A_Cm] = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cm], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            asicParams[A_Taum] = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            asicParams[A_Cm] = membraneCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cm], txStatus);
+            asicParams[A_Taum] = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus);
             break;
 
         case U_Rs:
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += "[U_Rs chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Taum]) + "\n";
 #endif
-            asicParams[A_Taum] = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            asicParams[A_RsCr] = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            asicParams[A_Taum] = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus);
+            asicParams[A_RsCr] = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus);
             break;
 
         case U_RsCp:
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += "[U_RsCp chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsCr]) + "\n";
 #endif
-            asicParams[A_RsCr] = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            asicParams[A_RsCr] = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus);
             break;
 
         case U_RsPg:
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += "[U_RsPg chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPg]) + "\n";
 #endif
-            asicParams[A_RsPg] = rsPredGainCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPg], txStatus, txModifiedStartingWord, txModifiedEndingWord);
-            asicParams[A_RsPtau] = rsPredTauCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPtau], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            asicParams[A_RsPg] = rsPredGainCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPg], txStatus);
+            asicParams[A_RsPtau] = rsPredTauCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPtau], txStatus);
             break;
 
         case U_CpCc:
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += "[U_CpCc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPtau]) + "\n";
 #endif
-            asicParams[A_RsPtau] = pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            asicParams[A_RsPtau] = pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus);
             break;
 
         case U_RsCl:
@@ -1887,7 +1893,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompRanges(std::vect
 
         for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
             membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->setEncodingRange(newRanges[chIdx]);
-            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+            temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(localCompValueSubMatrix[chIdx][paramToUpdate], txStatus);
             newParams[chIdx] = temp/localCompValueSubMatrix[chIdx][U_Cm];
         }
         break;
@@ -1913,7 +1919,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompOptions(std::vec
 #ifdef DEBUG_TX_DATA_PRINT
             debugString += "[CompRsCorr chan " + std::to_string(channelIndexes[i]+1) + "]: selected opt " + std::to_string(selectedRsCorrBws[i]) +"\n";
 #endif
-                rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus, txModifiedStartingWord, txModifiedEndingWord);
+                rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus);
             }
 
             if (applyFlag) {
@@ -2331,7 +2337,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompensationControl(
 
 void Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setGrEn(bool flag, bool applyFlag) {
     for (auto coder : grEnCoders) {
-        coder->encode(flag, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+        coder->encode(flag, txStatus);
     }
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);

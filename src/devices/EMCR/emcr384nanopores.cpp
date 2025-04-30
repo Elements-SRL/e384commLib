@@ -38,8 +38,6 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
 
     txDataWords = 3063; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -253,16 +251,21 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     Measurement_t defaultSourceVoltage = {0.0, sourceVoltageRange.prefix, sourceVoltageRange.unit};
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
-    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
-    voltageResolution =voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[defaultVcVoltageRangeIdx]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
     // Selected default Idx
-    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
+    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
+    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
@@ -302,15 +305,17 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
-    vcCurrentRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(vcCurrentRangeCoder);
+    vcCurrentRangeCoders.clear();
+    vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(vcCurrentRangeCoders[0]);
 
     /*! Voltage range VC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    vcVoltageRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(vcVoltageRangeCoder);
+    vcVoltageRangeCoders.clear();
+    vcVoltageRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(vcVoltageRangeCoders[0]);
 
     /*! Current range CC */
     // undefined
@@ -704,19 +709,18 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     coders.push_back(minus24VCoder);
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x0070; // fans on by default
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[2] = 0x0070; // fans on by default
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
 ErrorCodes_t Emcr384NanoPores_V01::initializeHW() {
-    minus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    minus24VCoder->encode(3, txStatus);
     stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(1000));
 
-    plus24VCoder->encode(3, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    plus24VCoder->encode(3, txStatus);
     stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));

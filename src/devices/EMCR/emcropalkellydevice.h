@@ -31,6 +31,7 @@ public:
         DeviceVersion10MHz = 0x0B,
         DeviceVersion192Blm = 0x0D,
         DeviceVersion384Patch = 0x0F,
+        DeviceVersionPrototype = 0xFE,
         DeviceVersionUndefined = 0xFF
     } DeviceVersion_t;
 
@@ -50,6 +51,9 @@ public:
         /*! Subversions used for version = 0x0F */
         DeviceSubversion384Patch_EL07c_FirstProto = 0x01,
         DeviceSubversion384Patch_EL07c_TemperatureControl = 0x02,
+
+        /*! Subversions used for version = 0xFE */
+        DeviceSubversion2x10MHz_FET = 0x19,
 
         /*! Subversions used for Version = 0xFF */
         DeviceSubversionUndefined = 0xFF

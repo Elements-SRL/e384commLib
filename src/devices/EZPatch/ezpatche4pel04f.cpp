@@ -837,10 +837,14 @@ EZPatche4PEL04F::EZPatche4PEL04F(std::string di) :
     notificationTag = deviceName;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[VCCurrentRange300pA];
-    voltageRange = vcVoltageRangesArray[VCVoltageRange500mV];
-    currentResolution = currentRange.step;
-    voltageResolution = voltageRange.step;
+    currentRanges.resize(1);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[VCCurrentRange300pA]);
+    currentResolutions.resize(1);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(1);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[VCVoltageRange500mV]);
+    voltageResolutions.resize(1);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[SamplingRate1_25kHz];
 }
 
@@ -896,7 +900,7 @@ ErrorCodes_t EZPatche4PEL04F::setResistancePredictionOptions(uint16_t optionIdx)
 
 ErrorCodes_t EZPatche4PEL04F::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
     if (param == U_LkG) {
-        if (selectedVcCurrentRangeIdx < VCCurrentRange3nA) {
+        if (selectedVcCurrentRangeIdx[0] < VCCurrentRange3nA) {
             compensationControls[U_LkG][compensationsSettingChannel].min = leakConductanceControlLow.min;
             compensationControls[U_LkG][compensationsSettingChannel].max = leakConductanceControlLow.max;
             compensationControls[U_LkG][compensationsSettingChannel].minCompensable = leakConductanceControlLow.minCompensable;
@@ -951,7 +955,7 @@ void EZPatche4PEL04F::selectVoltageOffsetResolution() {
         Measurement_t correctedValue;
         correctedValue.value = voltageOffsetCorrected;
         correctedValue.prefix = liquidJunctionPrefix;
-        correctedValue.convertValue(voltageRange.prefix);
+        correctedValue.convertValue(voltageRanges[0].prefix);
         voltageOffsetCorrection = correctedValue.value;
     }
 }
@@ -1142,7 +1146,7 @@ bool EZPatche4PEL04F::checkCompensationsValues() {
         double resistancePredictedTau = membraneTau*compensationControls[U_RsPp][compensationsSettingChannel].value/maxResistancePredictionPercentage/compensationControls[U_RsPg][compensationsSettingChannel].value;
         ret &= (resistancePredictedTau > (minResistancePredictionTau-0.5*resistancePredictionTauStep) &&
                 resistancePredictedTau < (maxResistancePredictionTau+0.5*resistancePredictionTauStep));
-        if (selectedVcCurrentRangeIdx < VCCurrentRange3nA) {
+        if (selectedVcCurrentRangeIdx[0] < VCCurrentRange3nA) {
             ret &= (compensationControls[U_LkG][compensationsSettingChannel].value > (minLeakConductanceLow-0.5*leakConductanceLowStep) &&
                     compensationControls[U_LkG][compensationsSettingChannel].value < (maxLeakConductanceLow+0.5*leakConductanceLowStep));
 
@@ -1211,7 +1215,7 @@ bool EZPatche4PEL04F::fillCompensationsRegistersTxData(std::vector <uint16_t> &t
     txDataMessage[8] = CompensationsRegisterVCRPredTau+compensationsSettingChannel*coreSpecificRegistersNum;
     txDataMessage[9] = 0xFF-((vcCompensationsActivated & compensationsEnableFlags[CompRsPred][compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_Cm][compensationsSettingChannel].value*compensationControls[U_Rs][compensationsSettingChannel].value*compensationControls[U_RsPp][compensationsSettingChannel].value/maxResistancePredictionPercentage-minResistancePredictionTau)/compensationControls[U_RsPg][compensationsSettingChannel].value/resistancePredictionTauStep) : 0);
     txDataMessage[10] = CompensationsRegisterVCRLeakGain+compensationsSettingChannel*coreSpecificRegistersNum;
-    if (selectedVcCurrentRangeIdx < VCCurrentRange3nA) {
+    if (selectedVcCurrentRangeIdx[0] < VCCurrentRange3nA) {
         txDataMessage[11] = 0xFF-((vcCompensationsActivated & compensationsEnableFlags[CompGLeak][compensationsSettingChannel]) ? (uint16_t)round((compensationControls[U_LkG][compensationsSettingChannel].value-minLeakConductanceLow)/leakConductanceLowStep) : 0);
 
     } else {

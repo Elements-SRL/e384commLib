@@ -75,6 +75,7 @@ SOURCES += \
     src/devices/EMCR/emcr10mhz.cpp \
     src/devices/EMCR/emcr10mhzsb.cpp \
     src/devices/EMCR/emcr2x10mhz.cpp \
+    src/devices/EMCR/emcr2x10mhz_fet.cpp \
     src/devices/EMCR/emcr4x10mhz.cpp \
     src/devices/EMCR/emcrtestboardel07ab.cpp \
     src/devices/EMCR/emcrtestboardel07cd.cpp \
@@ -131,6 +132,7 @@ HEADERS += \
     src/devices/EMCR/emcr10mhz.h \
     src/devices/EMCR/emcr10mhzsb.h \
     src/devices/EMCR/emcr2x10mhz.h \
+    src/devices/EMCR/emcr2x10mhz_fet.h \
     src/devices/EMCR/emcr4x10mhz.h \
     src/devices/EMCR/emcrtestboardel07ab.h \
     src/devices/EMCR/emcrtestboardel07cd.h \

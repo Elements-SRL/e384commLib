@@ -25,7 +25,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     rxWordOffsets[RxMessageDataLoad] = 0;
     rxWordLengths[RxMessageDataLoad] = (voltageChannelsNum+currentChannelsNum)*packetsPerFrame;
 
-    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageVoltageThenCurrentDataLoad] + rxWordLengths[RxMessageVoltageThenCurrentDataLoad];
+    rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
     rxWordLengths[RxMessageDataHeader] = 6;
 
     rxWordOffsets[RxMessageDataTail] = 0xFFFF;
@@ -39,8 +39,6 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
 
     txDataWords = 1660;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -255,10 +253,14 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
-    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
-    voltageResolution =voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[defaultVcVoltageRangeIdx]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
@@ -296,19 +298,21 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 4;
-    vcCurrentRangeCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(0); /*! 200pA 0b000 */
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(2); /*!   2nA 0b010 */
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(3); /*!  20nA 0b011 */
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoder)->addMapItem(7); /*! 200nA 0b111 */
-    coders.push_back(vcCurrentRangeCoder);
+    vcCurrentRangeCoders.clear();
+    vcCurrentRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(0); /*! 200pA 0b000 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(2); /*!   2nA 0b010 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(3); /*!  20nA 0b011 */
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(7); /*! 200nA 0b111 */
+    coders.push_back(vcCurrentRangeCoders[0]);
 
     /*! Voltage range VC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 4;
     boolConfig.bitsNum = 4;
-    vcVoltageRangeCoder = new BoolArrayCoder(boolConfig);
-    coders.push_back(vcVoltageRangeCoder);
+    vcVoltageRangeCoders.clear();
+    vcVoltageRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(vcVoltageRangeCoders[0]);
 
     /*! Current range CC */
 
@@ -622,14 +626,13 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[2] = 0x0070; // fans on
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[2] = 0x0070; // fans on
     for (int c = 36; c < 48; c++) {
-        txStatus[c] = 0xFFFF; // VC_int on
+        txStatus.encodingWords[c] = 0xFFFF; // VC_int on
     }
     for (int c = 700; c < 892; c++) {
-        txStatus[c] = 0x200; // ODAC zero
+        txStatus.encodingWords[c] = 0x200; // ODAC zero
     }
 }
 

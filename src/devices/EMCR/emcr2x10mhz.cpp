@@ -39,8 +39,6 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
 
     txDataWords = 360; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -230,16 +228,21 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
     calibVcVoltageOffsetRanges = vcVoltageRangesArray;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
-    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
-    voltageResolution =voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[defaultVcVoltageRangeIdx]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
     // Selected default Idx
-    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
+    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
+    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
@@ -515,7 +518,7 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
 
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 258;
-        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
@@ -589,26 +592,25 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus[13] = 0x00F0; /*! the 4 channels FW wants the voltage range x1 set */
-    txStatus[344] = 0x0400; /*! current gain 1 */
-    txStatus[345] = 0x0400; /*! current gain 1 */
-    txStatus[352] = 0x0400; /*! voltage gain 1 */
-    txStatus[353] = 0x0400; /*! voltage gain 1 */
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus.encodingWords[13] = 0x00F0; /*! the 4 channels FW wants the voltage range x1 set */
+    txStatus.encodingWords[344] = 0x0400; /*! current gain 1 */
+    txStatus.encodingWords[345] = 0x0400; /*! current gain 1 */
+    txStatus.encodingWords[352] = 0x0400; /*! voltage gain 1 */
+    txStatus.encodingWords[353] = 0x0400; /*! voltage gain 1 */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
 ErrorCodes_t Emcr2x10MHz_PCBV01_V01::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
-    dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    dcmResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     /*! After a short while the 10MHz clock starts */
@@ -619,13 +621,13 @@ ErrorCodes_t Emcr2x10MHz_PCBV01_V01::initializeHW() {
     this->resetFpga(false, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(true, txStatus);
+    writeDacSpiCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     return Success;
@@ -676,8 +678,6 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
 
     txDataWords = 360; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
-    txModifiedStartingWord = txDataWords;
-    txModifiedEndingWord = 0;
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
 
@@ -867,16 +867,21 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
     calibVcVoltageOffsetRanges = vcVoltageRangesArray;
 
     /*! Default values */
-    currentRange = vcCurrentRangesArray[defaultVcCurrentRangeIdx];
-    currentResolution = currentRange.step;
-    voltageRange = vcVoltageRangesArray[defaultVcVoltageRangeIdx];
-    voltageResolution =voltageRange.step;
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+    voltageRanges.resize(voltageChannelsNum);
+    std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[defaultVcVoltageRangeIdx]);
+    voltageResolutions.resize(voltageChannelsNum);
+    std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
     // Selected default Idx
-    selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdx;
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
+    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
+    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
@@ -1152,7 +1157,7 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
 
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 258;
-        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = -doubleConfig.resolution*40000.0; /*! The working point is 2.5V */
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
@@ -1243,26 +1248,25 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
-    fill(txStatus.begin(), txStatus.end(), 0x0000);
-    txStatus[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus[13] = 0x00F0; /*! the 4 channels FW wants the voltage range x1 set */
-    txStatus[344] = 0x0400; /*! current gain 1 */
-    txStatus[345] = 0x0400; /*! current gain 1 */
-    txStatus[352] = 0x0400; /*! voltage gain 1 */
-    txStatus[353] = 0x0400; /*! voltage gain 1 */
+    txStatus.init(txDataWords);
+    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus.encodingWords[13] = 0x00F0; /*! the 4 channels FW wants the voltage range x1 set */
+    txStatus.encodingWords[344] = 0x0400; /*! current gain 1 */
+    txStatus.encodingWords[345] = 0x0400; /*! current gain 1 */
+    txStatus.encodingWords[352] = 0x0400; /*! voltage gain 1 */
+    txStatus.encodingWords[353] = 0x0400; /*! voltage gain 1 */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
 ErrorCodes_t Emcr2x10MHz_PCBV01_V02::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
-    dcmResetCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    dcmResetCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    dcmResetCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     /*! After a short while the 10MHz clock starts */
@@ -1273,13 +1277,13 @@ ErrorCodes_t Emcr2x10MHz_PCBV01_V02::initializeHW() {
     this->resetFpga(false, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
-    writeDacSpiCoder->encode(true, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(true, txStatus);
+    writeDacSpiCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
-    writeAdcSpiCoder->encode(false, txStatus, txModifiedStartingWord, txModifiedEndingWord);
+    writeAdcSpiCoder->encode(false, txStatus);
     this->stackOutgoingMessage(txStatus);
 
     return Success;

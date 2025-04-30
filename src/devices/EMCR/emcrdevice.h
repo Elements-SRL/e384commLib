@@ -57,9 +57,11 @@ public:
     ErrorCodes_t resetCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag);
 
     ErrorCodes_t setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
+    ErrorCodes_t setVCCurrentRange(std::vector <uint16_t> channelIndexes, std::vector <uint16_t> currentRangeIdx, bool applyFlag) override;
     ErrorCodes_t setVCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
     ErrorCodes_t setCCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) override;
     ErrorCodes_t setCCVoltageRange(uint16_t voltageRangeIdx, bool applyFlag) override;
+    ErrorCodes_t setCCVoltageRange(std::vector <uint16_t> channelIndexes, std::vector <uint16_t> voltageRangeIdx, bool applyFlag) override;
     ErrorCodes_t setLiquidJunctionRange(uint16_t idx) override;
 
     ErrorCodes_t setVoltageStimulusLpf(uint16_t filterIdx, bool applyFlag) override;
@@ -170,7 +172,7 @@ protected:
     void updateCurrentHoldTuner(bool applyFlag);
 
     void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);
-    void stackOutgoingMessage(std::vector <uint16_t> &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
+    void stackOutgoingMessage(CommandStatus_t &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
     uint16_t popUint16FromRxRawBuffer();
     uint32_t popUint32FromRxRawBuffer();
     uint16_t readUint16FromRxRawBuffer(uint32_t n);
@@ -203,6 +205,7 @@ protected:
     uint32_t rxPrevMsgBufferWriteOffset = 0;
     uint32_t rxDataBufferWriteOffset = 0;
     std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */
+    std::vector <uint16_t> gpDataValues; /*! Store GP data when current data and GP data are not sent together in a single packet */
     bool gettingNextDataFlag = false;
 
     uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
@@ -211,17 +214,14 @@ protected:
 
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer = nullptr; /*!< Buffer of arrays of bytes to communicate to the device */
-    std::vector <uint16_t> txMsgOffsetWord; /*!< Buffer of offset word in txMsgBuffer */
-    std::vector <uint16_t> txMsgLength; /*!< Buffer of txMsgBuffer length */
+    std::vector <std::vector <uint16_t>> txMsgToBeSentWords; /*!< Buffer of list of words in txMsgBuffer */
     std::vector <CommandOptions_t> txMsgOption; /*!< Buffer of commandOptions */
     uint32_t txMsgBufferWriteOffset = 0; /*!< Offset of the part of buffer to be written */
     uint32_t txMsgBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
     uint16_t txDataWords;
     uint16_t txMaxWords;
     uint16_t txMaxRegs;
-    std::vector <uint16_t> txStatus; /*!< Status of the words written */
-    uint16_t txModifiedStartingWord;
-    uint16_t txModifiedEndingWord;
+    CommandStatus_t txStatus; /*!< Status of the words written */
 
     std::vector <uint16_t> rxWordOffsets;
     std::vector <uint16_t> rxWordLengths;
@@ -258,10 +258,10 @@ protected:
     BoolCoder * fpgaResetCoder = nullptr;
 
     BoolCoder * clampingModeCoder = nullptr;
-    BoolCoder * vcCurrentRangeCoder = nullptr;
-    BoolCoder * vcVoltageRangeCoder = nullptr;
-    BoolCoder * ccCurrentRangeCoder = nullptr;
-    BoolCoder * ccVoltageRangeCoder = nullptr;
+    std::vector <BoolCoder *> vcCurrentRangeCoders;
+    std::vector <BoolCoder *> vcVoltageRangeCoders;
+    std::vector <BoolCoder *> ccCurrentRangeCoders;
+    std::vector <BoolCoder *> ccVoltageRangeCoders;
     BoolCoder * vcCurrentFilterCoder = nullptr;
     BoolCoder * vcVoltageFilterCoder = nullptr;
     BoolCoder * ccCurrentFilterCoder = nullptr;

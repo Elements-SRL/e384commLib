@@ -436,15 +436,17 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
 }
 
 void EmcrUdbDevice::sendCommandsToDevice() {
-    txRawBulkBuffer[2] = txMsgLength[txMsgBufferReadOffset]/2;
+    int wordsNum = txMsgToBeSentWords[txMsgBufferReadOffset].size();
+    int regsNum = wordsNum/2;
+    txRawBulkBuffer[2] = regsNum;
 
     int writeTries = 0;
 
     bool notSentTxData;
 
     /*! Moving from 16 bits words to 32 bits registers (+= 2, /2, etc, are due to this conversion) */
-    for (uint32_t txDataBufferReadIdx = 0; txDataBufferReadIdx < txMsgLength[txMsgBufferReadOffset]; txDataBufferReadIdx += 2) {
-        txRawBulkBuffer[3+txDataBufferReadIdx] = (txMsgOffsetWord[txMsgBufferReadOffset]+txDataBufferReadIdx)/2;
+    for (uint32_t txDataBufferReadIdx = 0; txDataBufferReadIdx < wordsNum; txDataBufferReadIdx += 2) {
+        txRawBulkBuffer[3+txDataBufferReadIdx] = txMsgToBeSentWords[txMsgBufferReadOffset][txDataBufferReadIdx]/2;
         txRawBulkBuffer[3+txDataBufferReadIdx+1] =
                 ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx] +
                  ((uint32_t)txMsgBuffer[txMsgBufferReadOffset][txDataBufferReadIdx+1] << 16)); /*! Little endian */
