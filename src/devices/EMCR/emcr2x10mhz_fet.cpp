@@ -632,8 +632,8 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
-        doubleConfig.minValue = calibVcVoltageOffsetRanges[rangeIdx].max;
-        doubleConfig.maxValue = calibVcVoltageOffsetRanges[rangeIdx].min;
+        doubleConfig.minValue = calibVcVoltageOffsetRanges[rangeIdx].min;
+        doubleConfig.maxValue = calibVcVoltageOffsetRanges[rangeIdx].max;
         calibVcVoltageOffsetCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
             calibVcVoltageOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
