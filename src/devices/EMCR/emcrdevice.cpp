@@ -1926,8 +1926,9 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
         case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData):
             samplesNum = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
             dataWritten = rxOutput.dataLen;
-            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid ||
-                    (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData && dataWritten+samplesNum < E384CL_OUT_STRUCT_DATA_LEN)) {
+            if ((lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid ||
+                 lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData) &&
+                dataWritten+samplesNum < E384CL_OUT_STRUCT_DATA_LEN) {
                 /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid)
                     OR if we are merging successive acquisition data messages that do not overflow the available memory */
 
@@ -2161,8 +2162,8 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 /*! \todo FCON check sulla lunghezza del messaggio */
                 for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
                     data[temperatureChannelIdx] = (int16_t)rxDataBuffer[dataOffset];
+                    dataOffset = (dataOffset + 1) & RX_DATA_BUFFER_MASK;
                 }
-                dataOffset = (dataOffset + temperatureChannelsNum) & RX_DATA_BUFFER_MASK;
 
                 lastParsedMsgType = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionTemperature;
 
