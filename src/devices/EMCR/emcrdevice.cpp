@@ -2567,6 +2567,7 @@ void EmcrDevice::updateCurrentHoldTuner(bool applyFlag) {
 
 void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType) {
     uint32_t rxDataWords = rxWordLengths[rxMessageType];
+    uint32_t newProtocolItemFirstIndex = 0;
     bool swapLastMsgFlag = false;
     bool splitLastMsgFlag = false;
 
@@ -2671,6 +2672,7 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
     case RxMessageDataHeader:
         if (rxWordLengths[RxMessageDataHeader] > 4) {
             splitLastMsgFlag = true;
+            newProtocolItemFirstIndex = ((uint32_t)this->readUint16FromRxRawBuffer(4)) + ((this->readUint16FromRxRawBuffer(5)) << 16);
         }
     case RxMessageDataTail:
     case RxMessageStatus:
@@ -2693,7 +2695,6 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
 
     if (rxEnabledTypesMap[rxMsgTypeId]) {
         if (splitLastMsgFlag) {
-            uint32_t newProtocolItemFirstIndex = ((uint32_t)this->readUint16FromRxRawBuffer(4)) + ((this->readUint16FromRxRawBuffer(5)) << 16);
             MsgResume_t prevMsg = rxMsgBuffer[rxPrevMsgBufferWriteOffset];
             MsgResume_t lastMsg = prevMsg;
 

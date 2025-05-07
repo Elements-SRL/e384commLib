@@ -1482,9 +1482,9 @@ void MessageDispatcher::initializeVariables() {
 }
 
 ErrorCodes_t MessageDispatcher::deviceConfiguration() {
-    // if (this->hasProperHeaderPackets() == Success) {
-    //     this->enableRxMessageType(MsgTypeIdAcquisitionHeader, true);
-    // }
+    if (this->hasProperHeaderPackets() == Success) {
+        this->enableRxMessageType(MsgTypeIdAcquisitionHeader, true);
+    }
     /*! Some default values*/
     std::vector <bool> allTrue(currentChannelsNum, true);
     std::vector <bool> allFalse(currentChannelsNum, false);
