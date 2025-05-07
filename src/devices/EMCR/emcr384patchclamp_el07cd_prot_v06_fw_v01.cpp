@@ -570,8 +570,6 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
 
     // Selected default Idx
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
-    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 

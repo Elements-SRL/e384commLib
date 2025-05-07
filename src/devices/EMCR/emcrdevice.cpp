@@ -2441,17 +2441,23 @@ ErrorCodes_t EmcrDevice::initializeMemory() {
     txMsgToBeSentWords.resize(TX_MSG_BUFFER_SIZE);
     txMsgOption.resize(TX_MSG_BUFFER_SIZE);
 
+    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
+    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
+
+    selectedCcVoltageRangeIdx.resize(voltageChannelsNum);
+    std::fill(selectedCcVoltageRangeIdx.begin(), selectedCcVoltageRangeIdx.end(), defaultCcVoltageRangeIdx);
+
     selectedVoltageHoldVector.resize(currentChannelsNum);
-    fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
+    std::fill(selectedVoltageHoldVector.begin(), selectedVoltageHoldVector.end(), defaultVoltageHoldTuner);
 
     selectedCurrentHoldVector.resize(currentChannelsNum);
-    fill(selectedCurrentHoldVector.begin(), selectedCurrentHoldVector.end(), defaultCurrentHoldTuner);
+    std::fill(selectedCurrentHoldVector.begin(), selectedCurrentHoldVector.end(), defaultCurrentHoldTuner);
 
     selectedVoltageHalfVector.resize(currentChannelsNum);
-    fill(selectedVoltageHalfVector.begin(), selectedVoltageHalfVector.end(), defaultVoltageHalfTuner);
+    std::fill(selectedVoltageHalfVector.begin(), selectedVoltageHalfVector.end(), defaultVoltageHalfTuner);
 
     selectedCurrentHalfVector.resize(currentChannelsNum);
-    fill(selectedCurrentHalfVector.begin(), selectedCurrentHalfVector.end(), defaultCurrentHalfTuner);
+    std::fill(selectedCurrentHalfVector.begin(), selectedCurrentHalfVector.end(), defaultCurrentHalfTuner);
 
     /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
     voltageDataValues.resize(voltageChannelsNum);

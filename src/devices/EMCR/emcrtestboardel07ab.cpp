@@ -532,8 +532,6 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
 
     // Selected default Idx
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
-    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 

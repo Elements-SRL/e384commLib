@@ -250,8 +250,6 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
 
     // Selected default Idx
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
-    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
@@ -992,8 +990,6 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
 
     // Selected default Idx
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
-    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 

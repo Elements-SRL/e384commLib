@@ -281,8 +281,6 @@ Emcr384VoltageClamp_prot_v04_fw_v03::Emcr384VoltageClamp_prot_v04_fw_v03(std::st
 
     // Selected default Idx
     selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
-    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
     selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
     selectedSamplingRateIdx = defaultSamplingRateIdx;
 
