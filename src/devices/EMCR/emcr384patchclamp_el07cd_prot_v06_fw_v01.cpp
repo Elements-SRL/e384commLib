@@ -595,7 +595,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     /*! Input controls */
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
-    MultiCoder::MultiCoderConfig_t multiCoderConfig;
+    MultiCoder::CoderConfig_t multiConfig;
 
     /*! Asic reset */
     boolConfig.initialWord = 0;
@@ -1319,28 +1319,28 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
-    multiCoderConfig.doubleCoderVector.resize(pipetteCapacitanceRanges);
-    multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
+    multiConfig.doubleCoderVector.resize(pipetteCapacitanceRanges);
+    multiConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        multiCoderConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
-        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x0);
-        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x1);
-        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x3);
-        coders.push_back(multiCoderConfig.boolCoder);
+        multiConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
+        static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x0);
+        static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x1);
+        static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x3);
+        coders.push_back(multiConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
             doubleConfig.minValue = pipetteCapacitanceRange[rangeIdx].min;
             doubleConfig.maxValue = pipetteCapacitanceRange[rangeIdx].max;
             doubleConfig.resolution = pipetteCapacitanceRange[rangeIdx].step;
 
-            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+            multiConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < pipetteCapacitanceRanges-1) {
-                multiCoderConfig.thresholdVector[rangeIdx] = pipetteCapacitanceRange[rangeIdx].max + pipetteCapacitanceRange[rangeIdx].step;
+                multiConfig.thresholdVector[rangeIdx] = pipetteCapacitanceRange[rangeIdx].max + pipetteCapacitanceRange[rangeIdx].step;
             }
         }
-        pipetteCapValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        pipetteCapValCompensationMultiCoders[idx] = new MultiCoder(multiConfig);
         coders.push_back(pipetteCapValCompensationMultiCoders[idx]);
 
         /*! Initial bits for the 2 bits for range : 6 and 6+8 = 14 */
@@ -1384,25 +1384,25 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
-    multiCoderConfig.doubleCoderVector.resize(membraneCapValueRanges);
-    multiCoderConfig.thresholdVector.resize(membraneCapValueRanges-1);
+    multiConfig.doubleCoderVector.resize(membraneCapValueRanges);
+    multiConfig.thresholdVector.resize(membraneCapValueRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
-        coders.push_back(multiCoderConfig.boolCoder);
+        multiConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        coders.push_back(multiConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapValueRanges; rangeIdx++) {
             doubleConfig.minValue = membraneCapValueRange[rangeIdx].min;
             doubleConfig.maxValue = membraneCapValueRange[rangeIdx].max;
             doubleConfig.resolution = membraneCapValueRange[rangeIdx].step;
 
-            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+            multiConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < membraneCapValueRanges-1) {
-                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapValueRange[rangeIdx].max + membraneCapValueRange[rangeIdx].step;
+                multiConfig.thresholdVector[rangeIdx] = membraneCapValueRange[rangeIdx].max + membraneCapValueRange[rangeIdx].step;
             }
         }
-        membraneCapValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        membraneCapValCompensationMultiCoders[idx] = new MultiCoder(multiConfig);
         coders.push_back(membraneCapValCompensationMultiCoders[idx]);
 
         /*! Initial bits for the 2 bits for range : 6 and 6+8 = 14 */
@@ -1431,25 +1431,25 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
-    multiCoderConfig.doubleCoderVector.resize(membraneCapTauValueRanges);
-    multiCoderConfig.thresholdVector.resize(membraneCapTauValueRanges-1);
+    multiConfig.doubleCoderVector.resize(membraneCapTauValueRanges);
+    multiConfig.thresholdVector.resize(membraneCapTauValueRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
-        coders.push_back(multiCoderConfig.boolCoder);
+        multiConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        coders.push_back(multiConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapTauValueRanges; rangeIdx++) {
             doubleConfig.minValue =  membraneCapTauValueRange[rangeIdx].min;
             doubleConfig.maxValue = membraneCapTauValueRange[rangeIdx].max;
             doubleConfig.resolution = membraneCapTauValueRange[rangeIdx].step;
 
-            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+            multiConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < membraneCapTauValueRanges-1) {
-                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapTauValueRange[rangeIdx].max + membraneCapTauValueRange[rangeIdx].step;
+                multiConfig.thresholdVector[rangeIdx] = membraneCapTauValueRange[rangeIdx].max + membraneCapTauValueRange[rangeIdx].step;
             }
         }
-        membraneCapTauValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        membraneCapTauValCompensationMultiCoders[idx] = new MultiCoder(multiConfig);
         coders.push_back(membraneCapTauValCompensationMultiCoders[idx]);
 
 
@@ -1599,28 +1599,28 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
-    multiCoderConfig.doubleCoderVector.resize(pipetteCapacitanceRanges);
-    multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
+    multiConfig.doubleCoderVector.resize(pipetteCapacitanceRanges);
+    multiConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        multiCoderConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
-        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x0);
-        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x1);
-        static_cast <BoolRandomArrayCoder *> (multiCoderConfig.boolCoder)->addMapItem(0x3);
-        coders.push_back(multiCoderConfig.boolCoder);
+        multiConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
+        static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x0);
+        static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x1);
+        static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x3);
+        coders.push_back(multiConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
             doubleConfig.minValue = ccPipetteCapacitanceRange[rangeIdx].min;
             doubleConfig.maxValue = ccPipetteCapacitanceRange[rangeIdx].max;
             doubleConfig.resolution = ccPipetteCapacitanceRange[rangeIdx].step;
 
-            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+            multiConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < pipetteCapacitanceRanges-1) {
-                multiCoderConfig.thresholdVector[rangeIdx] = ccPipetteCapacitanceRange[rangeIdx].max + ccPipetteCapacitanceRange[rangeIdx].step;
+                multiConfig.thresholdVector[rangeIdx] = ccPipetteCapacitanceRange[rangeIdx].max + ccPipetteCapacitanceRange[rangeIdx].step;
             }
         }
-        pipetteCapCcValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        pipetteCapCcValCompensationMultiCoders[idx] = new MultiCoder(multiConfig);
         coders.push_back(pipetteCapCcValCompensationMultiCoders[idx]);
 
         /*! Initial bits for the 2 bits for range : 6 and 6+8 = 14 */

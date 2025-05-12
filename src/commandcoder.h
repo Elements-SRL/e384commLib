@@ -177,17 +177,17 @@ public:
         BoolArrayCoder * boolCoder;
         std::vector <DoubleCoder *> doubleCoderVector;
         std::vector <double> thresholdVector;
-    } MultiCoderConfig_t;
+    } CoderConfig_t;
 
-    MultiCoder(MultiCoderConfig_t multiConfig);
+    MultiCoder(CoderConfig_t config);
     virtual ~MultiCoder() {}
 
     double encode(double value, CommandStatus_t &status);
     void setEncodingRange(int rangeIdx);
-    void getMultiConfig(MultiCoderConfig_t &multiConfig);
+    void getConfig(CoderConfig_t &config);
 
 private:
-    MultiCoderConfig_t multiConfig;
+    CoderConfig_t config;
     bool rangeSelectedFlag = false;
     int selectedRange = 0;
     int rangesNum = 0;

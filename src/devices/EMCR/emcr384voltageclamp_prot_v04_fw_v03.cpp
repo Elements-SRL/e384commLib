@@ -291,7 +291,6 @@ Emcr384VoltageClamp_prot_v04_fw_v03::Emcr384VoltageClamp_prot_v04_fw_v03(std::st
     /*! Input controls */
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
-    MultiCoder::MultiCoderConfig_t multiCoderConfig;
 
     /*! Asic reset */
     boolConfig.initialWord = 0;

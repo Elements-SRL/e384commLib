@@ -271,7 +271,6 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
     /*! Input controls */
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
-    MultiCoder::MultiCoderConfig_t multiCoderConfig;
 
     /*! Asic reset */
     boolConfig.initialWord = 0;

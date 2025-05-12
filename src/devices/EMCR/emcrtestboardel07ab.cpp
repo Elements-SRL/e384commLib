@@ -557,7 +557,7 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     /*! Input controls */
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
-    MultiCoder::MultiCoderConfig_t multiCoderConfig;
+    MultiCoder::CoderConfig_t multiConfig;
 
     /*! Asic reset */
     boolConfig.initialWord = 0;
@@ -1245,27 +1245,27 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
 
-    multiCoderConfig.doubleCoderVector.resize(pipetteCapacitanceRanges);
-    multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
+    multiConfig.doubleCoderVector.resize(pipetteCapacitanceRanges);
+    multiConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
-        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
-        coders.push_back(multiCoderConfig.boolCoder);
+        multiConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        coders.push_back(multiConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
             doubleConfig.minValue = pipetteCapacitanceRange[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
             doubleConfig.maxValue = pipetteCapacitanceRange[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
             doubleConfig.resolution = pipetteCapacitanceRange[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
 
-            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+            multiConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < pipetteCapacitanceRanges-1) {
                 /*! \todo RECHECK: computed as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceRange[rangeIdx].max + pipetteCapacitanceRange[rangeIdx+1].min);
+                multiConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceRange[rangeIdx].max + pipetteCapacitanceRange[rangeIdx+1].min);
             }
         }
-        pipetteCapValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        pipetteCapValCompensationMultiCoders[idx] = new MultiCoder(multiConfig);
         coders.push_back(pipetteCapValCompensationMultiCoders[idx]);
 
         /*! Initial bits for the 2 bits for range : 6 and 6+8 = 14 */
@@ -1309,27 +1309,27 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
 
-    multiCoderConfig.doubleCoderVector.resize(membraneCapValueRanges);
-    multiCoderConfig.thresholdVector.resize(membraneCapValueRanges-1);
+    multiConfig.doubleCoderVector.resize(membraneCapValueRanges);
+    multiConfig.thresholdVector.resize(membraneCapValueRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
-        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
-        coders.push_back(multiCoderConfig.boolCoder);
+        multiConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        coders.push_back(multiConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapValueRanges; rangeIdx++) {
             doubleConfig.minValue = membraneCapValueRange[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
             doubleConfig.maxValue = membraneCapValueRange[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
             doubleConfig.resolution = membraneCapValueRange[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
 
-            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+            multiConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < membraneCapValueRanges-1) {
                 /*! \todo RECHECK: computed as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(membraneCapValueRange[rangeIdx].max + membraneCapValueRange[rangeIdx+1].min);
+                multiConfig.thresholdVector[rangeIdx] = 0.5*(membraneCapValueRange[rangeIdx].max + membraneCapValueRange[rangeIdx+1].min);
             }
         }
-        membraneCapValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        membraneCapValCompensationMultiCoders[idx] = new MultiCoder(multiConfig);
         coders.push_back(membraneCapValCompensationMultiCoders[idx]);
 
         /*! Initial bits for the 2 bits for range : 6 and 6+8 = 14 */
@@ -1358,27 +1358,27 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 8;
 
-    multiCoderConfig.doubleCoderVector.resize(membraneCapTauValueRanges);
-    multiCoderConfig.thresholdVector.resize(membraneCapTauValueRanges-1);
+    multiConfig.doubleCoderVector.resize(membraneCapTauValueRanges);
+    multiConfig.thresholdVector.resize(membraneCapTauValueRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         /*! to encode the range, individual bits starting from word 2244*/
-        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
-        coders.push_back(multiCoderConfig.boolCoder);
+        multiConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        coders.push_back(multiConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < membraneCapTauValueRanges; rangeIdx++) {
             doubleConfig.minValue =  membraneCapTauValueRange[rangeIdx].min;
             doubleConfig.maxValue = membraneCapTauValueRange[rangeIdx].max;
             doubleConfig.resolution = membraneCapTauValueRange[rangeIdx].step;
 
-            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+            multiConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < membraneCapTauValueRanges-1) {
-//                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapTauValueMax_us[rangeIdx] + membraneCapTauValueStep_us[rangeIdx];
-                multiCoderConfig.thresholdVector[rangeIdx] = membraneCapTauValueRange[rangeIdx].max + membraneCapTauValueRange[rangeIdx].step;
+//                multiConfig.thresholdVector[rangeIdx] = membraneCapTauValueMax_us[rangeIdx] + membraneCapTauValueStep_us[rangeIdx];
+                multiConfig.thresholdVector[rangeIdx] = membraneCapTauValueRange[rangeIdx].max + membraneCapTauValueRange[rangeIdx].step;
             }
         }
-        membraneCapTauValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        membraneCapTauValCompensationMultiCoders[idx] = new MultiCoder(multiConfig);
         coders.push_back(membraneCapTauValCompensationMultiCoders[idx]);
 
 
@@ -1521,27 +1521,27 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 6;
 
-    multiCoderConfig.doubleCoderVector.resize(pipetteCapacitanceRanges);
-    multiCoderConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
+    multiConfig.doubleCoderVector.resize(pipetteCapacitanceRanges);
+    multiConfig.thresholdVector.resize(pipetteCapacitanceRanges-1);
 
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         /*! to encode the range, last 2 bits of the total 8 bits of Cfast compenstion for each channel*/
-        multiCoderConfig.boolCoder = new BoolArrayCoder(boolConfig);
-        coders.push_back(multiCoderConfig.boolCoder);
+        multiConfig.boolCoder = new BoolArrayCoder(boolConfig);
+        coders.push_back(multiConfig.boolCoder);
         for (uint32_t rangeIdx = 0; rangeIdx < pipetteCapacitanceRanges; rangeIdx++) {
             doubleConfig.minValue = pipetteCapacitanceRange[rangeIdx].min; /*! \todo RECHECK THESE VALUES!*/
             doubleConfig.maxValue = pipetteCapacitanceRange[rangeIdx].max; /*! \todo RECHECK THESE VALUES!*/
             doubleConfig.resolution = pipetteCapacitanceRange[rangeIdx].step; /*! \todo RECHECK THESE VALUES!*/
 
-            multiCoderConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-            coders.push_back(multiCoderConfig.doubleCoderVector[rangeIdx]);
+            multiConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(multiConfig.doubleCoderVector[rangeIdx]);
 
             if (rangeIdx < pipetteCapacitanceRanges-1) {
                 /*! \todo RECHECK: computed as the mean between the upper bound (Cmax) of this range and the lower bound (Cmin) of the next range */
-                multiCoderConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceRange[rangeIdx].max + pipetteCapacitanceRange[rangeIdx+1].min);
+                multiConfig.thresholdVector[rangeIdx] = 0.5*(pipetteCapacitanceRange[rangeIdx].max + pipetteCapacitanceRange[rangeIdx+1].min);
             }
         }
-        pipetteCapCcValCompensationMultiCoders[idx] = new MultiCoder(multiCoderConfig);
+        pipetteCapCcValCompensationMultiCoders[idx] = new MultiCoder(multiConfig);
         coders.push_back(pipetteCapCcValCompensationMultiCoders[idx]);
 
         /*! Initial bits for the 2 bits for range : 6 and 6+8 = 14 */
@@ -2058,8 +2058,8 @@ std::vector <double> EmcrTestBoardEl07ab::user2AsicDomainTransform(int chIdx, st
     // pipette capacitance VC to pipette capacitance domain conversion
     /*! \todo aggiungere check se il multicoder esiste sulla size del vettore di puntatori  a multiCoder*/
 
-    MultiCoder::MultiCoderConfig_t aaa;
-    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
+    MultiCoder::CoderConfig_t aaa;
+    membraneCapValCompensationMultiCoders[chIdx]->getConfig(aaa);
     asicCmCinj = computeAsicCmCinj(userDomainParams[U_Cm], vcCompensationsActivated && compensationsEnableFlags[CompCslow][chIdx], aaa);
 
     if (selectedClampingModality == VOLTAGE_CLAMP) {
@@ -2104,8 +2104,8 @@ std::vector <double> EmcrTestBoardEl07ab::asic2UserDomainTransform(int chIdx, st
 
     double asicCmCinj;
 
-    MultiCoder::MultiCoderConfig_t aaa;
-    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
+    MultiCoder::CoderConfig_t aaa;
+    membraneCapValCompensationMultiCoders[chIdx]->getConfig(aaa);
     asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], vcCompensationsActivated && compensationsEnableFlags[CompCslow][chIdx], aaa);
 
     //  pipette capacitance to pipette capacitance VC domain conversion
@@ -2151,8 +2151,8 @@ ErrorCodes_t EmcrTestBoardEl07ab::asic2UserDomainCompensable(int chIdx, std::vec
     double myInfinity = std::numeric_limits<double>::infinity();
 
     double asicCmCinj;
-    MultiCoder::MultiCoderConfig_t aaa;
-    membraneCapValCompensationMultiCoders[chIdx]->getMultiConfig(aaa);
+    MultiCoder::CoderConfig_t aaa;
+    membraneCapValCompensationMultiCoders[chIdx]->getConfig(aaa);
     asicCmCinj = computeAsicCmCinj(asicDomainParams[A_Cm], vcCompensationsActivated && compensationsEnableFlags[CompCslow][chIdx], aaa);
 
     /*! Compensable for U_CpVc*/
@@ -2300,7 +2300,7 @@ ErrorCodes_t EmcrTestBoardEl07ab::asic2UserDomainCompensable(int chIdx, std::vec
     return Success;
 }
 
-double EmcrTestBoardEl07ab::computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::MultiCoderConfig_t multiconfigCslow) {
+double EmcrTestBoardEl07ab::computeAsicCmCinj(double cm, bool chanCslowEnable, MultiCoder::CoderConfig_t multiconfigCslow) {
     bool done = false;
     int i;
     double asicCmCinj;

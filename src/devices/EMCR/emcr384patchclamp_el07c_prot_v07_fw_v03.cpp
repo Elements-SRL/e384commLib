@@ -19,12 +19,15 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     temperatureChannelsRanges[TemperatureSensor1].prefix = UnitPfxNone;
     temperatureChannelsRanges[TemperatureSensor1].unit = "°C";
 
+
     /**********\
      * Coders *
     \**********/
 
     /*! Input controls */
+    BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
+    MultiCoder::CoderConfig_t multiConfig;
 
     customDoublesNum = CustomDoublesNum;
     customDoublesNames.resize(customDoublesNum);
@@ -47,6 +50,62 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     customDoublesDefault[FanTrimmer] = customDoublesRanges[FanTrimmer].max;
     coders.push_back(customDoublesCoders[FanTrimmer]);
 
+    /*! T control */
+    int fanTrimmerRangesNum = FanTrimmerRangesNum;
+
+    double fanTrimmerLevels = 256.0;
+    double Rb = 140.0;
+    double Rc = 0.06;
+    double Rp = 499.0;
+    double Rm = 50.0;
+
+    fanTrimmerRanges.resize(fanTrimmerRangesNum);
+    fanTrimmerRanges[FanTrimmerOff].step = 1.0;
+    fanTrimmerRanges[FanTrimmerOff].min = 0.0;
+    fanTrimmerRanges[FanTrimmerOff].max = 0.0;
+    fanTrimmerRanges[FanTrimmerOff].prefix = UnitPfxKilo;
+    fanTrimmerRanges[FanTrimmerOff].unit = "Ohm";
+    fanTrimmerRanges[FanTrimmerFast].step = Rm/fanTrimmerLevels;
+    fanTrimmerRanges[FanTrimmerFast].min = Rb+Rc;
+    fanTrimmerRanges[FanTrimmerFast].max = fanTrimmerRanges[FanTrimmerFast].min+Rc*((fanTrimmerLevels-1.0)*fanTrimmerRanges[FanTrimmerFast].step);
+    fanTrimmerRanges[FanTrimmerFast].prefix = UnitPfxKilo;
+    fanTrimmerRanges[FanTrimmerFast].unit = "Ohm";
+    fanTrimmerRanges[FanTrimmerSlow].min = fanTrimmerRanges[FanTrimmerFast].min*Rp/(fanTrimmerRanges[FanTrimmerFast].min+Rp);
+    fanTrimmerRanges[FanTrimmerSlow].max = fanTrimmerRanges[FanTrimmerFast].max*Rp/(fanTrimmerRanges[FanTrimmerFast].max+Rp);;
+    fanTrimmerRanges[FanTrimmerSlow].step = (fanTrimmerRanges[FanTrimmerSlow].max-fanTrimmerRanges[FanTrimmerSlow].min)/fanTrimmerLevels;
+    fanTrimmerRanges[FanTrimmerSlow].prefix = UnitPfxKilo;
+    fanTrimmerRanges[FanTrimmerSlow].unit = "Ohm";
+
+    boolConfig.initialWord = 2;
+    boolConfig.initialBit = 12;
+    boolConfig.bitsNum = 2;
+
+    doubleConfig.initialWord = 7;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 8;
+
+    multiConfig.doubleCoderVector.resize(fanTrimmerRangesNum);
+    multiConfig.thresholdVector.resize(fanTrimmerRangesNum-1);
+
+    multiConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
+    static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x3);
+    static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x2);
+    static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x0);
+    coders.push_back(multiConfig.boolCoder);
+
+    for (uint32_t rangeIdx = 0; rangeIdx < fanTrimmerRangesNum; rangeIdx++) {
+        doubleConfig.minValue = fanTrimmerRanges[rangeIdx].min;
+        doubleConfig.maxValue = fanTrimmerRanges[rangeIdx].max;
+        doubleConfig.resolution = fanTrimmerRanges[rangeIdx].step;
+        multiConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(multiConfig.doubleCoderVector[rangeIdx]);
+        if (rangeIdx > 1) {
+            multiConfig.thresholdVector[rangeIdx-1] = (fanTrimmerRanges[rangeIdx].min + fanTrimmerRanges[rangeIdx-1].max)*0.5;
+        }
+    }
+    fanTrimmerCoder = new MultiCoder(multiConfig);
+    coders.push_back(fanTrimmerCoder);
+
     /*! Default status */
     txStatus.init(txDataWords);
     for (int idx = 132; idx < 156; idx++) {
@@ -58,6 +117,21 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     for (int idx = 4384; idx < 4480; idx++) {
         txStatus.encodingWords[idx] = 0x1111; // rs bw avoid configuration with all zeros
     }
+}
+
+Measurement_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::fanV2R(Measurement_t V) {
+    V.convertValue(fanTrimmerVStep.prefix);
+    return fanTrimmerRf*(V.value/fanTrimmerVStep.value-1.0);
+}
+
+Measurement_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::fanW2V(Measurement_t W) {
+    W.convertValue(fanTrimmerWMax.prefix);
+    return fanTrimmerVMax*(W.value/fanTrimmerWMax.value);
+}
+
+Measurement_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::fanRT2W(Measurement_t RT) {
+    RT.convertValue(fanTrimmerRTMin.prefix);
+    return fanTrimmerWMax/(RT.value/fanTrimmerRTMin.value);
 }
 
 Emcr384PatchClamp_EL07d_prot_v07_fw_v03::Emcr384PatchClamp_EL07d_prot_v07_fw_v03(std::string di) :

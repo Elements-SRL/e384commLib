@@ -201,32 +201,32 @@ double FloatCoder::encode(double value, CommandStatus_t &status) {
     return (double)fltValue;
 }
 
-MultiCoder::MultiCoder(MultiCoderConfig_t multiConfig) :
+MultiCoder::MultiCoder(CoderConfig_t config) :
     CommandCoder(0, 0, 0),
-    multiConfig(multiConfig) {
+    config(config) {
 
-    rangesNum = multiConfig.thresholdVector.size();
+    rangesNum = config.thresholdVector.size();
 }
 
 double MultiCoder::encode(double value, CommandStatus_t &status) {
     double ret;
     if (rangeSelectedFlag) {
-        multiConfig.boolCoder->encode(selectedRange, status);
-        ret = multiConfig.doubleCoderVector[selectedRange]->encode(value, status);
+        config.boolCoder->encode(selectedRange, status);
+        ret = config.doubleCoderVector[selectedRange]->encode(value, status);
 
     } else {
         bool done = false;
         int i;
         for (i = 0; i < rangesNum; i++) {
-            if (value < multiConfig.thresholdVector[i] && !done) {
-                multiConfig.boolCoder->encode(i, status);
-                ret = multiConfig.doubleCoderVector[i]->encode(value, status);
+            if (value < config.thresholdVector[i] && !done) {
+                config.boolCoder->encode(i, status);
+                ret = config.doubleCoderVector[i]->encode(value, status);
                 done = true;
             }
         }
         if (!done) {
-            multiConfig.boolCoder->encode(i, status);
-            ret = multiConfig.doubleCoderVector[i]->encode(value, status);
+            config.boolCoder->encode(i, status);
+            ret = config.doubleCoderVector[i]->encode(value, status);
             done = true;
         }
     }
@@ -243,6 +243,6 @@ void MultiCoder::setEncodingRange(int rangeIdx) {
     }
 }
 
-void MultiCoder::getMultiConfig(MultiCoderConfig_t &multiConfig) {
-    multiConfig = this->multiConfig;
+void MultiCoder::getConfig(CoderConfig_t &config) {
+    config = this->config;
 }
