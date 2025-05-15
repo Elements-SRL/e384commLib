@@ -1148,6 +1148,14 @@ public:
 
     /*! Device specific controls */
 
+    /*! \brief Set cooling fans speed.
+     *
+     * \param speed [in] Desired speed.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setCoolingFansSpeed(Measurement_t speed, bool applyFlag);
+
     /*! \brief Set a custom flag.
      *
      * \param idx [in] Index of the flag to be set.
@@ -2068,6 +2076,13 @@ public:
     virtual ErrorCodes_t getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control);
 
     /*! Device specific controls */
+
+    /*! \brief Get cooling fans speed.
+     *
+     * \param range [out] Speed Range.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t getCoolingFansSpeedRange(RangedMeasurement_t &range);
 
     /*! \brief Get the specifications of the custom controls of type boolean.
      *

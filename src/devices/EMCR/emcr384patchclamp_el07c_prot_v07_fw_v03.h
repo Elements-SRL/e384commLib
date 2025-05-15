@@ -7,12 +7,10 @@ class Emcr384PatchClamp_EL07c_prot_v07_fw_v03 : public Emcr384PatchClamp_EL07c_p
 public:
     Emcr384PatchClamp_EL07c_prot_v07_fw_v03(std::string di);
 
-protected:
-    enum CustomDoubles {
-        FanTrimmer,
-        CustomDoublesNum
-    };
+    ErrorCodes_t setCoolingFansSpeed(Measurement_t speed, bool applyFlag) override;
+    ErrorCodes_t getCoolingFansSpeedRange(RangedMeasurement_t &range) override;
 
+protected:
     enum FanTrimmerRanges {
         FanTrimmerOff,
         FanTrimmerSlow,
@@ -26,11 +24,11 @@ protected:
 
     MultiCoder * fanTrimmerCoder = nullptr;
     std::vector <RangedMeasurement_t> fanTrimmerRanges;
-    const Measurement_t fanTrimmerRf = {0.06, UnitPfxKilo, "Ohm"};
+    const Measurement_t fanTrimmerRf = {10.0, UnitPfxKilo, "Ohm"};
     const Measurement_t fanTrimmerVStep = {0.6, UnitPfxNone, "V"};
     const Measurement_t fanTrimmerVMax = {12.0, UnitPfxNone, "V"};
     const Measurement_t fanTrimmerWMax = {6300.0, UnitPfxNone, "rpm"};
-    const Measurement_t fanTrimmerRTMin = {1.0, UnitPfxNone, "KpW"};
+    const Measurement_t fanTrimmerRTMin = {0.3501, UnitPfxNone, "K/W"};
 };
 
 class Emcr384PatchClamp_EL07d_prot_v07_fw_v03 : public Emcr384PatchClamp_EL07c_prot_v07_fw_v03 {

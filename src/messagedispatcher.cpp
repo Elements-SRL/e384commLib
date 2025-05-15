@@ -2344,6 +2344,10 @@ ErrorCodes_t MessageDispatcher::setCompOptions(std::vector <uint16_t>, Compensat
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::setCoolingFansSpeed(Measurement_t speed, bool applyFlag) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::setCustomFlag(uint16_t, bool, bool) {
     return ErrorFeatureNotImplemented;
 }
@@ -2402,6 +2406,10 @@ ErrorCodes_t MessageDispatcher::getCompensationEnables(std::vector <uint16_t>, C
 }
 
 ErrorCodes_t MessageDispatcher::getCompensationControl(CompensationUserParams_t, CompensationControl_t &) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::getCoolingFansSpeedRange(RangedMeasurement_t &range) {
     return ErrorFeatureNotImplemented;
 }
 

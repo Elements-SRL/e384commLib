@@ -19,7 +19,6 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     temperatureChannelsRanges[TemperatureSensor1].prefix = UnitPfxNone;
     temperatureChannelsRanges[TemperatureSensor1].unit = "°C";
 
-
     /**********\
      * Coders *
     \**********/
@@ -28,27 +27,6 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
     MultiCoder::CoderConfig_t multiConfig;
-
-    customDoublesNum = CustomDoublesNum;
-    customDoublesNames.resize(customDoublesNum);
-    customDoublesNames[FanTrimmer] = "FAN trimmer";
-    customDoublesRanges.resize(customDoublesNum);
-    customDoublesRanges[FanTrimmer].step = 50.0/256.0;
-    customDoublesRanges[FanTrimmer].min = 60.0e-3;
-    customDoublesRanges[FanTrimmer].max = customDoublesRanges[FanTrimmer].min+customDoublesRanges[FanTrimmer].step*255.0;
-    customDoublesRanges[FanTrimmer].prefix = UnitPfxKilo;
-    customDoublesRanges[FanTrimmer].unit = "Ohm";
-    doubleConfig.initialWord = 7;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 8;
-    doubleConfig.minValue = customDoublesRanges[FanTrimmer].min;
-    doubleConfig.maxValue = customDoublesRanges[FanTrimmer].max;
-    doubleConfig.resolution = customDoublesRanges[FanTrimmer].step;
-    customDoublesCoders.resize(customDoublesNum);
-    customDoublesCoders[FanTrimmer] = new DoubleOffsetBinaryCoder(doubleConfig);
-    customDoublesDefault.resize(customDoublesNum);
-    customDoublesDefault[FanTrimmer] = customDoublesRanges[FanTrimmer].max;
-    coders.push_back(customDoublesCoders[FanTrimmer]);
 
     /*! T control */
     int fanTrimmerRangesNum = FanTrimmerRangesNum;
@@ -67,7 +45,7 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     fanTrimmerRanges[FanTrimmerOff].unit = "Ohm";
     fanTrimmerRanges[FanTrimmerFast].step = Rm/fanTrimmerLevels;
     fanTrimmerRanges[FanTrimmerFast].min = Rb+Rc;
-    fanTrimmerRanges[FanTrimmerFast].max = fanTrimmerRanges[FanTrimmerFast].min+Rc*((fanTrimmerLevels-1.0)*fanTrimmerRanges[FanTrimmerFast].step);
+    fanTrimmerRanges[FanTrimmerFast].max = fanTrimmerRanges[FanTrimmerFast].min+(fanTrimmerLevels-1.0)*fanTrimmerRanges[FanTrimmerFast].step;
     fanTrimmerRanges[FanTrimmerFast].prefix = UnitPfxKilo;
     fanTrimmerRanges[FanTrimmerFast].unit = "Ohm";
     fanTrimmerRanges[FanTrimmerSlow].min = fanTrimmerRanges[FanTrimmerFast].min*Rp/(fanTrimmerRanges[FanTrimmerFast].min+Rp);
@@ -99,7 +77,7 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
         doubleConfig.resolution = fanTrimmerRanges[rangeIdx].step;
         multiConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(multiConfig.doubleCoderVector[rangeIdx]);
-        if (rangeIdx > 1) {
+        if (rangeIdx > 0) {
             multiConfig.thresholdVector[rangeIdx-1] = (fanTrimmerRanges[rangeIdx].min + fanTrimmerRanges[rangeIdx-1].max)*0.5;
         }
     }
@@ -117,6 +95,19 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     for (int idx = 4384; idx < 4480; idx++) {
         txStatus.encodingWords[idx] = 0x1111; // rs bw avoid configuration with all zeros
     }
+}
+
+ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::setCoolingFansSpeed(Measurement_t speed, bool applyFlag) {
+    fanTrimmerCoder->encode(fanV2R(fanW2V(speed)).value, txStatus);
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
+ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::getCoolingFansSpeedRange(RangedMeasurement_t &range) {
+    range = {0.0, fanTrimmerWMax.value, 10.0, fanTrimmerWMax.prefix, fanTrimmerWMax.unit};
+    return Success;
 }
 
 Measurement_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::fanV2R(Measurement_t V) {
