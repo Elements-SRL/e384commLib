@@ -269,7 +269,7 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
 
     /*! Voltage range VC */
     vcVoltageRangeCoders.clear();
-    vcVoltageRangeCoders[0] = nullCoder;
+    vcVoltageRangeCoders.push_back(nullCoder);
     coders.push_back(vcVoltageRangeCoders[0]);
 
     /*! Current range CC */

@@ -34,9 +34,10 @@ EmcrDevice::EmcrDevice(std::string deviceId) :
 }
 
 EmcrDevice::~EmcrDevice() {
-    for (auto coder : coders) {
-        delete coder;
-    }
+    /*! \todo FCON probabilmente crasha per via di alcuni coders che vengono sovrascritti. Meglio usare smart pointers */
+    // for (auto coder : coders) {
+    //     delete coder;
+    // }
     coders.clear();
 }
 
