@@ -14,7 +14,6 @@ public:
 
     uint16_t getId();
     bool isOn();
-    bool isExpanded();
     bool isRecalibratingReadoutOffset();
     bool isCompensatingLiquidJunction();
     bool isCompensatingCfast();
@@ -31,7 +30,6 @@ public:
 
     void setId(uint16_t id);
     void setOn(bool on);
-    void setExpandedTrace(bool expanded);
     void setRecalibratingReadoutOffset(bool recalibrating);
     void setCompensatingLiquidJunction(bool compensating);
     void setCompensatingCfast(bool compensating);
@@ -50,7 +48,6 @@ public:
 private:
     uint16_t id = 65535;                                                // Channel ID
     bool on = true;                                                     // Channel is ON (true) or off (false)
-    bool expanded = false;                                              // The channel is currently shown in the big central plot
     bool recalibratingReadoutOffset = false;                            // The channel is currently being recalibrated
     bool compensatingLiquidJunction = false;                            // The channel is currently compensating the liquid junction
     bool compensatingCfast = false;                                     // The channel is currently compensating Cfast
