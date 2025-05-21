@@ -27,7 +27,7 @@ protected:
     const Measurement_t fanTrimmerRf = {10.0, UnitPfxKilo, "Ohm"};
     const Measurement_t fanTrimmerVStep = {0.6, UnitPfxNone, "V"};
     const Measurement_t fanTrimmerVMax = {12.0, UnitPfxNone, "V"};
-    const Measurement_t fanTrimmerWMax = {6300.0, UnitPfxNone, "rpm"};
+    const Measurement_t fanTrimmerWMax = {5900.0, UnitPfxNone, "rpm"};
     const Measurement_t fanTrimmerRTMin = {0.3501, UnitPfxNone, "K/W"};
 };
 
