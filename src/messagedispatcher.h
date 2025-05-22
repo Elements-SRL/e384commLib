@@ -2525,6 +2525,11 @@ protected:
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
     FILE * ljFid = nullptr;
 #endif
+
+#ifdef DEBUG_TEMP_PRINT
+    FILE * tempFid = nullptr;
+#endif
+
 };
 
 #endif // MESSAGEDISPATCHER_H

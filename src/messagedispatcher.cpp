@@ -1459,6 +1459,14 @@ void MessageDispatcher::createDebugFiles() {
 #if defined(DEBUG_TX_DATA_PRINT) || defined(DEBUG_RX_DATA_PRINT)
     startPrintfTime = std::chrono::steady_clock::now();
 #endif
+
+#ifdef DEBUG_TEMP_PRINT
+    if (tempFid == nullptr) {
+        createDebugFile(tempFid, "e384CommLib_tx");
+        std::fprintf(tempFid, "TSet TInt TExt Speed\n");
+        std::fflush(tempFid);
+    }
+#endif
 }
 
 void MessageDispatcher::initializeVariables() {
@@ -1557,6 +1565,10 @@ void MessageDispatcher::closeDebugFiles() {
 
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
     fclose(ljFid);
+#endif
+
+#ifdef DEBUG_TEMP_PRINT
+    fclose(tempFid);
 #endif
 }
 

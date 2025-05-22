@@ -127,8 +127,8 @@ void Emcr384PatchClamp_EL07c_prot_v07_fw_v03::processTemperatureData(std::vector
     /*! \todo FCON tutte le conversioni in real time potrebbero essere evitate assicurandosi nel costruttore che temperatureSet abbia la stessa unità dei range di corrente, ma credo sia meno compreonsibile perchè va */
     temperaturesRead[0].convertValue(UnitPfxNone);
     double temperatureIntMeas = temperaturesRead[0].value;
-    // temperaturesRead[1].convertValue(UnitPfxNone);
-    // double temperatureExtMeas = temperaturesRead[1].value;
+    temperaturesRead[1].convertValue(UnitPfxNone);
+    double temperatureExtMeas = temperaturesRead[1].value;
     if (tControlEnabled) {
         auto now = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - then).count();
@@ -142,6 +142,8 @@ void Emcr384PatchClamp_EL07c_prot_v07_fw_v03::processTemperatureData(std::vector
         double RT = (std::max)(0.1, e*pg+ie*ig);
         Measurement_t speed = {fanTrimmerWMax.value*minRT/RT, UnitPfxNone, "rpm"};
         this->setCoolingFansSpeed(speed, true);
+        std::fprintf(tempFid, "%f %f %f %f\n", temperatureSet.value, temperatureIntMeas, temperatureExtMeas, speed.value);
+        std::fflush(tempFid);
     }
 }
 
