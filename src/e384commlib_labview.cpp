@@ -331,6 +331,18 @@ ErrorCodes_t subtractLiquidJunctionFromCc(bool flag) {
     return messageDispatcher->subtractLiquidJunctionFromCc(flag);
 }
 
+ErrorCodes_t resetOffsetRecalibration(
+    uint16_t * channelIndexesIn,
+    bool applyFlagIn,
+    int vectorLengthIn) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    std::vector <uint16_t> channelIndexes;
+    input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
+    return messageDispatcher->resetOffsetRecalibration(channelIndexes, applyFlagIn);
+}
+
 ErrorCodes_t setLiquidJunctionVoltage(
         uint16_t * channelIndexesIn,
         LMeasHandle * voltagesIn,
@@ -1396,6 +1408,77 @@ ErrorCodes_t resetLiquidJunctionCompensation() {
     return messageDispatcher->resetLiquidJunctionVoltage(channelIndexes, true);
 }
 
+ErrorCodes_t setCoolingFansSpeed(
+    LVMeasurement_t speedIn,
+    bool applyFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    Measurement_t speed;
+    input2Measurement(speedIn, speed);
+    return messageDispatcher->setCoolingFansSpeed(speed, applyFlag);
+}
+
+ErrorCodes_t setTemperatureControl(
+    LVMeasurement_t temperatureIn,
+    bool enabled) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    Measurement_t temperature;
+    input2Measurement(temperatureIn, temperature);
+    return messageDispatcher->setCoolingFansSpeed(temperature, enabled);
+}
+
+ErrorCodes_t setCustomFlag(
+    uint16_t idx,
+    bool flag,
+    bool applyFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->setCustomFlag(idx, flag, applyFlag);
+}
+
+ErrorCodes_t setCustomOption(
+    uint16_t idx,
+    uint16_t value,
+    bool applyFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->setCustomOption(idx, value, applyFlag);
+}
+
+ErrorCodes_t setCustomDouble(
+    uint16_t idx,
+    double value,
+    bool applyFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->setCustomDouble(idx, value, applyFlag);
+}
+
+ErrorCodes_t setDebugBit(
+    uint16_t wordOffset,
+    uint16_t bitOffset,
+    bool status) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->setDebugBit(wordOffset, bitOffset, status);
+}
+
+ErrorCodes_t setDebugWord(
+    uint16_t wordOffset,
+    uint16_t wordValue) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->setDebugWord(wordOffset, wordValue);
+}
+
 /****************\
  *  Rx methods  *
 \****************/
@@ -2105,23 +2188,15 @@ ErrorCodes_t readCalibrationEeprom(
     return ret;
 }
 
-ErrorCodes_t setDebugBit(
-        uint16_t wordOffset,
-        uint16_t bitOffset,
-        bool status) {
+ErrorCodes_t getCoolingFansSpeedRange(
+    LVRangedMeasurement_t &rangeOut) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
-    return messageDispatcher->setDebugBit(wordOffset, bitOffset, status);
-}
-
-ErrorCodes_t setDebugWord(
-        uint16_t wordOffset,
-        uint16_t wordValue) {
-    if (messageDispatcher == nullptr) {
-        return ErrorDeviceNotConnected;
-    }
-    return messageDispatcher->setDebugWord(wordOffset, wordValue);
+    RangedMeasurement_t range;
+    ErrorCodes_t ret = messageDispatcher->getCoolingFansSpeedRange(range);
+    rangedMeasurement2Output(range, rangeOut);
+    return ret;
 }
 
 /*! Private functions */

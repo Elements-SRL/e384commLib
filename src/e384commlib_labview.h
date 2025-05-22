@@ -1875,16 +1875,97 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t resetLiquidJunctionCompensation(
         E384CL_ARGIN bool reset);
 
-/*! \brief Reset the device's liquid junction compensation.
- *  \deprecated Use resetLiquidJunctionCompensation instead.
+/*! \brief Set cooling fans speed.
  *
- * \param reset [in] False sets the liquid junction compensation in normal operation state, true sets in reset state.
+ * \param speed [in] Desired speed.
+ * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t resetDigitalOffsetCompensation(
-        E384CL_ARGIN bool reset);
+ErrorCodes_t setCoolingFansSpeed(
+        E384CL_ARGIN LVMeasurement_t speed,
+        E384CL_ARGIN bool applyFlag);
+
+/*! \brief Set and/or activate temperature control.
+ *
+ * \param temperature [in] Desired temperature.
+ * \param enabled [in] true: temperature control active; false: temperature control disabled.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setTemperatureControl(
+        E384CL_ARGIN LVMeasurement_t temperature,
+        E384CL_ARGIN bool enabled);
+
+/*! \brief Set a custom flag.
+ *
+ * \param idx [in] Index of the flag to be set.
+ * \param flag [in] Value for the flag.
+ * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCustomFlag(
+        E384CL_ARGIN uint16_t idx,
+        E384CL_ARGIN bool flag,
+        E384CL_ARGIN bool applyFlag);
+
+/*! \brief Set a custom multivalued option.
+ *
+ * \param idx [in] Index of the option to be set.
+ * \param value [in] Value for the option.
+ * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCustomOption(
+        E384CL_ARGIN uint16_t idx,
+        E384CL_ARGIN uint16_t value,
+        E384CL_ARGIN bool applyFlag);
+
+/*! \brief Set a custom double value.
+ *
+ * \param idx [in] Index of the value to be set.
+ * \param value [in] Value to be set.
+ * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCustomDouble(
+        E384CL_ARGIN uint16_t idx,
+        E384CL_ARGIN double value,
+        E384CL_ARGIN bool applyFlag);
+
+/*! \brief Set a debug bit
+ *
+ * \param wordOffset [in] word of the debug bit to be modified.
+ * \param bitOffset [in] debug bit to be modified.
+ * \param status [in] new status of the debug bit.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+    ErrorCodes_t setDebugBit(
+        E384CL_ARGIN uint16_t wordOffset,
+        E384CL_ARGIN uint16_t bitOffset,
+        E384CL_ARGIN bool status);
+
+/*! \brief Set a debug word
+ *
+ * \param wordOffset [in] word of the debug bit to be modified.
+ * \param word value [in] new value for the debug word.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setDebugWord(
+        E384CL_ARGIN uint16_t wordOffset,
+        E384CL_ARGIN uint16_t wordValue);
 
 /****************\
  *  Rx methods  *
@@ -2736,30 +2817,14 @@ ErrorCodes_t readCalibrationEeprom(
         E384CL_ARGIN uint32_t * size,
         E384CL_ARGIN uint32_t vectorLength);
 
-/*! \brief Set a debug bit
+/*! \brief Get cooling fans speed.
  *
- * \param wordOffset [in] word of the debug bit to be modified.
- * \param bitOffset [in] debug bit to be modified.
- * \param status [in] new status of the debug bit.
+ * \param range [out] Speed Range.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setDebugBit(
-        E384CL_ARGIN uint16_t wordOffset,
-        E384CL_ARGIN uint16_t bitOffset,
-        E384CL_ARGIN bool status);
-
-/*! \brief Set a debug word
- *
- * \param wordOffset [in] word of the debug bit to be modified.
- * \param word value [in] new value for the debug word.
- * \return Error code.
- */
-E384COMMLIB_NAME_MANGLING
-E384COMMLIBSHARED_EXPORT
-ErrorCodes_t setDebugWord(
-        E384CL_ARGIN uint16_t wordOffset,
-        E384CL_ARGIN uint16_t wordValue);
+ErrorCodes_t getCoolingFansSpeedRange(
+        E384CL_ARGOUT LVRangedMeasurement_t &range);
 
 #endif // E384COMMLIB_LABVIEW_H

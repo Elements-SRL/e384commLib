@@ -851,25 +851,6 @@ public:
      */
     ErrorCodes_t setRawDataFilter(Measurement_t cutoffFrequency, bool lowPassFlag, bool activeFlag);
 
-    /*! \brief Set a debug bit.
-     *  \note Debug command.
-     *
-     * \param wordOffset [in] word of the debug bit to be modified.
-     * \param bitOffset [in] debug bit to be modified.
-     * \param status [in] new status of the debug bit.
-     * \return Error code.
-     */
-    virtual ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
-
-    /*! \brief Set a debug word.
-     *  \note Debug command.
-     *
-     * \param wordOffset [in] word of the debug bit to be modified.
-     * \param word value [in] new value for the debug word.
-     * \return Error code.
-     */
-    virtual ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
-
     /*! \brief Turn on/off the voltage reader for each channel.
      *  \note The voltage is read by the current clamp ADC.
      *  \note In some devices the ADC can't be turned on independently of the DAC.
@@ -1156,6 +1137,14 @@ public:
      */
     virtual ErrorCodes_t setCoolingFansSpeed(Measurement_t speed, bool applyFlag);
 
+    /*! \brief Set and/or activate temperature control.
+     *
+     * \param temperature [in] Desired temperature.
+     * \param enabled [in] true: temperature control active; false: temperature control disabled.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setTemperatureControl(Measurement_t temperature, bool enabled);
+
     /*! \brief Set a custom flag.
      *
      * \param idx [in] Index of the flag to be set.
@@ -1182,6 +1171,25 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t setCustomDouble(uint16_t idx, double value, bool applyFlag);
+
+    /*! \brief Set a debug bit.
+     *  \note Debug command.
+     *
+     * \param wordOffset [in] word of the debug bit to be modified.
+     * \param bitOffset [in] debug bit to be modified.
+     * \param status [in] new status of the debug bit.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
+
+    /*! \brief Set a debug word.
+     *  \note Debug command.
+     *
+     * \param wordOffset [in] word of the debug bit to be modified.
+     * \param word value [in] new value for the debug word.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
 
     /****************\
      *  Rx methods  *
@@ -2201,6 +2209,8 @@ protected:
     void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
 
     void flushBoardList();
+
+    virtual void processTemperatureData(std::vector <Measurement_t> temperaturesRead);
 
     /************\
      *  Fields  *

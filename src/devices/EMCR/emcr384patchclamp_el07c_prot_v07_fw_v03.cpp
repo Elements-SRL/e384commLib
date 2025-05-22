@@ -49,7 +49,7 @@ Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03
     fanTrimmerRanges[FanTrimmerFast].prefix = UnitPfxKilo;
     fanTrimmerRanges[FanTrimmerFast].unit = "Ohm";
     fanTrimmerRanges[FanTrimmerSlow].min = fanTrimmerRanges[FanTrimmerFast].min*Rp/(fanTrimmerRanges[FanTrimmerFast].min+Rp);
-    fanTrimmerRanges[FanTrimmerSlow].max = fanTrimmerRanges[FanTrimmerFast].max*Rp/(fanTrimmerRanges[FanTrimmerFast].max+Rp);;
+    fanTrimmerRanges[FanTrimmerSlow].max = fanTrimmerRanges[FanTrimmerFast].max*Rp/(fanTrimmerRanges[FanTrimmerFast].max+Rp);
     fanTrimmerRanges[FanTrimmerSlow].step = (fanTrimmerRanges[FanTrimmerSlow].max-fanTrimmerRanges[FanTrimmerSlow].min)/fanTrimmerLevels;
     fanTrimmerRanges[FanTrimmerSlow].prefix = UnitPfxKilo;
     fanTrimmerRanges[FanTrimmerSlow].unit = "Ohm";
@@ -108,6 +108,41 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::setCoolingFansSpeed(Measur
 ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::getCoolingFansSpeedRange(RangedMeasurement_t &range) {
     range = {0.0, fanTrimmerWMax.value, 10.0, fanTrimmerWMax.prefix, fanTrimmerWMax.unit};
     return Success;
+}
+
+ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::setTemperatureControl(Measurement_t temperature, bool enabled) {
+    if (enabled == tControlEnabled) {
+        return Success;
+    }
+    temperatureSet = temperature;
+    temperatureSet.convertValue(UnitPfxNone);
+
+    tControlEnabled = enabled;
+    ie = 0.0;
+    then = std::chrono::steady_clock::now();
+    return Success;
+}
+
+void Emcr384PatchClamp_EL07c_prot_v07_fw_v03::processTemperatureData(std::vector <Measurement_t> temperaturesRead) {
+    /*! \todo FCON tutte le conversioni in real time potrebbero essere evitate assicurandosi nel costruttore che temperatureSet abbia la stessa unità dei range di corrente, ma credo sia meno compreonsibile perchè va */
+    temperaturesRead[0].convertValue(UnitPfxNone);
+    double temperatureIntMeas = temperaturesRead[0].value;
+    // temperaturesRead[1].convertValue(UnitPfxNone);
+    // double temperatureExtMeas = temperaturesRead[1].value;
+    if (tControlEnabled) {
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - then).count();
+        if (elapsed < 1800.0) {
+            return;
+        }
+        then = now;
+        double e = temperatureIntMeas-temperatureSet.value;
+        ie += e;
+        ie = (std::max)(-ieMax, (std::min)(ieMax, ie));
+        double RT = (std::max)(0.1, e*pg+ie*ig);
+        Measurement_t speed = {fanTrimmerWMax.value*minRT/RT, UnitPfxNone, "rpm"};
+        this->setCoolingFansSpeed(speed, true);
+    }
 }
 
 Measurement_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::fanV2R(Measurement_t V) {

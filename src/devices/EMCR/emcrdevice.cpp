@@ -2160,11 +2160,18 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
             if (lastParsedMsgType == MsgDirectionDeviceToPc + MsgTypeIdInvalid) {
                 /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
                 rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
+                double * temperaturesD = new double[temperatureChannelsNum];
                 /*! \todo FCON check sulla lunghezza del messaggio */
                 for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
                     data[temperatureChannelIdx] = (int16_t)rxDataBuffer[dataOffset];
                     dataOffset = (dataOffset + 1) & RX_DATA_BUFFER_MASK;
                 }
+                this->convertTemperatureValues(data, temperaturesD);
+                std::vector <Measurement_t> temperatures;
+                for (uint16_t idx = 0; idx < temperatureChannelsNum; idx++) {
+                    temperatures.push_back({temperaturesD[idx], temperatureChannelsRanges[idx].prefix, temperatureChannelsRanges[idx].unit});
+                }
+                this->processTemperatureData(temperatures);
 
                 lastParsedMsgType = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionTemperature;
 

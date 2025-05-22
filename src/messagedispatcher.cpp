@@ -565,14 +565,6 @@ ErrorCodes_t MessageDispatcher::setRawDataFilter(Measurement_t cutoffFrequency, 
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::setDebugBit(uint16_t, uint16_t, bool) {
-    return ErrorFeatureNotImplemented;
-}
-
-ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t, uint16_t) {
-    return ErrorFeatureNotImplemented;
-}
-
 ErrorCodes_t MessageDispatcher::turnVoltageReaderOn(bool, bool) {
     return ErrorFeatureNotImplemented;
 }
@@ -2348,6 +2340,10 @@ ErrorCodes_t MessageDispatcher::setCoolingFansSpeed(Measurement_t speed, bool ap
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::setTemperatureControl(Measurement_t temperature, bool enabled) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::setCustomFlag(uint16_t, bool, bool) {
     return ErrorFeatureNotImplemented;
 }
@@ -2357,6 +2353,14 @@ ErrorCodes_t MessageDispatcher::setCustomOption(uint16_t, uint16_t, bool) {
 }
 
 ErrorCodes_t MessageDispatcher::setCustomDouble(uint16_t idx, double value, bool applyFlag) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setDebugBit(uint16_t, uint16_t, bool) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t, uint16_t) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -2487,4 +2491,8 @@ void MessageDispatcher::flushBoardList() {
     }
     boardModels.clear();
     channelModels.clear();
+}
+
+void MessageDispatcher::processTemperatureData(std::vector <Measurement_t>) {
+    return;
 }
