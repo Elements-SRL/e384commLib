@@ -2678,14 +2678,14 @@ void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessage
 
     case RxMessageDataHeader:
         if (rxWordLengths[RxMessageDataHeader] > 4) {
-            splitLastMsgFlag = true;
+            // splitLastMsgFlag = true;
             newProtocolItemFirstIndex = ((uint32_t)this->readUint16FromRxRawBuffer(4)) + ((this->readUint16FromRxRawBuffer(5)) << 16);
         }
     case RxMessageDataTail:
     case RxMessageStatus:
     case RxMessageTemperature:
         /*! Swap the last 2 messages if the last one is not a data message */
-        swapLastMsgFlag = true;
+        // swapLastMsgFlag = true;
     case RxMessageDataLoad:
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
