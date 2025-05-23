@@ -1462,7 +1462,7 @@ void MessageDispatcher::createDebugFiles() {
 
 #ifdef DEBUG_TEMP_PRINT
     if (tempFid == nullptr) {
-        createDebugFile(tempFid, "e384CommLib_tx");
+        createDebugFile(tempFid, "e384CommLib_temp");
         std::fprintf(tempFid, "TSet TInt TExt Speed\n");
         std::fflush(tempFid);
     }

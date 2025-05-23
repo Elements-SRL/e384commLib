@@ -136,14 +136,16 @@ void Emcr384PatchClamp_EL07c_prot_v07_fw_v03::processTemperatureData(std::vector
             return;
         }
         then = now;
-        double e = temperatureIntMeas-temperatureSet.value;
+        double e = temperatureSet.value-temperatureIntMeas;
         ie += e;
         ie = (std::max)(-ieMax, (std::min)(ieMax, ie));
-        double RT = (std::max)(0.1, e*pg+ie*ig);
-        Measurement_t speed = {fanTrimmerWMax.value*minRT/RT, UnitPfxNone, "rpm"};
+        double RT = e*pg+ie*ig;
+        Measurement_t speed = this->fanRT2W({RT, fanTrimmerRTMin.prefix, fanTrimmerRTMin.unit});
         this->setCoolingFansSpeed(speed, true);
+#ifdef DEBUG_TEMP_PRINT
         std::fprintf(tempFid, "%f %f %f %f\n", temperatureSet.value, temperatureIntMeas, temperatureExtMeas, speed.value);
         std::fflush(tempFid);
+#endif
     }
 }
 
@@ -159,7 +161,7 @@ Measurement_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::fanW2V(Measurement_t W) {
 
 Measurement_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::fanRT2W(Measurement_t RT) {
     RT.convertValue(fanTrimmerRTMin.prefix);
-    return fanTrimmerWMax/(RT.value/fanTrimmerRTMin.value);
+    return RT.value > 0.5*(fanTrimmerRTMax.value+fanTrimmerRTOff.value) ? fanTrimmerWMax*0.0 : fanTrimmerWMax+(fanTrimmerWMin-fanTrimmerWMax)*(RT.value-fanTrimmerRTMin.value)/(fanTrimmerRTMax.value-fanTrimmerRTMin.value);
 }
 
 Emcr384PatchClamp_EL07d_prot_v07_fw_v03::Emcr384PatchClamp_EL07d_prot_v07_fw_v03(std::string di) :

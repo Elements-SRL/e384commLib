@@ -37,13 +37,15 @@ protected:
     const Measurement_t fanTrimmerVStep = {0.6, UnitPfxNone, "V"};
     const Measurement_t fanTrimmerVMax = {12.0, UnitPfxNone, "V"};
     const Measurement_t fanTrimmerWMax = {5900.0, UnitPfxNone, "rpm"};
-    const Measurement_t fanTrimmerRTMin = {0.3501, UnitPfxNone, "K/W"};
+    const Measurement_t fanTrimmerWMin = {3524.0, UnitPfxNone, "rpm"};
+    const Measurement_t fanTrimmerRTMin = {0.264962843373366, UnitPfxNone, "K/W"};
+    const Measurement_t fanTrimmerRTMax = {0.390196941234880, UnitPfxNone, "K/W"};
+    const Measurement_t fanTrimmerRTOff = {1.582470252096335, UnitPfxNone, "K/W"};
 
     double ie = 0.0;
-    const double pg = -1.0;
-    const double ig = -0.5;
-    const double ieMax = 1.0;
-    const double minRT = 0.35;
+    const double pg = 0.04;
+    const double ig = 0.006;
+    const double ieMax = 200.0;
     Measurement_t speedSet = fanTrimmerWMax;
 };
 
