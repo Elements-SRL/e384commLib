@@ -71,6 +71,8 @@ ErrorCodes_t EmcrDevice::startProtocol() {
 
     } else {
         if (protocolResetFlag == false) {
+            /*! This is called if the startProtocol is called without protocol strucutre and items, jsut to repeat the previous protocol
+              Since the protocol structure would otherwise be responsible for calling the stopProtocol, in this case the startProtocol does it instead */
             this->stopProtocol();
         }
         this->stackOutgoingMessage(txStatus); /*! Make sure the registers are submitted */

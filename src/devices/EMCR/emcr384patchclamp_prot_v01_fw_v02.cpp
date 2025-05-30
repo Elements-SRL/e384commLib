@@ -1884,19 +1884,14 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector <uint1
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
-#ifdef DEBUG_TX_DATA_PRINT
-    std::string debugString = "";
-#endif
     switch (type) {
     case CompRsCorr:
-        if (rsCorrBwCompensationCoders.size() == 0) {
+        if (rsCorrBwCompensationCoders.empty()) {
             return ErrorFeatureNotImplemented;
-        } else {
+        }
+        else {
             for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-                selectedRsCorrBws[i] = options[i];
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[CompRsCorr chan " + std::to_string(channelIndexes[i]+1) + "]: selected opt " + std::to_string(selectedRsCorrBws[i]) +"\n";
-#endif
+                selectedRsCorrBws[channelIndexes[i]] = options[i];
                 rsCorrBwCompensationCoders[channelIndexes[i]]->encode(options[i], txStatus);
             }
 
@@ -1905,8 +1900,9 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompOptions(std::vector <uint
             }
             return Success;
         }
-    break;
+        break;
     }
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
