@@ -807,14 +807,6 @@ public:
      */
     virtual ErrorCodes_t digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag);
 
-    /*! \brief Command used by EMCR to keep track of the expanded traces in the main plot.
-     *
-     * \param channelIndexes [in] Channel indexes.
-     * \param onValues [in] Array of booleans, one for each channel: True to set a channel as expanded, false to set it as not expanded.
-     * \return Error code.
-     */
-    ErrorCodes_t expandTraces(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues);
-
     /*! \brief Update the ADC filter based on the current range and sampling rate configuration.
      *  \note Method used internally to automatically correct the filtering during range or sampling rate changes.
      *

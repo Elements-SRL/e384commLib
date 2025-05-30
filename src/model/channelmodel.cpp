@@ -12,10 +12,6 @@ bool ChannelModel::isOn() {
     return this->on;
 }
 
-bool ChannelModel::isExpanded() {
-    return expanded;
-}
-
 bool ChannelModel::isRecalibratingReadoutOffset() {
     return recalibratingReadoutOffset;
 }
@@ -74,10 +70,6 @@ void ChannelModel::setId(uint16_t id) {
 
 void ChannelModel::setOn(bool on) {
     this->on = on;
-}
-
-void ChannelModel::setExpandedTrace(bool expanded) {
-    this->expanded = expanded;
 }
 
 void ChannelModel::setRecalibratingReadoutOffset(bool recalibrating) {

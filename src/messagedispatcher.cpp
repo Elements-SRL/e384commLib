@@ -522,13 +522,6 @@ ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector <uint16_t>
     return liquidJunctionCompensation(channelIndexes, onValues, applyFlag);
 }
 
-ErrorCodes_t MessageDispatcher::expandTraces(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues) {
-    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
-        channelModels[channelIndexes[i]]->setExpandedTrace(onValues[i]);
-    }
-    return Success;
-}
-
 ErrorCodes_t MessageDispatcher::setAdcFilter(bool) {
     return ErrorFeatureNotImplemented;
 }
