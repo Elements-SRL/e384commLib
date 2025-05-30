@@ -18,7 +18,7 @@ CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS += /O2
     TARGET = e384commlib
     # comment or uncomment depending on the desired verbosity
-   DEFINES += DEBUG
+#    DEFINES += DEBUG
 #    DEFINES += DEBUG_RX_RAW_DATA_PRINT
 #    DEFINES += DEBUG_RX_DATA_PRINT
 #    DEFINES += DEBUG_TX_DATA_PRINT
@@ -30,7 +30,6 @@ CONFIG += c++17
 
 # DEFINES += E384COMMLIB_LABVIEW_WRAPPER
 #DEFINES += E384COMMLIB_LIBRARY
-DEFINES += CALIBRATION
 
 contains(DEFINES, E384COMMLIB_LABVIEW_WRAPPER) {
     TARGET = e384commlib_labview
