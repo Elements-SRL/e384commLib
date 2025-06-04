@@ -3,9 +3,9 @@
 
 #include "emcrftdidevice.h"
 
-class Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01 : public EmcrFtdiDevice {
+class Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01 : public EmcrFtdiDevice {
 public:
-    Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di);
+    Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01(std::string di);
 
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) override;
     virtual ErrorCodes_t getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) override;
@@ -154,18 +154,23 @@ protected:
     void setGrEn(bool flag, bool applyFlag);
 };
 
-class Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01 : public Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01 {
+class Emcr8PatchClamp_EL07c_artix7_PCBV00_2_fw_v01 : public Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01 {
 public:
-    Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di);
+    Emcr8PatchClamp_EL07c_artix7_PCBV00_2_fw_v01(std::string di);
 };
 
-class Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01 : public Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01 {
+class Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01 : public Emcr8PatchClamp_EL07c_artix7_PCBV00_2_fw_v01 {
 public:
-    Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di);
+    Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di);
 };
 
-class Emcr4PatchClamp_EL07c_artix7_PCBV02_fw_v01 : public Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01 {
+class Emcr4PatchClamp_EL07c_artix7_PCBV00_1_fw_v01 : public Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01 {
 public:
-    Emcr4PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di);
+    Emcr4PatchClamp_EL07c_artix7_PCBV00_1_fw_v01(std::string di);
+};
+
+class Emcr4PatchClamp_EL07c_artix7_PCBV00_2_fw_v01 : public Emcr4PatchClamp_EL07c_artix7_PCBV00_1_fw_v01 {
+public:
+    Emcr4PatchClamp_EL07c_artix7_PCBV00_2_fw_v01(std::string di);
 };
 #endif // EMCR8PATCHCLAMP_EL07CD_ARTIX7_H

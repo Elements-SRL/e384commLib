@@ -1,6 +1,6 @@
 #include "emcr8patchclamp_el07cd_artix7.h"
 
-Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di) :
+Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01(std::string di) :
     EmcrFtdiDevice(di) {
 
     spiChannel = 'B';
@@ -1539,7 +1539,7 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     txStatus.encodingWords[327] = 0x1111;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::initializeHW() {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::initializeHW() {
     std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));
 
     this->resetFpga(true, true);
@@ -1553,7 +1553,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::initializeHW() {
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) {
     switch (type) {
     case CompRsCorr:
         if (rsCorrBwArray.size()==0) {
@@ -1573,7 +1573,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompOptionsFeatures(
     }
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
     switch (type) {
     case CompCfast:
         if (pipetteCapEnCompensationCoders.size() == 0) {
@@ -1627,7 +1627,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompensationEnables(
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
 #ifdef DEBUG_TX_DATA_PRINT
     std::string debugString = "";
 #endif
@@ -1746,7 +1746,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCompensation(std:
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableVcCompensations(bool enable, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::enableVcCompensations(bool enable, bool applyFlag) {
     vcCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -1768,7 +1768,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableVcCompensations(b
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCcCompensations(bool enable, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::enableCcCompensations(bool enable, bool applyFlag) {
     ccCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -1785,7 +1785,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::enableCcCompensations(b
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
     std::vector <std::vector <double> > localCompValueSubMatrix;
     localCompValueSubMatrix.resize(channelIndexes.size());
     for (int chIdx = 0; chIdx < channelIndexes.size(); chIdx++) {
@@ -1866,7 +1866,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompValues(std::vect
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompRanges(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::setCompRanges(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <uint16_t> newRanges, bool applyFlag) {
     if (compValueMatrix.empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -1902,7 +1902,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompRanges(std::vect
     return this->setCompValues(channelIndexes, paramToUpdate, newParams, applyFlag);
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
     switch (type) {
     case CompRsCorr:
         if (rsCorrBwCompensationCoders.empty()) {
@@ -1924,7 +1924,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setCompOptions(std::vec
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
     std::vector <ClampingModality_t> clamps(currentChannelsNum);
@@ -1948,7 +1948,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnVoltageReaderOn(boo
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnCurrentReaderOn(bool onValueIn, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::turnCurrentReaderOn(bool onValueIn, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
     std::vector <ClampingModality_t> clamps(currentChannelsNum);
@@ -1972,7 +1972,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnCurrentReaderOn(boo
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnVoltageStimulusOn(bool onValue, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::turnVoltageStimulusOn(bool onValue, bool applyFlag) {
     if (onValue) {
         this->updateCalibVcVoltageGain(allChannelIndexes, false);
         this->updateCalibVcVoltageOffset(allChannelIndexes, applyFlag);
@@ -1983,7 +1983,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnVoltageStimulusOn(b
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnCurrentStimulusOn(bool onValue, bool applyFlag) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::turnCurrentStimulusOn(bool onValue, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
 
@@ -2002,7 +2002,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::turnCurrentStimulusOn(b
     return Success;
 }
 
-std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) {
+std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) {
     std::vector <double> asicDomainParameter;
     asicDomainParameter.resize(CompensationAsicParamsNum);
     double cp; // pipette capacitance
@@ -2047,7 +2047,7 @@ std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::user2AsicDomain
     return asicDomainParameter;
 }
 
-std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::asic2UserDomainTransform(int chIdx, std::vector <double> asicDomainParams, double oldUCpVc, double oldUCpCc) {
+std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::asic2UserDomainTransform(int chIdx, std::vector <double> asicDomainParams, double oldUCpVc, double oldUCpCc) {
     std::vector <double> userDomainParameter;
     userDomainParameter.resize(CompensationUserParamsNum);
 
@@ -2093,7 +2093,7 @@ std::vector <double> Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::asic2UserDomain
     return userDomainParameter;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams) {
     /*! \todo still to understand how to obtain them. COuld they be imputs of the function?*/
     std::vector <double> potentialMaxs;
     std::vector <double> potentialMins;
@@ -2231,7 +2231,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::asic2UserDomainCompensa
     return Success;
 }
 
-ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
+ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
     switch (param) {
     case U_CpVc:
         control.implemented = true;
@@ -2328,7 +2328,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::getCompensationControl(
     }
 }
 
-void Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setGrEn(bool flag, bool applyFlag) {
+void Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::setGrEn(bool flag, bool applyFlag) {
     for (auto coder : grEnCoders) {
         coder->encode(flag, txStatus);
     }
@@ -2337,13 +2337,62 @@ void Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::setGrEn(bool flag, bool applyFl
     }
 }
 
-Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di) :
-    Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(di) {
+Emcr8PatchClamp_EL07c_artix7_PCBV00_2_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV00_2_fw_v01(std::string di) :
+    Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01(di) {
     fpgaLoadType = FtdiFpgaFwLoadAutomatic;
 }
 
-Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di) :
-    Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(di) {
+Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(std::string di) :
+    Emcr8PatchClamp_EL07c_artix7_PCBV00_2_fw_v01(di) {
+
+    /*! Protocols parameters */
+    protocolFpgaClockFrequencyHz = 10.24e6;
+
+    protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
+    protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
+    protocolTimeRange.max = LINT32_MAX*protocolTimeRange.step;
+    protocolTimeRange.prefix = UnitPfxMilli;
+    protocolTimeRange.unit = "s";
+
+    positiveProtocolTimeRange = protocolTimeRange;
+    positiveProtocolTimeRange.min = 0.0;
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Input controls */
+    DoubleCoder::CoderConfig_t doubleConfig;
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = positiveProtocolTimeRange.step;
+    doubleConfig.minValue = positiveProtocolTimeRange.min;
+    doubleConfig.maxValue = positiveProtocolTimeRange.max;
+    protocolTime0Coders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
+        protocolTime0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(protocolTime0Coders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = protocolTimeRange.step;
+    doubleConfig.minValue = protocolTimeRange.min;
+    doubleConfig.maxValue = protocolTimeRange.max;
+    protocolTime0StepCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
+        protocolTime0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(protocolTime0StepCoders[itemIdx]);
+    }
+}
+
+Emcr4PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::Emcr4PatchClamp_EL07c_artix7_PCBV00_1_fw_v01(std::string di) :
+    Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01(di) {
 
     deviceName = "4xPatchClamp";
 
@@ -2376,7 +2425,7 @@ Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr4PatchClamp_EL07c_artix7_PCBV01_
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 }
 
-Emcr4PatchClamp_EL07c_artix7_PCBV02_fw_v01::Emcr4PatchClamp_EL07c_artix7_PCBV02_fw_v01(std::string di) :
-    Emcr4PatchClamp_EL07c_artix7_PCBV01_fw_v01(di) {
+Emcr4PatchClamp_EL07c_artix7_PCBV00_2_fw_v01::Emcr4PatchClamp_EL07c_artix7_PCBV00_2_fw_v01(std::string di) :
+    Emcr4PatchClamp_EL07c_artix7_PCBV00_1_fw_v01(di) {
     fpgaLoadType = FtdiFpgaFwLoadAutomatic;
 }
