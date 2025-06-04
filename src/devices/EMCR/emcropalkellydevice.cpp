@@ -780,33 +780,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
                         }
                         dataLossCount = 0;
 
-                        if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageThenCurrentDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageVoltageThenCurrentDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageCurrentDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageCurrentDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdInvalid, RxMessageVoltageDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageAndGpDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdInvalid, RxMessageVoltageAndGpDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageDataHeader]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader, RxMessageDataHeader);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageDataTail]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail, RxMessageDataTail);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageStatus]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus, RxMessageStatus);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageTemperature]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature, RxMessageTemperature);
-                        }
+                        frameManager->storeFrameData(rxWordOffset);
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
