@@ -2,7 +2,6 @@
 #define FRAMEMANAGER_H
 
 #include <list>
-#include <optional>
 
 #include "e384commlib_global.h"
 #include "messagedispatcher.h"
@@ -25,7 +24,7 @@ public:
     void setRxWordParams(std::vector <uint16_t> rxWordOffsets, std::vector <uint16_t> rxWordLengths);
     void storeFrameData(uint16_t rxWordOffset);
     void storeFrameDataLoss(int32_t dataLossCount);
-    std::optional <RxMessage_t> getNextMessage(MsgTypeId_t messageType = MsgTypeIdInvalid);
+    RxMessage_t getNextMessage(MsgTypeId_t messageType = MsgTypeIdInvalid);
     void purgeData();
 
 protected:
@@ -38,7 +37,8 @@ protected:
 
     uint32_t maxDataSize = -1;
     std::list <RxMessage_t> messages;
-    std::optional <RxMessage_t> lastDataMessage = std::nullopt;
+    RxMessage_t lastDataMessage;
+    bool lastDataMessageAvailable = false;
     RxMessage_t msg;
     MessageDispatcher * md = nullptr;
     EmcrDevice * emd = nullptr;

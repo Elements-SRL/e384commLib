@@ -93,8 +93,9 @@ void FrameManager::storeFrameDataLoss(int32_t dataLossCount) {
     }
 }
 
-std::optional <RxMessage_t> FrameManager::getNextMessage(MsgTypeId_t messageType) {
-    std::optional <RxMessage_t> ret = std::nullopt;
+RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
+    RxMessage_t ret;
+    ret.typeId = type2Pc(MsgTypeIdInvalid);
     std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (messages.empty()) {
 #ifdef NEXT_MESSAGE_NO_WAIT
@@ -102,7 +103,7 @@ std::optional <RxMessage_t> FrameManager::getNextMessage(MsgTypeId_t messageType
 #else
         rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(3));
         if (messages.empty()) {
-            return std::nullopt;
+            return ret;
         }
 #endif
     }
@@ -110,15 +111,16 @@ std::optional <RxMessage_t> FrameManager::getNextMessage(MsgTypeId_t messageType
     uint16_t uType = type2Pc(messageType);
     if (uType == type2Pc(MsgTypeIdInvalid)) {
         /*! Return first message regardless of type */
-        ret.emplace(messages.front());
+        ret = messages.front();
         messages.pop_front();
     }
     else if (uType == type2Pc(MsgTypeIdAcquisitionData)) {
         /*! Return first data message */
-        for (auto it = messages.begin(); it != messages.end() && !ret.has_value(); ++it) {
+        for (auto it = messages.begin(); it != messages.end(); ++it) {
             if (it->typeId == uType) {
-                ret.emplace(*it);
+                ret = *it;
                 messages.erase(it);
+                break;
             }
         }
     }
@@ -127,13 +129,14 @@ std::optional <RxMessage_t> FrameManager::getNextMessage(MsgTypeId_t messageType
             o forse no, perchè si può fare split e merge enllo store */
 
         /*! Look for type specific message */
-        for (auto it = messages.begin(); it != messages.end() && !ret.has_value(); ++it) {
+        for (auto it = messages.begin(); it != messages.end(); ++it) {
             if (it->typeId == uType) {
                 if (it != messages.begin() && std::next(it) != messages.end()) {
                     this->mergeDataMessages(std::prev(it), std::next(it));
                 }
-                ret.emplace(*it);
+                ret = *it;
                 messages.erase(it);
+                break;
             }
         }
     }
@@ -153,7 +156,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
     std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (purgeRequest) {
         messages.clear();
-        lastDataMessage = std::nullopt;
+        lastDataMessageAvailable = false;
         purgeRequest = false;
     }
     uint32_t rxDataWords = rxWordLengths[rxMessageType];
@@ -164,12 +167,12 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         if (rxEnabledTypesMap[rxMsgTypeId]) {
             this->enlistLastDataMessage();
         }
-        lastDataMessage.emplace();
-        lastDataMessage->typeId = rxMsgTypeId;
-        lastDataMessage->data.resize(rxDataWords);
+        lastDataMessage.typeId = rxMsgTypeId;
+        lastDataMessage.data.resize(rxDataWords);
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
-            lastDataMessage->data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
+            lastDataMessage.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
         }
+        lastDataMessageAvailable = true;
         break;
 
     case MessageDispatcher::RxMessageCurrentDataLoad: {
@@ -179,26 +182,26 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         if (rxEnabledTypesMap[rxMsgTypeId]) {
             this->enlistLastDataMessage();
         }
-        lastDataMessage.emplace();
-        lastDataMessage->typeId = rxMsgTypeId;
-        lastDataMessage->data.resize(packetsNum*totalChannelsNum);
+        lastDataMessage.typeId = rxMsgTypeId;
+        lastDataMessage.data.resize(packetsNum*totalChannelsNum);
 
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! For each packet retrieve the last recevied voltage values */
             for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
-                lastDataMessage->data[rxDataBufferWriteIdx++] = voltageDataValues[idx];
+                lastDataMessage.data[rxDataBufferWriteIdx++] = voltageDataValues[idx];
             }
 
             /*! Then store the new current values */
             for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-                lastDataMessage->data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
+                lastDataMessage.data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
             }
 
             // /*! Finally for each gp packet retrieve the last recevied GP values */
             // for (uint32_t idx = 0; idx < gpChannelsNum; idx++) {
-            //     lastDataMessage->data[rxDataBufferWriteIdx++] = gpDataValues[idx];
+            //     lastDataMessage.data[rxDataBufferWriteIdx++] = gpDataValues[idx];
             // }
         }
+        lastDataMessageAvailable = true;
         break;
     }
 
@@ -224,14 +227,13 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         if (rxEnabledTypesMap[rxMsgTypeId]) {
             this->enlistLastDataMessage();
         }
-        lastDataMessage.emplace();
-        lastDataMessage->typeId = rxMsgTypeId;
-        lastDataMessage->data.resize(rxDataWords);
+        lastDataMessage.typeId = rxMsgTypeId;
+        lastDataMessage.data.resize(rxDataWords);
 
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! Store the voltage values first */
             for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
-                lastDataMessage->data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
+                lastDataMessage.data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
             }
             /*! Leave space for the current */
             rxDataBufferWriteIdx += currentChannelsNum;
@@ -243,9 +245,10 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             rxDataBufferWriteIdx += voltageChannelsNum;
             /*! Then store the current values */
             for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-                lastDataMessage->data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
+                lastDataMessage.data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
             }
         }
+        lastDataMessageAvailable = true;
         break;
     }
 
@@ -331,11 +334,11 @@ bool FrameManager::mergeDataMessages(std::list <RxMessage_t> ::iterator to, RxMe
 }
 
 void FrameManager::enlistLastDataMessage() {
-    if (!lastDataMessage.has_value()) {
+    if (!lastDataMessageAvailable) {
         return;
     }
     if (messages.empty()) {
-        messages.push_back(* lastDataMessage);
+        messages.push_back(lastDataMessage);
     }
-    this->mergeDataMessages(std::prev(messages.end()), * lastDataMessage);
+    this->mergeDataMessages(std::prev(messages.end()), lastDataMessage);
 }
