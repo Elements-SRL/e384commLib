@@ -40,10 +40,6 @@ bool ChannelModel::isStimActive() {
     return this->stimActive;
 }
 
-bool ChannelModel::isSelected() {
-    return this->selected;
-}
-
 Measurement_t ChannelModel::getVhold() {
     return this->vHold;
 }
@@ -102,10 +98,6 @@ void ChannelModel::setCompensatingCcCfast(bool compensating) {
 
 void ChannelModel::setStimActive(bool active) {
     this->stimActive = active;
-}
-
-void ChannelModel::setSelected(bool selected) {
-    this->selected = selected;
 }
 
 void ChannelModel::setVhold(Measurement_t vHold) {

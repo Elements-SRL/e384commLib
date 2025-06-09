@@ -185,39 +185,11 @@ ErrorCodes_t MessageDispatcher::upgradeDevice(std::string deviceId) {
  *  Tx methods  *
 \****************/
 
-ErrorCodes_t MessageDispatcher::setChannelSelected(uint16_t chIdx, bool newState) {
-    if (chIdx >= currentChannelsNum) {
-        return ErrorValueOutOfRange;
-    }
-    channelModels[chIdx]->setSelected(newState);
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::setBoardSelected(uint16_t brdIdx, bool newState) {
-    if (brdIdx >= totalBoardsNum) {
-        return ErrorValueOutOfRange;
-    }
-    for (auto ch : boardModels[brdIdx]->getChannelsOnBoard()) {
-        ch->setSelected(newState);
-    }
-    return Success;
-}
-
 ErrorCodes_t MessageDispatcher::getChannelsOnBoard(uint16_t boardIdx, std::vector <ChannelModel *> & channels) {
     if (boardIdx >= totalBoardsNum) {
         return ErrorValueOutOfRange;
     }
     channels = boardModels[boardIdx]->getChannelsOnBoard();
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::setRowSelected(uint16_t rowIdx, bool newState) {
-    if (rowIdx >= channelsPerBoard) {
-        return ErrorValueOutOfRange;
-    }
-    for (auto brd : boardModels) {
-        brd->getChannelsOnBoard()[rowIdx]->setSelected(newState);
-    }
     return Success;
 }
 
@@ -233,13 +205,6 @@ ErrorCodes_t MessageDispatcher::getChannelsOnRow(uint16_t rowIdx, std::vector <C
 
 std::string MessageDispatcher::getDeviceName() {
     return this->deviceName;
-}
-
-ErrorCodes_t MessageDispatcher::setAllChannelsSelected(bool newState) {
-    for (auto ch : channelModels) {
-        ch->setSelected(newState);
-    }
-    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::sendCommands() {
@@ -634,23 +599,6 @@ ErrorCodes_t MessageDispatcher::getBoards(std::vector <BoardModel *> &boards) {
 
 ErrorCodes_t MessageDispatcher::getChannels(std::vector <ChannelModel *> &channels) {
     channels = channelModels;
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::getSelectedChannels(std::vector <bool> &selected) {
-    selected.resize(channelModels.size());
-    for (int idx = 0; idx < channelModels.size(); idx++) {
-        selected[idx] = channelModels[idx]->isSelected();
-    }
-    return Success;
-}
-
-ErrorCodes_t MessageDispatcher::getSelectedChannelsIndexes(std::vector <uint16_t> &indexes) {
-    for (int idx = 0; idx < channelModels.size(); idx++) {
-        if (channelModels[idx]->isSelected()) {
-            indexes.push_back(idx);
-        }
-    }
     return Success;
 }
 

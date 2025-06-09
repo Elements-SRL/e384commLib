@@ -206,37 +206,6 @@ public:
      *  Channels overview support methods  *
     \***************************************/
 
-    /*! \brief Command used by EMCR to keep track of the channels selected in the channels overview.
-     *
-     * \param chIdx [in] Channel index.
-     * \param newState [in] true: channel selected; false: channel not selected.
-     * \return Error code.
-     */
-    ErrorCodes_t setChannelSelected(uint16_t chIdx, bool newState);
-
-    /*! \brief Command used by EMCR to keep track of the boards selected in the channels overview.
-     *
-     * \param brdIdx [in] board index.
-     * \param newState [in] true: board selected; false: board not selected.
-     * \return Error code.
-     */
-    ErrorCodes_t setBoardSelected(uint16_t brdIdx, bool newState);
-
-    /*! \brief Command used by EMCR to keep track of the rows of channels selected in the channels overview.
-     *
-     * \param rowIdx [in] row index.
-     * \param newState [in] true: row of channels selected; false: row of channels not selected.
-     * \return Error code.
-     */
-    ErrorCodes_t setRowSelected(uint16_t rowIdx, bool newState);
-
-    /*! \brief Command used by EMCR to keep track of the channels selected in the channels overview.
-     *
-     * \param newState [in] true: all channels selected; false: all channels not selected.
-     * \return Error code.
-     */
-    ErrorCodes_t setAllChannelsSelected(bool newState);
-
     /*! \brief Command used by EMCR to get the channel models for the board selected in the channels overview.
      *
      * \param boardIdx [in] board index.
