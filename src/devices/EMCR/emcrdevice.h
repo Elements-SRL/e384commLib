@@ -144,15 +144,6 @@ public:
     ErrorCodes_t getCalibMappingFileDir(std::string &dir) override;
     ErrorCodes_t getCalibMappingFilePath(std::string &path) override;
 
-    /*********************\
-     *  Utility Methods  *
-    \*********************/
-
-    uint16_t popUint16FromRxRawBuffer();
-    uint32_t popUint32FromRxRawBuffer();
-    uint16_t readUint16FromRxRawBuffer(uint32_t n);
-    uint32_t readUint32FromRxRawBuffer(uint32_t n);
-
 protected:
 
     /*************\
@@ -181,7 +172,12 @@ protected:
     void updateVoltageHoldTuner(bool applyFlag);
     void updateCurrentHoldTuner(bool applyFlag);
 
+    void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);
     void stackOutgoingMessage(CommandStatus_t &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
+    uint16_t popUint16FromRxRawBuffer();
+    uint32_t popUint32FromRxRawBuffer();
+    uint16_t readUint16FromRxRawBuffer(uint32_t n);
+    uint32_t readUint32FromRxRawBuffer(uint32_t n);
 
     /************\
      *  Fields  *

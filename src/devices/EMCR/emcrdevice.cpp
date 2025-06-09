@@ -2176,37 +2176,6 @@ ErrorCodes_t EmcrDevice::getCalibMappingFilePath(std::string &path) {
     return Success;
 }
 
-uint16_t EmcrDevice::popUint16FromRxRawBuffer() {
-    uint16_t value = (rxRawBuffer[rxRawBufferReadOffset] << 8) + rxRawBuffer[rxRawBufferReadOffset+1];
-    rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_WORD_SIZE) & rxRawBufferMask;
-    rxRawBytesAvailable -= RX_WORD_SIZE;
-    return value;
-}
-
-uint32_t EmcrDevice::popUint32FromRxRawBuffer() {
-    uint32_t value = (((uint32_t)rxRawBuffer[rxRawBufferReadOffset]) << 24) +
-                     (((uint32_t)rxRawBuffer[rxRawBufferReadOffset+1]) << 16) +
-                     (((uint32_t)rxRawBuffer[rxRawBufferReadOffset+2]) << 8) +
-                     (uint32_t)rxRawBuffer[rxRawBufferReadOffset+3];
-
-    rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_32WORD_SIZE) & rxRawBufferMask;
-    rxRawBytesAvailable -= RX_32WORD_SIZE;
-    return value;
-}
-
-uint16_t EmcrDevice::readUint16FromRxRawBuffer(uint32_t n) {
-    uint16_t value = (rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask] << 8) + rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask];
-    return value;
-}
-
-uint32_t EmcrDevice::readUint32FromRxRawBuffer(uint32_t n) {
-    uint32_t value = (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask]) << 24) +
-                     (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask]) << 16) +
-                     (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+2) & rxRawBufferMask]) << 8) +
-                     (uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+3) & rxRawBufferMask];
-    return value;
-}
-
 /*********************\
  *  Private methods  *
 \*********************/
@@ -2404,4 +2373,35 @@ void EmcrDevice::stackOutgoingMessage(CommandStatus_t &txDataMessage, CommandOpt
         txMutexLock.unlock();
         txMsgBufferNotEmpty.notify_all();
     }
+}
+
+uint16_t EmcrDevice::popUint16FromRxRawBuffer() {
+    uint16_t value = (rxRawBuffer[rxRawBufferReadOffset] << 8) + rxRawBuffer[rxRawBufferReadOffset+1];
+    rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_WORD_SIZE) & rxRawBufferMask;
+    rxRawBytesAvailable -= RX_WORD_SIZE;
+    return value;
+}
+
+uint32_t EmcrDevice::popUint32FromRxRawBuffer() {
+    uint32_t value = (((uint32_t)rxRawBuffer[rxRawBufferReadOffset]) << 24) +
+                     (((uint32_t)rxRawBuffer[rxRawBufferReadOffset+1]) << 16) +
+                     (((uint32_t)rxRawBuffer[rxRawBufferReadOffset+2]) << 8) +
+                       (uint32_t)rxRawBuffer[rxRawBufferReadOffset+3];
+
+    rxRawBufferReadOffset = (rxRawBufferReadOffset+RX_32WORD_SIZE) & rxRawBufferMask;
+    rxRawBytesAvailable -= RX_32WORD_SIZE;
+    return value;
+}
+
+uint16_t EmcrDevice::readUint16FromRxRawBuffer(uint32_t n) {
+    uint16_t value = (rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask] << 8) + rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask];
+    return value;
+}
+
+uint32_t EmcrDevice::readUint32FromRxRawBuffer(uint32_t n) {
+    uint32_t value = (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n) & rxRawBufferMask]) << 24) +
+                     (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+1) & rxRawBufferMask]) << 16) +
+                     (((uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+2) & rxRawBufferMask]) << 8) +
+                       (uint32_t)rxRawBuffer[(rxRawBufferReadOffset+n+3) & rxRawBufferMask];
+    return value;
 }
