@@ -89,6 +89,19 @@ public:
      */
     virtual ~MessageDispatcher();
 
+    typedef enum RxMessageTypes {
+        RxMessageDataLoad,
+        RxMessageVoltageThenCurrentDataLoad,
+        RxMessageCurrentDataLoad,
+        RxMessageVoltageDataLoad,
+        RxMessageVoltageAndGpDataLoad,
+        RxMessageDataHeader,
+        RxMessageDataTail,
+        RxMessageStatus,
+        RxMessageTemperature,
+        RxMessageNum
+    } RxMessageTypes_t;
+
     typedef enum CompensationTypes {
         CompCfast = 0,      // pipette voltage clamp
         CompCslow = 1,      // membrane
@@ -2084,19 +2097,6 @@ public:
     ErrorCodes_t getCustomDoubles(std::vector <std::string> &customDoubles, std::vector <RangedMeasurement_t> &customDoublesRanges, std::vector <double> &customDoublesDefault);
 
 protected:
-    typedef enum RxMessageTypes {
-        RxMessageDataLoad,
-        RxMessageVoltageThenCurrentDataLoad,
-        RxMessageCurrentDataLoad,
-        RxMessageVoltageDataLoad,
-        RxMessageVoltageAndGpDataLoad,
-        RxMessageDataHeader,
-        RxMessageDataTail,
-        RxMessageStatus,
-        RxMessageTemperature,
-        RxMessageNum
-    } RxMessageTypes_t;
-
     typedef struct MsgResume {
         uint16_t typeId;
         uint16_t heartbeat;

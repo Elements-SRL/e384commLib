@@ -57,6 +57,7 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
+    src/framemanager.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
     src/devices/EMCR/emcropalkellydevice.cpp \
@@ -114,6 +115,7 @@ HEADERS += \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
     src/commandcoder.h \
+    src/framemanager.h \
     src/messagedispatcher.h \
     src/devices/EMCR/emcrdevice.h \
     src/devices/EMCR/emcropalkellydevice.h \

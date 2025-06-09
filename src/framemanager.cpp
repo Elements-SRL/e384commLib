@@ -7,6 +7,7 @@ FrameManager::FrameManager(MessageDispatcher * md) :
 
     emd = static_cast <EmcrDevice *> (md);
     md->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum, gpChannelsNum);
+    totalChannelsNum = voltageChannelsNum+currentChannelsNum+gpChannelsNum;
 
     rxEnabledTypesMap.resize(MsgDirectionDeviceToPc*2);
     rxEnabledTypesMap[type2Pc(MsgTypeIdAck)] = false;
@@ -80,11 +81,11 @@ void FrameManager::storeFrameData(uint16_t rxWordOffset) {
 
 void FrameManager::storeFrameDataLoss(int32_t dataLossCount) {
     if (dataLossCount > 0 && this->isRxMessageTypeEnabled(MsgTypeIdAcquisitionDataLoss)) {
-        std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
         msg.typeId = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss;
         msg.data.resize(2);
         msg.data[0] = (uint16_t)(dataLossCount & (0xFFFF));
         msg.data[1] = (uint16_t)((dataLossCount >> 16) & (0xFFFF));
+        std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
         messages.push_back(msg);
 
         rxMutexLock.unlock();
@@ -141,9 +142,7 @@ std::optional <RxMessage_t> FrameManager::getNextMessage(MsgTypeId_t messageType
 }
 
 void FrameManager::purgeData() {
-    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-    messages.clear();
-    lastDataMessage = std::nullopt;
+    purgeRequest = true;
 }
 
 uint16_t FrameManager::type2Pc(MsgTypeId_t messageType) {
@@ -151,10 +150,15 @@ uint16_t FrameManager::type2Pc(MsgTypeId_t messageType) {
 }
 
 void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::RxMessageTypes_t rxMessageType) {
+    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
+    if (purgeRequest) {
+        messages.clear();
+        lastDataMessage = std::nullopt;
+        purgeRequest = false;
+    }
     uint32_t rxDataWords = rxWordLengths[rxMessageType];
     uint32_t newProtocolItemFirstIndex = 0;
 
-    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     switch (rxMessageType) {
     case MessageDispatcher::RxMessageDataLoad:
         if (rxEnabledTypesMap[rxMsgTypeId]) {
@@ -255,9 +259,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
         }
-        if (rxEnabledTypesMap[rxMsgTypeId]) {
-            messages.push_back(msg);
-        }
+        this->pushMessage(msg);
         break;
 
     case MessageDispatcher::RxMessageDataTail:
@@ -266,9 +268,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
         }
-        if (rxEnabledTypesMap[rxMsgTypeId]) {
-            messages.push_back(msg);
-        }
+        this->pushMessage(msg);
         break;
 
     case MessageDispatcher::RxMessageStatus:
@@ -277,9 +277,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
         }
-        if (rxEnabledTypesMap[rxMsgTypeId]) {
-            messages.push_back(msg);
-        }
+        this->pushMessage(msg);
         break;
 
     case MessageDispatcher::RxMessageTemperature:
@@ -288,15 +286,21 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
         }
-        if (rxEnabledTypesMap[rxMsgTypeId]) {
-            messages.push_back(msg);
-        }
+        this->pushMessage(msg);
         /*! \todo FCON effettuare la chiamata al metodo dell'emd per processare i dati di temperatura */
         break;
     }
 
-    rxMutexLock.unlock();
     rxMsgBufferNotEmpty.notify_all();
+    std::this_thread::yield();
+}
+
+bool FrameManager::pushMessage(RxMessage_t msg) {
+    if (!rxEnabledTypesMap[msg.typeId]) {
+        return false;
+    }
+    messages.push_back(msg);
+    return true;
 }
 
 bool FrameManager::mergeDataMessages(std::list <RxMessage_t> ::iterator to, std::list <RxMessage_t> ::iterator from) {

@@ -31,6 +31,7 @@ public:
 protected:
     static uint16_t type2Pc(MsgTypeId_t messageType);
     void storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::RxMessageTypes_t rxMessageType);
+    bool pushMessage(RxMessage_t msg);
     bool mergeDataMessages(std::list <RxMessage_t> ::iterator to, std::list <RxMessage_t> ::iterator from);
     bool mergeDataMessages(std::list <RxMessage_t> ::iterator to, RxMessage_t from);
     void enlistLastDataMessage();
@@ -50,6 +51,7 @@ protected:
     std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */
     std::vector <uint16_t> gpDataValues; /*! Store GP data when current data and GP data are not sent together in a single packet */
     std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
+    bool purgeRequest = false;
 
     mutable std::mutex rxMsgMutex;
     std::condition_variable rxMsgBufferNotEmpty;
