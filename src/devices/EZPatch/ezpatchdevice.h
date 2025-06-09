@@ -17,6 +17,12 @@
 #define EZP_RX_MIN_DATA_PACKET_LEN 3
 #define EZP_RX_MIN_DATA_PACKET_VALID_LEN (EZP_RX_MIN_DATA_PACKET_LEN-1)
 
+#define RX_MSG_BUFFER_SIZE 0x10000 // ~64k
+#define RX_MSG_BUFFER_MASK (RX_MSG_BUFFER_SIZE-1)
+#define RX_DATA_BUFFER_SIZE 0x10000000 /*! ~256M The biggest data frame possible has a dataload of 1024 words (4 x 10MHz current frame)
+                                           So this buffer has to be at least 1024 times bigger than RX_MSG_BUFFER_SIZE */
+#define RX_DATA_BUFFER_MASK (RX_DATA_BUFFER_SIZE-1)
+
 #define EZP_TX_MSG_BUFFER_SIZE 0x1000 /*! \todo FCON valutare che questo numero sia adeguato */ // 4096
 #define EZP_TX_MSG_BUFFER_MASK (EZP_TX_MSG_BUFFER_SIZE-1)
 #define EZP_TX_DATA_BUFFER_SIZE 0x100000 /*! \todo FCON valutare che questo numero sia adeguato */ // 1M

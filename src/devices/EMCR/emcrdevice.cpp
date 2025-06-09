@@ -9,22 +9,6 @@
 EmcrDevice::EmcrDevice(std::string deviceId) :
     MessageDispatcher(deviceId) {
 
-    rxEnabledTypesMap.resize(MsgDirectionDeviceToPc*2);
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAck] = false;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdNack] = false;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdPing] = false;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdFpgaReset] = true;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdLiquidJunctionComp] = true;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader] = false;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData] = true;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail] = false;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation] = false;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss] = false;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow] = false;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdInvalid] = false;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus] = false;
-    rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature] = true;
-
     /*! Initialize rx word offsets and lengths with default values */
     rxWordOffsets.resize(RxMessageNum);
     rxWordLengths.resize(RxMessageNum);
@@ -42,14 +26,7 @@ EmcrDevice::~EmcrDevice() {
 }
 
 ErrorCodes_t EmcrDevice::enableRxMessageType(MsgTypeId_t messageType, bool flag) {
-    uint16_t uType = (uint16_t)messageType;
-
-    if (uType < MsgDirectionDeviceToPc) {
-        /*! This method controls only messages going from the device to the SW */
-        uType += MsgDirectionDeviceToPc;
-    }
-
-    rxEnabledTypesMap[uType] = flag;
+    frameManager->enableRxMessageType(messageType, flag);
 
     return Success;
 }
@@ -1852,383 +1829,199 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     double xFlt;
     rxOutput.dataLen = 0; /*! Initialize data length in case more messages are merged or if an error is returned before this can be set to its proper value */
 
-    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-    if (rxMsgBufferReadLength <= 1) {
-        if (parsingStatus == ParsingNone) {
-            return ErrorDeviceNotConnected;
-        }
-#ifdef NEXT_MESSAGE_NO_WAIT
+    if (parsingStatus != ParsingParsing) {
+        return ErrorDeviceNotConnected;
+    }
+
+    auto msg = frameManager->getNextMessage();
+    if (!msg.has_value()) {
         return ErrorNoDataAvailable;
-#else
-        rxMsgBufferNotEmpty.wait_for(rxMutexLock, std::chrono::milliseconds(3));
-        if (rxMsgBufferReadLength <= 1) {
-            return ErrorNoDataAvailable;
-        }
-#endif
     }
-    if (rxMsgBufferReadLength > RX_MSG_BUFFER_SIZE && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataOverflow]) {
-        rxOutput.dataLen = 2;
-        rxOutput.msgTypeId = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionDataOverflow;
-        rxOutput.totalMessages = rxMsgBufferReadLength;
-        uint32_t skipped = rxMsgBufferReadLength - RX_MSG_BUFFER_SIZE;
-        rxMsgBufferReadOffset = (rxMsgBufferReadOffset + skipped) & RX_MSG_BUFFER_MASK;
-        rxMsgBufferReadLength -= skipped;
-        data[0] = (int16_t)(skipped & (0xFFFF));
-        data[1] = (int16_t)((skipped >> 16) & (0xFFFF));
-        return Success;
-    }
-    /*! Read up to the second to last message, since the last 2 messages might need to be swapped */
-    uint32_t maxMsgRead = rxMsgBufferReadLength-1;
-    gettingNextDataFlag = true;
-    rxMutexLock.unlock();
 
-    uint32_t msgReadCount = 0;
-
-    lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdInvalid;
-
-    uint32_t dataOffset;
     uint32_t samplesNum;
-    uint32_t sampleIdx;
+    uint32_t sampleIdx = 0;
     uint32_t timeSamplesNum;
     int16_t rawFloat;
-    uint32_t dataWritten;
-    bool exitLoop = false;
-    bool messageReadFlag = false;
 
-    while (msgReadCount < maxMsgRead) {
-        dataOffset = rxMsgBuffer[rxMsgBufferReadOffset].startDataPtr;
-        sampleIdx = 0;
-        switch (rxMsgBuffer[rxMsgBufferReadOffset].typeId) {
-        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
-            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
-                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
-                rxOutput.dataLen = 0;
-                rxOutput.protocolId = rxDataBuffer[dataOffset];
-                rxOutput.protocolItemIdx = rxDataBuffer[(dataOffset+1) & RX_DATA_BUFFER_MASK];
-                rxOutput.protocolRepsIdx = rxDataBuffer[(dataOffset+2) & RX_DATA_BUFFER_MASK];
-                rxOutput.protocolSweepIdx = rxDataBuffer[(dataOffset+3) & RX_DATA_BUFFER_MASK];
+    switch (msg->typeId) {
+    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
+        rxOutput.dataLen = 0;
+        rxOutput.protocolId = msg->data[sampleIdx++];
+        rxOutput.protocolItemIdx = msg->data[sampleIdx++];
+        rxOutput.protocolRepsIdx = msg->data[sampleIdx++];
+        rxOutput.protocolSweepIdx = msg->data[sampleIdx++];
+        break;
 
-                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader;
+    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData): {
+        samplesNum = msg->data.size();
 
-                /*! This message cannot be merged, but stay in the loop in case there are more to read */
-                exitLoop = false;
-                messageReadFlag = true;
-
-            } else if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader) {
-                /*! If there are more of this kind in a sequence ignore subsequent ones */
-                exitLoop = false;
-                messageReadFlag = true;
-
-            } else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-            break;
-
-        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData):
-            samplesNum = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
-            dataWritten = rxOutput.dataLen;
-            if ((lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid ||
-                 lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData) &&
-                dataWritten+samplesNum < E384CL_OUT_STRUCT_DATA_LEN) {
-                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid)
-                    OR if we are merging successive acquisition data messages that do not overflow the available memory */
-
-                std::unique_lock <std::mutex> ljMutexLock (ljMutex);
-                if (downsamplingFlag) {
-                    timeSamplesNum = samplesNum/totalChannelsNum;
-                    uint32_t downsamplingCount = 0;
-                    for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-                        if (++downsamplingOffset >= selectedDownsamplingRatio) {
-                            downsamplingOffset = 0;
-                            downsamplingCount++;
-                            for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
+        std::unique_lock <std::mutex> ljMutexLock (ljMutex);
+        if (downsamplingFlag) {
+            timeSamplesNum = samplesNum/totalChannelsNum;
+            uint32_t downsamplingCount = 0;
+            for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
+                if (++downsamplingOffset >= selectedDownsamplingRatio) {
+                    downsamplingOffset = 0;
+                    downsamplingCount++;
+                    for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                        rawFloat = ((int16_t)msg->data[sampleIdx])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
 #ifdef FILTER_CLIP_NEEDED
-                                xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
-                                data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                        xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                        data[sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
 #else
-                                data[dataWritten+sampleIdx++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
+                        data[sampleIdx++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
 #endif
-                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                            }
-
-                            for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
-#ifdef FILTER_CLIP_NEEDED
-                                xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                                data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-#else
-                                data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
-#endif
-                                if (computeCurrentOffsetFlag) {
-                                    liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
-                                }
-                                sampleIdx++;
-                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                            }
-                            if (computeCurrentOffsetFlag) {
-                                liquidJunctionCurrentEstimatesNum++;
-                            }
-
-                        } else {
-                            for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                                rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
-                                this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
-                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                            }
-
-                            for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                                rawFloat = (int16_t)rxDataBuffer[dataOffset];
-                                xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                                if (computeCurrentOffsetFlag) {
-                                    liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)round(xFlt);
-                                }
-                                dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                            }
-                            if (computeCurrentOffsetFlag) {
-                                liquidJunctionCurrentEstimatesNum++;
-                            }
-                        }
-
-                        if (iirOff < 1) {
-                            iirOff = IIR_ORD;
-
-                        } else {
-                            iirOff--;
-                        }
                     }
 
-                    rxOutput.dataLen += downsamplingCount*totalChannelsNum;
-
-                } else if (rawDataFilterActiveFlag) {
-                    rxOutput.dataLen += samplesNum;
-                    timeSamplesNum = samplesNum/totalChannelsNum;
-                    for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            rawFloat = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
+                    for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                        rawFloat = (int16_t)msg->data[sampleIdx];
 #ifdef FILTER_CLIP_NEEDED
-                            xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
-                            data[dataWritten+sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+                        xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                        data[sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
 #else
-                            data[dataWritten+sampleIdx++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
+                        data[sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
 #endif
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
-
-                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                            rawFloat = (int16_t)rxDataBuffer[dataOffset];
-#ifdef FILTER_CLIP_NEEDED
-                            xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                            data[dataWritten+sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-#else
-                            data[dataWritten+sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
-#endif
-                            if (computeCurrentOffsetFlag) {
-                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
-                            }
-                            sampleIdx++;
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
                         if (computeCurrentOffsetFlag) {
-                            liquidJunctionCurrentEstimatesNum++;
+                            liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[sampleIdx];
                         }
+                        sampleIdx++;
+                    }
+                    if (computeCurrentOffsetFlag) {
+                        liquidJunctionCurrentEstimatesNum++;
+                    }
+                }
+                else {
+                    for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                        rawFloat = ((int16_t)msg->data[sampleIdx++])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
+                        this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                    }
 
-                        if (iirOff < 1) {
-                            iirOff = IIR_ORD;
-
-                        } else {
-                            iirOff--;
+                    for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                        rawFloat = (int16_t)msg->data[sampleIdx++];
+                        xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                        if (computeCurrentOffsetFlag) {
+                            liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)round(xFlt);
                         }
                     }
+                    if (computeCurrentOffsetFlag) {
+                        liquidJunctionCurrentEstimatesNum++;
+                    }
+                }
+
+                if (iirOff < 1) {
+                    iirOff = IIR_ORD;
 
                 } else {
-                    rxOutput.dataLen += samplesNum;
-                    timeSamplesNum = samplesNum/totalChannelsNum;
-                    for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                            data[dataWritten+sampleIdx++] = ((int16_t)rxDataBuffer[dataOffset])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
+                    iirOff--;
+                }
+            }
 
-                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                            data[dataWritten+sampleIdx] = rxDataBuffer[dataOffset];
-                            if (computeCurrentOffsetFlag) {
-                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[dataWritten+sampleIdx];
-                            }
-                            sampleIdx++;
-                            dataOffset = (dataOffset+1) & RX_DATA_BUFFER_MASK;
-                        }
-                        if (computeCurrentOffsetFlag) {
-                            liquidJunctionCurrentEstimatesNum++;
-                        }
+            rxOutput.dataLen += downsamplingCount*totalChannelsNum;
+        }
+        else if (rawDataFilterActiveFlag) {
+            rxOutput.dataLen += samplesNum;
+            timeSamplesNum = samplesNum/totalChannelsNum;
+            for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
+                for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                    rawFloat = ((int16_t)msg->data[sampleIdx])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
+#ifdef FILTER_CLIP_NEEDED
+                    xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                    data[sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+#else
+                    data[sampleIdx++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
+#endif
+                }
+
+                for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                    rawFloat = (int16_t)msg->data[sampleIdx];
+#ifdef FILTER_CLIP_NEEDED
+                    xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                    data[sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+#else
+                    data[sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
+#endif
+                    if (computeCurrentOffsetFlag) {
+                        liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[sampleIdx];
                     }
+                    sampleIdx++;
+                }
+                if (computeCurrentOffsetFlag) {
+                    liquidJunctionCurrentEstimatesNum++;
                 }
 
-                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData;
+                if (iirOff < 1) {
+                    iirOff = IIR_ORD;
 
-                /*! This message can be merged, stay in the loop in case there are more to read */
-                exitLoop = false;
-                messageReadFlag = true;
-
-            } else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-            break;
-
-        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail):
-            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
-                /*! Evaluate only if it's the first repetition */
-                rxOutput.dataLen = 0;
-                rxOutput.protocolId = rxDataBuffer[dataOffset];
-
-                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail;
-
-                /*! This message cannot be merged, but stay in the loop in case there are more to read */
-                exitLoop = false;
-                messageReadFlag = true;
-
-            } else if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail) {
-                /*! If there are more of this kind in a sequence ignore subsequent ones */
-                exitLoop = false;
-                messageReadFlag = true;
-
-            } else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-
-            break;
-
-        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
-            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
-                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation;
-                rxOutput.dataLen = 0;
-
-                /*! This message cannot be merged, leave anyway */
-                exitLoop = true;
-                messageReadFlag = true;
-
-            } else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-
-            break;
-
-        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss):
-            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
-                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss;
-                rxOutput.dataLen = 2;
-                data[0] = (int16_t)rxDataBuffer[dataOffset];
-                data[1] = (int16_t)rxDataBuffer[(dataOffset+1) & RX_DATA_BUFFER_MASK];
-                dataOffset = (dataOffset+2) & RX_DATA_BUFFER_MASK;
-
-                /*! This message cannot be merged, leave anyway */
-                exitLoop = true;
-                messageReadFlag = true;
-
-            } else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-
-            break;
-
-        case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
-            // not really managed, ignore it
-            if (lastParsedMsgType == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
-                lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus;
-                rxOutput.dataLen = 0;
-                /*! This message cannot be merged, leave anyway */
-                exitLoop = true;
-                messageReadFlag = true;
-
-            } else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-
-            break;
-
-        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature):
-            if (lastParsedMsgType == MsgDirectionDeviceToPc + MsgTypeIdInvalid) {
-                /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
-                rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
-                double * temperaturesD = new double[temperatureChannelsNum];
-                /*! \todo FCON check sulla lunghezza del messaggio */
-                for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
-                    data[temperatureChannelIdx] = (int16_t)rxDataBuffer[dataOffset];
-                    dataOffset = (dataOffset + 1) & RX_DATA_BUFFER_MASK;
+                } else {
+                    iirOff--;
                 }
-                this->convertTemperatureValues(data, temperaturesD);
-                std::vector <Measurement_t> temperatures;
-                for (uint16_t idx = 0; idx < temperatureChannelsNum; idx++) {
-                    temperatures.push_back({temperaturesD[idx], temperatureChannelsRanges[idx].prefix, temperatureChannelsRanges[idx].unit});
+            }
+        }
+        else {
+            rxOutput.dataLen += samplesNum;
+            timeSamplesNum = samplesNum/totalChannelsNum;
+            for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
+                for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                    data[sampleIdx] = ((int16_t)msg->data[sampleIdx])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
+                    sampleIdx++;
                 }
-                this->processTemperatureData(temperatures);
 
-                lastParsedMsgType = MsgDirectionDeviceToPc + MsgTypeIdAcquisitionTemperature;
-
-                exitLoop = true;
-                messageReadFlag = true;
+                for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                    data[sampleIdx] = msg->data[sampleIdx];
+                    if (computeCurrentOffsetFlag) {
+                        liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[sampleIdx];
+                    }
+                    sampleIdx++;
+                }
+                if (computeCurrentOffsetFlag) {
+                    liquidJunctionCurrentEstimatesNum++;
+                }
             }
-            else {
-                /*! Exit the loop in case this message type is different from the previous one */
-                exitLoop = true;
-                messageReadFlag = false;
-            }
-            break;
-
-        default:
-            lastParsedMsgType = MsgDirectionDeviceToPc+MsgTypeIdInvalid;
-
-            /*! Leave and look for following messages */
-            exitLoop = true;
-            messageReadFlag = true;
-            break;
         }
-        rxOutput.msgTypeId = lastParsedMsgType;
-        if (messageReadFlag) {
-            msgReadCount++;
-            rxMsgBufferReadOffset = (rxMsgBufferReadOffset+1) & RX_MSG_BUFFER_MASK;
-        }
-
-        if (exitLoop) {
-            break;
-        }
+        break;
     }
+    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail):
+        rxOutput.dataLen = 0;
+        rxOutput.protocolId = msg->data[sampleIdx];
+        break;
 
-    rxMutexLock.lock();
-    rxMsgBufferReadLength -= msgReadCount;
-    gettingNextDataFlag = false;
-    rxMutexLock.unlock();
-    rxMsgBufferNotFull.notify_all();
+    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
+        rxOutput.dataLen = 0;
+        break;
 
+    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss):
+        rxOutput.dataLen = 2;
+        data[0] = (int16_t)msg->data[sampleIdx++];
+        data[1] = (int16_t)msg->data[sampleIdx++];
+        break;
+
+    case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
+        // not really managed, ignore it
+        break;
+
+    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature):
+        /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
+        rxOutput.dataLen = temperatureChannelsNum;
+        double * temperaturesD = new double[temperatureChannelsNum];
+        /*! \todo FCON check sulla lunghezza del messaggio */
+        for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
+            data[temperatureChannelIdx] = (int16_t)msg->data[sampleIdx++];
+        }
+        this->convertTemperatureValues(data, temperaturesD);
+        std::vector <Measurement_t> temperatures;
+        for (uint16_t idx = 0; idx < temperatureChannelsNum; idx++) {
+            temperatures.push_back({temperaturesD[idx], temperatureChannelsRanges[idx].prefix, temperatureChannelsRanges[idx].unit});
+        }
+        this->processTemperatureData(temperatures);
+        break;
+    }
     return ret;
 }
 
 ErrorCodes_t EmcrDevice::purgeData() {
-    ErrorCodes_t ret = Success;
+    frameManager->purgeData();
 
-    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-    while (gettingNextDataFlag) {
-        /*! Wait for the getNextMessage method to be outside of its loop, because the rxMsgBufferReadLength and rxMsgBufferReadOffset variables must not change during its execution */
-        rxMsgBufferNotFull.wait_for(rxMutexLock, std::chrono::milliseconds(1));
-    }
-    rxMsgBufferReadOffset = (rxMsgBufferReadOffset+rxMsgBufferReadLength) & RX_MSG_BUFFER_MASK;
-    rxMsgBufferReadLength = 0;
-    rxMutexLock.unlock();
-    rxMsgBufferNotFull.notify_all();
-
-    return ret;
+    return Success;
 }
 
 ErrorCodes_t EmcrDevice::getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures) {
@@ -2439,7 +2232,6 @@ ErrorCodes_t EmcrDevice::initialize(std::string fwPath) {
     }
 
     stopConnectionFlag = false;
-    parsingStatus = ParsingPreparing;
     this->createCommunicationThreads();
 
     std::this_thread::sleep_for (std::chrono::milliseconds(500));
@@ -2461,18 +2253,6 @@ void EmcrDevice::deinitialize() {
 }
 
 ErrorCodes_t EmcrDevice::initializeMemory() {
-    rxMsgBuffer = new (std::nothrow) MsgResume_t[RX_MSG_BUFFER_SIZE];
-    if (rxMsgBuffer == nullptr) {
-        this->deinitializeMemory();
-        return ErrorMemoryInitialization;
-    }
-
-    rxDataBuffer = new (std::nothrow) uint16_t[RX_DATA_BUFFER_SIZE+1]; /*!< The last item is a copy of the first one, it is used to safely read 2 consecutive 16bit words at a time to form a 32bit word */
-    if (rxDataBuffer == nullptr) {
-        this->deinitializeMemory();
-        return ErrorMemoryInitialization;
-    }
-
     txMsgBuffer = new (std::nothrow) std::vector <uint16_t>[TX_MSG_BUFFER_SIZE];
     if (txMsgBuffer == nullptr) {
         this->deinitializeMemory();
@@ -2500,17 +2280,14 @@ ErrorCodes_t EmcrDevice::initializeMemory() {
     selectedCurrentHalfVector.resize(currentChannelsNum);
     std::fill(selectedCurrentHalfVector.begin(), selectedCurrentHalfVector.end(), defaultCurrentHalfTuner);
 
-    /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
-    voltageDataValues.resize(voltageChannelsNum);
-    std::fill(voltageDataValues.begin(), voltageDataValues.end(), 0);
-    gpDataValues.resize(gpChannelsNum);
-    std::fill(gpDataValues.begin(), gpDataValues.end(), 0);
-
     return Success;
 }
 
 void EmcrDevice::initializeVariables() {
     MessageDispatcher::initializeVariables();
+    frameManager = new FrameManager(this);
+    frameManager->setMaxDataSize(E384CL_OUT_STRUCT_DATA_LEN);
+    frameManager->setRxWordParams(rxWordOffsets, rxWordLengths);
 }
 
 ErrorCodes_t EmcrDevice::deviceConfiguration() {
@@ -2528,16 +2305,6 @@ void EmcrDevice::createCommunicationThreads() {
 }
 
 void EmcrDevice::deinitializeMemory() {
-    if (rxMsgBuffer != nullptr) {
-        delete [] rxMsgBuffer;
-        rxMsgBuffer = nullptr;
-    }
-
-    if (rxDataBuffer != nullptr) {
-        delete [] rxDataBuffer;
-        rxDataBuffer = nullptr;
-    }
-
     if (txMsgBuffer != nullptr) {
         delete [] txMsgBuffer;
         txMsgBuffer = nullptr;
@@ -2609,173 +2376,6 @@ void EmcrDevice::updateCurrentHoldTuner(bool applyFlag) {
 
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
-    }
-}
-
-void EmcrDevice::storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType) {
-    uint32_t rxDataWords = rxWordLengths[rxMessageType];
-    uint32_t newProtocolItemFirstIndex = 0;
-    bool swapLastMsgFlag = false;
-    bool splitLastMsgFlag = false;
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    fprintf(rxProcFid, "Store data frame: %x\n", rxMessageType);
-    fflush(rxProcFid);
-#endif
-
-    rxMsgBuffer[rxMsgBufferWriteOffset].typeId = rxMsgTypeId;
-    rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataWords;
-    rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
-
-    switch (rxMessageType) {
-    case RxMessageCurrentDataLoad: {
-        /*! Data frame with only current */
-        uint32_t packetsNum = rxDataWords/currentChannelsNum;
-        uint32_t rxDataBufferWriteIdx = 0;
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-        fprintf(rxProcFid, "rxDataWords: %d\n", rxDataWords);
-        fprintf(rxProcFid, "packetsNum: %d\n", packetsNum);
-        fflush(rxProcFid);
-#endif
-
-        for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
-            /*! For each packet retrieve the last recevied voltage values */
-            for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
-                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx++) & RX_DATA_BUFFER_MASK] = voltageDataValues[idx];
-            }
-
-            /*! Then store the new current values */
-            for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx++) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
-            }
-
-            // /*! Finally for each gp packet retrieve the last recevied GP values */
-            // for (uint32_t idx = 0; idx < gpChannelsNum; idx++) {
-            //     rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx++) & RX_DATA_BUFFER_MASK] = gpDataValues[idx];
-            // }
-        }
-
-        /*! The size of the data returned by the message dispatcher is different from the size of the packet from returned by the FPGA */
-        rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataBufferWriteIdx;
-        break;
-    }
-
-    case RxMessageVoltageDataLoad:
-        for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
-            voltageDataValues[idx] = this->popUint16FromRxRawBuffer();
-        }
-        break;
-
-    case RxMessageVoltageAndGpDataLoad:
-        for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
-            voltageDataValues[idx] = this->popUint16FromRxRawBuffer();
-        }
-        for (uint32_t idx = 0; idx < gpChannelsNum; idx++) {
-            gpDataValues[idx] = this->popUint16FromRxRawBuffer();
-        }
-        break;
-
-    case RxMessageVoltageThenCurrentDataLoad: {
-        /*! Data frame with only current */
-        uint32_t packetsNum = rxDataWords/totalChannelsNum;
-        uint32_t rxDataBufferWriteIdx = 0;
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-        fprintf(rxProcFid, "rxDataWords: %d\n", rxDataWords);
-        fprintf(rxProcFid, "packetsNum: %d\n", packetsNum);
-        fflush(rxProcFid);
-#endif
-
-        for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
-            /*! Store the voltage values first */
-            for (uint32_t idx = 0; idx < voltageChannelsNum-1; idx++) {
-                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
-                rxDataBufferWriteIdx++;
-            }
-            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
-            /*! Leave space for the current */
-            rxDataBufferWriteIdx += 1+currentChannelsNum;
-        }
-
-        rxDataBufferWriteIdx = 0;
-        for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
-            /*! Leave space for the voltage */
-            rxDataBufferWriteIdx = (rxDataBufferWriteIdx+voltageChannelsNum);
-            /*! Then store the current values */
-            for (uint32_t idx = 0; idx < currentChannelsNum-1; idx++) {
-                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
-                rxDataBufferWriteIdx++;
-            }
-            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
-            rxDataBufferWriteIdx++;
-        }
-
-        /*! The size of the data returned by the message dispatcher is different from the size of the packet from returned by the FPGA */
-        rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = rxDataBufferWriteIdx;
-        break;
-    }
-
-    case RxMessageDataHeader:
-        if (rxWordLengths[RxMessageDataHeader] > 4) {
-            // splitLastMsgFlag = true;
-            newProtocolItemFirstIndex = ((uint32_t)this->readUint16FromRxRawBuffer(4)) + ((this->readUint16FromRxRawBuffer(5)) << 16);
-        }
-    case RxMessageDataTail:
-    case RxMessageStatus:
-    case RxMessageTemperature:
-        /*! Swap the last 2 messages if the last one is not a data message */
-        // swapLastMsgFlag = true;
-    case RxMessageDataLoad:
-        for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
-            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx) & RX_DATA_BUFFER_MASK] = this->popUint16FromRxRawBuffer();
-        }
-        break;
-    }
-
-    rxDataBufferWriteOffset = (rxDataBufferWriteOffset+rxMsgBuffer[rxMsgBufferWriteOffset].dataLength) & RX_DATA_BUFFER_MASK;
-
-    if (rxDataBufferWriteOffset <= rxMsgBuffer[rxMsgBufferWriteOffset].dataLength) {
-        rxDataBuffer[RX_DATA_BUFFER_SIZE] = rxDataBuffer[0]; /*!< The last item is a copy of the first one, it is used to safely read 2 consecutive 16bit words at a time to form a 32bit word,
-                                                              *   even if the first 16bit word is in position FTD_RX_DATA_BUFFER_SIZE-1 and the following one would go out of range otherwise */
-    }
-
-    if (rxEnabledTypesMap[rxMsgTypeId]) {
-        if (splitLastMsgFlag) {
-            MsgResume_t prevMsg = rxMsgBuffer[rxPrevMsgBufferWriteOffset];
-            MsgResume_t lastMsg = prevMsg;
-
-            /*! words in the previous data message that belong to the previous item */
-            uint32_t wordsInPreviousItem = totalChannelsNum*newProtocolItemFirstIndex;
-            prevMsg.dataLength = wordsInPreviousItem; /*! fix length of previous data item */
-            lastMsg.dataLength -= wordsInPreviousItem; /*! fix length of new data item */
-            lastMsg.startDataPtr = (lastMsg.startDataPtr+wordsInPreviousItem) & RX_DATA_BUFFER_MASK; /*! fix start of new data item */
-
-            /*! The previous item message remains before the header */
-            rxMsgBuffer[rxPrevMsgBufferWriteOffset] = prevMsg;
-            /*! The header is already in the right position */
-            /*! Create a new message for the remainder of data belonging to the new item */
-            rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
-            rxMsgBuffer[rxMsgBufferWriteOffset] = lastMsg;
-        }
-        else if (swapLastMsgFlag) {
-            MsgResume_t prevMsg = rxMsgBuffer[rxPrevMsgBufferWriteOffset];
-            rxMsgBuffer[rxPrevMsgBufferWriteOffset] = rxMsgBuffer[rxMsgBufferWriteOffset];
-            rxMsgBuffer[rxMsgBufferWriteOffset] = prevMsg;
-        }
-        rxPrevMsgBufferWriteOffset = rxMsgBufferWriteOffset;
-        /*! Update the message buffer only if the message is not filtered out */
-        rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
-        /*! change the message buffer length */
-        std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-        if (splitLastMsgFlag) {
-            rxMsgBufferReadLength += 2;
-        }
-        else {
-            rxMsgBufferReadLength++;
-        }
-        rxMutexLock.unlock();
-        rxMsgBufferNotEmpty.notify_all();
     }
 }
 

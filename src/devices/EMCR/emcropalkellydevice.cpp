@@ -442,6 +442,7 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
 
     bool waitingTimeForReadingPassed = false;
     bool anyOperationPerformed;
+    parsingStatus = ParsingPreparing;
 
     while (!stopConnectionFlag) {
         anyOperationPerformed = false;
@@ -480,20 +481,18 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
                     rxRawMutexLock.unlock();
                     rxRawBufferNotEmpty.notify_all();
                 }
-
-            } else {
+            }
+            else {
                 rxRawMutexLock.unlock();
             }
-
-        } else {
+        }
+        else {
             long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
             if (t > waitingTimeBeforeReadingData*1e6) {
                 waitingTimeForReadingPassed = true;
-                std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
                 if (parsingStatus == ParsingPreparing) {
                     parsingStatus = ParsingParsing;
                 }
-                rxMutexLock.unlock();
             }
         }
 
@@ -762,22 +761,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                     if (rxCandidateHeader == rxSyncWord) {
                         /*! valid frame data and reset rxDataLoss */
-                        if (dataLossCount > 0 && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss]) {
-                            rxMsgBuffer[rxMsgBufferWriteOffset].typeId = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss;
-                            rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
-                            rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = 2;
-
-                            rxDataBuffer[(rxDataBufferWriteOffset) & RX_DATA_BUFFER_MASK] = (uint16_t)(dataLossCount & (0xFFFF));
-                            rxDataBuffer[(rxDataBufferWriteOffset+1) & RX_DATA_BUFFER_MASK] = (uint16_t)((dataLossCount >> 16) & (0xFFFF));
-                            rxDataBufferWriteOffset = (rxDataBufferWriteOffset+2) & RX_DATA_BUFFER_MASK;
-
-                            rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
-                            /*! change the message buffer length */
-                            std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-                            rxMsgBufferReadLength++;
-                            rxMutexLock.unlock();
-                            rxMsgBufferNotEmpty.notify_all();
-                        }
+                        frameManager->storeFrameDataLoss(dataLossCount);
                         dataLossCount = 0;
 
                         frameManager->storeFrameData(rxWordOffset);
@@ -807,11 +791,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
         rxRawMutexLock.unlock();
         rxRawBufferNotFull.notify_all();
     }
-
-    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     parsingStatus = ParsingNone;
-    rxMsgBufferReadLength++;
-    rxMsgBufferNotEmpty.notify_all();
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {

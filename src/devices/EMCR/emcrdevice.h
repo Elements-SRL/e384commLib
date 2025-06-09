@@ -3,6 +3,7 @@
 
 #include "messagedispatcher.h"
 #include "commandcoder.h"
+#include "framemanager.h"
 
 class EmcrDevice : public MessageDispatcher {
 public:
@@ -186,6 +187,8 @@ protected:
      *  Fields  *
     \************/
 
+    FrameManager * frameManager = nullptr;
+
     unsigned int packetsPerFrame = 1;
 
     int motherboardBootTime_s = 1;
@@ -202,19 +205,7 @@ protected:
     uint32_t rxRawBytesAvailable = 0;
     uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
     uint32_t rxRawBufferMask;
-    MsgResume_t * rxMsgBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's high level info */
-    uint32_t rxMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be written */
-    uint32_t rxMsgBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
-    uint32_t rxMsgBufferWriteOffset = 0;
     uint32_t rxPrevMsgBufferWriteOffset = 0;
-    uint32_t rxDataBufferWriteOffset = 0;
-    std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */
-    std::vector <uint16_t> gpDataValues; /*! Store GP data when current data and GP data are not sent together in a single packet */
-    bool gettingNextDataFlag = false;
-
-    uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
-
-    uint16_t * rxDataBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's data */
 
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer = nullptr; /*!< Buffer of arrays of bytes to communicate to the device */
@@ -229,8 +220,6 @@ protected:
 
     std::vector <uint16_t> rxWordOffsets;
     std::vector <uint16_t> rxWordLengths;
-
-    std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
 
     // Calibration DAC ranges
     RangedMeasurement_t calibCcCurrentGainRange;
@@ -389,10 +378,6 @@ protected:
     mutable std::mutex rxRawMutex;
     std::condition_variable rxRawBufferNotEmpty;
     std::condition_variable rxRawBufferNotFull;
-
-    mutable std::mutex rxMsgMutex;
-    std::condition_variable rxMsgBufferNotEmpty;
-    std::condition_variable rxMsgBufferNotFull;
 };
 
 #endif // EMCRDEVICE_H

@@ -835,6 +835,13 @@ ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(int &voltageChannelNumb
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(int &voltageChannelNumberFeatures, int &currentChannelNumberFeatures, int &gpChannelNumberFeatures) {
+    voltageChannelNumberFeatures = (int)voltageChannelsNum;
+    currentChannelNumberFeatures = (int)currentChannelsNum;
+    gpChannelNumberFeatures = (int)gpChannelsNum;
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getAvailableChannelsSourcesFeatures(ChannelSources_t &voltageSourcesIdxs, ChannelSources_t &currentSourcesIdxs) {
     voltageSourcesIdxs = availableVoltageSourcesIdxs;
     currentSourcesIdxs = availableCurrentSourcesIdxs;
