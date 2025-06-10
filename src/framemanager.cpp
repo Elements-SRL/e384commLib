@@ -2,6 +2,8 @@
 
 #include "emcrdevice.h"
 
+#define ACQ_DATA_TYPE type2Pc(MsgTypeIdAcquisitionData)
+
 FrameManager::FrameManager(MessageDispatcher * md) :
     md(md) {
 
@@ -51,13 +53,13 @@ void FrameManager::setRxWordParams(std::vector <uint16_t> rxWordOffsets, std::ve
 
 void FrameManager::storeFrameData(uint16_t rxWordOffset) {
     if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDataLoad]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionData), MessageDispatcher::RxMessageDataLoad);
+        this->storeFrameDataType(ACQ_DATA_TYPE, MessageDispatcher::RxMessageDataLoad);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageVoltageThenCurrentDataLoad]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionData), MessageDispatcher::RxMessageVoltageThenCurrentDataLoad);
+        this->storeFrameDataType(ACQ_DATA_TYPE, MessageDispatcher::RxMessageVoltageThenCurrentDataLoad);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageCurrentDataLoad]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionData), MessageDispatcher::RxMessageCurrentDataLoad);
+        this->storeFrameDataType(ACQ_DATA_TYPE, MessageDispatcher::RxMessageCurrentDataLoad);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageVoltageDataLoad]) {
         this->storeFrameDataType(type2Pc(MsgTypeIdInvalid), MessageDispatcher::RxMessageVoltageDataLoad);
@@ -113,34 +115,33 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
         /*! Return first message regardless of type */
         ret = messages.front();
         messages.pop_front();
+        return ret;
     }
-    else if (uType == type2Pc(MsgTypeIdAcquisitionData)) {
+    if (uType == ACQ_DATA_TYPE) {
         /*! Return first data message */
         for (auto it = messages.begin(); it != messages.end(); ++it) {
             if (it->typeId == uType) {
                 ret = *it;
                 messages.erase(it);
-                break;
+                return ret;
             }
         }
+        return ret;
     }
-    else {
-        /*! \todo FCON qui ci andrebbe il caso dell'header, e forse anche il caso del tail che mergiano i pacchetti dati in maniera diversa
+    /*! \todo FCON qui ci andrebbe il caso dell'header, e forse anche il caso del tail che mergiano i pacchetti dati in maniera diversa
             o forse no, perchè si può fare split e merge enllo store */
 
-        /*! Look for type specific message */
-        for (auto it = messages.begin(); it != messages.end(); ++it) {
-            if (it->typeId == uType) {
-                if (it != messages.begin() && std::next(it) != messages.end()) {
-                    this->mergeDataMessages(std::prev(it), std::next(it));
-                }
-                ret = *it;
-                messages.erase(it);
-                break;
+    /*! Look for type specific message */
+    for (auto it = messages.begin(); it != messages.end(); ++it) {
+        if (it->typeId == uType) {
+            ret = *it;
+            if (it != messages.begin() && std::next(it) != messages.end()) {
+                this->mergeDataMessages(std::prev(it), std::next(it));
             }
+            messages.erase(it);
+            return ret;
         }
     }
-
     return ret;
 }
 
@@ -164,9 +165,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
 
     switch (rxMessageType) {
     case MessageDispatcher::RxMessageDataLoad:
-        if (rxEnabledTypesMap[rxMsgTypeId]) {
-            this->enlistLastDataMessage();
-        }
+        this->pushLastDataMessage();
         lastDataMessage.typeId = rxMsgTypeId;
         lastDataMessage.data.resize(rxDataWords);
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
@@ -179,9 +178,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         /*! Data frame with only current */
         uint32_t packetsNum = rxDataWords/currentChannelsNum;
         uint32_t rxDataBufferWriteIdx = 0;
-        if (rxEnabledTypesMap[rxMsgTypeId]) {
-            this->enlistLastDataMessage();
-        }
+        this->pushLastDataMessage();
         lastDataMessage.typeId = rxMsgTypeId;
         lastDataMessage.data.resize(packetsNum*totalChannelsNum);
 
@@ -224,9 +221,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         /*! Data frame with only current */
         uint32_t packetsNum = rxDataWords/totalChannelsNum;
         uint32_t rxDataBufferWriteIdx = 0;
-        if (rxEnabledTypesMap[rxMsgTypeId]) {
-            this->enlistLastDataMessage();
-        }
+        this->pushLastDataMessage();
         lastDataMessage.typeId = rxMsgTypeId;
         lastDataMessage.data.resize(rxDataWords);
 
@@ -262,7 +257,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
             msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
         }
-        this->pushMessage(msg);
+        this->pushHeaderMessage(msg, newProtocolItemFirstIndex);
         break;
 
     case MessageDispatcher::RxMessageDataTail:
@@ -298,16 +293,8 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
     std::this_thread::yield();
 }
 
-bool FrameManager::pushMessage(RxMessage_t msg) {
-    if (!rxEnabledTypesMap[msg.typeId]) {
-        return false;
-    }
-    messages.push_back(msg);
-    return true;
-}
-
 bool FrameManager::mergeDataMessages(std::list <RxMessage_t> ::iterator to, std::list <RxMessage_t> ::iterator from) {
-    if (to->typeId != type2Pc(MsgTypeIdAcquisitionData) || from->typeId != to->typeId) {
+    if (to->typeId != ACQ_DATA_TYPE || from->typeId != to->typeId) {
         /*! Merge only data messages */
         return false;
     }
@@ -320,25 +307,69 @@ bool FrameManager::mergeDataMessages(std::list <RxMessage_t> ::iterator to, std:
     return true;
 }
 
-bool FrameManager::mergeDataMessages(std::list <RxMessage_t> ::iterator to, RxMessage_t from) {
-    if (to->typeId != type2Pc(MsgTypeIdAcquisitionData) || from.typeId != to->typeId) {
-        /*! Merge only data messages */
-        return false;
-    }
-    if (to->data.size()+from.data.size() > maxDataSize) {
-        /*! Do not merge if the final size is too large */
-        return false;
-    }
+void FrameManager::mergeLastDataMessage(std::list <RxMessage_t> ::iterator to, RxMessage_t from) {
     to->data.insert(to->data.end(), from.data.begin(), from.data.end());
+}
+
+bool FrameManager::pushMessage(RxMessage_t msg) {
+    if (!rxEnabledTypesMap[msg.typeId]) {
+        return false;
+    }
+    messages.push_back(msg);
     return true;
 }
 
-void FrameManager::enlistLastDataMessage() {
+bool FrameManager::pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFirstIndex) {
+    if (!rxEnabledTypesMap[msg.typeId]
+        || (!messages.empty()
+            && * std::prev(messages.end()) == msg)) {
+        return false;
+    }
     if (!lastDataMessageAvailable) {
-        return;
+        /*! No last data message available, just push the header */
+        messages.push_back(msg);
     }
-    if (messages.empty()) {
+    if (lastDataMessage.data.size() <= newProtocolItemFirstIndex) {
+        /*! Last data message has less samples than required by the header, push it entirely and set it not available */
+        this->pushLastDataMessage();
+        lastDataMessageAvailable = false;
+        messages.push_back(msg);
+        return true;
+    }
+    if (newProtocolItemFirstIndex > 0) {
+        /*! Last data message has more samples than required by the header, split it and push the first chunk */
+        messages.push_back(this->splitLastDataMessage(newProtocolItemFirstIndex));
+        messages.push_back(msg);
+        return true;
+    }
+    /*! The header requires 0 samples, do not push the last data message */
+    messages.push_back(msg);
+    return true;
+}
+
+bool FrameManager::pushLastDataMessage() {
+    if (!rxEnabledTypesMap[ACQ_DATA_TYPE]
+        || !lastDataMessageAvailable) {
+        /*! Do not push if the last data message is not available or if data messages are not enabled */
+        return false;
+    }
+    if (messages.empty()
+        || std::prev(messages.end())->typeId != ACQ_DATA_TYPE
+        || std::prev(messages.end())->data.size() + lastDataMessage.data.size() > maxDataSize) {
+        /*! If the messages list is not empty, but the last is not a data message or if the total size of the last data message with the last message in the list is too large,
+         *  just push the last data message */
         messages.push_back(lastDataMessage);
+        return true;
     }
-    this->mergeDataMessages(std::prev(messages.end()), lastDataMessage);
+    /*! Otherwise, merge the last data message with the last message in the list */
+    this->mergeLastDataMessage(std::prev(messages.end()), lastDataMessage);
+    return true;
+}
+
+RxMessage_t FrameManager::splitLastDataMessage(uint32_t newProtocolItemFirstIndex) {
+    RxMessage_t firstChunk;
+    firstChunk.typeId = ACQ_DATA_TYPE;
+    firstChunk.data.insert(firstChunk.data.end(), lastDataMessage.data.begin(), lastDataMessage.data.begin()+newProtocolItemFirstIndex);
+    lastDataMessage.data.erase(lastDataMessage.data.begin(), lastDataMessage.data.begin() + newProtocolItemFirstIndex);
+    return firstChunk;
 }

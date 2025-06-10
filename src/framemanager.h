@@ -9,6 +9,9 @@
 typedef struct RxMessage {
     uint16_t typeId;
     std::vector <uint16_t> data;
+    bool operator == (const RxMessage& other) const {
+        return typeId == other.typeId && data == other.data;
+    }
 } RxMessage_t;
 
 class EmcrDevice;
@@ -30,10 +33,12 @@ public:
 protected:
     static uint16_t type2Pc(MsgTypeId_t messageType);
     void storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::RxMessageTypes_t rxMessageType);
-    bool pushMessage(RxMessage_t msg);
     bool mergeDataMessages(std::list <RxMessage_t> ::iterator to, std::list <RxMessage_t> ::iterator from);
-    bool mergeDataMessages(std::list <RxMessage_t> ::iterator to, RxMessage_t from);
-    void enlistLastDataMessage();
+    void mergeLastDataMessage(std::list <RxMessage_t> ::iterator to, RxMessage_t from);
+    bool pushMessage(RxMessage_t msg);
+    bool pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFirstIndex);
+    bool pushLastDataMessage();
+    RxMessage_t splitLastDataMessage(uint32_t newProtocolItemFirstIndex);
 
     uint32_t maxDataSize = -1;
     std::list <RxMessage_t> messages;
