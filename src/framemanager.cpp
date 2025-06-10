@@ -128,11 +128,8 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
         }
         return ret;
     }
-    /*! \todo FCON qui ci andrebbe il caso dell'header, e forse anche il caso del tail che mergiano i pacchetti dati in maniera diversa
-            o forse no, perchè si può fare split e merge enllo store */
-
-    /*! Look for type specific message */
     for (auto it = messages.begin(); it != messages.end(); ++it) {
+        /*! Look for type specific message */
         if (it->typeId == uType) {
             ret = *it;
             if (it != messages.begin() && std::next(it) != messages.end()) {
@@ -251,7 +248,6 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         if (rxWordLengths[MessageDispatcher::RxMessageDataHeader] > 4) {
             newProtocolItemFirstIndex = ((uint32_t)emd->readUint16FromRxRawBuffer(4)) + ((emd->readUint16FromRxRawBuffer(5)) << 16);
         }
-        /*! \todo FCON splittare il lastDataMessage */
         msg.typeId = rxMsgTypeId;
         msg.data.resize(rxDataWords);
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
@@ -285,7 +281,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
         }
         this->pushMessage(msg);
-        /*! \todo FCON effettuare la chiamata al metodo dell'emd per processare i dati di temperatura */
+        emd->processTemperatureData(msg);
         break;
     }
 

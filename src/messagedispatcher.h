@@ -1114,6 +1114,13 @@ public:
      */
     virtual ErrorCodes_t setTemperatureControl(Measurement_t temperature, bool enabled);
 
+    /*! \brief Set temperature control PID parameters.
+     *
+     * \param PidParams_t [in] Struct with PID parameters.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setTemperatureControlPid(PidParams_t params);
+
     /*! \brief Set a custom flag.
      *
      * \param idx [in] Index of the flag to be set.
@@ -1296,7 +1303,7 @@ public:
      */
     ErrorCodes_t convertCurrentValues(int16_t * intValues, double * fltValues, int valuesNum);
 
-    /*! \brief Convert an array of current values returned by getNextMessage from integer to floating point.
+    /*! \brief Convert an array of temperature values returned by getNextMessage from integer to floating point.
      *
      * \param intValue [in] Array of integer temperature values obtained with the getNextMessage method.
      * \param fltValue [out] Array of floating point temperature values expressed in the unit of the temperature range for the corresponding channel.
@@ -2174,8 +2181,6 @@ protected:
     void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
 
     void flushBoardList();
-
-    virtual void processTemperatureData(std::vector <Measurement_t> temperaturesRead);
 
     /************\
      *  Fields  *

@@ -148,6 +148,7 @@ public:
      *  Utility Methods  *
     \*********************/
 
+    void processTemperatureData(RxMessage_t msg);
     uint16_t popUint16FromRxRawBuffer();
     uint32_t popUint32FromRxRawBuffer();
     uint16_t readUint16FromRxRawBuffer(uint32_t n);
@@ -182,6 +183,8 @@ protected:
     void updateCurrentHoldTuner(bool applyFlag);
 
     void stackOutgoingMessage(CommandStatus_t &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
+
+    virtual void processTemperatureData(std::vector <Measurement_t> temperaturesRead);
 
     /************\
      *  Fields  *

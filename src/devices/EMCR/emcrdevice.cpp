@@ -2003,17 +2003,10 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
     case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature):
         /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
         rxOutput.dataLen = temperatureChannelsNum;
-        double * temperaturesD = new double[temperatureChannelsNum];
         /*! \todo FCON check sulla lunghezza del messaggio */
         for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
             data[temperatureChannelIdx] = (int16_t)msg.data[sampleIdx++];
         }
-        this->convertTemperatureValues(data, temperaturesD);
-        std::vector <Measurement_t> temperatures;
-        for (uint16_t idx = 0; idx < temperatureChannelsNum; idx++) {
-            temperatures.push_back({temperaturesD[idx], temperatureChannelsRanges[idx].prefix, temperatureChannelsRanges[idx].unit});
-        }
-        this->processTemperatureData(temperatures);
         break;
     }
     return ret;
@@ -2175,6 +2168,16 @@ ErrorCodes_t EmcrDevice::getCalibMappingFileDir(std::string &dir) {
 ErrorCodes_t EmcrDevice::getCalibMappingFilePath(std::string &path) {
     path = calibrationMappingFilePath;
     return Success;
+}
+
+void EmcrDevice::processTemperatureData(RxMessage_t msg) {
+    double * temperaturesD = new double[temperatureChannelsNum];
+    this->convertTemperatureValues((int16_t *)msg.data.data(), temperaturesD);
+    std::vector <Measurement_t> temperatures;
+    for (uint16_t idx = 0; idx < temperatureChannelsNum; idx++) {
+        temperatures.push_back({temperaturesD[idx], temperatureChannelsRanges[idx].prefix, temperatureChannelsRanges[idx].unit});
+    }
+    this->processTemperatureData(temperatures);
 }
 
 uint16_t EmcrDevice::popUint16FromRxRawBuffer() {
@@ -2405,4 +2408,8 @@ void EmcrDevice::stackOutgoingMessage(CommandStatus_t &txDataMessage, CommandOpt
         txMutexLock.unlock();
         txMsgBufferNotEmpty.notify_all();
     }
+}
+
+void EmcrDevice::processTemperatureData(std::vector <Measurement_t> temperaturesRead) {
+    return;
 }

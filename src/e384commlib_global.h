@@ -401,6 +401,16 @@ typedef struct ChannelSources {
     int16_t CurrentFromCurrentPlusDynamicClamp = -1; /*!< Get current applied by current clamp front-end plus current computed by dynamic clamp. */
 } ChannelSources_t;
 
+/*! \struct PidParams_t
+ * \brief Parameters for pid controls.
+ */
+typedef struct PidParams {
+    double proportionalGain = 1.0;
+    double integralGain = 0.0;
+    double derivativeGain = 0.0;
+    double integralAntiWindUp = 1.0; /*!< The integral error is clipped into the range [-integralAntiWindUp, +integralAntiWindUp] */
+} PidParams_t;
+
 #ifdef E384COMMLIB_LABVIEW_WRAPPER
 #define _NI_int8_DEFINED_
 #include "extcode.h"
