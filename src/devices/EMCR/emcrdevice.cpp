@@ -1450,7 +1450,7 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolStructure(uint16_t protId, uint16_t i
     if (voltageProtocolRestCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
-    } else if (itemsNum >= protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(vRest)) { /*! \todo FCON sommare i valori sommati con l'holder o altri meccanismi */
+    } else if (itemsNum > protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(vRest)) { /*! \todo FCON sommare i valori sommati con l'holder o altri meccanismi */
         return ErrorValueOutOfRange;
     }
     if (stopProtocolFlag) {
@@ -1572,7 +1572,7 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolStructure(uint16_t protId, uint16_t i
     if (currentProtocolRestCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
-    } else if (itemsNum >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iRest)) { /*! \todo FCON sommare i valori sommati con l'holder o altri meccanismi */
+    } else if (itemsNum > protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(iRest)) { /*! \todo FCON sommare i valori sommati con l'holder o altri meccanismi */
         return ErrorValueOutOfRange;
     }
     if (stopProtocolFlag) {
