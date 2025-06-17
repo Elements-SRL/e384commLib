@@ -2370,13 +2370,10 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v03::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     rxWordLengths[RxMessageDataLoad] = totalChannelsNum*packetsPerFrame;
 
     rxWordOffsets[RxMessageDataHeader] = rxWordOffsets[RxMessageDataLoad] + rxWordLengths[RxMessageDataLoad];
-    rxWordLengths[RxMessageDataHeader] = 4;
+    rxWordLengths[RxMessageDataHeader] = 6;
 
-    rxWordOffsets[RxMessageDataTail] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
-    rxWordLengths[RxMessageDataTail] = 1;
-
-    rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
-    rxWordLengths[RxMessageStatus] = 1;
+    rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
+    rxWordLengths[RxMessageStatus] = 2;
 
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;

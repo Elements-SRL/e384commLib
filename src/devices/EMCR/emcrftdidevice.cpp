@@ -3,6 +3,7 @@
 #include "libMPSSE_spi.h"
 
 #include "emcr8patchclamp_el07cd_artix7.h"
+#include "emcr8npatchclamp_el07c_artix7_pcbv01.h"
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV00_2, 4, DeviceE8PPatchEL07CD_artix7_PCBV00_2},     //  10, 14,  4 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V00.2. */
@@ -13,8 +14,9 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07CDx4Patch_artix7_PCBV00_2, 1, DeviceE4PPatchEL07CD_artix7_PCBV00_2},     //  10, 17,  1 : VC-CC device with 4 channels (EL07CD) (FPGA artix7) PCB V00.2. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx4Patch_artix7_PCBV01, 1, DeviceE4PPatchEL07CD_artix7_PCBV00_2},       //  10, 18,  1 : VC-CC device with 4 channels (EL07CD) (FPGA artix7) PCB V01. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 1, DeviceE8PPatchEL07CD_artix7_PCBV00_2},       //  10, 19,  1 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
-    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 2, DeviceE8PPatchEL07CD_artix7_PCBV01_FW2},         //  10, 19,  2 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
-    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 3, DeviceE8PPatchEL07CD_artix7_PCBV01_FW3},         //  10, 19,  3 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 2, DeviceE8PPatchEL07CD_artix7_PCBV01_FW2},     //  10, 19,  2 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 3, DeviceE8PPatchEL07CD_artix7_PCBV01_FW3},     //  10, 19,  3 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
+    {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_PCBV01, 1, DeviceE8nPatchEL07C_artix7_PCBV01_FW1},           //  16,  1,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V01. */
 };
 
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
@@ -166,6 +168,10 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
     }
 
     switch (deviceType) {
+    case DeviceE8nPatchEL07C_artix7_PCBV01_FW1:
+        messageDispatcher = new Emcr8nPatchClamp_EL07c_artix7_PCBV01_fw_v01(deviceId);
+        break;
+
     case DeviceE8PPatchEL07CD_artix7_PCBV01_FW3:
         messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v03(deviceId);
         break;

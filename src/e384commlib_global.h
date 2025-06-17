@@ -253,7 +253,8 @@ typedef enum DeviceTypes {
     DeviceE4PPatchEL07CD_artix7_PCBV00_1,       /*!< ePatch device with 1 EL07CD chips and 4 channels PCB V01 (FPGA artix7). */
     DeviceE4PPatchEL07CD_artix7_PCBV00_2,       /*!< ePatch device with 1 EL07CD chips and 4 channels PCB V01 (FPGA artix7). */
     DeviceE8PPatchEL07CD_artix7_PCBV01_FW2,     /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7) with fixed protocols generation. */
-    DeviceE8PPatchEL07CD_artix7_PCBV01_FW3,     /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7) with 64 protocool items. */
+    DeviceE8PPatchEL07CD_artix7_PCBV01_FW3,     /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7) with 64 protocol items. */
+    DeviceE8nPatchEL07C_artix7_PCBV01_FW1,      /*!< ePatch device with 1 EL07C chip PCB V01 (FPGA artix7). */
     DeviceEPatchDlp,                            /*!< ePatch device with dlp fpga. */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */

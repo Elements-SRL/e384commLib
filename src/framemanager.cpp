@@ -181,12 +181,12 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
 
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! For each packet retrieve the last recevied voltage values */
-            for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
+            for (int idx = 0; idx < voltageChannelsNum; idx++) {
                 lastDataMessage.data[rxDataBufferWriteIdx++] = voltageDataValues[idx];
             }
 
             /*! Then store the new current values */
-            for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            for (int idx = 0; idx < currentChannelsNum; idx++) {
                 lastDataMessage.data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
             }
 
@@ -200,16 +200,16 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
     }
 
     case MessageDispatcher::RxMessageVoltageDataLoad:
-        for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
+        for (int idx = 0; idx < voltageChannelsNum; idx++) {
             voltageDataValues[idx] = emd->popUint16FromRxRawBuffer();
         }
         break;
 
     case MessageDispatcher::RxMessageVoltageAndGpDataLoad:
-        for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
+        for (int idx = 0; idx < voltageChannelsNum; idx++) {
             voltageDataValues[idx] = emd->popUint16FromRxRawBuffer();
         }
-        for (uint32_t idx = 0; idx < gpChannelsNum; idx++) {
+        for (int idx = 0; idx < gpChannelsNum; idx++) {
             gpDataValues[idx] = emd->popUint16FromRxRawBuffer();
         }
         break;
@@ -224,7 +224,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
 
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! Store the voltage values first */
-            for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
+            for (int idx = 0; idx < voltageChannelsNum; idx++) {
                 lastDataMessage.data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
             }
             /*! Leave space for the current */
@@ -236,7 +236,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             /*! Leave space for the voltage */
             rxDataBufferWriteIdx += voltageChannelsNum;
             /*! Then store the current values */
-            for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            for (int idx = 0; idx < currentChannelsNum; idx++) {
                 lastDataMessage.data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
             }
         }

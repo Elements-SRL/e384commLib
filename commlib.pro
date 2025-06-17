@@ -84,6 +84,7 @@ SOURCES += \
     src/devices/EMCR/emcrtestboardel07cd.cpp \
     src/devices/EMCR/emcrqc01atb_v01.cpp \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.cpp \
+    src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.cpp \
     src/devices/EZPatch/ezpatchdevice.cpp \
     src/devices/EZPatch/ezpatchftdidevice.cpp \
     src/devices/EZPatch/ezpatchepatchel03d.cpp \
@@ -142,6 +143,7 @@ HEADERS += \
     src/devices/EMCR/emcrtestboardel07cd.h \
     src/devices/EMCR/emcrqc01atb_v01.h \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.h \
+    src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.h \
     src/devices/EZPatch/ezpatchdevice.h \
     src/devices/EZPatch/ezpatchftdidevice.h \
     src/devices/EZPatch/ezpatchepatchel03d.h \
