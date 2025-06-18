@@ -36,7 +36,7 @@ Emcr8nPatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8nPatchClamp_EL07c_artix7_PCBV0
     rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
 
-    txDataWords = 1120;
+    txDataWords = 1121;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
@@ -1137,7 +1137,7 @@ Emcr8nPatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8nPatchClamp_EL07c_artix7_PCBV0
     doubleConfig.bitsNum = 16;
     liquidJunctionVoltageCoders.resize(liquidJunctionRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < liquidJunctionRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 284;
+        doubleConfig.initialWord = 1068;
         doubleConfig.resolution = liquidJunctionRangesArray[rangeIdx].step;
         doubleConfig.minValue = liquidJunctionRangesArray[rangeIdx].min;
         doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
