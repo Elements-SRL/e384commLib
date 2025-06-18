@@ -177,7 +177,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         uint32_t rxDataBufferWriteIdx = 0;
         this->pushLastDataMessage();
         lastDataMessage.typeId = rxMsgTypeId;
-        lastDataMessage.data.resize(packetsNum*totalChannelsNum);
+        lastDataMessage.data.resize(packetsNum*(voltageChannelsNum+currentChannelsNum/*+gpChannelsNum*/));
 
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! For each packet retrieve the last recevied voltage values */
