@@ -3,6 +3,7 @@
 #include "emcrdevice.h"
 
 #define ACQ_DATA_TYPE type2Pc(MsgTypeIdAcquisitionData)
+#define MAX_U16_DATA_SIZE ((size_t)0x40000000)
 
 FrameManager::FrameManager(MessageDispatcher * md) :
     md(md) {
@@ -88,7 +89,7 @@ void FrameManager::storeFrameDataLoss(int32_t dataLossCount) {
         msg.data[0] = (uint16_t)(dataLossCount & (0xFFFF));
         msg.data[1] = (uint16_t)((dataLossCount >> 16) & (0xFFFF));
         std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-        messages.push_back(msg);
+        this->pushMessage(msg);
 
         rxMutexLock.unlock();
         rxMsgBufferNotEmpty.notify_all();
@@ -115,6 +116,7 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
         /*! Return first message regardless of type */
         ret = messages.front();
         messages.pop_front();
+        listSize -= ret.data.size();
         return ret;
     }
     if (uType == ACQ_DATA_TYPE) {
@@ -123,6 +125,7 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
             if (it->typeId == uType) {
                 ret = *it;
                 messages.erase(it);
+                listSize -= ret.data.size();
                 return ret;
             }
         }
@@ -136,6 +139,7 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
                 this->mergeDataMessages(std::prev(it), std::next(it));
             }
             messages.erase(it);
+            listSize -= ret.data.size();
             return ret;
         }
     }
@@ -154,6 +158,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
     std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (purgeRequest) {
         messages.clear();
+        listSize = 0;
         lastDataMessageAvailable = false;
         purgeRequest = false;
     }
@@ -285,6 +290,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         break;
     }
 
+    rxMutexLock.unlock();
     rxMsgBufferNotEmpty.notify_all();
     std::this_thread::yield();
 }
@@ -303,50 +309,77 @@ bool FrameManager::mergeDataMessages(std::list <RxMessage_t> ::iterator to, std:
     return true;
 }
 
-void FrameManager::mergeLastDataMessage(std::list <RxMessage_t> ::iterator to, RxMessage_t from) {
+void FrameManager::mergeNewDataMessage(std::list <RxMessage_t> ::iterator to, RxMessage_t from) {
     to->data.insert(to->data.end(), from.data.begin(), from.data.end());
 }
 
 bool FrameManager::pushMessage(RxMessage_t msg) {
-    if (!rxEnabledTypesMap[msg.typeId]) {
+    if (!isPushable(msg)) {
         return false;
     }
     messages.push_back(msg);
+    listSize += msg.data.size();
     return true;
 }
 
 bool FrameManager::pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFirstIndex) {
-    if (!rxEnabledTypesMap[msg.typeId]
+    if (!isPushable(msg)
         || (!messages.empty()
             && * std::prev(messages.end()) == msg)) {
+        /*! Do not push if the last message is a header as well */
         return false;
     }
     if (!lastDataMessageAvailable) {
         /*! No last data message available, just push the header */
         messages.push_back(msg);
+        listSize += msg.data.size();
+        return true;
     }
     if (lastDataMessage.data.size() <= newProtocolItemFirstIndex) {
         /*! Last data message has less samples than required by the header, push it entirely and set it not available */
         this->pushLastDataMessage();
         lastDataMessageAvailable = false;
         messages.push_back(msg);
+        listSize += msg.data.size();
         return true;
     }
     if (newProtocolItemFirstIndex > 0) {
         /*! Last data message has more samples than required by the header, split it and push the first chunk */
-        messages.push_back(this->splitLastDataMessage(newProtocolItemFirstIndex));
+        this->pushDataMessage(this->splitLastDataMessage(newProtocolItemFirstIndex));
         messages.push_back(msg);
+        listSize += msg.data.size();
         return true;
     }
     /*! The header requires 0 samples, do not push the last data message */
     messages.push_back(msg);
+    listSize += msg.data.size();
+    return true;
+}
+
+bool FrameManager::pushDataMessage(RxMessage_t msg) {
+    if (!isPushable(msg)) {
+        return false;
+    }
+    if (messages.empty()
+        || std::prev(messages.end())->typeId != ACQ_DATA_TYPE
+        || std::prev(messages.end())->data.size() + msg.data.size() > maxDataSize) {
+        /*! If the messages list is not empty, but the last is not a data message or if the total size of the new data message with the last message in the list is too large,
+         *  just push the new data message */
+        messages.push_back(msg);
+        (* messages.end()).data.reserve(E384CL_OUT_STRUCT_DATA_LEN);
+        listSize += msg.data.size();
+        return true;
+    }
+    /*! Otherwise, merge the new data message with the last message in the list */
+    this->mergeNewDataMessage(std::prev(messages.end()), msg);
+    listSize += msg.data.size();
     return true;
 }
 
 bool FrameManager::pushLastDataMessage() {
-    if (!rxEnabledTypesMap[ACQ_DATA_TYPE]
+    if (!isPushable(lastDataMessage)
         || !lastDataMessageAvailable) {
-        /*! Do not push if the last data message is not available or if data messages are not enabled */
+        /*! Do not push if the last data message is not available */
         return false;
     }
     if (messages.empty()
@@ -355,10 +388,13 @@ bool FrameManager::pushLastDataMessage() {
         /*! If the messages list is not empty, but the last is not a data message or if the total size of the last data message with the last message in the list is too large,
          *  just push the last data message */
         messages.push_back(lastDataMessage);
+        (* messages.end()).data.reserve(E384CL_OUT_STRUCT_DATA_LEN);
+        listSize += lastDataMessage.data.size();
         return true;
     }
     /*! Otherwise, merge the last data message with the last message in the list */
-    this->mergeLastDataMessage(std::prev(messages.end()), lastDataMessage);
+    this->mergeNewDataMessage(std::prev(messages.end()), lastDataMessage);
+    listSize += lastDataMessage.data.size();
     return true;
 }
 
@@ -368,4 +404,9 @@ RxMessage_t FrameManager::splitLastDataMessage(uint32_t newProtocolItemFirstInde
     firstChunk.data.insert(firstChunk.data.end(), lastDataMessage.data.begin(), lastDataMessage.data.begin()+newProtocolItemFirstIndex);
     lastDataMessage.data.erase(lastDataMessage.data.begin(), lastDataMessage.data.begin() + newProtocolItemFirstIndex);
     return firstChunk;
+}
+
+bool FrameManager::isPushable(RxMessage_t msg) {
+    /*! A message is not pushable if its type is disabled or if pushing it would exceed the list max size */
+    return rxEnabledTypesMap[msg.typeId] && (listSize + msg.data.size() <= MAX_U16_DATA_SIZE);
 }

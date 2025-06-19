@@ -34,11 +34,13 @@ protected:
     static uint16_t type2Pc(MsgTypeId_t messageType);
     void storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::RxMessageTypes_t rxMessageType);
     bool mergeDataMessages(std::list <RxMessage_t> ::iterator to, std::list <RxMessage_t> ::iterator from);
-    void mergeLastDataMessage(std::list <RxMessage_t> ::iterator to, RxMessage_t from);
+    void mergeNewDataMessage(std::list <RxMessage_t> ::iterator to, RxMessage_t from);
     bool pushMessage(RxMessage_t msg);
     bool pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFirstIndex);
+    bool pushDataMessage(RxMessage_t msg);
     bool pushLastDataMessage();
     RxMessage_t splitLastDataMessage(uint32_t newProtocolItemFirstIndex);
+    bool isPushable(RxMessage_t msg);
 
     uint32_t maxDataSize = -1;
     std::list <RxMessage_t> messages;
@@ -57,6 +59,7 @@ protected:
     std::vector <uint16_t> gpDataValues; /*! Store GP data when current data and GP data are not sent together in a single packet */
     std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
     bool purgeRequest = false;
+    size_t listSize = 0;
 
     mutable std::mutex rxMsgMutex;
     std::condition_variable rxMsgBufferNotEmpty;
