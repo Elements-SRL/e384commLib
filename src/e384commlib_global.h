@@ -252,7 +252,9 @@ typedef enum DeviceTypes {
     DeviceE8PPatchEL07CD_artix7_PCBV00_1,       /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7). */
     DeviceE4PPatchEL07CD_artix7_PCBV00_1,       /*!< ePatch device with 1 EL07CD chips and 4 channels PCB V01 (FPGA artix7). */
     DeviceE4PPatchEL07CD_artix7_PCBV00_2,       /*!< ePatch device with 1 EL07CD chips and 4 channels PCB V01 (FPGA artix7). */
-    DeviceE8PPatchEL07CD_artix7_PCBV01,         /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7). */
+    DeviceE8PPatchEL07CD_artix7_PCBV01_FW2,     /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7) with fixed protocols generation. */
+    DeviceE8PPatchEL07CD_artix7_PCBV01_FW3,     /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7) with 64 protocol items. */
+    DeviceE8nPatchEL07C_artix7_PCBV01_FW1,      /*!< ePatch device with 1 EL07C chip PCB V01 (FPGA artix7). */
     DeviceEPatchDlp,                            /*!< ePatch device with dlp fpga. */
 #ifdef DEBUG
     Device384Fake,              /*!< Fake nanopore device */
@@ -399,6 +401,16 @@ typedef struct ChannelSources {
     int16_t VoltageFromVoltagePlusDynamicClamp = -1; /*!< Get voltage applied by voltage clamp front-end plus voltage computed by dynamic clamp. */
     int16_t CurrentFromCurrentPlusDynamicClamp = -1; /*!< Get current applied by current clamp front-end plus current computed by dynamic clamp. */
 } ChannelSources_t;
+
+/*! \struct PidParams_t
+ * \brief Parameters for pid controls.
+ */
+typedef struct PidParams {
+    double proportionalGain = 1.0;
+    double integralGain = 0.0;
+    double derivativeGain = 0.0;
+    double integralAntiWindUp = 1.0; /*!< The integral error is clipped into the range [-integralAntiWindUp, +integralAntiWindUp] */
+} PidParams_t;
 
 #ifdef E384COMMLIB_LABVIEW_WRAPPER
 #define _NI_int8_DEFINED_

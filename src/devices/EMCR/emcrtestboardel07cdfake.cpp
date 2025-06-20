@@ -53,9 +53,6 @@ bool EmcrTestBoardEl07cdFake::writeRegistersAndActivateTriggers(TxTriggerType_t)
 }
 
 uint32_t EmcrTestBoardEl07cdFake::readDataFromDevice() {
-#ifdef DEBUG_MAX_SPEED
-    uint32_t bytesRead = UDB_RX_TRANSFER_SIZE; /*!< Bytes read during last transfer from UDB */
-#else
 #ifdef SHORT_FILE
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from UDB */
@@ -134,7 +131,6 @@ uint32_t EmcrTestBoardEl07cdFake::readDataFromDevice() {
         bytesRead += ((voltageChannelsNum+currentChannelsNum)*packetsPerFrame+6)*RX_WORD_SIZE;
     }
 
-#endif
 #endif
     return bytesRead;
 }

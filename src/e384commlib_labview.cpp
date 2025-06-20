@@ -1427,7 +1427,15 @@ ErrorCodes_t setTemperatureControl(
     }
     Measurement_t temperature;
     input2Measurement(temperatureIn, temperature);
-    return messageDispatcher->setCoolingFansSpeed(temperature, enabled);
+    return messageDispatcher->setTemperatureControl(temperature, enabled);
+}
+
+ErrorCodes_t setTemperatureControlPid(
+    PidParams_t params) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->setTemperatureControlPid(params);
 }
 
 ErrorCodes_t setCustomFlag(

@@ -41,7 +41,8 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03}, //   15,  2,  3 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                                        //    6, 13,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},                            //    6, 14,  0 : QC01a test board
-    {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET, 1, Device2x10MHz_FET},                                              //  254, 25,  1 : 2x10MHz with controllable reference voltages
+    {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV01, 1, Device2x10MHz_FET},                                       //  254, 25,  1 : 2x10MHz with controllable reference voltages
+    {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV02, 1, Device2x10MHz_FET},                                       //  254, 26,  1 : 2x10MHz with controllable reference voltages
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
@@ -442,6 +443,7 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
 
     bool waitingTimeForReadingPassed = false;
     bool anyOperationPerformed;
+    parsingStatus = ParsingPreparing;
 
     while (!stopConnectionFlag) {
         anyOperationPerformed = false;
@@ -480,20 +482,18 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
                     rxRawMutexLock.unlock();
                     rxRawBufferNotEmpty.notify_all();
                 }
-
-            } else {
+            }
+            else {
                 rxRawMutexLock.unlock();
             }
-
-        } else {
+        }
+        else {
             long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
             if (t > waitingTimeBeforeReadingData*1e6) {
                 waitingTimeForReadingPassed = true;
-                std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
                 if (parsingStatus == ParsingPreparing) {
                     parsingStatus = ParsingParsing;
                 }
-                rxMutexLock.unlock();
             }
         }
 
@@ -618,11 +618,6 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
         fprintf(rxProcFid, "Error %x\n", bytesRead);
         fflush(rxProcFid);
 #endif
-
-//#ifdef DEBUG_RX_RAW_DATA_PRINT
-//        fprintf(rxRawFid, "Error %x\n", bytesRead);
-//        fflush(rxRawFid);
-//#endif
 
     } else {
 
@@ -762,51 +757,10 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 
                     if (rxCandidateHeader == rxSyncWord) {
                         /*! valid frame data and reset rxDataLoss */
-                        if (dataLossCount > 0 && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss]) {
-                            rxMsgBuffer[rxMsgBufferWriteOffset].typeId = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss;
-                            rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
-                            rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = 2;
-
-                            rxDataBuffer[(rxDataBufferWriteOffset) & RX_DATA_BUFFER_MASK] = (uint16_t)(dataLossCount & (0xFFFF));
-                            rxDataBuffer[(rxDataBufferWriteOffset+1) & RX_DATA_BUFFER_MASK] = (uint16_t)((dataLossCount >> 16) & (0xFFFF));
-                            rxDataBufferWriteOffset = (rxDataBufferWriteOffset+2) & RX_DATA_BUFFER_MASK;
-
-                            rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
-                            /*! change the message buffer length */
-                            std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-                            rxMsgBufferReadLength++;
-                            rxMutexLock.unlock();
-                            rxMsgBufferNotEmpty.notify_all();
-                        }
+                        frameManager->storeFrameDataLoss(dataLossCount);
                         dataLossCount = 0;
 
-                        if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageThenCurrentDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageVoltageThenCurrentDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageCurrentDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageCurrentDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdInvalid, RxMessageVoltageDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageAndGpDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdInvalid, RxMessageVoltageAndGpDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageDataHeader]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader, RxMessageDataHeader);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageDataTail]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail, RxMessageDataTail);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageStatus]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus, RxMessageStatus);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageTemperature]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature, RxMessageTemperature);
-                        }
+                        frameManager->storeFrameData(rxWordOffset);
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
@@ -833,11 +787,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
         rxRawMutexLock.unlock();
         rxRawBufferNotFull.notify_all();
     }
-
-    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     parsingStatus = ParsingNone;
-    rxMsgBufferReadLength++;
-    rxMsgBufferNotEmpty.notify_all();
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {

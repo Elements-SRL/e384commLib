@@ -667,45 +667,10 @@ void EmcrUdbDevice::parseDataFromDevice() {
 
                     if (rxCandidateHeader == rxSyncWord) {
                         /*! valid frame data and reset rxDataLoss */
-                        if (dataLossCount > 0 && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss]) {
-                            rxMsgBuffer[rxMsgBufferWriteOffset].typeId = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss;
-                            rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
-                            rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = 2;
-
-                            rxDataBuffer[(rxDataBufferWriteOffset) & RX_DATA_BUFFER_MASK] = (uint16_t)(dataLossCount & (0xFFFF));
-                            rxDataBuffer[(rxDataBufferWriteOffset+1) & RX_DATA_BUFFER_MASK] = (uint16_t)((dataLossCount >> 16) & (0xFFFF));
-                            rxDataBufferWriteOffset = (rxDataBufferWriteOffset+2) & RX_DATA_BUFFER_MASK;
-
-                            rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
-                            /*! change the message buffer length */
-                            std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-                            rxMsgBufferReadLength++;
-                            rxMutexLock.unlock();
-                            rxMsgBufferNotEmpty.notify_all();
-                        }
+                        frameManager->storeFrameDataLoss(dataLossCount);
                         dataLossCount = 0;
 
-                        if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageThenCurrentDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageVoltageThenCurrentDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageCurrentDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageCurrentDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdInvalid, RxMessageVoltageDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageDataHeader]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader, RxMessageDataHeader);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageDataTail]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail, RxMessageDataTail);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageStatus]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus, RxMessageStatus);
-                        }
+                        frameManager->storeFrameData(rxWordOffset);
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
@@ -732,11 +697,7 @@ void EmcrUdbDevice::parseDataFromDevice() {
         rxRawMutexLock.unlock();
         rxRawBufferNotFull.notify_all();
     }
-
-    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     parsingStatus = ParsingNone;
-    rxMsgBufferReadLength++;
-    rxMsgBufferNotEmpty.notify_all();
 }
 
 ErrorCodes_t EmcrUdbDevice::initializeMemory() {

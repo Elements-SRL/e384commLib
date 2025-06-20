@@ -3,6 +3,7 @@
 #include "libMPSSE_spi.h"
 
 #include "emcr8patchclamp_el07cd_artix7.h"
+#include "emcr8npatchclamp_el07c_artix7_pcbv01.h"
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV00_2, 4, DeviceE8PPatchEL07CD_artix7_PCBV00_2},     //  10, 14,  4 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V00.2. */
@@ -13,7 +14,9 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07CDx4Patch_artix7_PCBV00_2, 1, DeviceE4PPatchEL07CD_artix7_PCBV00_2},     //  10, 17,  1 : VC-CC device with 4 channels (EL07CD) (FPGA artix7) PCB V00.2. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx4Patch_artix7_PCBV01, 1, DeviceE4PPatchEL07CD_artix7_PCBV00_2},       //  10, 18,  1 : VC-CC device with 4 channels (EL07CD) (FPGA artix7) PCB V01. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 1, DeviceE8PPatchEL07CD_artix7_PCBV00_2},       //  10, 19,  1 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
-    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 2, DeviceE8PPatchEL07CD_artix7_PCBV01},         //  10, 19,  2 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 2, DeviceE8PPatchEL07CD_artix7_PCBV01_FW2},     //  10, 19,  2 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 3, DeviceE8PPatchEL07CD_artix7_PCBV01_FW3},     //  10, 19,  3 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
+    {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_PCBV01, 1, DeviceE8nPatchEL07C_artix7_PCBV01_FW1},           //  16,  1,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V01. */
 };
 
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
@@ -165,8 +168,16 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
     }
 
     switch (deviceType) {
-    case DeviceE8PPatchEL07CD_artix7_PCBV01:
-        messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v01(deviceId);
+    case DeviceE8nPatchEL07C_artix7_PCBV01_FW1:
+        messageDispatcher = new Emcr8nPatchClamp_EL07c_artix7_PCBV01_fw_v01(deviceId);
+        break;
+
+    case DeviceE8PPatchEL07CD_artix7_PCBV01_FW3:
+        messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v03(deviceId);
+        break;
+
+    case DeviceE8PPatchEL07CD_artix7_PCBV01_FW2:
+        messageDispatcher = new Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v02(deviceId);
         break;
 
     case DeviceE8PPatchEL07CD_artix7_PCBV00_2:
@@ -494,6 +505,7 @@ void EmcrFtdiDevice::handleCommunicationWithDevice() {
     rxRawMutexLock.unlock();
 
     bool anyOperationPerformed;
+    parsingStatus = ParsingParsing;
 
     while (!stopConnectionFlag) {
         anyOperationPerformed = false;
@@ -787,45 +799,10 @@ void EmcrFtdiDevice::parseDataFromDevice() {
 
                     if (rxCandidateHeader == rxSyncWord) {
                         /*! valid frame data and reset rxDataLoss */
-                        if (dataLossCount > 0 && rxEnabledTypesMap[MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss]) {
-                            rxMsgBuffer[rxMsgBufferWriteOffset].typeId = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss;
-                            rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
-                            rxMsgBuffer[rxMsgBufferWriteOffset].dataLength = 2;
-
-                            rxDataBuffer[(rxDataBufferWriteOffset) & RX_DATA_BUFFER_MASK] = (uint16_t)(dataLossCount & (0xFFFF));
-                            rxDataBuffer[(rxDataBufferWriteOffset+1) & RX_DATA_BUFFER_MASK] = (uint16_t)((dataLossCount >> 16) & (0xFFFF));
-                            rxDataBufferWriteOffset = (rxDataBufferWriteOffset+2) & RX_DATA_BUFFER_MASK;
-
-                            rxMsgBufferWriteOffset = (rxMsgBufferWriteOffset+1) & RX_MSG_BUFFER_MASK;
-                            /*! change the message buffer length */
-                            std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
-                            rxMsgBufferReadLength++;
-                            rxMutexLock.unlock();
-                            rxMsgBufferNotEmpty.notify_all();
-                        }
+                        frameManager->storeFrameDataLoss(dataLossCount);
                         dataLossCount = 0;
 
-                        if (rxWordOffset == rxWordOffsets[RxMessageDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageThenCurrentDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageVoltageThenCurrentDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageCurrentDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData, RxMessageCurrentDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageVoltageDataLoad]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdInvalid, RxMessageVoltageDataLoad);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageDataHeader]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader, RxMessageDataHeader);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageDataTail]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail, RxMessageDataTail);
-
-                        } else if (rxWordOffset == rxWordOffsets[RxMessageStatus]) {
-                            this->storeFrameData(MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus, RxMessageStatus);
-                        }
+                        frameManager->storeFrameData(rxWordOffset);
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */
@@ -852,11 +829,7 @@ void EmcrFtdiDevice::parseDataFromDevice() {
         rxRawMutexLock.unlock();
         rxRawBufferNotFull.notify_all();
     }
-
-    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     parsingStatus = ParsingNone;
-    rxMsgBufferReadLength++;
-    rxMsgBufferNotEmpty.notify_all();
 }
 
 ErrorCodes_t EmcrFtdiDevice::initializeMemory() {

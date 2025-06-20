@@ -3,6 +3,7 @@
 
 #include "messagedispatcher.h"
 #include "commandcoder.h"
+#include "framemanager.h"
 
 class EmcrDevice : public MessageDispatcher {
 public:
@@ -143,6 +144,16 @@ public:
     ErrorCodes_t getCalibMappingFileDir(std::string &dir) override;
     ErrorCodes_t getCalibMappingFilePath(std::string &path) override;
 
+    /*********************\
+     *  Utility Methods  *
+    \*********************/
+
+    void processTemperatureData(RxMessage_t msg);
+    uint16_t popUint16FromRxRawBuffer();
+    uint32_t popUint32FromRxRawBuffer();
+    uint16_t readUint16FromRxRawBuffer(uint32_t n);
+    uint32_t readUint32FromRxRawBuffer(uint32_t n);
+
 protected:
 
     /*************\
@@ -171,16 +182,15 @@ protected:
     void updateVoltageHoldTuner(bool applyFlag);
     void updateCurrentHoldTuner(bool applyFlag);
 
-    void storeFrameData(uint16_t rxMsgTypeId, RxMessageTypes_t rxMessageType);
     void stackOutgoingMessage(CommandStatus_t &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
-    uint16_t popUint16FromRxRawBuffer();
-    uint32_t popUint32FromRxRawBuffer();
-    uint16_t readUint16FromRxRawBuffer(uint32_t n);
-    uint32_t readUint32FromRxRawBuffer(uint32_t n);
+
+    virtual void processTemperatureData(std::vector <Measurement_t> temperaturesRead);
 
     /************\
      *  Fields  *
     \************/
+
+    FrameManager * frameManager = nullptr;
 
     unsigned int packetsPerFrame = 1;
 
@@ -198,19 +208,7 @@ protected:
     uint32_t rxRawBytesAvailable = 0;
     uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
     uint32_t rxRawBufferMask;
-    MsgResume_t * rxMsgBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's high level info */
-    uint32_t rxMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be written */
-    uint32_t rxMsgBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
-    uint32_t rxMsgBufferWriteOffset = 0;
     uint32_t rxPrevMsgBufferWriteOffset = 0;
-    uint32_t rxDataBufferWriteOffset = 0;
-    std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */
-    std::vector <uint16_t> gpDataValues; /*! Store GP data when current data and GP data are not sent together in a single packet */
-    bool gettingNextDataFlag = false;
-
-    uint32_t lastParsedMsgType = MsgTypeIdInvalid; /*!< Type of the last parsed message to check for repetitions  */
-
-    uint16_t * rxDataBuffer = nullptr; /*!< Buffer of pre-digested messages that contains message's data */
 
     /*! Write data buffer management */
     std::vector <uint16_t> * txMsgBuffer = nullptr; /*!< Buffer of arrays of bytes to communicate to the device */
@@ -225,8 +223,6 @@ protected:
 
     std::vector <uint16_t> rxWordOffsets;
     std::vector <uint16_t> rxWordLengths;
-
-    std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
 
     // Calibration DAC ranges
     RangedMeasurement_t calibCcCurrentGainRange;
@@ -385,10 +381,6 @@ protected:
     mutable std::mutex rxRawMutex;
     std::condition_variable rxRawBufferNotEmpty;
     std::condition_variable rxRawBufferNotFull;
-
-    mutable std::mutex rxMsgMutex;
-    std::condition_variable rxMsgBufferNotEmpty;
-    std::condition_variable rxMsgBufferNotFull;
 };
 
 #endif // EMCRDEVICE_H

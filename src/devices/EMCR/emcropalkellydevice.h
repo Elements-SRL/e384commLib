@@ -55,7 +55,8 @@ public:
         DeviceSubversion384Patch_EL07c_TemperatureControl = 0x02,
 
         /*! Subversions used for version = 0xFE */
-        DeviceSubversion2x10MHz_FET = 0x19,
+        DeviceSubversion2x10MHz_FET_PCBV01 = 0x19,
+        DeviceSubversion2x10MHz_FET_PCBV02 = 0x1A,
 
         /*! Subversions used for Version = 0xFF */
         DeviceSubversionUndefined = 0xFF

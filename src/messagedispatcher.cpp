@@ -783,6 +783,13 @@ ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(int &voltageChannelNumb
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::getChannelNumberFeatures(int &voltageChannelNumberFeatures, int &currentChannelNumberFeatures, int &gpChannelNumberFeatures) {
+    voltageChannelNumberFeatures = (int)voltageChannelsNum;
+    currentChannelNumberFeatures = (int)currentChannelsNum;
+    gpChannelNumberFeatures = (int)gpChannelsNum;
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getAvailableChannelsSourcesFeatures(ChannelSources_t &voltageSourcesIdxs, ChannelSources_t &currentSourcesIdxs) {
     voltageSourcesIdxs = availableVoltageSourcesIdxs;
     currentSourcesIdxs = availableCurrentSourcesIdxs;
@@ -2289,11 +2296,15 @@ ErrorCodes_t MessageDispatcher::setCompOptions(std::vector <uint16_t>, Compensat
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCoolingFansSpeed(Measurement_t speed, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setCoolingFansSpeed(Measurement_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setTemperatureControl(Measurement_t temperature, bool enabled) {
+ErrorCodes_t MessageDispatcher::setTemperatureControl(Measurement_t, bool) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setTemperatureControlPid(PidParams_t) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -2305,7 +2316,7 @@ ErrorCodes_t MessageDispatcher::setCustomOption(uint16_t, uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCustomDouble(uint16_t idx, double value, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setCustomDouble(uint16_t, double, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -2444,8 +2455,4 @@ void MessageDispatcher::flushBoardList() {
     }
     boardModels.clear();
     channelModels.clear();
-}
-
-void MessageDispatcher::processTemperatureData(std::vector <Measurement_t>) {
-    return;
 }

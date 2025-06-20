@@ -56,11 +56,6 @@
 #define RX_32WORD_SIZE (sizeof(uint32_t)) // 16 bit word
 #define RX_FEW_PACKETS_COEFF 0.01 /*!< = 10.0/1000.0: 10.0 because I want to get data once every 10ms, 1000 to convert sampling rate from Hz to kHz */
 #define RX_MAX_BYTES_TO_WAIT_FOR 16384
-#define RX_MSG_BUFFER_SIZE 0x10000 // ~64k
-#define RX_MSG_BUFFER_MASK (RX_MSG_BUFFER_SIZE-1)
-#define RX_DATA_BUFFER_SIZE 0x10000000 /*! ~256M The biggest data frame possible has a dataload of 1024 words (4 x 10MHz current frame)
-                                           So this buffer has to be at least 1024 times bigger than RX_MSG_BUFFER_SIZE */
-#define RX_DATA_BUFFER_MASK (RX_DATA_BUFFER_SIZE-1)
 
 #define TX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
 #define TX_MSG_BUFFER_SIZE 0x100 /*!< Number of messages. Always use a power of 2 for efficient circular buffer management through index masking */
@@ -93,6 +88,19 @@ public:
     /*! \brief Destructor.
      */
     virtual ~MessageDispatcher();
+
+    typedef enum RxMessageTypes {
+        RxMessageDataLoad,
+        RxMessageVoltageThenCurrentDataLoad,
+        RxMessageCurrentDataLoad,
+        RxMessageVoltageDataLoad,
+        RxMessageVoltageAndGpDataLoad,
+        RxMessageDataHeader,
+        RxMessageDataTail,
+        RxMessageStatus,
+        RxMessageTemperature,
+        RxMessageNum
+    } RxMessageTypes_t;
 
     typedef enum CompensationTypes {
         CompCfast = 0,      // pipette voltage clamp
@@ -1106,6 +1114,13 @@ public:
      */
     virtual ErrorCodes_t setTemperatureControl(Measurement_t temperature, bool enabled);
 
+    /*! \brief Set temperature control PID parameters.
+     *
+     * \param PidParams_t [in] Struct with PID parameters.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setTemperatureControlPid(PidParams_t params);
+
     /*! \brief Set a custom flag.
      *
      * \param idx [in] Index of the flag to be set.
@@ -1288,7 +1303,7 @@ public:
      */
     ErrorCodes_t convertCurrentValues(int16_t * intValues, double * fltValues, int valuesNum);
 
-    /*! \brief Convert an array of current values returned by getNextMessage from integer to floating point.
+    /*! \brief Convert an array of temperature values returned by getNextMessage from integer to floating point.
      *
      * \param intValue [in] Array of integer temperature values obtained with the getNextMessage method.
      * \param fltValue [out] Array of floating point temperature values expressed in the unit of the temperature range for the corresponding channel.
@@ -1406,6 +1421,15 @@ public:
      * \return Error code.
      */
     ErrorCodes_t getChannelNumberFeatures(int &voltageChannelNumber, int &currentChannelNumber);
+
+    /*! \brief Get the number of channels for the device.
+     *
+     * \param voltageChannelNumber [out] Number of voltage channels.
+     * \param currentChannelNumber [out] Number of current channels.
+     * \param gpChannelNumber [out] Number of general purpose channels.
+     * \return Error code.
+     */
+    ErrorCodes_t getChannelNumberFeatures(int &voltageChannelNumber, int &currentChannelNumber, int &gpChannelNumber);
 
     /*! \brief Get the available data sources for all channels type.
      * \note Unavailable sources have index -1.
@@ -2080,19 +2104,6 @@ public:
     ErrorCodes_t getCustomDoubles(std::vector <std::string> &customDoubles, std::vector <RangedMeasurement_t> &customDoublesRanges, std::vector <double> &customDoublesDefault);
 
 protected:
-    typedef enum RxMessageTypes {
-        RxMessageDataLoad,
-        RxMessageVoltageThenCurrentDataLoad,
-        RxMessageCurrentDataLoad,
-        RxMessageVoltageDataLoad,
-        RxMessageVoltageAndGpDataLoad,
-        RxMessageDataHeader,
-        RxMessageDataTail,
-        RxMessageStatus,
-        RxMessageTemperature,
-        RxMessageNum
-    } RxMessageTypes_t;
-
     typedef struct MsgResume {
         uint16_t typeId;
         uint16_t heartbeat;
@@ -2170,8 +2181,6 @@ protected:
     void fillChannelList(uint16_t numOfBoards, uint16_t numOfChannelsOnBoard);
 
     void flushBoardList();
-
-    virtual void processTemperatureData(std::vector <Measurement_t> temperaturesRead);
 
     /************\
      *  Fields  *

@@ -119,7 +119,16 @@ ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::setTemperatureControl(Meas
 
     tControlEnabled = enabled;
     ie = 0.0;
+    preve = 0.0;
     then = std::chrono::steady_clock::now();
+    return Success;
+}
+
+ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::setTemperatureControlPid(PidParams_t params) {
+    pg = params.proportionalGain;
+    ig = params.integralGain;
+    dg = params.derivativeGain;
+    ieMax = params.integralAntiWindUp;
     return Success;
 }
 
@@ -131,15 +140,17 @@ void Emcr384PatchClamp_EL07c_prot_v07_fw_v03::processTemperatureData(std::vector
     double temperatureExtMeas = temperaturesRead[1].value;
     if (tControlEnabled) {
         auto now = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - then).count();
-        if (elapsed < 1800.0) {
+        double elapsed = 1.0e-3*(double)(std::chrono::duration_cast<std::chrono::milliseconds>(now - then).count());
+        if (elapsed < 1.8) {
             return;
         }
         then = now;
         double e = temperatureSet.value-temperatureIntMeas;
-        ie += e;
+        ie += e*elapsed;
         ie = (std::max)(-ieMax, (std::min)(ieMax, ie));
-        double RT = e*pg+ie*ig;
+        double de = (e-preve)/elapsed;
+        preve = e;
+        double RT = e*pg+ie*ig+de*dg;
         Measurement_t speed = this->fanRT2W({RT, fanTrimmerRTMin.prefix, fanTrimmerRTMin.unit});
         this->setCoolingFansSpeed(speed, true);
 #ifdef DEBUG_TEMP_PRINT

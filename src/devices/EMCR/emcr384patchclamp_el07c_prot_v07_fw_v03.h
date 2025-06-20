@@ -10,6 +10,7 @@ public:
     ErrorCodes_t setCoolingFansSpeed(Measurement_t speed, bool applyFlag) override;
     ErrorCodes_t getCoolingFansSpeedRange(RangedMeasurement_t &range) override;
     ErrorCodes_t setTemperatureControl(Measurement_t temperature, bool enabled) override;
+    ErrorCodes_t setTemperatureControlPid(PidParams_t params) override;
 
 protected:
     enum FanTrimmerRanges {
@@ -43,9 +44,11 @@ protected:
     const Measurement_t fanTrimmerRTOff = {1.582470252096335, UnitPfxNone, "K/W"};
 
     double ie = 0.0;
-    const double pg = 0.04;
-    const double ig = 0.006;
-    const double ieMax = 200.0;
+    double preve = 0.0;
+    double pg = 0.04;
+    double ig = 0.006;
+    double dg = 0.0;
+    double ieMax = 200.0;
     Measurement_t speedSet = fanTrimmerWMax;
 };
 

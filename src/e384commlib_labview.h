@@ -1899,6 +1899,16 @@ ErrorCodes_t setTemperatureControl(
         E384CL_ARGIN LVMeasurement_t temperature,
         E384CL_ARGIN bool enabled);
 
+/*! \brief Set temperature control PID parameters.
+ *
+ * \param params [in] PID parameters.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setTemperatureControlPid(
+        E384CL_ARGIN PidParams_t params);
+
 /*! \brief Set a custom flag.
  *
  * \param idx [in] Index of the flag to be set.

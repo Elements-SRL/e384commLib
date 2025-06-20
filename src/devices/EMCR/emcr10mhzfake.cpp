@@ -33,8 +33,11 @@ ErrorCodes_t Emcr10MHzFake::startCommunication(std::string) {
 
 void Emcr10MHzFake::initializeVariables() {
     EmcrDevice::initializeVariables();
-//    this->fillBuffer();
+#ifdef DEBUG_MAX_SPEED
+    this->fillBuffer();
+#else
     this->initializeLongBuffer();
+#endif
     startTime = std::chrono::steady_clock::now();
 }
 
@@ -195,8 +198,8 @@ void Emcr10MHzFake::fillBuffer() {
                     syntheticData++;
                 }
             }
-
-        } else {
+        }
+        else {
             for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
                 for (uint32_t pkIdx = 0; pkIdx < packetsPerFrame; pkIdx++) {
                     rxRawBuffer[rxRawBufferWriteOffset] = (((syntheticData+idx*20) & 0x1F00) >> 8) - 0x10;

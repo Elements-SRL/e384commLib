@@ -57,6 +57,7 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
+    src/framemanager.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
     src/devices/EMCR/emcropalkellydevice.cpp \
@@ -83,6 +84,7 @@ SOURCES += \
     src/devices/EMCR/emcrtestboardel07cd.cpp \
     src/devices/EMCR/emcrqc01atb_v01.cpp \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.cpp \
+    src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.cpp \
     src/devices/EZPatch/ezpatchdevice.cpp \
     src/devices/EZPatch/ezpatchftdidevice.cpp \
     src/devices/EZPatch/ezpatchepatchel03d.cpp \
@@ -114,6 +116,7 @@ HEADERS += \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
     src/commandcoder.h \
+    src/framemanager.h \
     src/messagedispatcher.h \
     src/devices/EMCR/emcrdevice.h \
     src/devices/EMCR/emcropalkellydevice.h \
@@ -140,6 +143,7 @@ HEADERS += \
     src/devices/EMCR/emcrtestboardel07cd.h \
     src/devices/EMCR/emcrqc01atb_v01.h \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.h \
+    src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.h \
     src/devices/EZPatch/ezpatchdevice.h \
     src/devices/EZPatch/ezpatchftdidevice.h \
     src/devices/EZPatch/ezpatchepatchel03d.h \
