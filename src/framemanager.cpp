@@ -363,7 +363,7 @@ bool FrameManager::pushDataMessage(RxMessage_t msg) {
     if (messages.empty()
         || std::prev(messages.end())->typeId != ACQ_DATA_TYPE
         || std::prev(messages.end())->data.size() + msg.data.size() > maxDataSize) {
-        /*! If the messages list is not empty, but the last is not a data message or if the total size of the new data message with the last message in the list is too large,
+        /*! If the messages list is empty, or the last is not a data message or if the total size of the new data message with the last message in the list is too large,
          *  just push the new data message */
         messages.push_back(msg);
         // (* messages.end()).data.reserve(E384CL_OUT_STRUCT_DATA_LEN);
