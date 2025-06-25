@@ -551,9 +551,9 @@ inline Measurement_t operator / (E384CL_ARGIN const Measurement_t &a, E384CL_ARG
  * \brief Structure used manage physical ranges that define a range with its unit and unit prefix.
  */
 typedef struct RangedMeasurement {
-    double min; /*!< Minimum value. */
-    double max; /*!< Maximum value. */
-    double step; /*!< Resolution. */
+    double min = 0.0; /*!< Minimum value. */
+    double max = 0.0; /*!< Maximum value. */
+    double step = 0.0; /*!< Resolution. */
     UnitPfx_t prefix = UnitPfxNone; /*!< Unit prefix in the range [femto, Peta]. */
     std::string unit = ""; /*!< Unit. \note Can be any string, the library is not aware of real units meaning. */
 
