@@ -43,7 +43,9 @@ protected:
     bool isPushable(RxMessage_t msg);
 
     uint32_t maxDataSize = -1;
-    std::list <RxMessage_t> messages;
+    std::list <RxMessage_t> messages; /*! Per gestire meglio la quantità di dati salvati si potrebbe estendere la std::list <RxMessage_t> per gestire automaticamente la list size ogni volta che viene chiamata un'operazione
+                                            che la modificherebbe, come push_back, erase, clear, insert, pop_front, etc */
+    size_t listSize = 0;
     RxMessage_t lastDataMessage;
     bool lastDataMessageAvailable = false;
     RxMessage_t msg;
@@ -59,7 +61,6 @@ protected:
     std::vector <uint16_t> gpDataValues; /*! Store GP data when current data and GP data are not sent together in a single packet */
     std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
     bool purgeRequest = false;
-    size_t listSize = 0;
 
     mutable std::mutex rxMsgMutex;
     std::condition_variable rxMsgBufferNotEmpty;

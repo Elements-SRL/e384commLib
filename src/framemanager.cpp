@@ -366,7 +366,7 @@ bool FrameManager::pushDataMessage(RxMessage_t msg) {
         /*! If the messages list is not empty, but the last is not a data message or if the total size of the new data message with the last message in the list is too large,
          *  just push the new data message */
         messages.push_back(msg);
-        (* messages.end()).data.reserve(E384CL_OUT_STRUCT_DATA_LEN);
+        // (* messages.end()).data.reserve(E384CL_OUT_STRUCT_DATA_LEN);
         listSize += msg.data.size();
         return true;
     }
