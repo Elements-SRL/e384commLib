@@ -213,44 +213,6 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
     return ret;
 }
 
-ErrorCodes_t EmcrFtdiDevice::pauseConnection(bool pauseFlag) {
-    ErrorCodes_t ret = Success;
-    if (pauseFlag) {
-        FT_STATUS ftRet;
-        ftRet = FT_Close(* ftdiRxHandle);
-        if (ftRet != FT_OK) {
-            return ErrorDeviceDisconnectionFailed;
-        }
-
-        if (rxChannel != txChannel) {
-            FT_STATUS ftRet;
-            ftRet = FT_Close(* ftdiTxHandle);
-            if (ftRet != FT_OK) {
-                return ErrorDeviceDisconnectionFailed;
-            }
-        }
-
-    } else {
-        /*! Initialize the ftdi Rx handle */
-        ret = this->initFtdiChannel(ftdiRxHandle, rxChannel);
-        if (ret != Success) {
-            return ret;
-        }
-
-        if (rxChannel == txChannel) {
-            ftdiTxHandle = ftdiRxHandle;
-
-        } else {
-            /*! Initialize the ftdi Tx handle */
-            ret = this->initFtdiChannel(ftdiTxHandle, txChannel);
-            if (ret != Success) {
-                return ret;
-            }
-        }
-    }
-    return ret;
-}
-
 ErrorCodes_t EmcrFtdiDevice::disconnectDevice() {
     this->deinitialize();
     return Success;
@@ -266,15 +228,16 @@ ErrorCodes_t EmcrFtdiDevice::getCalibrationEepromSize(uint32_t &size) {
 }
 
 ErrorCodes_t EmcrFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size) {
-    ErrorCodes_t ret;
     if (calibrationEeprom == nullptr) {
         return ErrorEepromNotConnected;
     }
-    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
 
+    /*! Communication with the eeprom requires disabling the standard communication with the device */
     this->deinitialize();
+
+    /*! deinitialize also resets the calibration eeprom, so restore it */
     this->initializeCalibration();
-    // ret = this->pauseConnection(true);
+
     calibrationEeprom->openConnection();
 
     unsigned char eepromBuffer[4];
@@ -284,54 +247,26 @@ ErrorCodes_t EmcrFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> value
             value[itemIdx] >>= 8;
         }
 
-        ret = calibrationEeprom->writeBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
+        calibrationEeprom->writeBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
     }
 
     calibrationEeprom->closeConnection();
-    // this->pauseConnection(false);
-    this->initialize("");
 
-    connectionMutexLock.unlock();
-
-    /*! \todo FCON trovare un altro modo per pingare */
-//    RxOutput_t rxOutput;
-//    ret = ErrorUnknown;
-//    rxOutput.msgTypeId = MsgDirectionDeviceToPc+MsgTypeIdInvalid;
-//    int pingTries = 0;
-
-//    while (ret != Success) {
-//        if (pingTries++ > EZP_MAX_PING_TRIES) {
-//            return ErrorConnectionPingFailed;
-//        }
-
-//        ret = this->ping();
-//        if (ret != Success) {
-//            ret = this->pauseConnection(true);
-//            calibrationEeprom->openConnection();
-
-//            calibrationEeprom->closeConnection();
-//            this->pauseConnection(false);
-//        }
-//    }
-
-    // /*! Make a chip reset to force resynchronization of chip states. This is important when the FPGA has just been reset */
-    // this->resetAsic(true, true);
-    // std::this_thread::sleep_for (std::chrono::milliseconds(1));
-    // this->resetAsic(false, true);
-
-    return ret;
+    /*! Reinitialize the communication */
+    return this->initialize("");
 }
 
 ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value, std::vector <uint32_t> address, std::vector <uint32_t> size) {
-    ErrorCodes_t ret;
     if (calibrationEeprom == nullptr) {
         return ErrorEepromNotConnected;
     }
-    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
 
+    /*! Communication with the eeprom requires disabling the standard communication with the device */
     this->deinitialize();
+
+    /*! deinitialize also resets the calibration eeprom, so restore it */
     this->initializeCalibration();
-    // ret = this->pauseConnection(true);
+
     calibrationEeprom->openConnection();
 
     if (value.size() != address.size()) {
@@ -340,7 +275,7 @@ ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value
 
     unsigned char eepromBuffer[4];
     for (unsigned int itemIdx = 0; itemIdx < value.size(); itemIdx++) {
-        ret = calibrationEeprom->readBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
+        calibrationEeprom->readBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
 
         value[itemIdx] = 0;
         for (uint32_t bufferIdx = 0; bufferIdx < size[itemIdx]; bufferIdx++) {
@@ -350,31 +285,9 @@ ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value
     }
 
     calibrationEeprom->closeConnection();
-    // this->pauseConnection(false);
-    this->initialize("");
 
-    connectionMutexLock.unlock();
-
-    /*! \todo FCON trovare un altro modo per pingare */
-//    RxOutput_t rxOutput;
-//    ret = ErrorUnknown;
-//    rxOutput.msgTypeId = MsgDirectionDeviceToPc+MsgTypeIdInvalid;
-//    int pingTries = 0;
-
-//    while (ret != Success) {
-//        if (pingTries++ > EZP_MAX_PING_TRIES) {
-//            return ErrorConnectionPingFailed;
-//        }
-
-//        ret = this->ping();
-//    }
-
-    // /*! Make a chip reset to force resynchronization of chip states. This is important when the FPGA has just been reset */
-    // this->resetAsic(true, true);
-    // std::this_thread::sleep_for (std::chrono::milliseconds(1));
-    // this->resetAsic(false, true);
-
-    return ret;
+    /*! Reinitialize the communication */
+    return this->initialize("");
 }
 
 int32_t EmcrFtdiDevice::getDeviceIndex(std::string serial) {
@@ -888,6 +801,7 @@ void EmcrFtdiDevice::deinitializeMemory() {
 }
 
 ErrorCodes_t EmcrFtdiDevice::loadFpgaFw() {
+    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
     switch (fpgaLoadType) {
     case FtdiFpgaFwLoadAutomatic:
         /*! Nothing to be done, the FPGA will handle itself */
@@ -944,6 +858,7 @@ ErrorCodes_t EmcrFtdiDevice::loadFpgaFw() {
 }
 
 ErrorCodes_t EmcrFtdiDevice::initFtdiChannel(FT_HANDLE * handle, char channel) {
+    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
     FT_STATUS ftRet;
 
     std::string communicationSerialNumber = deviceId+channel;
