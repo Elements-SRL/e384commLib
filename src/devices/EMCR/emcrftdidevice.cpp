@@ -272,7 +272,9 @@ ErrorCodes_t EmcrFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> value
     }
     std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
 
-    ret = this->pauseConnection(true);
+    this->deinitialize();
+    this->initializeCalibration();
+    // ret = this->pauseConnection(true);
     calibrationEeprom->openConnection();
 
     unsigned char eepromBuffer[4];
@@ -286,7 +288,8 @@ ErrorCodes_t EmcrFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> value
     }
 
     calibrationEeprom->closeConnection();
-    this->pauseConnection(false);
+    // this->pauseConnection(false);
+    this->initialize("");
 
     connectionMutexLock.unlock();
 
@@ -311,10 +314,10 @@ ErrorCodes_t EmcrFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> value
 //        }
 //    }
 
-    /*! Make a chip reset to force resynchronization of chip states. This is important when the FPGA has just been reset */
-    this->resetAsic(true, true);
-    std::this_thread::sleep_for (std::chrono::milliseconds(1));
-    this->resetAsic(false, true);
+    // /*! Make a chip reset to force resynchronization of chip states. This is important when the FPGA has just been reset */
+    // this->resetAsic(true, true);
+    // std::this_thread::sleep_for (std::chrono::milliseconds(1));
+    // this->resetAsic(false, true);
 
     return ret;
 }
@@ -325,7 +328,10 @@ ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value
         return ErrorEepromNotConnected;
     }
     std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
-    ret = this->pauseConnection(true);
+
+    this->deinitialize();
+    this->initializeCalibration();
+    // ret = this->pauseConnection(true);
     calibrationEeprom->openConnection();
 
     if (value.size() != address.size()) {
@@ -344,7 +350,8 @@ ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value
     }
 
     calibrationEeprom->closeConnection();
-    this->pauseConnection(false);
+    // this->pauseConnection(false);
+    this->initialize("");
 
     connectionMutexLock.unlock();
 
@@ -362,10 +369,10 @@ ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value
 //        ret = this->ping();
 //    }
 
-    /*! Make a chip reset to force resynchronization of chip states. This is important when the FPGA has just been reset */
-    this->resetAsic(true, true);
-    std::this_thread::sleep_for (std::chrono::milliseconds(1));
-    this->resetAsic(false, true);
+    // /*! Make a chip reset to force resynchronization of chip states. This is important when the FPGA has just been reset */
+    // this->resetAsic(true, true);
+    // std::this_thread::sleep_for (std::chrono::milliseconds(1));
+    // this->resetAsic(false, true);
 
     return ret;
 }
@@ -475,6 +482,9 @@ ErrorCodes_t EmcrFtdiDevice::stopCommunication() {
 }
 
 void EmcrFtdiDevice::initializeCalibration() {
+    if (calibrationEeprom != nullptr) {
+        return;
+    }
     calibrationEeprom = new CalibrationEeprom(this->getDeviceIndex(deviceId+spiChannel));
     Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
     calibrationParams.initialize(CalTypesVcOffsetAdc, this->getSamplingRateModesNum(), vcCurrentRangesNum, currentChannelsNum, zeroA);
@@ -506,6 +516,7 @@ void EmcrFtdiDevice::handleCommunicationWithDevice() {
 
     bool anyOperationPerformed;
     parsingStatus = ParsingParsing;
+    fwLoadedFlag = false;
 
     while (!stopConnectionFlag) {
         anyOperationPerformed = false;
@@ -526,18 +537,19 @@ void EmcrFtdiDevice::handleCommunicationWithDevice() {
             if (anyOperationPerformed) {
                 txMsgBufferNotFull.notify_all();
             }
+        }
 
-            if (!resetStateFlag) {
-                anyOperationPerformed = true;
+        if (!resetStateFlag) {
+            anyOperationPerformed = true;
 
-                uint32_t bytesRead = this->readDataFromDevice();
+            uint32_t bytesRead = this->readDataFromDevice();
 
-                if (bytesRead > 0) {
-                    rxRawMutexLock.lock();
-                    rxRawBufferReadLength += bytesRead;
-                    rxRawMutexLock.unlock();
-                    rxRawBufferNotEmpty.notify_all();
-                }
+            if (bytesRead > 0) {
+                fwLoadedFlag = true;
+                rxRawMutexLock.lock();
+                rxRawBufferReadLength += bytesRead;
+                rxRawMutexLock.unlock();
+                rxRawBufferNotEmpty.notify_all();
             }
         }
 

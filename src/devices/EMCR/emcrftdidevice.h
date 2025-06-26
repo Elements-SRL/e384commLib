@@ -87,7 +87,7 @@ protected:
     uint32_t * txRawBulkBuffer = nullptr;
     uint32_t * txRawTriggerBuffer = nullptr;
 
-    bool fwLoadedFlag = true; /*! \todo FCON verificare se va messa a zero e settata dopo o se si può solo togliere, così è inutile */
+    bool fwLoadedFlag = false;
     uint32_t readTries = 0;
 
     /*! Variables used to access the tx msg buffer */
