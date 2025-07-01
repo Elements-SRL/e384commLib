@@ -252,7 +252,6 @@ protected:
     virtual ErrorCodes_t initializeHW() override;
 
     virtual void deinitializeMemory() override;
-    virtual void deinitializeVariables() override;
 
     void joinCommunicationThreads() override;
 

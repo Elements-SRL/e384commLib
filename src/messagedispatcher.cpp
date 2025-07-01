@@ -1490,6 +1490,7 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
 }
 
 void MessageDispatcher::deinitializeVariables() {
+    this->deinitializeCalibration();
     this->deInitializeRawDataFilterVariables();
     this->flushBoardList();
 }

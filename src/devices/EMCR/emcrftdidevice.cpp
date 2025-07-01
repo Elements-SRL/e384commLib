@@ -232,28 +232,52 @@ ErrorCodes_t EmcrFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> value
         return ErrorEepromNotConnected;
     }
 
-    /*! Communication with the eeprom requires disabling the standard communication with the device */
-    this->deinitialize();
+    // /*! Communication with the eeprom requires disabling the standard communication with the device */
+    // this->deinitialize();
 
-    /*! deinitialize also resets the calibration eeprom, so restore it */
-    this->initializeCalibration();
+    // /*! deinitialize also resets the calibration eeprom, so restore it */
+    // this->initializeCalibration();
+
+    stopConnectionFlag = true;
+    this->joinCommunicationThreads();
+
+    this->stopCommunication();
 
     calibrationEeprom->openConnection();
 
+    uint32_t prevValue;
+
     unsigned char eepromBuffer[4];
     for (unsigned int itemIdx = 0; itemIdx < value.size(); itemIdx++) {
+        calibrationEeprom->readBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
+        prevValue = 0;
         for (uint32_t bufferIdx = 0; bufferIdx < size[itemIdx]; bufferIdx++) {
-            eepromBuffer[size[itemIdx]-bufferIdx-1] = value[itemIdx] & 0x000000FF;
-            value[itemIdx] >>= 8;
+            prevValue <<= 8;
+            prevValue += static_cast <uint32_t> (eepromBuffer[bufferIdx]);
         }
 
-        calibrationEeprom->writeBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
+        if (prevValue != value[itemIdx]) {
+            /*! Write only if the existing value is different from the new one */
+            for (uint32_t bufferIdx = 0; bufferIdx < size[itemIdx]; bufferIdx++) {
+                eepromBuffer[size[itemIdx]-bufferIdx-1] = value[itemIdx] & 0x000000FF;
+                value[itemIdx] >>= 8;
+            }
+
+            calibrationEeprom->writeBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
+        }
     }
 
     calibrationEeprom->closeConnection();
 
     /*! Reinitialize the communication */
-    return this->initialize("");
+    // return this->initialize("");
+
+    this->startCommunication("");
+    stopConnectionFlag = false;
+    this->createCommunicationThreads();
+    this->forceOutMessage();
+    this->stackOutgoingMessage(txStatus);
+    return Success;
 }
 
 ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value, std::vector <uint32_t> address, std::vector <uint32_t> size) {
@@ -261,11 +285,16 @@ ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value
         return ErrorEepromNotConnected;
     }
 
-    /*! Communication with the eeprom requires disabling the standard communication with the device */
-    this->deinitialize();
+    // /*! Communication with the eeprom requires disabling the standard communication with the device */
+    // this->deinitialize();
 
-    /*! deinitialize also resets the calibration eeprom, so restore it */
-    this->initializeCalibration();
+    // /*! deinitialize also resets the calibration eeprom, so restore it */
+    // this->initializeCalibration();
+
+    stopConnectionFlag = true;
+    this->joinCommunicationThreads();
+
+    this->stopCommunication();
 
     calibrationEeprom->openConnection();
 
@@ -287,7 +316,14 @@ ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value
     calibrationEeprom->closeConnection();
 
     /*! Reinitialize the communication */
-    return this->initialize("");
+    // return this->initialize("");
+
+    this->startCommunication("");
+    stopConnectionFlag = false;
+    this->createCommunicationThreads();
+    this->forceOutMessage();
+    this->stackOutgoingMessage(txStatus);
+    return Success;
 }
 
 int32_t EmcrFtdiDevice::getDeviceIndex(std::string serial) {
