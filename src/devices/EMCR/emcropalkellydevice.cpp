@@ -20,6 +20,7 @@
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
 #include "emcr2x10mhz_fet.h"
+#include "emcr2x10mhz_sb_pcbv02_festim.h"
 #include "emcr10mhzsb.h"
 #include "emcrqc01atb_v01.h"
 #ifdef DEBUG
@@ -36,6 +37,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 1, Device4x10MHz_SB_PCBV01_FWV01},                          //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 2, Device4x10MHz_SB_PCBV01_FWV02},                          //   11,  9,  2 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV02, 1, Device4x10MHz_SB_PCBV01_FWV02},                          //   11, 11,  1 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_SB_EL05a_PCBV02_FEStim, 1, Device2x10MHz_SB_PCBV02_FWV01_FEStim},            //   11, 12,  1 : 2 channels 10MHz nanopore reader, single board with EL05a with protocol reset and stimulus from the front end
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_FirstProto, 1, Device192Blm_el03c_prot_v01_fw_v01},                    //   13,  1,  1 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},         //   15,  1,  2 : First working protoype for 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03}, //   15,  2,  3 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
@@ -281,6 +283,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device4x10MHz_SB_PCBV01_FWV02:
         messageDispatcher = new Emcr4x10MHz_SB_PCBV01_V06(deviceId);
+        break;
+
+    case Device2x10MHz_SB_PCBV02_FWV01_FEStim:
+        messageDispatcher = new Emcr2x10MHz_SB_PCBV02_FEStim_V01(deviceId);
         break;
 
     case Device4x10MHz_QuadAnalog_PCBV01:
