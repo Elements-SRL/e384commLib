@@ -1992,6 +1992,13 @@ public:
      */
     virtual ErrorCodes_t getCalibMappingFilePath(std::string &path);
 
+    /*! \brief Configure the device to enable read/write of the calibration eeprom.
+     *
+     * \param calibModeFlag [in] true to enable the calibration mode; false to return to normal operation mode.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setCalibrationMode(bool calibModeFlag);
+
     /*! \brief Get calibration eeprom size in bytes.
      *
      * \param size [out] Size of the calibration eeprom in bytes.
@@ -2391,6 +2398,7 @@ protected:
 
     bool threadsStarted = false;
     bool stopConnectionFlag = false;
+    bool calibrationModeFlag = false;
     ParsingStatus_t parsingStatus = ParsingNone;
 
     std::vector <BoardModel *> boardModels;

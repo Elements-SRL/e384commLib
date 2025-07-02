@@ -1286,6 +1286,10 @@ ErrorCodes_t MessageDispatcher::getCalibMappingFilePath(std::string &) {
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::setCalibrationMode(bool) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::getCalibrationEepromSize(uint32_t &) {
     return ErrorFeatureNotImplemented;
 }
@@ -1309,7 +1313,6 @@ ErrorCodes_t MessageDispatcher::getVoltageProtocolRangeFeature(uint16_t rangeIdx
 ErrorCodes_t MessageDispatcher::getCurrentProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range) {
     if (ccCurrentRangesArray.empty()) {
         return ErrorFeatureNotImplemented;
-
     }
     range = ccCurrentRangesArray[rangeIdx];
     return Success;

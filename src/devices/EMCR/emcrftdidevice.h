@@ -25,6 +25,7 @@ public:
     static ErrorCodes_t isDeviceRecognized(std::string deviceId);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
     ErrorCodes_t disconnectDevice() override;
+    ErrorCodes_t setCalibrationMode(bool calibModeFlag) override;
     ErrorCodes_t getCalibrationEepromSize(uint32_t &size) override;
     ErrorCodes_t writeCalibrationEeprom(std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size) override;
     ErrorCodes_t readCalibrationEeprom(std::vector <uint32_t> &value, std::vector <uint32_t> address, std::vector <uint32_t> size) override;

@@ -218,6 +218,34 @@ ErrorCodes_t EmcrFtdiDevice::disconnectDevice() {
     return Success;
 }
 
+ErrorCodes_t EmcrFtdiDevice::setCalibrationMode(bool calibModeFlag) {
+    if (calibrationEeprom == nullptr) {
+        return ErrorEepromNotConnected;
+    }
+    if (calibrationModeFlag == calibModeFlag) {
+        return Success;
+    }
+    calibrationModeFlag = calibModeFlag;
+    if (calibrationModeFlag) {
+        stopConnectionFlag = true;
+        this->joinCommunicationThreads();
+
+        this->stopCommunication();
+
+        calibrationEeprom->openConnection();
+    }
+    else {
+        calibrationEeprom->closeConnection();
+
+        this->startCommunication("");
+        stopConnectionFlag = false;
+        this->createCommunicationThreads();
+        this->forceOutMessage();
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
 ErrorCodes_t EmcrFtdiDevice::getCalibrationEepromSize(uint32_t &size) {
     if (calibrationEeprom == nullptr) {
         size = 0;
@@ -228,22 +256,9 @@ ErrorCodes_t EmcrFtdiDevice::getCalibrationEepromSize(uint32_t &size) {
 }
 
 ErrorCodes_t EmcrFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size) {
-    if (calibrationEeprom == nullptr) {
+    if (calibrationEeprom == nullptr || !calibrationModeFlag) {
         return ErrorEepromNotConnected;
     }
-
-    // /*! Communication with the eeprom requires disabling the standard communication with the device */
-    // this->deinitialize();
-
-    // /*! deinitialize also resets the calibration eeprom, so restore it */
-    // this->initializeCalibration();
-
-    stopConnectionFlag = true;
-    this->joinCommunicationThreads();
-
-    this->stopCommunication();
-
-    calibrationEeprom->openConnection();
 
     uint32_t prevValue;
 
@@ -267,36 +282,13 @@ ErrorCodes_t EmcrFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> value
         }
     }
 
-    calibrationEeprom->closeConnection();
-
-    /*! Reinitialize the communication */
-    // return this->initialize("");
-
-    this->startCommunication("");
-    stopConnectionFlag = false;
-    this->createCommunicationThreads();
-    this->forceOutMessage();
-    this->stackOutgoingMessage(txStatus);
     return Success;
 }
 
 ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value, std::vector <uint32_t> address, std::vector <uint32_t> size) {
-    if (calibrationEeprom == nullptr) {
+    if (calibrationEeprom == nullptr || !calibrationModeFlag) {
         return ErrorEepromNotConnected;
     }
-
-    // /*! Communication with the eeprom requires disabling the standard communication with the device */
-    // this->deinitialize();
-
-    // /*! deinitialize also resets the calibration eeprom, so restore it */
-    // this->initializeCalibration();
-
-    stopConnectionFlag = true;
-    this->joinCommunicationThreads();
-
-    this->stopCommunication();
-
-    calibrationEeprom->openConnection();
 
     if (value.size() != address.size()) {
         value.resize(address.size());
@@ -313,16 +305,6 @@ ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value
         }
     }
 
-    calibrationEeprom->closeConnection();
-
-    /*! Reinitialize the communication */
-    // return this->initialize("");
-
-    this->startCommunication("");
-    stopConnectionFlag = false;
-    this->createCommunicationThreads();
-    this->forceOutMessage();
-    this->stackOutgoingMessage(txStatus);
     return Success;
 }
 
