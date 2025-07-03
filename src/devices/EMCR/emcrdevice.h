@@ -168,6 +168,7 @@ protected:
     virtual void createCommunicationThreads() override;
 
     virtual void deinitializeMemory() override;
+    virtual void deinitializeVariables() override;
 
     virtual void joinCommunicationThreads() override;
 

@@ -697,8 +697,8 @@ ErrorCodes_t MessageDispatcher::getReadoutOffsetRecalibrationStatuses(std::vecto
         return ErrorValueOutOfRange;
     }
     statuses.resize(channelIndexes.size());
-    for (auto channel : channelIndexes) {
-        statuses[channel] = offsetRecalibStatuses[channel];
+    for (int channelIdx = 0; channelIdx < channelIndexes.size(); channelIdx++) {
+        statuses[channelIdx] = offsetRecalibStatuses[channelIndexes[channelIdx]];
     }
     return Success;
 }
@@ -711,8 +711,8 @@ ErrorCodes_t MessageDispatcher::getLiquidJunctionVoltages(std::vector <uint16_t>
         return ErrorValueOutOfRange;
     }
     voltages.resize(channelIndexes.size());
-    for (auto channel : channelIndexes) {
-        voltages[channel] = selectedLiquidJunctionVector[channel];
+    for (int channelIdx = 0; channelIdx < channelIndexes.size(); channelIdx++) {
+        voltages[channelIdx] = selectedLiquidJunctionVector[channelIndexes[channelIdx]];
     }
     return Success;
 }
@@ -725,8 +725,8 @@ ErrorCodes_t MessageDispatcher::getLiquidJunctionStatuses(std::vector <uint16_t>
         return ErrorValueOutOfRange;
     }
     statuses.resize(channelIndexes.size());
-    for (auto channel : channelIndexes) {
-        statuses[channel] = liquidJunctionStatuses[channel];
+    for (int channelIdx = 0; channelIdx < channelIndexes.size(); channelIdx++) {
+        statuses[channelIdx] = liquidJunctionStatuses[channelIndexes[channelIdx]];
     }
     return Success;
 }

@@ -2315,6 +2315,14 @@ void EmcrDevice::deinitializeMemory() {
     }
 }
 
+void EmcrDevice::deinitializeVariables() {
+    MessageDispatcher::deinitializeVariables();
+    if (frameManager != nullptr) {
+        delete frameManager;
+        frameManager = nullptr;
+    }
+}
+
 void EmcrDevice::joinCommunicationThreads() {
     if (threadsStarted) {
         deviceCommunicationThread.join();

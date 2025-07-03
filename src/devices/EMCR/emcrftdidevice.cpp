@@ -421,6 +421,8 @@ void EmcrFtdiDevice::initializeCalibration() {
     calibrationParams.initialize(CalTypesVcOffsetAdc, this->getSamplingRateModesNum(), vcCurrentRangesNum, currentChannelsNum, zeroA);
     Measurement_t zeroV = {0.0, UnitPfxNone, "V"};
     calibrationParams.initialize(CalTypesCcOffsetAdc, this->getSamplingRateModesNum(), ccVoltageRangesNum, voltageChannelsNum, zeroV);
+    calibrationParams.sr2srm = sr2srm;
+    originalCalibrationParams = calibrationParams;
 }
 
 void EmcrFtdiDevice::deinitializeCalibration() {
