@@ -35,7 +35,7 @@ protected:
     Measurement_t temperatureSet = {42.0, UnitPfxNone, "°C"};
 
     const Measurement_t fanTrimmerRf = {10.0, UnitPfxKilo, "Ohm"};
-    const Measurement_t fanTrimmerVStep = {0.6, UnitPfxNone, "V"};
+    const Measurement_t fanTrimmerVRef = {0.6, UnitPfxNone, "V"};
     const Measurement_t fanTrimmerVMax = {12.0, UnitPfxNone, "V"};
     const Measurement_t fanTrimmerWMax = {5900.0, UnitPfxNone, "rpm"};
     const Measurement_t fanTrimmerWMin = {3524.0, UnitPfxNone, "rpm"};

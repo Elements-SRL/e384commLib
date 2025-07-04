@@ -174,9 +174,9 @@ protected:
     std::vector <RangedMeasurement_t> fanTrimmerRanges;
 
     const Measurement_t fanTrimmerRf = {10.0, UnitPfxKilo, "Ohm"};
-    const Measurement_t fanTrimmerVStep = {0.6, UnitPfxNone, "V"};
+    const Measurement_t fanTrimmerVRef = {0.6, UnitPfxNone, "V"};
     const Measurement_t fanTrimmerVMax = {12.0, UnitPfxNone, "V"};
-    const Measurement_t fanTrimmerWMax = {5900.0, UnitPfxNone, "rpm"};
+    const Measurement_t fanTrimmerWMax = {5800.0, UnitPfxNone, "rpm"};
 };
 
 #endif // EMCR8NPATCHCLAMP_EL_7C_ARTIX7_PCBV_1_H

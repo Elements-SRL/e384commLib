@@ -2409,8 +2409,8 @@ void Emcr8nPatchClamp_EL07c_artix7_PCBV01_fw_v01::setGrEn(bool flag, bool applyF
 }
 
 Measurement_t Emcr8nPatchClamp_EL07c_artix7_PCBV01_fw_v01::fanV2R(Measurement_t V) {
-    V.convertValue(fanTrimmerVStep.prefix);
-    return fanTrimmerRf*(V.value/fanTrimmerVStep.value-1.0);
+    V.convertValue(fanTrimmerVRef.prefix);
+    return fanTrimmerRf*(V.value/fanTrimmerVRef.value-1.0);
 }
 
 Measurement_t Emcr8nPatchClamp_EL07c_artix7_PCBV01_fw_v01::fanW2V(Measurement_t W) {

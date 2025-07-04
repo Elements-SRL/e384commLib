@@ -161,8 +161,8 @@ void Emcr384PatchClamp_EL07c_prot_v07_fw_v03::processTemperatureData(std::vector
 }
 
 Measurement_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::fanV2R(Measurement_t V) {
-    V.convertValue(fanTrimmerVStep.prefix);
-    return fanTrimmerRf*(V.value/fanTrimmerVStep.value-1.0);
+    V.convertValue(fanTrimmerVRef.prefix);
+    return fanTrimmerRf*(V.value/fanTrimmerVRef.value-1.0);
 }
 
 Measurement_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::fanW2V(Measurement_t W) {
