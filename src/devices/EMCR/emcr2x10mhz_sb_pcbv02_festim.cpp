@@ -232,10 +232,6 @@ Emcr2x10MHz_SB_PCBV02_FEStim_V01::Emcr2x10MHz_SB_PCBV02_FEStim_V01(std::string d
     std::fill(voltageRanges.begin(), voltageRanges.end(), vcVoltageRangesArray[defaultVcVoltageRangeIdx]);
     voltageResolutions.resize(voltageChannelsNum);
     std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
-    gpRanges.resize(gpChannelsNum);
-    std::fill(gpRanges.begin(), gpRanges.end(), gpRangesArray[defaultGpRangeIdx]);
-    gpResolutions.resize(gpChannelsNum);
-    std::fill(gpResolutions.begin(), gpResolutions.end(), gpRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
@@ -338,7 +334,7 @@ Emcr2x10MHz_SB_PCBV02_FEStim_V01::Emcr2x10MHz_SB_PCBV02_FEStim_V01(std::string d
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         liquidJunctionCompensationCoders[idx] = new BoolNegatedArrayCoder(boolConfig);
         coders.push_back(liquidJunctionCompensationCoders[idx]);
-        boolConfig.initialBit += 2;
+        boolConfig.initialBit++;
         if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
             boolConfig.initialBit = 0;
             boolConfig.initialWord++;
@@ -353,7 +349,7 @@ Emcr2x10MHz_SB_PCBV02_FEStim_V01::Emcr2x10MHz_SB_PCBV02_FEStim_V01(std::string d
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
         enableStimulusCoders[idx] = new BoolArrayCoder(boolConfig);
         coders.push_back(enableStimulusCoders[idx]);
-        boolConfig.initialBit += 2;
+        boolConfig.initialBit++;
         if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
             boolConfig.initialBit = 0;
             boolConfig.initialWord++;
@@ -542,7 +538,7 @@ Emcr2x10MHz_SB_PCBV02_FEStim_V01::Emcr2x10MHz_SB_PCBV02_FEStim_V01(std::string d
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
-            doubleConfig.initialWord += 2;
+            doubleConfig.initialWord++;
         }
     }
 
