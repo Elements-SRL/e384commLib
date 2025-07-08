@@ -469,10 +469,12 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         if (waitingTimeForReadingPassed && !resetStateFlag) {
             rxRawMutexLock.lock();
             if (rxRawBufferReadLength+okTransferSize <= OKY_RX_BUFFER_SIZE) {
-                anyOperationPerformed = true;
                 rxRawMutexLock.unlock();
 
                 uint32_t bytesRead = this->readDataFromDevice();
+                if (bytesRead != 0) {
+                    anyOperationPerformed = true;
+                }
 
                 if (bytesRead <= INT32_MAX) {
                     rxRawMutexLock.lock();

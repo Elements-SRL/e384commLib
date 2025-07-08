@@ -30,6 +30,9 @@ private:
     ErrorCodes_t fillBuffer();
 
     uint16_t syntheticData = 0;
+    int64_t deltaBytes = 0;
+    std::chrono::steady_clock::time_point startTime;
+    std::chrono::steady_clock::time_point currentTime;
 };
 
 #endif // EMCR384PATCHCLAMPFAKE_H

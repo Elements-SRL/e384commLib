@@ -5,22 +5,6 @@ Emcr384FakePatchClamp::Emcr384FakePatchClamp(std::string id) :
 
     waitingTimeBeforeReadingData = 0;
     motherboardBootTime_s = 0;
-
-    /*! Sampling rates */
-    samplingRatesNum = SamplingRatesNum;
-    defaultSamplingRateIdx = SamplingRate6kHz;
-
-    realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate6kHz].value = 6.0;
-    realSamplingRatesArray[SamplingRate6kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate6kHz].unit = "Hz";
-    sr2srm.clear();
-    sr2srm[SamplingRate6kHz] = 0;
-
-    integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate6kHz].value = 1.0/6.0;
-    integrationStepArray[SamplingRate6kHz].prefix = UnitPfxMilli;
-    integrationStepArray[SamplingRate6kHz].unit = "s";
 }
 
 ErrorCodes_t Emcr384FakePatchClamp::startCommunication(std::string fwPath) {
@@ -31,6 +15,7 @@ ErrorCodes_t Emcr384FakePatchClamp::startCommunication(std::string fwPath) {
 void Emcr384FakePatchClamp::initializeVariables() {
     EmcrDevice::initializeVariables();
     this->fillBuffer();
+    startTime = std::chrono::steady_clock::now();
 }
 
 ErrorCodes_t Emcr384FakePatchClamp::stopCommunication() {
@@ -49,8 +34,15 @@ uint32_t Emcr384FakePatchClamp::readDataFromDevice() {
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
 
-    /*! No data to receive, just sleep */
-    std::this_thread::sleep_for (std::chrono::milliseconds(100));
+    currentTime = std::chrono::steady_clock::now();
+    int64_t duration = (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count());
+    int64_t newDeltaBytes = duration * (int64_t)samplingRate.getNoPrefixValue() / 1000 * totalChannelsNum * RX_WORD_SIZE - (OKY_RX_TRANSFER_SIZE-deltaBytes);
+    if (newDeltaBytes < 0) {
+        return bytesRead;
+    }
+    deltaBytes = newDeltaBytes;
+    startTime = currentTime;
+    const double R = 10.0; // MOhm
 
     while (bytesRead+(totalChannelsNum+3)*RX_WORD_SIZE < OKY_RX_TRANSFER_SIZE) {
         rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
@@ -63,18 +55,19 @@ uint32_t Emcr384FakePatchClamp::readDataFromDevice() {
         rxRawBuffer[rxRawBufferWriteOffset+1] = 0X00;
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
         for (uint32_t idx = 0; idx < voltageChannelsNum; idx++) {
-            rxRawBuffer[rxRawBufferWriteOffset] = (((syntheticData+idx*20) & 0x1F00) >> 8) - 0x10;
-            rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+            uint16_t value = selectedVoltageHoldVector[idx].value/voltageResolutions[idx];
+            rxRawBuffer[rxRawBufferWriteOffset] = (value >> 8) & 0x00FF;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = value & 0x00FF;
             rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
         }
 
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            rxRawBuffer[rxRawBufferWriteOffset] = ((syntheticData+idx*20) & 0xFF00) >> 8;
-            rxRawBuffer[rxRawBufferWriteOffset+1] = (syntheticData+idx*20) & 0x00FF;
+            uint16_t value = selectedVoltageHoldVector[idx].value/R/currentResolutions[idx];
+            rxRawBuffer[rxRawBufferWriteOffset] = (value >> 8) & 0x00FF;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = value & 0x00FF;
             rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
         }
 
-        syntheticData += 1;
         bytesRead += (totalChannelsNum+3)*RX_WORD_SIZE;
     }
 #endif
