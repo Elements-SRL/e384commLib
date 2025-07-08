@@ -114,28 +114,9 @@ template<typename I_t> bool inRange(I_t value, I_t minValue, I_t maxValue) {
 }
 
 inline void createDebugFile(FILE * &fid, std::string fileName) {
-#ifdef _WIN32
-    std::string path = std::string(getenv("HOMEDRIVE"))+std::string(getenv("HOMEPATH"));
-#else
-    std::string path = std::string(getenv("HOME"));
-#endif
-    std::stringstream ss;
-
-    for (size_t i = 0; i < path.length(); ++i) {
-        if (path[i] == '\\') {
-            ss << "\\\\";
-
-        } else {
-            ss << path[i];
-        }
-    }
-#ifdef _WIN32
-    ss << "\\\\" << fileName << ".txt";
-#else
-    ss << "/fileName.txt";
-#endif
-
-    fid = fopen(ss.str().c_str(), "wb");
+    const char * home = std::getenv("USERPROFILE");
+    std::filesystem::path filePath = std::filesystem::path(home) / (fileName + ".txt");
+    fid = fopen(filePath.string().c_str(), "wb");
 }
 
 inline bool demoDevicesEnabled() {
