@@ -257,17 +257,15 @@ typedef enum DeviceTypes {
     DeviceE8PPatchEL07CD_artix7_PCBV01_FW3,     /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7) with 64 protocol items. */
     DeviceE8nPatchEL07C_artix7_PCBV01_FW1,      /*!< ePatch device with 1 EL07C chip PCB V01 (FPGA artix7). */
     DeviceEPatchDlp,                            /*!< ePatch device with dlp fpga. */
-#ifdef DEBUG
-    Device384Fake,              /*!< Fake nanopore device */
-    Device384FakePatchClamp,    /*!< Fake patch clamp device */
-    DeviceTbEl07cdFake,         /*!< Fake test board for EL07ab */
-    Device4x10MHzFake,          /*!< Fake 4x10MHz device */
-    Device2x10MHzFake,          /*!< Fake 2x10MHz device */
-    Device10MHzFake,            /*!< Fake 10MHz device */
-    DeviceFakePatch,            /*!< Fake ePatch device resembling EL04F chip. */
-    DeviceFakeP8,               /*!< Fake 8Patch device resembling EL07AB chip. */
-#endif
-    DeviceUnknown,              /*!< Invalid item used only for initiliazation purposes. */
+    Device384Fake,                              /*!< Fake nanopore device */
+    Device384FakePatchClamp,                    /*!< Fake patch clamp device */
+    DeviceTbEl07cdFake,                         /*!< Fake test board for EL07ab */
+    Device4x10MHzFake,                          /*!< Fake 4x10MHz device */
+    Device2x10MHzFake,                          /*!< Fake 2x10MHz device */
+    Device10MHzFake,                            /*!< Fake 10MHz device */
+    DeviceFakePatch,                            /*!< Fake ePatch device resembling EL04F chip. */
+    DeviceFakeP8,                               /*!< Fake 8Patch device resembling EL07AB chip. */
+    DeviceUnknown,                              /*!< Invalid item used only for initiliazation purposes. */
     DevicesNum
 } DeviceTypes_t;
 

@@ -14,11 +14,9 @@
 #include "ezpatche4ppatch_el07ab.h"
 #include "ezpatche8ppatch_el07ab.h"
 #include "ezpatche8ppatch_el07cd.h"
-#ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "ezpatchfakepatch.h"
 #include "ezpatchfakep8.h"
-#endif
 
 static const uint16_t crc16CcittTable[256] = {
     0x0000U, 0x1021U, 0x2042U, 0x3063U, 0x4084U, 0x50A5U, 0x60C6U, 0x70E7U,
@@ -126,13 +124,11 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04d, 129, DeviceEPatchEL04E},                                       //  6,  9,  129 : test board for EL04d chips (only current clamp works)
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04e, 129, DeviceEPatchEL04E},                                       //  6, 10,  129 : test board for EL04e chips
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 131, DeviceEPatchEL04F},                                       //  6, 11,  131 : test board for EL04f chips
-    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 129, DeviceEPatchEL04F}                                        //  6, 11,  129 : test board for EL04f chips
-#ifdef DEBUG
+    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 129, DeviceEPatchEL04F},                                        //  6, 11,  129 : test board for EL04f chips
     /*! ePatch fake */
-    ,{DeviceVersionDemo, DeviceSubversionDemo, 129, DeviceFakePatch},                                                        //  253,1,  129 : fake patch
+    {DeviceVersionDemo, DeviceSubversionDemo, 129, DeviceFakePatch},                                                        //  253,1,  129 : fake patch
     /*! eP4 fake */
     {DeviceVersionDemo, DeviceSubversionDemox8, 129, DeviceFakeP8}                                                          //  253,2,  129 : fake patch 8 channels
-#endif
 };
 
 EZPatchFtdiDevice::EZPatchFtdiDevice(std::string deviceId) :
@@ -154,12 +150,10 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
     if (!devCountOk) {
         return ErrorListDeviceFailed;
     }
-#ifndef DEBUG
-    else if (numDevs == 0) {
+    if (!demoDevicesEnabled() && numDevs == 0) {
         deviceIds.clear();
         return ErrorNoDeviceFound;
     }
-#endif
 
     deviceIds.clear();
     std::string deviceName;
@@ -176,12 +170,12 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
         }
     }
 
-#ifdef DEBUG
-    numDevs++;
-    deviceIds.push_back("DEMO_ePatch");
-    numDevs++;
-    deviceIds.push_back("DEMO_e8Patch");
-#endif
+    if (demoDevicesEnabled()) {
+        numDevs++;
+        deviceIds.push_back("DEMO_ePatch");
+        numDevs++;
+        deviceIds.push_back("DEMO_e8Patch");
+    }
 
     return Success;
 }
@@ -462,7 +456,6 @@ ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispa
         messageDispatcher = new EZPatche8PPatch_el07ab_artix7_PCBV02_V01(deviceId);
         break;
 
-#ifdef DEBUG
     case DeviceFakePatch:
         messageDispatcher = new EZPatchFakePatch(deviceId);
         break;
@@ -470,7 +463,6 @@ ErrorCodes_t EZPatchFtdiDevice::connectDevice(std::string deviceId, MessageDispa
     case DeviceFakeP8:
         messageDispatcher = new EZPatchFakeP8(deviceId);
         break;
-#endif
 
     case DeviceEPatchDlp:
         messageDispatcher = new EZPatchePatchDlp(deviceId);

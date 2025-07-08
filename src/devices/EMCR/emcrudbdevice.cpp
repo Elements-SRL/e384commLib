@@ -3,10 +3,8 @@
 #include <fstream>
 
 #include "emcr10mhz.h"
-#ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "emcr10mhzfake.h"
-#endif
 
 static UdbProgrammer programmer;
 
@@ -21,18 +19,14 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 7, Device10MHzOld},                  //   11,  1,  7 : UDB V02
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 8, Device10MHzOld},                  //   11,  1,  8 : UDB V02
     {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02, 9, Device10MHzV01},                  //   11,  1,  9 : UDB V02
-    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02,11, Device10MHzV01}                   //   11,  1, 11 : UDB V02
-    #ifdef DEBUG
-    ,{EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_FAKE, 254, Device10MHzFake}                 //   11,254,254 : UDB FAKE
-    #endif
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_PCBV02,11, Device10MHzV01},                  //   11,  1, 11 : UDB V02
+    {EmcrUdbDevice::DeviceVersion10MHz, EmcrUdbDevice::DeviceSubversionUDB_FAKE, 254, Device10MHzFake}                  //   11,254,254 : UDB FAKE
 };
 
 static std::unordered_map <DeviceTypes_t, MessageDispatcher::FwUpgradeInfo_t> fwUpgradeInfo = {
     {Device10MHzOld, {true, 11, "10MHz_V11.bin"}},
-    {Device10MHzV01, MessageDispatcher::FwUpgradeInfo_t()}
-    #ifdef DEBUG
-    ,{Device10MHzFake, MessageDispatcher::FwUpgradeInfo_t()}
-    #endif
+    {Device10MHzV01, MessageDispatcher::FwUpgradeInfo_t()},
+    {Device10MHzFake, MessageDispatcher::FwUpgradeInfo_t()}
 };
 
 EmcrUdbDevice::EmcrUdbDevice(std::string deviceId) :
@@ -53,12 +47,10 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
     if (!devCountOk) {
         return ErrorListDeviceFailed;
     }
-#ifndef DEBUG
-    else if (numDevs == 0) {
+    if (!demoDevicesEnabled() && numDevs == 0) {
         deviceIds.clear();
         return ErrorNoDeviceFound;
     }
-#endif
 
     deviceIds.clear();
 
@@ -67,10 +59,10 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
         deviceIds.push_back(UdbUtils::getDeviceSerial(i));
     }
 
-#ifdef DEBUG
-    numDevs++;
-    deviceIds.push_back("DEMO_10MHz");
-#endif
+    if (demoDevicesEnabled()) {
+        numDevs++;
+        deviceIds.push_back("DEMO_10MHz");
+    }
 
     return Success;
 }
@@ -178,11 +170,9 @@ ErrorCodes_t EmcrUdbDevice::connectDevice(std::string deviceId, MessageDispatche
     case Device10MHzOld:
         return ErrorDeviceToBeUpgraded;
 
-#ifdef DEBUG
     case Device10MHzFake:
         messageDispatcher = new Emcr10MHzFake(deviceId);
         break;
-#endif
 
     default:
         return ErrorDeviceTypeNotRecognized;

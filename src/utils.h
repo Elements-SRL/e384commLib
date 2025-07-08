@@ -5,11 +5,14 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <filesystem>
+#include <optional>
 
 #define UTL_SEPARATOR "\\\\"
 #define UTL_DEFAULT_FW_PATH (std::string("FW") + UTL_SEPARATOR)
 #define UTL_DEFAULT_FX3_FW_VERSION (4)
 #define UTL_DEFAULT_FX3_FW_NAME (std::string("UDB-FX3_V04.img"))
+#define UTL_DEMO_FILE_PATH ""
 
 template<typename I_t> bool allLessThan(std::vector <I_t> myVector, I_t maxValue) {
     if (myVector.empty()) {
@@ -110,7 +113,7 @@ template<typename I_t> bool inRange(I_t value, I_t minValue, I_t maxValue) {
     return true;
 }
 
-static void createDebugFile(FILE * &fid, std::string fileName) {
+inline void createDebugFile(FILE * &fid, std::string fileName) {
 #ifdef _WIN32
     std::string path = std::string(getenv("HOMEDRIVE"))+std::string(getenv("HOMEPATH"));
 #else
@@ -129,10 +132,20 @@ static void createDebugFile(FILE * &fid, std::string fileName) {
 #ifdef _WIN32
     ss << "\\\\" << fileName << ".txt";
 #else
-    ss << "/e384CommLib_tx.txt";
+    ss << "/fileName.txt";
 #endif
 
     fid = fopen(ss.str().c_str(), "wb");
+}
+
+inline bool demoDevicesEnabled() {
+    static std::optional <bool> cachedResult;
+    if (!cachedResult.has_value()) {
+        const char * home = std::getenv("USERPROFILE");
+        std::filesystem::path filePath = std::filesystem::path(home) / (std::string("e384_DEMO.pls"));
+        cachedResult = std::filesystem::exists(filePath) && std::filesystem::is_regular_file(filePath);
+    }
+    return * cachedResult;
 }
 
 #endif // UTILS_H

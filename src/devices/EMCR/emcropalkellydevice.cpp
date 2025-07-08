@@ -23,14 +23,12 @@
 #include "emcr2x10mhz_sb_pcbv02_festim.h"
 #include "emcr10mhzsb.h"
 #include "emcrqc01atb_v01.h"
-#ifdef DEBUG
 /*! Fake device that generates synthetic data */
 #include "emcr384nanoporesfake.h"
 #include "emcr384patchclampfake.h"
 #include "emcrtestboardel07cdfake.h"
 #include "emcr4x10mhzfake.h"
 #include "emcr2x10mhzfake.h"
-#endif
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                                              //   11,  3,  1 : channels 10MHz nanopore reader, single board with EL05a
@@ -68,15 +66,13 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"23230014TE", Device4x10MHz_SB_PCBV01_FWV02},
     {"2336001642", DeviceTestBoardEL07c},
     {"233600165Q", DeviceTestBoardEL07c},
-    {"2416001B8N", DeviceTestBoardQC01a}
-    #ifdef DEBUG
-    ,{"DEMO_384_SSN", Device384Fake},
+    {"2416001B8N", DeviceTestBoardQC01a},
+    {"DEMO_384_SSN", Device384Fake},
     {"DEMO_384_Patch", Device384FakePatchClamp},
     {"DEMO_TB_EL07cd", DeviceTbEl07cdFake},
     {"DEMO_4x10MHz", Device4x10MHzFake},
     {"DEMO_2x10MHz", Device2x10MHzFake}
-    #endif
-}; /*! \todo FCON queste info dovrebbero risiedere nel DB */
+};
 
 EmcrOpalKellyDevice::EmcrOpalKellyDevice(std::string deviceId) :
     EmcrDevice(deviceId) {
@@ -95,12 +91,10 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
     bool devCountOk = getDeviceCount(numDevs);
     if (!devCountOk) {
         return ErrorListDeviceFailed;
-
-#ifndef DEBUG
-    } else if (numDevs == 0) {
+    }
+    if (!demoDevicesEnabled() && numDevs == 0) {
         deviceIds.clear();
         return ErrorNoDeviceFound;
-#endif
     }
 
     deviceIds.clear();
@@ -110,18 +104,18 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
         deviceIds.push_back(getDeviceSerial(i));
     }
 
-#ifdef DEBUG
-    numDevs++;
-    deviceIds.push_back("DEMO_384_SSN");
-    numDevs++;
-    deviceIds.push_back("DEMO_384_Patch");
-    numDevs++;
-    deviceIds.push_back("DEMO_TB_EL07cd");
-    numDevs++;
-    deviceIds.push_back("DEMO_4x10MHz");
-    numDevs++;
-    deviceIds.push_back("DEMO_2x10MHz");
-#endif
+    if (demoDevicesEnabled()) {
+        numDevs++;
+        deviceIds.push_back("DEMO_384_SSN");
+        numDevs++;
+        deviceIds.push_back("DEMO_384_Patch");
+        numDevs++;
+        deviceIds.push_back("DEMO_TB_EL07cd");
+        numDevs++;
+        deviceIds.push_back("DEMO_4x10MHz");
+        numDevs++;
+        deviceIds.push_back("DEMO_2x10MHz");
+    }
 
     return Success;
 }
@@ -309,7 +303,6 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr2x10MHz_FET_SB_PCBV01_V01(deviceId);
         break;
 
-#ifdef DEBUG
     case Device384Fake:
         messageDispatcher = new Emcr384FakeNanopores(deviceId);
         break;
@@ -329,7 +322,6 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
     case Device2x10MHzFake:
         messageDispatcher = new Emcr2x10MHzFake(deviceId);
         break;
-#endif
 
     default:
         return ErrorDeviceTypeNotRecognized;
