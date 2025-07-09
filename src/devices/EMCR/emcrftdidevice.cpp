@@ -117,8 +117,8 @@ ErrorCodes_t EmcrFtdiDevice::getDeviceType(std::string deviceId, DeviceTypes_t &
 
     if (deviceFound) {
         return Success;
-
-    } else {
+    }
+    else {
         return ErrorDeviceTypeNotRecognized;
     }
 }

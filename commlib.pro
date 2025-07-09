@@ -112,9 +112,6 @@ SOURCES += \
     src/calibration/tomlcalibrationmanager.cpp \
     src/calibration/csvcalibrationmanager.cpp \
     src/calibration/calibrationeeprom.cpp \
-    src/peripherals/ftdieeprom.cpp \
-    src/peripherals/ftdieeprom56.cpp \
-    src/peripherals/ftdieepromdemo.cpp \
     src/peripherals/okprogrammer.cpp \
     src/peripherals/udbprogrammer.cpp \
     src/peripherals/udbutils.cpp
@@ -183,9 +180,6 @@ HEADERS += \
     src/peripherals/ftdiutils.h \
     src/peripherals/okprogrammer.h \
     src/peripherals/udbprogrammer.h \
-    src/peripherals/ftdieeprom.h \
-    src/peripherals/ftdieeprom56.h \
-    src/peripherals/ftdieepromdemo.h \
     src/peripherals/udbutils.h \
     src/utils.h
 
@@ -209,5 +203,6 @@ DEPENDPATH += \
 include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
 include($$(FTD2XX_PATH)includeftd2xx.pri)
+include($$(FTDI_UTILS_PATH)includeftdiutils.pri)
 include($$(LIBMPSSE_PATH)includelibmpsse.pri)
 include($$(TOML_PP_PATH)includetoml++.pri)
