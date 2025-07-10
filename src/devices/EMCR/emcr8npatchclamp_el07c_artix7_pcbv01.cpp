@@ -438,7 +438,7 @@ Emcr8nPatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8nPatchClamp_EL07c_artix7_PCBV0
     const double pipetteFixedResistance2 = 5.92592592592592e-3; //MOhm
     const int pipetteCapacitanceRanges = 3;
     const double pipetteCapacitanceValuesNum = 256.0;
-    const double additionalInputCapacitance = 6.8; // pF
+    const double additionalInputCapacitance = 0.0; // pF
 
     std::vector <double> pipetteInjCapacitance = {3.0, 9.0, 27.0};
     pipetteCapacitanceRange.resize(pipetteCapacitanceRanges);
