@@ -17,6 +17,8 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 2, DeviceE8PPatchEL07CD_artix7_PCBV01_FW2},     //  10, 19,  2 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV01, 3, DeviceE8PPatchEL07CD_artix7_PCBV01_FW3},     //  10, 19,  3 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
     {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_PCBV01, 1, DeviceE8nPatchEL07C_artix7_PCBV01_FW1},           //  16,  1,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx4Patch_artix7_PCBV02, 1, DeviceE4PPatchEL07CD_artix7_PCBV00_2},       //  10, 21,  1 : VC-CC device with 4 channels (EL07C) (FPGA artix7) PCB V02. */
+    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV02, 1, DeviceE8PPatchEL07CD_artix7_PCBV01_FW3},     //  10, 22,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V02. */
 };
 
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
