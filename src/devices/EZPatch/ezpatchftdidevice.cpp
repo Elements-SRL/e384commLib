@@ -124,11 +124,11 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04d, 129, DeviceEPatchEL04E},                                       //  6,  9,  129 : test board for EL04d chips (only current clamp works)
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04e, 129, DeviceEPatchEL04E},                                       //  6, 10,  129 : test board for EL04e chips
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 131, DeviceEPatchEL04F},                                       //  6, 11,  131 : test board for EL04f chips
-    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 129, DeviceEPatchEL04F},                                        //  6, 11,  129 : test board for EL04f chips
+    {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04f, 129, DeviceEPatchEL04F},                                       //  6, 11,  129 : test board for EL04f chips
     /*! ePatch fake */
-    {DeviceVersionDemo, DeviceSubversionDemo, 129, DeviceFakePatch},                                                        //  253,1,  129 : fake patch
+    {DeviceVersionDemo, DeviceSubversionEPatchDemo, 129, DeviceFakePatch},                                                  //  253,1,  129 : fake patch
     /*! eP4 fake */
-    {DeviceVersionDemo, DeviceSubversionDemox8, 129, DeviceFakeP8}                                                          //  253,2,  129 : fake patch 8 channels
+    {DeviceVersionDemo, DeviceSubversionE8PatchDemo, 129, DeviceFakeP8}                                                     //  253,2,  129 : fake patch 8 channels
 };
 
 EZPatchFtdiDevice::EZPatchFtdiDevice(std::string deviceId) :
@@ -183,12 +183,12 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
 ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
     if (deviceId == "DEMO_ePatch") {
         deviceVersion = DeviceVersionDemo;
-        deviceSubVersion = DeviceSubversionDemo;
+        deviceSubVersion = DeviceSubversionEPatchDemo;
         fwVersion = 129;
     }
     else if (deviceId == "DEMO_e8Patch") {
         deviceVersion = DeviceVersionDemo;
-        deviceSubVersion = DeviceSubversionDemox8;
+        deviceSubVersion = DeviceSubversionE8PatchDemo;
         fwVersion = 129;
     }
     else {
@@ -228,13 +228,13 @@ ErrorCodes_t EZPatchFtdiDevice::getDeviceType(std::string deviceId, DeviceTypes_
     bool deviceFound = false;
     if (deviceId == "DEMO_ePatch") {
         tuple.version = DeviceVersionDemo;
-        tuple.subversion = DeviceSubversionDemo;
+        tuple.subversion = DeviceSubversionEPatchDemo;
         tuple.fwVersion = 129;
         deviceFound = true;
     }
     else if (deviceId == "DEMO_e8Patch") {
         tuple.version = DeviceVersionDemo;
-        tuple.subversion = DeviceSubversionDemox8;
+        tuple.subversion = DeviceSubversionE8PatchDemo;
         tuple.fwVersion = 129;
         deviceFound = true;
     }
