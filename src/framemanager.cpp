@@ -381,19 +381,7 @@ bool FrameManager::pushLastDataMessage() {
         /*! Do not push if the last data message is not available */
         return false;
     }
-    if (messages.empty()
-        || std::prev(messages.end())->typeId != ACQ_DATA_TYPE
-        || std::prev(messages.end())->data.size() + lastDataMessage.data.size() > maxDataSize) {
-        /*! If the messages list is empty, but the last is not a data message or if the total size of the last data message with the last message in the list is too large,
-         *  just push the last data message */
-        messages.push_back(lastDataMessage);
-        listSize += lastDataMessage.data.size();
-        return true;
-    }
-    /*! Otherwise, merge the last data message with the last message in the list */
-    this->mergeNewDataMessage(std::prev(messages.end()), lastDataMessage);
-    listSize += lastDataMessage.data.size();
-    return true;
+    return this->pushDataMessage(lastDataMessage);
 }
 
 RxMessage_t FrameManager::splitLastDataMessage(uint32_t newProtocolItemFirstIndex) {
