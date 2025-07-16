@@ -120,12 +120,40 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
     return Success;
 }
 
+ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    if (deviceId.starts_with("DEMO")) {
+        deviceVersion = DeviceVersion10MHz;
+        deviceSubVersion = DeviceSubversionOk_FAKE;
+        fwVersion = 254;
+    }
+    else {
+        OkProgrammer * programmer = new OkProgrammer;
+        OkProgrammer::InfoStruct_t tuple;
+        programmer->connect(deviceId, true);
+        programmer->getDeviceInfo(tuple);
+        programmer->connect(deviceId, false);
+
+        deviceVersion = tuple.deviceVersion;
+        deviceSubVersion = tuple.deviceSubVersion;
+        fwVersion = tuple.fpgaFwVersion.major;
+    }
+
+    return Success;
+}
+
 ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
     OkProgrammer::InfoStruct_t tuple;
-    OkProgrammer * programmer = new OkProgrammer;
-    programmer->connect(deviceId, true);
-    programmer->getDeviceInfo(tuple);
-    programmer->connect(deviceId, false);
+    if (deviceId.starts_with("DEMO")) {
+        tuple.deviceVersion = DeviceVersion10MHz;
+        tuple.deviceSubVersion = DeviceSubversionOk_FAKE;
+        tuple.fpgaFwVersion.major = 254;
+    }
+    else {
+        OkProgrammer * programmer = new OkProgrammer;
+        programmer->connect(deviceId, true);
+        programmer->getDeviceInfo(tuple);
+        programmer->connect(deviceId, false);
+    }
 
     bool deviceFound = false;
     for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
@@ -387,6 +415,7 @@ bool EmcrOpalKellyDevice::getDeviceCount(int &numDevs) {
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
+    EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
     okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
 
     if (error != okCFrontPanel::NoError) {

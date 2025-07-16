@@ -141,15 +141,13 @@ public:
      */
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
 
-    /*! \brief Get information about a connected device.
+    /*! \brief Get information about plugged in device.
+     *  \note Do not use this method if you already connected to the device via the connectDevice method
      *
      * \param deviceId [in] Serial number of the device.
      * \param deviceVersion [out] Version of the device (device family). -1 if not available.
      * \param deviceSubVersion [out] Subversion of the device (increases with PCB changes). -1 if not available.
      * \param fwVersion [out] Version of the firmware (increases with device's firmware). -1 if not available.
-     * \note The available device versions with the corresponding devices sub versions are found
-     *       as enums in some header files, more specifically, devices/EMCR/emcrudbdevice.h and
-     *       devices/EZPatch/ftdieeprom.h
      * \return Error code.
      */
     static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
@@ -235,6 +233,15 @@ public:
      * \return The name as a std::string.
      */
     std::string getDeviceName();
+
+    /*! \brief Get information about a connected device.
+     *
+     * \param deviceVersion [out] Version of the device (device family). -1 if not available.
+     * \param deviceSubVersion [out] Subversion of the device (increases with PCB changes). -1 if not available.
+     * \param fwVersion [out] Version of the firmware (increases with device's firmware). -1 if not available.
+     * \return Error code.
+     */
+    ErrorCodes_t getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
 
     /****************\
      *  Tx methods  *
@@ -2393,7 +2400,10 @@ protected:
     std::vector <uint16_t> liquidJunctionNegativeSaturationCount;
     std::vector <uint16_t> liquidJunctionOpenCircuitCount;
 
-    std::string deviceId;
+    std::string deviceId = "";
+    unsigned int deviceVersion = -1;
+    unsigned int deviceSubVersion = -1;
+    unsigned int fwVersion = -1;
     std::string deviceName = "undefined";
 
     bool threadsStarted = false;

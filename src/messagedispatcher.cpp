@@ -73,10 +73,8 @@ ErrorCodes_t MessageDispatcher::detectDevices(
 
 ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
     if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
-        deviceVersion = -1;
-        deviceSubVersion = -1;
-        fwVersion = -1;
-        return ErrorFeatureNotImplemented;
+        EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+        return Success;
     }
 
     if (EmcrUdbDevice::isDeviceRecognized(deviceId) == Success) {
@@ -205,6 +203,13 @@ ErrorCodes_t MessageDispatcher::getChannelsOnRow(uint16_t rowIdx, std::vector <C
 
 std::string MessageDispatcher::getDeviceName() {
     return this->deviceName;
+}
+
+ErrorCodes_t MessageDispatcher::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    deviceVersion = this->deviceVersion;
+    deviceSubVersion = this->deviceSubVersion;
+    fwVersion = this->fwVersion;
+    return Success;
 }
 
 ErrorCodes_t MessageDispatcher::sendCommands() {

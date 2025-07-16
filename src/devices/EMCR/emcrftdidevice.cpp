@@ -80,19 +80,6 @@ ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &d
     return Success;
 }
 
-//ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(std::string &deviceId, std::string &deviceName, uint32_t &deviceVersion, uint32_t &deviceSubversion, uint32_t &firmwareVersion) {
-//    ErrorCodes_t ret = Success;
-
-//    deviceId = this->deviceId;
-//    deviceName = this->deviceName;
-//    DeviceTuple_t tuple = FtdiEeprom56(deviceId).getDeviceTuple();
-//    deviceVersion = tuple.version;
-//    deviceSubversion = tuple.subversion;
-//    firmwareVersion = tuple.fwVersion;
-
-//    return ret;
-//}
-
 ErrorCodes_t EmcrFtdiDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
     FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
     DeviceTuple_t tuple;
@@ -361,6 +348,7 @@ bool EmcrFtdiDevice::getDeviceCount(DWORD &numDevs) {
 }
 
 ErrorCodes_t EmcrFtdiDevice::startCommunication(std::string) {
+    EmcrFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
     ErrorCodes_t ret = this->loadFpgaFw();
     if (ret != Success) {
         return ret;

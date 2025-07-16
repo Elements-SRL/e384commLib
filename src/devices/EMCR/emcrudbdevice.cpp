@@ -68,29 +68,29 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
 }
 
 ErrorCodes_t EmcrUdbDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
-    if (deviceId != "DEMO_10MHz") {
+    if (deviceId.starts_with("DEMO")) {
+        deviceVersion = DeviceVersion10MHz;
+        deviceSubVersion = DeviceSubversionUDB_FAKE;
+        fwVersion = 254;
+    }
+    else {
         DeviceTuple_t tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
         deviceVersion = tuple.version;
         deviceSubVersion = tuple.subversion;
         fwVersion = tuple.fwVersion;
-    }
-    else {
-        deviceVersion = DeviceVersion10MHz;
-        deviceSubVersion = DeviceSubversionUDB_FAKE;
-        fwVersion = 254;
     }
     return Success;
 }
 
 ErrorCodes_t EmcrUdbDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
     DeviceTuple_t tuple;
-    if (deviceId != "DEMO_10MHz") {
-        tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
-
-    } else {
+    if (deviceId.starts_with("DEMO")) {
         tuple.version = DeviceVersion10MHz;
         tuple.subversion = DeviceSubversionUDB_FAKE;
         tuple.fwVersion = 254;
+    }
+    else {
+        tuple = getDeviceTuple(UdbUtils::getDeviceIndex(deviceId));
     }
 
     bool deviceFound = false;
@@ -307,6 +307,7 @@ ErrorCodes_t EmcrUdbDevice::disconnectDevice() {
 }
 
 ErrorCodes_t EmcrUdbDevice::startCommunication(std::string) {
+    EmcrUdbDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
     int32_t idx = UdbUtils::getDeviceIndex(deviceId);
     if (idx < 0) {
         return ErrorDeviceConnectionFailed;
