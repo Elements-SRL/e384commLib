@@ -42,31 +42,75 @@ ErrorCodes_t MessageDispatcher::detectDevices(
 
     ErrorCodes_t ret;
     deviceIds.clear();
+    std::vector <std::string> demoDeviceIds;
     std::vector <std::string> deviceIdsTemp;
 
     ErrorCodes_t retTemp = EZPatchFtdiDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
-        deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
+        for (auto &s : deviceIdsTemp) {
+            if (EZPatchFtdiDevice::isDeviceRecognized(s) != Success) {
+                continue;
+            }
+            if (s.starts_with("DEMO")) {
+                demoDeviceIds.push_back(s);
+            }
+            else {
+                deviceIds.push_back(s);
+            }
+        }
     }
     ret = retTemp; /*! Set the first return anyway, so even if all methods return an error the return is set here.
                        Afterwards update only on a Success */
 
     retTemp = EmcrUdbDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
-        deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
+        for (auto &s : deviceIdsTemp) {
+            if (EmcrUdbDevice::isDeviceRecognized(s) != Success) {
+                continue;
+            }
+            if (s.starts_with("DEMO")) {
+                demoDeviceIds.push_back(s);
+            }
+            else {
+                deviceIds.push_back(s);
+            }
+        }
         ret = retTemp;
     }
 
     retTemp = EmcrFtdiDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
-        deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
+        for (auto &s : deviceIdsTemp) {
+            if (EmcrFtdiDevice::isDeviceRecognized(s) != Success) {
+                continue;
+            }
+            if (s.starts_with("DEMO")) {
+                demoDeviceIds.push_back(s);
+            }
+            else {
+                deviceIds.push_back(s);
+            }
+        }
         ret = retTemp;
     }
 
     retTemp = EmcrOpalKellyDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
-        deviceIds.insert(deviceIds.end(), deviceIdsTemp.begin(), deviceIdsTemp.end());
+        for (auto &s : deviceIdsTemp) {
+            if (EmcrOpalKellyDevice::isDeviceRecognized(s) != Success) {
+                continue;
+            }
+            if (s.starts_with("DEMO")) {
+                demoDeviceIds.push_back(s);
+            }
+            else {
+                deviceIds.push_back(s);
+            }
+        }
         ret = retTemp;
+    }
+    if (ret == Success) {
+        deviceIds.insert(deviceIds.end(), demoDeviceIds.begin(), demoDeviceIds.end());
     }
     return ret;
 }
