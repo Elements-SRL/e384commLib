@@ -314,10 +314,10 @@ Emcr2x10MHz_SB_PCBV02_FEStim_V01::Emcr2x10MHz_SB_PCBV02_FEStim_V01(std::string d
     /*! Voltage filter VC */
     boolConfig.initialWord = 11;
     boolConfig.initialBit = 0;
-    boolConfig.bitsNum = 8;
+    boolConfig.bitsNum = 4;
     vcVoltageFilterCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x55); // 16kHz on channels 1 and 3
-    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x77); // 1.6kHz on channels 1 and 3
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0xF); // 16kHz on channels 1 and 2
+    static_cast <BoolRandomArrayCoder *> (vcVoltageFilterCoder)->addMapItem(0x5); // 1.6kHz on channels 1 and 2
     coders.push_back(vcVoltageFilterCoder);
 
     /*! Current filter CC */
