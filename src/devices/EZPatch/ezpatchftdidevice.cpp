@@ -181,6 +181,18 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
 }
 
 ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    static std::unordered_map <std::string, unsigned int> deviceVersionCache;
+    static std::unordered_map <std::string, unsigned int> deviceSubVersionCache;
+    static std::unordered_map <std::string, unsigned int> fwVersionCache;
+
+    auto it = deviceVersionCache.find(deviceId);
+    if (it != deviceVersionCache.end()) {
+        deviceVersion = deviceVersionCache[deviceId];
+        deviceSubVersion = deviceSubVersionCache[deviceId];
+        fwVersion = fwVersionCache[deviceId];
+        return Success;
+    }
+
     if (deviceId == "DEMO_ePatch") {
         deviceVersion = DeviceVersionDemo;
         deviceSubVersion = DeviceSubversionEPatchDemo;
@@ -207,6 +219,11 @@ ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int
         deviceSubVersion = tuple.subversion;
         fwVersion = tuple.fwVersion;
     }
+
+    deviceVersionCache[deviceId] = deviceVersion;
+    deviceSubVersionCache[deviceId] = deviceSubVersion;
+    fwVersionCache[deviceId] = fwVersion;
+
     return Success;
 }
 
@@ -638,6 +655,10 @@ ErrorCodes_t EZPatchFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &va
     this->resetAsic(false, true);
 
     return ret;
+}
+
+ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    return EZPatchFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
 }
 
 int32_t EZPatchFtdiDevice::getDeviceIndex(std::string serial) {

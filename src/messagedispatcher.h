@@ -241,7 +241,7 @@ public:
      * \param fwVersion [out] Version of the firmware (increases with device's firmware). -1 if not available.
      * \return Error code.
      */
-    ErrorCodes_t getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
+    virtual ErrorCodes_t getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) = 0;
 
     /****************\
      *  Tx methods  *
@@ -2401,9 +2401,6 @@ protected:
     std::vector <uint16_t> liquidJunctionOpenCircuitCount;
 
     std::string deviceId = "";
-    unsigned int deviceVersion = -1;
-    unsigned int deviceSubVersion = -1;
-    unsigned int fwVersion = -1;
     std::string deviceName = "undefined";
 
     bool threadsStarted = false;

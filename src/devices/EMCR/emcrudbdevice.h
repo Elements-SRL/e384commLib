@@ -54,6 +54,8 @@ public:
     static ErrorCodes_t getUpgradeProgress(int32_t &progress);
     ErrorCodes_t disconnectDevice() override;
 
+    virtual ErrorCodes_t getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) override;
+
 protected:
     typedef enum {
         RxParseLookForHeader,

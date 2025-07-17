@@ -121,6 +121,18 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    static std::unordered_map <std::string, unsigned int> deviceVersionCache;
+    static std::unordered_map <std::string, unsigned int> deviceSubVersionCache;
+    static std::unordered_map <std::string, unsigned int> fwVersionCache;
+
+    auto it = deviceVersionCache.find(deviceId);
+    if (it != deviceVersionCache.end()) {
+        deviceVersion = deviceVersionCache[deviceId];
+        deviceSubVersion = deviceSubVersionCache[deviceId];
+        fwVersion = fwVersionCache[deviceId];
+        return Success;
+    }
+
     if (deviceId.starts_with("DEMO")) {
         deviceVersion = DeviceVersion10MHz;
         deviceSubVersion = DeviceSubversionOk_FAKE;
@@ -138,28 +150,25 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned i
         fwVersion = tuple.fpgaFwVersion.major;
     }
 
+    deviceVersionCache[deviceId] = deviceVersion;
+    deviceSubVersionCache[deviceId] = deviceSubVersion;
+    fwVersionCache[deviceId] = fwVersion;
+
     return Success;
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
-    OkProgrammer::InfoStruct_t tuple;
-    if (deviceId.starts_with("DEMO")) {
-        tuple.deviceVersion = DeviceVersion10MHz;
-        tuple.deviceSubVersion = DeviceSubversionOk_FAKE;
-        tuple.fpgaFwVersion.major = 254;
-    }
-    else {
-        OkProgrammer * programmer = new OkProgrammer;
-        programmer->connect(deviceId, true);
-        programmer->getDeviceInfo(tuple);
-        programmer->connect(deviceId, false);
-    }
+    unsigned int deviceVersion;
+    unsigned int deviceSubVersion;
+    unsigned int fwVersion;
+
+    EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
 
     bool deviceFound = false;
     for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
-        if (tuple.deviceVersion == deviceTupleMapping[mappingIdx][0] &&
-            tuple.deviceSubVersion == deviceTupleMapping[mappingIdx][1] &&
-            tuple.fpgaFwVersion.major == deviceTupleMapping[mappingIdx][2]) {
+        if (deviceVersion == deviceTupleMapping[mappingIdx][0] &&
+            deviceSubVersion == deviceTupleMapping[mappingIdx][1] &&
+            fwVersion == deviceTupleMapping[mappingIdx][2]) {
             type = (DeviceTypes_t)deviceTupleMapping[mappingIdx][3];
             deviceFound = true;
             break;
@@ -373,6 +382,10 @@ ErrorCodes_t EmcrOpalKellyDevice::disconnectDevice() {
     return Success;
 }
 
+ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    return EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+}
+
 int32_t EmcrOpalKellyDevice::getDeviceIndex(std::string serial) {
     /*! Gets number of devices */
     int numDevs;
@@ -415,7 +428,6 @@ bool EmcrOpalKellyDevice::getDeviceCount(int &numDevs) {
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
-    EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
     okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
 
     if (error != okCFrontPanel::NoError) {

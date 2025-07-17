@@ -71,6 +71,8 @@ public:
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
     ErrorCodes_t disconnectDevice() override;
 
+    virtual ErrorCodes_t getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) override;
+
 protected:
     typedef enum {
         RxParseLookForHeader,

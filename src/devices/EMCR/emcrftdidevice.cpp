@@ -63,6 +63,18 @@ ErrorCodes_t EmcrFtdiDevice::detectDevices(
 }
 
 ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    static std::unordered_map <std::string, unsigned int> deviceVersionCache;
+    static std::unordered_map <std::string, unsigned int> deviceSubVersionCache;
+    static std::unordered_map <std::string, unsigned int> fwVersionCache;
+
+    auto it = deviceVersionCache.find(deviceId);
+    if (it != deviceVersionCache.end()) {
+        deviceVersion = deviceVersionCache[deviceId];
+        deviceSubVersion = deviceSubVersionCache[deviceId];
+        fwVersion = fwVersionCache[deviceId];
+        return Success;
+    }
+
     FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
     DeviceTuple_t tuple;
     switch (ftdiEepromId) {
@@ -77,6 +89,11 @@ ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &d
     deviceVersion = tuple.version;
     deviceSubVersion = tuple.subversion;
     fwVersion = tuple.fwVersion;
+
+    deviceVersionCache[deviceId] = deviceVersion;
+    deviceSubVersionCache[deviceId] = deviceSubVersion;
+    fwVersionCache[deviceId] = fwVersion;
+
     return Success;
 }
 
@@ -297,6 +314,10 @@ ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value
     return Success;
 }
 
+ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+    return EmcrFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+}
+
 int32_t EmcrFtdiDevice::getDeviceIndex(std::string serial) {
     /*! Gets number of devices */
     DWORD numDevs;
@@ -348,7 +369,6 @@ bool EmcrFtdiDevice::getDeviceCount(DWORD &numDevs) {
 }
 
 ErrorCodes_t EmcrFtdiDevice::startCommunication(std::string) {
-    EmcrFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
     ErrorCodes_t ret = this->loadFpgaFw();
     if (ret != Success) {
         return ret;

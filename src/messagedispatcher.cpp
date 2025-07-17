@@ -249,13 +249,6 @@ std::string MessageDispatcher::getDeviceName() {
     return this->deviceName;
 }
 
-ErrorCodes_t MessageDispatcher::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
-    deviceVersion = this->deviceVersion;
-    deviceSubVersion = this->deviceSubVersion;
-    fwVersion = this->fwVersion;
-    return Success;
-}
-
 ErrorCodes_t MessageDispatcher::sendCommands() {
     return ErrorFeatureNotImplemented;
 }
