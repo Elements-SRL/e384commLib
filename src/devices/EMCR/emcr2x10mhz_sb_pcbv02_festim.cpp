@@ -625,7 +625,7 @@ Emcr2x10MHz_SB_PCBV02_FEStim_V01::Emcr2x10MHz_SB_PCBV02_FEStim_V01(std::string d
     txStatus.init(txDataWords);
     txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
     txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus.encodingWords[11] = 0x00FF; /*! min BW */
+    txStatus.encodingWords[11] = 0x000F; /*! max BW */
     txStatus.encodingWords[13] = 0x00FF; /*! disable the x20 amplification on startup; enable stimuli */
     txStatus.encodingWords[259] = 0x9C40; /*! 0mV on ref for channel 1 */
     txStatus.encodingWords[260] = 0x9C40; /*! 0mV on ref for channel 2 */
