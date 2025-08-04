@@ -2080,7 +2080,7 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
         rawDataFilterCutoffFrequencyOverride.value = 1.0e9;
         rawDataFilterLowPassFlagOverride = false;
     }
-    lowPassFlag = rawDataFilterLowPassFlag || rawDataFilterLowPassFlagOverride; // When the downsampling is enabled the filte rcan be set only as low pass
+    lowPassFlag = rawDataFilterLowPassFlag || rawDataFilterLowPassFlagOverride; // When the downsampling is enabled the filter can be set only as low pass
     rawDataFilterCutoffFrequency.convertValue(1.0/integrationStep.multiplier());
     rawDataFilterCutoffFrequencyOverride.convertValue(1.0/integrationStep.multiplier());
 

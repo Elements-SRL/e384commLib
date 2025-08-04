@@ -1863,14 +1863,13 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
             for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                 if (++downsamplingOffset >= selectedDownsamplingRatio) {
                     downsamplingOffset = 0;
-                    downsamplingCount++;
                     for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                        rawFloat = ((int16_t)msg.data[sampleIdx])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
+                        rawFloat = ((int16_t)msg.data[sampleIdx++])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
 #ifdef FILTER_CLIP_NEEDED
                         xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                         data[sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
 #else
-                        data[sampleIdx++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
+                        data[downsamplingCount++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
 #endif
                     }
 
@@ -1880,7 +1879,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                         xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
                         data[sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
 #else
-                        data[sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
+                        data[downsamplingCount++] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
 #endif
                         if (computeCurrentOffsetFlag) {
                             liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[sampleIdx];
@@ -1917,7 +1916,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 }
             }
 
-            rxOutput.dataLen = downsamplingCount*totalChannelsNum;
+            rxOutput.dataLen = downsamplingCount;
         }
         else if (rawDataFilterActiveFlag) {
             rxOutput.dataLen = samplesNum;

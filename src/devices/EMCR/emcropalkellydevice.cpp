@@ -31,7 +31,7 @@
 #include "emcr2x10mhzfake.h"
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                                              //   11,  3,  1 : channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                                              //   11,  3,  1 : 10MHz nanopore reader, single board with EL05a
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 1, Device4x10MHz_SB_PCBV01_FWV01},                          //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 2, Device4x10MHz_SB_PCBV01_FWV02},                          //   11,  9,  2 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV02, 1, Device4x10MHz_SB_PCBV01_FWV02},                          //   11, 11,  1 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
