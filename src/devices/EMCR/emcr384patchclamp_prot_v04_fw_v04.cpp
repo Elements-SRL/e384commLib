@@ -34,8 +34,8 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataTail] + rxWordLengths[RxMessageDataTail];
     rxWordLengths[RxMessageStatus] = 1;
 
-    rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
-    maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
+    rxMaxWords = totalChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
+    maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
 
     txDataWords = 4888; /** \todo recheck MPAC, aggiornato il 20231004*///4504; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */

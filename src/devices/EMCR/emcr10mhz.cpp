@@ -24,8 +24,8 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
     rxWordOffsets[RxMessageStatus] = rxWordOffsets[RxMessageDataHeader] + rxWordLengths[RxMessageDataHeader];
     rxWordLengths[RxMessageStatus] = 2;
 
-    rxMaxWords = totalChannelsNum; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
-    maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE*packetsPerFrame;
+    rxMaxWords = totalChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
+    maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
 
     txDataWords = 260; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
