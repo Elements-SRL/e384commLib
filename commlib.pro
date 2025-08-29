@@ -19,7 +19,7 @@ CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS += /O2
     TARGET = e384commlib
     # comment or uncomment depending on the desired verbosity
-#    DEFINES += DEBUG_RX_RAW_DATA_PRINT
+   DEFINES += DEBUG_RX_RAW_DATA_PRINT
 #    DEFINES += DEBUG_RX_DATA_PRINT
 #    DEFINES += DEBUG_TX_DATA_PRINT
 #    DEFINES += DEBUG_MAX_SPEED
@@ -80,6 +80,7 @@ SOURCES += \
     src/devices/EMCR/emcr2x10mhz_fet.cpp \
     src/devices/EMCR/emcr2x10mhz_sb_pcbv02_festim.cpp \
     src/devices/EMCR/emcr4x10mhz.cpp \
+    src/devices/EMCR/emcr24x10mhz_only8ch.cpp \
     src/devices/EMCR/emcrtestboardel07ab.cpp \
     src/devices/EMCR/emcrtestboardel07cd.cpp \
     src/devices/EMCR/emcrqc01atb_v01.cpp \
@@ -145,6 +146,7 @@ HEADERS += \
     src/devices/EMCR/emcr2x10mhz_fet.h \
     src/devices/EMCR/emcr2x10mhz_sb_pcbv02_festim.h \
     src/devices/EMCR/emcr4x10mhz.h \
+    src/devices/EMCR/emcr24x10mhz_only8ch.h \
     src/devices/EMCR/emcrtestboardel07ab.h \
     src/devices/EMCR/emcrtestboardel07cd.h \
     src/devices/EMCR/emcrqc01atb_v01.h \
