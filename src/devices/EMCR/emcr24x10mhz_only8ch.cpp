@@ -155,7 +155,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     realSamplingRatesArray[SamplingRate25MHz].value = 25.0;
     realSamplingRatesArray[SamplingRate25MHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate25MHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate10MHz].value = 25.0/0.5;
+    realSamplingRatesArray[SamplingRate10MHz].value = 10.0;
     realSamplingRatesArray[SamplingRate10MHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate10MHz].unit = "Hz";
     sr2srm.clear();
@@ -574,6 +574,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     /*! Default status */
     txStatus.init(txDataWords);
     txStatus.encodingWords[0] = 0x0158; /*! 10MHz default sampliong rate and first LED on */
+    txStatus.encodingWords[2] = 0x0001; /*! 1 voltage frame for every current frame */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
