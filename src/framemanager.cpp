@@ -11,6 +11,7 @@ FrameManager::FrameManager(MessageDispatcher * md) :
     emd = static_cast <EmcrDevice *> (md);
     md->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum, gpChannelsNum);
     totalChannelsNum = voltageChannelsNum+currentChannelsNum+gpChannelsNum;
+    ivChannelsNum = voltageChannelsNum+currentChannelsNum;
 
     rxEnabledTypesMap.resize(MsgDirectionDeviceToPc*2);
     rxEnabledTypesMap[type2Pc(MsgTypeIdAck)] = false;
@@ -52,6 +53,10 @@ void FrameManager::setRxWordParams(std::vector <uint16_t> rxWordOffsets, std::ve
     this->rxWordLengths = rxWordLengths;
 }
 
+void FrameManager::setCurrentBlockLength(uint16_t blockLen) {
+    this->blockLen = blockLen;
+}
+
 void FrameManager::storeFrameData(uint16_t rxWordOffset) {
     if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDataLoad]) {
         this->storeFrameDataType(ACQ_DATA_TYPE, MessageDispatcher::RxMessageDataLoad);
@@ -61,6 +66,9 @@ void FrameManager::storeFrameData(uint16_t rxWordOffset) {
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageCurrentDataLoad]) {
         this->storeFrameDataType(ACQ_DATA_TYPE, MessageDispatcher::RxMessageCurrentDataLoad);
+    }
+    else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageCurrentBlocksDataLoad]) {
+        this->storeFrameDataType(ACQ_DATA_TYPE, MessageDispatcher::RxMessageCurrentBlocksDataLoad);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageVoltageDataLoad]) {
         this->storeFrameDataType(type2Pc(MsgTypeIdInvalid), MessageDispatcher::RxMessageVoltageDataLoad);
@@ -182,7 +190,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         uint32_t rxDataBufferWriteIdx = 0;
         this->pushLastDataMessage();
         lastDataMessage.typeId = rxMsgTypeId;
-        lastDataMessage.data.resize(packetsNum*(voltageChannelsNum+currentChannelsNum/*+gpChannelsNum*/));
+        lastDataMessage.data.resize(packetsNum*(ivChannelsNum/*+gpChannelsNum*/));
 
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! For each packet retrieve the last recevied voltage values */
@@ -199,6 +207,39 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             // for (uint32_t idx = 0; idx < gpChannelsNum; idx++) {
             //     lastDataMessage.data[rxDataBufferWriteIdx++] = gpDataValues[idx];
             // }
+        }
+        lastDataMessageAvailable = true;
+        break;
+    }
+
+    case MessageDispatcher::RxMessageCurrentBlocksDataLoad: {
+        /*! Data frame with only current */
+        uint32_t packetsNum = rxDataWords/currentChannelsNum;
+        uint32_t blocksNum = packetsNum/blockLen;
+        uint32_t blockSize = blockLen*(ivChannelsNum/*+gpChannelsNum*/);
+        uint32_t rxDataBufferWriteIdx = 0;
+        this->pushLastDataMessage();
+        lastDataMessage.typeId = rxMsgTypeId;
+        lastDataMessage.data.resize(packetsNum*(ivChannelsNum/*+gpChannelsNum*/));
+
+        for (uint32_t blockIdx = 0; blockIdx < blocksNum; blockIdx++) {
+            for (uint32_t packetIdx = 0; packetIdx < blockLen; packetIdx++) {
+                /*! For each packet retrieve the last received voltage values */
+                for (int idx = 0; idx < voltageChannelsNum; idx++) {
+                    lastDataMessage.data[rxDataBufferWriteIdx+packetIdx*ivChannelsNum+idx] = voltageDataValues[idx];
+                }
+
+                /*! Then store the new current values */
+                for (int idx = 0; idx < currentChannelsNum; idx++) {
+                    lastDataMessage.data[rxDataBufferWriteIdx+voltageChannelsNum+packetIdx*ivChannelsNum+idx] = emd->popUint16FromRxRawBuffer();
+                }
+
+                // /*! Finally for each gp packet retrieve the last received GP values */
+                // for (uint32_t idx = 0; idx < gpChannelsNum; idx++) {
+                //     lastDataMessage.data[rxDataBufferWriteIdx+packetIdx*ivChannelsNum+idx] = gpDataValues[idx];
+                // }
+                rxDataBufferWriteIdx += blockSize;
+            }
         }
         lastDataMessageAvailable = true;
         break;

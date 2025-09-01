@@ -20,8 +20,10 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     rxWordOffsets[RxMessageVoltageDataLoad] = 0;
     rxWordLengths[RxMessageVoltageDataLoad] = voltageChannelsNum;
 
-    rxWordOffsets[RxMessageCurrentDataLoad] = rxWordOffsets[RxMessageVoltageDataLoad] + rxWordLengths[RxMessageVoltageDataLoad];
-    rxWordLengths[RxMessageCurrentDataLoad] = currentChannelsNum*packetsPerFrame;
+    rxWordOffsets[RxMessageCurrentBlocksDataLoad] = rxWordOffsets[RxMessageVoltageDataLoad] + rxWordLengths[RxMessageVoltageDataLoad];
+    rxWordLengths[RxMessageCurrentBlocksDataLoad] = currentChannelsNum*packetsPerFrame;
+
+    rxCurrentBlockLength = 2;
 
     rxMaxWords = currentChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;

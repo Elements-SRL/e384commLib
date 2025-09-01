@@ -93,6 +93,7 @@ public:
         RxMessageDataLoad,
         RxMessageVoltageThenCurrentDataLoad,
         RxMessageCurrentDataLoad,
+        RxMessageCurrentBlocksDataLoad,
         RxMessageVoltageDataLoad,
         RxMessageVoltageAndGpDataLoad,
         RxMessageDataHeader,

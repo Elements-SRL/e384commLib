@@ -2291,6 +2291,7 @@ void EmcrDevice::initializeVariables() {
     frameManager = new FrameManager(this);
     frameManager->setMaxDataSize(E384CL_OUT_STRUCT_DATA_LEN);
     frameManager->setRxWordParams(rxWordOffsets, rxWordLengths);
+    frameManager->setCurrentBlockLength(rxCurrentBlockLength);
 }
 
 ErrorCodes_t EmcrDevice::deviceConfiguration() {

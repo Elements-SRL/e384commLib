@@ -223,6 +223,7 @@ protected:
 
     std::vector <uint16_t> rxWordOffsets;
     std::vector <uint16_t> rxWordLengths;
+    uint16_t rxCurrentBlockLength = 1; /*! current data comes in blocks. If rxCurrentBlockLength = 4, then 4 samples for a given channel are obtained before moving to data from the following channel */
 
     // Calibration DAC ranges
     RangedMeasurement_t calibCcCurrentGainRange;

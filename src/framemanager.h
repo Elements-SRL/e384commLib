@@ -25,6 +25,7 @@ public:
 
     void setMaxDataSize(uint32_t size);
     void setRxWordParams(std::vector <uint16_t> rxWordOffsets, std::vector <uint16_t> rxWordLengths);
+    void setCurrentBlockLength(uint16_t blockLen);
     void storeFrameData(uint16_t rxWordOffset);
     void storeFrameDataLoss(int32_t dataLossCount);
     RxMessage_t getNextMessage(MsgTypeId_t messageType = MsgTypeIdInvalid);
@@ -55,6 +56,8 @@ protected:
     int voltageChannelsNum;
     int gpChannelsNum;
     int totalChannelsNum;
+    int ivChannelsNum;
+    int blockLen = 1;
     std::vector <uint16_t> rxWordOffsets;
     std::vector <uint16_t> rxWordLengths;
     std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */
