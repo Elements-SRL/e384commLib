@@ -84,8 +84,15 @@ SOURCES += \
     src/devices/EMCR/emcrtestboardel07ab.cpp \
     src/devices/EMCR/emcrtestboardel07cd.cpp \
     src/devices/EMCR/emcrqc01atb_v01.cpp \
+    src/devices/EMCR/emcrqc01atb_pcbv02.cpp \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.cpp \
     src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.cpp \
+    src/devices/EMCR/emcr384nanoporesfake.cpp \
+    src/devices/EMCR/emcr384patchclampfake.cpp \
+    src/devices/EMCR/emcr10mhzfake.cpp \
+    src/devices/EMCR/emcr2x10mhzfake.cpp \
+    src/devices/EMCR/emcr4x10mhzfake.cpp \
+    src/devices/EMCR/emcrtestboardel07cdfake.cpp \
     src/devices/EZPatch/ezpatchdevice.cpp \
     src/devices/EZPatch/ezpatchftdidevice.cpp \
     src/devices/EZPatch/ezpatchepatchel03d.cpp \
@@ -100,12 +107,6 @@ SOURCES += \
     src/devices/EZPatch/ezpatche8ppatch.cpp \
     src/devices/EZPatch/ezpatche8ppatch_el07ab.cpp \
     src/devices/EZPatch/ezpatche8ppatch_el07cd.cpp \
-    src/devices/EMCR/emcr384nanoporesfake.cpp \
-    src/devices/EMCR/emcr384patchclampfake.cpp \
-    src/devices/EMCR/emcr10mhzfake.cpp \
-    src/devices/EMCR/emcr2x10mhzfake.cpp \
-    src/devices/EMCR/emcr4x10mhzfake.cpp \
-    src/devices/EMCR/emcrtestboardel07cdfake.cpp \
     src/devices/EZPatch/ezpatchfakepatch.cpp \
     src/devices/EZPatch/ezpatchfakep8.cpp \
     src/model/boardmodel.cpp \
@@ -150,8 +151,15 @@ HEADERS += \
     src/devices/EMCR/emcrtestboardel07ab.h \
     src/devices/EMCR/emcrtestboardel07cd.h \
     src/devices/EMCR/emcrqc01atb_v01.h \
+    src/devices/EMCR/emcrqc01atb_pcbv02.h \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.h \
     src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.h \
+    src/devices/EMCR/emcr384nanoporesfake.h \
+    src/devices/EMCR/emcr384patchclampfake.h \
+    src/devices/EMCR/emcr10mhzfake.h \
+    src/devices/EMCR/emcr2x10mhzfake.h \
+    src/devices/EMCR/emcr4x10mhzfake.h \
+    src/devices/EMCR/emcrtestboardel07cdfake.h \
     src/devices/EZPatch/ezpatchdevice.h \
     src/devices/EZPatch/ezpatchftdidevice.h \
     src/devices/EZPatch/ezpatchepatchel03d.h \
@@ -166,12 +174,6 @@ HEADERS += \
     src/devices/EZPatch/ezpatche8ppatch.h \
     src/devices/EZPatch/ezpatche8ppatch_el07ab.h \
     src/devices/EZPatch/ezpatche8ppatch_el07cd.h \
-    src/devices/EMCR/emcr384nanoporesfake.h \
-    src/devices/EMCR/emcr384patchclampfake.h \
-    src/devices/EMCR/emcr10mhzfake.h \
-    src/devices/EMCR/emcr2x10mhzfake.h \
-    src/devices/EMCR/emcr4x10mhzfake.h \
-    src/devices/EMCR/emcrtestboardel07cdfake.h \
     src/devices/EZPatch/ezpatchfakepatch.h \
     src/devices/EZPatch/ezpatchfakep8.h \
     src/model/boardmodel.h \

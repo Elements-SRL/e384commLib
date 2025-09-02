@@ -4,6 +4,7 @@
 
 #include "emcr8patchclamp_el07cd_artix7.h"
 #include "emcr8npatchclamp_el07c_artix7_pcbv01.h"
+#include "emcrqc01atb_pcbv02.h"
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV00_2, 4, DeviceE8PPatchEL07CD_artix7_PCBV00_2},     //  10, 14,  4 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V00.2. */
@@ -19,6 +20,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_PCBV01, 1, DeviceE8nPatchEL07C_artix7_PCBV01_FW1},           //  16,  1,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V01. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx4Patch_artix7_PCBV02, 1, DeviceE4PPatchEL07CD_artix7_PCBV00_2},       //  10, 21,  1 : VC-CC device with 4 channels (EL07C) (FPGA artix7) PCB V02. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV02, 1, DeviceE8PPatchEL07CD_artix7_PCBV01_FW3},     //  10, 22,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V02. */
+    {DeviceVersionTestBoard, DeviceSubversionTestBoardQC01a_PCBV02, 1, DeviceTestBoardQC02a_PCBV02},                //  6,  15,  1 : QC01a testboard PCB V02. */
 };
 
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
@@ -200,6 +202,10 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
 
     case DeviceE4PPatchEL07CD_artix7_PCBV00_2:
         messageDispatcher = new Emcr4PatchClamp_EL07c_artix7_PCBV00_2_fw_v01(deviceId);
+        break;
+
+    case DeviceTestBoardQC02a_PCBV02:
+        messageDispatcher = new EmcrQc01aTB_PCBV02(deviceId);
         break;
 
     default:

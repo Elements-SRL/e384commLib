@@ -374,40 +374,6 @@ Emcr8nPatchClamp_EL07c_artix7_PCBV01_fw_v01::Emcr8nPatchClamp_EL07c_artix7_PCBV0
     rRShuntConductanceCalibRange[VCCurrentRange400nA].prefix = UnitPfxMicro;
     rRShuntConductanceCalibRange[VCCurrentRange400nA].unit = "S";
 
-    /*! VC voltage calib gain (DAC) */
-    calibVcVoltageGainRange.step = 1.0/1024.0;
-    calibVcVoltageGainRange.min = 0;
-    calibVcVoltageGainRange.max = SHORT_MAX * calibVcVoltageGainRange.step;
-    calibVcVoltageGainRange.prefix = UnitPfxNone;
-    calibVcVoltageGainRange.unit = "";
-
-    /*! CC Current calib gain (DAC) */
-    calibCcCurrentGainRange.step = 1.0/1024.0;
-    calibCcCurrentGainRange.min = 0;
-    calibCcCurrentGainRange.max = SHORT_MAX * calibCcCurrentGainRange.step;
-    calibCcCurrentGainRange.prefix = UnitPfxNone;
-    calibCcCurrentGainRange.unit = "";
-
-    /*! VC current calib gain (ADC) */
-    calibVcCurrentGainRange.step = 1.0/1024.0;
-    calibVcCurrentGainRange.min = 0;
-    calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
-    calibVcCurrentGainRange.prefix = UnitPfxNone;
-    calibVcCurrentGainRange.unit = "";
-
-    /*! CC voltage calib gain (ADC) */
-    calibCcVoltageGainRange.step = 1.0/1024.0;
-    calibCcVoltageGainRange.min = 0;
-    calibCcVoltageGainRange.max = SHORT_MAX * calibCcVoltageGainRange.step;
-    calibCcVoltageGainRange.prefix = UnitPfxNone;
-    calibCcVoltageGainRange.unit = "";
-
-    /*! VC Voltage calib offset (DAC)*/
-    calibVcVoltageOffsetRanges = vcVoltageRangesArray;
-
-    /*! CC current calib offset (DAC)*/
-    calibCcCurrentOffsetRanges = ccCurrentRangesArray;
-
     /*! VC current calib offset (ADC)*/
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
 

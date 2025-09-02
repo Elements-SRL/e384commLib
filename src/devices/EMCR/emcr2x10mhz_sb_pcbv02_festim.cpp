@@ -80,7 +80,6 @@ Emcr2x10MHz_SB_PCBV02_FEStim_V01::Emcr2x10MHz_SB_PCBV02_FEStim_V01(std::string d
 
     /*! Current ranges */
     /*! VC */
-    independentVcCurrentRanges = true;
     vcCurrentRangesNum = VCCurrentRangesNum;
     vcCurrentRangesArray.resize(vcCurrentRangesNum);
     vcCurrentRangesArray[VCCurrentRange100nA].min = -100.0;
