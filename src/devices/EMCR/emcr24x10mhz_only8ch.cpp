@@ -9,7 +9,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
 
     rxSyncWord = 0x5aa5;
 
-    packetsPerFrame = 256;
+    packetsPerFrame = 512;
 
     voltageChannelsNum = 8;
     currentChannelsNum = 8;

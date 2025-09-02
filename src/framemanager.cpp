@@ -238,8 +238,8 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
                 // for (uint32_t idx = 0; idx < gpChannelsNum; idx++) {
                 //     lastDataMessage.data[rxDataBufferWriteIdx+packetIdx*ivChannelsNum+idx] = gpDataValues[idx];
                 // }
-                rxDataBufferWriteIdx += blockSize;
             }
+            rxDataBufferWriteIdx += blockSize;
         }
         lastDataMessageAvailable = true;
         break;
