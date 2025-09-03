@@ -2,7 +2,6 @@
 #define UTILS_H
 
 #include <string>
-#include <sstream>
 #include <vector>
 #include <algorithm>
 #include <filesystem>
@@ -14,43 +13,26 @@
 #define UTL_DEFAULT_FX3_FW_NAME (std::string("UDB-FX3_V04.img"))
 #define UTL_DEMO_FILE_PATH ""
 
-template<typename I_t> bool allLessThan(std::vector <I_t> myVector, I_t maxValue) {
-    if (myVector.empty()) {
+template<typename I_t> bool allLessThan(std::vector <I_t> vec, I_t val) {
+    if (vec.empty()) {
         return false;
     }
-    //auto iter = std::max_element(myVector.begin(), myVector.end());
-    I_t myMax = *std::max_element(myVector.begin(), myVector.end());
+    I_t maxVal = *std::max_element(vec.begin(), vec.end());
 
-    if (myMax >= maxValue) {
+    if (maxVal >= val) {
         return false;
     } else {
         return true;
     }
 }
 
-template<typename I_t> bool allLessThanOrEqualTo(std::vector <I_t> myVector, I_t maxValue) {
-    if (myVector.empty()) {
+template<typename I_t> bool allLessThanOrEqualTo(std::vector <I_t> vec, I_t val) {
+    if (vec.empty()) {
         return false;
     }
-    //auto iter = std::max_element(myVector.begin(), myVector.end());
-    I_t myMax = *std::max_element(myVector.begin(), myVector.end());
+    I_t maxVal = *std::max_element(vec.begin(), vec.end());
 
-    if (myMax > maxValue) {
-        return false;
-    } else {
-        return true;
-    }
-
-}
-
-template<typename I_t> bool allGreaterThan(std::vector <I_t> myVector, I_t minValue) {
-    if (myVector.empty()) {
-        return false;
-    }
-    //auto iter = std::max_element(myVector.begin(), myVector.end());
-    I_t myMin = *std::min_element(myVector.begin(), myVector.end());
-
-    if (myMin <= minValue) {
+    if (maxVal > val) {
         return false;
     } else {
         return true;
@@ -58,14 +40,13 @@ template<typename I_t> bool allGreaterThan(std::vector <I_t> myVector, I_t minVa
 
 }
 
-template<typename I_t> bool allGreaterThanOrEqualTo(std::vector <I_t> myVector, I_t minValue) {
-    if (myVector.empty()) {
+template<typename I_t> bool allGreaterThan(std::vector <I_t> vec, I_t minValue) {
+    if (vec.empty()) {
         return false;
     }
-    //auto iter = std::max_element(myVector.begin(), myVector.end());
-    I_t myMin = *std::min_element(myVector.begin(), myVector.end());
+    I_t minVal = *std::min_element(vec.begin(), vec.end());
 
-    if (myMin < minValue) {
+    if (minVal <= minValue) {
         return false;
     } else {
         return true;
@@ -73,9 +54,23 @@ template<typename I_t> bool allGreaterThanOrEqualTo(std::vector <I_t> myVector, 
 
 }
 
-template<typename I_t> bool allStrictlyInRange(std::vector <I_t> myVector, I_t minValue, I_t maxValue) {
-    if (allLessThan<I_t>(myVector, maxValue)) {
-        if (allGreaterThan<I_t>(myVector, minValue)) {
+template<typename I_t> bool allGreaterThanOrEqualTo(std::vector <I_t> vec, I_t minValue) {
+    if (vec.empty()) {
+        return false;
+    }
+    I_t minVal = *std::min_element(vec.begin(), vec.end());
+
+    if (minVal < minValue) {
+        return false;
+    } else {
+        return true;
+    }
+
+}
+
+template<typename I_t> bool allStrictlyInRange(std::vector <I_t> vec, I_t minValue, I_t val) {
+    if (allLessThan<I_t>(vec, val)) {
+        if (allGreaterThan<I_t>(vec, minValue)) {
             return true;
 
         } else {
@@ -87,9 +82,9 @@ template<typename I_t> bool allStrictlyInRange(std::vector <I_t> myVector, I_t m
     }
 }
 
-template<typename I_t> bool allInRange(std::vector <I_t> myVector, I_t minValue, I_t maxValue) {
-    if (allLessThanOrEqualTo<I_t>(myVector, maxValue)) {
-        if (allGreaterThanOrEqualTo<I_t>(myVector, minValue)) {
+template<typename I_t> bool allInRange(std::vector <I_t> vec, I_t minValue, I_t val) {
+    if (allLessThanOrEqualTo<I_t>(vec, val)) {
+        if (allGreaterThanOrEqualTo<I_t>(vec, minValue)) {
             return true;
 
         } else {
@@ -101,8 +96,8 @@ template<typename I_t> bool allInRange(std::vector <I_t> myVector, I_t minValue,
     }
 }
 
-template<typename I_t> bool inRange(I_t value, I_t minValue, I_t maxValue) {
-    if (value > maxValue) {
+template<typename I_t> bool inRange(I_t value, I_t minValue, I_t val) {
+    if (value > val) {
         return false;
     }
 

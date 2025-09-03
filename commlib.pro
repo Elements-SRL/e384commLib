@@ -185,6 +185,7 @@ HEADERS += \
     src/peripherals/okprogrammer.h \
     src/peripherals/udbprogrammer.h \
     src/peripherals/udbutils.h \
+    src/speed_test.h \
     src/utils.h
 
 INCLUDEPATH += \

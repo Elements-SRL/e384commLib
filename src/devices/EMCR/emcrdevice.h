@@ -204,6 +204,8 @@ protected:
     uint16_t * rxRawBuffer16 = nullptr; /*!< Raw incoming data from the device */
     uint32_t rxRawBufferReadOffset = 0; /*!< Device Rx buffer offset position in which data are collected by the outputDataBuffer */
     uint32_t rxRawBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
+    bool rxRawBufferEmpty = false; /*!< Debug variable to stop parsing read data pretend that the rawBuffer has always room to write in */
+    bool rxRawBufferFull = false; /*!< Debug variable to stop data reading from the device and pretend that the rawBuffer is always full of data to process */
     uint32_t maxRxRawBytesRead = 0;
     uint32_t rxRawBytesAvailable = 0;
     uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */

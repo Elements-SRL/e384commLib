@@ -1,6 +1,7 @@
 #include "framemanager.h"
 
 #include "emcrdevice.h"
+#include "speed_test.h"
 
 #define ACQ_DATA_TYPE type2Pc(MsgTypeIdAcquisitionData)
 #define MAX_U16_DATA_SIZE ((size_t)0x40000000)
@@ -408,11 +409,17 @@ bool FrameManager::pushDataMessage(RxMessage_t msg) {
          *  just push the new data message */
         messages.push_back(msg);
         listSize += msg.data.size();
+#ifdef SPT_LOG_PARSE_DATA
+        speedTestLog(SpeedTestParseData, msg.data.size()*2);
+#endif
         return true;
     }
     /*! Otherwise, merge the new data message with the last message in the list */
     this->mergeNewDataMessage(std::prev(messages.end()), msg);
     listSize += msg.data.size();
+#ifdef SPT_LOG_PARSE_DATA
+    speedTestLog(SpeedTestParseData, msg.data.size()*2);
+#endif
     return true;
 }
 

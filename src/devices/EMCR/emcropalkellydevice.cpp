@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "okprogrammer.h"
+#include "speed_test.h"
 
 #include "emcr192blm_el03c_prot_v01_fw_v01.h"
 #include "emcr384nanopores.h"
@@ -478,10 +479,10 @@ ErrorCodes_t EmcrOpalKellyDevice::stopCommunication() {
 void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
     regs.reserve(txMaxRegs);
 
-    std::unique_lock <std::mutex> txMutexLock (txMutex);
+    std::unique_lock <std::mutex> txMutexLock(txMutex);
     txMutexLock.unlock();
 
-    std::unique_lock <std::mutex> rxRawMutexLock (rxRawMutex);
+    std::unique_lock <std::mutex> rxRawMutexLock(rxRawMutex);
     rxRawMutexLock.unlock();
 
     std::chrono::steady_clock::time_point startWhileTime = std::chrono::steady_clock::now();
@@ -513,9 +514,26 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         }
 
         /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
-        if (waitingTimeForReadingPassed && !resetStateFlag) {
+        if (!waitingTimeForReadingPassed || resetStateFlag) {
+            long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
+            if (t > waitingTimeBeforeReadingData*1e6) {
+                waitingTimeForReadingPassed = true;
+                if (parsingStatus == ParsingPreparing) {
+                    parsingStatus = ParsingParsing;
+                    startWhileTime = std::chrono::steady_clock::now();
+                }
+            }
+        }
+        else {
+#ifdef SPT_DISABLE_READ_FROM_DEVICE_AFTER_A_WHILE
+            long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
+            if (t > waitingTimeBeforeDisablingReadFromDeviceS*1e6) {
+                rxRawBufferFull = true;
+                return;
+            }
+#endif
             rxRawMutexLock.lock();
-            if (rxRawBufferReadLength+okTransferSize <= OKY_RX_BUFFER_SIZE) {
+            if (rxRawBufferReadLength+okTransferSize <= OKY_RX_BUFFER_SIZE || rxRawBufferEmpty) {
                 rxRawMutexLock.unlock();
 
                 uint32_t bytesRead = this->readDataFromDevice();
@@ -528,24 +546,19 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
                     rxRawBufferReadLength += bytesRead;
                     rxRawMutexLock.unlock();
                     rxRawBufferNotEmpty.notify_all();
+#ifdef SPT_LOG_READ_FROM_DEVICE
+                    speedTestLog(SpeedTestReadFromDevice, bytesRead);
+#endif
                 }
             }
             else {
                 rxRawMutexLock.unlock();
-            }
-        }
-        else {
-            long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
-            if (t > waitingTimeBeforeReadingData*1e6) {
-                waitingTimeForReadingPassed = true;
-                if (parsingStatus == ParsingPreparing) {
-                    parsingStatus = ParsingParsing;
-                }
+                std::this_thread::yield();
             }
         }
 
         if (!anyOperationPerformed) {
-            std::this_thread::sleep_for (std::chrono::microseconds(1));
+            std::this_thread::sleep_for(std::chrono::microseconds(1));
         }
     }
 }
@@ -703,17 +716,32 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
      *  Parsing part  *
     \******************/
 
-    std::unique_lock <std::mutex> rxRawMutexLock (rxRawMutex);
+    std::unique_lock <std::mutex> rxRawMutexLock(rxRawMutex);
     rxRawMutexLock.unlock();
 
+    std::chrono::steady_clock::time_point startWhileTime = std::chrono::steady_clock::now();
+
     while (!stopConnectionFlag) {
+#ifdef SPT_DISABLE_PARSE_DATA_AFTER_A_WHILE
+        long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
+        if (t > waitingTimeBeforeDisablingParseDataS*1e6) {
+            rxRawMutexLock.lock();
+            rxRawBufferEmpty = true;
+            return;
+        }
+#endif
         rxRawMutexLock.lock();
         /*! Since okTransferSize bytes are obtained each time from the opal kelly, wait that at least these many are available,
          *  Otherwise it means that no reads from the Opal kelly took place. */
-        while (rxRawBufferReadLength < okTransferSize && !stopConnectionFlag) {
-            rxRawBufferNotEmpty.wait_for (rxRawMutexLock, std::chrono::milliseconds(3));
+        while (rxRawBufferReadLength < (uint32_t)okTransferSize && !stopConnectionFlag && !rxRawBufferFull) {
+            rxRawBufferNotEmpty.wait_for(rxRawMutexLock, std::chrono::milliseconds(3));
         }
-        maxRxRawBytesRead = rxRawBufferReadLength;
+        if (!rxRawBufferFull) {
+            maxRxRawBytesRead = rxRawBufferReadLength;
+        }
+        else {
+            maxRxRawBytesRead = OKY_RX_BUFFER_SIZE;
+        }
         rxRawBytesAvailable = maxRxRawBytesRead;
         rxRawMutexLock.unlock();
         if (stopConnectionFlag) {
@@ -735,8 +763,8 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
                 /*! Look for header */
                 if (rxRawBytesAvailable < rxSyncWordSize) {
                     notEnoughRxData = true;
-
-                } else {
+                }
+                else {
                     rxFrameOffset = rxRawBufferReadOffset;
                     /*! Check byte by byte if the buffer contains a sync word (frame header) */
                     if (popUint16FromRxRawBuffer() == rxSyncWord) {
@@ -830,7 +858,9 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
         }
 
         rxRawMutexLock.lock();
-        rxRawBufferReadLength -= maxRxRawBytesRead-rxRawBytesAvailable;
+        if (!rxRawBufferFull) {
+            rxRawBufferReadLength -= maxRxRawBytesRead-rxRawBytesAvailable;
+        }
         rxRawMutexLock.unlock();
         rxRawBufferNotFull.notify_all();
     }

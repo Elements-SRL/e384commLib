@@ -1,6 +1,7 @@
 #include "emcrdevice.h"
 #include "tomlcalibrationmanager.h"
 #include "csvcalibrationmanager.h"
+#include "speed_test.h"
 
 /*****************\
  *  Ctor / Dtor  *
@@ -1978,6 +1979,9 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                 }
             }
         }
+#ifdef SPT_LOG_GET_NEXT_MESSAGE
+        speedTestLog(SpeedTestGetNextMessage, rxOutput.dataLen*2);
+#endif
         break;
     }
     case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail):
