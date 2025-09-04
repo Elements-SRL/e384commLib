@@ -45,8 +45,12 @@ bool FrameManager::isRxMessageTypeEnabled(MsgTypeId_t messageType) {
     return rxEnabledTypesMap[type2Pc(messageType)];
 }
 
-void FrameManager::setMaxDataSize(uint32_t size) {
-    maxDataSize = size;
+void FrameManager::setMaxDataMessageSize(uint32_t size) {
+    maxDataMessageSize = size;
+}
+
+uint32_t FrameManager::getMaxDataMessageSize() {
+    return maxDataMessageSize;
 }
 
 void FrameManager::setRxWordParams(std::vector <uint16_t> rxWordOffsets, std::vector <uint16_t> rxWordLengths) {
@@ -351,12 +355,7 @@ bool FrameManager::mergeDataMessages(std::list <RxMessage_t> ::iterator to, std:
         /*! Merge only data messages */
         return false;
     }
-    if (to->data.size()+from->data.size() > maxDataSize) {
-        /*! Do not merge if the final size is too large */
-        return false;
-    }
-    to->data.insert(to->data.end(), from->data.begin(), from->data.end());
-    messages.erase(from);
+    to->mergeable = true;
     return true;
 }
 

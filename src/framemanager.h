@@ -24,7 +24,8 @@ public:
     void enableRxMessageType(MsgTypeId_t messageType, bool flag);
     bool isRxMessageTypeEnabled(MsgTypeId_t messageType);
 
-    void setMaxDataSize(uint32_t size);
+    void setMaxDataMessageSize(uint32_t size);
+    uint32_t getMaxDataMessageSize();
     void setRxWordParams(std::vector <uint16_t> rxWordOffsets, std::vector <uint16_t> rxWordLengths);
     void setCurrentBlockLength(uint16_t blockLen);
     void storeFrameData(uint16_t rxWordOffset);
@@ -43,7 +44,7 @@ protected:
     RxMessage_t splitLastDataMessage(uint32_t newProtocolItemFirstIndex);
     bool isPushable(RxMessage_t msg);
 
-    uint32_t maxDataSize = -1;
+    uint32_t maxDataMessageSize = -1;
     std::list <RxMessage_t> messages; /*! Per gestire meglio la quantità di dati salvati si potrebbe estendere la std::list <RxMessage_t> per gestire automaticamente la list size ogni volta che viene chiamata un'operazione
                                             che la modificherebbe, come push_back, erase, clear, insert, pop_front, etc */
     size_t listSize = 0;

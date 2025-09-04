@@ -1834,43 +1834,104 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
         return ErrorDeviceNotConnected;
     }
 
-    auto msg = frameManager->getNextMessage();
-    if (msg.typeId == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
-        return ErrorNoDataAvailable;
-    }
-
-    uint32_t samplesNum;
+    uint32_t samplesNum = 0;
     uint32_t sampleIdx = 0;
     uint32_t timeSamplesNum;
     int16_t rawFloat;
+    bool keepReading = true;
 
-    rxOutput.msgTypeId = msg.typeId;
-    switch (msg.typeId) {
-    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
-        rxOutput.dataLen = 0;
-        rxOutput.protocolId = msg.data[sampleIdx++];
-        rxOutput.protocolItemIdx = msg.data[sampleIdx++];
-        rxOutput.protocolRepsIdx = msg.data[sampleIdx++];
-        rxOutput.protocolSweepIdx = msg.data[sampleIdx++];
-        break;
+    while (keepReading) {
+        auto msg = frameManager->getNextMessage();
+        if (msg.typeId == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
+            return ErrorNoDataAvailable;
+        }
 
-    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData): {
-        samplesNum = msg.data.size();
+        rxOutput.msgTypeId = msg.typeId;
+        switch (msg.typeId) {
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
+            rxOutput.dataLen = 0;
+            rxOutput.protocolId = msg.data[sampleIdx++];
+            rxOutput.protocolItemIdx = msg.data[sampleIdx++];
+            rxOutput.protocolRepsIdx = msg.data[sampleIdx++];
+            rxOutput.protocolSweepIdx = msg.data[sampleIdx++];
+            break;
 
-        std::unique_lock <std::mutex> ljMutexLock (ljMutex);
-        if (downsamplingFlag) {
-            timeSamplesNum = samplesNum/totalChannelsNum;
-            uint32_t downsamplingCount = 0;
-            for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-                if (++downsamplingOffset >= selectedDownsamplingRatio) {
-                    downsamplingOffset = 0;
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData): {
+            samplesNum = msg.data.size();
+
+            std::unique_lock <std::mutex> ljMutexLock (ljMutex);
+            if (downsamplingFlag) {
+                timeSamplesNum = samplesNum/totalChannelsNum;
+                uint32_t downsamplingCount = 0;
+                for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
+                    if (++downsamplingOffset >= selectedDownsamplingRatio) {
+                        downsamplingOffset = 0;
+                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                            rawFloat = ((int16_t)msg.data[sampleIdx++])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
+#ifdef FILTER_CLIP_NEEDED
+                            xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                            data[sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+#else
+                            data[downsamplingCount++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
+#endif
+                        }
+
+                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                            rawFloat = (int16_t)msg.data[sampleIdx];
+#ifdef FILTER_CLIP_NEEDED
+                            xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                            data[sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
+#else
+                            data[downsamplingCount++] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
+#endif
+                            if (computeCurrentOffsetFlag) {
+                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[sampleIdx];
+                            }
+                            sampleIdx++;
+                        }
+                        if (computeCurrentOffsetFlag) {
+                            liquidJunctionCurrentEstimatesNum++;
+                        }
+                    }
+                    else {
+                        for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
+                            rawFloat = ((int16_t)msg.data[sampleIdx++])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
+                            this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                        }
+
+                        for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
+                            rawFloat = (int16_t)msg.data[sampleIdx++];
+                            xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                            if (computeCurrentOffsetFlag) {
+                                liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)round(xFlt);
+                            }
+                        }
+                        if (computeCurrentOffsetFlag) {
+                            liquidJunctionCurrentEstimatesNum++;
+                        }
+                    }
+
+                    if (iirOff < 1) {
+                        iirOff = IIR_ORD;
+
+                    } else {
+                        iirOff--;
+                    }
+                }
+
+                rxOutput.dataLen += downsamplingCount;
+            }
+            else if (rawDataFilterActiveFlag) {
+                rxOutput.dataLen += samplesNum;
+                timeSamplesNum = samplesNum/totalChannelsNum;
+                for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                     for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                        rawFloat = ((int16_t)msg.data[sampleIdx++])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
+                        rawFloat = ((int16_t)msg.data[sampleIdx])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
 #ifdef FILTER_CLIP_NEEDED
                         xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
                         data[sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
 #else
-                        data[downsamplingCount++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
+                        data[sampleIdx++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
 #endif
                     }
 
@@ -1880,7 +1941,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                         xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
                         data[sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
 #else
-                        data[downsamplingCount++] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
+                        data[sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
 #endif
                         if (computeCurrentOffsetFlag) {
                             liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[sampleIdx];
@@ -1890,128 +1951,72 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
                     if (computeCurrentOffsetFlag) {
                         liquidJunctionCurrentEstimatesNum++;
                     }
+
+                    if (iirOff < 1) {
+                        iirOff = IIR_ORD;
+
+                    } else {
+                        iirOff--;
+                    }
                 }
-                else {
+            }
+            else {
+                rxOutput.dataLen += samplesNum;
+                timeSamplesNum = samplesNum/totalChannelsNum;
+                for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
                     for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                        rawFloat = ((int16_t)msg.data[sampleIdx++])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
-                        this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
+                        data[sampleIdx] = ((int16_t)msg.data[sampleIdx])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
+                        sampleIdx++;
                     }
 
                     for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                        rawFloat = (int16_t)msg.data[sampleIdx++];
-                        xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
+                        data[sampleIdx] = msg.data[sampleIdx];
                         if (computeCurrentOffsetFlag) {
-                            liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)round(xFlt);
+                            liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[sampleIdx];
                         }
+                        sampleIdx++;
                     }
                     if (computeCurrentOffsetFlag) {
                         liquidJunctionCurrentEstimatesNum++;
                     }
                 }
-
-                if (iirOff < 1) {
-                    iirOff = IIR_ORD;
-
-                } else {
-                    iirOff--;
-                }
             }
-
-            rxOutput.dataLen = downsamplingCount;
+            break;
         }
-        else if (rawDataFilterActiveFlag) {
-            rxOutput.dataLen = samplesNum;
-            timeSamplesNum = samplesNum/totalChannelsNum;
-            for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-                for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                    rawFloat = ((int16_t)msg.data[sampleIdx])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
-#ifdef FILTER_CLIP_NEEDED
-                    xFlt = this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen);
-                    data[sampleIdx++] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-#else
-                    data[sampleIdx++] = (int16_t)round(this->applyRawDataFilter(voltageChannelIdx, (double)rawFloat, iirVNum, iirVDen));
-#endif
-                }
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail):
+            rxOutput.dataLen = 0;
+            rxOutput.protocolId = msg.data[sampleIdx];
+            break;
 
-                for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                    rawFloat = (int16_t)msg.data[sampleIdx];
-#ifdef FILTER_CLIP_NEEDED
-                    xFlt = this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen);
-                    data[sampleIdx] = (int16_t)round(xFlt > SHORT_MAX ? SHORT_MAX : (xFlt < SHORT_MIN ? SHORT_MIN : xFlt));
-#else
-                    data[sampleIdx] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
-#endif
-                    if (computeCurrentOffsetFlag) {
-                        liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[sampleIdx];
-                    }
-                    sampleIdx++;
-                }
-                if (computeCurrentOffsetFlag) {
-                    liquidJunctionCurrentEstimatesNum++;
-                }
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
+            rxOutput.dataLen = 0;
+            break;
 
-                if (iirOff < 1) {
-                    iirOff = IIR_ORD;
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss):
+            rxOutput.dataLen = 2;
+            data[0] = (int16_t)msg.data[sampleIdx++];
+            data[1] = (int16_t)msg.data[sampleIdx++];
+            break;
 
-                } else {
-                    iirOff--;
-                }
+        case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
+            // not really managed, ignore it
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature):
+            /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
+            rxOutput.dataLen = temperatureChannelsNum;
+            /*! \todo FCON check sulla lunghezza del messaggio */
+            for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
+                data[temperatureChannelIdx] = (int16_t)msg.data[sampleIdx++];
             }
+            break;
         }
-        else {
-            rxOutput.dataLen = samplesNum;
-            timeSamplesNum = samplesNum/totalChannelsNum;
-            for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {
-                for (uint16_t voltageChannelIdx = 0; voltageChannelIdx < voltageChannelsNum; voltageChannelIdx++) {
-                    data[sampleIdx] = ((int16_t)msg.data[sampleIdx])-ccLiquidJunctionVectorApplied[voltageChannelIdx];
-                    sampleIdx++;
-                }
+        keepReading = msg.mergeable && (rxOutput.dataLen+frameManager->getMaxDataMessageSize() < E384CL_OUT_STRUCT_DATA_LEN);
+    }
 
-                for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                    data[sampleIdx] = msg.data[sampleIdx];
-                    if (computeCurrentOffsetFlag) {
-                        liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)data[sampleIdx];
-                    }
-                    sampleIdx++;
-                }
-                if (computeCurrentOffsetFlag) {
-                    liquidJunctionCurrentEstimatesNum++;
-                }
-            }
-        }
 #ifdef SPT_LOG_GET_NEXT_MESSAGE
-        speedTestLog(SpeedTestGetNextMessage, rxOutput.dataLen*2);
+    speedTestLog(SpeedTestGetNextMessage, rxOutput.dataLen*2);
 #endif
-        break;
-    }
-    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTail):
-        rxOutput.dataLen = 0;
-        rxOutput.protocolId = msg.data[sampleIdx];
-        break;
-
-    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSaturation):
-        rxOutput.dataLen = 0;
-        break;
-
-    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss):
-        rxOutput.dataLen = 2;
-        data[0] = (int16_t)msg.data[sampleIdx++];
-        data[1] = (int16_t)msg.data[sampleIdx++];
-        break;
-
-    case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
-        // not really managed, ignore it
-        break;
-
-    case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature):
-        /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
-        rxOutput.dataLen = temperatureChannelsNum;
-        /*! \todo FCON check sulla lunghezza del messaggio */
-        for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
-            data[temperatureChannelIdx] = (int16_t)msg.data[sampleIdx++];
-        }
-        break;
-    }
     return ret;
 }
 
@@ -2293,7 +2298,7 @@ ErrorCodes_t EmcrDevice::initializeMemory() {
 void EmcrDevice::initializeVariables() {
     MessageDispatcher::initializeVariables();
     frameManager = new FrameManager(this);
-    frameManager->setMaxDataSize(E384CL_OUT_STRUCT_DATA_LEN);
+    frameManager->setMaxDataMessageSize(totalChannelsNum*packetsPerFrame);
     frameManager->setRxWordParams(rxWordOffsets, rxWordLengths);
     frameManager->setCurrentBlockLength(rxCurrentBlockLength);
 }

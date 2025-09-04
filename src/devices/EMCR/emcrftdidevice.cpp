@@ -465,7 +465,7 @@ void EmcrFtdiDevice::handleCommunicationWithDevice() {
 
     bool anyOperationPerformed;
     parsingStatus = ParsingParsing;
-    fwLoadedFlag = false;
+    fwLoadedFlag = false || true;
 
     while (!stopConnectionFlag) {
         anyOperationPerformed = false;
