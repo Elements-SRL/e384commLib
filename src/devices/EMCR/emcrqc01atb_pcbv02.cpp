@@ -353,31 +353,29 @@ EmcrQc01aTB_PCBV02::EmcrQc01aTB_PCBV02(std::string di) :
     coders.push_back(protocolResetCoder);
 
     /*! Current range VC */
+    vcCurrentRangeCoders.clear();
+
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
-    vcCurrentRangeCoders.clear();
     vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
     coders.push_back(vcCurrentRangeCoders[0]);
 
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 1;
     boolConfig.bitsNum = 1;
-    vcCurrentRangeCoders.clear();
     vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
     coders.push_back(vcCurrentRangeCoders[1]);
 
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 3;
     boolConfig.bitsNum = 2;
-    vcCurrentRangeCoders.clear();
     vcCurrentRangeCoders.push_back(new BoolOneHotCoder(boolConfig));
     coders.push_back(vcCurrentRangeCoders[2]);
 
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 6;
     boolConfig.bitsNum = 2;
-    vcCurrentRangeCoders.clear();
     vcCurrentRangeCoders.push_back(new BoolOneHotCoder(boolConfig));
     coders.push_back(vcCurrentRangeCoders[3]);
 
