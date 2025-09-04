@@ -360,10 +360,6 @@ bool FrameManager::mergeDataMessages(std::list <RxMessage_t> ::iterator to, std:
     return true;
 }
 
-void FrameManager::mergeNewDataMessage(std::list <RxMessage_t> ::iterator to, RxMessage_t from) {
-    to->data.insert(to->data.end(), from.data.begin(), from.data.end());
-}
-
 bool FrameManager::pushMessage(RxMessage_t msg) {
     if (!isPushable(msg)) {
         return false;
@@ -411,31 +407,23 @@ bool FrameManager::pushDataMessage(RxMessage_t msg) {
     if (!isPushable(msg)) {
         return false;
     }
-    if (messages.empty()
-        || std::prev(messages.end())->typeId != ACQ_DATA_TYPE
-        || std::prev(messages.end())->data.size() + msg.data.size() > maxDataSize) {
-        /*! If the messages list is empty, or the last is not a data message or if the total size of the new data message with the last message in the list is too large,
-         *  just push the new data message */
-        messages.push_back(msg);
-        listSize += msg.data.size();
-#ifdef SPT_LOG_PARSE_DATA
-        speedTestLog(SpeedTestParseData, msg.data.size()*2);
-#endif
-        return true;
-    }
-    /*! Otherwise, merge the new data message with the last message in the list */
-    this->mergeNewDataMessage(std::prev(messages.end()), msg);
+    messages.push_back(msg);
     listSize += msg.data.size();
 #ifdef SPT_LOG_PARSE_DATA
     speedTestLog(SpeedTestParseData, msg.data.size()*2);
 #endif
+    if (messages.size() > 1) {
+        /*! If the message is not the only one, try to merge it with the last message in the list */
+        this->mergeDataMessages(std::prev(messages.end()), messages.end());
+    }
     return true;
 }
 
 bool FrameManager::pushLastDataMessage() {
-    if (!isPushable(lastDataMessage)
-        || !lastDataMessageAvailable) {
-        /*! Do not push if the last data message is not available */
+    if (!lastDataMessageAvailable) {
+        /*! Do not push if the last data message is not available
+            \note avoiding the check if the message is pushable, since it is checked in the pushDataMessage function
+            If something changes in the logic the check must be reintroduced here */
         return false;
     }
     return this->pushDataMessage(lastDataMessage);

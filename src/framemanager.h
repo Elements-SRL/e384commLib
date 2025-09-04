@@ -35,7 +35,6 @@ protected:
     static uint16_t type2Pc(MsgTypeId_t messageType);
     void storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::RxMessageTypes_t rxMessageType);
     bool mergeDataMessages(std::list <RxMessage_t> ::iterator to, std::list <RxMessage_t> ::iterator from);
-    void mergeNewDataMessage(std::list <RxMessage_t> ::iterator to, RxMessage_t from);
     bool pushMessage(RxMessage_t msg);
     bool pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFirstIndex);
     bool pushDataMessage(RxMessage_t msg);
