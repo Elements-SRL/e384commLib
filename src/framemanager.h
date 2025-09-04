@@ -9,6 +9,7 @@
 typedef struct RxMessage {
     uint16_t typeId;
     std::vector <uint16_t> data;
+    bool mergeable = false;
     bool operator == (const RxMessage& other) const {
         return typeId == other.typeId && data == other.data;
     }

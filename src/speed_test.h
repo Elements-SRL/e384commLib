@@ -5,7 +5,7 @@
 #include <chrono>
 
 const int waitingTimeBeforeDisablingReadFromDeviceS = 2; /*! 2s */
-const int waitingTimeBeforeDisablingParseDataS = 2; /*! 2s */
+const int waitingTimeBeforeDisablingParseDataS = 4; /*! 4s */
 const std::vector <std::string> typeName = {"Read from device", "Parse data", "Get next message"};
 
 typedef enum SpeedTestTypes {
