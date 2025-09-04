@@ -17,7 +17,7 @@ typedef enum SpeedTestTypes {
 
 /*! decomment only one of the following options */
 // #define SPT_LOG_EVERYTHING
-#define SPT_READ_FROM_DEVICE_MAX_SPEED
+// #define SPT_READ_FROM_DEVICE_MAX_SPEED
 // #define SPT_PARSE_DATA_MAX_SPEED
 // #define SPT_GET_NEXT_MESSAGE_MAX_SPEED
 // #define SPT_READ_FROM_DEVICE_STUBBED

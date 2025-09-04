@@ -108,6 +108,9 @@ void FrameManager::storeFrameDataLoss(int32_t dataLossCount) {
 RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
     RxMessage_t ret;
     ret.typeId = type2Pc(MsgTypeIdInvalid);
+#ifdef SPT_DISABLE_GET_NEXT_MESSAGE
+    return ret;
+#endif
     std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (messages.empty()) {
 #ifdef NEXT_MESSAGE_NO_WAIT
@@ -124,8 +127,10 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
     if (uType == type2Pc(MsgTypeIdInvalid)) {
         /*! Return first message regardless of type */
         ret = messages.front();
+#ifndef SPT_DISABLE_PARSE_DATA_AFTER_A_WHILE
         messages.pop_front();
         listSize -= ret.data.size();
+#endif
         return ret;
     }
     if (uType == ACQ_DATA_TYPE) {
@@ -133,8 +138,10 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
         for (auto it = messages.begin(); it != messages.end(); ++it) {
             if (it->typeId == uType) {
                 ret = *it;
+#ifndef SPT_DISABLE_PARSE_DATA_AFTER_A_WHILE
                 messages.erase(it);
                 listSize -= ret.data.size();
+#endif
                 return ret;
             }
         }
@@ -144,11 +151,13 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
         /*! Look for type specific message */
         if (it->typeId == uType) {
             ret = *it;
+#ifndef SPT_DISABLE_PARSE_DATA_AFTER_A_WHILE
             if (it != messages.begin() && std::next(it) != messages.end()) {
                 this->mergeDataMessages(std::prev(it), std::next(it));
             }
             messages.erase(it);
             listSize -= ret.data.size();
+#endif
             return ret;
         }
     }
