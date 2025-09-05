@@ -701,13 +701,18 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
     RxParsePhase_t rxParsePhase = RxParseLookForHeader;
 
     rxRawBufferReadOffset = 0;
-    uint32_t rxSyncWordSize = sizeof(rxSyncWord);
+    rxSyncWordSize = 0;
+    auto temp = rxSyncWord;
+    while (temp > 0) {
+        temp >>= 8;
+        rxSyncWordSize++;
+    }
     uint32_t rxOffsetLengthSize = 2*RX_WORD_SIZE;
     uint32_t rxFrameOffset; /*!< Offset of the current frame */
     uint16_t rxWordOffset; /*!< Offset of the first word in the received frame */
     uint16_t rxWordsLength; /*!< Number of words in the received frame */
     uint32_t rxDataBytes; /*!< Number of bytes in the received frame */
-    uint16_t rxCandidateHeader;
+    uint32_t rxCandidateHeader;
     int32_t dataLossCount = INT32_MIN; /*!< No data loss at the start of parsing */
 
     bool notEnoughRxData;
@@ -719,7 +724,9 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
     std::unique_lock <std::mutex> rxRawMutexLock(rxRawMutex);
     rxRawMutexLock.unlock();
 
-    std::chrono::steady_clock::time_point startWhileTime = std::chrono::steady_clock::now();
+#ifdef SPT_DISABLE_PARSE_DATA_AFTER_A_WHILE
+    auto startWhileTime = std::chrono::steady_clock::now();
+#endif
 
     while (!stopConnectionFlag) {
 #ifdef SPT_DISABLE_PARSE_DATA_AFTER_A_WHILE
@@ -767,15 +774,21 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
                 else {
                     rxFrameOffset = rxRawBufferReadOffset;
                     /*! Check byte by byte if the buffer contains a sync word (frame header) */
-                    if (popUint16FromRxRawBuffer() == rxSyncWord) {
+                    if (rxSyncWordSize == 2) {
+                        rxCandidateHeader = popUint16FromRxRawBuffer();
+                    }
+                    else {
+                        rxCandidateHeader = popUint32FromRxRawBuffer();
+                    }
+                    if (rxCandidateHeader == rxSyncWord) {
                         /*! If all the bytes match the sync word move rxSyncWordSize bytes ahead and look for the message length */
                         rxParsePhase = RxParseLookForLength;
-
-                    } else {
-                        /*! If not all the bytes match the sync word restore one of the removed bytes and recheck */
-                        rxRawBufferReadOffset = (rxRawBufferReadOffset-1) & rxRawBufferMask;
-                        rxRawBytesAvailable++;
-                        dataLossCount += 1;
+                    }
+                    else {
+                        /*! If not all the bytes match the sync word restore all but one of the removed bytes and recheck */
+                        rxRawBufferReadOffset = (rxRawBufferReadOffset-rxSyncWordSize+1) & rxRawBufferMask;
+                        rxRawBytesAvailable += rxSyncWordSize-1;
+                        dataLossCount++;
                     }
                 }
                 break;
@@ -826,9 +839,14 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
                 /*! Check that after the frame end there is a valid header */
                 if (rxRawBytesAvailable < rxDataBytes+rxSyncWordSize) {
                     notEnoughRxData = true;
-
-                } else {
-                    rxCandidateHeader = readUint16FromRxRawBuffer(rxDataBytes);
+                }
+                else {
+                    if (rxSyncWordSize == 2) {
+                        rxCandidateHeader = readUint16FromRxRawBuffer(rxDataBytes);
+                    }
+                    else {
+                        rxCandidateHeader = readUint32FromRxRawBuffer(rxDataBytes);
+                    }
 
                     if (rxCandidateHeader == rxSyncWord) {
                         /*! valid frame data and reset rxDataLoss */
@@ -843,8 +861,8 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
                         rxRawBytesAvailable -= rxSyncWordSize;
 
                         rxParsePhase = RxParseLookForLength;
-
-                    } else {
+                    }
+                    else {
                         /*! Sync word not found, restart looking from the previous sync word */
                         rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */

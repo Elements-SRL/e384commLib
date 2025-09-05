@@ -646,7 +646,6 @@ void EmcrFtdiDevice::parseDataFromDevice() {
     RxParsePhase_t rxParsePhase = RxParseLookForHeader;
 
     rxRawBufferReadOffset = 0;
-    uint32_t rxSyncWordSize = sizeof(rxSyncWord);
     uint32_t rxOffsetLengthSize = 2*RX_WORD_SIZE;
     uint32_t rxFrameOffset; /*!< Offset of the current frame */
     uint16_t rxWordOffset; /*!< Offset of the first word in the received frame */

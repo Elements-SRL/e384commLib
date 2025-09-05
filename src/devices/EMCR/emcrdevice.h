@@ -194,6 +194,9 @@ protected:
 
     unsigned int packetsPerFrame = 1;
 
+    uint32_t rxSyncWord = 0x5aa55aa5;
+    uint32_t rxSyncWordSize = sizeof(rxSyncWord);
+
     int motherboardBootTime_s = 1;
     int fwSize_B = 1000;
 

@@ -84,8 +84,6 @@ protected:
      *  Parameters  *
     \****************/
 
-    uint32_t rxSyncWord;
-
     CCyUSBDevice * dev = nullptr;
 
     /*! endpoints */

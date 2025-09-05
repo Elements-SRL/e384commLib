@@ -78,8 +78,6 @@ protected:
     char rxChannel = 'B';
     char txChannel = 'B';
 
-    uint32_t rxSyncWord;
-
     /***************\
      *  Variables  *
     \***************/

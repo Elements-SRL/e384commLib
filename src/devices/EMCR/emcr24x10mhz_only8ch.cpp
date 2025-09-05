@@ -7,9 +7,9 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
 
     waitingTimeBeforeReadingData = 2; //s
 
-    rxSyncWord = 0x5aa5;
+    rxSyncWord = 0x5aa55aa5;
 
-    packetsPerFrame = 512;
+    packetsPerFrame = 1024;
 
     voltageChannelsNum = 8;
     currentChannelsNum = 8;
@@ -23,7 +23,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     rxWordOffsets[RxMessageCurrentBlocksDataLoad] = rxWordOffsets[RxMessageVoltageDataLoad] + rxWordLengths[RxMessageVoltageDataLoad];
     rxWordLengths[RxMessageCurrentBlocksDataLoad] = currentChannelsNum*packetsPerFrame;
 
-    rxCurrentBlockLength = 2;
+    rxCurrentBlockLength = 4;
 
     rxMaxWords = currentChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;

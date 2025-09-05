@@ -105,7 +105,6 @@ protected:
      *  Parameters  *
     \****************/
 
-    uint16_t rxSyncWord;
     okCFrontPanel dev;
 
     std::string fwName = "top.bit";
