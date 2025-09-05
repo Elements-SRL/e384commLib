@@ -184,6 +184,8 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         lastDataMessageAvailable = false;
         purgeRequest = false;
     }
+    rxMutexLock.unlock();
+
     uint32_t rxDataWords = rxWordLengths[rxMessageType];
     uint32_t newProtocolItemFirstIndex = 0;
 
@@ -345,7 +347,6 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         break;
     }
 
-    rxMutexLock.unlock();
     rxMsgBufferNotEmpty.notify_all();
     std::this_thread::yield();
 }
@@ -363,12 +364,14 @@ bool FrameManager::pushMessage(RxMessage_t msg) {
     if (!isPushable(msg)) {
         return false;
     }
+    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     messages.push_back(msg);
     listSize += msg.data.size();
     return true;
 }
 
 bool FrameManager::pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFirstIndex) {
+    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (!isPushable(msg)
         || (!messages.empty()
             && * std::prev(messages.end()) == msg)) {
@@ -406,15 +409,19 @@ bool FrameManager::pushDataMessage(RxMessage_t msg) {
     if (!isPushable(msg)) {
         return false;
     }
+#ifndef SPT_DISABLE_GET_NEXT_MESSAGE
+    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     messages.push_back(msg);
     listSize += msg.data.size();
-#ifdef SPT_LOG_PARSE_DATA
-    speedTestLog(SpeedTestParseData, msg.data.size()*2);
 #endif
     if (messages.size() > 1) {
         /*! If the message is not the only one, try to merge it with the last message in the list */
         this->mergeDataMessages(std::prev(messages.end()), messages.end());
     }
+#ifdef SPT_LOG_PARSE_DATA
+    rxMutexLock.unlock();
+    speedTestLog(SpeedTestParseData, msg.data.size()*2);
+#endif
     return true;
 }
 

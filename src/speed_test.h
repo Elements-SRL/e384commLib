@@ -99,7 +99,7 @@ inline void speedTestLog(SpeedTestTypes_t type, int newData) {
 
     accData[type] += newData;
 
-    if (t > 2000 && tmin > 300) {
+    if (t > 2000 && tmin > 500) {
         std::cout << typeName[type] << " " << accData[type] / t / 1000 << " MBps" << std::endl;
         initialTime[type] = thisTime;
         accData[type] = 0;
