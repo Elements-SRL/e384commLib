@@ -18,8 +18,10 @@ protected:
     };
 
     enum VCCurrentRanges {
-        VCCurrentRange10nA,
-        VCCurrentRange100nA,
+        VCCurrentRange10nA_ch0_3,
+        VCCurrentRange100nA_ch0_3,
+        VCCurrentRange10nA_ch4_7,
+        VCCurrentRange100nA_ch4_7,
         VCCurrentRangesNum
     };
 
@@ -65,6 +67,31 @@ protected:
         SamplingRate25MHz,
         SamplingRate10MHz,
         SamplingRatesNum
+    };
+
+    enum CustomOptions {
+        ZapCh1,
+        ZapCh2,
+        ZapCh3,
+        ZapCh4,
+        ZapCh5,
+        ZapCh6,
+        ZapCh7,
+        ZapCh8,
+        CustomOptionsNum
+    };
+
+    enum CustomDouble {
+        CustomDacVcmAsic1,
+        CustomDacZapAsic1,
+        CustomDacRefAsic1,
+        CustomDacVcmAsic2,
+        CustomDacZapAsic2,
+        CustomDacRefAsic2,
+        CustomDacVcmAsic3,
+        CustomDacZapAsic3,
+        CustomDacRefAsic3,
+        CustomDoublesNum
     };
 
     virtual ErrorCodes_t initializeHW() override;
