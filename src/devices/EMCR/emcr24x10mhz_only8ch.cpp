@@ -28,7 +28,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     rxMaxWords = currentChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
 
-    txDataWords = 289; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 281; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
@@ -146,7 +146,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    defaultSamplingRateIdx = SamplingRate10MHz;
+    defaultSamplingRateIdx = SamplingRate781_25kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
     realSamplingRatesArray[SamplingRate781_25kHz].value = 25.0/32.0;
@@ -167,9 +167,6 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     realSamplingRatesArray[SamplingRate25MHz].value = 25.0;
     realSamplingRatesArray[SamplingRate25MHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate25MHz].unit = "Hz";
-    realSamplingRatesArray[SamplingRate10MHz].value = 10.0;
-    realSamplingRatesArray[SamplingRate10MHz].prefix = UnitPfxMega;
-    realSamplingRatesArray[SamplingRate10MHz].unit = "Hz";
     sr2srm.clear();
     sr2srm[SamplingRate781_25kHz] = 0;
     sr2srm[SamplingRate1_5625MHz] = 0;
@@ -177,7 +174,6 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     sr2srm[SamplingRate6_25MHz] = 0;
     sr2srm[SamplingRate12_5MHz] = 0;
     sr2srm[SamplingRate25MHz] = 0;
-    sr2srm[SamplingRate10MHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate781_25kHz].value = 32.0/25.0;
@@ -198,9 +194,6 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     integrationStepArray[SamplingRate25MHz].value = 1.0/25.0;
     integrationStepArray[SamplingRate25MHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate25MHz].unit = "s";
-    integrationStepArray[SamplingRate10MHz].value = 1.0/10.0;
-    integrationStepArray[SamplingRate10MHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate10MHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
@@ -209,8 +202,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
         {SamplingRate3_125MHz, VCCurrentFilter10MHz},
         {SamplingRate6_25MHz, VCCurrentFilter10MHz},
         {SamplingRate12_5MHz, VCCurrentFilter10MHz},
-        {SamplingRate25MHz, VCCurrentFilter10MHz},
-        {SamplingRate10MHz, VCCurrentFilter10MHz}
+        {SamplingRate25MHz, VCCurrentFilter10MHz}
     };
 
     // mapping ADC Current Clamp
@@ -315,7 +307,6 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(2); /*! 6.2MHz  0b0010 */
     static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(1); /*! 12.5MHz  0b0001 */
     static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(0); /*! 25MHz  0b0000 */
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(11); /*! 10MHz  0b1011 */
     coders.push_back(samplingRateCoder);
 
     /*! Current range VC */
@@ -542,7 +533,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 258;
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
-        doubleConfig.minValue = 0.0;
+        doubleConfig.minValue = -1650.0;
         doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*65535.0;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
@@ -572,7 +563,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     /*! VC current offset calibration */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 275;
+        doubleConfig.initialWord = 271;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -587,7 +578,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     }
 
     /*! VC voltage gain calibration */
-    doubleConfig.initialWord = 283;
+    doubleConfig.initialWord = 275;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcVoltageGainRange.step;
@@ -603,7 +594,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     /*! VC voltage offset calibration */
     calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 286;
+        doubleConfig.initialWord = 278;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
@@ -642,11 +633,14 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
 
     /*! Default status */
     txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x0158; /*! 10MHz default sampliong rate and first LED on */
+    txStatus.encodingWords[0] = 0x8121; /*! 800kHz default sampling rate and first LED on */
     txStatus.encodingWords[2] = 0x0001; /*! 1 voltage frame for every current frame */
     txStatus.encodingWords[4] = 0x00FF; /*! Enable all channels by default */
     for (int idx = 258; idx < 267; idx++) {
         txStatus.encodingWords[idx] = 0x6720; /*! Set all DACs at Vcm by default */
+    }
+    for (int idx = 276; idx < 278; idx++) {
+        txStatus.encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
     }
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }

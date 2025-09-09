@@ -351,15 +351,6 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
     std::this_thread::yield();
 }
 
-bool FrameManager::mergeDataMessages(std::list <RxMessage_t> ::iterator to, std::list <RxMessage_t> ::iterator from) {
-    if (to->typeId != ACQ_DATA_TYPE || from->typeId != to->typeId) {
-        /*! Merge only data messages */
-        return false;
-    }
-    to->mergeable = true;
-    return true;
-}
-
 bool FrameManager::pushMessage(RxMessage_t msg) {
     if (!isPushable(msg)) {
         return false;
@@ -374,7 +365,7 @@ bool FrameManager::pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFi
     std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (!isPushable(msg)
         || (!messages.empty()
-            && * std::prev(messages.end()) == msg)) {
+            && * messages.rbegin() == msg)) {
         /*! Do not push if the last message is a header as well */
         return false;
     }
@@ -416,7 +407,7 @@ bool FrameManager::pushDataMessage(RxMessage_t msg) {
 #endif
     if (messages.size() > 1) {
         /*! If the message is not the only one, try to merge it with the last message in the list */
-        this->mergeDataMessages(std::prev(messages.end()), messages.end());
+        this->mergeDataMessages(++messages.rbegin(), messages.rbegin());
     }
 #ifdef SPT_LOG_PARSE_DATA
     rxMutexLock.unlock();
