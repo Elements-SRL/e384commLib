@@ -56,6 +56,7 @@ typedef enum ErrorCodes {
     ErrorDeviceNotUpgradable =              ErrorGroupDeviceConnection +    0x0000000C, /*!< Error returned when the FPGA FW cannot be upgraded. */
     ErrorFwNotFound =                       ErrorGroupDeviceConnection +    0x0000000D, /*!< Error returned when the FW cannot be found. */
     ErrorFwUpgradeFailed =                  ErrorGroupDeviceConnection +    0x0000000E, /*!< Error returned when something goes wrong with the FW upgrade procedure. */
+    ErrorNotConnectedToUsb3 =               ErrorGroupDeviceConnection +    0x0000000F, /*!< Error returned when the device is not connected to a Super Speed USB 3. */
 
     ErrorSendMessageFailed =                ErrorGroupDeviceCommands +      0x00000001, /*!< Error returned when sending a message to a device fails. */
     ErrorCommandNotImplemented =            ErrorGroupDeviceCommands +      0x00000002, /*!< Error returned when trying to use a command that is not implemented for the current device. */
