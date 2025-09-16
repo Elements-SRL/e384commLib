@@ -2246,7 +2246,7 @@ ErrorCodes_t EmcrDevice::initialize(std::string fwPath) {
     stopConnectionFlag = false;
     this->createCommunicationThreads();
 
-    std::this_thread::sleep_for (std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     return this->initializeHW();
 }

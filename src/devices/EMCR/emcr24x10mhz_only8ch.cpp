@@ -124,12 +124,12 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     /*! VC */
     vcVoltageFiltersNum = VCVoltageFiltersNum;
     vcVoltageFiltersArray.resize(vcVoltageFiltersNum);
-    vcVoltageFiltersArray[VCVoltageFilter16kHz].value = 16.0;
-    vcVoltageFiltersArray[VCVoltageFilter16kHz].prefix = UnitPfxKilo;
-    vcVoltageFiltersArray[VCVoltageFilter16kHz].unit = "Hz";
     vcVoltageFiltersArray[VCVoltageFilter1_6kHz].value = 1.6;
     vcVoltageFiltersArray[VCVoltageFilter1_6kHz].prefix = UnitPfxKilo;
     vcVoltageFiltersArray[VCVoltageFilter1_6kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].value = 16.0;
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter16kHz].unit = "Hz";
     defaultVcVoltageFilterIdx = VCVoltageFilter1_6kHz;
 
     liquidJunctionRangesNum = vcVoltageRangesNum;
@@ -146,7 +146,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    defaultSamplingRateIdx = SamplingRate781_25kHz;
+    defaultSamplingRateIdx = SamplingRate25MHz; /*! \todo rimettere la sampling rate bassa a regime */
 
     realSamplingRatesArray.resize(samplingRatesNum);
     realSamplingRatesArray[SamplingRate781_25kHz].value = 25.0/32.0;
@@ -342,7 +342,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     boolConfig.initialWord = 11;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
-    vcVoltageFilterCoder = new BoolArrayCoder(boolConfig);
+    vcVoltageFilterCoder = new BoolNegatedArrayCoder(boolConfig);
     coders.push_back(vcVoltageFilterCoder);
 
     /*! Current filter CC */
@@ -633,7 +633,7 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
 
     /*! Default status */
     txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x8121; /*! 800kHz default sampling rate and first LED on */
+    txStatus.encodingWords[0] = 0x0121; /*! 800kHz default sampling rate */
     txStatus.encodingWords[2] = 0x0001; /*! 1 voltage frame for every current frame */
     txStatus.encodingWords[4] = 0x00FF; /*! Enable all channels by default */
     for (int idx = 258; idx < 267; idx++) {

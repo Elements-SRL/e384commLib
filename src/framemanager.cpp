@@ -239,22 +239,26 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         lastDataMessage.data.resize(packetsNum*(ivChannelsNum/*+gpChannelsNum*/));
 
         for (uint32_t blockIdx = 0; blockIdx < blocksNum; blockIdx++) {
-            for (uint32_t packetIdx = 0; packetIdx < blockLen; packetIdx++) {
-                /*! For each packet retrieve the last received voltage values */
-                for (int idx = 0; idx < voltageChannelsNum; idx++) {
+            /*! For each packet retrieve the last received voltage values */
+            for (int idx = 0; idx < voltageChannelsNum; idx++) {
+                for (uint32_t packetIdx = 0; packetIdx < blockLen; packetIdx++) {
                     lastDataMessage.data[rxDataBufferWriteIdx+packetIdx*ivChannelsNum+idx] = voltageDataValues[idx];
                 }
+            }
 
-                /*! Then store the new current values */
-                for (int idx = 0; idx < currentChannelsNum; idx++) {
+            /*! Then store the new current values */
+            for (int idx = 0; idx < currentChannelsNum; idx++) {
+                for (uint32_t packetIdx = 0; packetIdx < blockLen; packetIdx++) {
                     lastDataMessage.data[rxDataBufferWriteIdx+voltageChannelsNum+packetIdx*ivChannelsNum+idx] = emd->popUint16FromRxRawBuffer();
                 }
-
-                // /*! Finally for each gp packet retrieve the last received GP values */
-                // for (uint32_t idx = 0; idx < gpChannelsNum; idx++) {
-                //     lastDataMessage.data[rxDataBufferWriteIdx+packetIdx*ivChannelsNum+idx] = gpDataValues[idx];
-                // }
             }
+
+            // /*! Finally for each gp packet retrieve the last received GP values */
+            // for (int idx = 0; idx < currentChannelsNum; idx++) {
+            //     for (uint32_t idx = 0; idx < gpChannelsNum; idx++) {
+            //         lastDataMessage.data[rxDataBufferWriteIdx+packetIdx*ivChannelsNum+idx] = gpDataValues[idx];
+            //     }
+            // }
             rxDataBufferWriteIdx += blockSize;
         }
         lastDataMessageAvailable = true;

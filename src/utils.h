@@ -6,12 +6,14 @@
 #include <algorithm>
 #include <filesystem>
 #include <optional>
+#include <iostream>
 
 #define UTL_SEPARATOR "\\\\"
 #define UTL_DEFAULT_FW_PATH (std::string("FW") + UTL_SEPARATOR)
 #define UTL_DEFAULT_FX3_FW_VERSION (4)
 #define UTL_DEFAULT_FX3_FW_NAME (std::string("UDB-FX3_V04.img"))
 #define UTL_DEMO_FILE_PATH ""
+#define GLB_HERE { std::cout<<__FILE__<<__LINE__<<std::endl; }
 
 template<typename I_t> bool allLessThan(std::vector <I_t> vec, I_t val) {
     if (vec.empty()) {
