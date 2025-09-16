@@ -327,15 +327,15 @@ EmcrQc01aTB_PCBV02::EmcrQc01aTB_PCBV02(std::string di) :
     /*! Sampling rate */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 1;
-    boolConfig.bitsNum = 5;
+    boolConfig.bitsNum = 7;
     samplingRateCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(31);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(30);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(29);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(28);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(27);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(26);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(25);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(127);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(94);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(93);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(92);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(91);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(58);
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(57);
     static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(24);
     static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(5);
     static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(4);
@@ -728,7 +728,7 @@ EmcrQc01aTB_PCBV02::EmcrQc01aTB_PCBV02(std::string di) :
 
     /*! Default status */
     txStatus.init(txDataWords);
-    txStatus.encodingWords[1] = 0x0003; /*! DS of AC cores enabled */
+    txStatus.encodingWords[1] = 0x000F; /*! DS of AC and DC cores enabled */
     txStatus.encodingWords[3] = 0x0003; /*! Capacitors on VcCaps, Vcm generated externally */
     txStatus.encodingWords[6] = 0x0004; /*! FPGA in reset by default */
     txStatus.encodingWords[7] = 0x0001; /*! one voltage frame every current frame */
