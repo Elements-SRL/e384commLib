@@ -77,12 +77,9 @@ protected:
     };
 
     enum CustomFlags {
-        AcDsEn1,
-        AcDsEn2,
-        DcDsEn1,
-        DcDsEn2,
-        DcSepEn1,
-        DcSepEn2,
+        AcDsEn,
+        DcDsEn,
+        DcSepEn,
         CustomFlagsNum
     };
 
