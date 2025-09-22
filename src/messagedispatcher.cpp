@@ -293,6 +293,10 @@ ErrorCodes_t MessageDispatcher::setCurrentHalf(std::vector <uint16_t> channelInd
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::setVoltageReference(Measurement_t voltage, bool applyFlag) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::subtractLiquidJunctionFromCc(bool flag) {
     subtractLiquidJunctionFromCcFlag = flag;
     for (int i = 0; i < voltageChannelsNum; i++) {

@@ -334,6 +334,15 @@ public:
      */
     virtual ErrorCodes_t setCurrentHalf(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag);
 
+
+    /*! \brief Set the voltage reference for the device.
+     *
+     * \param voltage [in] Voltage (in mV) for the reference.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setVoltageReference(Measurement_t voltage, bool applyFlag);
+
     /*! \brief Activate or deactivate the automatic subtraction of the liquid junction compensated in VC from the CC readout.
      *
      * \param flag [in] true: the liquid junction potential is subtracted from the CC readout; false: the CC readout is unaffected.
