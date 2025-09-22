@@ -750,7 +750,7 @@ ErrorCodes_t EmcrQc01aTB_PCBV02::setSamplingRate(uint16_t samplingRateIdx, bool 
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageReference(Measurement_t voltage, bool applyFlag) {
+ErrorCodes_t EmcrQc01aTB_PCBV02::setVoltageReference(Measurement_t voltage, bool applyFlag) {
     voltage.convertValue(UnitPfx_t::UnitPfxMilli);
     return setCustomDouble(0, voltage.value, true);
 }

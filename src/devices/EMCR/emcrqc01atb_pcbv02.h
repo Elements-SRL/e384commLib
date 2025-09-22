@@ -97,6 +97,7 @@ protected:
 
     virtual ErrorCodes_t initializeHW() override;
     virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
+    virtual ErrorCodes_t setVoltageReference(Measurement_t voltage, bool applyFlag) override;
 };
 
 #endif // EMCRQC01ATB_PCBV02_H
