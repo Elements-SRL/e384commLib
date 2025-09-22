@@ -3,9 +3,9 @@
 
 #include "emcropalkellydevice.h"
 
-class Emcr24x10MHz_Only8Ch_PCBV01 : public EmcrOpalKellyDevice {
+class Emcr24x10MHz_Only8Ch_EL05c4_PCBV01 : public EmcrOpalKellyDevice {
 public:
-    Emcr24x10MHz_Only8Ch_PCBV01(std::string di);
+    Emcr24x10MHz_Only8Ch_EL05c4_PCBV01(std::string di);
 
 protected:
     enum ClampingModalities {
@@ -94,6 +94,49 @@ protected:
     };
 
     virtual ErrorCodes_t initializeHW() override;
+};
+
+class Emcr24x10MHz_Only8Ch_EL05c3_PCBV01 : public Emcr24x10MHz_Only8Ch_EL05c4_PCBV01 {
+public:
+    Emcr24x10MHz_Only8Ch_EL05c3_PCBV01(std::string di);
+
+protected:
+    enum VCCurrentRanges {
+        VCCurrentRange100nA_ch0_3,
+        VCCurrentRange100nA_ch4_7,
+        VCCurrentRangesNum
+    };
+};
+
+class Emcr24x10MHz_Only8Ch_EL05c2_PCBV01 : public Emcr24x10MHz_Only8Ch_EL05c3_PCBV01 {
+public:
+    Emcr24x10MHz_Only8Ch_EL05c2_PCBV01(std::string di);
+
+protected:
+    enum CustomDouble {
+        CustomDacVcmAsic1,
+        CustomDacRefAsic1,
+        CustomDacVcmAsic2,
+        CustomDacRefAsic2,
+        CustomDacVcmAsic3,
+        CustomDacRefAsic3,
+        CustomDoublesNum
+    };
+};
+
+class Emcr24x10MHz_Only8Ch_EL05c1_PCBV01 : public Emcr24x10MHz_Only8Ch_EL05c2_PCBV01 {
+public:
+    Emcr24x10MHz_Only8Ch_EL05c1_PCBV01(std::string di);
+
+protected:
+    enum VCCurrentFilters {
+        VCCurrentFilter10MHz,
+        VCCurrentFiltersNum
+    };
+
+    enum CustomOptions {
+        CustomOptionsNum = 0
+    };
 };
 
 #endif // EMCR24x10MHZ_ONLY8CH_H

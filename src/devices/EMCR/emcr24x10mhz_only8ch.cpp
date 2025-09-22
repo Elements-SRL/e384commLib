@@ -1,6 +1,6 @@
 #include "emcr24x10mhz_only8ch.h"
 
-Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
+Emcr24x10MHz_Only8Ch_EL05c4_PCBV01::Emcr24x10MHz_Only8Ch_EL05c4_PCBV01(std::string di) :
     EmcrOpalKellyDevice(di) {
 
     deviceName = "24x10MHz (only 8ch)";
@@ -240,7 +240,6 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
         customOptionsDescriptions[optIdx][0] = "Dac Vcm";
         customOptionsDescriptions[optIdx][1] = "Dac Zap";
         customOptionsDefault[optIdx] = 0;
-
     }
 
     customDoublesNum = CustomDoublesNum;
@@ -645,11 +644,173 @@ Emcr24x10MHz_Only8Ch_PCBV01::Emcr24x10MHz_Only8Ch_PCBV01(std::string di) :
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-ErrorCodes_t Emcr24x10MHz_Only8Ch_PCBV01::initializeHW() {
+ErrorCodes_t Emcr24x10MHz_Only8Ch_EL05c4_PCBV01::initializeHW() {
     this->resetFpga(true, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
     this->resetFpga(false, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     return Success;
+}
+
+Emcr24x10MHz_Only8Ch_EL05c3_PCBV01::Emcr24x10MHz_Only8Ch_EL05c3_PCBV01(std::string di) :
+    Emcr24x10MHz_Only8Ch_EL05c4_PCBV01(di) {
+
+    /*! Current ranges */
+    /*! VC */
+    vcCurrentRangesNum = VCCurrentRangesNum;
+    vcCurrentRangesArray.resize(vcCurrentRangesNum);
+    vcCurrentRangesArray[VCCurrentRange100nA_ch0_3].min = -100.0;
+    vcCurrentRangesArray[VCCurrentRange100nA_ch0_3].max = 100.0;
+    vcCurrentRangesArray[VCCurrentRange100nA_ch0_3].step = vcCurrentRangesArray[VCCurrentRange100nA_ch0_3].max/SHORT_MAX;
+    vcCurrentRangesArray[VCCurrentRange100nA_ch0_3].prefix = UnitPfxNano;
+    vcCurrentRangesArray[VCCurrentRange100nA_ch0_3].unit = "A";
+    vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].min = -100.0;
+    vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].max = 100.0;
+    vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].step = vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].max/SHORT_MAX;
+    vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].prefix = UnitPfxNano;
+    vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].unit = "A";
+    defaultVcCurrentRangeIdx = VCCurrentRange100nA_ch0_3;
+
+    /*! Calib VC current offset */
+    calibVcCurrentOffsetRanges = vcCurrentRangesArray;
+
+    /*! Default values */
+    currentRanges.resize(currentChannelsNum);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    currentResolutions.resize(currentChannelsNum);
+    std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Input controls */
+    BoolCoder::CoderConfig_t boolConfig;
+    DoubleCoder::CoderConfig_t doubleConfig;
+
+    /*! Current range VC */
+    boolConfig.initialWord = 10;
+    boolConfig.initialBit = 1;
+    boolConfig.bitsNum = 1;
+    vcCurrentRangeCoders.clear();
+    vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(vcCurrentRangeCoders[0]);
+
+    /*! VC current offset calibration */
+    calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 271;
+        doubleConfig.initialBit = 0;
+        doubleConfig.bitsNum = 16;
+        doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
+        doubleConfig.minValue = calibVcCurrentOffsetRanges[rangeIdx].min;
+        doubleConfig.maxValue = calibVcCurrentOffsetRanges[rangeIdx].max;
+        calibVcCurrentOffsetCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+            calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
+            doubleConfig.initialWord++;
+        }
+    }
+}
+
+Emcr24x10MHz_Only8Ch_EL05c2_PCBV01::Emcr24x10MHz_Only8Ch_EL05c2_PCBV01(std::string di) :
+    Emcr24x10MHz_Only8Ch_EL05c3_PCBV01(di) {
+
+    customOptionsNum = CustomOptionsNum;
+    customOptionsNames.resize(customOptionsNum);
+    customOptionsDescriptions.resize(customOptionsNum);
+    customOptionsDefault.resize(customOptionsNum);
+    for (int optIdx = 0; optIdx < customOptionsNum; optIdx++) {
+        customOptionsNames[optIdx] = "Dac Ch " + std::to_string(optIdx+1);
+        customOptionsDescriptions[optIdx].resize(3);
+        customOptionsDescriptions[optIdx][0] = "Dac Vcm";
+        customOptionsDescriptions[optIdx][1] = "GND";
+        customOptionsDescriptions[optIdx][2] = "Vdd";
+        customOptionsDefault[optIdx] = 0;
+
+    }
+
+    customDoublesNum = CustomDoublesNum;
+    customDoublesNames.resize(customDoublesNum);
+    customDoublesNames[CustomDacVcmAsic1] = "Vcm Asic 1";
+    customDoublesNames[CustomDacRefAsic1] = "Ref Asic 1";
+    customDoublesNames[CustomDacVcmAsic2] = "Vcm Asic 2";
+    customDoublesNames[CustomDacRefAsic2] = "Ref Asic 2";
+    customDoublesNames[CustomDacVcmAsic3] = "Vcm Asic 3";
+    customDoublesNames[CustomDacRefAsic3] = "Ref Asic 3";
+    customDoublesRanges.resize(customDoublesNum);
+    RangedMeasurement_t customRange = {-1650.0, -1650.0+65535.0*0.0625, 0.0625, UnitPfxMilli, "V"};
+    std::fill(customDoublesRanges.begin(), customDoublesRanges.end(), customRange);
+    customRange = {-500.0, 500.0, 0.0625, UnitPfxMilli, "V"};
+    customDoublesRanges[0] = customRange;
+    customDoublesRanges[2] = customRange;
+    customDoublesRanges[4] = customRange;
+    customDoublesDefault.resize(customDoublesNum);
+    std::fill(customDoublesDefault.begin(), customDoublesDefault.end(), 0.0);
+
+    /**********\
+     * Coders *
+    \**********/
+
+    /*! Input controls */
+    BoolCoder::CoderConfig_t boolConfig;
+    DoubleCoder::CoderConfig_t doubleConfig;
+
+    boolConfig.initialWord = 3;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 2;
+    customOptionsCoders.resize(customOptionsNum);
+    for (int optIdx = 0; optIdx < customOptionsNum; optIdx++) {
+        customOptionsCoders[optIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(customOptionsCoders[optIdx]);
+        boolConfig.initialBit += 2;
+    }
+
+    doubleConfig.initialWord = 258;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    customDoublesCoders.resize(customDoublesNum);
+    int cidx = 0;
+    for (int idx = 0; idx < customDoublesNum; idx += 3) {
+        doubleConfig.minValue = customDoublesRanges[CustomDacRefAsic1].min;
+        doubleConfig.maxValue = customDoublesRanges[CustomDacRefAsic1].max;
+        doubleConfig.resolution = customDoublesRanges[CustomDacRefAsic1].step;
+        customDoublesCoders[cidx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(customDoublesCoders[cidx++]);
+        doubleConfig.initialWord += 2; /*! Don't consider the ZAP Dac which is not available */
+
+        doubleConfig.minValue = customDoublesRanges[CustomDacRefAsic1].min;
+        doubleConfig.maxValue = customDoublesRanges[CustomDacRefAsic1].max;
+        doubleConfig.resolution = customDoublesRanges[CustomDacRefAsic1].step;
+        customDoublesCoders[cidx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(customDoublesCoders[cidx++]);
+        doubleConfig.initialWord++;
+    }
+}
+
+Emcr24x10MHz_Only8Ch_EL05c1_PCBV01::Emcr24x10MHz_Only8Ch_EL05c1_PCBV01(std::string di) :
+    Emcr24x10MHz_Only8Ch_EL05c2_PCBV01(di) {
+
+    // mapping ADC Voltage Clamp
+    sr2LpfVcCurrentMap = {
+        {SamplingRate781_25kHz, VCCurrentFilter10MHz},
+        {SamplingRate1_5625MHz, VCCurrentFilter10MHz},
+        {SamplingRate3_125MHz, VCCurrentFilter10MHz},
+        {SamplingRate6_25MHz, VCCurrentFilter10MHz},
+        {SamplingRate12_5MHz, VCCurrentFilter10MHz},
+        {SamplingRate25MHz, VCCurrentFilter10MHz}
+    };
+
+    customOptionsNum = CustomOptionsNum;
+    customOptionsNames.clear();
+    customOptionsDescriptions.clear();
+    customOptionsDefault.clear();
+
+    /**********\
+     * Coders *
+    \**********/
+
+    customOptionsCoders.clear();
 }

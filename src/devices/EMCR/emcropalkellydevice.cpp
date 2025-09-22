@@ -38,7 +38,12 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 2, Device4x10MHz_SB_PCBV01_FWV02},                          //   11,  9,  2 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV02, 1, Device4x10MHz_SB_PCBV01_FWV02},                          //   11, 11,  1 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_SB_EL05a_PCBV02_FEStim, 1, Device2x10MHz_SB_PCBV02_FWV01_FEStim},            //   11, 12,  1 : 2 channels 10MHz nanopore reader, single board with EL05a with protocol reset and stimulus from the front end
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_Only8Ch_PCBV01, 1, Device24x10MHz_Only8Ch_PCBV01},                          //   11, 13,  1 : 24 channels 10MHz nanopore reader, but only 8 active
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_Only8Ch_PCBV01_EL05c34, 1, Device24x10MHz_Only8Ch_PCBV01_EL05c4},           //   11, 13,  1 : 24 channels 10MHz nanopore reader, but only 8 active, slot 1 EL05c4
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_Only8Ch_PCBV01_EL05c34, 2, Device24x10MHz_Only8Ch_PCBV01_EL05c3},           //   11, 13,  2 : 24 channels 10MHz nanopore reader, but only 8 active, slot 2 EL05c3
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_Only8Ch_PCBV01_EL05c34, 3, Device24x10MHz_Only8Ch_PCBV01_EL05c4},           //   11, 13,  3 : 24 channels 10MHz nanopore reader, but only 8 active, slot 3 EL05c4
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_Only8Ch_PCBV01_EL05c12, 1, Device24x10MHz_Only8Ch_PCBV01_EL05c1},           //   11, 14,  1 : 24 channels 10MHz nanopore reader, but only 8 active, slot 1 EL05c1
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_Only8Ch_PCBV01_EL05c12, 2, Device24x10MHz_Only8Ch_PCBV01_EL05c1},           //   11, 14,  2 : 24 channels 10MHz nanopore reader, but only 8 active, slot 2 EL05c1P
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_Only8Ch_PCBV01_EL05c12, 3, Device24x10MHz_Only8Ch_PCBV01_EL05c2},           //   11, 14,  3 : 24 channels 10MHz nanopore reader, but only 8 active, slot 3 EL05c2
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_FirstProto, 1, Device192Blm_el03c_prot_v01_fw_v01},                    //   13,  1,  1 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},         //   15,  1,  2 : First working protoype for 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03}, //   15,  2,  3 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
@@ -323,8 +328,20 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr2x10MHz_SB_PCBV02_FEStim_V01(deviceId);
         break;
 
-    case Device24x10MHz_Only8Ch_PCBV01:
-        messageDispatcher = new Emcr24x10MHz_Only8Ch_PCBV01(deviceId);
+    case Device24x10MHz_Only8Ch_PCBV01_EL05c1:
+        messageDispatcher = new Emcr24x10MHz_Only8Ch_EL05c1_PCBV01(deviceId);
+        break;
+
+    case Device24x10MHz_Only8Ch_PCBV01_EL05c2:
+        messageDispatcher = new Emcr24x10MHz_Only8Ch_EL05c2_PCBV01(deviceId);
+        break;
+
+    case Device24x10MHz_Only8Ch_PCBV01_EL05c3:
+        messageDispatcher = new Emcr24x10MHz_Only8Ch_EL05c3_PCBV01(deviceId);
+        break;
+
+    case Device24x10MHz_Only8Ch_PCBV01_EL05c4:
+        messageDispatcher = new Emcr24x10MHz_Only8Ch_EL05c4_PCBV01(deviceId);
         break;
 
     case Device4x10MHz_QuadAnalog_PCBV01:
@@ -449,7 +466,7 @@ ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
     if (dev.IsFrontPanelEnabled()) {
         return Success;
     }
-    fwPath = (!fwPath.empty() && fwPath.back() == '\\')?fwPath : fwPath + '\\';
+    fwPath = (!fwPath.empty() && fwPath.back() == '\\') ? fwPath : fwPath + '\\';
 
     std::ifstream file(fwPath + fwName);
     if (file.good()) {
