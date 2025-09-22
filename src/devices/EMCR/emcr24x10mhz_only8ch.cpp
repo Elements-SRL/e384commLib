@@ -773,7 +773,7 @@ Emcr24x10MHz_Only8Ch_EL05c2_PCBV01::Emcr24x10MHz_Only8Ch_EL05c2_PCBV01(std::stri
     doubleConfig.bitsNum = 16;
     customDoublesCoders.resize(customDoublesNum);
     int cidx = 0;
-    for (int idx = 0; idx < customDoublesNum; idx += 3) {
+    for (int idx = 0; idx < customDoublesNum; idx += 2) {
         doubleConfig.minValue = customDoublesRanges[CustomDacRefAsic1].min;
         doubleConfig.maxValue = customDoublesRanges[CustomDacRefAsic1].max;
         doubleConfig.resolution = customDoublesRanges[CustomDacRefAsic1].step;
