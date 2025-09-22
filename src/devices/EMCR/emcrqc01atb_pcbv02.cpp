@@ -606,9 +606,17 @@ EmcrQc01aTB_PCBV02::EmcrQc01aTB_PCBV02(std::string di) :
         doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            if (channelIdx == 0) {
+                doubleConfig.initialWord = 258;
+            }
+            else if (channelIdx == 1) {
+                doubleConfig.initialWord = 259;
+            }
+            else {
+                doubleConfig.initialWord = 261; /*! unused vholds, write in word 261 which is reserved as a placeholder for this purpose */
+            }
             vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
-            doubleConfig.initialWord++;
         }
     }
 
@@ -714,11 +722,12 @@ EmcrQc01aTB_PCBV02::EmcrQc01aTB_PCBV02(std::string di) :
     /*! Default status */
     txStatus.init(txDataWords);
     txStatus.encodingWords[1] = 0x000F; /*! DS of AC and DC cores enabled */
-    txStatus.encodingWords[3] = 0x0003; /*! Capacitors on VcCaps, Vcm generated externally */
+    txStatus.encodingWords[3] = 0x0000; /*! Ignore capacitors on VcCaps, Vcm generated externally */
     txStatus.encodingWords[6] = 0x0004; /*! FPGA in reset by default */
     txStatus.encodingWords[7] = 0x0001; /*! one voltage frame every current frame */
     txStatus.encodingWords[8] = 0x0040; /*! null offset on secondary DAC for core 1 */
     txStatus.encodingWords[9] = 0x0040; /*! null offset on secondary DAC for core 2 */
+    txStatus.encodingWords[260] = 0x6720; /*! null offset on external DAC */
 }
 
 ErrorCodes_t EmcrQc01aTB_PCBV02::initializeHW() {

@@ -210,7 +210,10 @@ typedef enum DeviceTypes {
     Device4x10MHz_SB_PCBV01_FWV01,              /*!< 4 channels 10MHz nanopore reader, single board */
     Device4x10MHz_SB_PCBV01_FWV02,              /*!< 4 channels 10MHz nanopore reader, single board */
     Device2x10MHz_SB_PCBV02_FWV01_FEStim,       /*!< 2 channels 10MHz nanopore reader, single board with stimulus from the front end */
-    Device24x10MHz_Only8Ch_PCBV01,              /*!< 24 channels 10MHz nanopore reader, but only 8 active */
+    Device24x10MHz_Only8Ch_PCBV01_EL05c1,       /*!< 24 channels 10MHz nanopore reader, but only 8 active */
+    Device24x10MHz_Only8Ch_PCBV01_EL05c2,       /*!< 24 channels 10MHz nanopore reader, but only 8 active */
+    Device24x10MHz_Only8Ch_PCBV01_EL05c3,       /*!< 24 channels 10MHz nanopore reader, but only 8 active */
+    Device24x10MHz_Only8Ch_PCBV01_EL05c4,       /*!< 24 channels 10MHz nanopore reader, but only 8 active */
     Device4x10MHz_QuadAnalog_PCBV01,            /*!< 4 channels 10MHz nanopore reader, one analog board */
     Device4x10MHz_QuadAnalog_PCBV01_DIGV01,     /*!< 4 channels 10MHz nanopore reader, one analog board, digital board V01 */
     Device2x10MHz_FET,                          /*!< 2 channels 10MHz nanopore reader with controllable reference voltages */
