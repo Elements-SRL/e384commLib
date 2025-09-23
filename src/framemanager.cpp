@@ -381,7 +381,9 @@ bool FrameManager::pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFi
     }
     if (lastDataMessage.data.size() <= newProtocolItemFirstIndex) {
         /*! Last data message has less samples than required by the header, push it entirely and set it not available */
+        rxMutexLock.unlock();
         this->pushLastDataMessage();
+        rxMutexLock.lock();
         lastDataMessageAvailable = false;
         messages.push_back(msg);
         listSize += msg.data.size();
@@ -389,7 +391,9 @@ bool FrameManager::pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFi
     }
     if (newProtocolItemFirstIndex > 0) {
         /*! Last data message has more samples than required by the header, split it and push the first chunk */
+        rxMutexLock.unlock();
         this->pushDataMessage(this->splitLastDataMessage(newProtocolItemFirstIndex));
+        rxMutexLock.lock();
         messages.push_back(msg);
         listSize += msg.data.size();
         return true;
