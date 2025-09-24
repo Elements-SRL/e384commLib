@@ -46,8 +46,8 @@ public:
         DeviceSubversion4x10MHz_SB_EL05b_PCBV01 = 0x0A,
         DeviceSubversion4x10MHz_SB_EL05a_PCBV02 = 0x0B,
         DeviceSubversion2x10MHz_SB_EL05a_PCBV02_FEStim = 0x0C,
-        DeviceSubversion24x10MHz_Only8Ch_PCBV01_EL05c34 = 0x0D,
-        DeviceSubversion24x10MHz_Only8Ch_PCBV01_EL05c12 = 0x0E,
+        DeviceSubversion24x10MHz_PCBV01_EL05c34 = 0x0D,
+        DeviceSubversion24x10MHz_PCBV01_EL05c12 = 0x0E,
         DeviceSubversionOk_FAKE = 0xFE,
 
         /*! Subversions used for version = 0x0D */
