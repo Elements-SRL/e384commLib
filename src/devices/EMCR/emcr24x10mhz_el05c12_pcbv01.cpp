@@ -28,7 +28,7 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
     rxMaxWords = currentChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
 
-    txDataWords = 331; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 333; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
@@ -518,7 +518,7 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
     /*! VC current offset calibration */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 289;
+        doubleConfig.initialWord = 291;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -540,6 +540,15 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
     doubleConfig.maxValue = calibVcVoltageGainRange.max;
     calibVcVoltageGainCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        if (currentChannelsNum < 8) {
+            doubleConfig.initialWord = 315;
+        }
+        else if (currentChannelsNum < 8) {
+            doubleConfig.initialWord = 321;
+        }
+        else {
+            doubleConfig.initialWord = 327;
+        }
         calibVcVoltageGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(calibVcVoltageGainCoders[idx]);
     }
@@ -555,13 +564,13 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
         calibVcVoltageOffsetCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
             if (currentChannelsNum < 8) {
-                doubleConfig.initialWord = 316;
+                doubleConfig.initialWord = 318;
             }
             else if (currentChannelsNum < 8) {
-                doubleConfig.initialWord = 322;
+                doubleConfig.initialWord = 324;
             }
             else {
-                doubleConfig.initialWord = 328;
+                doubleConfig.initialWord = 330;
             }
             calibVcVoltageOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(calibVcVoltageOffsetCoders[rangeIdx][idx]);
@@ -607,13 +616,13 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
     for (int idx = 258; idx < 267; idx++) {
         txStatus.encodingWords[idx] = 0x6720; /*! Set all DACs at Vcm by default */
     }
-    for (int idx = 317; idx < 320; idx++) {
+    for (int idx = 316; idx < 319; idx++) {
         txStatus.encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
     }
-    for (int idx = 323; idx < 325; idx++) {
+    for (int idx = 322; idx < 324; idx++) {
         txStatus.encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
     }
-    for (int idx = 329; idx < 331; idx++) {
+    for (int idx = 328; idx < 330; idx++) {
         txStatus.encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
     }
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
