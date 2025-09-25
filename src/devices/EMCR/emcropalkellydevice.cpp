@@ -24,6 +24,9 @@
 #include "emcr2x10mhz_sb_pcbv02_festim.h"
 #include "emcr10mhzsb.h"
 #include "emcr24x10mhz_only8ch.h"
+#include "emcr24x10mhz_el05c12_pcbv01.h"
+#include "emcr24x10mhz_el05c34_pcbv01.h"
+#include "emcr24x10mhz_only8ch.h"
 #include "emcrqc01atb_v01.h"
 /*! Fake device that generates synthetic data */
 #include "emcr384nanoporesfake.h"
