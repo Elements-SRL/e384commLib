@@ -615,13 +615,13 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     for (int idx = 258; idx < 267; idx++) {
         txStatus.encodingWords[idx] = 0x6720; /*! Set all DACs at Vcm by default */
     }
-    for (int idx = 316; idx < 319; idx++) {
+    for (int idx = 315; idx < 318; idx++) {
         txStatus.encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
     }
-    for (int idx = 322; idx < 324; idx++) {
+    for (int idx = 321; idx < 324; idx++) {
         txStatus.encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
     }
-    for (int idx = 328; idx < 330; idx++) {
+    for (int idx = 327; idx < 330; idx++) {
         txStatus.encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
     }
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
