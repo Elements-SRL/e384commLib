@@ -1861,7 +1861,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
         case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData): {
             samplesNum = msg.data.size();
 
-            std::unique_lock <std::mutex> ljMutexLock (ljMutex);
+            std::unique_lock <std::mutex> ljMutexLock(ljMutex);
             if (downsamplingFlag) {
                 timeSamplesNum = samplesNum/totalChannelsNum;
                 for (uint32_t idx = 0; idx < timeSamplesNum; idx++) {

@@ -2184,7 +2184,6 @@ protected:
     void closeDebugFiles();
     virtual void joinCommunicationThreads() = 0;
 
-    void computeLiquidJunction();
     virtual void initializeCalibration();
     virtual void deinitializeCalibration();
     void initializeLiquidJunction();

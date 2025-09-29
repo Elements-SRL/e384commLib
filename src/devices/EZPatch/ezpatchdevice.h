@@ -254,6 +254,7 @@ protected:
     virtual void deinitializeMemory() override;
 
     void joinCommunicationThreads() override;
+    void computeLiquidJunction();
 
     virtual void initializeCompensations();
 
