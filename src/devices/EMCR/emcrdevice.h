@@ -148,6 +148,7 @@ public:
      *  Utility Methods  *
     \*********************/
 
+    void processLiquidJunctionData(RxMessage_t msg);
     void processTemperatureData(RxMessage_t msg);
     uint16_t popUint16FromRxRawBuffer();
     uint32_t popUint32FromRxRawBuffer();

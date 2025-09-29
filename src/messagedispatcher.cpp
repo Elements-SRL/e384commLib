@@ -310,7 +310,7 @@ ErrorCodes_t MessageDispatcher::subtractLiquidJunctionFromCc(bool flag) {
 
 ErrorCodes_t MessageDispatcher::resetOffsetRecalibration(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     std::vector <Measurement_t> offsets(channelIndexes.size());
-    std::unique_lock <std::mutex> ljMutexLock (ljMutex);
+    std::unique_lock <std::mutex> ljMutexLock(ljMutex);
     int offsetIdx = 0;
     for (auto channelIdx : channelIndexes) {
         liquidJunctionStatuses[channelIdx] = LiquidJunctionResetted;
@@ -326,7 +326,7 @@ ErrorCodes_t MessageDispatcher::setLiquidJunctionVoltage(std::vector <uint16_t> 
 
 ErrorCodes_t MessageDispatcher::resetLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     std::vector <Measurement_t> voltages(channelIndexes.size(), {0.0, liquidJunctionRange.prefix, "V"});
-    std::unique_lock <std::mutex> ljMutexLock (ljMutex);
+    std::unique_lock <std::mutex> ljMutexLock(ljMutex);
     for (auto channelIdx : channelIndexes) {
         liquidJunctionStatuses[channelIdx] = LiquidJunctionResetted;
     }

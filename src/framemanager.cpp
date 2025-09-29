@@ -198,6 +198,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             lastDataMessage.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
         }
         lastDataMessageAvailable = true;
+        emd->processLiquidJunctionData(lastDataMessage);
         break;
 
     case MessageDispatcher::RxMessageCurrentDataLoad: {
@@ -225,6 +226,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             // }
         }
         lastDataMessageAvailable = true;
+        emd->processLiquidJunctionData(lastDataMessage);
         break;
     }
 
@@ -262,6 +264,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             rxDataBufferWriteIdx += blockSize;
         }
         lastDataMessageAvailable = true;
+        emd->processLiquidJunctionData(lastDataMessage);
         break;
     }
 
@@ -307,6 +310,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             }
         }
         lastDataMessageAvailable = true;
+        emd->processLiquidJunctionData(lastDataMessage);
         break;
     }
 
