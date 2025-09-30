@@ -2135,6 +2135,15 @@ protected:
         uint32_t startDataPtr;
     } MsgResume_t;
 
+    typedef enum LiquidJunctionProcessing {
+        LiquidJunctionProcessingTransientsStarted,
+        LiquidJunctionProcessingWaitTransients,
+        LiquidJunctionProcessingResetRequired,
+        LiquidJunctionProcessingCollectData,
+        LiquidJunctionProcessingWaitCommandApplied,
+        LiquidJunctionProcessingNum,
+    } LiquidJunctionProcessing_t;
+
     typedef enum OffsetRecalibState {
         OffsetRecalibIdle,
         OffsetRecalibStarting,
@@ -2492,6 +2501,8 @@ protected:
 
     mutable std::mutex ljMutex;
     bool liquidJunctionControlPending = false;
+    LiquidJunctionProcessing_t liquidJunctionProcessing = LiquidJunctionProcessingWaitTransients;
+    std::chrono::steady_clock::time_point liquidJunctionTransientsStartTime;
 
     std::thread liquidJunctionThread;
 

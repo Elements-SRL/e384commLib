@@ -3426,7 +3426,6 @@ void EZPatchDevice::computeLiquidJunction() {
     double estimatedResistance;
     int16_t readoutOffsetInt;
     double readoutOffset;
-    bool activeFlag;
 
     while (!stopConnectionFlag) {
 
@@ -3434,7 +3433,7 @@ void EZPatchDevice::computeLiquidJunction() {
 
         ljMutexLock.lock();
         if (anyOffsetRecalibrationActive && liquidJunctionCurrentEstimatesNum > 0) {
-            activeFlag = false;
+            anyOffsetRecalibrationActive = false;
             channelIndexes.clear();
             offsetRecalibCorrection.clear();
             for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
@@ -3443,7 +3442,7 @@ void EZPatchDevice::computeLiquidJunction() {
                     break;
 
                 case OffsetRecalibStarting:
-                    activeFlag = true;
+                    anyOffsetRecalibrationActive = true;
                     offsetRecalibStates[channelIdx] = OffsetRecalibFirstStep;
                     offsetRecalibStatuses[channelIdx] = OffsetRecalibExecuting;
 
@@ -3452,7 +3451,7 @@ void EZPatchDevice::computeLiquidJunction() {
                     break;
 
                 case OffsetRecalibFirstStep:
-                    activeFlag = true;
+                    anyOffsetRecalibrationActive = true;
                     readoutOffsetInt = (int16_t)(((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum);
                     this->convertCurrentValue(readoutOffsetInt, readoutOffset);
                     offsetRecalibCorrection.push_back(calibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx));
@@ -3462,7 +3461,7 @@ void EZPatchDevice::computeLiquidJunction() {
                     break;
 
                 case OffsetRecalibCheck:
-                    activeFlag = true;
+                    anyOffsetRecalibrationActive = true;
                     readoutOffset = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum;
 
                     if (abs(readoutOffset) < 5.0) { /*! current offset smaller than 5 LSB */
@@ -3474,13 +3473,13 @@ void EZPatchDevice::computeLiquidJunction() {
                     break;
 
                 case OffsetRecalibSuccess:
-                    activeFlag = true;
+                    anyOffsetRecalibrationActive = true;
                     offsetRecalibStates[channelIdx] = OffsetRecalibTerminate;
                     offsetRecalibStatuses[channelIdx] = OffsetRecalibSucceded;
                     break;
 
                 case OffsetRecalibFail:
-                    activeFlag = true;
+                    anyOffsetRecalibrationActive = true;
                     channelIndexes.push_back(channelIdx);
                     offsetRecalibCorrection.push_back(originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx));
                     offsetRecalibStates[channelIdx] = OffsetRecalibTerminate;
@@ -3488,7 +3487,7 @@ void EZPatchDevice::computeLiquidJunction() {
                     break;
 
                 case OffsetRecalibTerminate:
-                    activeFlag = true;
+                    anyOffsetRecalibrationActive = true;
                     offsetRecalibStates[channelIdx] = OffsetRecalibIdle;
                     if (offsetRecalibStatuses[channelIdx] == OffsetRecalibExecuting) {
                         offsetRecalibStatuses[channelIdx] = OffsetRecalibInterrupted;
@@ -3509,7 +3508,6 @@ void EZPatchDevice::computeLiquidJunction() {
                 }
                 txMutexLock.unlock();
             }
-            anyOffsetRecalibrationActive = activeFlag;
         }
         else {
             ljMutexLock.unlock();
@@ -3519,7 +3517,7 @@ void EZPatchDevice::computeLiquidJunction() {
 
         ljMutexLock.lock();
         if (anyLiquidJunctionActive && liquidJunctionCurrentEstimatesNum > 0) {
-            activeFlag = false;
+            anyLiquidJunctionActive = false;
             channelIndexes.clear();
             voltages.clear();
             for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
@@ -3529,7 +3527,7 @@ void EZPatchDevice::computeLiquidJunction() {
 
                     /*! Initialization and start data collection */
                 case LiquidJunctionStarting:
-                    activeFlag = true;
+                    anyLiquidJunctionActive = true;
                     channelIndexes.push_back(channelIdx);
                     liquidJunctionVoltagesBackup[channelIdx] = selectedLiquidJunctionVector[channelIdx];
                     voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
@@ -3566,7 +3564,7 @@ void EZPatchDevice::computeLiquidJunction() {
 
                     /*! First impedance estimation */
                 case LiquidJunctionFirstStep:
-                    activeFlag = true;
+                    anyLiquidJunctionActive = true;
                     liquidJunctionCurrentEstimates[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum;
                     /*! More or less 10% from saturation */
                     if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) {
@@ -3623,7 +3621,7 @@ void EZPatchDevice::computeLiquidJunction() {
 
                     /*! Steps towards convergence */
                 case LiquidJunctionConverge:
-                    activeFlag = true;
+                    anyLiquidJunctionActive = true;
                     liquidJunctionDeltaCurrents[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum-liquidJunctionCurrentEstimates[channelIdx];
                     liquidJunctionCurrentEstimates[channelIdx] += liquidJunctionDeltaCurrents[channelIdx];
 
@@ -3734,7 +3732,7 @@ void EZPatchDevice::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionSuccess:
-                    activeFlag = true;
+                    anyLiquidJunctionActive = true;
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
                     liquidJunctionStatuses[channelIdx] = LiquidJunctionSucceded;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
@@ -3746,7 +3744,7 @@ void EZPatchDevice::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionFailOpenCircuit:
-                    activeFlag = true;
+                    anyLiquidJunctionActive = true;
                     channelIndexes.push_back(channelIdx);
                     voltages.push_back(liquidJunctionVoltagesBackup[channelIdx]);
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
@@ -3760,7 +3758,7 @@ void EZPatchDevice::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionFailTooManySteps:
-                    activeFlag = true;
+                    anyLiquidJunctionActive = true;
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
                     liquidJunctionStatuses[channelIdx] = LiquidJunctionFailedTooManySteps;
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
@@ -3772,7 +3770,7 @@ void EZPatchDevice::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionFailSaturation:
-                    activeFlag = true;
+                    anyLiquidJunctionActive = true;
                     channelIndexes.push_back(channelIdx);
                     voltages.push_back(liquidJunctionVoltagesBackup[channelIdx]);
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
@@ -3786,7 +3784,7 @@ void EZPatchDevice::computeLiquidJunction() {
                     break;
 
                 case LiquidJunctionTerminate:
-                    activeFlag = true;
+                    anyLiquidJunctionActive = true;
                     liquidJunctionSmallestCurrentChange[channelIdx] = 1.0;
                     liquidJunctionStates[channelIdx] = LiquidJunctionIdle;
                     if (liquidJunctionStatuses[channelIdx] == LiquidJunctionExecuting) {
@@ -3804,11 +3802,10 @@ void EZPatchDevice::computeLiquidJunction() {
                 /*! This is to ensure that the voltage command has been submitted to the FPGA */
                 std::unique_lock <std::mutex> txMutexLock (txMutex);
                 while (liquidJunctionControlPending && !stopConnectionFlag) {
-                    txMsgBufferNotFull.wait_for (txMutexLock, std::chrono::milliseconds(100));
+                    txMsgBufferNotFull.wait_for(txMutexLock, std::chrono::milliseconds(100));
                 }
                 txMutexLock.unlock();
             }
-            anyLiquidJunctionActive = activeFlag;
         }
         else {
             ljMutexLock.unlock();
@@ -3824,7 +3821,14 @@ void EZPatchDevice::computeLiquidJunction() {
 
         computeCurrentOffsetFlag = anyOffsetRecalibrationActive || anyLiquidJunctionActive;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(350));
+        std::this_thread::sleep_for(std::chrono::milliseconds(250)); /*! Wait a bit for the current to stabilize */
+
+        ljMutexLock.lock();
+        liquidJunctionCurrentEstimatesNum = 0;
+        std::fill(liquidJunctionCurrentSums.begin(), liquidJunctionCurrentSums.end(), 0);
+        ljMutexLock.unlock();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 

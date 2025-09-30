@@ -149,6 +149,8 @@ public:
     \*********************/
 
     void processLiquidJunctionData(RxMessage_t msg);
+    bool computeOffetCorrection();
+    bool computeLiquidJunction();
     void processTemperatureData(RxMessage_t msg);
     uint16_t popUint16FromRxRawBuffer();
     uint32_t popUint32FromRxRawBuffer();
@@ -250,6 +252,9 @@ protected:
     std::vector <std::vector <bool> > calibrationFilesOkFlags = {{false}};
     std::string calibrationMappingFileDir = "";
     std::string calibrationMappingFilePath = "";
+
+    double minLiquidJunctionEstimationTimeS = 0.25;
+    double minLiquidJunctionTransientTimeS = 0.25;
 
     /************\
      *  Coders  *
