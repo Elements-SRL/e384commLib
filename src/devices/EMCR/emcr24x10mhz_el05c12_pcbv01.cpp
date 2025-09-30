@@ -612,7 +612,8 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
     txStatus.init(txDataWords);
     txStatus.encodingWords[0] = 0x0121; /*! 800kHz default sampling rate */
     txStatus.encodingWords[2] = 0x0001; /*! 1 voltage frame for every current frame */
-    txStatus.encodingWords[4] = 0x00FF; /*! Enable all channels by default */
+    txStatus.encodingWords[12] = 0xFFFF; /*! Enable all channels by default */
+    txStatus.encodingWords[13] = 0x00FF; /*! Enable all channels by default */
     for (int idx = 258; idx < 267; idx++) {
         txStatus.encodingWords[idx] = 0x6720; /*! Set all DACs at Vcm by default */
     }
