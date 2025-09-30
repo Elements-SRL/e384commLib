@@ -2234,9 +2234,6 @@ bool EmcrDevice::computeOffetCorrection() {
                 anyOffsetRecalibrationActive = true;
                 offsetRecalibStates[channelIdx] = OffsetRecalibFirstStep;
                 offsetRecalibStatuses[channelIdx] = OffsetRecalibExecuting;
-
-                liquidJunctionCurrentEstimatesNum = 0;
-                std::fill(liquidJunctionCurrentSums.begin(), liquidJunctionCurrentSums.end(), 0);
                 break;
 
             case OffsetRecalibFirstStep:
@@ -2326,9 +2323,6 @@ bool EmcrDevice::computeLiquidJunction() {
                 liquidJunctionPositiveSaturationCount[channelIdx] = 0;
                 liquidJunctionNegativeSaturationCount[channelIdx] = 0;
                 liquidJunctionOpenCircuitCount[channelIdx] = 0;
-
-                liquidJunctionCurrentEstimatesNum = 0;
-                std::fill(liquidJunctionCurrentSums.begin(), liquidJunctionCurrentSums.end(), 0);
 
 #ifdef DEBUG_LIQUID_JUNCTION_PRINT
                 fprintf(ljFid,
