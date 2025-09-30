@@ -2501,7 +2501,7 @@ protected:
 
     mutable std::mutex ljMutex;
     bool liquidJunctionControlPending = false;
-    LiquidJunctionProcessing_t liquidJunctionProcessing = LiquidJunctionProcessingWaitTransients;
+    LiquidJunctionProcessing_t liquidJunctionProcessing = LiquidJunctionProcessingTransientsStarted;
     std::chrono::steady_clock::time_point liquidJunctionTransientsStartTime;
 
     std::thread liquidJunctionThread;

@@ -1345,8 +1345,8 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
             liquidJunctionStatuses[chIdx] = LiquidJunctionNotPerformed;
-
-        } else if (!onValues[i] && (liquidJunctionStates[chIdx] != LiquidJunctionIdle)) {
+        }
+        else if (!onValues[i] && (liquidJunctionStates[chIdx] != LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
         }
     }
@@ -2154,6 +2154,7 @@ ErrorCodes_t EmcrDevice::getCalibMappingFilePath(std::string &path) {
 void EmcrDevice::processLiquidJunctionData(RxMessage_t msg) {
     if (computeCurrentOffsetFlag) {
         int offset = 0;
+        bool anyCommand;
         switch (liquidJunctionProcessing) {
         case LiquidJunctionProcessingTransientsStarted:
             liquidJunctionTransientsStartTime = std::chrono::steady_clock::now();
@@ -2166,7 +2167,7 @@ void EmcrDevice::processLiquidJunctionData(RxMessage_t msg) {
             }
             else {
                 liquidJunctionProcessing = LiquidJunctionProcessingResetRequired;
-                /*! No break because we can directly execut the next step without waiting for another message */
+                /*! No break because we can directly execute the next step without waiting for another message */
             }
 
         case LiquidJunctionProcessingResetRequired:
@@ -2174,7 +2175,7 @@ void EmcrDevice::processLiquidJunctionData(RxMessage_t msg) {
             std::fill(liquidJunctionCurrentSums.begin(), liquidJunctionCurrentSums.end(), 0);
 
             liquidJunctionProcessing = LiquidJunctionProcessingCollectData;
-            /*! No break because we can directly execut the next step without waiting for another message */
+            /*! No break because we can directly execute the next step without waiting for another message */
 
         case LiquidJunctionProcessingCollectData:
             offset = 0;
@@ -2182,16 +2183,20 @@ void EmcrDevice::processLiquidJunctionData(RxMessage_t msg) {
                 offset += voltageChannelsNum;
                 for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
                     if (computeCurrentOffsetFlag) {
-                        liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)msg.data[offset++];
+                        liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)((int16_t)msg.data[offset++]);
                     }
                 }
                 liquidJunctionCurrentEstimatesNum++;
             }
 
-            if (this->computeOffetCorrection() || this->computeLiquidJunction()) {
+            anyCommand = this->computeOffetCorrection();
+            anyCommand |= this->computeLiquidJunction();
+            if (anyCommand) {
                 liquidJunctionProcessing = LiquidJunctionProcessingWaitCommandApplied;
             }
-            else {
+            else if (liquidJunctionCurrentEstimatesNum > minLiquidJunctionEstimationTimeS*samplingRate.getNoPrefixValue()) {
+                /*! Move to the next state only if enough data was collected, otherwise it means the process needs to collect more data */
+                /*! \todo FCON meglio gestire più uscite dalla funzione precedente piuttosto che fare con un booleano ed un conto astruso */
                 liquidJunctionProcessing = LiquidJunctionProcessingTransientsStarted;
             }
 
