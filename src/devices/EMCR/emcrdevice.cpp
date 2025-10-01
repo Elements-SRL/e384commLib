@@ -252,11 +252,11 @@ ErrorCodes_t EmcrDevice::setCurrentHalf(std::vector <uint16_t> channelIndexes, s
 ErrorCodes_t EmcrDevice::setLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) {
     if (liquidJunctionVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else if (selectedClampingModality != VOLTAGE_CLAMP && selectedClampingModality != VOLTAGE_CLAMP_VOLTAGE_READ) {
+    }
+    else if (selectedClampingModality != VOLTAGE_CLAMP && selectedClampingModality != VOLTAGE_CLAMP_VOLTAGE_READ) {
         return ErrorWrongClampModality;
     }
 
@@ -279,8 +279,8 @@ ErrorCodes_t EmcrDevice::setLiquidJunctionVoltage(std::vector <uint16_t> channel
 ErrorCodes_t EmcrDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool applyFlag) {
     if (liquidJunctionVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (channelIdx >= currentChannelsNum) {
+    }
+    else if (channelIdx >= currentChannelsNum) {
         return ErrorValueOutOfRange;
     }
 
@@ -288,20 +288,20 @@ ErrorCodes_t EmcrDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool a
         if (compensationsEnableFlags[CompRsCorr].empty()) {
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus);
-
-        } else if (compensationsEnableFlags[CompRsCorr][channelIdx] && !(calibrationParams.types[CalTypesRsCorrOffsetDac].modes.empty())) {
+        }
+        else if (compensationsEnableFlags[CompRsCorr][channelIdx] && !(calibrationParams.types[CalTypesRsCorrOffsetDac].modes.empty())) {
             calibrationParams.convertValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx, liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(
                                                                  selectedLiquidJunctionVector[channelIdx].value+calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx).value,
                                                                  txStatus)-calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx).value;
-
-        } else {
+        }
+        else {
             selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
             selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus);
         }
-
-    } else {
+    }
+    else {
         liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(0.0, txStatus);
     }
 
@@ -2414,7 +2414,6 @@ bool EmcrDevice::computeLiquidJunction() {
                     liquidJunctionPositiveSaturationCount[channelIdx]++;
                     liquidJunctionNegativeSaturationCount[channelIdx] = 0;
                     liquidJunctionOpenCircuitCount[channelIdx] = 0;
-
                 }
                 else if (liquidJunctionCurrentEstimates[channelIdx] < -30000.0) {
                     /*! More or less 10% from saturation,
@@ -2424,7 +2423,6 @@ bool EmcrDevice::computeLiquidJunction() {
                     liquidJunctionPositiveSaturationCount[channelIdx] = 0;
                     liquidJunctionNegativeSaturationCount[channelIdx]++;
                     liquidJunctionOpenCircuitCount[channelIdx] = 0;
-
                 }
                 else if (abs(liquidJunctionCurrentEstimates[channelIdx]) < 2.0*liquidJunctionSmallestCurrentChange[channelIdx]) {
                     /*! Current very close to 0,
@@ -2439,7 +2437,6 @@ bool EmcrDevice::computeLiquidJunction() {
                     liquidJunctionPositiveSaturationCount[channelIdx] = 0;
                     liquidJunctionNegativeSaturationCount[channelIdx] = 0;
                     liquidJunctionOpenCircuitCount[channelIdx] = 0;
-
                 }
                 else if (liquidJunctionDeltaCurrents[channelIdx]*liquidJunctionDeltaVoltages[channelIdx] > 0.0) {
                     /*! Current value not small enough, but current change consistent with voltage change,
@@ -2453,7 +2450,6 @@ bool EmcrDevice::computeLiquidJunction() {
                     liquidJunctionPositiveSaturationCount[channelIdx] = 0;
                     liquidJunctionNegativeSaturationCount[channelIdx] = 0;
                     liquidJunctionOpenCircuitCount[channelIdx] = 0;
-
                 }
                 else {
                     /*! Current not so small and delta current inconsistent with delta voltage, probable open circuit,
