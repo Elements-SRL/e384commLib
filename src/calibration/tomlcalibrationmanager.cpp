@@ -276,6 +276,10 @@ bool TomlCalibrationManager::loadSetOfParams(CalibrationTypes_t type, toml::node
 
             auto offsetsArray = srNode["calibrations"][getParamName(type)].as_array();
 
+            if (offsetsArray->size() < channelsPerBoard) {
+                ret = false;
+                break;
+            }
             for (uint32_t idx = 0; idx < channelsPerBoard; idx++) {
                 outParams.modes[srIdx].ranges[rangeIdx].channels[idx+boardIdx*channelsPerBoard] = {offsetsArray->get(idx)->value_or(0.0), UnitPfxNone, getParamUnit(type)};
             }
