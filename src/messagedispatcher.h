@@ -2407,6 +2407,7 @@ protected:
     std::vector <LiquidJunctionState_t> liquidJunctionStates;
     std::vector <int64_t> liquidJunctionCurrentSums;
     std::vector <double> liquidJunctionCurrentEstimates;
+    std::vector <double> liquidJunctionResistanceEstimates;
     int64_t liquidJunctionCurrentEstimatesNum;
     std::vector <Measurement_t> liquidJunctionVoltagesBackup;
     std::vector <double> liquidJunctionDeltaVoltages;

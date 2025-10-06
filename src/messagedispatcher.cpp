@@ -1591,6 +1591,8 @@ void MessageDispatcher::initializeLiquidJunction() {
     std::fill(liquidJunctionCurrentSums.begin(), liquidJunctionCurrentSums.end(), 0);
     liquidJunctionCurrentEstimates.resize(currentChannelsNum);
     std::fill(liquidJunctionCurrentEstimates.begin(), liquidJunctionCurrentEstimates.end(), 0.0);
+    liquidJunctionResistanceEstimates.resize(currentChannelsNum);
+    std::fill(liquidJunctionResistanceEstimates.begin(), liquidJunctionResistanceEstimates.end(), 1.0e6); /*! Start assuming a very high resistance value */
     liquidJunctionVoltagesBackup.resize(currentChannelsNum);
     std::fill(liquidJunctionVoltagesBackup.begin(), liquidJunctionVoltagesBackup.end(), Measurement({0.0, liquidJunctionRange.prefix, liquidJunctionRange.unit}));
     liquidJunctionDeltaVoltages.resize(currentChannelsNum);

@@ -2304,7 +2304,6 @@ bool EmcrDevice::computeLiquidJunction() {
         std::vector <Measurement_t> voltages;
 
         Measurement_t voltage;
-        double estimatedResistance;
         anyLiquidJunctionActive = false;
 
         for (uint16_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
@@ -2317,7 +2316,10 @@ bool EmcrDevice::computeLiquidJunction() {
                 anyLiquidJunctionActive = true;
                 channelIndexes.push_back(channelIdx);
                 liquidJunctionVoltagesBackup[channelIdx] = selectedLiquidJunctionVector[channelIdx];
+                selectedLiquidJunctionVector[channelIdx].value = 0.0;
                 voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
+                liquidJunctionSmallestCurrentChange[channelIdx] = 1.0;
+                liquidJunctionResistanceEstimates[channelIdx] = 1.0e6;
                 liquidJunctionStates[channelIdx] = LiquidJunctionFirstStep;
                 liquidJunctionStatuses[channelIdx] = LiquidJunctionExecuting;
                 liquidJunctionConvergingCount[channelIdx] = 0;
@@ -2352,18 +2354,17 @@ bool EmcrDevice::computeLiquidJunction() {
                 liquidJunctionCurrentEstimates[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum;
                 if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) {
                     /*! More or less 10% from saturation */
+                    liquidJunctionPositiveSaturationCount[channelIdx]++;
                     liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
-
                 }
                 else if (liquidJunctionCurrentEstimates[channelIdx] > 0.0) {
                     /*! Positive but not saturating */
                     liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*10.0;
-
                 }
                 else if (liquidJunctionCurrentEstimates[channelIdx] < -30000.0) {
                     /*! More or less 10% from saturation */
+                    liquidJunctionNegativeSaturationCount[channelIdx]++;
                     liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
-
                 }
                 else {
                     /*! Negative but not saturating */
@@ -2406,44 +2407,59 @@ bool EmcrDevice::computeLiquidJunction() {
                 liquidJunctionDeltaCurrents[channelIdx] = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum-liquidJunctionCurrentEstimates[channelIdx];
                 liquidJunctionCurrentEstimates[channelIdx] += liquidJunctionDeltaCurrents[channelIdx];
 
+                if (abs(liquidJunctionDeltaVoltages[channelIdx]) > 9.5*liquidJunctionResolution && abs(liquidJunctionDeltaCurrents[channelIdx]) > 2.0) {
+                    /*! Only if the voltage stimulus and the current didn't change too little update the resistance estimate, otherwise the estimate is not reliable */
+                    /*! Estimate resistance */
+                    if (liquidJunctionDeltaCurrents[channelIdx] == 0.0) {
+                        /*! In case of division by zero assume jsut very high but not infinite resistance */
+                        liquidJunctionResistanceEstimates[channelIdx] = 1.0e6;
+                    }
+                    else {
+                        liquidJunctionResistanceEstimates[channelIdx] = liquidJunctionDeltaVoltages[channelIdx]/liquidJunctionDeltaCurrents[channelIdx];
+                    }
+
+                    if (liquidJunctionResistanceEstimates[channelIdx] < 0.0) {
+                        /*! Resistance is negative only if current is very close to 0 and with sign opposite to voltage, i.e. we're estimating a very high resistance in a numerically unstable way, just change sign to get a more sensible estimate */
+                        liquidJunctionResistanceEstimates[channelIdx] = -liquidJunctionResistanceEstimates[channelIdx];
+                    }
+                    liquidJunctionSmallestCurrentChange[channelIdx] = liquidJunctionResolution/liquidJunctionResistanceEstimates[channelIdx];
+                }
+
+                /*! Compute the desired voltage independently of the available range... */
+                liquidJunctionDeltaVoltages[channelIdx] = round(-liquidJunctionCurrentEstimates[channelIdx]*liquidJunctionResistanceEstimates[channelIdx]/liquidJunctionResolution)*liquidJunctionResolution;
+
+                /*! ... then clip */
+                if (selectedLiquidJunctionVector[channelIdx].value + liquidJunctionDeltaVoltages[channelIdx] > liquidJunctionRange.max) {
+                    liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionRange.max-selectedLiquidJunctionVector[channelIdx].value;
+                }
+                else if (selectedLiquidJunctionVector[channelIdx].value + liquidJunctionDeltaVoltages[channelIdx] < liquidJunctionRange.min) {
+                    liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionRange.min-selectedLiquidJunctionVector[channelIdx].value;
+                }
+
                 if (liquidJunctionCurrentEstimates[channelIdx] > 30000.0) {
                     /*! More or less 10% from saturation,
                      *  change DAC by 100 LSB in the opposite direction */
-                    liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution*100.0;
                     liquidJunctionConvergedCount[channelIdx] = 0;
                     liquidJunctionPositiveSaturationCount[channelIdx]++;
-                    liquidJunctionNegativeSaturationCount[channelIdx] = 0;
                     liquidJunctionOpenCircuitCount[channelIdx] = 0;
                 }
                 else if (liquidJunctionCurrentEstimates[channelIdx] < -30000.0) {
                     /*! More or less 10% from saturation,
                      *  change DAC by 100 LSB in the opposite direction */
-                    liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution*100.0;
                     liquidJunctionConvergedCount[channelIdx] = 0;
-                    liquidJunctionPositiveSaturationCount[channelIdx] = 0;
                     liquidJunctionNegativeSaturationCount[channelIdx]++;
                     liquidJunctionOpenCircuitCount[channelIdx] = 0;
                 }
                 else if (abs(liquidJunctionCurrentEstimates[channelIdx]) < 2.0*liquidJunctionSmallestCurrentChange[channelIdx]) {
-                    /*! Current very close to 0,
-                     *  change DAC by 1 LSB to find the optimal value */
-                    if (liquidJunctionDeltaCurrents[channelIdx] > 0.0) {
-                        liquidJunctionDeltaVoltages[channelIdx] = -liquidJunctionResolution;
-                    }
-                    else {
-                        liquidJunctionDeltaVoltages[channelIdx] = liquidJunctionResolution;
-                    }
+                    /*! Current very close to 0 */
                     liquidJunctionConvergedCount[channelIdx]++;
                     liquidJunctionPositiveSaturationCount[channelIdx] = 0;
                     liquidJunctionNegativeSaturationCount[channelIdx] = 0;
                     liquidJunctionOpenCircuitCount[channelIdx] = 0;
                 }
                 else if (liquidJunctionDeltaCurrents[channelIdx]*liquidJunctionDeltaVoltages[channelIdx] > 0.0) {
-                    /*! Current value not small enough, but current change consistent with voltage change,
-                     *  estimate resistance and estimate the next DAC value */
-                    estimatedResistance = liquidJunctionDeltaVoltages[channelIdx]/liquidJunctionDeltaCurrents[channelIdx];
-                    liquidJunctionSmallestCurrentChange[channelIdx] = liquidJunctionResolution/estimatedResistance;
-                    liquidJunctionDeltaVoltages[channelIdx] = round(-liquidJunctionCurrentEstimates[channelIdx]*estimatedResistance/liquidJunctionResolution)*liquidJunctionResolution;
+                    // /*! Current value not small enough, but current change consistent with voltage change,
+                    //  *  estimate resistance and estimate the next DAC value */
                     if (abs(liquidJunctionCurrentEstimates[channelIdx]) > 5.0*liquidJunctionSmallestCurrentChange[channelIdx]) {
                         liquidJunctionConvergedCount[channelIdx] = 0;
                     }
@@ -2454,7 +2470,6 @@ bool EmcrDevice::computeLiquidJunction() {
                 else {
                     /*! Current not so small and delta current inconsistent with delta voltage, probable open circuit,
                      *  Perform another step without updating the estimated resistance value */
-                    liquidJunctionDeltaVoltages[channelIdx] = round(-liquidJunctionCurrentEstimates[channelIdx]*estimatedResistance/liquidJunctionResolution)*liquidJunctionResolution;
                     if (abs(liquidJunctionCurrentEstimates[channelIdx]) > 5.0*liquidJunctionSmallestCurrentChange[channelIdx]) {
                         liquidJunctionConvergedCount[channelIdx] = 0;
                     }
