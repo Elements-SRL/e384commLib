@@ -445,14 +445,7 @@ Emcr384PatchClamp_EL07e_fw_v01::Emcr384PatchClamp_EL07e_fw_v01(std::string di) :
         pipetteCapacitanceRange[idx].unit = "F";
     }
 
-    ccPipetteCapacitanceRange.resize(pipetteCapacitanceRanges);
-    for (int idx = 0; idx < pipetteCapacitanceRanges; idx++) {
-        ccPipetteCapacitanceRange[idx].step = (4.0*pipetteVarConductance/pipetteCapacitanceValuesNum*pipetteFixedResistance2)*pipetteInjCapacitance[idx];
-        ccPipetteCapacitanceRange[idx].min = (4.0*(pipetteVarConductance/pipetteCapacitanceValuesNum+1.0/pipetteFixedResistance1)*pipetteFixedResistance2+3.0)*pipetteInjCapacitance[idx];
-        ccPipetteCapacitanceRange[idx].max = ccPipetteCapacitanceRange[idx].min+(pipetteCapacitanceValuesNum-1.0)*ccPipetteCapacitanceRange[idx].step;
-        ccPipetteCapacitanceRange[idx].prefix = UnitPfxPico;
-        ccPipetteCapacitanceRange[idx].unit = "F";
-    }
+    ccPipetteCapacitanceRange = pipetteCapacitanceRange;
 
     /*! FEATURES ASIC DOMAIN Membrane capacitance*/
     const double membraneVarConductance = 320.0; // uS
@@ -473,7 +466,7 @@ Emcr384PatchClamp_EL07e_fw_v01::Emcr384PatchClamp_EL07e_fw_v01(std::string di) :
 
     /*! FEATURES ASIC DOMAIN Membrane capacitance TAU*/
     const int membraneCapTauValueRanges = 2;
-    const double membraneCapTauValueVarResistance_MOhm = 51.2; /*! affected by switch cap clock!!!!!*/
+    const double membraneCapTauValueVarResistance_MOhm = 51.2;
     const double membraneCapTauValueValuesNum = 256.0; // 8 bits
 
     std::vector <double> membraneCapTauValueCapacitance = {2.5, 25.0};
@@ -504,7 +497,7 @@ Emcr384PatchClamp_EL07e_fw_v01::Emcr384PatchClamp_EL07e_fw_v01(std::string di) :
 
     /*! FEATURES ASIC DOMAIN Rs prediction TAU*/
     const double rsPredTauValuesNum = 256.0;
-    rsPredTauRange.step = 2.0; /*! affected by switch cap clock!!!!!*/
+    rsPredTauRange.step = 2.0;
     rsPredTauRange.min = rsPredTauRange.step;
     rsPredTauRange.max = rsPredTauRange.min + rsPredTauRange.step * (rsPredTauValuesNum -1) ;
     rsPredTauRange.prefix = UnitPfxMicro;

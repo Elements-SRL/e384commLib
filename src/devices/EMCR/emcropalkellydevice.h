@@ -56,6 +56,7 @@ public:
         /*! Subversions used for version = 0x0F */
         DeviceSubversion384Patch_EL07c_FirstProto = 0x01,
         DeviceSubversion384Patch_EL07c_TemperatureControl = 0x02,
+        DeviceSubversion384Patch_EL07e_TemperatureControl = 0x03,
 
         /*! Subversions used for version = 0xFE */
         DeviceSubversion2x10MHz_FET_PCBV01 = 0x19,
