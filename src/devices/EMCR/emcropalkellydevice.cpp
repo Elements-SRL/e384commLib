@@ -71,7 +71,6 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"224800130Y", Device4x10MHz_PCBV03},
     {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
     {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
-    {"23230014TE", Device4x10MHz_SB_PCBV01_FWV02},
     {"2336001642", DeviceTestBoardEL07c},
     {"233600165Q", DeviceTestBoardEL07c},
     {"DEMO_384_SSN", Device384Fake},

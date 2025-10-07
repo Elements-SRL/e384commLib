@@ -159,6 +159,24 @@ public:
 
 protected:
 
+    typedef enum LiquidJunctionState {
+        LiquidJunctionIdle,
+        LiquidJunctionStarting,
+        LiquidJunctionFirstStep,
+        LiquidJunctionOnlyPosSat,
+        LiquidJunctionOnlyNegSat,
+        LiquidJunctionOnlySat,
+        LiquidJunctionOnlyOneVal,
+        LiquidJunctionSatAndOneVal,
+        LiquidJunctionTwoVals,
+        LiquidJunctionTerminate,
+        LiquidJunctionSuccess,
+        LiquidJunctionFailOpenCircuit,
+        LiquidJunctionFailTooManySteps,
+        LiquidJunctionFailSaturation,
+        LiquidJunctionStatesNum
+    } LiquidJunctionState_t;
+
     /*************\
      *  Methods  *
     \*************/
@@ -176,6 +194,7 @@ protected:
     virtual void joinCommunicationThreads() override;
 
     virtual void initializeCalibration() override;
+    virtual void initializeLiquidJunction() override;
 
     virtual void handleCommunicationWithDevice() = 0;
     virtual uint32_t readDataFromDevice() = 0;
@@ -188,6 +207,10 @@ protected:
     void stackOutgoingMessage(CommandStatus_t &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
 
     virtual void processTemperatureData(std::vector <Measurement_t> temperaturesRead);
+    void updateLjState(int channelIdx);
+    void updateLjVoltage(int channelIdx, int gain, std::vector <uint16_t> &channelIndexes, std::vector <Measurement_t> &voltages);
+    bool updateLjRes(int channelIdx);
+    bool updateLjSatRes(int channelIdx, bool posCurr);
 
     /************\
      *  Fields  *
@@ -382,6 +405,29 @@ protected:
     std::vector <BoolArrayCoder *> customFlagsCoders;
     std::vector <BoolArrayCoder *> customOptionsCoders;
     std::vector <DoubleCoder *> customDoublesCoders;
+
+    std::vector <LiquidJunctionState_t> liquidJunctionStates;
+    std::vector <int64_t> liquidJunctionCurrentSums;
+    std::vector <double> liquidJunctionCurrentEstimates;
+    std::vector <double> liquidJunctionResistanceEstimates;
+    std::vector <double> liquidJunctionMinPosSatVoltage;
+    std::vector <double> liquidJunctionMaxNegSatVoltage;
+    std::vector <double> liquidJunctionSatResistanceEstimates;
+    int64_t liquidJunctionCurrentEstimatesNum;
+    std::vector <Measurement_t> liquidJunctionVoltagesBackup;
+    std::vector <double> liquidJunctionDeltaVoltages;
+    std::vector <double> liquidJunctionDeltaCurrents;
+    std::vector <double> liquidJunctionSmallestCurrentChange;
+    std::vector <uint16_t> liquidJunctionConvergingCount;
+    std::vector <uint16_t> liquidJunctionConvergedCount;
+    std::vector <uint16_t> liquidJunctionSaturationCount;
+    std::vector <uint16_t> liquidJunctionOpenCircuitCount;
+    std::vector <int64_t> ljResN;
+    std::vector <double> ljResSx2;
+    std::vector <double> ljResSx;
+    std::vector <double> ljResSy;
+    std::vector <double> ljResSxy;
+    // std::vector <double> ljMaxRes;
 
     /********************************************\
      *  Multi-thread synchronization variables  *

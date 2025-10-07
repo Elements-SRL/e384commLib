@@ -1582,36 +1582,6 @@ void MessageDispatcher::initializeLiquidJunction() {
     offsetRecalibStates.resize(currentChannelsNum);
     std::fill(offsetRecalibStates.begin(), offsetRecalibStates.end(), OffsetRecalibIdle);
 
-    liquidJunctionCurrentEstimatesNum = 0;
-    liquidJunctionStatuses.resize(currentChannelsNum);
-    std::fill(liquidJunctionStatuses.begin(), liquidJunctionStatuses.end(), LiquidJunctionNotPerformed);
-    liquidJunctionStates.resize(currentChannelsNum);
-    std::fill(liquidJunctionStates.begin(), liquidJunctionStates.end(), LiquidJunctionIdle);
-    liquidJunctionCurrentSums.resize(currentChannelsNum);
-    std::fill(liquidJunctionCurrentSums.begin(), liquidJunctionCurrentSums.end(), 0);
-    liquidJunctionCurrentEstimates.resize(currentChannelsNum);
-    std::fill(liquidJunctionCurrentEstimates.begin(), liquidJunctionCurrentEstimates.end(), 0.0);
-    liquidJunctionResistanceEstimates.resize(currentChannelsNum);
-    std::fill(liquidJunctionResistanceEstimates.begin(), liquidJunctionResistanceEstimates.end(), 1.0e6); /*! Start assuming a very high resistance value */
-    liquidJunctionVoltagesBackup.resize(currentChannelsNum);
-    std::fill(liquidJunctionVoltagesBackup.begin(), liquidJunctionVoltagesBackup.end(), Measurement({0.0, liquidJunctionRange.prefix, liquidJunctionRange.unit}));
-    liquidJunctionDeltaVoltages.resize(currentChannelsNum);
-    std::fill(liquidJunctionDeltaVoltages.begin(), liquidJunctionDeltaVoltages.end(), 0.0);
-    liquidJunctionDeltaCurrents.resize(currentChannelsNum);
-    std::fill(liquidJunctionDeltaCurrents.begin(), liquidJunctionDeltaCurrents.end(), 0.0);
-    liquidJunctionSmallestCurrentChange.resize(currentChannelsNum);
-    std::fill(liquidJunctionSmallestCurrentChange.begin(), liquidJunctionSmallestCurrentChange.end(), 1.0); /*! Start assuming the smallest current change is 1 current LSB */
-    liquidJunctionConvergingCount.resize(currentChannelsNum);
-    std::fill(liquidJunctionConvergingCount.begin(), liquidJunctionConvergingCount.end(), 0);
-    liquidJunctionConvergedCount.resize(currentChannelsNum);
-    std::fill(liquidJunctionConvergedCount.begin(), liquidJunctionConvergedCount.end(), 0);
-    liquidJunctionPositiveSaturationCount.resize(currentChannelsNum);
-    std::fill(liquidJunctionPositiveSaturationCount.begin(), liquidJunctionPositiveSaturationCount.end(), 0);
-    liquidJunctionNegativeSaturationCount.resize(currentChannelsNum);
-    std::fill(liquidJunctionNegativeSaturationCount.begin(), liquidJunctionNegativeSaturationCount.end(), 0);
-    liquidJunctionOpenCircuitCount.resize(currentChannelsNum);
-    std::fill(liquidJunctionOpenCircuitCount.begin(), liquidJunctionOpenCircuitCount.end(), 0);
-
     if (liquidJunctionRangesArray.empty()) {
         liquidJunctionRangesArray = vcVoltageRangesArray;
     }

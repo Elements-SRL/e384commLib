@@ -2155,19 +2155,6 @@ protected:
         OffsetRecalibStatesNum
     } OffsetRecalibState_t;
 
-    typedef enum LiquidJunctionState {
-        LiquidJunctionIdle,
-        LiquidJunctionStarting,
-        LiquidJunctionFirstStep,
-        LiquidJunctionConverge,
-        LiquidJunctionSuccess,
-        LiquidJunctionFailOpenCircuit,
-        LiquidJunctionFailTooManySteps,
-        LiquidJunctionFailSaturation,
-        LiquidJunctionTerminate,
-        LiquidJunctionStatesNum
-    } LiquidJunctionState_t;
-
     typedef enum ParsingStatus {
         ParsingNone,
         ParsingPreparing,
@@ -2195,7 +2182,7 @@ protected:
 
     virtual void initializeCalibration();
     virtual void deinitializeCalibration();
-    void initializeLiquidJunction();
+    virtual void initializeLiquidJunction();
 
     bool checkProtocolValidity(std::string &message);
 
@@ -2403,22 +2390,6 @@ protected:
     std::vector <OffsetRecalibStatus_t> offsetRecalibStatuses;
     std::vector <OffsetRecalibState_t> offsetRecalibStates;
 
-    std::vector <LiquidJunctionStatus_t> liquidJunctionStatuses;
-    std::vector <LiquidJunctionState_t> liquidJunctionStates;
-    std::vector <int64_t> liquidJunctionCurrentSums;
-    std::vector <double> liquidJunctionCurrentEstimates;
-    std::vector <double> liquidJunctionResistanceEstimates;
-    int64_t liquidJunctionCurrentEstimatesNum;
-    std::vector <Measurement_t> liquidJunctionVoltagesBackup;
-    std::vector <double> liquidJunctionDeltaVoltages;
-    std::vector <double> liquidJunctionDeltaCurrents;
-    std::vector <double> liquidJunctionSmallestCurrentChange;
-    std::vector <uint16_t> liquidJunctionConvergingCount;
-    std::vector <uint16_t> liquidJunctionConvergedCount;
-    std::vector <uint16_t> liquidJunctionPositiveSaturationCount;
-    std::vector <uint16_t> liquidJunctionNegativeSaturationCount;
-    std::vector <uint16_t> liquidJunctionOpenCircuitCount;
-
     std::string deviceId = "";
     std::string deviceName = "undefined";
 
@@ -2462,6 +2433,8 @@ protected:
     std::vector <std::string> customDoublesNames;
     std::vector <RangedMeasurement_t> customDoublesRanges;
     std::vector <double> customDoublesDefault;
+
+    std::vector <LiquidJunctionStatus_t> liquidJunctionStatuses;
 
     /***********************\
      *  Filters variables  *
