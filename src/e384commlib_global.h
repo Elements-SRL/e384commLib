@@ -195,6 +195,7 @@ typedef enum DeviceTypes {
     Device384PatchClamp_prot_v05_fw_v06,        /*! Header packet */
     Device384PatchClamp_prot_el07c_v06_fw_v02,  /*!< 384 channels device for patchclamp experiments */
     Device384PatchClamp_prot_el07c_v07_fw_v03,  /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_el07e_fw_v01,           /*!< 384 channels device for patchclamp experiments */
     Device384VoltageClamp_prot_v04_fw_v03,      /*!< 384 channels device for voltageclamp experiments */
     DeviceTestBoardEL07ab,
     DeviceTestBoardEL07c,
@@ -263,6 +264,7 @@ typedef enum DeviceTypes {
     DeviceE8PPatchEL07CD_artix7_PCBV01_FW2,     /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7) with fixed protocols generation. */
     DeviceE8PPatchEL07CD_artix7_PCBV01_FW3,     /*!< ePatch device with 1 EL07CD chips PCB V01 (FPGA artix7) with 64 protocol items. */
     DeviceE8nPatchEL07C_artix7_PCBV01_FW1,      /*!< ePatch device with 1 EL07C chip PCB V01 (FPGA artix7). */
+    DeviceE8nPatchEL07C_artix7_EL07e_PCBV02_FW1,/*!< ePatch device with 1 EL07C chip PCB V01 (FPGA artix7). */
     DeviceEPatchDlp,                            /*!< ePatch device with dlp fpga. */
     Device384Fake,                              /*!< Fake nanopore device */
     Device384FakePatchClamp,                    /*!< Fake patch clamp device */

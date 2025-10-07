@@ -73,6 +73,7 @@ SOURCES += \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v01.cpp \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v02.cpp \
     src/devices/EMCR/emcr384patchclamp_el07c_prot_v07_fw_v03.cpp \
+    src/devices/EMCR/emcr384patchclamp_el07e_fw_v01.cpp \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.cpp \
     src/devices/EMCR/emcr10mhz.cpp \
     src/devices/EMCR/emcr10mhzsb.cpp \
@@ -89,6 +90,7 @@ SOURCES += \
     src/devices/EMCR/emcrqc01atb_pcbv02.cpp \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.cpp \
     src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.cpp \
+    src/devices/EMCR/emcr8npatchclamp_el07e_artix7_pcbv02.cpp \
     src/devices/EMCR/emcr384nanoporesfake.cpp \
     src/devices/EMCR/emcr384patchclampfake.cpp \
     src/devices/EMCR/emcr10mhzfake.cpp \
@@ -142,6 +144,7 @@ HEADERS += \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v01.h \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v02.h \
     src/devices/EMCR/emcr384patchclamp_el07c_prot_v07_fw_v03.h \
+    src/devices/EMCR/emcr384patchclamp_el07e_fw_v01.h \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.h \
     src/devices/EMCR/emcr10mhz.h \
     src/devices/EMCR/emcr10mhzsb.h \
@@ -158,6 +161,7 @@ HEADERS += \
     src/devices/EMCR/emcrqc01atb_pcbv02.h \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.h \
     src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.h \
+    src/devices/EMCR/emcr8npatchclamp_el07e_artix7_pcbv02.h \
     src/devices/EMCR/emcr384nanoporesfake.h \
     src/devices/EMCR/emcr384patchclampfake.h \
     src/devices/EMCR/emcr10mhzfake.h \
