@@ -239,6 +239,19 @@ public:
 
 protected:
 
+    typedef enum LiquidJunctionState {
+        LiquidJunctionIdle,
+        LiquidJunctionStarting,
+        LiquidJunctionFirstStep,
+        LiquidJunctionConverge,
+        LiquidJunctionSuccess,
+        LiquidJunctionFailOpenCircuit,
+        LiquidJunctionFailTooManySteps,
+        LiquidJunctionFailSaturation,
+        LiquidJunctionTerminate,
+        LiquidJunctionStatesNum
+    } LiquidJunctionState_t;
+
     /*************\
      *  Methods  *
     \*************/
@@ -254,8 +267,10 @@ protected:
     virtual void deinitializeMemory() override;
 
     void joinCommunicationThreads() override;
+    void computeLiquidJunction();
 
     virtual void initializeCompensations();
+    virtual void initializeLiquidJunction() override;
 
     virtual void readAndParseMessages() = 0;
     virtual void unwrapAndSendMessages() = 0;
@@ -586,6 +601,21 @@ protected:
     uint16_t resistancePredictionOptionOffset;
     uint16_t leakConductanceCompensationOptionOffset;
     uint16_t bridgeBalanceCompensationOptionOffset;
+
+    std::vector <LiquidJunctionState_t> liquidJunctionStates;
+    std::vector <int64_t> liquidJunctionCurrentSums;
+    std::vector <double> liquidJunctionCurrentEstimates;
+    std::vector <double> liquidJunctionResistanceEstimates;
+    int64_t liquidJunctionCurrentEstimatesNum;
+    std::vector <Measurement_t> liquidJunctionVoltagesBackup;
+    std::vector <double> liquidJunctionDeltaVoltages;
+    std::vector <double> liquidJunctionDeltaCurrents;
+    std::vector <double> liquidJunctionSmallestCurrentChange;
+    std::vector <uint16_t> liquidJunctionConvergingCount;
+    std::vector <uint16_t> liquidJunctionConvergedCount;
+    std::vector <uint16_t> liquidJunctionPositiveSaturationCount;
+    std::vector <uint16_t> liquidJunctionNegativeSaturationCount;
+    std::vector <uint16_t> liquidJunctionOpenCircuitCount;
 
     /********************************************\
      *  Multi-thread synchronization variables  *

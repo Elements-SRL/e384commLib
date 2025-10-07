@@ -15,26 +15,26 @@
 #define UTL_DEMO_FILE_PATH ""
 #define GLB_HERE { std::cout<<__FILE__<<__LINE__<<std::endl; }
 
-template<typename I_t> bool allLessThan(std::vector <I_t> vec, I_t val) {
+template<typename I_t> bool allLessThan(std::vector <I_t> vec, I_t maxValue) {
     if (vec.empty()) {
         return false;
     }
     I_t maxVal = *std::max_element(vec.begin(), vec.end());
 
-    if (maxVal >= val) {
+    if (maxVal >= maxValue) {
         return false;
     } else {
         return true;
     }
 }
 
-template<typename I_t> bool allLessThanOrEqualTo(std::vector <I_t> vec, I_t val) {
+template<typename I_t> bool allLessThanOrEqualTo(std::vector <I_t> vec, I_t maxValue) {
     if (vec.empty()) {
         return false;
     }
     I_t maxVal = *std::max_element(vec.begin(), vec.end());
 
-    if (maxVal > val) {
+    if (maxVal > maxValue) {
         return false;
     } else {
         return true;
@@ -70,8 +70,8 @@ template<typename I_t> bool allGreaterThanOrEqualTo(std::vector <I_t> vec, I_t m
 
 }
 
-template<typename I_t> bool allStrictlyInRange(std::vector <I_t> vec, I_t minValue, I_t val) {
-    if (allLessThan<I_t>(vec, val)) {
+template<typename I_t> bool allStrictlyInRange(std::vector <I_t> vec, I_t minValue, I_t maxValue) {
+    if (allLessThan<I_t>(vec, maxValue)) {
         if (allGreaterThan<I_t>(vec, minValue)) {
             return true;
 
@@ -84,8 +84,8 @@ template<typename I_t> bool allStrictlyInRange(std::vector <I_t> vec, I_t minVal
     }
 }
 
-template<typename I_t> bool allInRange(std::vector <I_t> vec, I_t minValue, I_t val) {
-    if (allLessThanOrEqualTo<I_t>(vec, val)) {
+template<typename I_t> bool allInRange(std::vector <I_t> vec, I_t minValue, I_t maxValue) {
+    if (allLessThanOrEqualTo<I_t>(vec, maxValue)) {
         if (allGreaterThanOrEqualTo<I_t>(vec, minValue)) {
             return true;
 
@@ -98,8 +98,8 @@ template<typename I_t> bool allInRange(std::vector <I_t> vec, I_t minValue, I_t 
     }
 }
 
-template<typename I_t> bool inRange(I_t value, I_t minValue, I_t val) {
-    if (value > val) {
+template<typename I_t> bool inRange(I_t value, I_t minValue, I_t maxValue) {
+    if (value > maxValue) {
         return false;
     }
 

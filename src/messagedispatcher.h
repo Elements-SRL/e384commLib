@@ -801,6 +801,14 @@ public:
      */
     virtual ErrorCodes_t digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag);
 
+    /*! \brief Set currents to be kept by tuning the voltage.
+     * \param channelIndexes [in] Channel indexes.
+     * \param currents [in] Array of desired currents.
+     * \param enable [in] true: takes control of the voltage to get the desired current; false: stops the current tracking algorithm.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setCurrentTracking(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool enable);
+
     /*! \brief Update the ADC filter based on the current range and sampling rate configuration.
      *  \note Method used internally to automatically correct the filtering during range or sampling rate changes.
      *
@@ -2135,6 +2143,15 @@ protected:
         uint32_t startDataPtr;
     } MsgResume_t;
 
+    typedef enum LiquidJunctionProcessing {
+        LiquidJunctionProcessingTransientsStarted,
+        LiquidJunctionProcessingWaitTransients,
+        LiquidJunctionProcessingResetRequired,
+        LiquidJunctionProcessingCollectData,
+        LiquidJunctionProcessingWaitCommandApplied,
+        LiquidJunctionProcessingNum,
+    } LiquidJunctionProcessing_t;
+
     typedef enum OffsetRecalibState {
         OffsetRecalibIdle,
         OffsetRecalibStarting,
@@ -2145,19 +2162,6 @@ protected:
         OffsetRecalibTerminate,
         OffsetRecalibStatesNum
     } OffsetRecalibState_t;
-
-    typedef enum LiquidJunctionState {
-        LiquidJunctionIdle,
-        LiquidJunctionStarting,
-        LiquidJunctionFirstStep,
-        LiquidJunctionConverge,
-        LiquidJunctionSuccess,
-        LiquidJunctionFailOpenCircuit,
-        LiquidJunctionFailTooManySteps,
-        LiquidJunctionFailSaturation,
-        LiquidJunctionTerminate,
-        LiquidJunctionStatesNum
-    } LiquidJunctionState_t;
 
     typedef enum ParsingStatus {
         ParsingNone,
@@ -2184,10 +2188,9 @@ protected:
     void closeDebugFiles();
     virtual void joinCommunicationThreads() = 0;
 
-    void computeLiquidJunction();
     virtual void initializeCalibration();
     virtual void deinitializeCalibration();
-    void initializeLiquidJunction();
+    virtual void initializeLiquidJunction();
 
     bool checkProtocolValidity(std::string &message);
 
@@ -2395,21 +2398,6 @@ protected:
     std::vector <OffsetRecalibStatus_t> offsetRecalibStatuses;
     std::vector <OffsetRecalibState_t> offsetRecalibStates;
 
-    std::vector <LiquidJunctionStatus_t> liquidJunctionStatuses;
-    std::vector <LiquidJunctionState_t> liquidJunctionStates;
-    std::vector <int64_t> liquidJunctionCurrentSums;
-    std::vector <double> liquidJunctionCurrentEstimates;
-    int64_t liquidJunctionCurrentEstimatesNum;
-    std::vector <Measurement_t> liquidJunctionVoltagesBackup;
-    std::vector <double> liquidJunctionDeltaVoltages;
-    std::vector <double> liquidJunctionDeltaCurrents;
-    std::vector <double> liquidJunctionSmallestCurrentChange;
-    std::vector <uint16_t> liquidJunctionConvergingCount;
-    std::vector <uint16_t> liquidJunctionConvergedCount;
-    std::vector <uint16_t> liquidJunctionPositiveSaturationCount;
-    std::vector <uint16_t> liquidJunctionNegativeSaturationCount;
-    std::vector <uint16_t> liquidJunctionOpenCircuitCount;
-
     std::string deviceId = "";
     std::string deviceName = "undefined";
 
@@ -2454,6 +2442,8 @@ protected:
     std::vector <RangedMeasurement_t> customDoublesRanges;
     std::vector <double> customDoublesDefault;
 
+    std::vector <LiquidJunctionStatus_t> liquidJunctionStatuses;
+
     /***********************\
      *  Filters variables  *
     \***********************/
@@ -2493,6 +2483,8 @@ protected:
 
     mutable std::mutex ljMutex;
     bool liquidJunctionControlPending = false;
+    LiquidJunctionProcessing_t liquidJunctionProcessing = LiquidJunctionProcessingTransientsStarted;
+    std::chrono::steady_clock::time_point liquidJunctionTransientsStartTime;
 
     std::thread liquidJunctionThread;
 
