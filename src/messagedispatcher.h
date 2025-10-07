@@ -801,6 +801,14 @@ public:
      */
     virtual ErrorCodes_t digitalOffsetCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag);
 
+    /*! \brief Set currents to be kept by tuning the voltage.
+     * \param channelIndexes [in] Channel indexes.
+     * \param currents [in] Array of desired currents.
+     * \param enable [in] true: takes control of the voltage to get the desired current; false: stops the current tracking algorithm.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setCurrentTracking(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool enable);
+
     /*! \brief Update the ADC filter based on the current range and sampling rate configuration.
      *  \note Method used internally to automatically correct the filtering during range or sampling rate changes.
      *

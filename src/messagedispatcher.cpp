@@ -531,6 +531,10 @@ ErrorCodes_t MessageDispatcher::digitalOffsetCompensation(std::vector <uint16_t>
     return liquidJunctionCompensation(channelIndexes, onValues, applyFlag);
 }
 
+ErrorCodes_t MessageDispatcher::setCurrentTracking(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool enable) {
+    return e384CommLib::ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::setAdcFilter(bool) {
     return ErrorFeatureNotImplemented;
 }

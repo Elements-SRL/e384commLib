@@ -83,6 +83,7 @@ public:
 
     ErrorCodes_t readoutOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
     ErrorCodes_t liquidJunctionCompensation(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) override;
+    ErrorCodes_t setCurrentTracking(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool enable) override;
 
     ErrorCodes_t setAdcFilter(bool applyFlag = false) override;
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
@@ -428,6 +429,8 @@ protected:
     std::vector <double> ljResSy;
     std::vector <double> ljResSxy;
     // std::vector <double> ljMaxRes;
+    std::vector <double> ljTargetCurrents;
+    bool targetCurrentEnabled = false;
 
     /********************************************\
      *  Multi-thread synchronization variables  *
