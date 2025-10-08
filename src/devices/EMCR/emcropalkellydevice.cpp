@@ -61,20 +61,10 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
-    {"23210014U9", Device384PatchClamp_prot_el07c_v06_fw_v02},
-    {"23210014U6", Device384PatchClamp_prot_v05_fw_v06},
-    {"2210001076", Device384PatchClamp_prot_el07c_v06_fw_v02},
-    {"233600161K", Device10MHz_SB_V01},
-    {"224800130Y", Device10MHz_SB_V01},
-    {"22370012CI", Device10MHz_SB_V01},
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
     {"233600161X", Device4x10MHz_PCBV03},
-    {"224800130Y", Device4x10MHz_PCBV03},
     {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
-    {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
-    {"2336001642", DeviceTestBoardEL07c},
-    {"233600165Q", DeviceTestBoardEL07c},
     {"DEMO_384_SSN", Device384Fake},
     {"DEMO_384_Patch", Device384FakePatchClamp},
     {"DEMO_TB_EL07cd", DeviceTbEl07cdFake},
