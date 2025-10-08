@@ -33,11 +33,12 @@ ErrorCodes_t Emcr10MHzFake::startCommunication(std::string) {
 
 void Emcr10MHzFake::initializeVariables() {
     EmcrDevice::initializeVariables();
-#ifdef DEBUG_MAX_SPEED
-    this->fillBuffer();
-#else
-    this->initializeLongBuffer();
-#endif
+    if (debugLevelEnabled(DebugLevelMaxSpeed)) {
+        this->fillBuffer();
+    }
+    else {
+        this->initializeLongBuffer();
+    }
     startTime = std::chrono::steady_clock::now();
 }
 
@@ -58,9 +59,9 @@ bool Emcr10MHzFake::writeRegistersAndActivateTriggers(TxTriggerType_t) {
 }
 
 uint32_t Emcr10MHzFake::readDataFromDevice() {
-#ifdef DEBUG_MAX_SPEED
-    uint32_t bytesRead = UDB_RX_TRANSFER_SIZE; /*!< Bytes read during last transfer from UDB */
-#else
+    if (debugLevelEnabled(DebugLevelMaxSpeed)) {
+        return UDB_RX_TRANSFER_SIZE; /*!< Bytes read during last transfer from UDB */
+    }
 #ifdef SHORT_FILE
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from UDB */
@@ -141,7 +142,6 @@ uint32_t Emcr10MHzFake::readDataFromDevice() {
         bytesRead += bytesPerFrame;
     }
 
-#endif
 #endif
     return bytesRead;
 }

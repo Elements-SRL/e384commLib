@@ -2704,14 +2704,14 @@ bool EmcrDevice::computeLiquidJunction() {
     }
     else {
         ljMutexLock.unlock();
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-        if (anyLiquidJunctionActive) {
-            fprintf(ljFid,
-                    "not performing: %lld.\n",
-                    liquidJunctionCurrentEstimatesNum);
-            fflush(ljFid);
+        if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
+            if (anyLiquidJunctionActive) {
+                fprintf(ljFid,
+                        "not performing: %lld.\n",
+                        liquidJunctionCurrentEstimatesNum);
+                fflush(ljFid);
+            }
         }
-#endif
         return false;
     }
 }

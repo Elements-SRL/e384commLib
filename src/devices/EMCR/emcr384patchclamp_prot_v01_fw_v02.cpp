@@ -1605,117 +1605,82 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::getCompensationEnables(std::vect
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
-#ifdef DEBUG_TX_DATA_PRINT
-    std::string debugString = "";
-#endif
     switch (compTypeToEnable) {
     case CompCfast:
         if (pipetteCapEnCompensationCoders.size() == 0) {
             return ErrorFeatureNotImplemented;
+
         } else if (!vcCompensationsActivated) {
             return ErrorCompensationNotEnabled;
         }
-#ifdef DEBUG_TX_DATA_PRINT
-        debugString += "enable cfast: ";
-#endif
+
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[CompCfast][channelIndexes[i]] = onValues[i];
             pipetteCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCfast(onValues[i]);
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
-#endif
         }
         break;
 
     case CompCslow:
         if (membraneCapEnCompensationCoders.size() == 0 ) {
             return ErrorFeatureNotImplemented;
+
         } else if (!vcCompensationsActivated) {
             return ErrorCompensationNotEnabled;
         }
-#ifdef DEBUG_TX_DATA_PRINT
-        debugString += "enable cslow: ";
-#endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[CompCslow][channelIndexes[i]] = onValues[i];
             membraneCapEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCslowRs(onValues[i]);
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
-#endif
         }
         break;
 
     case CompRsCorr:
         if (rsCorrEnCompensationCoders.size() == 0) {
             return ErrorFeatureNotImplemented;
+
         } else if (!vcCompensationsActivated) {
             return ErrorCompensationNotEnabled;
         }
-#ifdef DEBUG_TX_DATA_PRINT
-        debugString += "enable rscorr: ";
-#endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[CompRsCorr][channelIndexes[i]] = onValues[i];
             rsCorrEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingRsCp(onValues[i]);
             this->updateLiquidJunctionVoltage(channelIndexes[i], false);
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
-#endif
         }
         break;
 
     case CompRsPred:
         if (rsPredEnCompensationCoders.size() == 0) {
             return ErrorFeatureNotImplemented;
+
         }else if (!vcCompensationsActivated) {
             return ErrorCompensationNotEnabled;
         }
-#ifdef DEBUG_TX_DATA_PRINT
-        debugString += "enable rspred: ";
-#endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[CompRsPred][channelIndexes[i]] = onValues[i];
             rsPredEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingRsPg(onValues[i]);
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
-#endif
         }
         break;
 
     case CompCcCfast:
         if (pipetteCapCcEnCompensationCoders.size() == 0) {
             return ErrorFeatureNotImplemented;
+
         } else if (!ccCompensationsActivated) {
             return ErrorCompensationNotEnabled;
         }
-#ifdef DEBUG_TX_DATA_PRINT
-        debugString += "enable cccfast: ";
-#endif
         for (int i = 0; i < channelIndexes.size(); i++) {
             compensationsEnableFlags[CompCcCfast][channelIndexes[i]] = onValues[i];/*! \todo MPAC, forse mettere anche questi in and a areCcCompsEnabled*/
             pipetteCapCcEnCompensationCoders[channelIndexes[i]]->encode(onValues[i], txStatus);
             channelModels[channelIndexes[i]]->setCompensatingCcCfast(onValues[i]);
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += (onValues[i] ? std::to_string(channelIndexes[i]+1)+" ON, " : "");
-#endif
-
         }
         break;
 
     default:
         return ErrorFeatureNotImplemented;
     }
-
-#ifdef DEBUG_TX_DATA_PRINT
-    debugString += "\n";
-    std::fprintf(txFid, debugString.c_str());
-    std::fprintf(txFid, "\n");
-    std::fflush(txFid);
-#endif
 
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -1737,10 +1702,6 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableVcCompensations(bool enabl
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
-#ifdef DEBUG_TX_DATA_PRINT
-    std::fprintf(txFid, "Vc comps enabled %d\n", enable);
-    std::fflush(txFid);
-#endif
 
     return Success;
 }
@@ -1755,10 +1716,7 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::enableCcCompensations(bool enabl
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
-#ifdef DEBUG_TX_DATA_PRINT
-    std::fprintf(txFid, "Cc comps enabled %d\n", enable);
-    std::fflush(txFid);
-#endif
+
     return Success;
 }
 
@@ -1783,9 +1741,6 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector <uint1
         /*! \todo FCON recheck: IN CASE THERE'S INTERACTION AMONG ASICPARAMS, THEY COULD BE DESCRIBED IN THE SWITCH-CASE */
         switch (paramToUpdate) {
         case U_CpVc:
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_CpVc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cp]) + "\n";
-#endif
             //encode
             temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus);
             // update asic domain vector with coder return value
@@ -1793,9 +1748,6 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector <uint1
             break;
 
         case U_Cm:
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_Cm chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Cm]) + "\n";
-#endif
             //encode
             temp = pipetteCapValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus);
             // update asic domain vector with coder return value
@@ -1813,9 +1765,6 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector <uint1
             break;
 
         case U_Rs:
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_Rs chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_Taum]) + "\n";
-#endif
             //encode
             temp = membraneCapTauValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Taum], txStatus);
             // update asic domain vector with coder return value
@@ -1828,9 +1777,6 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector <uint1
             break;
 
         case U_RsCp:
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_RsCp chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsCr]) + "\n";
-#endif
             //encode
             temp = rsCorrValCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsCr], txStatus);
             // update asic domain vector with coder return value
@@ -1838,9 +1784,6 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector <uint1
             break;
 
         case U_RsPg:
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_RsPg chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPg]) + "\n";
-#endif
             //encode
             temp = rsPredGainCompensationCoders[channelIndexes[chIdx]]->encode(asicParams[A_RsPg], txStatus);
             // update asic domain vector with coder return value
@@ -1853,9 +1796,6 @@ ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::setCompValues(std::vector <uint1
             break;
 
         case U_CpCc:
-#ifdef DEBUG_TX_DATA_PRINT
-            debugString += "[U_CpCc chan " + std::to_string(channelIndexes[chIdx]+1) + "]: userDom " + std::to_string(newParamValues[chIdx]) +", asicDom " + std::to_string(asicParams[A_RsPtau]) + "\n";
-#endif
             //encode
             temp = pipetteCapCcValCompensationMultiCoders[channelIndexes[chIdx]]->encode(asicParams[A_Cp], txStatus);
             // update asic domain vector with coder return value

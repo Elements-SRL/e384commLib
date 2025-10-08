@@ -5,25 +5,11 @@ CONFIG(debug, debug|release) {
     QMAKE_CXXFLAGS += /Od
     TARGET = e384commlibd
     DEFINES += DEBUG
-    # comment or uncomment depending on the desired verbosity
-   DEFINES += DEBUG_TX_DATA_PRINT
-   # DEFINES += DEBUG_RX_RAW_DATA_PRINT
-#    DEFINES += DEBUG_RX_PROCESSING_PRINT
-#    DEFINES += DEBUG_RX_DATA_PRINT
-#    DEFINES += DEBUG_LIQUID_JUNCTION_PRINT
-#    DEFINES += DEBUG_MAX_SPEED
-#   DEFINES += DEBUG_TEMP_PRINT
 }
 
 CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS += /O2
     TARGET = e384commlib
-    # comment or uncomment depending on the desired verbosity
-#    DEFINES += DEBUG_RX_RAW_DATA_PRINT
-#    DEFINES += DEBUG_RX_DATA_PRINT
-#    DEFINES += DEBUG_TX_DATA_PRINT
-#    DEFINES += DEBUG_MAX_SPEED
-   # DEFINES += DEBUG_TEMP_PRINT
 }
 
 TEMPLATE = lib

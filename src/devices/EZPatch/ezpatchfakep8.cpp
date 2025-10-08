@@ -461,39 +461,39 @@ void EZPatchFakeP8::unwrapAndSendMessagesForGenerator() {
             break;
         }
 
-#ifdef DEBUG_TX_DATA_PRINT
-        currentPrintfTime = std::chrono::steady_clock::now();
-        fprintf(txFid,
-                "%d us\n"
-                "sent message\n"
-                "sync:\t0x%02x%02x\n"
-                "hb: \t0x%04x\n"
-                "typeID:\t0x%04x\n"
-                "length:\t0x%04x\n",
-                (int)(std::chrono::duration_cast <std::chrono::microseconds> (currentPrintfTime-startPrintfTime).count()),
-                txRawBuffer[1], txRawBuffer[0],
-                txMsgBuffer[txMsgBufferReadOffset].heartbeat,
-                txMsgBuffer[txMsgBufferReadOffset].typeId,
-                txMsgBuffer[txMsgBufferReadOffset].dataLength);
-
-        for (int txDataBufferReadIdx = 0; txDataBufferReadIdx < txDataWords; txDataBufferReadIdx++) {
+        if (debugLevelEnabled(DebugLevelTx)) {
+            currentPrintfTime = std::chrono::steady_clock::now();
             fprintf(txFid,
-                    "data%d:\t0x%04x\n",
-                    txDataBufferReadIdx,
-                    txDataBuffer[(txDataBufferReadOffset+txDataBufferReadIdx)&EZP_TX_DATA_BUFFER_MASK]);
+                    "%d us\n"
+                    "sent message\n"
+                    "sync:\t0x%02x%02x\n"
+                    "hb: \t0x%04x\n"
+                    "typeID:\t0x%04x\n"
+                    "length:\t0x%04x\n",
+                    (int)(std::chrono::duration_cast <std::chrono::microseconds> (currentPrintfTime-startPrintfTime).count()),
+                    txRawBuffer[1], txRawBuffer[0],
+                    txMsgBuffer[txMsgBufferReadOffset].heartbeat,
+                    txMsgBuffer[txMsgBufferReadOffset].typeId,
+                    txMsgBuffer[txMsgBufferReadOffset].dataLength);
+
+            for (int txDataBufferReadIdx = 0; txDataBufferReadIdx < txDataWords; txDataBufferReadIdx++) {
+                fprintf(txFid,
+                        "data%d:\t0x%04x\n",
+                        txDataBufferReadIdx,
+                        txDataBuffer[(txDataBufferReadOffset+txDataBufferReadIdx)&EZP_TX_DATA_BUFFER_MASK]);
+            }
+
+            //        txComputedCrc = txCrc16Ccitt(FTD_TX_SYNC_WORD_SIZE+FTD_TX_HB_TY_LN_SIZE+FTD_TX_CRC_WORD_SIZE, txDataBytes, txComputedCrc);
+            //        * ((uint16_t *)(txRawBuffer+txRawBufferReadIdx)) = txComputedCrc;
+            //        txRawBufferReadIdx += FTD_TX_WORD_SIZE;
+            //        fprintf(txFid,
+            //                "crc1:\t0x%02x%02x\n\n",
+            //                txRawBuffer[txRawBufferReadIdx-1], txRawBuffer[txRawBufferReadIdx-2]);
+            //        fflush(txFid);
+
+            fprintf(txFid, "\n");
+            fflush(txFid);
         }
-
-//        txComputedCrc = txCrc16Ccitt(FTD_TX_SYNC_WORD_SIZE+FTD_TX_HB_TY_LN_SIZE+FTD_TX_CRC_WORD_SIZE, txDataBytes, txComputedCrc);
-//        * ((uint16_t *)(txRawBuffer+txRawBufferReadIdx)) = txComputedCrc;
-//        txRawBufferReadIdx += FTD_TX_WORD_SIZE;
-//        fprintf(txFid,
-//                "crc1:\t0x%02x%02x\n\n",
-//                txRawBuffer[txRawBufferReadIdx-1], txRawBuffer[txRawBufferReadIdx-2]);
-//        fflush(txFid);
-
-        fprintf(txFid, "\n");
-        fflush(txFid);
-#endif
 
         if (txExpectAckMap[msgTypeId]) {
             this->ackFromGenerator(txMsgBuffer[txMsgBufferReadOffset].heartbeat);

@@ -28,9 +28,9 @@ bool Emcr384FakePatchClamp::writeRegistersAndActivateTriggers(TxTriggerType_t) {
 }
 
 uint32_t Emcr384FakePatchClamp::readDataFromDevice() {
-#ifdef DEBUG_MAX_SPEED
-    uint32_t bytesRead = OKY_RX_TRANSFER_SIZE; /*!< Bytes read during last transfer from Opal Kelly */
-#else
+    if (debugLevelEnabled(DebugLevelMaxSpeed)) {
+        return OKY_RX_TRANSFER_SIZE; /*!< Bytes read during last transfer from Opal Kelly */
+    }
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
 
@@ -70,8 +70,6 @@ uint32_t Emcr384FakePatchClamp::readDataFromDevice() {
 
         bytesRead += (totalChannelsNum+3)*RX_WORD_SIZE;
     }
-#endif
-
     return bytesRead;
 }
 

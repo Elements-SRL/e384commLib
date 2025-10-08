@@ -47,7 +47,7 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
     if (!devCountOk) {
         return ErrorListDeviceFailed;
     }
-    if (!demoDevicesEnabled() && numDevs == 0) {
+    if (!debugLevelEnabled(DebugLevelDevice) && numDevs == 0) {
         deviceIds.clear();
         return ErrorNoDeviceFound;
     }
@@ -59,7 +59,7 @@ ErrorCodes_t EmcrUdbDevice::detectDevices(
         deviceIds.push_back(UdbUtils::getDeviceSerial(i));
     }
 
-    if (demoDevicesEnabled()) {
+    if (debugLevelEnabled(DebugLevelDevice)) {
         numDevs++;
         deviceIds.push_back("DEMO_10MHz");
     }
@@ -486,16 +486,16 @@ void EmcrUdbDevice::sendCommandsToDevice() {
             continue;
         }
 
-#ifdef DEBUG_TX_DATA_PRINT
-        for (uint32_t regIdx = 0; regIdx < txRawBulkBuffer[2]; regIdx++) {
-            fprintf(txFid, "%04d:0x%08X ", txRawBulkBuffer[3+regIdx*2], txRawBulkBuffer[3+regIdx*2+1]);
-            if (regIdx % 16 == 15) {
-                fprintf(txFid, "\n");
+        if (debugLevelEnabled(DebugLevelTx)) {
+            for (uint32_t regIdx = 0; regIdx < txRawBulkBuffer[2]; regIdx++) {
+                fprintf(txFid, "%04d:0x%08X ", txRawBulkBuffer[3+regIdx*2], txRawBulkBuffer[3+regIdx*2+1]);
+                if (regIdx % 16 == 15) {
+                    fprintf(txFid, "\n");
+                }
             }
+            fprintf(txFid, "\n");
+            fflush(txFid);
         }
-        fprintf(txFid, "\n");
-        fflush(txFid);
-#endif
 
         notSentTxData = false;
     }
@@ -522,11 +522,6 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
      *  Reading part  *
     \******************/
 
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    fprintf(rxProcFid, "Entering while loop\n");
-    fflush(rxProcFid);
-#endif
-
     /*! Read the data */
     bytesRead = readDataTransferSize;
     if (eptBulkin->XferData((PUCHAR)rxRawBuffer+rxRawBufferWriteOffset, bytesRead, nullptr, false) == false) {
@@ -542,16 +537,10 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
             rxRawBuffer[idx] = rxRawBuffer[UDB_RX_BUFFER_SIZE+idx];
         }
     }
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-        fprintf(rxProcFid, "Bytes read %d\n", bytesRead);
-        fflush(rxProcFid);
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
+    if (debugLevelEnabled(DebugLevelRxRaw)) {
         fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(rxRawBuffer[0]), bytesRead, rxRawFid);
         fflush(rxRawFid);
-#endif
+    }
 
     rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & rxRawBufferMask;
     /*! Update buffer writing point */
@@ -599,12 +588,6 @@ void EmcrUdbDevice::parseDataFromDevice() {
         while (!notEnoughRxData) {
             switch (rxParsePhase) {
             case RxParseLookForHeader:
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-                fprintf(rxProcFid, "Look for header: %x\n", rxRawBufferReadOffset);
-                fflush(rxProcFid);
-#endif
-
                 /*! Look for header */
                 if (rxRawBytesAvailable < rxSyncWordSize) {
                     notEnoughRxData = true;
@@ -626,12 +609,6 @@ void EmcrUdbDevice::parseDataFromDevice() {
                 break;
 
             case RxParseLookForLength:
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-                fprintf(rxProcFid, "Look for length: %x\n", rxRawBufferReadOffset);
-                fflush(rxProcFid);
-#endif
-
                 /*! Look for length */
                 if (rxRawBytesAvailable < rxOffsetLengthSize) {
                     notEnoughRxData = true;
@@ -650,9 +627,9 @@ void EmcrUdbDevice::parseDataFromDevice() {
                         rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
-#ifdef DEBUG_RX_DATA_PRINT
-                        /*! aggiungere printata di debug se serve */
-#endif
+                        if (debugLevelEnabled(DebugLevelRx)) {
+                            /*! aggiungere printata di debug se serve */
+                        }
                         rxParsePhase = RxParseLookForHeader;
 
                     } else {
@@ -662,12 +639,6 @@ void EmcrUdbDevice::parseDataFromDevice() {
                 break;
 
             case RxParseCheckNextHeader:
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-                fprintf(rxProcFid, "Check next header: %x\n", rxRawBufferReadOffset);
-                fflush(rxProcFid);
-#endif
-
                 /*! Check that after the frame end there is a valid header */
                 if (rxRawBytesAvailable < rxDataBytes+rxSyncWordSize) {
                     notEnoughRxData = true;

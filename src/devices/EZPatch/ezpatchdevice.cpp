@@ -320,11 +320,11 @@ ErrorCodes_t EZPatchDevice::turnChannelsOn(std::vector <uint16_t> channelIndexes
         for (unsigned int switchIdx = 0; switchIdx < inputSwitchesNum; switchIdx++) {
             if (inputSwitchesLut[switchIdx] == onValues[channelIdx]) {
                 txDataMessage[inputSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] |=
-                        inputSwitchesByte[switchIdx]; // 1
+                    inputSwitchesByte[switchIdx]; // 1
 
             } else {
                 txDataMessage[inputSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] &=
-                        ~inputSwitchesByte[switchIdx]; // 0
+                    ~inputSwitchesByte[switchIdx]; // 0
             }
         }
     }
@@ -353,11 +353,11 @@ ErrorCodes_t EZPatchDevice::turnCalSwOn(std::vector <uint16_t> channelIndexes, s
         for (unsigned int switchIdx = 0; switchIdx < calSwitchesNum; switchIdx++) {
             if (calSwitchesLut[switchIdx] == onValues[channelIdx]) {
                 txDataMessage[calSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] |=
-                        calSwitchesByte[switchIdx]; // 1
+                    calSwitchesByte[switchIdx]; // 1
 
             } else {
                 txDataMessage[calSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] &=
-                        ~calSwitchesByte[switchIdx]; // 0
+                    ~calSwitchesByte[switchIdx]; // 0
             }
         }
     }
@@ -386,11 +386,11 @@ ErrorCodes_t EZPatchDevice::turnVcSwOn(std::vector <uint16_t> channelIndexes, st
         for (unsigned int switchIdx = 0; switchIdx < vcSwitchesNum; switchIdx++) {
             if (vcSwitchesLut[switchIdx] == onValues[channelIdx]) {
                 txDataMessage[vcSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] |=
-                        vcSwitchesByte[switchIdx]; // 1
+                    vcSwitchesByte[switchIdx]; // 1
 
             } else {
                 txDataMessage[vcSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] &=
-                        ~vcSwitchesByte[switchIdx]; // 0
+                    ~vcSwitchesByte[switchIdx]; // 0
             }
         }
     }
@@ -419,11 +419,11 @@ ErrorCodes_t EZPatchDevice::turnCcSwOn(std::vector <uint16_t> channelIndexes, st
         for (unsigned int switchIdx = 0; switchIdx < ccSwitchesNum; switchIdx++) {
             if (ccSwitchesLut[switchIdx] == onValues[channelIdx]) {
                 txDataMessage[ccSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] |=
-                        ccSwitchesByte[switchIdx]; // 1
+                    ccSwitchesByte[switchIdx]; // 1
 
             } else {
                 txDataMessage[ccSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] &=
-                        ~ccSwitchesByte[switchIdx]; // 0
+                    ~ccSwitchesByte[switchIdx]; // 0
             }
         }
     }
@@ -473,11 +473,11 @@ ErrorCodes_t EZPatchDevice::setAdcCore(std::vector <uint16_t> channelIndexes, st
             for (unsigned int switchIdx = 0; switchIdx < adcCoreSwitchesNum; switchIdx++) {
                 if (adcCoreSwitchesLut[switchIdx] == ctrl) {
                     txDataMessage[adcCoreSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] |=
-                            adcCoreSwitchesByte[switchIdx]; // 1
+                        adcCoreSwitchesByte[switchIdx]; // 1
 
                 } else {
                     txDataMessage[adcCoreSwitchesWord[switchIdx]+ch*coreSpecificSwitchesWordsNum] &=
-                            ~adcCoreSwitchesByte[switchIdx]; // 0
+                        ~adcCoreSwitchesByte[switchIdx]; // 0
                 }
             }
         }
@@ -506,11 +506,11 @@ ErrorCodes_t EZPatchDevice::setAdcCore(std::vector <uint16_t> channelIndexes, st
         for (unsigned int switchIdx = 0; switchIdx < adcCoreSwitchesNum; switchIdx++) {
             if (adcCoreSwitchesLut[switchIdx] == ctrl) {
                 txDataMessage[adcCoreSwitchesWord[switchIdx]] |=
-                        adcCoreSwitchesByte[switchIdx]; // 1
+                    adcCoreSwitchesByte[switchIdx]; // 1
 
             } else {
                 txDataMessage[adcCoreSwitchesWord[switchIdx]] &=
-                        ~adcCoreSwitchesByte[switchIdx]; // 0
+                    ~adcCoreSwitchesByte[switchIdx]; // 0
             }
         }
     }
@@ -535,11 +535,11 @@ ErrorCodes_t EZPatchDevice::turnVoltageStimulusOn(bool on, bool applyFlag) {
             for (unsigned int stimulusSwitchIdx = 0; stimulusSwitchIdx < vcStimulusSwitchesNum; stimulusSwitchIdx++) {
                 if (vcStimulusSwitchesLut[stimulusSwitchIdx] == on) {
                     txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] |=
-                            vcStimulusSwitchesByte[stimulusSwitchIdx]; // 1
+                        vcStimulusSwitchesByte[stimulusSwitchIdx]; // 1
 
                 } else {
                     txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] &=
-                            ~vcStimulusSwitchesByte[stimulusSwitchIdx]; // 0
+                        ~vcStimulusSwitchesByte[stimulusSwitchIdx]; // 0
                 }
             }
         }
@@ -548,11 +548,11 @@ ErrorCodes_t EZPatchDevice::turnVoltageStimulusOn(bool on, bool applyFlag) {
         for (unsigned int stimulusSwitchIdx = 0; stimulusSwitchIdx < vcStimulusSwitchesNum; stimulusSwitchIdx++) {
             if (vcStimulusSwitchesLut[stimulusSwitchIdx] == on) {
                 txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]] |=
-                        vcStimulusSwitchesByte[stimulusSwitchIdx]; // 1
+                    vcStimulusSwitchesByte[stimulusSwitchIdx]; // 1
 
             } else {
                 txDataMessage[vcStimulusSwitchesWord[stimulusSwitchIdx]] &=
-                        ~vcStimulusSwitchesByte[stimulusSwitchIdx]; // 0
+                    ~vcStimulusSwitchesByte[stimulusSwitchIdx]; // 0
             }
         }
     }
@@ -578,11 +578,11 @@ ErrorCodes_t EZPatchDevice::turnCurrentStimulusOn(bool on, bool applyFlag) {
                 for (unsigned int stimulusSwitchIdx = 0; stimulusSwitchIdx < ccStimulusSwitchesNum; stimulusSwitchIdx++) {
                     if (ccStimulusSwitchesLut[stimulusSwitchIdx] == on) {
                         txDataMessage[ccStimulusSwitchesWord[stimulusSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] |=
-                                ccStimulusSwitchesByte[stimulusSwitchIdx]; // 1
+                            ccStimulusSwitchesByte[stimulusSwitchIdx]; // 1
 
                     } else {
                         txDataMessage[ccStimulusSwitchesWord[stimulusSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] &=
-                                ~ccStimulusSwitchesByte[stimulusSwitchIdx]; // 0
+                            ~ccStimulusSwitchesByte[stimulusSwitchIdx]; // 0
                     }
                 }
             }
@@ -591,11 +591,11 @@ ErrorCodes_t EZPatchDevice::turnCurrentStimulusOn(bool on, bool applyFlag) {
             for (unsigned int stimulusSwitchIdx = 0; stimulusSwitchIdx < ccStimulusSwitchesNum; stimulusSwitchIdx++) {
                 if (ccStimulusSwitchesLut[stimulusSwitchIdx] == on) {
                     txDataMessage[ccStimulusSwitchesWord[stimulusSwitchIdx]] |=
-                            ccStimulusSwitchesByte[stimulusSwitchIdx]; // 1
+                        ccStimulusSwitchesByte[stimulusSwitchIdx]; // 1
 
                 } else {
                     txDataMessage[ccStimulusSwitchesWord[stimulusSwitchIdx]] &=
-                            ~ccStimulusSwitchesByte[stimulusSwitchIdx]; // 0
+                        ~ccStimulusSwitchesByte[stimulusSwitchIdx]; // 0
                 }
             }
         }
@@ -626,11 +626,11 @@ ErrorCodes_t EZPatchDevice::turnVoltageReaderOn(bool on, bool applyFlag) {
                 for (unsigned int readerSwitchIdx = 0; readerSwitchIdx < ccReaderSwitchesNum; readerSwitchIdx++) {
                     if (ccReaderSwitchesLut[readerSwitchIdx] == on) {
                         txDataMessage[ccReaderSwitchesWord[readerSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] |=
-                                ccReaderSwitchesByte[readerSwitchIdx]; // 1
+                            ccReaderSwitchesByte[readerSwitchIdx]; // 1
 
                     } else {
                         txDataMessage[ccReaderSwitchesWord[readerSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] &=
-                                ~ccReaderSwitchesByte[readerSwitchIdx]; // 0
+                            ~ccReaderSwitchesByte[readerSwitchIdx]; // 0
                     }
                 }
             }
@@ -639,11 +639,11 @@ ErrorCodes_t EZPatchDevice::turnVoltageReaderOn(bool on, bool applyFlag) {
             for (unsigned int readerSwitchIdx = 0; readerSwitchIdx < ccReaderSwitchesNum; readerSwitchIdx++) {
                 if (ccReaderSwitchesLut[readerSwitchIdx] == on) {
                     txDataMessage[ccReaderSwitchesWord[readerSwitchIdx]] |=
-                            ccReaderSwitchesByte[readerSwitchIdx]; // 1
+                        ccReaderSwitchesByte[readerSwitchIdx]; // 1
 
                 } else {
                     txDataMessage[ccReaderSwitchesWord[readerSwitchIdx]] &=
-                            ~ccReaderSwitchesByte[readerSwitchIdx]; // 0
+                        ~ccReaderSwitchesByte[readerSwitchIdx]; // 0
                 }
             }
         }
@@ -674,11 +674,11 @@ ErrorCodes_t EZPatchDevice::turnCurrentReaderOn(bool on, bool applyFlag) {
                 for (unsigned int readerSwitchIdx = 0; readerSwitchIdx < vcReaderSwitchesNum; readerSwitchIdx++) {
                     if (vcReaderSwitchesLut[readerSwitchIdx] == on) {
                         txDataMessage[vcReaderSwitchesWord[readerSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] |=
-                                vcReaderSwitchesByte[readerSwitchIdx]; // 1
+                            vcReaderSwitchesByte[readerSwitchIdx]; // 1
 
                     } else {
                         txDataMessage[vcReaderSwitchesWord[readerSwitchIdx]+channelIdx*coreSpecificSwitchesWordsNum] &=
-                                ~vcReaderSwitchesByte[readerSwitchIdx]; // 0
+                            ~vcReaderSwitchesByte[readerSwitchIdx]; // 0
                     }
                 }
             }
@@ -687,11 +687,11 @@ ErrorCodes_t EZPatchDevice::turnCurrentReaderOn(bool on, bool applyFlag) {
             for (unsigned int readerSwitchIdx = 0; readerSwitchIdx < vcReaderSwitchesNum; readerSwitchIdx++) {
                 if (vcReaderSwitchesLut[readerSwitchIdx] == on) {
                     txDataMessage[vcReaderSwitchesWord[readerSwitchIdx]] |=
-                            vcReaderSwitchesByte[readerSwitchIdx]; // 1
+                        vcReaderSwitchesByte[readerSwitchIdx]; // 1
 
                 } else {
                     txDataMessage[vcReaderSwitchesWord[readerSwitchIdx]] &=
-                            ~vcReaderSwitchesByte[readerSwitchIdx]; // 0
+                        ~vcReaderSwitchesByte[readerSwitchIdx]; // 0
                 }
             }
         }
@@ -744,7 +744,7 @@ ErrorCodes_t EZPatchDevice::setClampingModality(uint32_t idx, bool applyFlag, bo
         this->turnCurrentStimulusOn(false, false);
         this->turnVoltageReaderOn(false, false);
         if ((previousClampingModality == CURRENT_CLAMP) ||
-                (previousClampingModality == ZERO_CURRENT_CLAMP)) {
+            (previousClampingModality == ZERO_CURRENT_CLAMP)) {
             this->setVCCurrentRange(storedVcCurrentRangeIdx[0], false);
         }
         this->setVCVoltageRange(selectedVcVoltageRangeIdx, false);
@@ -977,11 +977,11 @@ ErrorCodes_t EZPatchDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool app
         for (unsigned int currentRangesSwitchIdx = 0; currentRangesSwitchIdx < vcCurrentRangesSwitchesNum; currentRangesSwitchIdx++) {
             if (vcCurrentRangesSwitchesLut[currentRangeIdx][currentRangesSwitchIdx]) {
                 txDataMessage[vcCurrentRangesSwitchesWord[currentRangesSwitchIdx]] |=
-                        vcCurrentRangesSwitchesByte[currentRangesSwitchIdx]; // 1
+                    vcCurrentRangesSwitchesByte[currentRangesSwitchIdx]; // 1
 
             } else {
                 txDataMessage[vcCurrentRangesSwitchesWord[currentRangesSwitchIdx]] &=
-                        ~vcCurrentRangesSwitchesByte[currentRangesSwitchIdx]; // 0
+                    ~vcCurrentRangesSwitchesByte[currentRangesSwitchIdx]; // 0
             }
         }
 
@@ -1012,11 +1012,11 @@ ErrorCodes_t EZPatchDevice::setCCCurrentRange(uint16_t currentRangeIdx, bool app
         for (unsigned int currentRangesSwitchIdx = 0; currentRangesSwitchIdx < ccCurrentRangesSwitchesNum; currentRangesSwitchIdx++) {
             if (ccCurrentRangesSwitchesLut[currentRangeIdx][currentRangesSwitchIdx]) {
                 txDataMessage[ccCurrentRangesSwitchesWord[currentRangesSwitchIdx]] |=
-                        ccCurrentRangesSwitchesByte[currentRangesSwitchIdx]; // 1
+                    ccCurrentRangesSwitchesByte[currentRangesSwitchIdx]; // 1
 
             } else {
                 txDataMessage[ccCurrentRangesSwitchesWord[currentRangesSwitchIdx]] &=
-                        ~ccCurrentRangesSwitchesByte[currentRangesSwitchIdx]; // 0
+                    ~ccCurrentRangesSwitchesByte[currentRangesSwitchIdx]; // 0
             }
         }
 
@@ -1048,11 +1048,11 @@ ErrorCodes_t EZPatchDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool app
         for (unsigned int voltageRangesSwitchIdx = 0; voltageRangesSwitchIdx < vcVoltageRangesSwitchesNum; voltageRangesSwitchIdx++) {
             if (vcVoltageRangesSwitchesLut[voltageRangeIdx][voltageRangesSwitchIdx]) {
                 txDataMessage[vcVoltageRangesSwitchesWord[voltageRangesSwitchIdx]] |=
-                        vcVoltageRangesSwitchesByte[voltageRangesSwitchIdx]; // 1
+                    vcVoltageRangesSwitchesByte[voltageRangesSwitchIdx]; // 1
 
             } else {
                 txDataMessage[vcVoltageRangesSwitchesWord[voltageRangesSwitchIdx]] &=
-                        ~vcVoltageRangesSwitchesByte[voltageRangesSwitchIdx]; // 0
+                    ~vcVoltageRangesSwitchesByte[voltageRangesSwitchIdx]; // 0
             }
         }
 
@@ -1084,11 +1084,11 @@ ErrorCodes_t EZPatchDevice::setCCVoltageRange(uint16_t voltageRangeIdx, bool app
         for (unsigned int voltageRangesSwitchIdx = 0; voltageRangesSwitchIdx < ccVoltageRangesSwitchesNum; voltageRangesSwitchIdx++) {
             if (ccVoltageRangesSwitchesLut[voltageRangeIdx][voltageRangesSwitchIdx]) {
                 txDataMessage[ccVoltageRangesSwitchesWord[voltageRangesSwitchIdx]] |=
-                        ccVoltageRangesSwitchesByte[voltageRangesSwitchIdx]; // 1
+                    ccVoltageRangesSwitchesByte[voltageRangesSwitchIdx]; // 1
 
             } else {
                 txDataMessage[ccVoltageRangesSwitchesWord[voltageRangesSwitchIdx]] &=
-                        ~ccVoltageRangesSwitchesByte[voltageRangesSwitchIdx]; // 0
+                    ~ccVoltageRangesSwitchesByte[voltageRangesSwitchIdx]; // 0
             }
         }
 
@@ -1310,11 +1310,11 @@ ErrorCodes_t EZPatchDevice::setVoltageStimulusLpf(uint16_t filterIdx, bool apply
         for (unsigned int vcStimulusLpfSwitchIdx = 0; vcStimulusLpfSwitchIdx < vcStimulusLpfSwitchesNum; vcStimulusLpfSwitchIdx++) {
             if (vcStimulusLpfSwitchesLut[filterIdx][vcStimulusLpfSwitchIdx]) {
                 txDataMessage[vcStimulusLpfSwitchesWord[vcStimulusLpfSwitchIdx]] |=
-                        vcStimulusLpfSwitchesByte[vcStimulusLpfSwitchIdx]; // 1
+                    vcStimulusLpfSwitchesByte[vcStimulusLpfSwitchIdx]; // 1
 
             } else {
                 txDataMessage[vcStimulusLpfSwitchesWord[vcStimulusLpfSwitchIdx]] &=
-                        ~vcStimulusLpfSwitchesByte[vcStimulusLpfSwitchIdx]; // 0
+                    ~vcStimulusLpfSwitchesByte[vcStimulusLpfSwitchIdx]; // 0
             }
         }
 
@@ -1342,11 +1342,11 @@ ErrorCodes_t EZPatchDevice::setCurrentStimulusLpf(uint16_t filterIdx, bool apply
         for (unsigned int ccStimulusLpfSwitchIdx = 0; ccStimulusLpfSwitchIdx < ccStimulusLpfSwitchesNum; ccStimulusLpfSwitchIdx++) {
             if (ccStimulusLpfSwitchesLut[filterIdx][ccStimulusLpfSwitchIdx]) {
                 txDataMessage[ccStimulusLpfSwitchesWord[ccStimulusLpfSwitchIdx]] |=
-                        ccStimulusLpfSwitchesByte[ccStimulusLpfSwitchIdx]; // 1
+                    ccStimulusLpfSwitchesByte[ccStimulusLpfSwitchIdx]; // 1
 
             } else {
                 txDataMessage[ccStimulusLpfSwitchesWord[ccStimulusLpfSwitchIdx]] &=
-                        ~ccStimulusLpfSwitchesByte[ccStimulusLpfSwitchIdx]; // 0
+                    ~ccStimulusLpfSwitchesByte[ccStimulusLpfSwitchIdx]; // 0
             }
         }
 
@@ -1364,9 +1364,9 @@ ErrorCodes_t EZPatchDevice::setCurrentStimulusLpf(uint16_t filterIdx, bool apply
 }
 
 ErrorCodes_t EZPatchDevice::enableStimulus(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
-//    if (!allLessThan(channelIndexes, currentChannelsNum)) {
-//        return ErrorValueOutOfRange;
-//    }
+    //    if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    //        return ErrorValueOutOfRange;
+    //    }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         this->enableStimulus(channelIndexes[i], onValues[i]);
         channelModels[channelIndexes[i]]->setStimActive(onValues[i]);
@@ -1388,11 +1388,11 @@ ErrorCodes_t EZPatchDevice::enableStimulus(uint16_t channelIdx, bool on) {
 
             if (on) {
                 txDataMessage[stimulusEnableSwitchWord+channelIdx*coreSpecificSwitchesWordsNum] |=
-                        stimulusEnableSwitchByte; // 1
+                    stimulusEnableSwitchByte; // 1
 
             } else {
                 txDataMessage[stimulusEnableSwitchWord+channelIdx*coreSpecificSwitchesWordsNum] &=
-                        ~stimulusEnableSwitchByte; // 0
+                    ~stimulusEnableSwitchByte; // 0
             }
 
             ret = this->manageOutgoingMessageLife(MsgDirectionPcToDevice+MsgTypeIdSwitchCtrl, txDataMessage, dataLength);
@@ -1492,11 +1492,11 @@ ErrorCodes_t EZPatchDevice::setConstantSwitches() {
     for (unsigned int constantSwitchIdx = 0; constantSwitchIdx < constantSwitchesNum; constantSwitchIdx++) {
         if (constantSwitchesLut[constantSwitchIdx]) {
             txDataMessage[constantSwitchesWord[constantSwitchIdx]] |=
-                    constantSwitchesByte[constantSwitchIdx]; // 1
+                constantSwitchesByte[constantSwitchIdx]; // 1
 
         } else {
             txDataMessage[constantSwitchesWord[constantSwitchIdx]] &=
-                    ~constantSwitchesByte[constantSwitchIdx]; // 0
+                ~constantSwitchesByte[constantSwitchIdx]; // 0
         }
     }
 
@@ -2113,7 +2113,7 @@ ErrorCodes_t EZPatchDevice::setDigitalTriggerOutput(uint16_t triggerIdx, bool te
     ErrorCodes_t ret;
 
     if ((triggerIdx < maxDigitalTriggerOutputEvents) &&
-            triggerId < digitalTriggersNum) {
+        triggerId < digitalTriggersNum) {
 
         delay.convertValue(positiveProtocolTimeRange.prefix);
 
@@ -2134,11 +2134,11 @@ ErrorCodes_t EZPatchDevice::setDigitalTriggerOutput(uint16_t triggerIdx, bool te
 }
 
 ErrorCodes_t EZPatchDevice::setDigitalRepetitiveTriggerOutput(uint16_t triggersNum, bool valid, bool infinite, uint16_t triggerId,
-                                                                  Measurement_t delay, Measurement_t duration, Measurement_t period, Measurement_t deltaPeriod) {
+                                                              Measurement_t delay, Measurement_t duration, Measurement_t period, Measurement_t deltaPeriod) {
     ErrorCodes_t ret;
 
     if (repetitiveTriggerAvailableFlag &&
-            (triggerId < digitalTriggersNum)) {
+        (triggerId < digitalTriggersNum)) {
 
         delay.convertValue(positiveProtocolTimeRange.prefix);
         duration.convertValue(positiveProtocolTimeRange.prefix);
@@ -2205,7 +2205,7 @@ ErrorCodes_t EZPatchDevice::setVoltageProtocolStructure(uint16_t protId, uint16_
 }
 
 ErrorCodes_t EZPatchDevice::voltStepTimeStep(Measurement_t v0, Measurement_t vStep, Measurement_t t0, Measurement_t tStep,
-                                                 uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
+                                             uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
     ErrorCodes_t ret;
 
     v0.convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
@@ -2244,7 +2244,7 @@ ErrorCodes_t EZPatchDevice::voltStepTimeStep(Measurement_t v0, Measurement_t vSt
 }
 
 ErrorCodes_t EZPatchDevice::voltRamp(Measurement_t v0, Measurement_t vFinal, Measurement_t t,
-                                         uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
+                                     uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
     ErrorCodes_t ret;
 
     v0.convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
@@ -2283,7 +2283,7 @@ ErrorCodes_t EZPatchDevice::voltRamp(Measurement_t v0, Measurement_t vFinal, Mea
 }
 
 ErrorCodes_t EZPatchDevice::voltSin(Measurement_t v0, Measurement_t vAmp, Measurement_t freq,
-                                        uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
+                                    uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
     ErrorCodes_t ret;
 
     v0.convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
@@ -2408,7 +2408,7 @@ ErrorCodes_t EZPatchDevice::setCurrentProtocolStructure(uint16_t protId, uint16_
 }
 
 ErrorCodes_t EZPatchDevice::currStepTimeStep(Measurement_t i0, Measurement_t iStep, Measurement_t t0, Measurement_t tStep,
-                                                 uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
+                                             uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
     ErrorCodes_t ret;
 
     i0.convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
@@ -2447,7 +2447,7 @@ ErrorCodes_t EZPatchDevice::currStepTimeStep(Measurement_t i0, Measurement_t iSt
 }
 
 ErrorCodes_t EZPatchDevice::currRamp(Measurement_t i0, Measurement_t iFinal, Measurement_t t,
-                                         uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
+                                     uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
     ErrorCodes_t ret;
 
     i0.convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
@@ -2486,7 +2486,7 @@ ErrorCodes_t EZPatchDevice::currRamp(Measurement_t i0, Measurement_t iFinal, Mea
 }
 
 ErrorCodes_t EZPatchDevice::currSin(Measurement_t i0, Measurement_t iAmp, Measurement_t freq,
-                                        uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
+                                    uint16_t currentItem, uint16_t nextItem, uint16_t repsNum, uint16_t applySteps) {
     ErrorCodes_t ret;
 
     i0.convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
@@ -2759,7 +2759,7 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                 data[0] = (int16_t)(rawFloat-liquidJunctionOffsetBinary);
                 lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToPc;
 
-//                this->setLiquidJunctionCompensationOverrideValue(rxOutput.channelIdx, {voltageOffsetCorrected, liquidJunctionControl.prefix, "V"}); /*! \todo FCON capire perchè stato messo questo comando durante il porting su e384commlib */
+                //                this->setLiquidJunctionCompensationOverrideValue(rxOutput.channelIdx, {voltageOffsetCorrected, liquidJunctionControl.prefix, "V"}); /*! \todo FCON capire perchè stato messo questo comando durante il porting su e384commlib */
                 break;
 
             case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
@@ -2855,7 +2855,7 @@ ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data)
                 rxOutput.dataLen = rxMsgBuffer[rxMsgBufferReadOffset].dataLength;
                 for (uint16_t dataIdx = 0; dataIdx < rxOutput.dataLen; dataIdx++) {
                     rxOutput.dataLen = 1;
-//                    rxOutput.uintData[dataIdx] = * (rxDataBuffer+dataOffset); /* \todo FCON al momento della saturazione non frega niente a nessuno */
+                    //                    rxOutput.uintData[dataIdx] = * (rxDataBuffer+dataOffset); /* \todo FCON al momento della saturazione non frega niente a nessuno */
                     dataOffset = (dataOffset+1)&EZP_RX_DATA_BUFFER_MASK;
                 }
                 lastParsedMsgType = rxOutput.msgTypeId-MsgDirectionDeviceToPc;
@@ -3195,7 +3195,7 @@ ErrorCodes_t EZPatchDevice::initialize(std::string fwPath) {
         return ret;
     }
 
-//    send a protocol to force the device to send data
+    //    send a protocol to force the device to send data
     const Measurement m0 = {0, UnitPfx::UnitPfxMilli, "V"};
     const Measurement t0 = {100, UnitPfx::UnitPfxKilo, "s"};
     const Measurement t1 = {0, UnitPfx::UnitPfxTera, "s"};
@@ -3335,29 +3335,28 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
                     return ErrorConnectionFpgaResetFailed;
                 }
 
-#ifdef DEBUG_RX_DATA_PRINT
-                fprintf(rxFid,
-                        "fpga reset\n"
-                        "try %d: %s\n\n",
-                        fpgaResetTries,
-                        ((rxOutput.msgTypeId == MsgDirectionDeviceToPc+MsgTypeIdFpgaReset) && (ret == Success) ? "success" : "fail"));
-                fflush(rxFid);
-#endif
-
+                if (debugLevelEnabled(DebugLevelRx)) {
+                    fprintf(rxFid,
+                            "fpga reset\n"
+                            "try %d: %s\n\n",
+                            fpgaResetTries,
+                            ((rxOutput.msgTypeId == MsgDirectionDeviceToPc+MsgTypeIdFpgaReset) && (ret == Success) ? "success" : "fail"));
+                    fflush(rxFid);
+                }
             }
         }
         fpgaResetTries = 0;
 
         ret = this->ping();
 
-#ifdef DEBUG_RX_DATA_PRINT
-        fprintf(rxFid,
-                "ping\n"
-                "try %d: %s\n\n",
-                pingTries,
-                (ret == Success ? "success" : "fail"));
-        fflush(rxFid);
-#endif
+        if (debugLevelEnabled(DebugLevelRx)) {
+            fprintf(rxFid,
+                    "ping\n"
+                    "try %d: %s\n\n",
+                    pingTries,
+                    (ret == Success ? "success" : "fail"));
+            fflush(rxFid);
+        }
     }
     this->deallocateRxDataBuffer(datain);
 
@@ -3542,24 +3541,24 @@ void EZPatchDevice::computeLiquidJunction() {
                     liquidJunctionCurrentEstimatesNum = 0;
                     std::fill(liquidJunctionCurrentSums.begin(), liquidJunctionCurrentSums.end(), 0);
 
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-                    fprintf(ljFid,
-                            "%d: starting. "
-                            "Liq jun %s, "
-                            "conving %d, "
-                            "convd %d, "
-                            "possat %d, "
-                            "negsat %d, "
-                            "opencirc %d\n",
-                            channelIdx,
-                            selectedLiquidJunctionVector[channelIdx].label().c_str(),
-                            liquidJunctionConvergingCount[channelIdx],
-                            liquidJunctionConvergedCount[channelIdx],
-                            liquidJunctionPositiveSaturationCount[channelIdx],
-                            liquidJunctionNegativeSaturationCount[channelIdx],
-                            liquidJunctionOpenCircuitCount[channelIdx]);
-                    fflush(ljFid);
-#endif
+                    if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
+                        fprintf(ljFid,
+                                "%d: starting. "
+                                "Liq jun %s, "
+                                "conving %d, "
+                                "convd %d, "
+                                "possat %d, "
+                                "negsat %d, "
+                                "opencirc %d\n",
+                                channelIdx,
+                                selectedLiquidJunctionVector[channelIdx].label().c_str(),
+                                liquidJunctionConvergingCount[channelIdx],
+                                liquidJunctionConvergedCount[channelIdx],
+                                liquidJunctionPositiveSaturationCount[channelIdx],
+                                liquidJunctionNegativeSaturationCount[channelIdx],
+                                liquidJunctionOpenCircuitCount[channelIdx]);
+                        fflush(ljFid);
+                    }
                     break;
 
                     /*! First impedance estimation */
@@ -3595,28 +3594,28 @@ void EZPatchDevice::computeLiquidJunction() {
 
                     liquidJunctionConvergingCount[channelIdx]++;
 
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-                    fprintf(ljFid,
-                            "%d: first. "
-                            "Curr est %f, "
-                            "DV %f, "
-                            "Liq jun %s, "
-                            "conving %d, "
-                            "convd %d, "
-                            "possat %d, "
-                            "negsat %d, "
-                            "opencirc %d\n",
-                            channelIdx,
-                            liquidJunctionCurrentEstimates[channelIdx],
-                            liquidJunctionDeltaVoltages[channelIdx],
-                            selectedLiquidJunctionVector[channelIdx].label().c_str(),
-                            liquidJunctionConvergingCount[channelIdx],
-                            liquidJunctionConvergedCount[channelIdx],
-                            liquidJunctionPositiveSaturationCount[channelIdx],
-                            liquidJunctionNegativeSaturationCount[channelIdx],
-                            liquidJunctionOpenCircuitCount[channelIdx]);
-                    fflush(ljFid);
-#endif
+                    if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
+                        fprintf(ljFid,
+                                "%d: first. "
+                                "Curr est %f, "
+                                "DV %f, "
+                                "Liq jun %s, "
+                                "conving %d, "
+                                "convd %d, "
+                                "possat %d, "
+                                "negsat %d, "
+                                "opencirc %d\n",
+                                channelIdx,
+                                liquidJunctionCurrentEstimates[channelIdx],
+                                liquidJunctionDeltaVoltages[channelIdx],
+                                selectedLiquidJunctionVector[channelIdx].label().c_str(),
+                                liquidJunctionConvergingCount[channelIdx],
+                                liquidJunctionConvergedCount[channelIdx],
+                                liquidJunctionPositiveSaturationCount[channelIdx],
+                                liquidJunctionNegativeSaturationCount[channelIdx],
+                                liquidJunctionOpenCircuitCount[channelIdx]);
+                        fflush(ljFid);
+                    }
                     break;
 
                     /*! Steps towards convergence */
@@ -3692,30 +3691,30 @@ void EZPatchDevice::computeLiquidJunction() {
                     channelIndexes.push_back(channelIdx);
                     voltages.push_back(selectedLiquidJunctionVector[channelIdx]);
 
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-                    fprintf(ljFid,
-                            "%d: converge. "
-                            "DI %f, "
-                            "Curr est %f, "
-                            "DV %f, "
-                            "Liq jun %s, "
-                            "conving %d, "
-                            "convd %d, "
-                            "possat %d, "
-                            "negsat %d, "
-                            "opencirc %d\n",
-                            channelIdx,
-                            liquidJunctionDeltaCurrents[channelIdx],
-                            liquidJunctionCurrentEstimates[channelIdx],
-                            liquidJunctionDeltaVoltages[channelIdx],
-                            selectedLiquidJunctionVector[channelIdx].label().c_str(),
-                            liquidJunctionConvergingCount[channelIdx],
-                            liquidJunctionConvergedCount[channelIdx],
-                            liquidJunctionPositiveSaturationCount[channelIdx],
-                            liquidJunctionNegativeSaturationCount[channelIdx],
-                            liquidJunctionOpenCircuitCount[channelIdx]);
-                    fflush(ljFid);
-#endif
+                    if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
+                        fprintf(ljFid,
+                                "%d: converge. "
+                                "DI %f, "
+                                "Curr est %f, "
+                                "DV %f, "
+                                "Liq jun %s, "
+                                "conving %d, "
+                                "convd %d, "
+                                "possat %d, "
+                                "negsat %d, "
+                                "opencirc %d\n",
+                                channelIdx,
+                                liquidJunctionDeltaCurrents[channelIdx],
+                                liquidJunctionCurrentEstimates[channelIdx],
+                                liquidJunctionDeltaVoltages[channelIdx],
+                                selectedLiquidJunctionVector[channelIdx].label().c_str(),
+                                liquidJunctionConvergingCount[channelIdx],
+                                liquidJunctionConvergedCount[channelIdx],
+                                liquidJunctionPositiveSaturationCount[channelIdx],
+                                liquidJunctionNegativeSaturationCount[channelIdx],
+                                liquidJunctionOpenCircuitCount[channelIdx]);
+                        fflush(ljFid);
+                    }
 
                     if (liquidJunctionConvergingCount[channelIdx] > 20) {
                         liquidJunctionStates[channelIdx] = LiquidJunctionFailTooManySteps;
@@ -3735,12 +3734,12 @@ void EZPatchDevice::computeLiquidJunction() {
                     anyLiquidJunctionActive = true;
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
                     liquidJunctionStatuses[channelIdx] = LiquidJunctionSucceded;
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-                    fprintf(ljFid,
-                            "%d: success.",
-                            channelIdx);
-                    fflush(ljFid);
-#endif
+                    if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
+                        fprintf(ljFid,
+                                "%d: success.",
+                                channelIdx);
+                        fflush(ljFid);
+                    }
                     break;
 
                 case LiquidJunctionFailOpenCircuit:
@@ -3749,24 +3748,24 @@ void EZPatchDevice::computeLiquidJunction() {
                     voltages.push_back(liquidJunctionVoltagesBackup[channelIdx]);
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
                     liquidJunctionStatuses[channelIdx] = LiquidJunctionFailedOpenCircuit;
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-                    fprintf(ljFid,
-                            "%d: open circuit.",
-                            channelIdx);
-                    fflush(ljFid);
-#endif
+                    if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
+                        fprintf(ljFid,
+                                "%d: open circuit.",
+                                channelIdx);
+                        fflush(ljFid);
+                    }
                     break;
 
                 case LiquidJunctionFailTooManySteps:
                     anyLiquidJunctionActive = true;
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
                     liquidJunctionStatuses[channelIdx] = LiquidJunctionFailedTooManySteps;
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-                    fprintf(ljFid,
-                            "%d: too many steps.",
-                            channelIdx);
-                    fflush(ljFid);
-#endif
+                    if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
+                        fprintf(ljFid,
+                                "%d: too many steps.",
+                                channelIdx);
+                        fflush(ljFid);
+                    }
                     break;
 
                 case LiquidJunctionFailSaturation:
@@ -3775,12 +3774,12 @@ void EZPatchDevice::computeLiquidJunction() {
                     voltages.push_back(liquidJunctionVoltagesBackup[channelIdx]);
                     liquidJunctionStates[channelIdx] = LiquidJunctionTerminate;
                     liquidJunctionStatuses[channelIdx] = LiquidJunctionFailedSaturation;
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-                    fprintf(ljFid,
-                            "%d: saturation.",
-                            channelIdx);
-                    fflush(ljFid);
-#endif
+                    if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
+                        fprintf(ljFid,
+                                "%d: saturation.",
+                                channelIdx);
+                        fflush(ljFid);
+                    }
                     break;
 
                 case LiquidJunctionTerminate:
@@ -3809,14 +3808,14 @@ void EZPatchDevice::computeLiquidJunction() {
         }
         else {
             ljMutexLock.unlock();
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-            if (anyLiquidJunctionActive) {
-                fprintf(ljFid,
-                        "not performing: %lld.\n",
-                        liquidJunctionCurrentEstimatesNum);
-                fflush(ljFid);
+            if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
+                if (anyLiquidJunctionActive) {
+                    fprintf(ljFid,
+                            "not performing: %lld.\n",
+                            liquidJunctionCurrentEstimatesNum);
+                    fflush(ljFid);
+                }
             }
-#endif
         }
 
         computeCurrentOffsetFlag = anyOffsetRecalibrationActive || anyLiquidJunctionActive;
@@ -3969,10 +3968,10 @@ ErrorCodes_t EZPatchDevice::manageOutgoingMessageLife(uint16_t msgTypeId, std::v
 
             } else {
                 resendTry++;
-#ifdef DEBUG_TX_DATA_PRINT
-                fprintf(txFid, "resend\n\n");
-                fflush(txFid);
-#endif
+                if (debugLevelEnabled(DebugLevelTx)) {
+                    fprintf(txFid, "resend\n\n");
+                    fflush(txFid);
+                }
             }
         }
 
@@ -4077,13 +4076,13 @@ bool EZPatchDevice::checkVoltStepTimeStepParameters(double v0, double vStep, dou
     double maxTWithMargin = positiveProtocolTimeRange.max+positiveProtocolTimeRange.step*0.5;
     double factor = stepsOnLastSweep+(applySteps == 1 ? (double)(repsNum-1) : 0.0);
     if (v0 < minVWithMargin ||
-            v0+factor*vStep < minVWithMargin ||
-            v0 > maxVWithMargin ||
-            v0+factor*vStep > maxVWithMargin ||
-            t0 > maxTWithMargin ||
-            t0+factor*tStep > maxTWithMargin ||
-            t0 < minTWithMargin ||
-            t0+factor*tStep < minTWithMargin) {
+        v0+factor*vStep < minVWithMargin ||
+        v0 > maxVWithMargin ||
+        v0+factor*vStep > maxVWithMargin ||
+        t0 > maxTWithMargin ||
+        t0+factor*tStep > maxTWithMargin ||
+        t0 < minTWithMargin ||
+        t0+factor*tStep < minTWithMargin) {
         return false;
 
     } else {
@@ -4097,11 +4096,11 @@ bool EZPatchDevice::checkVoltRampParameters(double v0, double vFinal, double t) 
     double minTWithMargin = positiveProtocolTimeRange.min-positiveProtocolTimeRange.step*0.5;
     double maxTWithMargin = positiveProtocolTimeRange.max+positiveProtocolTimeRange.step*0.5;
     if (v0 < minVWithMargin ||
-            vFinal < minVWithMargin ||
-            v0 > maxVWithMargin ||
-            vFinal > maxVWithMargin ||
-            t > maxTWithMargin ||
-            t < minTWithMargin) {
+        vFinal < minVWithMargin ||
+        v0 > maxVWithMargin ||
+        vFinal > maxVWithMargin ||
+        t > maxTWithMargin ||
+        t < minTWithMargin) {
         return false;
 
     } else {
@@ -4115,10 +4114,10 @@ bool EZPatchDevice::checkVoltSinParameters(double v0, double vAmp, double freq) 
     double minFWithMargin = positiveProtocolFrequencyRange.min-positiveProtocolFrequencyRange.step*0.5;
     double maxFWithMargin = positiveProtocolFrequencyRange.max+positiveProtocolFrequencyRange.step*0.5;
     if (v0-vAmp < minVWithMargin ||
-            v0+vAmp > maxVWithMargin ||
-            vAmp < 0.0 ||
-            freq < minFWithMargin ||
-            freq > maxFWithMargin) {
+        v0+vAmp > maxVWithMargin ||
+        vAmp < 0.0 ||
+        freq < minFWithMargin ||
+        freq > maxFWithMargin) {
         return false;
 
     } else {
@@ -4133,13 +4132,13 @@ bool EZPatchDevice::checkCurrStepTimeStepParameters(double i0, double iStep, dou
     double maxTWithMargin = positiveProtocolTimeRange.max+positiveProtocolTimeRange.step*0.5;
     double factor = stepsOnLastSweep+(applySteps == 1 ? (double)(repsNum-1) : 0.0);
     if (i0 < minIWithMargin ||
-            i0+factor*iStep < minIWithMargin ||
-            i0 > maxIWithMargin ||
-            i0+factor*iStep > maxIWithMargin ||
-            t0 > maxTWithMargin ||
-            t0+factor*tStep > maxTWithMargin ||
-            t0 < minTWithMargin ||
-            t0+factor*tStep < minTWithMargin) {
+        i0+factor*iStep < minIWithMargin ||
+        i0 > maxIWithMargin ||
+        i0+factor*iStep > maxIWithMargin ||
+        t0 > maxTWithMargin ||
+        t0+factor*tStep > maxTWithMargin ||
+        t0 < minTWithMargin ||
+        t0+factor*tStep < minTWithMargin) {
         return false;
 
     } else {
@@ -4153,11 +4152,11 @@ bool EZPatchDevice::checkCurrRampParameters(double i0, double iFinal, double t) 
     double minTWithMargin = positiveProtocolTimeRange.min-positiveProtocolTimeRange.step*0.5;
     double maxTWithMargin = positiveProtocolTimeRange.max+positiveProtocolTimeRange.step*0.5;
     if (i0 < minIWithMargin ||
-            iFinal < minIWithMargin ||
-            i0 > maxIWithMargin ||
-            iFinal > maxIWithMargin ||
-            t > maxTWithMargin ||
-            t < minTWithMargin) {
+        iFinal < minIWithMargin ||
+        i0 > maxIWithMargin ||
+        iFinal > maxIWithMargin ||
+        t > maxTWithMargin ||
+        t < minTWithMargin) {
         return false;
 
     } else {
@@ -4171,10 +4170,10 @@ bool EZPatchDevice::checkCurrSinParameters(double i0, double iAmp, double freq) 
     double minFWithMargin = positiveProtocolFrequencyRange.min-positiveProtocolFrequencyRange.step*0.5;
     double maxFWithMargin = positiveProtocolFrequencyRange.max+positiveProtocolFrequencyRange.step*0.5;
     if (i0-iAmp < minIWithMargin ||
-            i0+iAmp > maxIWithMargin ||
-            iAmp < 0.0 ||
-            freq < minFWithMargin ||
-            freq > maxFWithMargin) {
+        i0+iAmp > maxIWithMargin ||
+        iAmp < 0.0 ||
+        freq < minFWithMargin ||
+        freq > maxFWithMargin) {
         return false;
 
     } else {
@@ -4338,11 +4337,11 @@ void EZPatchDevice::compensationsFlags2Switches(std::vector <uint16_t> &txDataMe
             if (compensationsSwitchesLut[compensationSwitchIdx] >= VCCompensationsNum) {
                 if (compensationsEnabledArray[compensationsSwitchesLut[compensationSwitchIdx]][compensationsSettingChannel] == compensationsSwitchesEnableSignArray[compensationSwitchIdx]) {
                     txDataMessage[compensationsSwitchesWord[compensationSwitchIdx]+compensationsSettingChannel*coreSpecificSwitchesWordsNum] |=
-                            compensationsSwitchesByte[compensationSwitchIdx]; // 1
+                        compensationsSwitchesByte[compensationSwitchIdx]; // 1
 
                 } else {
                     txDataMessage[compensationsSwitchesWord[compensationSwitchIdx]+compensationsSettingChannel*coreSpecificSwitchesWordsNum] &=
-                            ~compensationsSwitchesByte[compensationSwitchIdx]; // 0
+                        ~compensationsSwitchesByte[compensationSwitchIdx]; // 0
                 }
             }
         }
@@ -4351,11 +4350,11 @@ void EZPatchDevice::compensationsFlags2Switches(std::vector <uint16_t> &txDataMe
             if (compensationsSwitchesLut[compensationSwitchIdx] < VCCompensationsNum) {
                 if (compensationsEnabledArray[compensationsSwitchesLut[compensationSwitchIdx]][compensationsSettingChannel] == compensationsSwitchesEnableSignArray[compensationSwitchIdx]) {
                     txDataMessage[compensationsSwitchesWord[compensationSwitchIdx]+compensationsSettingChannel*coreSpecificSwitchesWordsNum] |=
-                            compensationsSwitchesByte[compensationSwitchIdx]; // 1
+                        compensationsSwitchesByte[compensationSwitchIdx]; // 1
 
                 } else {
                     txDataMessage[compensationsSwitchesWord[compensationSwitchIdx]+compensationsSettingChannel*coreSpecificSwitchesWordsNum] &=
-                            ~compensationsSwitchesByte[compensationSwitchIdx]; // 0
+                        ~compensationsSwitchesByte[compensationSwitchIdx]; // 0
                 }
             }
         }
@@ -4365,11 +4364,11 @@ void EZPatchDevice::compensationsFlags2Switches(std::vector <uint16_t> &txDataMe
             if (compensationsSwitchesLut[compensationSwitchIdx] < VCCompensationsNum) {
                 if (compensationsEnabledArray[compensationsSwitchesLut[compensationSwitchIdx]][compensationsSettingChannel] == compensationsSwitchesEnableSignArray[compensationSwitchIdx]) {
                     txDataMessage[compensationsSwitchesWord[compensationSwitchIdx]+compensationsSettingChannel*coreSpecificSwitchesWordsNum] |=
-                            compensationsSwitchesByte[compensationSwitchIdx]; // 1
+                        compensationsSwitchesByte[compensationSwitchIdx]; // 1
 
                 } else {
                     txDataMessage[compensationsSwitchesWord[compensationSwitchIdx]+compensationsSettingChannel*coreSpecificSwitchesWordsNum] &=
-                            ~compensationsSwitchesByte[compensationSwitchIdx]; // 0
+                        ~compensationsSwitchesByte[compensationSwitchIdx]; // 0
                 }
             }
         }
@@ -4378,11 +4377,11 @@ void EZPatchDevice::compensationsFlags2Switches(std::vector <uint16_t> &txDataMe
             if (compensationsSwitchesLut[compensationSwitchIdx] >= VCCompensationsNum) {
                 if (compensationsEnabledArray[compensationsSwitchesLut[compensationSwitchIdx]][compensationsSettingChannel] == compensationsSwitchesEnableSignArray[compensationSwitchIdx]) {
                     txDataMessage[compensationsSwitchesWord[compensationSwitchIdx]+compensationsSettingChannel*coreSpecificSwitchesWordsNum] |=
-                            compensationsSwitchesByte[compensationSwitchIdx]; // 1
+                        compensationsSwitchesByte[compensationSwitchIdx]; // 1
 
                 } else {
                     txDataMessage[compensationsSwitchesWord[compensationSwitchIdx]+compensationsSettingChannel*coreSpecificSwitchesWordsNum] &=
-                            ~compensationsSwitchesByte[compensationSwitchIdx]; // 0
+                        ~compensationsSwitchesByte[compensationSwitchIdx]; // 0
                 }
             }
         }

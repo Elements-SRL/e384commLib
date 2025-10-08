@@ -2488,35 +2488,14 @@ protected:
 
     std::thread liquidJunctionThread;
 
-#if defined(DEBUG_TX_DATA_PRINT) || defined(DEBUG_RX_DATA_PRINT)
     std::chrono::steady_clock::time_point startPrintfTime;
     std::chrono::steady_clock::time_point currentPrintfTime;
-#endif
 
-#ifdef DEBUG_TX_DATA_PRINT
     FILE * txFid = nullptr;
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
     FILE * rxRawFid = nullptr;
-#endif
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    FILE * rxProcFid = nullptr;
-#endif
-
-#ifdef DEBUG_RX_DATA_PRINT
     FILE * rxFid = nullptr;
-#endif
-
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
     FILE * ljFid = nullptr;
-#endif
-
-#ifdef DEBUG_TEMP_PRINT
     FILE * tempFid = nullptr;
-#endif
-
 };
 
 #endif // MESSAGEDISPATCHER_H

@@ -42,9 +42,9 @@ bool Emcr2x10MHzFake::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
 }
 
 uint32_t Emcr2x10MHzFake::readDataFromDevice() {
-#ifdef DEBUG_MAX_SPEED
-    uint32_t bytesRead = OKY_RX_TRANSFER_SIZE; /*!< Bytes read during last transfer from Opal Kelly */
-#else
+    if (debugLevelEnabled(DebugLevelMaxSpeed)) {
+        return OKY_RX_TRANSFER_SIZE; /*!< Bytes read during last transfer from Opal Kelly */
+    }
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
 
@@ -87,8 +87,6 @@ uint32_t Emcr2x10MHzFake::readDataFromDevice() {
 
         bytesRead += (voltageChannelsNum+currentChannelsNum*packetsPerFrame+6)*RX_WORD_SIZE;
     }
-#endif
-
     return bytesRead;
 }
 

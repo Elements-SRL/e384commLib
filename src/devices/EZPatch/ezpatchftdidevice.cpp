@@ -150,7 +150,7 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
     if (!devCountOk) {
         return ErrorListDeviceFailed;
     }
-    if (!demoDevicesEnabled() && numDevs == 0) {
+    if (!debugLevelEnabled(DebugLevelDevice) && numDevs == 0) {
         deviceIds.clear();
         return ErrorNoDeviceFound;
     }
@@ -170,7 +170,7 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
         }
     }
 
-    if (demoDevicesEnabled()) {
+    if (debugLevelEnabled(DebugLevelDevice)) {
         numDevs++;
         deviceIds.push_back("DEMO_ePatch");
         numDevs++;
@@ -880,10 +880,10 @@ void EZPatchFtdiDevice::readAndParseMessages() {
             continue;
         }
 
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-        fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(unsigned char), ftdiReadBytes, rxRawFid);
-        fflush(rxRawFid);
-#endif
+        if (debugLevelEnabled(DebugLevelRxRaw)) {
+            fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(unsigned char), ftdiReadBytes, rxRawFid);
+            fflush(rxRawFid);
+        }
         if (rxRawBufferWriteOffset == 0) {
             rxRawBuffer[FTD_RX_RAW_BUFFER_SIZE] = rxRawBuffer[0]; /*!< The last item is a copy of the first one, it used to safely read 2 consecutive bytes at a time to form a 16bit word,
                                                                    *   even if the first byte is in position FTD_RX_RAW_BUFFER_SIZE-1 and the following one would go out of range otherwise */
@@ -963,13 +963,13 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
                     } else {
                         rxParsePhase = RxParseLookForHeader;
-#ifdef DEBUG_RX_DATA_PRINT
-                        fprintf(rxFid,
-                                "crc0 wrong\n"
-                                "hb: \t0x%04x\n\n",
-                                rxHeartbeat);
-                        fflush(rxFid);
-#endif
+                        if (debugLevelEnabled(DebugLevelRx)) {
+                            fprintf(rxFid,
+                                    "crc0 wrong\n"
+                                    "hb: \t0x%04x\n\n",
+                                    rxHeartbeat);
+                            fflush(rxFid);
+                        }
                     }
                 }
                 break;
@@ -1008,24 +1008,25 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                             txAckMutex.lock();
                             txAckReceived = true;
                             txAckCv.notify_all();
-#ifdef DEBUG_RX_DATA_PRINT
-                            fprintf(rxFid,
-                                    "ack recd\n"
-                                    "hb: \t0x%04x\n\n",
-                                    * ((uint16_t *)(rxRawBuffer+rxRawBufferReadOffset)));
-                            fflush(rxFid);
-#endif
+                            if (debugLevelEnabled(DebugLevelRx)) {
+                                fprintf(rxFid,
+                                        "ack recd\n"
+                                        "hb: \t0x%04x\n\n",
+                                        * ((uint16_t *)(rxRawBuffer+rxRawBufferReadOffset)));
+                                fflush(rxFid);
+                            }
                             txAckMutex.unlock();
 
                         } else if (rxMsgTypeId == MsgDirectionDeviceToPc+MsgTypeIdNack) {
                             /*! \todo FCON NACK should not be written but used to manage tx, maybe forcing rewriting? hard to implement */
-#ifdef DEBUG_RX_DATA_PRINT
-                            fprintf(rxFid,
-                                    "nack recd\n"
-                                    "hb: \t0x%04x\n\n",
-                                    * ((uint16_t *)(rxRawBuffer+rxRawBufferReadOffset)));
-                            fflush(rxFid);
-#endif
+
+                            if (debugLevelEnabled(DebugLevelRx)) {
+                                fprintf(rxFid,
+                                        "nack recd\n"
+                                        "hb: \t0x%04x\n\n",
+                                        * ((uint16_t *)(rxRawBuffer+rxRawBufferReadOffset)));
+                                fflush(rxFid);
+                            }
 
                         } else if (rxMsgTypeId == MsgDirectionDeviceToPc+MsgTypeIdPing) {
                             this->ack(rxHeartbeat);
@@ -1036,46 +1037,47 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                             rxMsgBuffer[rxMsgBufferWriteOffset].typeId = rxMsgTypeId;
                             rxMsgBuffer[rxMsgBufferWriteOffset].startDataPtr = rxDataBufferWriteOffset;
 
-#ifdef DEBUG_RX_DATA_PRINT
-                            if (rxEnabledTypesMap[rxMsgTypeId]) {
-                                currentPrintfTime = std::chrono::steady_clock::now();
-                                fprintf(rxFid,
-                                        "%d us\n"
-                                        "recd message\n"
-                                        "crc1 ok\n"
-                                        "hb: \t0x%04x\n"
-                                        "typeID:\t0x%04x\n"
-                                        "length:\t0x%04x\n"
-                                        "crc0:\t0x%04x\n",
-                                        (int)(std::chrono::duration_cast <std::chrono::microseconds> (currentPrintfTime-startPrintfTime).count()),
-                                        rxHeartbeat,
-                                        rxMsgTypeId,
-                                        rxDataWords,
-                                        rxReadCrc0);
+                            if (debugLevelEnabled(DebugLevelRx)) {
+                                if (rxEnabledTypesMap[rxMsgTypeId]) {
+                                    currentPrintfTime = std::chrono::steady_clock::now();
+                                    fprintf(rxFid,
+                                            "%d us\n"
+                                            "recd message\n"
+                                            "crc1 ok\n"
+                                            "hb: \t0x%04x\n"
+                                            "typeID:\t0x%04x\n"
+                                            "length:\t0x%04x\n"
+                                            "crc0:\t0x%04x\n",
+                                            (int)(std::chrono::duration_cast <std::chrono::microseconds> (currentPrintfTime-startPrintfTime).count()),
+                                            rxHeartbeat,
+                                            rxMsgTypeId,
+                                            rxDataWords,
+                                            rxReadCrc0);
+                                }
                             }
-#endif
 
                             if (rxMsgTypeId == MsgDirectionDeviceToPc+MsgTypeIdAcquisitionData) {
                                 /*! In MsgTypeIdAcquisitionData the last word of the payload contains the number of valid data samples */
                                 if (rxDataWords < EZP_RX_MIN_DATA_PACKET_LEN) {
                                     rxParsePhase = RxParseLookForHeader;
-#ifdef DEBUG_RX_DATA_PRINT
-                                    fprintf(rxFid,
-                                            "short data packet\n"
-                                            "words: \t%d\n\n",
-                                            rxDataWords);
-                                    fflush(rxFid);
-#endif
+
+                                    if (debugLevelEnabled(DebugLevelRx)) {
+                                        fprintf(rxFid,
+                                                "short data packet\n"
+                                                "words: \t%d\n\n",
+                                                rxDataWords);
+                                        fflush(rxFid);
+                                    }
                                     continue;
 
                                 } else {
 
                                     rxDataWords = * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*(rxDataWords-1))&FTD_RX_RAW_BUFFER_MASK)));
 
-#ifdef DEBUG_RX_DATA_PRINT
-                                    fprintf(rxFid, "vlen:\t0x%04x\n",
-                                            rxDataWords);
-#endif
+                                    if (debugLevelEnabled(DebugLevelRx)) {
+                                        fprintf(rxFid, "vlen:\t0x%04x\n",
+                                                rxDataWords);
+                                    }
                                 }
                             }
 
@@ -1087,22 +1089,23 @@ void EZPatchFtdiDevice::readAndParseMessages() {
 
                             for (rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
                                 rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)&EZP_RX_DATA_BUFFER_MASK] = * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*rxDataBufferWriteIdx)&FTD_RX_RAW_BUFFER_MASK)));
-#ifdef DEBUG_RX_DATA_PRINT
-                                if (rxEnabledTypesMap[rxMsgTypeId]) {
-                                    fprintf(rxFid, "data%d:\t0x%04x\n",
-                                            rxDataBufferWriteIdx,
-                                            rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)&EZP_RX_DATA_BUFFER_MASK]);
+
+                                if (debugLevelEnabled(DebugLevelRx)) {
+                                    if (rxEnabledTypesMap[rxMsgTypeId]) {
+                                        fprintf(rxFid, "data%d:\t0x%04x\n",
+                                                rxDataBufferWriteIdx,
+                                                rxDataBuffer[(rxDataBufferWriteOffset+rxDataBufferWriteIdx)&EZP_RX_DATA_BUFFER_MASK]);
+                                    }
                                 }
-#endif
                             }
 
-#ifdef DEBUG_RX_DATA_PRINT
-                            if (rxEnabledTypesMap[rxMsgTypeId]) {
-                                fprintf(rxFid, "crc1:\t0x%04x\n\n",
-                                        rxReadCrc1);
-                                fflush(rxFid);
+                            if (debugLevelEnabled(DebugLevelRx)) {
+                                if (rxEnabledTypesMap[rxMsgTypeId]) {
+                                    fprintf(rxFid, "crc1:\t0x%04x\n\n",
+                                            rxReadCrc1);
+                                    fflush(rxFid);
+                                }
                             }
-#endif
 
                             rxDataBufferWriteOffset = (rxDataBufferWriteOffset+rxDataWords)&EZP_RX_DATA_BUFFER_MASK;
 
@@ -1128,46 +1131,46 @@ void EZPatchFtdiDevice::readAndParseMessages() {
                         }
 
                     } else {
+                        if (debugLevelEnabled(DebugLevelRx)) {
+                            currentPrintfTime = std::chrono::steady_clock::now();
+                            fprintf(rxFid,
+                                    "%d us\n"
+                                    "recd message\n"
+                                    "crc1 wrong\n"
+                                    "hb: \t0x%04x\n"
+                                    "typeID:\t0x%04x\n"
+                                    "length:\t0x%04x\n"
+                                    "crc0:\t0x%04x\n",
+                                    (int)(std::chrono::duration_cast <std::chrono::microseconds> (currentPrintfTime-startPrintfTime).count()),
+                                    rxHeartbeat,
+                                    rxMsgTypeId,
+                                    rxDataWords,
+                                    rxReadCrc0);
 
-#ifdef DEBUG_RX_DATA_PRINT
-                        currentPrintfTime = std::chrono::steady_clock::now();
-                        fprintf(rxFid,
-                                "%d us\n"
-                                "recd message\n"
-                                "crc1 wrong\n"
-                                "hb: \t0x%04x\n"
-                                "typeID:\t0x%04x\n"
-                                "length:\t0x%04x\n"
-                                "crc0:\t0x%04x\n",
-                                (int)(std::chrono::duration_cast <std::chrono::microseconds> (currentPrintfTime-startPrintfTime).count()),
-                                rxHeartbeat,
-                                rxMsgTypeId,
-                                rxDataWords,
-                                rxReadCrc0);
+                            for (rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
+                                fprintf(rxFid, "data%d:\t0x%04x\n",
+                                        rxDataBufferWriteIdx,
+                                        * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*rxDataBufferWriteIdx)&FTD_RX_RAW_BUFFER_MASK))));
+                            }
 
-                        for (rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
-                            fprintf(rxFid, "data%d:\t0x%04x\n",
-                                    rxDataBufferWriteIdx,
-                                    * ((uint16_t *)(rxRawBuffer+((rxRawBufferReadOffset+2*rxDataBufferWriteIdx)&FTD_RX_RAW_BUFFER_MASK))));
+                            fprintf(rxFid,
+                                    "crc1:\t0x%04x\n"
+                                    "crc2:\t0x%04x\n\n",
+                                    rxReadCrc1,
+                                    rxComputedCrc);
+                            fflush(rxFid);
                         }
-
-                        fprintf(rxFid,
-                                "crc1:\t0x%04x\n"
-                                "crc2:\t0x%04x\n\n",
-                                rxReadCrc1,
-                                rxComputedCrc);
-                        fflush(rxFid);
-#endif
 
                         rxRawBufferReadOffset = (rxMsgOffset+FTD_RX_SYNC_WORD_SIZE)&FTD_RX_RAW_BUFFER_MASK;
                         rxRawBufferReadLength += FTD_RX_HB_TY_LN_SIZE;
-#ifdef DEBUG_RX_DATA_PRINT
-                        fprintf(rxFid,
-                                "crc1 wrong\n"
-                                "hb: \t0x%04x\n\n",
-                                rxHeartbeat);
-                        fflush(rxFid);
-#endif
+
+                        if (debugLevelEnabled(DebugLevelRx)) {
+                            fprintf(rxFid,
+                                    "crc1 wrong\n"
+                                    "hb: \t0x%04x\n\n",
+                                    rxHeartbeat);
+                            fflush(rxFid);
+                        }
                         if (rxExpectAck) {
                             this->nack(rxHeartbeat);
                         }
@@ -1252,46 +1255,46 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
         * ((uint16_t *)(txRawBuffer+txRawBufferReadIdx)) = txComputedCrc;
         txRawBufferReadIdx += FTD_TX_WORD_SIZE;
 
-#ifdef DEBUG_TX_DATA_PRINT
-        currentPrintfTime = std::chrono::steady_clock::now();
-        fprintf(txFid,
-                "%d us\n"
-                "sent message\n"
-                "sync:\t0x%02x%02x\n"
-                "hb: \t0x%02x%02x\n"
-                "typeID:\t0x%02x%02x\n"
-                "length:\t0x%02x%02x\n"
-                "crc0:\t0x%02x%02x\n",
-                (int)(std::chrono::duration_cast <std::chrono::microseconds> (currentPrintfTime-startPrintfTime).count()),
-                txRawBuffer[1], txRawBuffer[0],
-                txRawBuffer[3], txRawBuffer[2],
-                txRawBuffer[5], txRawBuffer[4],
-                txRawBuffer[7], txRawBuffer[6],
-                txRawBuffer[9], txRawBuffer[8]);
-#endif
+        if (debugLevelEnabled(DebugLevelTx)) {
+            currentPrintfTime = std::chrono::steady_clock::now();
+            fprintf(txFid,
+                    "%d us\n"
+                    "sent message\n"
+                    "sync:\t0x%02x%02x\n"
+                    "hb: \t0x%02x%02x\n"
+                    "typeID:\t0x%02x%02x\n"
+                    "length:\t0x%02x%02x\n"
+                    "crc0:\t0x%02x%02x\n",
+                    (int)(std::chrono::duration_cast <std::chrono::microseconds> (currentPrintfTime-startPrintfTime).count()),
+                    txRawBuffer[1], txRawBuffer[0],
+                    txRawBuffer[3], txRawBuffer[2],
+                    txRawBuffer[5], txRawBuffer[4],
+                    txRawBuffer[7], txRawBuffer[6],
+                    txRawBuffer[9], txRawBuffer[8]);
+        }
 
         for (txDataBufferReadIdx = 0; txDataBufferReadIdx < txDataWords; txDataBufferReadIdx++) {
             * ((uint16_t *)(txRawBuffer+txRawBufferReadIdx)) = txDataBuffer[(txDataBufferReadOffset+txDataBufferReadIdx)&EZP_TX_DATA_BUFFER_MASK];
             txRawBufferReadIdx += FTD_TX_WORD_SIZE;
 
-#ifdef DEBUG_TX_DATA_PRINT
-            fprintf(txFid,
-                    "data%d:\t0x%02x%02x\n",
-                    txDataBufferReadIdx,
-                    txRawBuffer[txRawBufferReadIdx-1], txRawBuffer[txRawBufferReadIdx-2]);
-#endif
+            if (debugLevelEnabled(DebugLevelTx)) {
+                fprintf(txFid,
+                        "data%d:\t0x%02x%02x\n",
+                        txDataBufferReadIdx,
+                        txRawBuffer[txRawBufferReadIdx-1], txRawBuffer[txRawBufferReadIdx-2]);
+            }
         }
 
         txComputedCrc = txCrc16Ccitt(FTD_TX_SYNC_WORD_SIZE+FTD_TX_HB_TY_LN_SIZE+FTD_TX_CRC_WORD_SIZE, txDataBytes, txComputedCrc);
         * ((uint16_t *)(txRawBuffer+txRawBufferReadIdx)) = txComputedCrc;
         txRawBufferReadIdx += FTD_TX_WORD_SIZE;
 
-#ifdef DEBUG_TX_DATA_PRINT
-        fprintf(txFid,
-                "crc1:\t0x%02x%02x\n\n",
-                txRawBuffer[txRawBufferReadIdx-1], txRawBuffer[txRawBufferReadIdx-2]);
-        fflush(txFid);
-#endif
+        if (debugLevelEnabled(DebugLevelTx)) {
+            fprintf(txFid,
+                    "crc1:\t0x%02x%02x\n\n",
+                    txRawBuffer[txRawBufferReadIdx-1], txRawBuffer[txRawBufferReadIdx-2]);
+            fflush(txFid);
+        }
 
         txMsgBufferReadOffset = (txMsgBufferReadOffset+1)&EZP_TX_MSG_BUFFER_MASK;
 

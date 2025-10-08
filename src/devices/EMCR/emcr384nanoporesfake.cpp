@@ -48,15 +48,16 @@ bool Emcr384FakeNanopores::writeRegistersAndActivateTriggers(TxTriggerType_t) {
 }
 
 uint32_t Emcr384FakeNanopores::readDataFromDevice() {
-    uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
-#ifdef DEBUG_MAX_SPEED
-    currentTime = std::chrono::steady_clock::now();
-    long long duration = (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count());
-    if (duration > (1000.0*(double)OKY_RX_TRANSFER_SIZE)/generatedByteRate) {
-        startTime = currentTime;
-        bytesRead = OKY_RX_TRANSFER_SIZE;
+    if (debugLevelEnabled(DebugLevelMaxSpeed)) {
+        currentTime = std::chrono::steady_clock::now();
+        long long duration = (std::chrono::duration_cast <std::chrono::milliseconds> (currentTime-startTime).count());
+        if (duration > (1000.0*(double)OKY_RX_TRANSFER_SIZE)/generatedByteRate) {
+            startTime = currentTime;
+            return OKY_RX_TRANSFER_SIZE;
+        }
     }
-#else
+
+    uint32_t bytesRead = 0; /*!< Bytes read during last transfer from Opal Kelly */
     /*! No data to receive, just sleep */
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
@@ -94,7 +95,6 @@ uint32_t Emcr384FakeNanopores::readDataFromDevice() {
 //        totalBytesWritten = 0;
 //        startPrintfTime = std::chrono::steady_clock::now();
 //    }
-#endif
 
     return bytesRead;
 }
