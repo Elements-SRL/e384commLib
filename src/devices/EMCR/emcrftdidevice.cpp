@@ -6,6 +6,7 @@
 #include "emcr8npatchclamp_el07c_artix7_pcbv01.h"
 #include "emcr8npatchclamp_el07e_artix7_pcbv02.h"
 #include "emcrqc01atb_pcbv02.h"
+#include "emcrsuperduck_pcbv01.h"
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV00_2, 4, DeviceE8PPatchEL07CD_artix7_PCBV00_2},         //  10, 14,  4 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V00.2. */
@@ -23,7 +24,8 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_EL07e_PCBV02, 1, DeviceE8nPatchEL07C_artix7_EL07e_PCBV02_FW1},   //  16,  3,  1 : VC-CC device with 8 channels (EL07E) (FPGA artix7) PCB V01. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx4Patch_artix7_PCBV02, 1, DeviceE4PPatchEL07CD_artix7_PCBV00_2},           //  10, 21,  1 : VC-CC device with 4 channels (EL07C) (FPGA artix7) PCB V02. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV02, 1, DeviceE8PPatchEL07CD_artix7_PCBV01_FW3},         //  10, 22,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V02. */
-    {DeviceVersionTestBoard, DeviceSubversionTestBoardQC01a_PCBV02, 1, DeviceTestBoardQC02a_PCBV02},                    //  6,  15,  1 : QC01a testboard PCB V02. */
+    {DeviceVersionTestBoard, DeviceSubversionTestBoardQC01a_PCBV02, 1, DeviceTestBoardQC02a_PCBV02},                    //   6, 15,  1 : QC01a testboard PCB V02. */
+    {DeviceVersionSuperDuck, DeviceSubversionSuperDuckPcbV01, 1, DeviceSuperDuck_PCBV01},                               //  17, 11,  1 : SuperDuck. */
 };
 
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
@@ -213,6 +215,10 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
 
     case DeviceTestBoardQC02a_PCBV02:
         messageDispatcher = new EmcrQc01aTB_PCBV02(deviceId);
+        break;
+
+    case DeviceSuperDuck_PCBV01:
+        messageDispatcher = new EmcrSuperDuck_PCBV01(deviceId);
         break;
 
     default:
