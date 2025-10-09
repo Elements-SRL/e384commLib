@@ -18,7 +18,8 @@ protected:
     };
 
     enum VCCurrentRanges {
-        VCCurrentRangesNum = 0
+        VCCurrentRange3330mV,
+        VCCurrentRangesNum
     };
 
     enum VCVoltageRanges {
@@ -53,7 +54,7 @@ protected:
     };
 
     enum SamplingRates {
-        SamplingRate40kHz,
+        SamplingRate25kHz,
         SamplingRatesNum
     };
 

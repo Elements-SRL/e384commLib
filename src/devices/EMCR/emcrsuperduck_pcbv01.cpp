@@ -16,7 +16,7 @@ EmcrSuperDuck_PCBV01::EmcrSuperDuck_PCBV01(std::string di) :
 
     rxSyncWord = 0x5aa55aa5;
 
-    packetsPerFrame = 2;
+    packetsPerFrame = 1;
 
     voltageChannelsNum = 1;
     currentChannelsNum = 1;
@@ -24,8 +24,8 @@ EmcrSuperDuck_PCBV01::EmcrSuperDuck_PCBV01(std::string di) :
 
     totalBoardsNum = 1;
 
-    rxWordOffsets[RxMessageOnlyVoltage] = 0;
-    rxWordLengths[RxMessageOnlyVoltage] = voltageChannelsNum*packetsPerFrame;
+    rxWordOffsets[RxMessageDataLoad] = 0;
+    rxWordLengths[RxMessageDataLoad] = totalChannelsNum*packetsPerFrame;
 
     rxMaxWords = totalChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
@@ -59,6 +59,12 @@ EmcrSuperDuck_PCBV01::EmcrSuperDuck_PCBV01(std::string di) :
     /*! VC */
     vcCurrentRangesNum = VCCurrentRangesNum;
     vcCurrentRangesArray.resize(vcCurrentRangesNum);
+    vcCurrentRangesArray[VCCurrentRange3330mV].max = 3330.0;
+    vcCurrentRangesArray[VCCurrentRange3330mV].min = -3330.0;
+    vcCurrentRangesArray[VCCurrentRange3330mV].step = vcCurrentRangesArray[VCCurrentRange3330mV].max/SHORT_MAX;
+    vcCurrentRangesArray[VCCurrentRange3330mV].prefix = UnitPfxMilli;
+    vcCurrentRangesArray[VCCurrentRange3330mV].unit = "A";
+    defaultVcCurrentRangeIdx = VCCurrentRange3330mV;
 
     /*! Voltage ranges */
     /*! VC */
@@ -115,23 +121,23 @@ EmcrSuperDuck_PCBV01::EmcrSuperDuck_PCBV01(std::string di) :
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    defaultSamplingRateIdx = SamplingRate40kHz;
+    defaultSamplingRateIdx = SamplingRate25kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate40kHz].value = 40.0;
-    realSamplingRatesArray[SamplingRate40kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate40kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate25kHz].value = 25.0;
+    realSamplingRatesArray[SamplingRate25kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate25kHz].unit = "Hz";
     sr2srm.clear();
-    sr2srm[SamplingRate40kHz] = 0;
+    sr2srm[SamplingRate25kHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate40kHz].value = 25.0;
-    integrationStepArray[SamplingRate40kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate40kHz].unit = "s";
+    integrationStepArray[SamplingRate25kHz].value = 40.0;
+    integrationStepArray[SamplingRate25kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate25kHz].unit = "s";
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-        {SamplingRate40kHz, VCCurrentFilter10Hz}
+        {SamplingRate25kHz, VCCurrentFilter10Hz}
     };
 
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange2500mV].prefix, vcVoltageRangesArray[VCVoltageRange2500mV].unit};
@@ -232,21 +238,6 @@ EmcrSuperDuck_PCBV01::EmcrSuperDuck_PCBV01(std::string di) :
     ccVoltageFilterCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(ccVoltageFilterCoder);
 
-    /*! Liquid junction compensation */
-    boolConfig.initialWord = 12;
-    boolConfig.initialBit = 0;
-    boolConfig.bitsNum = 1;
-    liquidJunctionCompensationCoders.resize(currentChannelsNum);
-    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        liquidJunctionCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
-        coders.push_back(liquidJunctionCompensationCoders[idx]);
-        boolConfig.initialBit++;
-        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
-            boolConfig.initialBit = 0;
-            boolConfig.initialWord++;
-        }
-    }
-
     /*! Enable stimulus */
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 4;
@@ -268,12 +259,12 @@ EmcrSuperDuck_PCBV01::EmcrSuperDuck_PCBV01(std::string di) :
     vHoldTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 1;
-        doubleConfig.resolution = -vcVoltageRangesArray[rangeIdx].step;
-        doubleConfig.maxValue = -doubleConfig.resolution*(double)0x4000;
-        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].max+doubleConfig.resolution*USHORT_MAX;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
+        doubleConfig.minValue = -doubleConfig.resolution*(double)0x4000;
+        doubleConfig.maxValue = doubleConfig.minValue+doubleConfig.resolution*USHORT_MAX;
         vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
             doubleConfig.initialWord++;
         }
@@ -281,7 +272,7 @@ EmcrSuperDuck_PCBV01::EmcrSuperDuck_PCBV01(std::string di) :
 
     /*! Default status */
     txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x00C0;
+    txStatus.encodingWords[0] = 0x000C;
     txStatus.encodingWords[1] = 0x4000;
 }
 

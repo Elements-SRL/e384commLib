@@ -81,9 +81,6 @@ void FrameManager::storeFrameData(uint16_t rxWordOffset) {
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageVoltageAndGpDataLoad]) {
         this->storeFrameDataType(type2Pc(MsgTypeIdInvalid), MessageDispatcher::RxMessageVoltageAndGpDataLoad);
     }
-    else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageOnlyVoltage]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdInvalid), MessageDispatcher::RxMessageOnlyVoltage);
-    }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDataHeader]) {
         this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionHeader), MessageDispatcher::RxMessageDataHeader);
     }
@@ -310,37 +307,6 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             /*! Then store the current values */
             for (int idx = 0; idx < currentChannelsNum; idx++) {
                 lastDataMessage.data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
-            }
-        }
-        lastDataMessageAvailable = true;
-        emd->processLiquidJunctionData(lastDataMessage);
-        break;
-    }
-
-    case MessageDispatcher::RxMessageOnlyVoltage: {
-        /*! Data frame with only current */
-        uint32_t packetsNum = rxDataWords;
-        uint32_t rxDataBufferWriteIdx = 0;
-        this->pushLastDataMessage();
-        lastDataMessage.typeId = rxMsgTypeId;
-        lastDataMessage.data.resize(rxDataWords*totalChannelsNum);
-
-        for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
-            /*! Store the voltage values first */
-            for (int idx = 0; idx < voltageChannelsNum; idx++) {
-                lastDataMessage.data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
-            }
-            /*! Leave space for the current */
-            rxDataBufferWriteIdx += currentChannelsNum;
-        }
-
-        rxDataBufferWriteIdx = 0;
-        for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
-            /*! Leave space for the voltage */
-            rxDataBufferWriteIdx += voltageChannelsNum;
-            /*! Then store the current values */
-            for (int idx = 0; idx < currentChannelsNum; idx++) {
-                lastDataMessage.data[rxDataBufferWriteIdx++] = 0.0;
             }
         }
         lastDataMessageAvailable = true;
