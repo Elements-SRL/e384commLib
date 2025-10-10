@@ -61,20 +61,10 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
-    {"23210014U9", Device384PatchClamp_prot_el07c_v06_fw_v02},
-    {"23210014U6", Device384PatchClamp_prot_v05_fw_v06},
-    {"2210001076", Device384PatchClamp_prot_el07c_v06_fw_v02},
-    {"233600161K", Device10MHz_SB_V01},
-    {"224800130Y", Device10MHz_SB_V01},
-    {"22370012CI", Device10MHz_SB_V01},
     {"22370012CB", Device2x10MHz_PCBV02},
     {"224800131L", Device2x10MHz_PCBV02},
     {"233600161X", Device4x10MHz_PCBV03},
-    {"224800130Y", Device4x10MHz_PCBV03},
     {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
-    {"22370012CI", Device4x10MHz_QuadAnalog_PCBV01_DIGV01},
-    {"2336001642", DeviceTestBoardEL07c},
-    {"233600165Q", DeviceTestBoardEL07c},
     {"DEMO_384_SSN", Device384Fake},
     {"DEMO_384_Patch", Device384FakePatchClamp},
     {"DEMO_TB_EL07cd", DeviceTbEl07cdFake},
@@ -100,7 +90,7 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
     if (!devCountOk) {
         return ErrorListDeviceFailed;
     }
-    if (!demoDevicesEnabled() && numDevs == 0) {
+    if (!debugLevelEnabled(DebugLevelDevice) && numDevs == 0) {
         deviceIds.clear();
         return ErrorNoDeviceFound;
     }
@@ -112,7 +102,7 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
         deviceIds.push_back(getDeviceSerial(i));
     }
 
-    if (demoDevicesEnabled()) {
+    if (debugLevelEnabled(DebugLevelDevice)) {
         numDevs++;
         deviceIds.push_back("DEMO_384_SSN");
         numDevs++;
@@ -638,16 +628,16 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
             continue;
         }
 
-#ifdef DEBUG_TX_DATA_PRINT
-        for (uint16_t regIdx = 0; regIdx < regs.size(); regIdx++) {
-            fprintf(txFid, "%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
-            if (regIdx % 16 == 15) {
-                fprintf(txFid, "\n");
+        if (debugLevelEnabled(DebugLevelTx)) {
+            for (uint16_t regIdx = 0; regIdx < regs.size(); regIdx++) {
+                fprintf(txFid, "%04d:0x%08X ", regs[regIdx].address, regs[regIdx].data);
+                if (regIdx % 16 == 15) {
+                    fprintf(txFid, "\n");
+                }
             }
+            fprintf(txFid, "\n");
+            fflush(txFid);
         }
-        fprintf(txFid, "\n");
-        fflush(txFid);
-#endif
 
         notSentTxData = false;
     }
@@ -691,11 +681,6 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
      *  Reading part  *
     \******************/
 
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    fprintf(rxProcFid, "Entering while loop\n");
-    fflush(rxProcFid);
-#endif
-
     /*! Read the data */
     bytesRead = dev.ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, okTransferSize, rxRawBuffer+rxRawBufferWriteOffset);
 
@@ -709,22 +694,12 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
             dev.OpenBySerial(deviceId);
         }
         std::this_thread::sleep_for (std::chrono::milliseconds(100));
-#ifdef DEBUG_RX_PROCESSING_PRINT
-        fprintf(rxProcFid, "Error %x\n", bytesRead);
-        fflush(rxProcFid);
-#endif
 
     } else {
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-        fprintf(rxProcFid, "Bytes read %d\n", bytesRead);
-        fflush(rxProcFid);
-#endif
-
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-        fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(rxRawBuffer[0]), bytesRead, rxRawFid);
-        fflush(rxRawFid);
-#endif
+        if (debugLevelEnabled(DebugLevelRxRaw)) {
+            fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(rxRawBuffer[0]), bytesRead, rxRawFid);
+            fflush(rxRawFid);
+        }
 
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & rxRawBufferMask;
     }
@@ -796,12 +771,6 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
         while (!notEnoughRxData) {
             switch (rxParsePhase) {
             case RxParseLookForHeader:
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-                fprintf(rxProcFid, "Look for header: %x\n", rxRawBufferReadOffset);
-                fflush(rxProcFid);
-#endif
-
                 /*! Look for header */
                 if (rxRawBytesAvailable < rxSyncWordSize) {
                     notEnoughRxData = true;
@@ -829,12 +798,6 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
                 break;
 
             case RxParseLookForLength:
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-                fprintf(rxProcFid, "Look for length: %x\n", rxRawBufferReadOffset);
-                fflush(rxProcFid);
-#endif
-
                 /*! Look for length */
                 if (rxRawBytesAvailable < rxOffsetLengthSize) {
                     notEnoughRxData = true;
@@ -853,9 +816,9 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
                         rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
-#ifdef DEBUG_RX_DATA_PRINT
-                        /*! aggiungere printata di debug se serve */
-#endif
+                        if (debugLevelEnabled(DebugLevelRx)) {
+                            /*! aggiungere printata di debug se serve */
+                        }
                         rxParsePhase = RxParseLookForHeader;
 
                     } else {
@@ -865,12 +828,6 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
                 break;
 
             case RxParseCheckNextHeader:
-
-#ifdef DEBUG_RX_PROCESSING_PRINT
-                fprintf(rxProcFid, "Check next header: %x\n", rxRawBufferReadOffset);
-                fflush(rxProcFid);
-#endif
-
                 /*! Check that after the frame end there is a valid header */
                 if (rxRawBytesAvailable < rxDataBytes+rxSyncWordSize) {
                     notEnoughRxData = true;

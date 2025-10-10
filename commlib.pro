@@ -5,25 +5,11 @@ CONFIG(debug, debug|release) {
     QMAKE_CXXFLAGS += /Od
     TARGET = e384commlibd
     DEFINES += DEBUG
-    # comment or uncomment depending on the desired verbosity
-   DEFINES += DEBUG_TX_DATA_PRINT
-   # DEFINES += DEBUG_RX_RAW_DATA_PRINT
-#    DEFINES += DEBUG_RX_PROCESSING_PRINT
-#    DEFINES += DEBUG_RX_DATA_PRINT
-#    DEFINES += DEBUG_LIQUID_JUNCTION_PRINT
-#    DEFINES += DEBUG_MAX_SPEED
-#   DEFINES += DEBUG_TEMP_PRINT
 }
 
 CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS += /O2
     TARGET = e384commlib
-    # comment or uncomment depending on the desired verbosity
-#    DEFINES += DEBUG_RX_RAW_DATA_PRINT
-#    DEFINES += DEBUG_RX_DATA_PRINT
-#    DEFINES += DEBUG_TX_DATA_PRINT
-#    DEFINES += DEBUG_MAX_SPEED
-   # DEFINES += DEBUG_TEMP_PRINT
 }
 
 TEMPLATE = lib
@@ -91,6 +77,7 @@ SOURCES += \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.cpp \
     src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.cpp \
     src/devices/EMCR/emcr8npatchclamp_el07e_artix7_pcbv02.cpp \
+    src/devices/EMCR/emcrsuperduck_pcbv01.cpp \
     src/devices/EMCR/emcr384nanoporesfake.cpp \
     src/devices/EMCR/emcr384patchclampfake.cpp \
     src/devices/EMCR/emcr10mhzfake.cpp \
@@ -162,6 +149,7 @@ HEADERS += \
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.h \
     src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.h \
     src/devices/EMCR/emcr8npatchclamp_el07e_artix7_pcbv02.h \
+    src/devices/EMCR/emcrsuperduck_pcbv01.h \
     src/devices/EMCR/emcr384nanoporesfake.h \
     src/devices/EMCR/emcr384patchclampfake.h \
     src/devices/EMCR/emcr10mhzfake.h \

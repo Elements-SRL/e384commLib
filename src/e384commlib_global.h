@@ -222,6 +222,7 @@ typedef enum DeviceTypes {
     Device2x10MHz_FET,                          /*!< 2 channels 10MHz nanopore reader with controllable reference voltages */
     Device10MHzOld,                             /*!< UDB based 10MHz nanopore reader, old firmware */
     Device10MHzV01,                             /*!< UDB based 10MHz nanopore reader */
+    DeviceSuperDuck_PCBV01,
     /*! EZ patch devices */
     DeviceEPatchEL03D_V04,                      /*!< ePatch device with EL03D chip: digital repetitive trigger output. */
     DeviceEPatchEL03D_V03,                      /*!< ePatch device with EL03D chip: increased maximum amount of digital trigger output events. */

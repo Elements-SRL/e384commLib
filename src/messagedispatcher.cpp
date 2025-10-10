@@ -1425,47 +1425,41 @@ ErrorCodes_t MessageDispatcher::getZapFeatures(RangedMeasurement_t &) {
 \*********************/
 
 void MessageDispatcher::createDebugFiles() {
-#ifdef DEBUG_TX_DATA_PRINT
-    if (txFid == nullptr) {
-        createDebugFile(txFid, "e384CommLib_tx");
+    if (debugLevelEnabled(DebugLevelTx)) {
+        if (txFid == nullptr) {
+            createDebugFile(txFid, "e384CommLib_tx");
+        }
     }
-#endif
 
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    if (rxRawFid == nullptr) {
-        createDebugFile(rxRawFid, "e384CommLib_rxRaw");
+    if (debugLevelEnabled(DebugLevelRxRaw)) {
+        if (rxRawFid == nullptr) {
+            createDebugFile(rxRawFid, "e384CommLib_rxRaw");
+        }
     }
-#endif
 
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    if (rxProcFid == nullptr) {
-        createDebugFile(rxProcFid, "e384CommLib_rxProcessing");
+    if (debugLevelEnabled(DebugLevelRx)) {
+        if (rxFid == nullptr) {
+            createDebugFile(rxFid, "e384CommLib_rx");
+        }
     }
-#endif
 
-#ifdef DEBUG_RX_DATA_PRINT
-    if (rxFid == nullptr) {
-        createDebugFile(rxFid, "e384CommLib_rx");
+    if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
+        if (ljFid == nullptr) {
+            createDebugFile(ljFid, "e384CommLib_lj");
+        }
     }
-#endif
 
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-    if (ljFid == nullptr) {
-        createDebugFile(ljFid, "e384CommLib_lj");
+    if (debugLevelEnabled(DebugLevelTx) || debugLevelEnabled(DebugLevelRx)) {
+        startPrintfTime = std::chrono::steady_clock::now();
     }
-#endif
 
-#if defined(DEBUG_TX_DATA_PRINT) || defined(DEBUG_RX_DATA_PRINT)
-    startPrintfTime = std::chrono::steady_clock::now();
-#endif
-
-#ifdef DEBUG_TEMP_PRINT
-    if (tempFid == nullptr) {
-        createDebugFile(tempFid, "e384CommLib_temp");
-        std::fprintf(tempFid, "TSet TInt TExt Speed\n");
-        std::fflush(tempFid);
+    if (debugLevelEnabled(DebugLevelTemperature)) {
+        if (tempFid == nullptr) {
+            createDebugFile(tempFid, "e384CommLib_temp");
+            std::fprintf(tempFid, "TSet TInt TExt Speed\n");
+            std::fflush(tempFid);
+        }
     }
-#endif
 }
 
 void MessageDispatcher::initializeVariables() {
@@ -1547,29 +1541,25 @@ void MessageDispatcher::deinitializeVariables() {
 }
 
 void MessageDispatcher::closeDebugFiles() {
-#ifdef DEBUG_TX_DATA_PRINT
-    fclose(txFid);
-#endif
+    if (debugLevelEnabled(DebugLevelTx)) {
+        fclose(txFid);
+    }
 
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    fclose(rxRawFid);
-#endif
+    if (debugLevelEnabled(DebugLevelRxRaw)) {
+        fclose(rxRawFid);
+    }
 
-#ifdef DEBUG_RX_PROCESSING_PRINT
-    fclose(rxProcFid);
-#endif
+    if (debugLevelEnabled(DebugLevelRx)) {
+        fclose(rxFid);
+    }
 
-#ifdef DEBUG_RX_DATA_PRINT
-    fclose(rxFid);
-#endif
+    if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
+        fclose(ljFid);
+    }
 
-#ifdef DEBUG_LIQUID_JUNCTION_PRINT
-    fclose(ljFid);
-#endif
-
-#ifdef DEBUG_TEMP_PRINT
-    fclose(tempFid);
-#endif
+    if (debugLevelEnabled(DebugLevelTemperature)) {
+        fclose(tempFid);
+    }
 }
 
 void MessageDispatcher::initializeCalibration() {

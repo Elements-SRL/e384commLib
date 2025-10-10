@@ -15,6 +15,17 @@
 #define UTL_DEMO_FILE_PATH ""
 #define GLB_HERE { std::cout<<__FILE__<<__LINE__<<std::endl; }
 
+typedef enum {
+    DebugLevelDevice,
+    DebugLevelRxRaw,
+    DebugLevelRx,
+    DebugLevelTx,
+    DebugLevelTemperature,
+    DebugLevelDigitallOffsetCompensation,
+    DebugLevelMaxSpeed,
+    DebugLevelsNum
+} DebugLevels_t;
+
 template<typename I_t> bool allLessThan(std::vector <I_t> vec, I_t maxValue) {
     if (vec.empty()) {
         return false;
@@ -116,14 +127,43 @@ inline void createDebugFile(FILE * &fid, std::string fileName) {
     fid = fopen(filePath.string().c_str(), "wb");
 }
 
-inline bool demoDevicesEnabled() {
-    static std::optional <bool> cachedResult;
-    if (!cachedResult.has_value()) {
+inline bool debugLevelEnabled(DebugLevels_t level) {
+    static std::vector <std::optional <bool>> cachedResult(DebugLevelsNum);
+    if (!cachedResult[level].has_value()) {
         const char * home = std::getenv("USERPROFILE");
-        std::filesystem::path filePath = std::filesystem::path(home) / (std::string("e384_DEMO.pls"));
-        cachedResult = std::filesystem::exists(filePath) && std::filesystem::is_regular_file(filePath);
+        std::string filename;
+        switch (level) {
+        case DebugLevelDevice:
+            filename = "e384_DEMO.pls";
+            break;
+
+        case DebugLevelRxRaw:
+            filename = "e384_RX_RAW.pls";
+            break;
+
+        case DebugLevelRx:
+            filename = "e384_RX.pls";
+            break;
+
+        case DebugLevelTx:
+            filename = "e384_TX.pls";
+            break;
+
+        case DebugLevelTemperature:
+            filename = "e384_TEMP.pls";
+            break;
+
+        case DebugLevelDigitallOffsetCompensation:
+            filename = "e384_DOC.pls";
+            break;
+
+        default:
+            return false;
+        }
+        std::filesystem::path filePath = std::filesystem::path(home) / filename;
+        cachedResult[level] = std::filesystem::exists(filePath) && std::filesystem::is_regular_file(filePath);
     }
-    return * cachedResult;
+    return * cachedResult[level];
 }
 
 #endif // UTILS_H

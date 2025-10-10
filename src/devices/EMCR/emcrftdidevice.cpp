@@ -6,6 +6,7 @@
 #include "emcr8npatchclamp_el07c_artix7_pcbv01.h"
 #include "emcr8npatchclamp_el07e_artix7_pcbv02.h"
 #include "emcrqc01atb_pcbv02.h"
+#include "emcrsuperduck_pcbv01.h"
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV00_2, 4, DeviceE8PPatchEL07CD_artix7_PCBV00_2},         //  10, 14,  4 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V00.2. */
@@ -23,7 +24,8 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_EL07e_PCBV02, 1, DeviceE8nPatchEL07C_artix7_EL07e_PCBV02_FW1},   //  16,  3,  1 : VC-CC device with 8 channels (EL07E) (FPGA artix7) PCB V01. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx4Patch_artix7_PCBV02, 1, DeviceE4PPatchEL07CD_artix7_PCBV00_2},           //  10, 21,  1 : VC-CC device with 4 channels (EL07C) (FPGA artix7) PCB V02. */
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV02, 1, DeviceE8PPatchEL07CD_artix7_PCBV01_FW3},         //  10, 22,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V02. */
-    {DeviceVersionTestBoard, DeviceSubversionTestBoardQC01a_PCBV02, 1, DeviceTestBoardQC02a_PCBV02},                    //  6,  15,  1 : QC01a testboard PCB V02. */
+    {DeviceVersionTestBoard, DeviceSubversionTestBoardQC01a_PCBV02, 1, DeviceTestBoardQC02a_PCBV02},                    //   6, 15,  1 : QC01a testboard PCB V02. */
+    {DeviceVersionSuperDuck, DeviceSubversionSuperDuckPcbV01, 1, DeviceSuperDuck_PCBV01},                               //  17, 11,  1 : SuperDuck. */
 };
 
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
@@ -213,6 +215,10 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
 
     case DeviceTestBoardQC02a_PCBV02:
         messageDispatcher = new EmcrQc01aTB_PCBV02(deviceId);
+        break;
+
+    case DeviceSuperDuck_PCBV01:
+        messageDispatcher = new EmcrSuperDuck_PCBV01(deviceId);
         break;
 
     default:
@@ -555,16 +561,16 @@ void EmcrFtdiDevice::sendCommandsToDevice() {
             continue;
         }
 
-#ifdef DEBUG_TX_DATA_PRINT
-        for (uint32_t regIdx = 0; regIdx < txRawBulkBuffer[2]; regIdx++) {
-            fprintf(txFid, "%04d:0x%08X ", txRawBulkBuffer[3+regIdx*2], txRawBulkBuffer[3+regIdx*2+1]);
-            if (regIdx % 16 == 15) {
-                fprintf(txFid, "\n");
+        if (debugLevelEnabled(DebugLevelTx)) {
+            for (uint32_t regIdx = 0; regIdx < txRawBulkBuffer[2]; regIdx++) {
+                fprintf(txFid, "%04d:0x%08X ", txRawBulkBuffer[3+regIdx*2], txRawBulkBuffer[3+regIdx*2+1]);
+                if (regIdx % 16 == 15) {
+                    fprintf(txFid, "\n");
+                }
             }
+            fprintf(txFid, "\n");
+            fflush(txFid);
         }
-        fprintf(txFid, "\n");
-        fflush(txFid);
-#endif
 
         notSentTxData = false;
     }
@@ -635,10 +641,10 @@ uint32_t EmcrFtdiDevice::readDataFromDevice() {
         return 0;
     }
 
-#ifdef DEBUG_RX_RAW_DATA_PRINT
-    fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(unsigned char), ftdiReadBytes, rxRawFid);
-    fflush(rxRawFid);
-#endif
+    if (debugLevelEnabled(DebugLevelRxRaw)) {
+        fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(unsigned char), ftdiReadBytes, rxRawFid);
+        fflush(rxRawFid);
+    }
     if (rxRawBufferWriteOffset == 0) {
         rxRawBuffer[FTD_RX_RAW_BUFFER_SIZE] = rxRawBuffer[0]; /*!< The last item is a copy of the first one, it used to safely read 2 consecutive bytes at a time to form a 16bit word,
                                                                *   even if the first byte is in position FTD_RX_RAW_BUFFER_SIZE-1 and the following one would go out of range otherwise */
@@ -739,9 +745,9 @@ void EmcrFtdiDevice::parseDataFromDevice() {
                         rxRawBufferReadOffset = (rxFrameOffset+rxSyncWordSize) & rxRawBufferMask;
                         /*! Offset and length are discarded, so add the corresponding bytes back */
                         rxRawBytesAvailable += rxOffsetLengthSize;
-#ifdef DEBUG_RX_DATA_PRINT
-                        /*! aggiungere printata di debug se serve */
-#endif
+                        if (debugLevelEnabled(DebugLevelRx)) {
+                            /*! aggiungere printata di debug se serve */
+                        }
                         rxParsePhase = RxParseLookForHeader;
 
                     } else {

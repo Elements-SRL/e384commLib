@@ -153,10 +153,10 @@ void Emcr384PatchClamp_EL07c_prot_v07_fw_v03::processTemperatureData(std::vector
         double RT = e*pg+ie*ig+de*dg;
         Measurement_t speed = this->fanRT2W({RT, fanTrimmerRTMin.prefix, fanTrimmerRTMin.unit});
         this->setCoolingFansSpeed(speed, true);
-#ifdef DEBUG_TEMP_PRINT
-        std::fprintf(tempFid, "%f %f %f %f\n", temperatureSet.value, temperatureIntMeas, temperatureExtMeas, speed.value);
-        std::fflush(tempFid);
-#endif
+        if (debugLevelEnabled(DebugLevelTemperature)) {
+            std::fprintf(tempFid, "%f %f %f %f\n", temperatureSet.value, temperatureIntMeas, temperatureExtMeas, speed.value);
+            std::fflush(tempFid);
+        }
     }
 }
 
