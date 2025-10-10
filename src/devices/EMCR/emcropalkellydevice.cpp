@@ -510,7 +510,8 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
     std::unique_lock <std::mutex> rxRawMutexLock(rxRawMutex);
     rxRawMutexLock.unlock();
 
-    std::chrono::steady_clock::time_point startWhileTime = std::chrono::steady_clock::now();
+    auto startWhileTime = std::chrono::steady_clock::now();
+    auto lastTxTime = startWhileTime;
 
     bool waitingTimeForReadingPassed = false;
     bool anyOperationPerformed;
@@ -526,11 +527,18 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         txMutexLock.lock();
         while (txMsgBufferReadLength > 0) {
             anyOperationPerformed = true;
-            this->sendCommandsToDevice();
-            txMsgBufferReadLength--;
-            if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
-                /*! Let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
-                liquidJunctionControlPending = false;
+            auto t = std::chrono::steady_clock::now();
+            if (std::chrono::duration_cast <std::chrono::microseconds> (t-lastTxTime).count() > 30) {
+                this->sendCommandsToDevice();
+                lastTxTime = t;
+                txMsgBufferReadLength--;
+                if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
+                    /*! Let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
+                    liquidJunctionControlPending = false;
+                }
+            }
+            else {
+                break;
             }
         }
         txMutexLock.unlock();
@@ -636,7 +644,7 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
                 }
             }
             fprintf(txFid, "\n");
-            fflush(txFid);
+            // fflush(txFid);
         }
 
         notSentTxData = false;
@@ -650,24 +658,40 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
     switch (type) {
     case TxTriggerParameteresUpdated:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        if (debugLevelEnabled(DebugLevelTx)) {
+            fprintf(txFid, "TRIGGER REGISTERS\n");
+            fflush(txFid);
+        }
         break;
 
     case TxTriggerStartProtocol:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for (std::chrono::milliseconds(5));
         dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
+        if (debugLevelEnabled(DebugLevelTx)) {
+            fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER PROTOCOL\n");
+            fflush(txFid);
+        }
         break;
 
     case TxTriggerStartStateArray:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for (std::chrono::milliseconds(5));
         dev.ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
+        if (debugLevelEnabled(DebugLevelTx)) {
+            fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER STATE ARRAY\n");
+            fflush(txFid);
+        }
         break;
 
     case TxTriggerZap:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for (std::chrono::milliseconds(5));
         dev.ActivateTriggerIn(OKY_ZAP_PULSE_TRIGGER_IN_ADDR, OKY_ZAP_PULSE_TRIGGER_IN_BIT);
+        if (debugLevelEnabled(DebugLevelTx)) {
+            fprintf(txFid, "TRIGGER REGISTERS\nZAP PULSE\n");
+            fflush(txFid);
+        }
         break;
     }
     return true;
