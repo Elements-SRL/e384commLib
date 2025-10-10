@@ -1217,20 +1217,6 @@ public:
      */
     ErrorCodes_t getChannels(std::vector <ChannelModel *> &channels);
 
-    /*! \brief Command used by EMCR to get the device's selected channels.
-     *
-     * \param selected [out] Vector of booleans. True if the correspnding channel is selected.
-     * \return Error code.
-     */
-    ErrorCodes_t getSelectedChannels(std::vector <bool> &selected);
-
-    /*! \brief Command used by EMCR to get the device's selected channels.
-     *
-     * \param selected [out] Vector of indexes correspnding to the selected channels.
-     * \return Error code.
-     */
-    ErrorCodes_t getSelectedChannelsIndexes(std::vector <uint16_t> &indexes);
-
     /*! \brief Get the size of the buffer to be passed to getNextMessage.
      *
      * \param size [out] Size of the buffer to be passed to getNextMessage.
