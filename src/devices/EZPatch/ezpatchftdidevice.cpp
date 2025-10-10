@@ -562,7 +562,7 @@ ErrorCodes_t EZPatchFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> va
     std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
 
     ret = this->pauseConnection(true);
-    calibrationEeprom->openConnection();
+    calibrationEeprom->openConnection(this->getDeviceIndex(deviceId+spiChannel));
 
     unsigned char eepromBuffer[4];
     for (unsigned int itemIdx = 0; itemIdx < value.size(); itemIdx++) {
@@ -592,7 +592,7 @@ ErrorCodes_t EZPatchFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> va
         ret = this->ping();
         if (ret != Success) {
             ret = this->pauseConnection(true);
-            calibrationEeprom->openConnection();
+            calibrationEeprom->openConnection(this->getDeviceIndex(deviceId+spiChannel));
 
             calibrationEeprom->closeConnection();
             this->pauseConnection(false);
@@ -614,7 +614,7 @@ ErrorCodes_t EZPatchFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &va
     }
     std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
     ret = this->pauseConnection(true);
-    calibrationEeprom->openConnection();
+    calibrationEeprom->openConnection(this->getDeviceIndex(deviceId+spiChannel));
 
     if (value.size() != address.size()) {
         value.resize(address.size());
@@ -766,7 +766,7 @@ ErrorCodes_t EZPatchFtdiDevice::stopCommunication() {
 }
 
 void EZPatchFtdiDevice::initializeCalibration() {
-    calibrationEeprom = new CalibrationEeprom(this->getDeviceIndex(deviceId+spiChannel));
+    calibrationEeprom = new CalibrationEeprom();
     if (vcCurrentOffsetDeltaImplemented) {
         Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
         calibrationParams.initialize(CalTypesVcOffsetAdc, this->getSamplingRateModesNum(), vcCurrentRangesNum, currentChannelsNum, zeroA);

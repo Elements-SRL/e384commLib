@@ -257,7 +257,7 @@ ErrorCodes_t EmcrFtdiDevice::setCalibrationMode(bool calibModeFlag) {
 
         this->stopCommunication();
 
-        calibrationEeprom->openConnection();
+        calibrationEeprom->openConnection(this->getDeviceIndex(deviceId+spiChannel));
     }
     else {
         calibrationEeprom->closeConnection();
@@ -445,7 +445,7 @@ void EmcrFtdiDevice::initializeCalibration() {
     if (calibrationEeprom != nullptr) {
         return;
     }
-    calibrationEeprom = new CalibrationEeprom(this->getDeviceIndex(deviceId+spiChannel));
+    calibrationEeprom = new CalibrationEeprom();
     Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
     calibrationParams.initialize(CalTypesVcOffsetAdc, this->getSamplingRateModesNum(), vcCurrentRangesNum, currentChannelsNum, zeroA);
     Measurement_t zeroV = {0.0, UnitPfxNone, "V"};

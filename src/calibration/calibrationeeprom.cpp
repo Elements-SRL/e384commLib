@@ -1,15 +1,14 @@
 #include "calibrationeeprom.h"
 
-CalibrationEeprom::CalibrationEeprom(uint32_t channel) :
-    channelIdx(channel) {
-
+CalibrationEeprom::CalibrationEeprom() {
     config.ClockRate = 3000000; /*! 3MHz */
     config.LatencyTimer = 1; /*! 1ms */
     config.configOptions = SPI_CONFIG_OPTION_MODE0 | SPI_CONFIG_OPTION_CS_DBUS5 | SPI_CONFIG_OPTION_CS_ACTIVELOW;
     config.Pin = 0x00002323;
 }
 
-ErrorCodes_t CalibrationEeprom::openConnection() {
+ErrorCodes_t CalibrationEeprom::openConnection(uint32_t channel) {
+    channelIdx = channel;
     if (connectionOpened) {
         return ErrorEepromAlreadyConnected;
     }

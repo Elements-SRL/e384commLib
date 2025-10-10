@@ -29,9 +29,9 @@ using namespace e384CommLib;
 
 class CalibrationEeprom {
 public:
-    CalibrationEeprom(uint32_t channel);
+    CalibrationEeprom();
 
-    ErrorCodes_t openConnection();
+    ErrorCodes_t openConnection(uint32_t channel);
     ErrorCodes_t closeConnection();
     ErrorCodes_t enableFPGA(bool flag);
     ErrorCodes_t enableWrite();
