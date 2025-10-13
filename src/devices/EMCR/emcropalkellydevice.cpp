@@ -650,7 +650,28 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
                 }
             }
             fprintf(txFid, "\n");
-            // fflush(txFid);
+
+            switch (type) {
+            case TxTriggerParameteresUpdated:
+                fprintf(txFid, "TRIGGER REGISTERS\n");
+                fflush(txFid);
+                break;
+
+            case TxTriggerStartProtocol:
+                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER PROTOCOL\n");
+                fflush(txFid);
+                break;
+
+            case TxTriggerStartStateArray:
+                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER STATE ARRAY\n");
+                fflush(txFid);
+                break;
+
+            case TxTriggerZap:
+                fprintf(txFid, "TRIGGER REGISTERS\nZAP PULSE\n");
+                fflush(txFid);
+                break;
+            }
         }
 
         notSentTxData = false;
@@ -664,40 +685,24 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
     switch (type) {
     case TxTriggerParameteresUpdated:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        if (debugLevelEnabled(DebugLevelTx)) {
-            fprintf(txFid, "TRIGGER REGISTERS\n");
-            fflush(txFid);
-        }
         break;
 
     case TxTriggerStartProtocol:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for (std::chrono::milliseconds(5));
         dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
-        if (debugLevelEnabled(DebugLevelTx)) {
-            fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER PROTOCOL\n");
-            fflush(txFid);
-        }
         break;
 
     case TxTriggerStartStateArray:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for (std::chrono::milliseconds(5));
         dev.ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
-        if (debugLevelEnabled(DebugLevelTx)) {
-            fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER STATE ARRAY\n");
-            fflush(txFid);
-        }
         break;
 
     case TxTriggerZap:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for (std::chrono::milliseconds(5));
         dev.ActivateTriggerIn(OKY_ZAP_PULSE_TRIGGER_IN_ADDR, OKY_ZAP_PULSE_TRIGGER_IN_BIT);
-        if (debugLevelEnabled(DebugLevelTx)) {
-            fprintf(txFid, "TRIGGER REGISTERS\nZAP PULSE\n");
-            fflush(txFid);
-        }
         break;
     }
     return true;

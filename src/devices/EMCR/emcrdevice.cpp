@@ -46,10 +46,10 @@ ErrorCodes_t EmcrDevice::startProtocol() {
     if (protocolResetCoder == nullptr) {
         this->forceOutMessage();
         this->stackOutgoingMessage(txStatus, {TxTriggerStartProtocol, ResetIndifferent});
-
-    } else {
+    }
+    else {
         if (protocolResetFlag == false) {
-            /*! This is called if the startProtocol is called without protocol strucutre and items, jsut to repeat the previous protocol
+            /*! This is called if the startProtocol is called without protocol structure and items, just to repeat the previous protocol
               Since the protocol structure would otherwise be responsible for calling the stopProtocol, in this case the startProtocol does it instead */
             this->stopProtocol();
         }
@@ -67,14 +67,14 @@ ErrorCodes_t EmcrDevice::stopProtocol() {
         if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP || selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP_VOLTAGE_READ) {
             this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest, stopProtocolFlag);
             this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
-
-        } else {
+        }
+        else {
             this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest, stopProtocolFlag);
             this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
         }
         return this->startProtocol();
-
-    } else {
+    }
+    else {
         protocolResetCoder->encode(1, txStatus);
         this->stackOutgoingMessage(txStatus, {TxTriggerStartProtocol, ResetIndifferent});
         protocolResetFlag = true;
@@ -1487,8 +1487,8 @@ ErrorCodes_t EmcrDevice::setDebugWord(uint16_t wordOffset, uint16_t wordValue) {
 ErrorCodes_t EmcrDevice::setVoltageProtocolStructure(uint16_t protId, uint16_t itemsNum, uint16_t sweepsNum, Measurement_t vRest, bool stopProtocolFlag) {
     if (voltageProtocolRestCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (itemsNum > protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(vRest)) { /*! \todo FCON sommare i valori sommati con l'holder o altri meccanismi */
+    }
+    else if (itemsNum > protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(vRest)) { /*! \todo FCON sommare i valori sommati con l'holder o altri meccanismi */
         return ErrorValueOutOfRange;
     }
     if (stopProtocolFlag) {
@@ -1510,8 +1510,8 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolStructure(uint16_t protId, uint16_t i
 ErrorCodes_t EmcrDevice::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
     if (!voltageProtocolStepImplemented) {
         return ErrorFeatureNotImplemented;
-
-    } else if (itemIdx >= protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0) || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0Step) ||
+    }
+    else if (itemIdx >= protocolMaxItemsNum || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0) || !vcVoltageRangesArray[selectedVcVoltageRangeIdx].includes(v0Step) ||
                !positiveProtocolTimeRange.includes(t0) || !protocolTimeRange.includes(t0Step)) {
         return ErrorValueOutOfRange;
     }
