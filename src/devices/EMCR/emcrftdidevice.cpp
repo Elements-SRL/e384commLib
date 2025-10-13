@@ -1,6 +1,7 @@
 #include "emcrftdidevice.h"
 
 #include "libMPSSE_spi.h"
+#include "ftdiconnectionmutex.h"
 
 #include "emcr8patchclamp_el07cd_artix7.h"
 #include "emcr8npatchclamp_el07c_artix7_pcbv01.h"
@@ -343,8 +344,8 @@ int32_t EmcrFtdiDevice::getDeviceIndex(std::string serial) {
     bool devCountOk = getDeviceCount(numDevs);
     if (!devCountOk) {
         return -1;
-
-    } else if (numDevs == 0) {
+    }
+    else if (numDevs == 0) {
         return -1;
     }
 
@@ -360,31 +361,30 @@ int32_t EmcrFtdiDevice::getDeviceIndex(std::string serial) {
 std::string EmcrFtdiDevice::getDeviceSerial(uint32_t index, bool excludeLetter) {
     char buffer[64];
     std::string serial;
+    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
     FT_STATUS FT_Result = FT_ListDevices((PVOID)index, buffer, FT_LIST_BY_INDEX);
+    connectionMutexLock.unlock();
     if (FT_Result == FT_OK) {
         serial = buffer;
         if (excludeLetter) {
             return serial.substr(0, serial.size()-1); /*!< Removes channel character */
-
-        } else {
+        }
+        else {
             return serial;
         }
-
-    } else {
-        return "";
     }
+    return "";
 }
 
 bool EmcrFtdiDevice::getDeviceCount(DWORD &numDevs) {
     /*! Get the number of connected devices */
     numDevs = 0;
+    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
     FT_STATUS FT_Result = FT_ListDevices(&numDevs, nullptr, FT_LIST_NUMBER_ONLY);
     if (FT_Result == FT_OK) {
         return true;
-
-    } else {
-        return false;
     }
+    return false;
 }
 
 ErrorCodes_t EmcrFtdiDevice::startCommunication(std::string) {
@@ -414,6 +414,7 @@ ErrorCodes_t EmcrFtdiDevice::startCommunication(std::string) {
 
 ErrorCodes_t EmcrFtdiDevice::stopCommunication() {
     FT_STATUS ftRet;
+    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
     if (ftdiRxHandle != nullptr) {
         ftRet = FT_Close(* ftdiRxHandle);
         if (ftRet != FT_OK) {
@@ -606,10 +607,9 @@ uint32_t EmcrFtdiDevice::readDataFromDevice() {
     \******************/
 
     /*! Read queue status to check the number of available bytes */
+    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
     FT_STATUS ftRet = FT_GetQueueStatus(* ftdiRxHandle, &ftdiQueuedBytes);
-    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
     if (ftRet != FT_OK) {
-        connectionMutexLock.unlock();
         return 0;
     }
 
@@ -631,8 +631,8 @@ uint32_t EmcrFtdiDevice::readDataFromDevice() {
     uint32_t bytesToEnd = FTD_RX_RAW_BUFFER_SIZE-rxRawBufferWriteOffset;
     if (ftdiQueuedBytes >= bytesToEnd) {
         ftRet = FT_Read(* ftdiRxHandle, rxRawBuffer+rxRawBufferWriteOffset, bytesToEnd, &ftdiReadBytes);
-
-    } else {
+    }
+    else {
         ftRet = FT_Read(* ftdiRxHandle, rxRawBuffer+rxRawBufferWriteOffset, ftdiQueuedBytes, &ftdiReadBytes);
     }
     connectionMutexLock.unlock();
@@ -849,7 +849,6 @@ void EmcrFtdiDevice::deinitializeMemory() {
 }
 
 ErrorCodes_t EmcrFtdiDevice::loadFpgaFw() {
-    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
     switch (fpgaLoadType) {
     case FtdiFpgaFwLoadAutomatic:
         /*! Nothing to be done, the FPGA will handle itself */
@@ -861,13 +860,16 @@ ErrorCodes_t EmcrFtdiDevice::loadFpgaFw() {
         FT_HANDLE spiHandle;
         std::string spiChannelStr = deviceId+spiChannel;
 
+        std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
         Init_libMPSSE();
+        connectionMutexLock.unlock();
 
         int idx = getDeviceIndex(spiChannelStr);
         if (idx < 0) {
             return ErrorEepromConnectionFailed;
         }
 
+        connectionMutexLock.lock();
         status = SPI_OpenChannel(idx, &spiHandle);
         if (status != FT_OK) {
             return ErrorEepromConnectionFailed;
@@ -906,7 +908,7 @@ ErrorCodes_t EmcrFtdiDevice::loadFpgaFw() {
 }
 
 ErrorCodes_t EmcrFtdiDevice::initFtdiChannel(FT_HANDLE * handle, char channel) {
-    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
+    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
     FT_STATUS ftRet;
 
     std::string communicationSerialNumber = deviceId+channel;
@@ -969,7 +971,7 @@ bool EmcrFtdiDevice::writeToBulkOut(uint32_t * buffer) {
 
     bool txDataSent = false;
     int writeTries = 0;
-    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
+    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
     connectionMutexLock.unlock();
     while (!txDataSent && (writeTries++ < EMF_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
         connectionMutexLock.lock();

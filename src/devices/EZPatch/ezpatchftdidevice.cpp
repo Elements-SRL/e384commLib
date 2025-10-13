@@ -1,6 +1,7 @@
 #include "ezpatchftdidevice.h"
 
 #include "libMPSSE_spi.h"
+#include "ftdiconnectionmutex.h"
 
 #include "ezpatchepatchel03d.h"
 #include "ezpatchepatchel03f_4d.h"
@@ -559,7 +560,7 @@ ErrorCodes_t EZPatchFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> va
     if (calibrationEeprom == nullptr) {
         return ErrorEepromNotConnected;
     }
-    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
+    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
 
     ret = this->pauseConnection(true);
     calibrationEeprom->openConnection(this->getDeviceIndex(deviceId+spiChannel));
@@ -612,7 +613,7 @@ ErrorCodes_t EZPatchFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &va
     if (calibrationEeprom == nullptr) {
         return ErrorEepromNotConnected;
     }
-    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
+    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
     ret = this->pauseConnection(true);
     calibrationEeprom->openConnection(this->getDeviceIndex(deviceId+spiChannel));
 
@@ -835,7 +836,7 @@ void EZPatchFtdiDevice::readAndParseMessages() {
     parsingStatus = ParsingParsing;
     rxMutexLock.unlock();
 
-    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
+    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
     connectionMutexLock.unlock();
 
     while ((!stopConnectionFlag) || (txWaitingOnAcks > 0)) {
@@ -1216,7 +1217,7 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
 
     std::unique_lock <std::mutex> txMutexLock(txMutex);
     txMutexLock.unlock();
-    std::unique_lock <std::mutex> connectionMutexLock(connectionMutex);
+    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
     connectionMutexLock.unlock();
 
     while ((!stopConnectionFlag) || (txWaitingOnAcks > 0)) {
