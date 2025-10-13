@@ -9,6 +9,8 @@ Emcr384PatchClamp_EL07c_prot_v08_fw_v255::Emcr384PatchClamp_EL07c_prot_v08_fw_v2
     // motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
 
     protocolMaxItemsNum = 20;
+    protocolWordOffset = 300;
+    protocolItemsWordsNum = 12;
 
     /*! Protocols parameters */
     protocolFpgaClockFrequencyHz = 10.0e6;
