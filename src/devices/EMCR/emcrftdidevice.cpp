@@ -836,8 +836,8 @@ ErrorCodes_t EmcrFtdiDevice::loadFpgaFw() {
         uint8_t swFpgaModeBit = 0x20;
         uint8_t xCbusDir = fpgaResetBit | swFtdiInBit | swFtdiMosiBit | progBBit | swFlashFcsBBit | swFpgaModeBit;
 
-        Ftd2xxWrapper::FTW__WriteGPIO(spiHandle, xCbusDir, fpgaResetBit); // lower bits of the switches to select master mode and prog B to put FPGA in reset
-        Ftd2xxWrapper::FTW__WriteGPIO(spiHandle, xCbusDir, progBBit); // prog B high to start FPGA configuration (it reads the FLASH)
+        Ftd2xxWrapper::FTW_WriteGPIO(spiHandle, xCbusDir, fpgaResetBit); // lower bits of the switches to select master mode and prog B to put FPGA in reset
+        Ftd2xxWrapper::FTW_WriteGPIO(spiHandle, xCbusDir, progBBit); // prog B high to start FPGA configuration (it reads the FLASH)
 
         std::this_thread::sleep_for(std::chrono::seconds(35));
 
