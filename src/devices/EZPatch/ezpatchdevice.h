@@ -8,7 +8,7 @@
 #include <unordered_map>
 
 #include "messagedispatcher.h"
-#include "calibrationeeprom.h"
+#include "ftdicalibrationeeprom.h"
 
 #define EZP_RX_MSG_BUFFER_SIZE 0x10000 /*! \todo FCON valutare che questo numero sia adeguato */ // ~65k
 #define EZP_RX_MSG_BUFFER_MASK (EZP_RX_MSG_BUFFER_SIZE-1)

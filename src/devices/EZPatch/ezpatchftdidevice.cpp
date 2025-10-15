@@ -1,8 +1,5 @@
 #include "ezpatchftdidevice.h"
 
-#include "libMPSSE_spi.h"
-#include "ftdiconnectionmutex.h"
-
 #include "ezpatchepatchel03d.h"
 #include "ezpatchepatchel03f_4d.h"
 #include "ezpatchepatchel04e.h"
@@ -147,7 +144,7 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
         std::vector <std::string> &deviceIds) {
     /*! Gets number of devices */
     DWORD numDevs;
-    bool devCountOk = getDeviceCount(numDevs);
+    bool devCountOk = Ftd2xxWrapper::getDeviceCount(numDevs);
     if (!devCountOk) {
         return ErrorListDeviceFailed;
     }
@@ -161,12 +158,12 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
 
     /*! Lists all serial numbers */
     for (uint32_t i = 0; i < numDevs; i++) {
-        deviceName = getDeviceSerial(i, true);
+        deviceName = Ftd2xxWrapper::getDeviceSerial(i, true);
         if (find(deviceIds.begin(), deviceIds.end(), deviceName) == deviceIds.end()) {
             /*! Adds only new devices (no distinction between channels A and B creates duplicates) */
             if (deviceName.size() > 0) {
                 /*! Devices with an open channel are detected wrongly and their name is an empty std::string */
-                deviceIds.push_back(getDeviceSerial(i, true));
+                deviceIds.push_back(Ftd2xxWrapper::getDeviceSerial(i, true));
             }
         }
     }
@@ -507,20 +504,20 @@ ErrorCodes_t EZPatchFtdiDevice::pauseConnection(bool pauseFlag) {
     ErrorCodes_t ret = Success;
     if (pauseFlag) {
         FT_STATUS ftRet;
-        ftRet = FT_Close(* ftdiRxHandle);
+        ftRet = Ftd2xxWrapper::FTW_Close(* ftdiRxHandle);
         if (ftRet != FT_OK) {
             return ErrorDeviceDisconnectionFailed;
         }
 
         if (rxChannel != txChannel) {
             FT_STATUS ftRet;
-            ftRet = FT_Close(* ftdiTxHandle);
+            ftRet = Ftd2xxWrapper::FTW_Close(* ftdiTxHandle);
             if (ftRet != FT_OK) {
                 return ErrorDeviceDisconnectionFailed;
             }
         }
-
-    } else {
+    }
+    else {
         /*! Initialize the ftdi Rx handle */
         ret = this->initFtdiChannel(ftdiRxHandle, rxChannel);
         if (ret != Success) {
@@ -560,10 +557,9 @@ ErrorCodes_t EZPatchFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> va
     if (calibrationEeprom == nullptr) {
         return ErrorEepromNotConnected;
     }
-    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
 
     ret = this->pauseConnection(true);
-    calibrationEeprom->openConnection(this->getDeviceIndex(deviceId+spiChannel));
+    calibrationEeprom->openConnection(Ftd2xxWrapper::getDeviceIndex(deviceId+spiChannel));
 
     unsigned char eepromBuffer[4];
     for (unsigned int itemIdx = 0; itemIdx < value.size(); itemIdx++) {
@@ -572,13 +568,11 @@ ErrorCodes_t EZPatchFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> va
             value[itemIdx] >>= 8;
         }
 
-        ret = calibrationEeprom->writeBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
+        calibrationEeprom->writeBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
     }
 
     calibrationEeprom->closeConnection();
     this->pauseConnection(false);
-
-    connectionMutexLock.unlock();
 
     RxOutput_t rxOutput;
     ret = ErrorUnknown;
@@ -593,7 +587,7 @@ ErrorCodes_t EZPatchFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> va
         ret = this->ping();
         if (ret != Success) {
             ret = this->pauseConnection(true);
-            calibrationEeprom->openConnection(this->getDeviceIndex(deviceId+spiChannel));
+            calibrationEeprom->openConnection(Ftd2xxWrapper::getDeviceIndex(deviceId+spiChannel));
 
             calibrationEeprom->closeConnection();
             this->pauseConnection(false);
@@ -613,9 +607,8 @@ ErrorCodes_t EZPatchFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &va
     if (calibrationEeprom == nullptr) {
         return ErrorEepromNotConnected;
     }
-    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
     ret = this->pauseConnection(true);
-    calibrationEeprom->openConnection(this->getDeviceIndex(deviceId+spiChannel));
+    calibrationEeprom->openConnection(Ftd2xxWrapper::getDeviceIndex(deviceId+spiChannel));
 
     if (value.size() != address.size()) {
         value.resize(address.size());
@@ -623,7 +616,7 @@ ErrorCodes_t EZPatchFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &va
 
     unsigned char eepromBuffer[4];
     for (unsigned int itemIdx = 0; itemIdx < value.size(); itemIdx++) {
-        ret = calibrationEeprom->readBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
+        calibrationEeprom->readBytes(eepromBuffer, address[itemIdx], size[itemIdx]);
 
         value[itemIdx] = 0;
         for (uint32_t bufferIdx = 0; bufferIdx < size[itemIdx]; bufferIdx++) {
@@ -634,8 +627,6 @@ ErrorCodes_t EZPatchFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &va
 
     calibrationEeprom->closeConnection();
     this->pauseConnection(false);
-
-    connectionMutexLock.unlock();
 
     RxOutput_t rxOutput;
     ret = ErrorUnknown;
@@ -660,56 +651,6 @@ ErrorCodes_t EZPatchFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &va
 
 ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
     return EZPatchFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
-}
-
-int32_t EZPatchFtdiDevice::getDeviceIndex(std::string serial) {
-    /*! Gets number of devices */
-    DWORD numDevs;
-    bool devCountOk = getDeviceCount(numDevs);
-    if (!devCountOk) {
-        return -1;
-
-    } else if (numDevs == 0) {
-        return -1;
-    }
-
-    for (int index = 0; index < numDevs; index++) {
-        std::string deviceId = getDeviceSerial(index, false);
-        if (deviceId == serial) {
-            return index;
-        }
-    }
-    return -1;
-}
-
-std::string EZPatchFtdiDevice::getDeviceSerial(uint32_t index, bool excludeLetter) {
-    char buffer[64];
-    std::string serial;
-    FT_STATUS FT_Result = FT_ListDevices((PVOID)index, buffer, FT_LIST_BY_INDEX);
-    if (FT_Result == FT_OK) {
-        serial = buffer;
-        if (excludeLetter) {
-            return serial.substr(0, serial.size()-1); /*!< Removes channel character */
-
-        } else {
-            return serial;
-        }
-
-    } else {
-        return "";
-    }
-}
-
-bool EZPatchFtdiDevice::getDeviceCount(DWORD &numDevs) {
-    /*! Get the number of connected devices */
-    numDevs = 0;
-    FT_STATUS FT_Result = FT_ListDevices(&numDevs, nullptr, FT_LIST_NUMBER_ONLY);
-    if (FT_Result == FT_OK) {
-        return true;
-
-    } else {
-        return false;
-    }
 }
 
 ErrorCodes_t EZPatchFtdiDevice::startCommunication(std::string) {
@@ -740,7 +681,7 @@ ErrorCodes_t EZPatchFtdiDevice::startCommunication(std::string) {
 ErrorCodes_t EZPatchFtdiDevice::stopCommunication() {
     FT_STATUS ftRet;
     if (ftdiRxHandle != nullptr) {
-        ftRet = FT_Close(* ftdiRxHandle);
+        ftRet = Ftd2xxWrapper::FTW_Close(* ftdiRxHandle);
         if (ftRet != FT_OK) {
             return ErrorDeviceDisconnectionFailed;
         }
@@ -754,7 +695,7 @@ ErrorCodes_t EZPatchFtdiDevice::stopCommunication() {
     if (ftdiTxHandle != nullptr) {
         if (rxChannel != txChannel) {
             FT_STATUS ftRet;
-            ftRet = FT_Close(* ftdiTxHandle);
+            ftRet = Ftd2xxWrapper::FTW_Close(* ftdiTxHandle);
             if (ftRet != FT_OK) {
                 return ErrorDeviceDisconnectionFailed;
             }
@@ -767,7 +708,7 @@ ErrorCodes_t EZPatchFtdiDevice::stopCommunication() {
 }
 
 void EZPatchFtdiDevice::initializeCalibration() {
-    calibrationEeprom = new CalibrationEeprom();
+    calibrationEeprom = new FtdiCalibrationEeprom();
     if (vcCurrentOffsetDeltaImplemented) {
         Measurement_t zeroA = {0.0, UnitPfxNone, "A"};
         calibrationParams.initialize(CalTypesVcOffsetAdc, this->getSamplingRateModesNum(), vcCurrentRangesNum, currentChannelsNum, zeroA);
@@ -836,9 +777,6 @@ void EZPatchFtdiDevice::readAndParseMessages() {
     parsingStatus = ParsingParsing;
     rxMutexLock.unlock();
 
-    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
-    connectionMutexLock.unlock();
-
     while ((!stopConnectionFlag) || (txWaitingOnAcks > 0)) {
 
         /******************\
@@ -846,21 +784,17 @@ void EZPatchFtdiDevice::readAndParseMessages() {
         \******************/
 
         /*! Read queue status to check the number of available bytes */
-        ftRet = FT_GetQueueStatus(* ftdiRxHandle, &ftdiQueuedBytes);
-        connectionMutexLock.lock();
+        ftRet = Ftd2xxWrapper::FTW_GetQueueStatus(* ftdiRxHandle, &ftdiQueuedBytes);
         if (ftRet != FT_OK) {
-            connectionMutexLock.unlock();
             continue;
         }
 
         if (ftdiQueuedBytes == 0) {
-            connectionMutexLock.unlock();
             /*! If there are no bytes in the queue skip to next iteration in the while loop */
             std::this_thread::sleep_for(longBytesWait);
             continue;
-
-        } else if ((ftdiQueuedBytes < minQueuedBytes) && (readTries == 0)) {
-            connectionMutexLock.unlock();
+        }
+        else if ((ftdiQueuedBytes < minQueuedBytes) && (readTries == 0)) {
             readTries++;
             std::this_thread::sleep_for(shortBytesWait);
             continue;
@@ -870,12 +804,11 @@ void EZPatchFtdiDevice::readAndParseMessages() {
         /*! Reads the data */
         uint32_t bytesToEnd = FTD_RX_RAW_BUFFER_SIZE-rxRawBufferWriteOffset;
         if (ftdiQueuedBytes >= bytesToEnd) {
-            ftRet = FT_Read(* ftdiRxHandle, rxRawBuffer+rxRawBufferWriteOffset, bytesToEnd, &ftdiReadBytes);
-
-        } else {
-            ftRet = FT_Read(* ftdiRxHandle, rxRawBuffer+rxRawBufferWriteOffset, ftdiQueuedBytes, &ftdiReadBytes);
+            ftRet = Ftd2xxWrapper::FTW_Read(* ftdiRxHandle, rxRawBuffer+rxRawBufferWriteOffset, bytesToEnd, &ftdiReadBytes);
         }
-        connectionMutexLock.unlock();
+        else {
+            ftRet = Ftd2xxWrapper::FTW_Read(* ftdiRxHandle, rxRawBuffer+rxRawBufferWriteOffset, ftdiQueuedBytes, &ftdiReadBytes);
+        }
 
         if ((ftRet != FT_OK) || (ftdiReadBytes == 0)) {
             continue;
@@ -1217,8 +1150,6 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
 
     std::unique_lock <std::mutex> txMutexLock(txMutex);
     txMutexLock.unlock();
-    std::unique_lock <std::mutex> connectionMutexLock(ftdiConnectionMutex);
-    connectionMutexLock.unlock();
 
     while ((!stopConnectionFlag) || (txWaitingOnAcks > 0)) {
 
@@ -1306,9 +1237,7 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
         notSentTxData = true;
         bytesToWrite = ((DWORD)txDataBytes)+FTD_BYTES_TO_WRITE_ALWAYS;
         while (notSentTxData && (writeTries++ < EZP_MAX_WRITE_TRIES)) { /*! \todo FCON prevedere un modo per notificare ad alto livello e all'utente */
-            connectionMutexLock.lock();
-            ftRet = FT_Write(* ftdiTxHandle, txRawBuffer, bytesToWrite, &ftdiWrittenBytes);
-            connectionMutexLock.unlock();
+            ftRet = Ftd2xxWrapper::FTW_Write(* ftdiTxHandle, txRawBuffer, bytesToWrite, &ftdiWrittenBytes);
 
             if (ftRet != FT_OK) {
                 continue;
@@ -1317,11 +1246,9 @@ void EZPatchFtdiDevice::unwrapAndSendMessages() {
             /*! If less bytes than need are sent purge the buffer and retry */
             if (ftdiWrittenBytes < bytesToWrite) {
                 /*! Cleans TX buffer */
-                connectionMutexLock.lock();
-                ftRet = FT_Purge(* ftdiTxHandle, FT_PURGE_TX);
-                connectionMutexLock.unlock();
-
-            } else {
+                ftRet = Ftd2xxWrapper::FTW_Purge(* ftdiTxHandle, FT_PURGE_TX);
+            }
+            else {
                 notSentTxData = false;
                 writeTries = 0;
             }
@@ -1430,13 +1357,13 @@ ErrorCodes_t EZPatchFtdiDevice::loadFpgaFw() {
         FT_HANDLE spiHandle;
         std::string spiChannelStr = deviceId+spiChannel;
 
-        Init_libMPSSE();
+        Ftd2xxWrapper::SPIW_Init_libMPSSE();
 
-        int idx = getDeviceIndex(spiChannelStr);
+        int idx = Ftd2xxWrapper::getDeviceIndex(spiChannelStr);
         if (idx < 0) {
             return ErrorEepromConnectionFailed;
         }
-        status = SPI_OpenChannel(idx, &spiHandle);
+        status = Ftd2xxWrapper::SPIW_OpenChannel(idx, &spiHandle);
         if (status != FT_OK) {
             return ErrorEepromConnectionFailed;
         }
@@ -1447,7 +1374,7 @@ ErrorCodes_t EZPatchFtdiDevice::loadFpgaFw() {
         spiConfig.configOptions = SPI_CONFIG_OPTION_MODE0 | SPI_CONFIG_OPTION_CS_DBUS4 | SPI_CONFIG_OPTION_CS_ACTIVELOW;
         spiConfig.Pin             = 0x00000203; //State of lines after init: xdbus0:clk:out, xdbus1:mosi:out xdbus2:din:miso:in xdbus4:cs:in xdbus6:spi_init:in, clk:0 mosi:1 in idle
         //State of lines after deinitialization: all inputs
-        status = SPI_InitChannel(spiHandle, &spiConfig);
+        status = Ftd2xxWrapper::SPIW_InitChannel(spiHandle, &spiConfig);
         if (status != FT_OK) {
             return ErrorEepromConnectionFailed;
         }
@@ -1460,13 +1387,13 @@ ErrorCodes_t EZPatchFtdiDevice::loadFpgaFw() {
         uint8_t swFpgaModeBit = 0x20;
         uint8_t xCbusDir = fpgaResetBit | swFtdiInBit | swFtdiMosiBit | progBBit | swFlashFcsBBit | swFpgaModeBit;
 
-        FT_WriteGPIO(spiHandle, xCbusDir, fpgaResetBit); // lower bits of the switches to select master mode and prog B to put FPGA in reset
-        FT_WriteGPIO(spiHandle, xCbusDir, progBBit); // prog B high to start FPGA configuration (it reads the FLASH)
+        Ftd2xxWrapper::FTW_WriteGPIO(spiHandle, xCbusDir, fpgaResetBit); // lower bits of the switches to select master mode and prog B to put FPGA in reset
+        Ftd2xxWrapper::FTW_WriteGPIO(spiHandle, xCbusDir, progBBit); // prog B high to start FPGA configuration (it reads the FLASH)
 
         std::this_thread::sleep_for (std::chrono::seconds(35));
 
-        SPI_CloseChannel(spiHandle);
-        Cleanup_libMPSSE();
+        Ftd2xxWrapper::SPIW_CloseChannel(spiHandle);
+        Ftd2xxWrapper::SPIW_Cleanup_libMPSSE();
 
         break;
     }
@@ -1479,39 +1406,35 @@ ErrorCodes_t EZPatchFtdiDevice::initFtdiChannel(FT_HANDLE * handle, char channel
     std::string communicationSerialNumber = deviceId+channel;
 
     /*! Opens the device */
-    ftRet = FT_OpenEx((PVOID)communicationSerialNumber.c_str(), FT_OPEN_BY_SERIAL_NUMBER, handle);
+    ftRet = Ftd2xxWrapper::FTW_OpenEx((PVOID)communicationSerialNumber.c_str(), FT_OPEN_BY_SERIAL_NUMBER, handle);
     if (ftRet != FT_OK) {
         return ErrorDeviceConnectionFailed;
     }
 
     /*! Sets latency */
-    ftRet = FT_SetLatencyTimer(* handle, 2); /*!< ms */
+    ftRet = Ftd2xxWrapper::FTW_SetLatencyTimer(* handle, 2); /*!< ms */
     if (ftRet != FT_OK) {
-        FT_Close(* handle);
+        Ftd2xxWrapper::FTW_Close(* handle);
         return ErrorFtdiConfigurationFailed;
     }
 
     /*! Sets transfers size to */
-    ftRet = FT_SetUSBParameters(* handle, 4096, 4096);
+    ftRet = Ftd2xxWrapper::FTW_SetUSBParameters(* handle, 4096, 4096);
     if (ftRet != FT_OK) {
-        FT_Close(* handle);
+        Ftd2xxWrapper::FTW_Close(* handle);
         return ErrorFtdiConfigurationFailed;
     }
 
     /*! Purges buffers */
-    ftRet = FT_Purge(* handle, FT_PURGE_RX | FT_PURGE_TX);
+    ftRet = Ftd2xxWrapper::FTW_Purge(* handle, FT_PURGE_RX | FT_PURGE_TX);
     if (ftRet != FT_OK) {
-        FT_Close(* handle);
+        Ftd2xxWrapper::FTW_Close(* handle);
         return ErrorFtdiConfigurationFailed;
     }
 
     if (channel == rxChannel) {
-        /*! Set a notification for the received byte event */
-        DWORD EventMask;
-        EventMask = FT_EVENT_RXCHAR;
-
         if (ftRet != FT_OK) {
-            FT_Close(* handle);
+            Ftd2xxWrapper::FTW_Close(* handle);
             return ErrorFtdiConfigurationFailed;
         }
     }

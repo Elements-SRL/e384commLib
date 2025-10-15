@@ -4,6 +4,7 @@
 #include "ezpatchdevice.h"
 #include "utils.h"
 #include "ftdiutils.h"
+#include "ftd2xxwrapper.h"
 
 class EZPatchFtdiDevice : public EZPatchDevice {
 public:
@@ -36,10 +37,6 @@ protected:
      *  Methods  *
     \*************/
 
-    static int32_t getDeviceIndex(std::string serial);
-    static std::string getDeviceSerial(uint32_t index, bool excludeLetter);
-    static bool getDeviceCount(DWORD &numDevs);
-
     virtual ErrorCodes_t startCommunication(std::string fwPath) override;
     virtual ErrorCodes_t stopCommunication() override;
     virtual void initializeCalibration() override;
@@ -65,7 +62,7 @@ protected:
     FtdiFpgaLoadType_t fpgaLoadType = FtdiFpgaFwLoadAutomatic;
 
     FtdiEepromId_t ftdiEepromId = FtdiEepromId56;
-    CalibrationEeprom * calibrationEeprom = nullptr;
+    FtdiCalibrationEeprom * calibrationEeprom = nullptr;
 
     FT_HANDLE * ftdiRxHandle = nullptr;
     FT_HANDLE * ftdiTxHandle = nullptr;
