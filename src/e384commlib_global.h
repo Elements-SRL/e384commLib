@@ -186,6 +186,7 @@ typedef enum{
 typedef enum DeviceTypes {
     /*! EMCR devices */
     Device192Blm_el03c_prot_v01_fw_v01,         /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mez03_mb04_fw_v01,       /*!< 192 channels device for BLM experiments */
     Device384Nanopores,                         /*!< 384 channels device for nanopores experiments */
     Device384Nanopores_SR7p5kHz,                /*!< 384 channels device for nanopores experiments */
     Device384PatchClamp_prot_v01_fw_v02,        /*!< 384 channels device for patchclamp experiments */
