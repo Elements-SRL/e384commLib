@@ -10,7 +10,7 @@
 #define EMF_MAX_WRITE_TRIES 3
 
 #include "emcrdevice.h"
-#include "calibrationeeprom.h"
+#include "ftdicalibrationeeprom.h"
 #include "ftdiutils.h"
 
 class EmcrFtdiDevice : public EmcrDevice {
@@ -43,10 +43,6 @@ protected:
      *  Methods  *
     \*************/
 
-    static int32_t getDeviceIndex(std::string serial);
-    static std::string getDeviceSerial(uint32_t index, bool excludeLetter);
-    static bool getDeviceCount(DWORD &numDevs);
-
     virtual ErrorCodes_t startCommunication(std::string fwPath) override;
     virtual ErrorCodes_t stopCommunication() override;
     virtual void initializeCalibration() override;
@@ -69,7 +65,7 @@ protected:
     \****************/
 
     FtdiEepromId_t ftdiEepromId = FtdiEepromId56;
-    CalibrationEeprom * calibrationEeprom = nullptr;
+    FtdiCalibrationEeprom * calibrationEeprom = nullptr;
 
     FT_HANDLE * ftdiRxHandle = nullptr;
     FT_HANDLE * ftdiTxHandle = nullptr;

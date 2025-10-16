@@ -2461,8 +2461,6 @@ protected:
      *  Multi-thread synchronization variables  *
     \********************************************/
 
-    mutable std::mutex connectionMutex;
-
     mutable std::mutex txMutex;
     std::condition_variable txMsgBufferNotEmpty;
     std::condition_variable txMsgBufferNotFull;
