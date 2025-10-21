@@ -42,7 +42,6 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
-    src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v01.cpp \
     src/framemanager.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
@@ -50,6 +49,8 @@ SOURCES += \
     src/devices/EMCR/emcrudbdevice.cpp \
     src/devices/EMCR/emcrftdidevice.cpp \
     src/devices/EMCR/emcr192blm_el03c_prot_v01_fw_v01.cpp \
+    src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v01.cpp \
+    src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v02.cpp \
     src/devices/EMCR/emcr384nanopores.cpp \
     src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.cpp \
     src/devices/EMCR/emcr384patchclamp_prot_v01_fw_v02.cpp \
@@ -111,7 +112,6 @@ SOURCES += \
     src/peripherals/udbutils.cpp
 
 HEADERS += \
-    src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v01.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
@@ -123,6 +123,8 @@ HEADERS += \
     src/devices/EMCR/emcrudbdevice.h \
     src/devices/EMCR/emcrftdidevice.h \
     src/devices/EMCR/emcr192blm_el03c_prot_v01_fw_v01.h \
+    src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v01.h \
+    src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v02.h \
     src/devices/EMCR/emcr384nanopores.h \
     src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.h \
     src/devices/EMCR/emcr384patchclamp_prot_v01_fw_v02.h \

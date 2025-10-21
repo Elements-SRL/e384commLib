@@ -6,7 +6,8 @@
 #include "speed_test.h"
 
 #include "emcr192blm_el03c_prot_v01_fw_v01.h"
-#include "emcr192blm_el03c_Mez03_Mb04_fw_v01.h"
+#include "emcr192blm_el03c_mez03_mb04_fw_v01.h"
+#include "emcr192blm_el03c_mez03_mb04_fw_v02.h"
 #include "emcr384nanopores.h"
 #include "emcr384nanopores_sr7p5khz_v01.h"
 #include "emcr384patchclamp_prot_v01_fw_v02.h"
@@ -54,6 +55,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 4, Device24x10MHz_PCBV01_EL05c12},                              //   11, 14,  4 : 24 channels 10MHz nanopore reader, slot 1 EL05c1, slot 2 EL05c1P, slot 3 EL05c2
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_FirstProto, 1, Device192Blm_el03c_prot_v01_fw_v01},                        //   13,  1,  1 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_Mez03MB04, 1, Device192Blm_el03c_mez03_mb04_fw_v01},                       //   13,  2,  1 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_Mez03MB04, 2, Device192Blm_el03c_mez03_mb04_fw_v02},                       //   13,  2,  2 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},             //   15,  1,  2 : First working protoype for 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03},     //   15,  2,  3 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 255, Device384PatchClamp_prot_el07c_v08_fw_v255},  //   15,  2,255 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
@@ -240,6 +242,11 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device192Blm_el03c_mez03_mb04_fw_v01:
         messageDispatcher = new Emcr192Blm_EL03c_Mez03_Mb04_fw_v01(deviceId);
+        break;
+
+    case Device192Blm_el03c_mez03_mb04_fw_v02:
+        messageDispatcher = new Emcr192Blm_EL03c_Mez03_Mb04_fw_v02(deviceId);
+        break;
 
     case Device384Nanopores:
         messageDispatcher = new Emcr384NanoPores_V01(deviceId);

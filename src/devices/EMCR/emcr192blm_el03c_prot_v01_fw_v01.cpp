@@ -382,7 +382,7 @@ Emcr192Blm_EL03c_prot_v01_fw_v01::Emcr192Blm_EL03c_prot_v01_fw_v01(std::string d
         }
     }
 
-    doubleConfig.initialWord = 5;
+    doubleConfig.initialWord = 3;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = zapDurationRange.step;

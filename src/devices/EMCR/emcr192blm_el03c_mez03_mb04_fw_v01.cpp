@@ -153,7 +153,9 @@ Emcr192Blm_EL03c_Mez03_Mb04_fw_v01::Emcr192Blm_EL03c_Mez03_Mb04_fw_v01(std::stri
 
     /*! Voltage filters */
     /*! CC */
+    temperatureChannelsNum = TemperatureChannelsNum;
 
+    temperatureChannelsRanges.resize(TemperatureChannelsNum);
     temperatureChannelsRanges[TemperatureSensor0].step = 0.25;
     temperatureChannelsRanges[TemperatureSensor0].min = -8192.0;
     temperatureChannelsRanges[TemperatureSensor0].max = temperatureChannelsRanges[TemperatureSensor0].min+temperatureChannelsRanges[TemperatureSensor0].step*USHORT_MAX;
@@ -402,6 +404,13 @@ Emcr192Blm_EL03c_Mez03_Mb04_fw_v01::Emcr192Blm_EL03c_Mez03_Mb04_fw_v01(std::stri
     doubleConfig.maxValue = zapDurationRange.max;
     zapDurationCoder = new DoubleOffsetBinaryCoder(doubleConfig);
     coders.push_back(zapDurationCoder);
+
+    /*! Protocol reset */
+    boolConfig.initialWord = 4;
+    boolConfig.initialBit = 14;
+    boolConfig.bitsNum = 1;
+    protocolResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolResetCoder);
 
     /*! Protocol structure */
     boolConfig.initialWord = protocolWordOffset;
@@ -715,4 +724,82 @@ ErrorCodes_t Emcr192Blm_EL03c_Mez03_Mb04_fw_v01::initializeHW() {
     std::this_thread::sleep_for (std::chrono::milliseconds(10));
 
     return Success;
+}
+
+ErrorCodes_t Emcr192Blm_EL03c_Mez03_Mb04_fw_v01::setCoolingFansSpeed(Measurement_t speed, bool applyFlag) {
+    fanTrimmerCoder->encode(fanV2R(fanW2V(speed)).value, txStatus);
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
+    return Success;
+}
+
+ErrorCodes_t Emcr192Blm_EL03c_Mez03_Mb04_fw_v01::getCoolingFansSpeedRange(RangedMeasurement_t &range) {
+    range = {0.0, fanTrimmerWMax.value, 10.0, fanTrimmerWMax.prefix, fanTrimmerWMax.unit};
+    return Success;
+}
+
+ErrorCodes_t Emcr192Blm_EL03c_Mez03_Mb04_fw_v01::setTemperatureControl(Measurement_t temperature, bool enabled) {
+    if (enabled == tControlEnabled) {
+        return Success;
+    }
+    temperatureSet = temperature;
+    temperatureSet.convertValue(UnitPfxNone);
+
+    tControlEnabled = enabled;
+    ie = 0.0;
+    preve = 0.0;
+    then = std::chrono::steady_clock::now();
+    return Success;
+}
+
+ErrorCodes_t Emcr192Blm_EL03c_Mez03_Mb04_fw_v01::setTemperatureControlPid(PidParams_t params) {
+    pg = params.proportionalGain;
+    ig = params.integralGain;
+    dg = params.derivativeGain;
+    ieMax = params.integralAntiWindUp;
+    return Success;
+}
+
+void Emcr192Blm_EL03c_Mez03_Mb04_fw_v01::processTemperatureData(std::vector <Measurement_t> temperaturesRead) {
+    /*! \todo FCON tutte le conversioni in real time potrebbero essere evitate assicurandosi nel costruttore che temperatureSet abbia la stessa unità dei range di corrente, ma credo sia meno compreonsibile perchè va */
+    temperaturesRead[0].convertValue(UnitPfxNone);
+    double temperatureIntMeas = temperaturesRead[0].value;
+    temperaturesRead[1].convertValue(UnitPfxNone);
+    double temperatureExtMeas = temperaturesRead[1].value;
+    if (tControlEnabled) {
+        auto now = std::chrono::steady_clock::now();
+        double elapsed = 1.0e-3*(double)(std::chrono::duration_cast<std::chrono::milliseconds>(now - then).count());
+        if (elapsed < 1.8) {
+            return;
+        }
+        then = now;
+        double e = temperatureSet.value-temperatureIntMeas;
+        ie += e*elapsed;
+        ie = (std::max)(-ieMax, (std::min)(ieMax, ie));
+        double de = (e-preve)/elapsed;
+        preve = e;
+        double RT = e*pg+ie*ig+de*dg;
+        Measurement_t speed = this->fanRT2W({RT, fanTrimmerRTMin.prefix, fanTrimmerRTMin.unit});
+        this->setCoolingFansSpeed(speed, true);
+        if (debugLevelEnabled(DebugLevelTemperature)) {
+            std::fprintf(tempFid, "%f %f %f %f\n", temperatureSet.value, temperatureIntMeas, temperatureExtMeas, speed.value);
+            std::fflush(tempFid);
+        }
+    }
+}
+
+Measurement_t Emcr192Blm_EL03c_Mez03_Mb04_fw_v01::fanV2R(Measurement_t V) {
+    V.convertValue(fanTrimmerVRef.prefix);
+    return fanTrimmerRf*(V.value/fanTrimmerVRef.value-1.0);
+}
+
+Measurement_t Emcr192Blm_EL03c_Mez03_Mb04_fw_v01::fanW2V(Measurement_t W) {
+    W.convertValue(fanTrimmerWMax.prefix);
+    return fanTrimmerVMax*(W.value/fanTrimmerWMax.value);
+}
+
+Measurement_t Emcr192Blm_EL03c_Mez03_Mb04_fw_v01::fanRT2W(Measurement_t RT) {
+    RT.convertValue(fanTrimmerRTMin.prefix);
+    return RT.value > 0.5*(fanTrimmerRTMax.value+fanTrimmerRTOff.value) ? fanTrimmerWMax*0.0 : fanTrimmerWMax+(fanTrimmerWMin-fanTrimmerWMax)*(RT.value-fanTrimmerRTMin.value)/(fanTrimmerRTMax.value-fanTrimmerRTMin.value);
 }

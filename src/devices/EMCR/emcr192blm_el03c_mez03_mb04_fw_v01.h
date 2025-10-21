@@ -7,6 +7,11 @@ class Emcr192Blm_EL03c_Mez03_Mb04_fw_v01 : public EmcrOpalKellyDevice {
 public:
     Emcr192Blm_EL03c_Mez03_Mb04_fw_v01(std::string di);
 
+    ErrorCodes_t setCoolingFansSpeed(Measurement_t speed, bool applyFlag) override;
+    ErrorCodes_t getCoolingFansSpeedRange(RangedMeasurement_t &range) override;
+    ErrorCodes_t setTemperatureControl(Measurement_t temperature, bool enabled) override;
+    ErrorCodes_t setTemperatureControlPid(PidParams_t params) override;
+
 protected:
     enum ClampingModalities {
         VoltageClamp,
