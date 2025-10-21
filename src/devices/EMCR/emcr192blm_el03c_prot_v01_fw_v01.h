@@ -3,7 +3,6 @@
 
 #include "emcropalkellydevice.h"
 
-
 class Emcr192Blm_EL03c_prot_v01_fw_v01 : public EmcrOpalKellyDevice {
 public:
     Emcr192Blm_EL03c_prot_v01_fw_v01(std::string di);

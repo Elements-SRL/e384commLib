@@ -587,12 +587,12 @@ Emcr8nPatchClamp_EL07e_artix7_PCBV02_fw_v01::Emcr8nPatchClamp_EL07e_artix7_PCBV0
     boolConfig.initialBit = 3;
     boolConfig.bitsNum = 6;
     samplingRateCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(32); /*! 5kHz 0b100000 */
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(33); /*! 10kHz 0b100001 */
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(34); /*! 20kHz 0b100010 */
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(19); /*! 40kHz 0b010011 */
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(20); /*! 80kHz 0b010100 */
-    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(5); /*! 160kHz 0b000101 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(32); /*!   5kHz 0b100000 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(33); /*!  10kHz 0b100001 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(34); /*!  20kHz 0b100010 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(19); /*!  40kHz 0b010011 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(20); /*!  80kHz 0b010100 */
+    static_cast <BoolRandomArrayCoder *> (samplingRateCoder)->addMapItem(5);  /*! 160kHz 0b000101 */
     coders.push_back(samplingRateCoder);
 
     /*! Clamping mode */
@@ -1352,14 +1352,7 @@ Emcr8nPatchClamp_EL07e_artix7_PCBV02_fw_v01::Emcr8nPatchClamp_EL07e_artix7_PCBV0
     boolConfig.bitsNum = 3;
     rsCorrBwCompensationCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        rsCorrBwCompensationCoders[idx] = new BoolRandomArrayCoder(boolConfig);
-        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(1);
-        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(2);
-        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(3);
-        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(4);
-        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(5);
-        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(6);
-        static_cast <BoolRandomArrayCoder *> (rsCorrBwCompensationCoders[idx])->addMapItem(7);
+        rsCorrBwCompensationCoders[idx] = new BoolArrayCoder(boolConfig);
         coders.push_back(rsCorrBwCompensationCoders[idx]);
         boolConfig.initialBit += 4;
         if (boolConfig.initialBit > 12) {

@@ -6,6 +6,8 @@
 #include "speed_test.h"
 
 #include "emcr192blm_el03c_prot_v01_fw_v01.h"
+#include "emcr192blm_el03c_mez03_mb04_fw_v01.h"
+#include "emcr192blm_el03c_mez03_mb04_fw_v02.h"
 #include "emcr384nanopores.h"
 #include "emcr384nanopores_sr7p5khz_v01.h"
 #include "emcr384patchclamp_prot_v01_fw_v02.h"
@@ -15,6 +17,7 @@
 #include "emcr384patchclamp_prot_v05_fw_v06.h"
 #include "emcr384patchclamp_el07cd_prot_v06_fw_v02.h"
 #include "emcr384patchclamp_el07c_prot_v07_fw_v03.h"
+#include "emcr384patchclamp_el07c_prot_v08_fw_v255.h"
 #include "emcr384patchclamp_el07e_fw_v01.h"
 #include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
@@ -37,27 +40,35 @@
 #include "emcr2x10mhzfake.h"
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                                              //   11,  3,  1 : 10MHz nanopore reader, single board with EL05a
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 1, Device4x10MHz_SB_PCBV01_FWV01},                          //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 2, Device4x10MHz_SB_PCBV01_FWV02},                          //   11,  9,  2 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV02, 1, Device4x10MHz_SB_PCBV01_FWV02},                          //   11, 11,  1 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_SB_EL05a_PCBV02_FEStim, 1, Device2x10MHz_SB_PCBV02_FWV01_FEStim},            //   11, 12,  1 : 2 channels 10MHz nanopore reader, single board with EL05a with protocol reset and stimulus from the front end
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 1, Device24x10MHz_Only8Ch_PCBV01_EL05c4},                   //   11, 13,  1 : 24 channels 10MHz nanopore reader, but only 8 active, slot 1 EL05c4
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 2, Device24x10MHz_Only8Ch_PCBV01_EL05c3},                   //   11, 13,  2 : 24 channels 10MHz nanopore reader, but only 8 active, slot 2 EL05c3
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 3, Device24x10MHz_Only8Ch_PCBV01_EL05c4},                   //   11, 13,  3 : 24 channels 10MHz nanopore reader, but only 8 active, slot 3 EL05c4
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 4, Device24x10MHz_PCBV01_EL05c34},                          //   11, 14,  4 : 24 channels 10MHz nanopore reader, slot 1 EL05c4, slot 2 EL05c3, slot 3 EL05c4
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 1, Device24x10MHz_Only8Ch_PCBV01_EL05c1},                   //   11, 14,  1 : 24 channels 10MHz nanopore reader, but only 8 active, slot 1 EL05c1
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 2, Device24x10MHz_Only8Ch_PCBV01_EL05c1},                   //   11, 14,  2 : 24 channels 10MHz nanopore reader, but only 8 active, slot 2 EL05c1P
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 3, Device24x10MHz_Only8Ch_PCBV01_EL05c2},                   //   11, 14,  3 : 24 channels 10MHz nanopore reader, but only 8 active, slot 3 EL05c2
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 4, Device24x10MHz_PCBV01_EL05c12},                          //   11, 14,  4 : 24 channels 10MHz nanopore reader, slot 1 EL05c1, slot 2 EL05c1P, slot 3 EL05c2
-    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_FirstProto, 1, Device192Blm_el03c_prot_v01_fw_v01},                    //   13,  1,  1 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
-    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},         //   15,  1,  2 : First working protoype for 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
-    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03}, //   15,  2,  3 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
-    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 1, Device384PatchClamp_el07e_fw_v01},          //   15,  3,  1 : Temperature peripherals for 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
-    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                                        //    6, 13,  0 : QC01a test board
-    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},                            //    6, 14,  0 : QC01a test board
-    {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV01, 1, Device2x10MHz_FET},                                       //  254, 25,  1 : 2x10MHz with controllable reference voltages
-    {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV02, 1, Device2x10MHz_FET},                                       //  254, 26,  1 : 2x10MHz with controllable reference voltages
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                                                  //   11,  3,  1 : 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 1, Device4x10MHz_SB_PCBV01_FWV01},                              //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 2, Device4x10MHz_SB_PCBV01_FWV02},                              //   11,  9,  2 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV02, 1, Device4x10MHz_SB_PCBV01_FWV02},                              //   11, 11,  1 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_SB_EL05a_PCBV02_FEStim, 1, Device2x10MHz_SB_PCBV02_FWV01_FEStim},                //   11, 12,  1 : 2 channels 10MHz nanopore reader, single board with EL05a with protocol reset and stimulus from the front end
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 1, Device24x10MHz_Only8Ch_PCBV01_EL05c4},                       //   11, 13,  1 : 24 channels 10MHz nanopore reader, but only 8 active, slot 1 EL05c4
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 2, Device24x10MHz_Only8Ch_PCBV01_EL05c3},                       //   11, 13,  2 : 24 channels 10MHz nanopore reader, but only 8 active, slot 2 EL05c3
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 3, Device24x10MHz_Only8Ch_PCBV01_EL05c4},                       //   11, 13,  3 : 24 channels 10MHz nanopore reader, but only 8 active, slot 3 EL05c4
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 4, Device24x10MHz_PCBV01_EL05c34},                              //   11, 14,  4 : 24 channels 10MHz nanopore reader, slot 1 EL05c4, slot 2 EL05c3, slot 3 EL05c4
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 1, Device24x10MHz_Only8Ch_PCBV01_EL05c1},                       //   11, 14,  1 : 24 channels 10MHz nanopore reader, but only 8 active, slot 1 EL05c1
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 2, Device24x10MHz_Only8Ch_PCBV01_EL05c1},                       //   11, 14,  2 : 24 channels 10MHz nanopore reader, but only 8 active, slot 2 EL05c1P
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 3, Device24x10MHz_Only8Ch_PCBV01_EL05c2},                       //   11, 14,  3 : 24 channels 10MHz nanopore reader, but only 8 active, slot 3 EL05c2
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 4, Device24x10MHz_PCBV01_EL05c12},                              //   11, 14,  4 : 24 channels 10MHz nanopore reader, slot 1 EL05c1, slot 2 EL05c1P, slot 3 EL05c2
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_FirstProto, 1, Device192Blm_el03c_prot_v01_fw_v01},                        //   13,  1,  1 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_Mez03MB04, 1, Device192Blm_el03c_mez03_mb04_fw_v01},                       //   13,  2,  1 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_Mez03MB04, 2, Device192Blm_el03c_mez03_mb04_fw_v02},                       //   13,  2,  2 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},             //   15,  1,  2 : First working protoype for 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03},     //   15,  2,  3 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 255, Device384PatchClamp_prot_el07c_v08_fw_v255},  //   15,  2,255 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 1, Device384PatchClamp_el07e_fw_v01},              //   15,  3,  1 : Temperature peripherals for 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                                            //    6, 13,  0 : QC01a test board
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},                                //    6, 14,  0 : QC01a test board
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07a, 1, DeviceTestBoardEL07ab},                                           //    6, 17,  1 : EL07a test board
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07b, 1, DeviceTestBoardEL07ab},                                           //    6, 18,  1 : EL07b test board
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07c, 1, DeviceTestBoardEL07ce},                                           //    6, 19,  1 : EL07c test board
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07d, 1, DeviceTestBoardEL07d},                                            //    6, 20,  1 : EL07d test board
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07e, 1, DeviceTestBoardEL07ce},                                           //    6, 21,  1 : EL07e test board
+    {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV01, 1, Device2x10MHz_FET},                                           //  254, 25,  1 : 2x10MHz with controllable reference voltages
+    {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV02, 1, Device2x10MHz_FET},                                           //  254, 26,  1 : 2x10MHz with controllable reference voltages
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
@@ -234,6 +245,14 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr192Blm_EL03c_prot_v01_fw_v01(deviceId);
         break;
 
+    case Device192Blm_el03c_mez03_mb04_fw_v01:
+        messageDispatcher = new Emcr192Blm_EL03c_Mez03_Mb04_fw_v01(deviceId);
+        break;
+
+    case Device192Blm_el03c_mez03_mb04_fw_v02:
+        messageDispatcher = new Emcr192Blm_EL03c_Mez03_Mb04_fw_v02(deviceId);
+        break;
+
     case Device384Nanopores:
         messageDispatcher = new Emcr384NanoPores_V01(deviceId);
         break;
@@ -270,6 +289,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v07_fw_v03(deviceId);
         break;
 
+    case Device384PatchClamp_prot_el07c_v08_fw_v255:
+        messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v08_fw_v255(deviceId);
+        break;
+
     case Device384PatchClamp_el07e_fw_v01:
         messageDispatcher = new Emcr384PatchClamp_EL07e_fw_v01(deviceId);
         break;
@@ -282,7 +305,7 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new EmcrTestBoardEl07ab(deviceId);
         break;
 
-    case DeviceTestBoardEL07c:
+    case DeviceTestBoardEL07ce:
         messageDispatcher = new EmcrTestBoardEl07c(deviceId);
         break;
 
@@ -510,7 +533,8 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
     std::unique_lock <std::mutex> rxRawMutexLock(rxRawMutex);
     rxRawMutexLock.unlock();
 
-    std::chrono::steady_clock::time_point startWhileTime = std::chrono::steady_clock::now();
+    auto startWhileTime = std::chrono::steady_clock::now();
+    auto lastTxTime = startWhileTime;
 
     bool waitingTimeForReadingPassed = false;
     bool anyOperationPerformed;
@@ -526,11 +550,18 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         txMutexLock.lock();
         while (txMsgBufferReadLength > 0) {
             anyOperationPerformed = true;
-            this->sendCommandsToDevice();
-            txMsgBufferReadLength--;
-            if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
-                /*! Let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
-                liquidJunctionControlPending = false;
+            auto t = std::chrono::steady_clock::now();
+            if (std::chrono::duration_cast <std::chrono::microseconds> (t-lastTxTime).count() > 30) {
+                this->sendCommandsToDevice();
+                lastTxTime = t;
+                txMsgBufferReadLength--;
+                if (liquidJunctionControlPending && txMsgBufferReadLength == 0) {
+                    /*! Let the liquid junction procedure know that all commands have been submitted, can be optimized by checking that there are no liquid junction commands pending */
+                    liquidJunctionControlPending = false;
+                }
+            }
+            else {
+                break;
             }
         }
         txMutexLock.unlock();
@@ -636,7 +667,28 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
                 }
             }
             fprintf(txFid, "\n");
-            fflush(txFid);
+
+            switch (type) {
+            case TxTriggerParameteresUpdated:
+                fprintf(txFid, "TRIGGER REGISTERS\n");
+                fflush(txFid);
+                break;
+
+            case TxTriggerStartProtocol:
+                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER PROTOCOL\n");
+                fflush(txFid);
+                break;
+
+            case TxTriggerStartStateArray:
+                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER STATE ARRAY\n");
+                fflush(txFid);
+                break;
+
+            case TxTriggerZap:
+                fprintf(txFid, "TRIGGER REGISTERS\nZAP PULSE\n");
+                fflush(txFid);
+                break;
+            }
         }
 
         notSentTxData = false;

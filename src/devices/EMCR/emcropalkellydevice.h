@@ -39,6 +39,11 @@ public:
         /*! Subversions used for version = 0x06 */
         DeviceSubversionTestBoardQC01a = 0x0D,
         DeviceSubversionTestBoardQC01aExtVcm = 0x0E,
+        DeviceSubversionTestBoardEL07a = 0x11,
+        DeviceSubversionTestBoardEL07b = 0x12,
+        DeviceSubversionTestBoardEL07c = 0x13,
+        DeviceSubversionTestBoardEL07d = 0x14,
+        DeviceSubversionTestBoardEL07e = 0x15,
 
         /*! Subversions used for version = 0x0B */
         DeviceSubversion10MHz_SB_EL05a = 0x03,
@@ -52,6 +57,7 @@ public:
 
         /*! Subversions used for version = 0x0D */
         DeviceSubversion192Blm_EL03c_FirstProto = 0x01,
+        DeviceSubversion192Blm_EL03c_Mez03MB04 = 0x02,
 
         /*! Subversions used for version = 0x0F */
         DeviceSubversion384Patch_EL07c_FirstProto = 0x01,
