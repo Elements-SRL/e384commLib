@@ -201,7 +201,7 @@ typedef enum DeviceTypes {
     Device384PatchClamp_el07e_fw_v01,           /*!< 384 channels device for patchclamp experiments */
     Device384VoltageClamp_prot_v04_fw_v03,      /*!< 384 channels device for voltageclamp experiments */
     DeviceTestBoardEL07ab,
-    DeviceTestBoardEL07c,
+    DeviceTestBoardEL07ce,
     DeviceTestBoardEL07d,
     DeviceTestBoardQC01a,
     DeviceTestBoardQC01aExtVcm,
