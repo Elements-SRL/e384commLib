@@ -12,6 +12,11 @@ Emcr192Blm_EL03c_Mez03_Mb04_fw_v03::Emcr192Blm_EL03c_Mez03_Mb04_fw_v03(std::stri
     uint32_t vRampTunerCodersOffset = 316;
     uint32_t vRampTunerCodersSize = 8;
 
+    txDataWords = 3016;
+    txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
+    txMaxWords = txDataWords;
+    txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
+
     /**********\
      * Coders *
     \**********/
@@ -20,7 +25,22 @@ Emcr192Blm_EL03c_Mez03_Mb04_fw_v03::Emcr192Blm_EL03c_Mez03_Mb04_fw_v03(std::stri
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
 
-    vHoldTunerCoders.clear();
+    /*! V holding tuner */
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    vHoldTunerCoders.resize(VCVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = vRampTunerCodersOffset+1;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
+        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
+        vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord += vRampTunerCodersSize;
+        }
+    }
 
     /*! V Ramp tuner */
     doubleConfig.initialBit = 0;
@@ -197,5 +217,14 @@ Emcr192Blm_EL03c_Mez03_Mb04_fw_v03::Emcr192Blm_EL03c_Mez03_Mb04_fw_v03(std::stri
             coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
             doubleConfig.initialWord++;
         }
+    }
+
+    /*! Default status */
+    txStatus.init(txDataWords);
+    for (int c = 36; c < 48; c++) {
+        txStatus.encodingWords[c] = 0xFFFF; // VC_int on
+    }
+    for (int c = 2044; c < 2236; c++) {
+        txStatus.encodingWords[c] = 0x200; // ODAC zero
     }
 }

@@ -57,12 +57,9 @@ ErrorCodes_t EmcrFtdiDevice::detectDevices(
     /*! Lists all serial numbers */
     for (uint32_t i = 0; i < numDevs; i++) {
         deviceName = Ftd2xxWrapper::getDeviceSerial(i, true);
-        if (find(deviceIds.begin(), deviceIds.end(), deviceName) == deviceIds.end()) {
+        if (deviceName.size() > 0 && find(deviceIds.begin(), deviceIds.end(), deviceName) == deviceIds.end()) {
             /*! Adds only new devices (no distinction between channels A and B creates duplicates) */
-            if (deviceName.size() > 0) {
-                /*! Devices with an open channel are detected wrongly and their name is an empty std::string */
-                deviceIds.push_back(Ftd2xxWrapper::getDeviceSerial(i, true));
-            }
+            deviceIds.push_back(deviceName);
         }
     }
 
