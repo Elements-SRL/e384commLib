@@ -2124,6 +2124,15 @@ ErrorCodes_t EmcrDevice::getCurrentHalfFeatures(std::vector <RangedMeasurement_t
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::getVoltageRampTunerFeatures(std::vector <RangedMeasurement_t> &voltageRanges, RangedMeasurement_t &durationRange) {
+    if (vInitRampTunerCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    voltageRanges = vcVoltageRangesArray;
+    durationRange = positiveProtocolTimeRange;
+    return Success;
+}
+
 ErrorCodes_t EmcrDevice::getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &ranges) {
     if (liquidJunctionVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;

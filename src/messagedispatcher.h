@@ -1393,6 +1393,14 @@ public:
      */
     virtual ErrorCodes_t getCurrentHalfFeatures(std::vector <RangedMeasurement_t> &currentHalfTuner);
 
+    /*! \brief Get the voltage ramp tuner features, e.g. ranges, step, ...
+     *
+     * \param voltageRanges [out] Vector of ranges for the ramp voltage in each stimulus range.
+     * \param durationRange [out] Range for the ramp duration.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t getVoltageRampTunerFeatures(std::vector <RangedMeasurement_t> &voltageRanges, RangedMeasurement_t &durationRange);
+
     /*! \brief Get the liquid junction voltage ranges.
      *
      * \param ranges [out] Vector of ranges for liquid junction compensation.

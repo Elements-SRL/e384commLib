@@ -803,6 +803,10 @@ ErrorCodes_t MessageDispatcher::getCurrentHalfFeatures(std::vector <RangedMeasur
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::getVoltageRampTunerFeatures(std::vector <RangedMeasurement_t> &voltageRanges, RangedMeasurement_t &durationRange) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::getLiquidJunctionRangesFeatures(std::vector <RangedMeasurement_t> &) {
     return ErrorFeatureNotImplemented;
 }
