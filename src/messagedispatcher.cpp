@@ -279,19 +279,23 @@ ErrorCodes_t MessageDispatcher::setVoltageHoldTuner(std::vector <uint16_t>, std:
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t>, bool) {
+ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageHalf(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t>, bool) {
+ErrorCodes_t MessageDispatcher::setVoltageRampTuner(std::vector <uint16_t>, std::vector <Measurement_t>, std::vector <Measurement_t>, std::vector <Measurement_t>) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentHalf(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t>, bool) {
+ErrorCodes_t MessageDispatcher::setVoltageHalf(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageReference(Measurement_t voltage, bool applyFlag) {
+ErrorCodes_t MessageDispatcher::setCurrentHalf(std::vector <uint16_t>, std::vector <Measurement_t>, bool) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setVoltageReference(Measurement_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 

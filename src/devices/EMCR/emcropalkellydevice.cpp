@@ -8,6 +8,7 @@
 #include "emcr192blm_el03c_prot_v01_fw_v01.h"
 #include "emcr192blm_el03c_mez03_mb04_fw_v01.h"
 #include "emcr192blm_el03c_mez03_mb04_fw_v02.h"
+#include "emcr192blm_el03c_mez03_mb04_fw_v03.h"
 #include "emcr384nanopores.h"
 #include "emcr384nanopores_sr7p5khz_v01.h"
 #include "emcr384patchclamp_prot_v01_fw_v02.h"
@@ -56,6 +57,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_FirstProto, 1, Device192Blm_el03c_prot_v01_fw_v01},                        //   13,  1,  1 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_Mez03MB04, 1, Device192Blm_el03c_mez03_mb04_fw_v01},                       //   13,  2,  1 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_Mez03MB04, 2, Device192Blm_el03c_mez03_mb04_fw_v02},                       //   13,  2,  2 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_Mez03MB04, 3, Device192Blm_el03c_mez03_mb04_fw_v03},                       //   13,  2,  3 : First working protoype for 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},             //   15,  1,  2 : First working protoype for 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03},     //   15,  2,  3 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 255, Device384PatchClamp_prot_el07c_v08_fw_v255},  //   15,  2,255 : Temperature peripherals for 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
@@ -251,6 +253,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device192Blm_el03c_mez03_mb04_fw_v02:
         messageDispatcher = new Emcr192Blm_EL03c_Mez03_Mb04_fw_v02(deviceId);
+        break;
+
+    case Device192Blm_el03c_mez03_mb04_fw_v03:
+        messageDispatcher = new Emcr192Blm_EL03c_Mez03_Mb04_fw_v03(deviceId);
         break;
 
     case Device384Nanopores:
@@ -685,7 +691,12 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
                 break;
 
             case TxTriggerZap:
-                fprintf(txFid, "TRIGGER REGISTERS\nZAP PULSE\n");
+                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER ZAP PULSE\n");
+                fflush(txFid);
+                break;
+
+            case TxTriggerSingleChannelRamp:
+                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER SINGLE CHANNEL RAMP\n");
                 fflush(txFid);
                 break;
             }
@@ -706,20 +717,20 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
 
     case TxTriggerStartProtocol:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        std::this_thread::sleep_for (std::chrono::milliseconds(5));
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
         dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerStartStateArray:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        std::this_thread::sleep_for (std::chrono::milliseconds(5));
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
         dev.ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
         break;
 
-    case TxTriggerZap:
+    case TxTriggerSingleChannelRamp:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        std::this_thread::sleep_for (std::chrono::milliseconds(5));
-        dev.ActivateTriggerIn(OKY_ZAP_PULSE_TRIGGER_IN_ADDR, OKY_ZAP_PULSE_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        dev.ActivateTriggerIn(OKY_SINGLE_CHANNEL_RAMP_TRIGGER_IN_ADDR, OKY_SINGLE_CHANNEL_RAMP_TRIGGER_IN_BIT);
         break;
     }
     return true;

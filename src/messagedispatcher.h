@@ -316,6 +316,17 @@ public:
      */
     virtual ErrorCodes_t setCurrentHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag);
 
+    /*! \brief Set the ramp voltage tuner. This ramp is added to the whole voltage protocol currently applied and to the following.
+     * \note The ramps start immediately when this command is issued.
+     *
+     * \param channelIndexes [in] Vector of Indexes for the channels to control.
+     * \param initialVoltages [in] Vector of ramp initial voltage.
+     * \param finalVoltages [in] Vector of ramp final voltage.
+     * \param durations [in] Vector of ramp duration.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setVoltageRampTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> initialVoltages, std::vector <Measurement_t> finalVoltages, std::vector <Measurement_t> durations);
+
     /*! \brief Set the channel voltage half. This value is added to the voltage protocol items that have the vHalfFlag set.
      *
      * \param channelIndexes [in] Vector of Indexes for the channels to control.
@@ -2332,6 +2343,10 @@ protected:
     Measurement_t defaultCurrentHoldTuner = {0.0, UnitPfxNone, "A"};
     Measurement_t defaultVoltageHalfTuner = {0.0, UnitPfxNone, "V"};
     Measurement_t defaultCurrentHalfTuner = {0.0, UnitPfxNone, "A"};
+
+    Measurement_t defaultVInitRampTuner = {0.0, UnitPfxNone, "V"};
+    Measurement_t defaultVFinalRampTuner = {0.0, UnitPfxNone, "V"};
+    Measurement_t defaultTRampTuner = {0.0, UnitPfxNone, "s"};
 
     std::vector <Measurement_t> selectedLiquidJunctionVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector <int16_t> ccLiquidJunctionVector;

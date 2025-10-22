@@ -141,12 +141,13 @@ ErrorCodes_t EmcrDevice::resetFpga(bool resetFlag, bool applyFlag) {
 
 ErrorCodes_t EmcrDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) {
     if (vHoldTunerCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        std::vector <Measurement_t> durations(channelIndexes.size(), {0.0, UnitPfxNone, "s"});
+        return this->setVoltageRampTuner(channelIndexes,voltages, voltages, durations);
+    }
+    else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else if (selectedClampingModality != VOLTAGE_CLAMP && selectedClampingModality != VOLTAGE_CLAMP_VOLTAGE_READ) {
+    }
+    else if (selectedClampingModality != VOLTAGE_CLAMP && selectedClampingModality != VOLTAGE_CLAMP_VOLTAGE_READ) {
         return ErrorWrongClampModality;
     }
 
@@ -170,11 +171,11 @@ ErrorCodes_t EmcrDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIndex
 ErrorCodes_t EmcrDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag) {
     if (cHoldTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
-
-    } else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+    }
+    else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
-
-    } else if (selectedClampingModality == VOLTAGE_CLAMP || selectedClampingModality == VOLTAGE_CLAMP_VOLTAGE_READ) {
+    }
+    else if (selectedClampingModality == VOLTAGE_CLAMP || selectedClampingModality == VOLTAGE_CLAMP_VOLTAGE_READ) {
         return ErrorWrongClampModality;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -189,6 +190,53 @@ ErrorCodes_t EmcrDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIndex
     }
 
     if (!allInRange(currents, ccCurrentRangesArray[selectedCcCurrentRangeIdx].getMin(), ccCurrentRangesArray[selectedCcCurrentRangeIdx].getMax())) {
+        return WarningValueClipped;
+    }
+    return Success;
+}
+
+
+ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> initialVoltages, std::vector <Measurement_t> finalVoltages, std::vector <Measurement_t> durations) {
+    if (vInitRampTunerCoders.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    else if (selectedClampingModality != VOLTAGE_CLAMP && selectedClampingModality != VOLTAGE_CLAMP_VOLTAGE_READ) {
+        return ErrorWrongClampModality;
+    }
+
+    double q;
+    double r;
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+        initialVoltages[i].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
+        initialVoltages[i].value = vInitRampTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(initialVoltages[i].value, txStatus);
+        finalVoltages[i].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
+        finalVoltages[i].value = vFinalRampTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(finalVoltages[i].value, txStatus);
+        /*! \todo FCON qui bisognerebbe salvare i parametri (almeno la tensione finale) in modo che durante un cambio della VcVoltageRange si possa aggiornare il parametro come avviene per gli hold tuner */
+        durations[i].convertValue(positiveProtocolTimeRange.prefix);
+        durations[i].value = tRampTunerCoders[channelIndexes[i]]->encode(durations[i].value, txStatus);
+        if (durations[i].value > 0.0) {
+            q = 0.0;
+        }
+        else {
+            q = (finalVoltages[i].value-initialVoltages[i].value)/durations[i].value;
+            q = quotRampTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(q, txStatus);
+        }
+
+        r = (finalVoltages[i].value-initialVoltages[i].value)-durations[i].value*q;
+        remRampTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(r, txStatus);
+        activateRampTunerCoders[channelIndexes[i]]->encode(1, txStatus);
+    }
+
+    this->stackOutgoingMessage(txStatus);
+
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+        activateRampTunerCoders[channelIndexes[i]]->encode(0, txStatus);
+    }
+    if (!allInRange(initialVoltages, vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMin(), vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMax()) ||
+        !allInRange(finalVoltages, vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMin(), vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMax())) {
         return WarningValueClipped;
     }
     return Success;
@@ -800,7 +848,7 @@ ErrorCodes_t EmcrDevice::setVCVoltageRange(uint16_t voltageRangeIdx, bool applyF
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
-    /*! Most of the times the liquid junction (aka digital offset compensation) will be performed by the same DAC that appliese the voltage sitmulus
+    /*! Most of the times the liquid junction (aka digital offset compensation) will be performed by the same DAC that applies the voltage sitmulus
             Voltage clamp, so by default the same range is selected for the liquid junction
             When this is not the case the boolean variable below is set properly by the corresponding derived class of the messagedispatcher */
     if (liquidJunctionSameRangeAsVcDac) {

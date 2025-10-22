@@ -51,6 +51,7 @@ SOURCES += \
     src/devices/EMCR/emcr192blm_el03c_prot_v01_fw_v01.cpp \
     src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v01.cpp \
     src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v02.cpp \
+    src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v03.cpp \
     src/devices/EMCR/emcr384nanopores.cpp \
     src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.cpp \
     src/devices/EMCR/emcr384patchclamp_prot_v01_fw_v02.cpp \
@@ -125,6 +126,7 @@ HEADERS += \
     src/devices/EMCR/emcr192blm_el03c_prot_v01_fw_v01.h \
     src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v01.h \
     src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v02.h \
+    src/devices/EMCR/emcr192blm_el03c_mez03_mb04_fw_v03.h \
     src/devices/EMCR/emcr384nanopores.h \
     src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.h \
     src/devices/EMCR/emcr384patchclamp_prot_v01_fw_v02.h \
