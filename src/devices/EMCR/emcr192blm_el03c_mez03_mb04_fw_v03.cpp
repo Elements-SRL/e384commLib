@@ -26,21 +26,7 @@ Emcr192Blm_EL03c_Mez03_Mb04_fw_v03::Emcr192Blm_EL03c_Mez03_Mb04_fw_v03(std::stri
     DoubleCoder::CoderConfig_t doubleConfig;
 
     /*! V holding tuner */
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 16;
-    vHoldTunerCoders.resize(VCVoltageRangesNum);
-    for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = vRampTunerCodersOffset+1;
-        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
-        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
-        doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
-        vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
-        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
-            doubleConfig.initialWord += vRampTunerCodersSize;
-        }
-    }
+    vHoldTunerCoders.clear();
 
     /*! V Ramp tuner */
     doubleConfig.initialBit = 0;
@@ -112,8 +98,8 @@ Emcr192Blm_EL03c_Mez03_Mb04_fw_v03::Emcr192Blm_EL03c_Mez03_Mb04_fw_v03(std::stri
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = vRampTunerCodersOffset+6;
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
-        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
-        doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
+        doubleConfig.minValue = LINT32_MIN*doubleConfig.resolution;
+        doubleConfig.maxValue = LINT32_MAX*doubleConfig.resolution;
         remRampTunerCoders[rangeIdx].resize(currentChannelsNum);
 
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
@@ -221,6 +207,7 @@ Emcr192Blm_EL03c_Mez03_Mb04_fw_v03::Emcr192Blm_EL03c_Mez03_Mb04_fw_v03(std::stri
 
     /*! Default status */
     txStatus.init(txDataWords);
+    txStatus.encodingWords[0] = 0x4000;
     for (int c = 36; c < 48; c++) {
         txStatus.encodingWords[c] = 0xFFFF; // VC_int on
     }

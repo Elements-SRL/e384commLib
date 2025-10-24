@@ -142,7 +142,7 @@ ErrorCodes_t EmcrDevice::resetFpga(bool resetFlag, bool applyFlag) {
 ErrorCodes_t EmcrDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) {
     if (vHoldTunerCoders.empty()) {
         std::vector <Measurement_t> durations(channelIndexes.size(), {0.0, UnitPfxNone, "s"});
-        return this->setVoltageRampTuner(channelIndexes,voltages, voltages, durations);
+        return this->setVoltageRampTuner(channelIndexes, voltages, voltages, durations);
     }
     else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
@@ -217,8 +217,9 @@ ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndex
         /*! \todo FCON qui bisognerebbe salvare i parametri (almeno la tensione finale) in modo che durante un cambio della VcVoltageRange si possa aggiornare il parametro come avviene per gli hold tuner */
         durations[i].convertValue(positiveProtocolTimeRange.prefix);
         durations[i].value = tRampTunerCoders[channelIndexes[i]]->encode(durations[i].value, txStatus);
-        if (durations[i].value > 0.0) {
+        if (durations[i].value == 0.0) {
             q = 0.0;
+            initialVoltages[i].value = vInitRampTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(finalVoltages[i].value, txStatus);
         }
         else {
             q = (finalVoltages[i].value-initialVoltages[i].value)/durations[i].value;
@@ -230,7 +231,7 @@ ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndex
         activateRampTunerCoders[channelIndexes[i]]->encode(1, txStatus);
     }
 
-    this->stackOutgoingMessage(txStatus);
+    this->stackOutgoingMessage(txStatus, {TxTriggerSingleChannelRamp, ResetIndifferent});
 
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         activateRampTunerCoders[channelIndexes[i]]->encode(0, txStatus);
