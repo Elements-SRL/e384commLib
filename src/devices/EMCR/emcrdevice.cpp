@@ -195,7 +195,6 @@ ErrorCodes_t EmcrDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIndex
     return Success;
 }
 
-
 ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> initialVoltages, std::vector <Measurement_t> finalVoltages, std::vector <Measurement_t> durations) {
     if (vInitRampTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;

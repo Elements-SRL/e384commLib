@@ -488,11 +488,11 @@ ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
     if (error != okCFrontPanel::NoError) {
         return ErrorDeviceConnectionFailed;
     }
-    okTDeviceInfo info;
-    dev.GetDeviceInfo(&info);
-    if (info.deviceInterface != OK_INTERFACE_USB3) {
-        return ErrorNotConnectedToUsb3;
-    }
+    // okTDeviceInfo info;
+    // dev.GetDeviceInfo(&info);
+    // if (info.deviceInterface != OK_INTERFACE_USB3) {
+    //     return ErrorNotConnectedToUsb3;
+    // }
 
     if (dev.IsFrontPanelEnabled()) {
         return Success;
