@@ -33,10 +33,6 @@ protected:
         VoltageClamp,
         ZeroCurrentClamp,
         CurrentClamp,
-#ifdef CALIBRATION
-        VoltageClampVoltageRead,
-        CurrentClampCurrentRead,
-#endif
         ClampingModalitiesNum
     };
 
@@ -189,10 +185,6 @@ protected:
         VoltageClamp,
         ZeroCurrentClamp,
         CurrentClamp,
-#ifdef CALIBRATION
-        VoltageClampVoltageRead,
-        CurrentClampCurrentRead,
-#endif
         ClampingModalitiesNum
     };
 
