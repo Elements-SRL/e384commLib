@@ -12,8 +12,6 @@ Emcr192Blm_EL03c_Mez03_Mb04_fw_v02::Emcr192Blm_EL03c_Mez03_Mb04_fw_v02(std::stri
     protocolWordOffset = 72;
     protocolItemsWordsNum = 12;
 
-    voltageProtocolSinImplemented = true;
-
     /*! Protocols parameters */
     protocolFpgaClockFrequencyHz = 10.0e6;
 
@@ -25,6 +23,17 @@ Emcr192Blm_EL03c_Mez03_Mb04_fw_v02::Emcr192Blm_EL03c_Mez03_Mb04_fw_v02(std::stri
 
     positiveProtocolTimeRange = protocolTimeRange;
     positiveProtocolTimeRange.min = 0.0;
+
+    protocolFrequencyRange.step = protocolFpgaClockFrequencyHz/(256.0*(UINT24_MAX+1.0)); /*! 10.0MHz / 256 / 2^24 */
+    protocolFrequencyRange.min = INT24_MIN*protocolFrequencyRange.step;
+    protocolFrequencyRange.max = INT24_MAX*protocolFrequencyRange.step;
+    protocolFrequencyRange.prefix = UnitPfxNone;
+    protocolFrequencyRange.unit = "Hz";
+
+    positiveProtocolFrequencyRange = protocolFrequencyRange;
+    positiveProtocolFrequencyRange.min = 0.0;
+
+    voltageProtocolSinImplemented = true;
 
     /**********\
      * Coders *
@@ -127,6 +136,32 @@ Emcr192Blm_EL03c_Mez03_Mb04_fw_v02::Emcr192Blm_EL03c_Mez03_Mb04_fw_v02(std::stri
         doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
         protocolTime0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(protocolTime0StepCoders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = positiveProtocolFrequencyRange.step;
+    doubleConfig.minValue = positiveProtocolFrequencyRange.min;
+    doubleConfig.maxValue = positiveProtocolFrequencyRange.max;
+    protocolFrequency0Coders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+        protocolFrequency0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(protocolFrequency0Coders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = protocolFrequencyRange.step;
+    doubleConfig.minValue = protocolFrequencyRange.min;
+    doubleConfig.maxValue = protocolFrequencyRange.max;
+    protocolFrequency0StepCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+        protocolFrequency0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(protocolFrequency0StepCoders[itemIdx]);
     }
 
     boolConfig.initialBit = 0;

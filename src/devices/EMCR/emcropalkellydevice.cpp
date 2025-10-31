@@ -502,13 +502,13 @@ ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
     std::ifstream file(fwPath + fwName);
     if (file.good()) {
         error = dev.ConfigureFPGA(fwPath + fwName);
-
-    } else {
+    }
+    else {
         std::ifstream file(fwName);
         if (file.good()) {
             error = dev.ConfigureFPGA(fwName);
-
-        } else {
+        }
+        else {
             return ErrorFwNotFound;
         }
     }
