@@ -1,11 +1,11 @@
-#ifndef EMCR192BLM_EL03C_PROT_V01_FW_V01_H
-#define EMCR192BLM_EL03C_PROT_V01_FW_V01_H
+#ifndef EMCR192BLM_EL03C_MB02_MEZ03_FW_V01_H
+#define EMCR192BLM_EL03C_MB02_MEZ03_FW_V01_H
 
 #include "emcropalkellydevice.h"
 
-class Emcr192Blm_EL03c_prot_v01_fw_v01 : public EmcrOpalKellyDevice {
+class Emcr192Blm_EL03c_Mb02_Mez03_fw_v01 : public EmcrOpalKellyDevice {
 public:
-    Emcr192Blm_EL03c_prot_v01_fw_v01(std::string di);
+    Emcr192Blm_EL03c_Mb02_Mez03_fw_v01(std::string di);
 
 protected:
     enum ClampingModalities {
@@ -77,4 +77,4 @@ protected:
     virtual ErrorCodes_t initializeHW() override;
 };
 
-#endif // EMCR192BLM_EL03C_PROT_V01_FW_V01_H
+#endif // EMCR192BLM_EL03C_MB02_MEZ03_FW_V01_H

@@ -1,11 +1,11 @@
-#ifndef EMCR192BLM_EL_3C_MEZ_3_MB_4_FW_V_1_H
-#define EMCR192BLM_EL_3C_MEZ_3_MB_4_FW_V_1_H
+#ifndef EMCR192BLM_EL_3C_MB_3_MEZ_4_FW_V_1_H
+#define EMCR192BLM_EL_3C_MB_3_MEZ_4_FW_V_1_H
 
 #include "emcropalkellydevice.h"
 
-class Emcr192Blm_EL03c_Mez03_Mb04_fw_v01 : public EmcrOpalKellyDevice {
+class Emcr192Blm_EL03c_Mb03_Mez04_fw_v01 : public EmcrOpalKellyDevice {
 public:
-    Emcr192Blm_EL03c_Mez03_Mb04_fw_v01(std::string di);
+    Emcr192Blm_EL03c_Mb03_Mez04_fw_v01(std::string di);
 
     ErrorCodes_t setCoolingFansSpeed(Measurement_t speed, bool applyFlag) override;
     ErrorCodes_t getCoolingFansSpeedRange(RangedMeasurement_t &range) override;
@@ -126,4 +126,4 @@ protected:
     Measurement_t speedSet = fanTrimmerWMax;
 };
 
-#endif // EMCR192BLM_EL_3C_MEZ_3_MB_4_FW_V_1_H
+#endif // EMCR192BLM_EL_3C_MB_3_MEZ_4_FW_V_1_H

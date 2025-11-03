@@ -1,7 +1,7 @@
-#include "emcr192blm_el03c_mez03_mb04_fw_v03.h"
+#include "emcr192blm_el03c_mb02_mez03_fw_v03.h"
 
-Emcr192Blm_EL03c_Mez03_Mb04_fw_v03::Emcr192Blm_EL03c_Mez03_Mb04_fw_v03(std::string di) :
-    Emcr192Blm_EL03c_Mez03_Mb04_fw_v02(di) {
+Emcr192Blm_EL03c_Mb02_Mez03_fw_v03::Emcr192Blm_EL03c_Mb02_Mez03_fw_v03(std::string di) :
+    Emcr192Blm_EL03c_Mb02_Mez03_fw_v02(di) {
 
     fwName = "192BLM_EL03c_V03.bit";
 
