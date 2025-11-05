@@ -219,7 +219,7 @@ Emcr192Blm_EL03c_Mb02_Mez03_fw_v03::Emcr192Blm_EL03c_Mb02_Mez03_fw_v03(std::stri
     }
 }
 
-ErrorCodes_t Emcr192Blm_EL03c_Mb03_Mez04_fw_v03::initializeHW() {
+ErrorCodes_t Emcr192Blm_EL03c_Mb02_Mez03_fw_v03::initializeHW() {
     std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
 
     this->sendCommands();
