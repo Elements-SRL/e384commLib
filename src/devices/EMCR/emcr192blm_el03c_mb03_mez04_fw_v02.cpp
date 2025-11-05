@@ -203,4 +203,7 @@ Emcr192Blm_EL03c_Mb03_Mez04_fw_v02::Emcr192Blm_EL03c_Mb03_Mez04_fw_v02(std::stri
         protocolItemTypeCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolItemTypeCoders[itemIdx]);
     }
+
+    /*! Default status */
+    txStatus.encodingWords[0] = 0x4000;
 }

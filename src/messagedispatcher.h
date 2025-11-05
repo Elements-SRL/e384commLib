@@ -323,9 +323,10 @@ public:
      * \param initialVoltages [in] Vector of ramp initial voltage.
      * \param finalVoltages [in] Vector of ramp final voltage.
      * \param durations [in] Vector of ramp duration.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t setVoltageRampTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> initialVoltages, std::vector <Measurement_t> finalVoltages, std::vector <Measurement_t> durations);
+    virtual ErrorCodes_t setVoltageRampTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> initialVoltages, std::vector <Measurement_t> finalVoltages, std::vector <Measurement_t> durations, bool applyFlag = true);
 
     /*! \brief Set the channel voltage half. This value is added to the voltage protocol items that have the vHalfFlag set.
      *

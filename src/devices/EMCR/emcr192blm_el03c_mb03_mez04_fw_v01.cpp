@@ -703,6 +703,7 @@ Emcr192Blm_EL03c_Mb03_Mez04_fw_v01::Emcr192Blm_EL03c_Mb03_Mez04_fw_v01(std::stri
 
     /*! Default status */
     txStatus.init(txDataWords);
+    txStatus.encodingWords[7] = 0x00FF; // fans max speed
     for (int c = 36; c < 48; c++) {
         txStatus.encodingWords[c] = 0xFFFF; // VC_int on
     }
@@ -712,7 +713,7 @@ Emcr192Blm_EL03c_Mb03_Mez04_fw_v01::Emcr192Blm_EL03c_Mb03_Mez04_fw_v01(std::stri
 }
 
 ErrorCodes_t Emcr192Blm_EL03c_Mb03_Mez04_fw_v01::initializeHW() {
-    std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));
+    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
 
     this->resetFpga(true, true);
     this->resetFpga(false, true);

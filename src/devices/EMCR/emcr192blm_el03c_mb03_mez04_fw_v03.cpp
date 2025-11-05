@@ -5,6 +5,8 @@ Emcr192Blm_EL03c_Mb03_Mez04_fw_v03::Emcr192Blm_EL03c_Mb03_Mez04_fw_v03(std::stri
 
     fwName = "192BLM_EL03c_V03.bit";
 
+    motherboardBootTime_s = 30;
+
     defaultVInitRampTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
     defaultVFinalRampTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
     defaultTRampTuner = {0.0, UnitPfxNone, "s"};
@@ -208,10 +210,19 @@ Emcr192Blm_EL03c_Mb03_Mez04_fw_v03::Emcr192Blm_EL03c_Mb03_Mez04_fw_v03(std::stri
     /*! Default status */
     txStatus.init(txDataWords);
     txStatus.encodingWords[0] = 0x4000;
+    txStatus.encodingWords[7] = 0x00FF; // fans max speed
     for (int c = 36; c < 48; c++) {
         txStatus.encodingWords[c] = 0xFFFF; // VC_int on
     }
     for (int c = 2044; c < 2236; c++) {
         txStatus.encodingWords[c] = 0x200; // ODAC zero
     }
+}
+
+ErrorCodes_t Emcr192Blm_EL03c_Mb03_Mez04_fw_v03::initializeHW() {
+    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
+
+    this->sendCommands();
+
+    return Success;
 }

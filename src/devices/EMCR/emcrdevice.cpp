@@ -142,7 +142,7 @@ ErrorCodes_t EmcrDevice::resetFpga(bool resetFlag, bool applyFlag) {
 ErrorCodes_t EmcrDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) {
     if (vHoldTunerCoders.empty()) {
         std::vector <Measurement_t> durations(channelIndexes.size(), {0.0, UnitPfxNone, "s"});
-        return this->setVoltageRampTuner(channelIndexes, voltages, voltages, durations);
+        return this->setVoltageRampTuner(channelIndexes, voltages, voltages, durations, applyFlag);
     }
     else if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
@@ -195,7 +195,7 @@ ErrorCodes_t EmcrDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIndex
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> initialVoltages, std::vector <Measurement_t> finalVoltages, std::vector <Measurement_t> durations) {
+ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> initialVoltages, std::vector <Measurement_t> finalVoltages, std::vector <Measurement_t> durations, bool applyFlag) {
     if (vInitRampTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -230,7 +230,9 @@ ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndex
         activateRampTunerCoders[channelIndexes[i]]->encode(1, txStatus);
     }
 
-    this->stackOutgoingMessage(txStatus, {TxTriggerSingleChannelRamp, ResetIndifferent});
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus, {TxTriggerSingleChannelRamp, ResetIndifferent});
+    }
 
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         activateRampTunerCoders[channelIndexes[i]]->encode(0, txStatus);

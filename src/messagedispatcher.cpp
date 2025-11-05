@@ -283,7 +283,7 @@ ErrorCodes_t MessageDispatcher::setCurrentHoldTuner(std::vector <uint16_t>, std:
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageRampTuner(std::vector <uint16_t>, std::vector <Measurement_t>, std::vector <Measurement_t>, std::vector <Measurement_t>) {
+ErrorCodes_t MessageDispatcher::setVoltageRampTuner(std::vector <uint16_t>, std::vector <Measurement_t>, std::vector <Measurement_t>, std::vector <Measurement_t>, bool) {
     return ErrorFeatureNotImplemented;
 }
 

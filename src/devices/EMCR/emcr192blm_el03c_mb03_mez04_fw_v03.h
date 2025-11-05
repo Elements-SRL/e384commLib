@@ -6,6 +6,9 @@
 class Emcr192Blm_EL03c_Mb03_Mez04_fw_v03 : public Emcr192Blm_EL03c_Mb03_Mez04_fw_v02 {
 public:
     Emcr192Blm_EL03c_Mb03_Mez04_fw_v03(std::string di);
+
+protected:
+    virtual ErrorCodes_t initializeHW() override;
 };
 
 #endif // EMCR192BLM_EL_3C_MB_3_MEZ_4_FW_V_3_H
