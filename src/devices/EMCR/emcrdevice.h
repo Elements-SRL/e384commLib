@@ -32,6 +32,7 @@ public:
     ErrorCodes_t setCurrentHalf(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag) override;
     ErrorCodes_t setLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) override;
     ErrorCodes_t updateLiquidJunctionVoltage(uint16_t channelIdx, bool applyFlag);
+    ErrorCodes_t resetLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, bool applyFlag) override;
     ErrorCodes_t setGateVoltages(std::vector <uint16_t> boardIndexes, std::vector <Measurement_t> gateVoltages, bool applyFlag) override;
     ErrorCodes_t setSourceVoltages(std::vector <uint16_t> boardIndexes, std::vector <Measurement_t> sourceVoltages, bool applyFlag) override;
 
@@ -318,6 +319,7 @@ protected:
     std::vector <BoolCoder *> activateRampTunerCoders;
 
     std::vector <std::vector <DoubleCoder *> > liquidJunctionVoltageCoders;
+    std::vector <std::vector <DoubleCoder *> > currentTrackingCoders;
     std::vector <DoubleCoder *> calibCcCurrentGainCoders;
     std::vector <std::vector <DoubleCoder *> > calibCcCurrentOffsetCoders;
     std::vector <DoubleCoder *> calibVcVoltageGainCoders;
@@ -396,6 +398,8 @@ protected:
     std::vector <BoolArrayCoder *> protocolItemTypeCoders;
 
     std::vector <BoolCoder *> liquidJunctionCompensationCoders;
+    std::vector <BoolCoder *> liquidJunctionAutoStopCoders;
+    std::vector <BoolCoder *> liquidJunctionResetCoders;
 
     /*! Compensations coders (all in asic domain) */
     std::vector <BoolCoder*> pipetteCapEnCompensationCoders;

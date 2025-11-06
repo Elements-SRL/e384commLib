@@ -385,7 +385,7 @@ public:
      * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    ErrorCodes_t resetLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, bool applyFlag);
+    virtual ErrorCodes_t resetLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, bool applyFlag);
 
     /*! \brief Set the gate voltage on a specific board.
      *

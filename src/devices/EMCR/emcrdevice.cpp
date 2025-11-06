@@ -362,6 +362,33 @@ ErrorCodes_t EmcrDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool a
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::resetLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, bool applyFlag) {
+    if (liquidJunctionResetCoders.empty()) {
+        return MessageDispatcher::resetLiquidJunctionVoltage(channelIndexes, applyFlag);
+    }
+    else if (!allLessThan(channelIndexes, currentChannelsNum)) {
+        return ErrorValueOutOfRange;
+    }
+    else if (selectedClampingModality != VOLTAGE_CLAMP) {
+        return ErrorWrongClampModality;
+    }
+
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+        liquidJunctionCompensationCoders[channelIndexes[i]]->encode(false, txStatus);
+        liquidJunctionResetCoders[channelIndexes[i]]->encode(true, txStatus);
+    }
+
+    this->stackOutgoingMessage(txStatus);
+
+    for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+        liquidJunctionResetCoders[channelIndexes[i]]->encode(false, txStatus);
+    }
+
+    this->stackOutgoingMessage(txStatus);
+
+    return Success;
+}
+
 ErrorCodes_t EmcrDevice::setGateVoltages(std::vector <uint16_t> boardIndexes, std::vector <Measurement_t> gateVoltages, bool applyFlag) {
     if (gateVoltageCoders.size() == 0) {
         return ErrorFeatureNotImplemented;
@@ -1324,12 +1351,17 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
         return ErrorLiquidJunctionAndRecalibration;
     }
 
+    /*! Liquid junction in SW */
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
         liquidJunctionCompensationCoders[chIdx]->encode(onValues[i], txStatus); /*!< Disables protocols and vhold */
         channelModels[chIdx]->setCompensatingLiquidJunction(onValues[i]);
         if (onValues[i] && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             ljTargetCurrents[chIdx] = 0.0;
+            if (!(currentTrackingCoders.empty())) {
+                currentTrackingCoders[selectedVcCurrentRangeIdx[chIdx]][chIdx]->encode(ljTargetCurrents[chIdx], txStatus);
+                liquidJunctionAutoStopCoders[chIdx]->encode(true, txStatus);
+            }
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
             liquidJunctionStatuses[chIdx] = LiquidJunctionNotPerformed;
         }
@@ -1361,12 +1393,17 @@ ErrorCodes_t EmcrDevice::setCurrentTracking(std::vector <uint16_t> channelIndexe
         return ErrorLiquidJunctionAndRecalibration;
     }
 
+    /*! Current Tracking in SW */
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
         liquidJunctionCompensationCoders[chIdx]->encode(enable, txStatus); /*!< Disables protocols and vhold */
         channelModels[chIdx]->setCompensatingLiquidJunction(enable);
         if (enable && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
             currents[chIdx].convertValue(currentRanges[chIdx].prefix);
+            if (!(currentTrackingCoders.empty())) {
+                currentTrackingCoders[selectedVcCurrentRangeIdx[chIdx]][chIdx]->encode(ljTargetCurrents[chIdx], txStatus);
+                liquidJunctionAutoStopCoders[chIdx]->encode(false, txStatus);
+            }
             ljTargetCurrents[chIdx] = currents[chIdx].value/currentRanges[chIdx].step;
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
             liquidJunctionStatuses[chIdx] = LiquidJunctionNotPerformed;
@@ -2326,6 +2363,7 @@ bool EmcrDevice::computeOffetCorrection() {
 }
 
 bool EmcrDevice::computeLiquidJunction() {
+    bool algoInFw = !(currentTrackingCoders.empty()); /*! \todo FCON il check sul current tracker è perchè al momento se il coder non esiste significa che la liquid junction è fatta in FW. meglio aggiungere una variabile dedicata  */
     std::unique_lock <std::mutex> ljMutexLock(ljMutex);
     if (anyLiquidJunctionActive && liquidJunctionCurrentEstimatesNum > minLiquidJunctionEstimationTimeS*samplingRate.getNoPrefixValue()) {
         std::vector <uint16_t> channelIndexes;
@@ -2538,7 +2576,7 @@ bool EmcrDevice::computeLiquidJunction() {
                 }
                 else {
                     /*! not saturating */
-                    if (this->updateLjRes(channelIdx)) {
+                    if (this->updateLjRes(channelIdx) || algoInFw) {
                         /*! If the resistance estimation is reliable try to use it to find the best votlage value */
                         liquidJunctionSmallestCurrentChange[channelIdx] = liquidJunctionResolution/liquidJunctionResistanceEstimates[channelIdx];
                         gain = (int)round(deltaCurr*liquidJunctionResistanceEstimates[channelIdx]/liquidJunctionResolution);
@@ -2581,7 +2619,7 @@ bool EmcrDevice::computeLiquidJunction() {
 
                     liquidJunctionSaturationCount[channelIdx] = 0;
 
-                    if (this->updateLjRes(channelIdx)) {
+                    if (this->updateLjRes(channelIdx) || algoInFw) {
                         /*! If the resistance estimation is reliable try to use it to find the best votlage value */
                         liquidJunctionSmallestCurrentChange[channelIdx] = liquidJunctionResolution/liquidJunctionResistanceEstimates[channelIdx];
                         gain = (int)round(deltaCurr*liquidJunctionResistanceEstimates[channelIdx]/liquidJunctionResolution);
@@ -2627,7 +2665,7 @@ bool EmcrDevice::computeLiquidJunction() {
                     liquidJunctionOpenCircuitCount[channelIdx] = 0;
                 }
                 else {
-                    auto good = this->updateLjRes(channelIdx);
+                    auto good = this->updateLjRes(channelIdx) || algoInFw;
 
                     gain = (int)round(deltaCurr*liquidJunctionResistanceEstimates[channelIdx]/liquidJunctionResolution);
 
@@ -2688,7 +2726,7 @@ bool EmcrDevice::computeLiquidJunction() {
 
         liquidJunctionControlPending = true;
         bool anyCommand = !channelIndexes.empty();
-        if (anyCommand) {
+        if (anyCommand && !algoInFw) {
             this->setLiquidJunctionVoltage(channelIndexes, voltages, true);
         }
         return anyCommand;
