@@ -227,7 +227,12 @@ ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndex
 
         r = (finalVoltages[i].value-initialVoltages[i].value)-durations[i].value*q;
         remRampTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(r, txStatus);
-        activateRampTunerCoders[channelIndexes[i]]->encode(1, txStatus);
+        if (finalVoltages[i].value == initialVoltages[i].value) {
+            activateRampTunerCoders[channelIndexes[i]]->encode(false, txStatus);
+        }
+        else {
+            activateRampTunerCoders[channelIndexes[i]]->encode(true, txStatus);
+        }
     }
 
     if (applyFlag) {

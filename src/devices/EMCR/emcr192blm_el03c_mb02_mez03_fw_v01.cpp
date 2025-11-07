@@ -391,6 +391,13 @@ Emcr192Blm_EL03c_Mb02_Mez03_fw_v01::Emcr192Blm_EL03c_Mb02_Mez03_fw_v01(std::stri
     zapDurationCoder = new DoubleOffsetBinaryCoder(doubleConfig);
     coders.push_back(zapDurationCoder);
 
+    /*! Protocol reset */
+    boolConfig.initialWord = 4;
+    boolConfig.initialBit = 14;
+    boolConfig.bitsNum = 1;
+    protocolResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(protocolResetCoder);
+
     /*! Protocol structure */
     boolConfig.initialWord = protocolWordOffset;
     boolConfig.initialBit = 0;
