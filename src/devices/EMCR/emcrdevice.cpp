@@ -1404,12 +1404,14 @@ ErrorCodes_t EmcrDevice::setCurrentTracking(std::vector <uint16_t> channelIndexe
         liquidJunctionCompensationCoders[chIdx]->encode(enable, txStatus); /*!< Disables protocols and vhold */
         channelModels[chIdx]->setCompensatingLiquidJunction(enable);
         if (enable && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
-            currents[chIdx].convertValue(currentRanges[chIdx].prefix);
+            currents[i].convertValue(currentRanges[chIdx].prefix);
             if (!(currentTrackingCoders.empty())) {
-                currentTrackingCoders[selectedVcCurrentRangeIdx[chIdx]][chIdx]->encode(ljTargetCurrents[chIdx], txStatus);
+                ljTargetCurrents[chIdx] = currentTrackingCoders[selectedVcCurrentRangeIdx[chIdx]][chIdx]->encode(currents[i].value, txStatus);
                 liquidJunctionAutoStopCoders[chIdx]->encode(false, txStatus);
             }
-            ljTargetCurrents[chIdx] = currents[chIdx].value/currentRanges[chIdx].step;
+            else {
+                ljTargetCurrents[chIdx] = currents[i].value/currentRanges[chIdx].step;
+            }
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
             liquidJunctionStatuses[chIdx] = LiquidJunctionNotPerformed;
         }

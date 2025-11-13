@@ -9,10 +9,12 @@
 #include "emcr192blm_el03c_mb02_mez03_fw_v02.h"
 #include "emcr192blm_el03c_mb02_mez03_fw_v03.h"
 #include "emcr192blm_el03c_mb02_mez03_fw_v04.h"
+#include "emcr192blm_el03c_mb02_mez03_fw_v05.h"
 #include "emcr192blm_el03c_mb03_mez04_fw_v01.h"
 #include "emcr192blm_el03c_mb03_mez04_fw_v02.h"
 #include "emcr192blm_el03c_mb03_mez04_fw_v03.h"
 #include "emcr192blm_el03c_mb03_mez04_fw_v04.h"
+#include "emcr192blm_el03c_mb03_mez04_fw_v05.h"
 #include "emcr384nanopores.h"
 #include "emcr384nanopores_sr7p5khz_v01.h"
 #include "emcr384patchclamp_prot_v01_fw_v02.h"
@@ -62,10 +64,12 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB02Mez03, 2, Device192Blm_el03c_mb02_mez03_fw_v02},                       //   13,  1,  2 : 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB02Mez03, 3, Device192Blm_el03c_mb02_mez03_fw_v03},                       //   13,  1,  3 : 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB02Mez03, 4, Device192Blm_el03c_mb02_mez03_fw_v04},                       //   13,  1,  4 : 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB02Mez03, 5, Device192Blm_el03c_mb02_mez03_fw_v05},                       //   13,  1,  5 : 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 1, Device192Blm_el03c_mb03_mez04_fw_v01},                       //   13,  2,  1 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 2, Device192Blm_el03c_mb03_mez04_fw_v02},                       //   13,  2,  2 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 3, Device192Blm_el03c_mb03_mez04_fw_v03},                       //   13,  2,  3 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 4, Device192Blm_el03c_mb03_mez04_fw_v04},                       //   13,  2,  4 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 5, Device192Blm_el03c_mb03_mez04_fw_v05},                       //   13,  2,  5 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},             //   15,  1,  2 : 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03},     //   15,  2,  3 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 255, Device384PatchClamp_prot_el07c_v08_fw_v255},  //   15,  2,255 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
@@ -267,6 +271,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr192Blm_EL03c_Mb02_Mez03_fw_v04(deviceId);
         break;
 
+    case Device192Blm_el03c_mb02_mez03_fw_v05:
+        messageDispatcher = new Emcr192Blm_EL03c_Mb02_Mez03_fw_v05(deviceId);
+        break;
+
     case Device192Blm_el03c_mb03_mez04_fw_v01:
         messageDispatcher = new Emcr192Blm_EL03c_Mb03_Mez04_fw_v01(deviceId);
         break;
@@ -281,6 +289,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device192Blm_el03c_mb03_mez04_fw_v04:
         messageDispatcher = new Emcr192Blm_EL03c_Mb03_Mez04_fw_v04(deviceId);
+        break;
+
+    case Device192Blm_el03c_mb03_mez04_fw_v05:
+        messageDispatcher = new Emcr192Blm_EL03c_Mb03_Mez04_fw_v05(deviceId);
         break;
 
     case Device384Nanopores:

@@ -1970,7 +1970,7 @@ std::vector <double> Emcr8nPatchClamp_EL07e_artix7_PCBV02_fw_v01::user2AsicDomai
     double cm; // membrane capacitance
     double taum; // membrane capacitance tau
     double rsCr; // Rseries Correction
-    double rsPg; //Rseries prediction gain
+    double rsPg; // Rseries prediction gain
     double rsPtau; // Resies prediction tau
 
     // membrane capacitance domain conversion
