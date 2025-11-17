@@ -1739,6 +1739,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::getCompOptionsFeatures(Compensation
 }
 
 ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
+    onValues.resize(channelIndexes.size());
     switch (type) {
     case CompCfast:
         if (pipetteCapEnCompensationCoders.size() == 0) {

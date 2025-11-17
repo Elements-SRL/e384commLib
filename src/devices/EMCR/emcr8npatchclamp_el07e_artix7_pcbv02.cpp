@@ -1580,6 +1580,7 @@ ErrorCodes_t Emcr8nPatchClamp_EL07e_artix7_PCBV02_fw_v01::getCompOptionsFeatures
 }
 
 ErrorCodes_t Emcr8nPatchClamp_EL07e_artix7_PCBV02_fw_v01::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
+    onValues.resize(channelIndexes.size());
     switch (type) {
     case CompCfast:
         if (pipetteCapEnCompensationCoders.size() == 0) {

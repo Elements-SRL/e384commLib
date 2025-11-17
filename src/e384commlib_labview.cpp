@@ -24,6 +24,8 @@ static void measurement2Output(Measurement_t m, LVMeasurement_t * &o);
 static void rangedMeasurement2Output(RangedMeasurement_t r, LVRangedMeasurement_t &o);
 static void compensationControl2Output(CompensationControl_t c, LVCompensationControl_t &o);
 static void vectorString2Output(std::vector <std::string> v, LStrHandle * o);
+static void vectorBool2Output(std::vector <bool> v, LUint8Handle * o);
+static void vectorDouble2Output(std::vector <double> v, LDoubleHandle * o);
 static void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o);
 static void calibrationRanges2Output(CalibrationRanges_t ranges, LVecMeasHandle * o);
 static void calibrationRanges2MatrixMeasurement(CalibrationRanges_t ranges, std::vector <std::vector <Measurement_t> > &v);
@@ -38,7 +40,7 @@ static ErrorCodes_t setCompensationValues(uint16_t * channelIndexesIn, double * 
 static ErrorCodes_t setCompensationRanges(uint16_t * channelIndexesIn, uint16_t * channelRangesIn, bool applyFlagIn, int vectorLengthIn, MessageDispatcher::CompensationUserParams_t param);
 static ErrorCodes_t getCompensationOptions(LStrHandle * optionsOut, MessageDispatcher::CompensationTypes_t type);
 static ErrorCodes_t getCompensationControl(LVCompensationControl_t &controlOut, MessageDispatcher::CompensationUserParams_t param);
-static ErrorCodes_t getCompensationValues(uint16_t * channelIndexesIn, double * channelValuesOut, bool * activeNotActiveOut, int vectorLengthIn, MessageDispatcher::CompensationTypes_t type, MessageDispatcher::CompensationUserParams_t param);
+static ErrorCodes_t getCompensationValues(uint16_t * channelIndexesIn, LDoubleHandle * channelValuesOut, LUint8Handle * activeNotActiveOut, int vectorLengthIn, MessageDispatcher::CompensationTypes_t type, MessageDispatcher::CompensationUserParams_t param);
 
 #ifdef HELPERLOG
 #include <fstream>
@@ -1949,90 +1951,90 @@ ErrorCodes_t getBridgeBalanceResistanceControl(
 }
 
 ErrorCodes_t getPipetteCapacitance(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
+    uint16_t * channelIndexesIn,
+    LDoubleHandle * channelValuesOut,
+    LUint8Handle * activeNotActiveOut,
+    int vectorLengthIn) {
     return getCompensationValues(channelIndexesIn, channelValuesOut, activeNotActiveOut, vectorLengthIn, MessageDispatcher::CompCfast, MessageDispatcher::U_CpVc);
 }
 
 ErrorCodes_t getCCPipetteCapacitance(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
+    uint16_t * channelIndexesIn,
+    LDoubleHandle * channelValuesOut,
+    LUint8Handle * activeNotActiveOut,
+    int vectorLengthIn) {
     return getCompensationValues(channelIndexesIn, channelValuesOut, activeNotActiveOut, vectorLengthIn, MessageDispatcher::CompCcCfast, MessageDispatcher::U_CpCc);
 }
 
 ErrorCodes_t getMembraneCapacitance(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
+    uint16_t * channelIndexesIn,
+    LDoubleHandle * channelValuesOut,
+    LUint8Handle * activeNotActiveOut,
+    int vectorLengthIn) {
     return getCompensationValues(channelIndexesIn, channelValuesOut, activeNotActiveOut, vectorLengthIn, MessageDispatcher::CompCslow, MessageDispatcher::U_Cm);
 }
 
 ErrorCodes_t getAccessResistance(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
+    uint16_t * channelIndexesIn,
+    LDoubleHandle * channelValuesOut,
+    LUint8Handle * activeNotActiveOut,
+    int vectorLengthIn) {
     return getCompensationValues(channelIndexesIn, channelValuesOut, activeNotActiveOut, vectorLengthIn, MessageDispatcher::CompCslow, MessageDispatcher::U_Rs);
 }
 
 ErrorCodes_t getAccessResistanceCorrectionPercentage(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
+    uint16_t * channelIndexesIn,
+    LDoubleHandle * channelValuesOut,
+    LUint8Handle * activeNotActiveOut,
+    int vectorLengthIn) {
     return getCompensationValues(channelIndexesIn, channelValuesOut, activeNotActiveOut, vectorLengthIn, MessageDispatcher::CompRsCorr, MessageDispatcher::U_RsCp);
 }
 
 ErrorCodes_t getAccessResistanceCorrectionLag(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
+    uint16_t * channelIndexesIn,
+    LDoubleHandle * channelValuesOut,
+    LUint8Handle * activeNotActiveOut,
+    int vectorLengthIn) {
     return getCompensationValues(channelIndexesIn, channelValuesOut, activeNotActiveOut, vectorLengthIn, MessageDispatcher::CompRsCorr, MessageDispatcher::U_RsCl);
 }
 
 ErrorCodes_t getAccessResistancePredictionGain(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
+    uint16_t * channelIndexesIn,
+    LDoubleHandle * channelValuesOut,
+    LUint8Handle * activeNotActiveOut,
+    int vectorLengthIn) {
     return getCompensationValues(channelIndexesIn, channelValuesOut, activeNotActiveOut, vectorLengthIn, MessageDispatcher::CompRsPred, MessageDispatcher::U_RsPg);
 }
 
 ErrorCodes_t getAccessResistancePredictionPercentage(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
+    uint16_t * channelIndexesIn,
+    LDoubleHandle * channelValuesOut,
+    LUint8Handle * activeNotActiveOut,
+    int vectorLengthIn) {
     return getCompensationValues(channelIndexesIn, channelValuesOut, activeNotActiveOut, vectorLengthIn, MessageDispatcher::CompRsPred, MessageDispatcher::U_RsPp);
 }
 
 ErrorCodes_t getAccessResistancePredictionTau(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
+    uint16_t * channelIndexesIn,
+    LDoubleHandle * channelValuesOut,
+    LUint8Handle * activeNotActiveOut,
+    int vectorLengthIn) {
     return getCompensationValues(channelIndexesIn, channelValuesOut, activeNotActiveOut, vectorLengthIn, MessageDispatcher::CompRsPred, MessageDispatcher::U_RsPt);
 }
 
 ErrorCodes_t getLeakConductance(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
+    uint16_t * channelIndexesIn,
+    LDoubleHandle * channelValuesOut,
+    LUint8Handle * activeNotActiveOut,
+    int vectorLengthIn) {
     return getCompensationValues(channelIndexesIn, channelValuesOut, activeNotActiveOut, vectorLengthIn, MessageDispatcher::CompGLeak, MessageDispatcher::U_LkG);
 }
 
 ErrorCodes_t getBridgeBalanceResistance(
-        uint16_t * channelIndexesIn,
-        double * channelValuesOut,
-        bool * activeNotActiveOut,
-        int vectorLengthIn) {
+    uint16_t * channelIndexesIn,
+    LDoubleHandle * channelValuesOut,
+    LUint8Handle * activeNotActiveOut,
+    int vectorLengthIn) {
     return getCompensationValues(channelIndexesIn, channelValuesOut, activeNotActiveOut, vectorLengthIn, MessageDispatcher::CompBridgeRes, MessageDispatcher::U_BrB);
 }
 
@@ -2282,6 +2284,44 @@ void vectorString2Output(std::vector <std::string> v, LStrHandle * o) {
     string2Output(a, o);
 }
 
+void vectorBool2Output(std::vector <bool> v, LUint8Handle * o) {
+    int offset = 0;
+    MgErr err = 0;
+    if (o == nullptr) {
+        * o = (LUint8Handle)DSNewHClr(Offset(LUint8, item)+sizeof(bool)*v.size());
+
+    } else {
+        err = DSSetHSzClr(* o, Offset(LUint8, item)+sizeof(bool)*v.size());
+    }
+    if (!err) {
+        for (auto m : v) {
+            uint8_t * meas = LVecItem(** o, offset);
+            meas[0] = m ? 1 : 0;
+            offset++;
+        }
+        LVecLen(** o) = v.size();
+    }
+}
+
+void vectorDouble2Output(std::vector <double> v, LDoubleHandle * o) {
+    int offset = 0;
+    MgErr err = 0;
+    if (o == nullptr) {
+        * o = (LDoubleHandle)DSNewHClr(Offset(LDouble, item)+sizeof(double)*v.size());
+
+    } else {
+        err = DSSetHSzClr(* o, Offset(LDouble, item)+sizeof(double)*v.size());
+    }
+    if (!err) {
+        for (auto m : v) {
+            double * meas = LVecItem(** o, offset);
+            meas[0] = m;
+            offset++;
+        }
+        LVecLen(** o) = v.size();
+    }
+}
+
 void vectorMeasurement2Output(std::vector <Measurement_t> v, LMeasHandle * o) {
     int offset = 0;
     MgErr err = 0;
@@ -2432,13 +2472,13 @@ ErrorCodes_t getCompensationControl(LVCompensationControl_t &controlOut, Message
     return ret;
 }
 
-ErrorCodes_t getCompensationValues(uint16_t * channelIndexesIn, double * channelValuesOut, bool * activeNotActiveOut,
-                                  int vectorLengthIn, MessageDispatcher::CompensationTypes_t type, MessageDispatcher::CompensationUserParams_t param) {
+ErrorCodes_t getCompensationValues(uint16_t * channelIndexesIn, LDoubleHandle * channelValuesOut, LUint8Handle * activeNotActiveOut,
+                                   int vectorLengthIn, MessageDispatcher::CompensationTypes_t type, MessageDispatcher::CompensationUserParams_t param) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
     std::vector <uint16_t> channelIndexes;
-    std::vector <double> channelValues;
+    std::vector <double> channelValues(vectorLengthIn);
     std::vector <bool> activeNotActive;
     std::vector <std::vector <double> > thisCompValueMatrix;
     uint16_t currChanNum;
@@ -2454,7 +2494,7 @@ ErrorCodes_t getCompensationValues(uint16_t * channelIndexesIn, double * channel
     for (int i = 0; i < currChanNum; i++) {
         channelValues[i] = thisCompValueMatrix[channelIndexes[i]][param];
     }
-    numericVector2Output(channelValues, channelValuesOut);
-    numericVector2Output(activeNotActive, activeNotActiveOut);
+    vectorDouble2Output(channelValues, channelValuesOut);
+    vectorBool2Output(activeNotActive, activeNotActiveOut);
     return ret;
 }

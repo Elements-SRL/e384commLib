@@ -2528,10 +2528,10 @@ ErrorCodes_t getBridgeBalanceResistanceControl(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getPipetteCapacitance(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
+    E384CL_ARGIN  uint16_t * channelIndexesIn,
+    E384CL_ARGOUT LDoubleHandle * channelValuesOut,
+    E384CL_ARGOUT LUint8Handle * activeNotActiveOut,
+    E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the pipette capacitance for current clamp for each channel.
  *
@@ -2544,10 +2544,10 @@ ErrorCodes_t getPipetteCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getCCPipetteCapacitance(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
+    E384CL_ARGIN  uint16_t * channelIndexesIn,
+    E384CL_ARGOUT LDoubleHandle * channelValuesOut,
+    E384CL_ARGOUT LUint8Handle * activeNotActiveOut,
+    E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the mebrane capacitance for each channel.
  *
@@ -2560,10 +2560,10 @@ ErrorCodes_t getCCPipetteCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getMembraneCapacitance(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
+    E384CL_ARGIN  uint16_t * channelIndexesIn,
+    E384CL_ARGOUT LDoubleHandle * channelValuesOut,
+    E384CL_ARGOUT LUint8Handle * activeNotActiveOut,
+    E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of theaccess resistance for each channel.
  *
@@ -2576,10 +2576,10 @@ ErrorCodes_t getMembraneCapacitance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistance(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
+    E384CL_ARGIN  uint16_t * channelIndexesIn,
+    E384CL_ARGOUT LDoubleHandle * channelValuesOut,
+    E384CL_ARGOUT LUint8Handle * activeNotActiveOut,
+    E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the resistance correction percentage for each channel.
  *
@@ -2592,10 +2592,10 @@ ErrorCodes_t getAccessResistance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCorrectionPercentage(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
+    E384CL_ARGIN  uint16_t * channelIndexesIn,
+    E384CL_ARGOUT LDoubleHandle * channelValuesOut,
+    E384CL_ARGOUT LUint8Handle * activeNotActiveOut,
+    E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the resistance correction lag for each channel.
  *
@@ -2608,10 +2608,10 @@ ErrorCodes_t getAccessResistanceCorrectionPercentage(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistanceCorrectionLag(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
+    E384CL_ARGIN  uint16_t * channelIndexesIn,
+    E384CL_ARGOUT LDoubleHandle * channelValuesOut,
+    E384CL_ARGOUT LUint8Handle * activeNotActiveOut,
+    E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the access resistance prediction gain for each channel.
  *
@@ -2624,10 +2624,10 @@ ErrorCodes_t getAccessResistanceCorrectionLag(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionGain(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
+    E384CL_ARGIN  uint16_t * channelIndexesIn,
+    E384CL_ARGOUT LDoubleHandle * channelValuesOut,
+    E384CL_ARGOUT LUint8Handle * activeNotActiveOut,
+    E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the access resistance prediction percentage for each channel.
  *
@@ -2640,10 +2640,10 @@ ErrorCodes_t getAccessResistancePredictionGain(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionPercentage(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
+    E384CL_ARGIN  uint16_t * channelIndexesIn,
+    E384CL_ARGOUT LDoubleHandle * channelValuesOut,
+    E384CL_ARGOUT LUint8Handle * activeNotActiveOut,
+    E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the access resistance prediction tau for each channel.
  *
@@ -2656,10 +2656,10 @@ ErrorCodes_t getAccessResistancePredictionPercentage(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getAccessResistancePredictionTau(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
+    E384CL_ARGIN  uint16_t * channelIndexesIn,
+    E384CL_ARGOUT LDoubleHandle * channelValuesOut,
+    E384CL_ARGOUT LUint8Handle * activeNotActiveOut,
+    E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the leak conductance for each channel.
  *
@@ -2672,10 +2672,10 @@ ErrorCodes_t getAccessResistancePredictionTau(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getLeakConductance(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
+    E384CL_ARGIN  uint16_t * channelIndexesIn,
+    E384CL_ARGOUT LDoubleHandle * channelValuesOut,
+    E384CL_ARGOUT LUint8Handle * activeNotActiveOut,
+    E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the value of the bridge balance resistance for each channel.
  *
@@ -2688,10 +2688,10 @@ ErrorCodes_t getLeakConductance(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getBridgeBalanceResistance(
-        E384CL_ARGIN  uint16_t * channelIndexesIn,
-        E384CL_ARGOUT double * channelValuesOut,
-        E384CL_ARGOUT bool * activeNotActiveOut,
-        E384CL_ARGIN  int vectorLengthIn = 0);
+    E384CL_ARGIN  uint16_t * channelIndexesIn,
+    E384CL_ARGOUT LDoubleHandle * channelValuesOut,
+    E384CL_ARGOUT LUint8Handle * activeNotActiveOut,
+    E384CL_ARGIN  int vectorLengthIn = 0);
 
 /*! \brief Gets the gain of the voltage clamp current ADC.
  *

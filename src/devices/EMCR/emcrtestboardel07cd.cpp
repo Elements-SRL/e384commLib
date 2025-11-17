@@ -1677,6 +1677,7 @@ ErrorCodes_t EmcrTestBoardEl07c::getCompOptionsFeatures(CompensationTypes_t type
 }
 
 ErrorCodes_t EmcrTestBoardEl07c::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
+    onValues.resize(channelIndexes.size());
     switch (type) {
     case CompCfast:
         if (pipetteCapEnCompensationCoders.size() == 0) {

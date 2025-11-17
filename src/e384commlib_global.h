@@ -478,6 +478,16 @@ typedef struct LVCompensationControl {
 
 #include "lv_prolog.h"
 typedef struct {
+    int32 cnt;                            /* number of uint8 that follow */
+    double item[1];                       /* cnt of uint8 */
+} LDouble, *LDoublePtr, **LDoubleHandle;
+
+typedef struct {
+    int32 cnt;                            /* number of double that follow */
+    uint8_t item[1];                      /* cnt of doubles */
+} LUint8, *LUint8Ptr, **LUint8Handle;
+
+typedef struct {
     int32 cnt;                            /* number of measurements that follow */
     LVMeasurement_t item[1];              /* cnt measurements */
 } LMeas, *LMeasPtr, **LMeasHandle;

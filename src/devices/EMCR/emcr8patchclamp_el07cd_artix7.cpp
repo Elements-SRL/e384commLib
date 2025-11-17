@@ -1570,6 +1570,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::getCompOptionsFeature
 }
 
 ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
+    onValues.resize(channelIndexes.size());
     switch (type) {
     case CompCfast:
         if (pipetteCapEnCompensationCoders.size() == 0) {
@@ -3846,6 +3847,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v03::getCompOptionsFeatures(
 }
 
 ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v03::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
+    onValues.resize(channelIndexes.size());
     switch (type) {
     case CompCfast:
         if (pipetteCapEnCompensationCoders.size() == 0) {
