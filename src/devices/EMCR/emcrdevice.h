@@ -207,6 +207,7 @@ protected:
     void forceOutMessage();
     void updateVoltageHoldTuner(bool applyFlag);
     void updateCurrentHoldTuner(bool applyFlag);
+    ErrorCodes_t resetProtocol();
 
     void stackOutgoingMessage(CommandStatus_t &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
 

@@ -50,8 +50,8 @@ ErrorCodes_t EmcrDevice::startProtocol() {
     else {
         if (protocolResetFlag == false) {
             /*! This is called if the startProtocol is called without protocol structure and items, just to repeat the previous protocol
-              Since the protocol structure would otherwise be responsible for calling the stopProtocol, in this case the startProtocol does it instead */
-            this->stopProtocol();
+              Since the protocol structure would otherwise be responsible for calling the resetProtocol, in this case the startProtocol does it instead */
+            this->resetProtocol();
         }
         this->stackOutgoingMessage(txStatus); /*! Make sure the registers are submitted */
         protocolResetCoder->encode(0, txStatus);
@@ -62,24 +62,16 @@ ErrorCodes_t EmcrDevice::startProtocol() {
 }
 
 ErrorCodes_t EmcrDevice::stopProtocol() {
-    if (protocolResetCoder == nullptr) {
-        bool stopProtocolFlag = false; /*! We're already commiting a stop protocol, so commiting another one on the protocol structure will create an infinite recursion */
-        if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
-            this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest, stopProtocolFlag);
-            this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
-        }
-        else {
-            this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest, stopProtocolFlag);
-            this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {20.0, UnitPfxMilli, "s"}, {0.0, UnitPfxNone, "s"}, false);
-        }
-        return this->startProtocol();
+    bool stopProtocolFlag = false; /*! We're already commiting a stop protocol, so commiting another one on the protocol structure will create an infinite recursion */
+    if (selectedClampingModality == ClampingModality_t::VOLTAGE_CLAMP) {
+        this->setVoltageProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolVrest, stopProtocolFlag);
+        this->setVoltageProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "V"}, {0.0, UnitPfxNone, "V"}, {1000.0, UnitPfxNone, "s"}, {0.0, UnitPfxNone, "s"}, false);
     }
     else {
-        protocolResetCoder->encode(1, txStatus);
-        this->stackOutgoingMessage(txStatus, {TxTriggerStartProtocol, ResetIndifferent});
-        protocolResetFlag = true;
-        return Success;
+        this->setCurrentProtocolStructure(selectedProtocolId-1, 1, 1, selectedProtocolIrest, stopProtocolFlag);
+        this->setCurrentProtocolStep(0, 1, 1, false, {0.0, UnitPfxNone, "A"}, {0.0, UnitPfxNone, "A"}, {1000.0, UnitPfxNone, "s"}, {0.0, UnitPfxNone, "s"}, false);
     }
+    return this->startProtocol();
 }
 
 ErrorCodes_t EmcrDevice::startStateArray() {
@@ -1518,7 +1510,7 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolStructure(uint16_t protId, uint16_t i
         return ErrorValueOutOfRange;
     }
     if (stopProtocolFlag) {
-        this->stopProtocol();
+        this->resetProtocol();
     }
     selectedProtocolId = protId;
     selectedProtocolItemsNum = itemsNum;
@@ -1640,7 +1632,7 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolStructure(uint16_t protId, uint16_t i
         return ErrorValueOutOfRange;
     }
     if (stopProtocolFlag) {
-        this->stopProtocol();
+        this->resetProtocol();
     }
     selectedProtocolId = protId;
     selectedProtocolItemsNum = itemsNum;
@@ -3019,6 +3011,16 @@ void EmcrDevice::updateCurrentHoldTuner(bool applyFlag) {
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
+}
+
+ErrorCodes_t EmcrDevice::resetProtocol() {
+    if (protocolResetCoder == nullptr) {
+        return this->stopProtocol();
+    }
+    protocolResetCoder->encode(1, txStatus);
+    this->stackOutgoingMessage(txStatus, {TxTriggerStartProtocol, ResetIndifferent});
+    protocolResetFlag = true;
+    return Success;
 }
 
 void EmcrDevice::stackOutgoingMessage(CommandStatus_t &txDataMessage, CommandOptions_t commandOptions) {
