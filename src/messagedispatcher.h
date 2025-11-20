@@ -161,7 +161,7 @@ public:
      * \param fwPathIn [in] Path of the Firmware file (empty string if it is in the same folder as the application that calls the library).
      * \return Error code.
      */
-    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
+    static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher);
 
     /*! \brief Indicates if there's a firmware upgrade for the selected device.
      *

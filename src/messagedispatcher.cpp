@@ -136,22 +136,22 @@ ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int
     return ErrorDeviceTypeNotRecognized;
 }
 
-ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath) {
+ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher) {
     messageDispatcher = nullptr;
     if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
-        return EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher, fwPath);
+        return EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher);
     }
 
     if (EmcrUdbDevice::isDeviceRecognized(deviceId) == Success) {
-        return EmcrUdbDevice::connectDevice(deviceId, messageDispatcher, fwPath);
+        return EmcrUdbDevice::connectDevice(deviceId, messageDispatcher);
     }
 
     if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        return EmcrFtdiDevice::connectDevice(deviceId, messageDispatcher, fwPath);
+        return EmcrFtdiDevice::connectDevice(deviceId, messageDispatcher);
     }
 
     if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        return EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher, fwPath);
+        return EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher);
     }
     return ErrorDeviceTypeNotRecognized;
 }
