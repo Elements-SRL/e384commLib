@@ -316,7 +316,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
 
     case MessageDispatcher::RxMessageDataHeader:
         if (rxWordLengths[MessageDispatcher::RxMessageDataHeader] > 4) {
-            newProtocolItemFirstIndex = ((uint32_t)emd->readUint16FromRxRawBuffer(4)) + ((emd->readUint16FromRxRawBuffer(5)) << 16);
+            newProtocolItemFirstIndex = (((uint32_t)emd->readUint16FromRxRawBuffer(4*2)) + ((emd->readUint16FromRxRawBuffer(5*2)) << 16))*totalChannelsNum;
         }
         msg.typeId = rxMsgTypeId;
         msg.data.resize(rxDataWords);

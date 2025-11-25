@@ -1881,12 +1881,13 @@ ErrorCodes_t EmcrDevice::setCustomDouble(uint16_t idx, double value, bool applyF
 }
 
 ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
-    ErrorCodes_t ret = Success;
-    rxOutput.dataLen = 0; /*! Initialize data length in case more messages are merged or if an error is returned before this can be set to its proper value */
-
     if (parsingStatus != ParsingParsing) {
         return ErrorDeviceNotConnected;
     }
+
+    ErrorCodes_t ret = ErrorNoDataAvailable;
+    rxOutput.dataLen = 0; /*! Initialize data length in case more messages are merged or if an error is returned before this can be set to its proper value */
+    rxOutput.msgTypeId = MsgDirectionDeviceToPc+MsgTypeIdInvalid;
 
     uint32_t samplesNum = 0;
     uint32_t sampleIdx = 0; /*! Data index in the read message */
@@ -1899,7 +1900,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
         sampleIdx = 0;
         auto msg = frameManager->getNextMessage();
         if (msg.typeId == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
-            return ErrorNoDataAvailable;
+            return ret;
         }
 
         rxOutput.msgTypeId = msg.typeId;
@@ -2040,6 +2041,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
             break;
         }
         keepReading = msg.mergeable && (rxOutput.dataLen+frameManager->getMaxDataMessageSize() < E384CL_OUT_STRUCT_DATA_LEN);
+        ret = Success;
     }
 
 #ifdef SPT_LOG_GET_NEXT_MESSAGE
