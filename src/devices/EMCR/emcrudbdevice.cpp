@@ -224,7 +224,6 @@ ErrorCodes_t EmcrUdbDevice::isDeviceUpgradable(std::string deviceId) {
     return Success;
 }
 
-
 ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
     DeviceTypes_t deviceType;
 

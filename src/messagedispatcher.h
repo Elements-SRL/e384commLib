@@ -1245,7 +1245,6 @@ public:
      */
     ErrorCodes_t allocateRxDataBuffer(int16_t * &data);
 
-
     /*! \brief Frees the memory of the buffer to be passed to getNextMessage.
      *  \note Call this method after the last usage of getNextMessage. Alternatively free
      *  the buffer used.

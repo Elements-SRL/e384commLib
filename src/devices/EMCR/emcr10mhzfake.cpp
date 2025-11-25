@@ -1,5 +1,7 @@
 #include "emcr10mhzfake.h"
 
+//#define SHORT_FILE
+
 Emcr10MHzFake::Emcr10MHzFake(std::string id) :
     Emcr10MHz_V01(id) {
 

@@ -1,8 +1,6 @@
 #ifndef EMCR10MHZFAKE_H
 #define EMCR10MHZFAKE_H
 
-//#define SHORT_FILE
-
 #include "emcr10mhz.h"
 
 #include <fstream>
