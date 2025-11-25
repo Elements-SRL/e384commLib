@@ -1320,13 +1320,16 @@ ErrorCodes_t EmcrDevice::readoutOffsetRecalibration(std::vector <uint16_t> chann
         if (onValues[i] && (offsetRecalibStates[chIdx] == OffsetRecalibIdle)) {
             offsetRecalibStates[chIdx] = OffsetRecalibStarting;
             offsetRecalibStatuses[chIdx] = OffsetRecalibNotPerformed;
-
-        } else if (!onValues[i] && (offsetRecalibStates[chIdx] != OffsetRecalibIdle)) {
+            anyOffsetRecalibrationActive = true;
+        }
+        else if (!onValues[i] && (offsetRecalibStates[chIdx] != OffsetRecalibIdle)) {
             offsetRecalibStates[chIdx] = OffsetRecalibTerminate;
+            anyOffsetRecalibrationActive = true;
         }
     }
-    anyOffsetRecalibrationActive = true;
-    computeCurrentOffsetFlag = true;
+    if (anyOffsetRecalibrationActive) {
+        computeCurrentOffsetFlag = true;
+    }
 
     ljMutexLock.unlock();
 
@@ -1361,14 +1364,17 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
             }
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
             liquidJunctionStatuses[chIdx] = LiquidJunctionNotPerformed;
+            anyLiquidJunctionActive = true;
         }
         else if (!onValues[i] && (liquidJunctionStates[chIdx] != LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
+            anyLiquidJunctionActive = true;
         }
     }
-    anyLiquidJunctionActive = true;
-    computeCurrentOffsetFlag = true;
-    targetCurrentEnabled = false;
+    if (anyLiquidJunctionActive) {
+        computeCurrentOffsetFlag = true;
+        targetCurrentEnabled = false;
+    }
 
     ljMutexLock.unlock();
 
@@ -1395,7 +1401,7 @@ ErrorCodes_t EmcrDevice::setCurrentTracking(std::vector <uint16_t> channelIndexe
         uint16_t chIdx = channelIndexes[i];
         liquidJunctionCompensationCoders[chIdx]->encode(enable, txStatus); /*!< Disables protocols and vhold */
         channelModels[chIdx]->setCompensatingLiquidJunction(enable);
-        if (enable && (liquidJunctionStates[chIdx] == LiquidJunctionIdle)) {
+        if (enable) {
             currents[i].convertValue(currentRanges[chIdx].prefix);
             if (!(currentTrackingCoders.empty())) {
                 ljTargetCurrents[chIdx] = currentTrackingCoders[selectedVcCurrentRangeIdx[chIdx]][chIdx]->encode(currents[i].value, txStatus);
@@ -1406,14 +1412,17 @@ ErrorCodes_t EmcrDevice::setCurrentTracking(std::vector <uint16_t> channelIndexe
             }
             liquidJunctionStates[chIdx] = LiquidJunctionStarting;
             liquidJunctionStatuses[chIdx] = LiquidJunctionNotPerformed;
+            anyLiquidJunctionActive = true;
         }
         else if (!enable && (liquidJunctionStates[chIdx] != LiquidJunctionIdle)) {
             liquidJunctionStates[chIdx] = LiquidJunctionTerminate;
+            anyLiquidJunctionActive = true;
         }
     }
-    anyLiquidJunctionActive = true;
-    computeCurrentOffsetFlag = true;
-    targetCurrentEnabled = true;
+    if (anyLiquidJunctionActive) {
+        computeCurrentOffsetFlag = true;
+        targetCurrentEnabled = true;
+    }
 
     ljMutexLock.unlock();
     this->stackOutgoingMessage(txStatus);
