@@ -6,8 +6,6 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
 
     deviceName = "TestBoardEL07cd";
 
-    fwName = "TB_EL07c_V01.bit";
-
     fwSize_B = 0;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+2;
     waitingTimeBeforeReadingData = 2; //s
@@ -2423,5 +2421,4 @@ void EmcrTestBoardEl07c::setGrEn(bool flag, bool applyFlag) {
 EmcrTestBoardEl07d::EmcrTestBoardEl07d(std::string di) :
     EmcrTestBoardEl07c(di) {
 
-    fwName = "TB_EL07d_V01.bit";
 }

@@ -3,8 +3,6 @@
 Emcr192Blm_EL03c_Mb03_Mez04_fw_v02::Emcr192Blm_EL03c_Mb03_Mez04_fw_v02(std::string di) :
     Emcr192Blm_EL03c_Mb03_Mez04_fw_v01(di) {
 
-    fwName = "192BLM_EL03c_V02.bit";
-
     // fwSize_B = 6313140;
     // motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
 

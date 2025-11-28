@@ -5,8 +5,6 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
 
     deviceName = "QC01aTB";
 
-    fwName = "TB_QC01a_V1.bit";
-
     waitingTimeBeforeReadingData = 2; //s
     okTransferSize = 0x10000;
 
@@ -889,8 +887,6 @@ ErrorCodes_t EmcrQc01aTB_V01::setSamplingRate(uint16_t samplingRateIdx, bool app
 
 EmcrQc01aTB_ExtVcm_V01::EmcrQc01aTB_ExtVcm_V01(std::string di) :
     EmcrQc01aTB_V01(di) {
-
-    fwName = "TB_QC01a_V1.bit";
 
     txStatus.encodingWords[3] = 0x0000; /*! Vcm obtained externally */
 }

@@ -5,8 +5,6 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
 
     deviceName = "2x10MHz_FET";
 
-    fwName = "2x10MHz_FET_V1_0_0.bit";
-
     waitingTimeBeforeReadingData = 2; //s
 
     rxSyncWord = 0x5aa5;

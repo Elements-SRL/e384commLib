@@ -2,7 +2,6 @@
 
 Emcr384PatchClamp_prot_v05_fw_v06::Emcr384PatchClamp_prot_v05_fw_v06(std::string di) :
     Emcr384PatchClamp_prot_v04_fw_v05(di) {
-    this->fwName = "384PatchClamp_V06.bit";
 
     rxWordOffsets[RxMessageDataLoad] = 0;
     rxWordLengths[RxMessageDataLoad] = (voltageChannelsNum+currentChannelsNum)*packetsPerFrame;

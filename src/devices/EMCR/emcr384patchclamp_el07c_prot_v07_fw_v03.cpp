@@ -3,8 +3,6 @@
 Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03(std::string di) :
     Emcr384PatchClamp_EL07c_prot_v06_fw_v02(di) {
 
-    fwName = "384PatchClamp_EL07c_V03.1.bit";
-
     // fwSize_B = 6313140;
     // motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
 
@@ -177,8 +175,6 @@ Measurement_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::fanRT2W(Measurement_t RT)
 
 Emcr384PatchClamp_EL07d_prot_v07_fw_v03::Emcr384PatchClamp_EL07d_prot_v07_fw_v03(std::string di) :
     Emcr384PatchClamp_EL07c_prot_v07_fw_v03(di) {
-
-    fwName = "384PatchClamp_EL07d_V03.1.bit";
 
     // fwSize_B = 5506748;
     // motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;

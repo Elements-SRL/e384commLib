@@ -24,8 +24,8 @@
 #include "emcr384patchclamp_prot_v05_fw_v06.h"
 #include "emcr384patchclamp_el07cd_prot_v06_fw_v02.h"
 #include "emcr384patchclamp_el07c_prot_v07_fw_v03.h"
-#include "emcr384patchclamp_el07c_prot_v08_fw_v255.h"
-#include "emcr384patchclamp_el07e_fw_v01.h"
+#include "emcr384patchclamp_el07c_prot_v08_fw_v04.h"
+#include "emcr384patchclamp_el07e_fw_v04.h"
 #include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
 #include "emcrtestboardel07cd.h"
@@ -72,8 +72,8 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 5, Device192Blm_el03c_mb03_mez04_fw_v05},                       //   13,  2,  5 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},             //   15,  1,  2 : 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03},     //   15,  2,  3 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
-    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 255, Device384PatchClamp_prot_el07c_v08_fw_v255},  //   15,  2,255 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
-    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 1, Device384PatchClamp_el07e_fw_v01},              //   15,  3,  1 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 4, Device384PatchClamp_prot_el07c_v08_fw_v04},     //   15,  2,  4 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 4, Device384PatchClamp_el07e_fw_v04},              //   15,  3,  1 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                                            //    6, 13,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},                                //    6, 14,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07a, 1, DeviceTestBoardEL07ab},                                           //    6, 17,  1 : EL07a test board
@@ -331,12 +331,12 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v07_fw_v03(deviceId);
         break;
 
-    case Device384PatchClamp_prot_el07c_v08_fw_v255:
-        messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v08_fw_v255(deviceId);
+    case Device384PatchClamp_prot_el07c_v08_fw_v04:
+        messageDispatcher = new Emcr384PatchClamp_EL07c_prot_v08_fw_v04(deviceId);
         break;
 
-    case Device384PatchClamp_el07e_fw_v01:
-        messageDispatcher = new Emcr384PatchClamp_EL07e_fw_v01(deviceId);
+    case Device384PatchClamp_el07e_fw_v04:
+        messageDispatcher = new Emcr384PatchClamp_EL07e_fw_v04(deviceId);
         break;
 
     case Device384VoltageClamp_prot_v04_fw_v03:
@@ -533,27 +533,7 @@ ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
     if (dev.IsFrontPanelEnabled()) {
         return Success;
     }
-    fwPath = (!fwPath.empty() && fwPath.back() == '\\') ? fwPath : fwPath + '\\';
-
-    std::ifstream file(fwPath + fwName);
-    if (file.good()) {
-        error = dev.ConfigureFPGA(fwPath + fwName);
-    }
     else {
-        std::ifstream file(fwName);
-        if (file.good()) {
-            error = dev.ConfigureFPGA(fwName);
-        }
-        else {
-            return ErrorFwNotFound;
-        }
-    }
-
-    if (error != okCFrontPanel::NoError) {
-        return ErrorDeviceFwLoadingFailed;
-    }
-
-    if (!(dev.IsFrontPanelEnabled())) {
         return ErrorDeviceFwLoadingFailed;
     }
     return Success;

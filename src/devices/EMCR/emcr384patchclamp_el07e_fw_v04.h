@@ -1,11 +1,11 @@
-#ifndef EMCR384PATCHCLAMP_EL07E_FW_V01_H
-#define EMCR384PATCHCLAMP_EL07E_FW_V01_H
+#ifndef EMCR384PATCHCLAMP_EL07E_FW_V04_H
+#define EMCR384PATCHCLAMP_EL07E_FW_V04_H
 
 #include "emcropalkellydevice.h"
 
-class Emcr384PatchClamp_EL07e_fw_v01 : public EmcrOpalKellyDevice {
+class Emcr384PatchClamp_EL07e_fw_v04 : public EmcrOpalKellyDevice {
 public:
-    Emcr384PatchClamp_EL07e_fw_v01(std::string di);
+    Emcr384PatchClamp_EL07e_fw_v04(std::string di);
 
     virtual ErrorCodes_t getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) override;
     virtual ErrorCodes_t getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) override;
@@ -194,4 +194,4 @@ protected:
     Measurement_t speedSet = fanTrimmerWMax;
 };
 
-#endif // EMCR384PATCHCLAMP_EL07E_FW_V01_H
+#endif // EMCR384PATCHCLAMP_EL07E_FW_V04_H

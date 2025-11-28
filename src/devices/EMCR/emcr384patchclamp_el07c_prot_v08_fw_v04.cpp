@@ -1,9 +1,7 @@
-#include "emcr384patchclamp_el07c_prot_v08_fw_v255.h"
+#include "emcr384patchclamp_el07c_prot_v08_fw_v04.h"
 
-Emcr384PatchClamp_EL07c_prot_v08_fw_v255::Emcr384PatchClamp_EL07c_prot_v08_fw_v255(std::string di) :
+Emcr384PatchClamp_EL07c_prot_v08_fw_v04::Emcr384PatchClamp_EL07c_prot_v08_fw_v04(std::string di) :
     Emcr384PatchClamp_EL07c_prot_v07_fw_v03(di) {
-
-    fwName = "384PatchClamp_EL07c_V255.bit";
 
     // fwSize_B = 6313140;
     // motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;

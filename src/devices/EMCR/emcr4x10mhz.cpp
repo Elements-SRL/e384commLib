@@ -5,8 +5,6 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
 
     deviceName = "4x10MHz";
 
-    fwName = "4x10MHz_V03.bit";
-
     waitingTimeBeforeReadingData = 2; //s
 
     rxSyncWord = 0x5aa5;
@@ -744,8 +742,6 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     EmcrOpalKellyDevice(di) {
 
     deviceName = "4x10MHz";
-
-    fwName = "4x10MHz_V04.bit";
 
     waitingTimeBeforeReadingData = 2; //s
 
@@ -1515,8 +1511,6 @@ ErrorCodes_t Emcr4x10MHz_PCBV01_V03::initializeHW() {
 Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
     Emcr4x10MHz_PCBV01_V03(di) {
 
-    fwName = "4x10MHz_V05.bit";
-
     /*! Voltage filters */
     /*! VC */
     vcVoltageFiltersNum = VCVoltageFiltersNum;
@@ -1548,8 +1542,6 @@ Emcr4x10MHz_PCBV03_V03::Emcr4x10MHz_PCBV03_V03(std::string di):
 
 Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     Emcr4x10MHz_PCBV03_V03(di) {
-
-    fwName = "4x10MHz_V0_6_pcbV2.bit";
 
     txDataWords = 442; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
@@ -1675,8 +1667,6 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
 Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string id) :
     Emcr4x10MHz_PCBV03_V04(id) {
 
-    fwName = "4x10MHz_QA_V0_1_pcbV2.bit";
-
     /*! Disable state arrays */
     stateMaxNum = 0;
     numberOfStatesCoder = nullptr;
@@ -1728,13 +1718,10 @@ Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string
 Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05(std::string id) :
     Emcr4x10MHz_QuadAnalog_PCBV01_V05(id) {
 
-    fwName = "4x10MHz_quad_analog_digv01_V08.bit";
 }
 
 Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
     Emcr4x10MHz_QuadAnalog_PCBV01_V05(id) {
-
-    fwName = "4x10MHz_SB_EL05a_V1_0_0.bit";
 
     /*! Voltage filters */
     /*! VC */
@@ -1771,8 +1758,6 @@ Emcr4x10MHz_SB_PCBV01_V05::Emcr4x10MHz_SB_PCBV01_V05(std::string id) :
 
 Emcr4x10MHz_SB_PCBV01_V06::Emcr4x10MHz_SB_PCBV01_V06(std::string id) :
     Emcr4x10MHz_SB_PCBV01_V05(id) {
-
-    fwName = "4x10MHz_SB_EL05a_V2_0_0.bit";
 
     /**********\
      * Coders *

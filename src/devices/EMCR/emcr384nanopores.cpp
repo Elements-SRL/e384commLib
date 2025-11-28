@@ -5,8 +5,6 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
 
     deviceName = "384NanoPores";
 
-    fwName = "384NanoPores_V02.bit";
-
     fwSize_B = 5500000;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
     waitingTimeBeforeReadingData = 2; //s

@@ -5,8 +5,6 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
 
     deviceName = "2x10MHz";
 
-    fwName = "2x10MHz_V0_4_pcbV1.bit";
-
     waitingTimeBeforeReadingData = 2; //s
 
     rxSyncWord = 0x5aa5;
@@ -634,15 +632,12 @@ ErrorCodes_t Emcr2x10MHz_PCBV01_V01::initializeHW() {
 Emcr2x10MHz_PCBV02_V01::Emcr2x10MHz_PCBV02_V01(std::string di) :
     Emcr2x10MHz_PCBV01_V01(di) {
 
-    fwName = "2x10MHz_V0_4_pcbV2.bit";
 }
 
 Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
     EmcrOpalKellyDevice(di) {
 
     deviceName = "2x10MHz";
-
-    fwName = "2x10MHz_V0_6_pcbV1.bit";
 
     waitingTimeBeforeReadingData = 2; //s
 
@@ -1287,8 +1282,6 @@ ErrorCodes_t Emcr2x10MHz_PCBV01_V02::initializeHW() {
 
 Emcr2x10MHz_PCBV02_V02::Emcr2x10MHz_PCBV02_V02(std::string di) :
     Emcr2x10MHz_PCBV01_V02(di) {
-
-    fwName = "2x10MHz_V0_6_pcbV2.bit";
 
     /*! Voltage filters */
     /*! VC */

@@ -3,8 +3,6 @@
 Emcr192Blm_EL03c_Mb03_Mez04_fw_v05::Emcr192Blm_EL03c_Mb03_Mez04_fw_v05(std::string di) :
     Emcr192Blm_EL03c_Mb03_Mez04_fw_v04(di) {
 
-    fwName = "192BLM_EL03c_V05.bit";
-
     /**********\
      * Coders *
     \**********/

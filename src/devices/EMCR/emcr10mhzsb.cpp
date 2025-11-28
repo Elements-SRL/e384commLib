@@ -5,8 +5,6 @@ Emcr10MHzSB_V01::Emcr10MHzSB_V01(std::string di) :
 
     deviceName = "eNPR10MHz";
 
-    fwName = "10MHz_SB_EL05a_V01.bit";
-
     waitingTimeBeforeReadingData = 2; //s
 
     rxSyncWord = 0x5aa5;

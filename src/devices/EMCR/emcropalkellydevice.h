@@ -117,8 +117,6 @@ protected:
 
     okCFrontPanel dev;
 
-    std::string fwName = "top.bit";
-
     /***************\
      *  Variables  *
     \***************/

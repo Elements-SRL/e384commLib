@@ -5,8 +5,6 @@ Emcr2x10MHz_SB_PCBV02_FEStim_V01::Emcr2x10MHz_SB_PCBV02_FEStim_V01(std::string d
 
     deviceName = "2x10MHz";
 
-    fwName = "2x10MHz_V1_0_0.bit";
-
     waitingTimeBeforeReadingData = 2; //s
 
     rxSyncWord = 0x5aa5;

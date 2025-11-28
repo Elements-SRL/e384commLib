@@ -1,11 +1,9 @@
-#include "emcr384patchclamp_el07e_fw_v01.h"
+#include "emcr384patchclamp_el07e_fw_v04.h"
 
-Emcr384PatchClamp_EL07e_fw_v01::Emcr384PatchClamp_EL07e_fw_v01(std::string di) :
+Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
     EmcrOpalKellyDevice(di) {
 
     deviceName = "384PatchClamp";
-
-    fwName = "384PatchClamp_EL07e_V1.0.bit";
 
     fwSize_B = 6313140;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
@@ -1703,7 +1701,7 @@ Emcr384PatchClamp_EL07e_fw_v01::Emcr384PatchClamp_EL07e_fw_v01(std::string di) :
     }
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::initializeHW() {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::initializeHW() {
     std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));
 
     this->resetFpga(true, true);
@@ -1718,7 +1716,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::initializeHW() {
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::getCompOptionsFeatures(CompensationTypes_t type, std::vector <std::string> &compOptionsArray) {
     switch (type) {
     case CompRsCorr:
         if (rsCorrBwArray.size()==0) {
@@ -1738,7 +1736,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::getCompOptionsFeatures(Compensation
     }
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::getCompensationEnables(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <bool> &onValues) {
     onValues.resize(channelIndexes.size());
     switch (type) {
     case CompCfast:
@@ -1793,7 +1791,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::getCompensationEnables(std::vector 
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::enableCompensation(std::vector <uint16_t> channelIndexes, CompensationTypes_t compTypeToEnable, std::vector <bool> onValues, bool applyFlag) {
     switch (compTypeToEnable) {
     case CompCfast:
         if (pipetteCapEnCompensationCoders.size() == 0) {
@@ -1880,7 +1878,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::enableCompensation(std::vector <uin
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::enableVcCompensations(bool enable, bool applyFlag) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::enableVcCompensations(bool enable, bool applyFlag) {
     vcCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -1897,7 +1895,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::enableVcCompensations(bool enable, 
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::enableCcCompensations(bool enable, bool applyFlag) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::enableCcCompensations(bool enable, bool applyFlag) {
     ccCompensationsActivated = enable;
 
     for (int i = 0; i < currentChannelsNum; i++) {
@@ -1910,7 +1908,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::enableCcCompensations(bool enable, 
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::setCompValues(std::vector <uint16_t> channelIndexes, CompensationUserParams_t paramToUpdate, std::vector <double> newParamValues, bool applyFlag) {
     std::string debugString = "";
     // make local copy of the user domain param vectors
     std::vector <std::vector <double> > localCompValueSubMatrix;
@@ -2008,7 +2006,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::setCompValues(std::vector <uint16_t
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::setCompOptions(std::vector <uint16_t> channelIndexes, CompensationTypes_t type, std::vector <uint16_t> options, bool applyFlag) {
     switch (type) {
     case CompRsCorr:
         if (rsCorrBwCompensationCoders.empty()) {
@@ -2030,7 +2028,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::setCompOptions(std::vector <uint16_
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::turnVoltageReaderOn(bool onValueIn, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
     std::vector <ClampingModality_t> clamps(currentChannelsNum);
@@ -2053,7 +2051,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::turnVoltageReaderOn(bool onValueIn,
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::turnCurrentReaderOn(bool onValueIn, bool applyFlag) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::turnCurrentReaderOn(bool onValueIn, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
     std::vector <ClampingModality_t> clamps(currentChannelsNum);
@@ -2076,7 +2074,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::turnCurrentReaderOn(bool onValueIn,
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::turnVoltageStimulusOn(bool onValue, bool applyFlag) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::turnVoltageStimulusOn(bool onValue, bool applyFlag) {
     if (onValue) {
         this->updateCalibVcVoltageGain(allChannelIndexes, false);
         this->updateCalibVcVoltageOffset(allChannelIndexes, applyFlag);
@@ -2087,7 +2085,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::turnVoltageStimulusOn(bool onValue,
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::turnCurrentStimulusOn(bool onValue, bool applyFlag) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::turnCurrentStimulusOn(bool onValue, bool applyFlag) {
     std::vector <bool> trues(currentChannelsNum);
     std::vector <bool> falses(currentChannelsNum);
 
@@ -2106,7 +2104,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::turnCurrentStimulusOn(bool onValue,
     return Success;
 }
 
-std::vector <double> Emcr384PatchClamp_EL07e_fw_v01::user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) {
+std::vector <double> Emcr384PatchClamp_EL07e_fw_v04::user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams) {
     std::vector <double> asicDomainParameter;
     asicDomainParameter.resize(CompensationAsicParamsNum);
     double cp; // pipette capacitance
@@ -2151,7 +2149,7 @@ std::vector <double> Emcr384PatchClamp_EL07e_fw_v01::user2AsicDomainTransform(in
     return asicDomainParameter;
 }
 
-std::vector <double> Emcr384PatchClamp_EL07e_fw_v01::asic2UserDomainTransform(int chIdx, std::vector <double> asicDomainParams, double oldUCpVc, double oldUCpCc) {
+std::vector <double> Emcr384PatchClamp_EL07e_fw_v04::asic2UserDomainTransform(int chIdx, std::vector <double> asicDomainParams, double oldUCpVc, double oldUCpCc) {
     std::vector <double> userDomainParameter;
     userDomainParameter.resize(CompensationUserParamsNum);
 
@@ -2197,7 +2195,7 @@ std::vector <double> Emcr384PatchClamp_EL07e_fw_v01::asic2UserDomainTransform(in
     return userDomainParameter;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::asic2UserDomainCompensable(int chIdx, std::vector <double> asicDomainParams, std::vector <double> userDomainParams) {
     /*! \todo still to understand how to obtain them. COuld they be imputs of the function?*/
     std::vector <double> potentialMaxs;
     std::vector <double> potentialMins;
@@ -2335,7 +2333,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::asic2UserDomainCompensable(int chId
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::getCompensationControl(CompensationUserParams_t param, CompensationControl_t &control) {
     switch (param) {
     case U_CpVc:
         control.implemented = true;
@@ -2432,7 +2430,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::getCompensationControl(Compensation
     }
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::setCoolingFansSpeed(Measurement_t speed, bool applyFlag) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::setCoolingFansSpeed(Measurement_t speed, bool applyFlag) {
     fanTrimmerCoder->encode(fanV2R(fanW2V(speed)).value, txStatus);
     if (applyFlag) {
         this->stackOutgoingMessage(txStatus);
@@ -2440,12 +2438,12 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::setCoolingFansSpeed(Measurement_t s
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::getCoolingFansSpeedRange(RangedMeasurement_t &range) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::getCoolingFansSpeedRange(RangedMeasurement_t &range) {
     range = {0.0, fanTrimmerWMax.value, 10.0, fanTrimmerWMax.prefix, fanTrimmerWMax.unit};
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::setTemperatureControl(Measurement_t temperature, bool enabled) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::setTemperatureControl(Measurement_t temperature, bool enabled) {
     if (enabled == tControlEnabled) {
         return Success;
     }
@@ -2459,7 +2457,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::setTemperatureControl(Measurement_t
     return Success;
 }
 
-ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::setTemperatureControlPid(PidParams_t params) {
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::setTemperatureControlPid(PidParams_t params) {
     pg = params.proportionalGain;
     ig = params.integralGain;
     dg = params.derivativeGain;
@@ -2467,7 +2465,7 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v01::setTemperatureControlPid(PidParams_
     return Success;
 }
 
-void Emcr384PatchClamp_EL07e_fw_v01::processTemperatureData(std::vector <Measurement_t> temperaturesRead) {
+void Emcr384PatchClamp_EL07e_fw_v04::processTemperatureData(std::vector <Measurement_t> temperaturesRead) {
     /*! \todo FCON tutte le conversioni in real time potrebbero essere evitate assicurandosi nel costruttore che temperatureSet abbia la stessa unità dei range di corrente, ma credo sia meno compreonsibile perchè va */
     temperaturesRead[0].convertValue(UnitPfxNone);
     double temperatureIntMeas = temperaturesRead[0].value;
@@ -2495,17 +2493,17 @@ void Emcr384PatchClamp_EL07e_fw_v01::processTemperatureData(std::vector <Measure
     }
 }
 
-Measurement_t Emcr384PatchClamp_EL07e_fw_v01::fanV2R(Measurement_t V) {
+Measurement_t Emcr384PatchClamp_EL07e_fw_v04::fanV2R(Measurement_t V) {
     V.convertValue(fanTrimmerVRef.prefix);
     return fanTrimmerRf*(V.value/fanTrimmerVRef.value-1.0);
 }
 
-Measurement_t Emcr384PatchClamp_EL07e_fw_v01::fanW2V(Measurement_t W) {
+Measurement_t Emcr384PatchClamp_EL07e_fw_v04::fanW2V(Measurement_t W) {
     W.convertValue(fanTrimmerWMax.prefix);
     return fanTrimmerVMax*(W.value/fanTrimmerWMax.value);
 }
 
-Measurement_t Emcr384PatchClamp_EL07e_fw_v01::fanRT2W(Measurement_t RT) {
+Measurement_t Emcr384PatchClamp_EL07e_fw_v04::fanRT2W(Measurement_t RT) {
     RT.convertValue(fanTrimmerRTMin.prefix);
     return RT.value > 0.5*(fanTrimmerRTMax.value+fanTrimmerRTOff.value) ? fanTrimmerWMax*0.0 : fanTrimmerWMax+(fanTrimmerWMin-fanTrimmerWMax)*(RT.value-fanTrimmerRTMin.value)/(fanTrimmerRTMax.value-fanTrimmerRTMin.value);
 }

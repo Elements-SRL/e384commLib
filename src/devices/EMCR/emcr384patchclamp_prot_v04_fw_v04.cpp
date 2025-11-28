@@ -6,8 +6,6 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
 
     deviceName = "384PatchClamp";
 
-    fwName = "384PatchClamp_V04.bit";
-
     fwSize_B = 6313296;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
     waitingTimeBeforeReadingData = 2; //s

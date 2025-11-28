@@ -3,8 +3,6 @@
 Emcr192Blm_EL03c_Mb03_Mez04_fw_v03::Emcr192Blm_EL03c_Mb03_Mez04_fw_v03(std::string di) :
     Emcr192Blm_EL03c_Mb03_Mez04_fw_v02(di) {
 
-    fwName = "192BLM_EL03c_V03.bit";
-
     motherboardBootTime_s = 30;
 
     defaultVInitRampTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};

@@ -42,6 +42,8 @@ VERSION_FULL = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}
 
 SOURCES += \
     src/commandcoder.cpp \
+    src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v04.cpp \
+    src/devices/EMCR/emcr384patchclamp_el07e_fw_v04.cpp \
     src/framemanager.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
@@ -68,8 +70,6 @@ SOURCES += \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v01.cpp \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v02.cpp \
     src/devices/EMCR/emcr384patchclamp_el07c_prot_v07_fw_v03.cpp \
-    src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v255.cpp \
-    src/devices/EMCR/emcr384patchclamp_el07e_fw_v01.cpp \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.cpp \
     src/devices/EMCR/emcr10mhz.cpp \
     src/devices/EMCR/emcr10mhzsb.cpp \
@@ -119,6 +119,8 @@ SOURCES += \
     src/peripherals/udbutils.cpp
 
 HEADERS += \
+    src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v04.h \
+    src/devices/EMCR/emcr384patchclamp_el07e_fw_v04.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
@@ -149,8 +151,6 @@ HEADERS += \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v01.h \
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v02.h \
     src/devices/EMCR/emcr384patchclamp_el07c_prot_v07_fw_v03.h \
-    src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v255.h \
-    src/devices/EMCR/emcr384patchclamp_el07e_fw_v01.h \
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.h \
     src/devices/EMCR/emcr10mhz.h \
     src/devices/EMCR/emcr10mhzsb.h \
