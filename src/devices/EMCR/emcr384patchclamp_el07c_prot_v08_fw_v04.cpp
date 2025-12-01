@@ -3,9 +3,6 @@
 Emcr384PatchClamp_EL07c_prot_v08_fw_v04::Emcr384PatchClamp_EL07c_prot_v08_fw_v04(std::string di) :
     Emcr384PatchClamp_EL07c_prot_v07_fw_v03(di) {
 
-    // fwSize_B = 6313140;
-    // motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
-
     protocolMaxItemsNum = 20;
     protocolWordOffset = 300;
     protocolItemsWordsNum = 12;
@@ -224,3 +221,10 @@ Emcr384PatchClamp_EL07c_prot_v08_fw_v04::Emcr384PatchClamp_EL07c_prot_v08_fw_v04
         coders.push_back(protocolItemTypeCoders[itemIdx]);
     }
 }
+
+ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v08_fw_v04::initializeHW() {
+    Emcr384PatchClamp_EL07c_prot_v06_fw_v01::initializeHW();
+    this->setDebugBit(0, 14, true);
+    this->stackOutgoingMessage(txStatus);
+    return Success;
+};

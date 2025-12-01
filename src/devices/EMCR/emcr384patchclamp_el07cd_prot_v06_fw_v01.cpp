@@ -1654,7 +1654,7 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
 }
 
 ErrorCodes_t Emcr384PatchClamp_EL07c_prot_v06_fw_v01::initializeHW() {
-    std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));
+    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
 
     this->resetFpga(true, true);
     this->resetFpga(false, true);

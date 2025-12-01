@@ -1713,6 +1713,9 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v04::initializeHW() {
     this->resetAsic(false, true); /*! Not synchronous across MB's FGPAs */
     std::this_thread::sleep_for (std::chrono::milliseconds(10));
 
+    this->setDebugBit(0, 14, true);
+    this->stackOutgoingMessage(txStatus);
+
     return Success;
 }
 

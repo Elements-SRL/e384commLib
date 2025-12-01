@@ -3,9 +3,6 @@
 Emcr384PatchClamp_EL07c_prot_v07_fw_v03::Emcr384PatchClamp_EL07c_prot_v07_fw_v03(std::string di) :
     Emcr384PatchClamp_EL07c_prot_v06_fw_v02(di) {
 
-    // fwSize_B = 6313140;
-    // motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
-
     temperatureChannelsRanges[TemperatureSensor0].step = 0.25;
     temperatureChannelsRanges[TemperatureSensor0].min = -8192.0;
     temperatureChannelsRanges[TemperatureSensor0].max = temperatureChannelsRanges[TemperatureSensor0].min+temperatureChannelsRanges[TemperatureSensor0].step*USHORT_MAX;
@@ -176,6 +173,4 @@ Measurement_t Emcr384PatchClamp_EL07c_prot_v07_fw_v03::fanRT2W(Measurement_t RT)
 Emcr384PatchClamp_EL07d_prot_v07_fw_v03::Emcr384PatchClamp_EL07d_prot_v07_fw_v03(std::string di) :
     Emcr384PatchClamp_EL07c_prot_v07_fw_v03(di) {
 
-    // fwSize_B = 5506748;
-    // motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
 }
