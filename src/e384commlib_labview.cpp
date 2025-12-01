@@ -168,17 +168,14 @@ ErrorCodes_t detectDevices(
 }
 
 ErrorCodes_t connectDevice(
-        LStrHandle deviceIdIn,
-        LStrHandle fwPathIn) {
+        LStrHandle deviceIdIn) {
 
     if (messageDispatcher != nullptr) {
         return ErrorDeviceAlreadyConnected;
     }
 
     std::string deviceId;
-    std::string fwPath;
     input2String(deviceIdIn, deviceId);
-    input2String(fwPathIn, fwPath);
 
     internalMeasVec.clear();
     internalRangeVec.clear();
@@ -186,7 +183,7 @@ ErrorCodes_t connectDevice(
     logFile.open("C:\\log.txt", std::ios_base::trunc | std::ios_base::trunc);
 #endif
 
-    return MessageDispatcher::connectDevice(deviceId, messageDispatcher, fwPath);
+    return MessageDispatcher::connectDevice(deviceId, messageDispatcher);
 }
 
 ErrorCodes_t disconnectDevice() {
@@ -490,6 +487,14 @@ ErrorCodes_t setCalibCcCurrentOffset(
     input2NumericVector(channelIndexesIn, channelIndexes, vectorLengthIn);
     SELECT_MEAS_VECTOR(offsets, offsetsIn, channelIndexes.size())
     return messageDispatcher->setCalibCcCurrentOffset(channelIndexes, offsets, applyFlagIn);
+}
+
+ErrorCodes_t setCalibrationMode(
+    bool calibModeFlag) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->setCalibrationMode(calibModeFlag);
 }
 
 ErrorCodes_t writeCalibrationEeprom(

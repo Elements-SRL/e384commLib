@@ -99,8 +99,7 @@ ErrorCodes_t detectDevices(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t connectDevice(
-        E384CL_ARGIN LStrHandle deviceId,
-        E384CL_ARGIN LStrHandle fwPathIn);
+        E384CL_ARGIN LStrHandle deviceId);
 
 /*! \brief Disconnects from connected device.
  * Calling this method if no device is connected will return an error code.
@@ -731,6 +730,16 @@ ErrorCodes_t setCalibCcCurrentOffset(
         E384CL_ARGIN LMeasHandle * offsetsIn, /*!< Can use internal vector */
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
+
+/*! \brief Configure the device to enable read/write of the calibration eeprom.
+ *
+ * \param calibModeFlag [in] true to enable the calibration mode; false to return to normal operation mode.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t setCalibrationMode(
+        E384CL_ARGIN bool calibModeFlag);
 
 /*! \brief Write values on calibration eeprom.
  *

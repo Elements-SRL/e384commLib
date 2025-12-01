@@ -473,6 +473,10 @@ ErrorCodes_t EmcrOpalKellyDevice::disconnectDevice() {
     return Success;
 }
 
+ErrorCodes_t EmcrOpalKellyDevice::setCalibrationMode(bool) {
+    return Success;
+}
+
 ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
     return EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
 }
