@@ -48,6 +48,7 @@
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                                                  //   11,  3,  1 : 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_PCBV02_EL05a, 6, Device2x10MHz_PCBV02_FWV06},                                    //   11,  4,  6 : 2 channels 10MHz nanopore reader, with EL05a
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 1, Device4x10MHz_SB_PCBV01_FWV01},                              //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 2, Device4x10MHz_SB_PCBV01_FWV02},                              //   11,  9,  2 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV02, 1, Device4x10MHz_SB_PCBV01_FWV02},                              //   11, 11,  1 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
@@ -86,8 +87,6 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
-    {"22370012CB", Device2x10MHz_PCBV02},
-    {"224800131L", Device2x10MHz_PCBV02},
     {"233600161X", Device4x10MHz_PCBV03},
     {"224800130X", Device4x10MHz_QuadAnalog_PCBV01},
     {"DEMO_384_SSN", Device384Fake},
@@ -360,11 +359,11 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         break;
 
     case Device2x10MHz_PCBV01:
-        messageDispatcher = new Emcr2x10MHz_PCBV01_V02(deviceId);
+        messageDispatcher = new Emcr2x10MHz_PCBV01_V06(deviceId);
         break;
 
-    case Device2x10MHz_PCBV02:
-        messageDispatcher = new Emcr2x10MHz_PCBV02_V02(deviceId);
+    case Device2x10MHz_PCBV02_FWV06:
+        messageDispatcher = new Emcr2x10MHz_PCBV02_V06(deviceId);
         break;
 
     case Device4x10MHz_PCBV01:

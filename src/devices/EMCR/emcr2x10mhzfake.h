@@ -3,7 +3,7 @@
 
 #include "emcr2x10mhz.h"
 
-class Emcr2x10MHzFake : public Emcr2x10MHz_PCBV01_V02 {
+class Emcr2x10MHzFake : public Emcr2x10MHz_PCBV01_V06 {
 public:
     Emcr2x10MHzFake(std::string id);
 

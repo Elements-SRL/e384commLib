@@ -634,7 +634,7 @@ Emcr2x10MHz_PCBV02_V01::Emcr2x10MHz_PCBV02_V01(std::string di) :
 
 }
 
-Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
+Emcr2x10MHz_PCBV01_V06::Emcr2x10MHz_PCBV01_V06(std::string di) :
     EmcrOpalKellyDevice(di) {
 
     deviceName = "2x10MHz";
@@ -1250,7 +1250,7 @@ Emcr2x10MHz_PCBV01_V02::Emcr2x10MHz_PCBV01_V02(std::string di) :
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-ErrorCodes_t Emcr2x10MHz_PCBV01_V02::initializeHW() {
+ErrorCodes_t Emcr2x10MHz_PCBV01_V06::initializeHW() {
     /*! Reset DCM to start 10MHz clock */
     dcmResetCoder->encode(true, txStatus);
     this->stackOutgoingMessage(txStatus);
@@ -1280,8 +1280,8 @@ ErrorCodes_t Emcr2x10MHz_PCBV01_V02::initializeHW() {
     return Success;
 }
 
-Emcr2x10MHz_PCBV02_V02::Emcr2x10MHz_PCBV02_V02(std::string di) :
-    Emcr2x10MHz_PCBV01_V02(di) {
+Emcr2x10MHz_PCBV02_V06::Emcr2x10MHz_PCBV02_V06(std::string di) :
+    Emcr2x10MHz_PCBV01_V06(di) {
 
     /*! Voltage filters */
     /*! VC */

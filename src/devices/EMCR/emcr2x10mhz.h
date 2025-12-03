@@ -76,9 +76,9 @@ public:
     Emcr2x10MHz_PCBV02_V01(std::string di);
 };
 
-class Emcr2x10MHz_PCBV01_V02 : public EmcrOpalKellyDevice {
+class Emcr2x10MHz_PCBV01_V06 : public EmcrOpalKellyDevice {
 public:
-    Emcr2x10MHz_PCBV01_V02(std::string di);
+    Emcr2x10MHz_PCBV01_V06(std::string di);
 
 protected:
     enum ClampingModalities {
@@ -144,9 +144,9 @@ protected:
     BoolArrayCoder * writeDacSpiCoder = nullptr;
 };
 
-class Emcr2x10MHz_PCBV02_V02 : public Emcr2x10MHz_PCBV01_V02 {
+class Emcr2x10MHz_PCBV02_V06 : public Emcr2x10MHz_PCBV01_V06 {
 public:
-    Emcr2x10MHz_PCBV02_V02(std::string di);
+    Emcr2x10MHz_PCBV02_V06(std::string di);
 
 protected:
     enum VCVoltageFilters {

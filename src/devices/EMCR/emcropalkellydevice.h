@@ -55,6 +55,7 @@ public:
 
         /*! Subversions used for version = 0x0B */
         DeviceSubversion10MHz_SB_EL05a = 0x03,
+        DeviceSubversion2x10MHz_PCBV02_EL05a = 0x04,
         DeviceSubversion4x10MHz_SB_EL05a_PCBV01 = 0x09,
         DeviceSubversion4x10MHz_SB_EL05b_PCBV01 = 0x0A,
         DeviceSubversion4x10MHz_SB_EL05a_PCBV02 = 0x0B,
