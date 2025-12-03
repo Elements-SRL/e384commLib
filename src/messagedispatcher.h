@@ -1191,9 +1191,10 @@ public:
      * \param wordOffset [in] word of the debug bit to be modified.
      * \param bitOffset [in] debug bit to be modified.
      * \param status [in] new status of the debug bit.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
      * \return Error code.
      */
-    virtual ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status);
+    virtual ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status, bool applyFlag = true);
 
     /*! \brief Set a debug word.
      *  \note Debug command.
@@ -1203,6 +1204,14 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue);
+
+    /*! \brief Set a debug trigger.
+     *  \note Debug command.
+     *
+     * \param bitOffset [in] bit corresponding to the trigger to be set.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setDebugTrigger(uint16_t bitOffset);
 
     /****************\
      *  Rx methods  *
@@ -1230,6 +1239,7 @@ public:
     ErrorCodes_t getChannels(std::vector <ChannelModel *> &channels);
 
     /*! \brief Get the size of the buffer to be passed to getNextMessage.
+     *  \note The buffer consists of int16 words, so the buffer expressed in bytes is twice as large
      *
      * \param size [out] Size of the buffer to be passed to getNextMessage.
      * \return Error code.

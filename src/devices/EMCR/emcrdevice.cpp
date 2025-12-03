@@ -1487,14 +1487,16 @@ ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFla
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) {
+ErrorCodes_t EmcrDevice::setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status, bool applyFlag) {
     BoolCoder::CoderConfig_t boolConfig;
     boolConfig.initialWord = wordOffset;
     boolConfig.initialBit = bitOffset;
     boolConfig.bitsNum = 1;
     bitDebugCoder = new BoolArrayCoder(boolConfig);
     bitDebugCoder->encode(status ? 1 : 0, txStatus);
-    this->stackOutgoingMessage(txStatus);
+    if (applyFlag) {
+        this->stackOutgoingMessage(txStatus);
+    }
     delete bitDebugCoder;
     return Success;
 }
@@ -1508,6 +1510,28 @@ ErrorCodes_t EmcrDevice::setDebugWord(uint16_t wordOffset, uint16_t wordValue) {
     wordDebugCoder->encode(wordValue, txStatus);
     this->stackOutgoingMessage(txStatus);
     delete wordDebugCoder;
+    return Success;
+}
+
+ErrorCodes_t EmcrDevice::setDebugTrigger(uint16_t bitOffset) {
+    switch (bitOffset) {
+    case TxTriggerParameteresUpdated:
+    case TxTriggerStartProtocol:
+    case TxTriggerStartStateArray:
+    case TxTriggerZap:
+    case TxTriggerSingleChannelRamp:
+    case TxTriggerReadCalEeprom:
+    case TxTriggerGetCalRam:
+    case TxTriggerWriteCalEeprom:
+        break;
+
+    default:
+        return ErrorValueOutOfRange;
+    }
+    /*! Issue a command which doesn't change anything (copy bit 0 in byte 0 and reapply it) */
+    /*! This way the stackOutgoingMessage won't be masked by the lack of messages to be sent */
+    this->setDebugBit(0, 0, (txStatus.encodingWords[0] & 0x0001) > 0 ? true : false, false);
+    this->stackOutgoingMessage(txStatus, {static_cast <TxTriggerType_t> (bitOffset), ResetIndifferent});
     return Success;
 }
 

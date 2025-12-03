@@ -719,6 +719,21 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
                 fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER SINGLE CHANNEL RAMP\n");
                 fflush(txFid);
                 break;
+
+            case TxTriggerReadCalEeprom:
+                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER READ CALIBRATION EEPROM\n");
+                fflush(txFid);
+                break;
+
+            case TxTriggerGetCalRam:
+                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER GET CALIBRATION RAM\n");
+                fflush(txFid);
+                break;
+
+            case TxTriggerWriteCalEeprom:
+                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER WRITE CALIBRATION EEPROM\n");
+                fflush(txFid);
+                break;
             }
         }
 
@@ -757,6 +772,24 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
         dev.ActivateTriggerIn(OKY_SINGLE_CHANNEL_RAMP_TRIGGER_IN_ADDR, OKY_SINGLE_CHANNEL_RAMP_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerReadCalEeprom:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        dev.ActivateTriggerIn(OKY_READ_CAL_EEPROM_TRIGGER_IN_ADDR, OKY_READ_CAL_EEPROM_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerGetCalRam:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        dev.ActivateTriggerIn(OKY_GET_CAL_RAM_TRIGGER_IN_ADDR, OKY_GET_CAL_RAM_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerWriteCalEeprom:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        dev.ActivateTriggerIn(OKY_WRITE_CAL_EEPROM_TRIGGER_IN_ADDR, OKY_WRITE_CAL_EEPROM_TRIGGER_IN_BIT);
         break;
     }
     return true;

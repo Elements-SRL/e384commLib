@@ -186,7 +186,7 @@ public:
 
     ErrorCodes_t resetLiquidJunctionCompensation(bool reset);
 
-    ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) override;
+    ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status, bool applyFlag = true) override;
     ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue) override;
 
     ErrorCodes_t getSwitchesStatus(std::vector <uint16_t> &words, std::vector <std::vector <std::string> > &names);

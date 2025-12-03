@@ -2558,7 +2558,7 @@ ErrorCodes_t EZPatchDevice::resetLiquidJunctionCompensation(bool reset) {
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status) {
+ErrorCodes_t EZPatchDevice::setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status, bool) {
     if (wordOffset >= switchesStatusLength) {
         return ErrorValueOutOfRange;
     }

@@ -1934,12 +1934,16 @@ ErrorCodes_t MessageDispatcher::setCustomDouble(uint16_t, double, bool) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setDebugBit(uint16_t, uint16_t, bool) {
+ErrorCodes_t MessageDispatcher::setDebugBit(uint16_t, uint16_t, bool, bool) {
     return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t, uint16_t) {
     return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setDebugTrigger(uint16_t bitOffset) {
+    return e384CommLib::ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::hasCompFeature(CompensationUserParams_t feature) {

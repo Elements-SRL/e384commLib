@@ -325,18 +325,21 @@ typedef enum ProtocolItemTypes {
  * \brief Enumerates the notifications that can be sent to the device.
  */
 typedef enum TxTriggerType {
-    TxTriggerParameteresUpdated,
-    TxTriggerStartProtocol,
-    TxTriggerStartStateArray,
-    TxTriggerZap,
-    TxTriggerSingleChannelRamp
+    TxTriggerParameteresUpdated = 0,
+    TxTriggerStartProtocol = 1,
+    TxTriggerStartStateArray = 3,
+    TxTriggerZap = 4,
+    TxTriggerSingleChannelRamp = 5,
+    TxTriggerReadCalEeprom = 6,
+    TxTriggerGetCalRam = 7,
+    TxTriggerWriteCalEeprom = 8
 } TxTriggerType_t;
 
 /*! \enum ResetControl_t
  * \brief Enumerates the possible effects of commands over the reset state of the device.
  */
 typedef enum ResetControl { /*! \todo FCON Forse servirà qualcosa di più complesso per evitare che il reset ASIC ed FPGA interferiscano,
-                             *  e.g. ResetFalse dell'FPGA disabilita un ResetTure dell'ASIC */
+                             *  e.g. ResetFalse dell'FPGA disabilita un ResetTrue dell'ASIC */
     ResetIndifferent,
     ResetTrue,
     ResetFalse
