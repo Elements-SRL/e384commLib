@@ -729,6 +729,11 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
                 fflush(txFid);
                 break;
 
+            case TxTriggerSetCalRam:
+                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER SET CALIBRATION RAM\n");
+                fflush(txFid);
+                break;
+
             case TxTriggerWriteCalEeprom:
                 fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER WRITE CALIBRATION EEPROM\n");
                 fflush(txFid);
@@ -783,6 +788,12 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
         dev.ActivateTriggerIn(OKY_GET_CAL_RAM_TRIGGER_IN_ADDR, OKY_GET_CAL_RAM_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerSetCalRam:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        dev.ActivateTriggerIn(OKY_SET_CAL_RAM_TRIGGER_IN_ADDR, OKY_SET_CAL_RAM_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerWriteCalEeprom:

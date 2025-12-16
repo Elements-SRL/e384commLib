@@ -1522,6 +1522,7 @@ ErrorCodes_t EmcrDevice::setDebugTrigger(uint16_t bitOffset) {
     case TxTriggerSingleChannelRamp:
     case TxTriggerReadCalEeprom:
     case TxTriggerGetCalRam:
+    case TxTriggerSetCalRam:
     case TxTriggerWriteCalEeprom:
         break;
 
