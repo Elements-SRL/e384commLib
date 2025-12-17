@@ -160,7 +160,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    defaultSamplingRateIdx = SamplingRate26_7MHz;
+    defaultSamplingRateIdx = SamplingRate833kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
     realSamplingRatesArray[SamplingRate26_7MHz].value = 80.0/6.0/0.5;
@@ -628,7 +628,12 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
-            doubleConfig.initialWord++;
+            if (channelIdx == 0) {
+                doubleConfig.initialWord++;
+            }
+            else {
+                doubleConfig.initialWord = 261;
+            }
         }
     }
 
@@ -758,7 +763,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     customOptionsDescriptions[DacExtFilter][1] = "180kHz";
     customOptionsDefault.resize(customOptionsNum);
     customOptionsDefault[DrvIn1] = 0;
-    customOptionsDefault[DrvIn2] = 1;
+    customOptionsDefault[DrvIn2] = 0;
     customOptionsDefault[DacExtFilter] = 0;
     customOptionsCoders.resize(customOptionsNum);
     boolConfig.initialWord = 1;
