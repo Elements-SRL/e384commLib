@@ -207,18 +207,21 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
     customDoublesNum = CustomDoublesNum;
     customDoublesNames.resize(customDoublesNum);
     customDoublesNames[CustomDacVcmAsic1] = "Vcm Asic 1";
+    customDoublesNames[CustomDacZapAsic1] = "";
     customDoublesNames[CustomDacRefAsic1] = "Ref Asic 1";
     customDoublesNames[CustomDacVcmAsic2] = "Vcm Asic 2";
+    customDoublesNames[CustomDacZapAsic2] = "";
     customDoublesNames[CustomDacRefAsic2] = "Ref Asic 2";
     customDoublesNames[CustomDacVcmAsic3] = "Vcm Asic 3";
+    customDoublesNames[CustomDacZapAsic3] = "";
     customDoublesNames[CustomDacRefAsic3] = "Ref Asic 3";
     customDoublesRanges.resize(customDoublesNum);
     RangedMeasurement_t customRange = {-1650.0, -1650.0+65535.0*0.0625, 0.0625, UnitPfxMilli, "V"};
     std::fill(customDoublesRanges.begin(), customDoublesRanges.end(), customRange);
     customRange = {-500.0, 500.0, 0.0625, UnitPfxMilli, "V"};
-    customDoublesRanges[0] = customRange;
-    customDoublesRanges[2] = customRange;
-    customDoublesRanges[4] = customRange;
+    customDoublesRanges[CustomDacVcmAsic1] = customRange;
+    customDoublesRanges[CustomDacVcmAsic2] = customRange;
+    customDoublesRanges[CustomDacVcmAsic3] = customRange;
     customDoublesDefault.resize(customDoublesNum);
     std::fill(customDoublesDefault.begin(), customDoublesDefault.end(), 0.0);
 
@@ -577,7 +580,7 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
         }
     }
 
-    boolConfig.initialWord = 5;
+    boolConfig.initialWord = 3;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 2;
     customOptionsCoders.resize(customOptionsNum);
@@ -585,26 +588,22 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
         customOptionsCoders[optIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(customOptionsCoders[optIdx]);
         boolConfig.initialBit += 2;
+        if (boolConfig.initialBit == 16) {
+            boolConfig.initialWord++;
+            boolConfig.initialBit = 0;
+        }
     }
 
     doubleConfig.initialWord = 258;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     customDoublesCoders.resize(customDoublesNum);
-    int cidx = 0;
-    for (int idx = 0; idx < customDoublesNum; idx += 2) {
+    for (int idx = 0; idx < customDoublesNum; idx++) {
         doubleConfig.minValue = customDoublesRanges[CustomDacRefAsic1].min;
         doubleConfig.maxValue = customDoublesRanges[CustomDacRefAsic1].max;
         doubleConfig.resolution = customDoublesRanges[CustomDacRefAsic1].step;
-        customDoublesCoders[cidx] = new DoubleOffsetBinaryCoder(doubleConfig);
-        coders.push_back(customDoublesCoders[cidx++]);
-        doubleConfig.initialWord += 2; /*! Don't consider the ZAP Dac which is not available */
-
-        doubleConfig.minValue = customDoublesRanges[CustomDacRefAsic1].min;
-        doubleConfig.maxValue = customDoublesRanges[CustomDacRefAsic1].max;
-        doubleConfig.resolution = customDoublesRanges[CustomDacRefAsic1].step;
-        customDoublesCoders[cidx] = new DoubleOffsetBinaryCoder(doubleConfig);
-        coders.push_back(customDoublesCoders[cidx++]);
+        customDoublesCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(customDoublesCoders[idx]);
         doubleConfig.initialWord++;
     }
 

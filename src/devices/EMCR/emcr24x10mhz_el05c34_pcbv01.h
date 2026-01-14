@@ -18,8 +18,8 @@ protected:
     };
 
     enum VCCurrentRanges {
-        VCCurrentRange10nA,
         VCCurrentRange100nA,
+        VCCurrentRange10nA,
         VCCurrentRangesNum
     };
 

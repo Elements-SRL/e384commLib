@@ -223,9 +223,9 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     RangedMeasurement_t customRange = {-1650.0, -1650.0+65535.0*0.0625, 0.0625, UnitPfxMilli, "V"};
     std::fill(customDoublesRanges.begin(), customDoublesRanges.end(), customRange);
     customRange = {-500.0, 500.0, 0.0625, UnitPfxMilli, "V"};
-    customDoublesRanges[0] = customRange;
-    customDoublesRanges[3] = customRange;
-    customDoublesRanges[6] = customRange;
+    customDoublesRanges[CustomDacVcmAsic1] = customRange;
+    customDoublesRanges[CustomDacVcmAsic2] = customRange;
+    customDoublesRanges[CustomDacVcmAsic3] = customRange;
     customDoublesDefault.resize(customDoublesNum);
     std::fill(customDoublesDefault.begin(), customDoublesDefault.end(), 0.0);
 
@@ -274,9 +274,11 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     /*! Current range VC */
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
-    boolConfig.bitsNum = 2;
+    boolConfig.bitsNum = 1;
     vcCurrentRangeCoders.clear();
-    vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    vcCurrentRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(1);
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(0);
     coders.push_back(vcCurrentRangeCoders[0]);
 
     /*! Voltage range VC */
@@ -592,6 +594,10 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
         customOptionsCoders[optIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(customOptionsCoders[optIdx]);
         boolConfig.initialBit++;
+        if (boolConfig.initialBit == 8) {
+            boolConfig.initialWord++;
+            boolConfig.initialBit = 0;
+        }
     }
 
     doubleConfig.initialWord = 258;
@@ -599,9 +605,9 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     doubleConfig.bitsNum = 16;
     customDoublesCoders.resize(customDoublesNum);
     for (int idx = 0; idx < customDoublesNum; idx++) {
-        doubleConfig.minValue = customDoublesRanges[CustomDacZapAsic1].min;
-        doubleConfig.maxValue = customDoublesRanges[CustomDacZapAsic1].max;
-        doubleConfig.resolution = customDoublesRanges[CustomDacZapAsic1].step;
+        doubleConfig.minValue = customDoublesRanges[CustomDacRefAsic1].min;
+        doubleConfig.maxValue = customDoublesRanges[CustomDacRefAsic1].max;
+        doubleConfig.resolution = customDoublesRanges[CustomDacRefAsic1].step;
         customDoublesCoders[idx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(customDoublesCoders[idx]);
         doubleConfig.initialWord++;

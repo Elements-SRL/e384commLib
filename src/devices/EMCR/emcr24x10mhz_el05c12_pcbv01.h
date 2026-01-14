@@ -63,6 +63,22 @@ protected:
     };
 
     enum CustomOptions {
+        ZapCh1,
+        ZapCh2,
+        ZapCh3,
+        ZapCh4,
+        ZapCh5,
+        ZapCh6,
+        ZapCh7,
+        ZapCh8,
+        ZapCh9,
+        ZapCh10,
+        ZapCh11,
+        ZapCh12,
+        ZapCh13,
+        ZapCh14,
+        ZapCh15,
+        ZapCh16,
         ZapCh17,
         ZapCh18,
         ZapCh19,
@@ -76,10 +92,13 @@ protected:
 
     enum CustomDouble {
         CustomDacVcmAsic1,
+        CustomDacZapAsic1,
         CustomDacRefAsic1,
         CustomDacVcmAsic2,
+        CustomDacZapAsic2,
         CustomDacRefAsic2,
         CustomDacVcmAsic3,
+        CustomDacZapAsic3,
         CustomDacRefAsic3,
         CustomDoublesNum
     };
