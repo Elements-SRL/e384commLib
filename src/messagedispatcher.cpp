@@ -1943,7 +1943,7 @@ ErrorCodes_t MessageDispatcher::setDebugWord(uint16_t, uint16_t) {
 }
 
 ErrorCodes_t MessageDispatcher::setDebugTrigger(uint16_t bitOffset) {
-    return e384CommLib::ErrorFeatureNotImplemented;
+    return ErrorFeatureNotImplemented;
 }
 
 ErrorCodes_t MessageDispatcher::hasCompFeature(CompensationUserParams_t feature) {
