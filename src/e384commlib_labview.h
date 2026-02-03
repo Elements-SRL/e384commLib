@@ -93,7 +93,6 @@ ErrorCodes_t detectDevices(
  * Calling this method if a device is already connected will return an error code.
  *
  * \param deviceId [in] Device ID of the device to connect to.
- * \param fwPathIn [in] Path of the Firmware file (empty string if it is in the same folder as the application that calls the library).
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING

@@ -914,7 +914,16 @@ ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasuremen
         return ErrorFeatureNotImplemented;
     }
     currentRanges = vcCurrentRangesArray;
-    defaultRangeIdx = defaultVcCurrentRangeIdx;
+    defaultRangeIdx = defaultVcCurrentRangeIdxs[0];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, std::vector <uint16_t> &defaultRangeIdxs) {
+    if (vcCurrentRangesArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    currentRanges = vcCurrentRangesArray;
+    defaultRangeIdxs = defaultVcCurrentRangeIdxs;
     return Success;
 }
 
@@ -1510,7 +1519,7 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
         this->setVoltageHoldTuner(allChannelIndexes, selectedVoltageHoldVector, false);
         this->setLiquidJunctionVoltage(allChannelIndexes, selectedLiquidJunctionVector, false);
         this->setSamplingRate(defaultSamplingRateIdx, false);
-        this->setVCCurrentRange(defaultVcCurrentRangeIdx, false);
+        this->setVCCurrentRange(allChannelIndexes, defaultVcCurrentRangeIdxs, false);
         this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
         this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
         this->setGateVoltages(boardIndexes, selectedGateVoltageVector, false);

@@ -64,7 +64,8 @@ EmcrSuperDuck_PCBV01::EmcrSuperDuck_PCBV01(std::string di) :
     vcCurrentRangesArray[VCCurrentRange3330mV].step = vcCurrentRangesArray[VCCurrentRange3330mV].max/SHORT_MAX;
     vcCurrentRangesArray[VCCurrentRange3330mV].prefix = UnitPfxMilli;
     vcCurrentRangesArray[VCCurrentRange3330mV].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange3330mV;
+    defaultVcCurrentRangeIdxs.resize(1);
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange3330mV;
 
     /*! Voltage ranges */
     /*! VC */
@@ -147,7 +148,7 @@ EmcrSuperDuck_PCBV01::EmcrSuperDuck_PCBV01(std::string di) :
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
-    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdxs[0]]);
     currentResolutions.resize(currentChannelsNum);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
     voltageRanges.resize(voltageChannelsNum);

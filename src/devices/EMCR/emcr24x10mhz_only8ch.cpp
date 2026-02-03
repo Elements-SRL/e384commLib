@@ -95,7 +95,8 @@ Emcr24x10MHz_Only8Ch_EL05c4_PCBV01::Emcr24x10MHz_Only8Ch_EL05c4_PCBV01(std::stri
     vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].step = vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].max/SHORT_MAX;
     vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange100nA_ch0_3;
+    defaultVcCurrentRangeIdxs.resize(1);
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange100nA_ch0_3;
 
     /*! Voltage ranges */
     /*! VC */
@@ -265,7 +266,7 @@ Emcr24x10MHz_Only8Ch_EL05c4_PCBV01::Emcr24x10MHz_Only8Ch_EL05c4_PCBV01(std::stri
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
-    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdxs[0]]);
     currentResolutions.resize(currentChannelsNum);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
     voltageRanges.resize(voltageChannelsNum);
@@ -670,14 +671,15 @@ Emcr24x10MHz_Only8Ch_EL05c3_PCBV01::Emcr24x10MHz_Only8Ch_EL05c3_PCBV01(std::stri
     vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].step = vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].max/SHORT_MAX;
     vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange100nA_ch4_7].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange100nA_ch0_3;
+    defaultVcCurrentRangeIdxs.resize(1);
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange100nA_ch0_3;
 
     /*! Calib VC current offset */
     calibVcCurrentOffsetRanges = vcCurrentRangesArray;
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
-    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdxs[0]]);
     currentResolutions.resize(currentChannelsNum);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
 

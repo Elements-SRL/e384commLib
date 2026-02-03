@@ -1540,12 +1540,22 @@ public:
     virtual ErrorCodes_t hasIndependentCCVoltageRanges();
 
     /*! \brief Get the current ranges available in voltage clamp for the device.
+     *  \deprecated
+     *
+     * \param currentRanges [out] Array containing all the available current ranges in voltage clamp.
+     * \param defaultRangeIdx [out] Default index
+     * \note returns the default index only for channel 0 in case the ranges can be set independently
+     * \return Error code.
+     */
+    ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultRangeIdx);
+
+    /*! \brief Get the current ranges available in voltage clamp for the device.
      *
      * \param currentRanges [out] Array containing all the available current ranges in voltage clamp.
      * \param defaultRangeIdx [out] Default index
      * \return Error code.
      */
-    ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, uint16_t &defaultRangeIdx);
+    ErrorCodes_t getVCCurrentRanges(std::vector <RangedMeasurement_t> &currentRanges, std::vector <uint16_t> &defaultRangeIdxs);
 
     /*! \brief Get the voltage ranges available in voltage clamp for the device.
      *
@@ -2297,7 +2307,7 @@ protected:
     std::vector <uint16_t> selectedVcCurrentRangeIdx;
     std::vector <uint16_t> storedVcCurrentRangeIdx;
     std::vector <RangedMeasurement_t> vcCurrentRangesArray;
-    uint16_t defaultVcCurrentRangeIdx = 0;
+    std::vector <uint16_t> defaultVcCurrentRangeIdxs;
 
     uint32_t vcVoltageRangesNum = 0;
     uint32_t selectedVcVoltageRangeIdx = 0;

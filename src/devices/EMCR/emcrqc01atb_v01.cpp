@@ -81,13 +81,9 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
 
     /*! Current ranges */
     /*! VC */
+    independentVcCurrentRanges = true;
     vcCurrentRangesNum = VCCurrentRangesNum;
     vcCurrentRangesArray.resize(vcCurrentRangesNum);
-    vcCurrentRangesArray[VCCurrentRange1nA].min = -1.0;
-    vcCurrentRangesArray[VCCurrentRange1nA].max = 1.0;
-    vcCurrentRangesArray[VCCurrentRange1nA].step = vcCurrentRangesArray[VCCurrentRange1nA].max/SHORT_MAX;
-    vcCurrentRangesArray[VCCurrentRange1nA].prefix = UnitPfxNano;
-    vcCurrentRangesArray[VCCurrentRange1nA].unit = "A";
     vcCurrentRangesArray[VCCurrentRange10nA].min = -10.0;
     vcCurrentRangesArray[VCCurrentRange10nA].max = 10.0;
     vcCurrentRangesArray[VCCurrentRange10nA].step = vcCurrentRangesArray[VCCurrentRange10nA].max/SHORT_MAX;
@@ -98,7 +94,11 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     vcCurrentRangesArray[VCCurrentRange100nA].step = vcCurrentRangesArray[VCCurrentRange100nA].max/SHORT_MAX;
     vcCurrentRangesArray[VCCurrentRange100nA].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange100nA].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange10nA;
+    defaultVcCurrentRangeIdxs.resize(currentChannelsNum);
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange10nA;
+    defaultVcCurrentRangeIdxs[1] = VCCurrentRange10nA;
+    defaultVcCurrentRangeIdxs[2] = VCCurrentRange100nA;
+    defaultVcCurrentRangeIdxs[3] = VCCurrentRange100nA;
 
     /*! Voltage ranges */
     /*! VC */
@@ -309,7 +309,9 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
-    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    for (int chIdx = 0; chIdx < currentChannelsNum; chIdx++) {
+        currentRanges[chIdx] = vcCurrentRangesArray[defaultVcCurrentRangeIdxs[chIdx]];
+    }
     currentResolutions.resize(currentChannelsNum);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
     voltageRanges.resize(voltageChannelsNum);
@@ -389,15 +391,31 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     coders.push_back(protocolResetCoder);
 
     /*! Current range VC */
+    vcCurrentRangeCoders.clear();
     boolConfig.initialWord = 10;
     boolConfig.initialBit = 0;
-    boolConfig.bitsNum = 8;
-    vcCurrentRangeCoders.clear();
-    vcCurrentRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(36);  /*! 0b00100100 */
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(72);  /*! 0b01001000 */
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(147); /*! 0b10010011 */
+    boolConfig.bitsNum = 1;
+    vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
     coders.push_back(vcCurrentRangeCoders[0]);
+    boolConfig.initialWord = 10;
+    boolConfig.initialBit = 1;
+    boolConfig.bitsNum = 1;
+    vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
+    coders.push_back(vcCurrentRangeCoders[1]);
+    boolConfig.initialWord = 10;
+    boolConfig.initialBit = 2;
+    boolConfig.bitsNum = 3;
+    vcCurrentRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[2])->addMapItem(4);
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[2])->addMapItem(4);
+    coders.push_back(vcCurrentRangeCoders[2]);
+    boolConfig.initialWord = 10;
+    boolConfig.initialBit = 5;
+    boolConfig.bitsNum = 3;
+    vcCurrentRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[3])->addMapItem(4);
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[3])->addMapItem(4);
+    coders.push_back(vcCurrentRangeCoders[3]);
 
     /*! Voltage range VC */
     boolConfig.initialWord = 10;
@@ -702,8 +720,8 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     customFlagsNum = CustomFlagsNum;
     customFlagsNames.resize(customFlagsNum);
     customFlagsNames[AcDsEn1] = "Enable AC DS for core 1";
-    customFlagsNames[AcDsEn2] = "Enable AC DS for core 1";
-    customFlagsNames[DcDsEn1] = "Enable DC DS for core 2";
+    customFlagsNames[AcDsEn2] = "Enable AC DS for core 2";
+    customFlagsNames[DcDsEn1] = "Enable DC DS for core 1";
     customFlagsNames[DcDsEn2] = "Enable DC DS for core 2";
     customFlagsNames[DcSepEn1] = "Separate DC for core 1";
     customFlagsNames[DcSepEn2] = "Separate DC for core 2";
@@ -841,6 +859,7 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     txStatus.encodingWords[7] = 0x0001; /*! one voltage frame every current frame */
     txStatus.encodingWords[8] = 0x0040; /*! null offset on secondary DAC for core 1 */
     txStatus.encodingWords[9] = 0x0040; /*! null offset on secondary DAC for core 2 */
+    txStatus.encodingWords[10] = 0x0090; /*! DC by default in 100nA range */
 }
 
 ErrorCodes_t EmcrQc01aTB_V01::initializeHW() {
