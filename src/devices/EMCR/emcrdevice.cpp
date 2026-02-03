@@ -2925,11 +2925,13 @@ ErrorCodes_t EmcrDevice::deviceConfiguration() {
 }
 
 void EmcrDevice::createCommunicationThreads() {
-    deviceCommunicationThread = std::thread(&EmcrDevice::handleCommunicationWithDevice, this);
-    rxConsumerThread = std::thread(&EmcrDevice::parseDataFromDevice, this);
-    liquidJunctionThread = std::thread(&EmcrDevice::computeLiquidJunction, this);
+    if (!threadsStarted) {
+        deviceCommunicationThread = std::thread(&EmcrDevice::handleCommunicationWithDevice, this);
+        rxConsumerThread = std::thread(&EmcrDevice::parseDataFromDevice, this);
+        liquidJunctionThread = std::thread(&EmcrDevice::computeLiquidJunction, this);
 
-    threadsStarted = true;
+        threadsStarted = true;
+    }
 }
 
 void EmcrDevice::deinitializeMemory() {
