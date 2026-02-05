@@ -559,7 +559,7 @@ ErrorCodes_t EZPatchFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> va
     }
 
     ret = this->pauseConnection(true);
-    calibrationEeprom->openConnection(Ftd2xxWrapper::getDeviceIndex(deviceId+spiChannel));
+    calibrationEeprom->openConnection(deviceId+spiChannel);
 
     unsigned char eepromBuffer[4];
     for (unsigned int itemIdx = 0; itemIdx < value.size(); itemIdx++) {
@@ -587,7 +587,7 @@ ErrorCodes_t EZPatchFtdiDevice::writeCalibrationEeprom(std::vector <uint32_t> va
         ret = this->ping();
         if (ret != Success) {
             ret = this->pauseConnection(true);
-            calibrationEeprom->openConnection(Ftd2xxWrapper::getDeviceIndex(deviceId+spiChannel));
+            calibrationEeprom->openConnection(deviceId+spiChannel);
 
             calibrationEeprom->closeConnection();
             this->pauseConnection(false);
@@ -608,7 +608,7 @@ ErrorCodes_t EZPatchFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &va
         return ErrorEepromNotConnected;
     }
     ret = this->pauseConnection(true);
-    calibrationEeprom->openConnection(Ftd2xxWrapper::getDeviceIndex(deviceId+spiChannel));
+    calibrationEeprom->openConnection(deviceId+spiChannel);
 
     if (value.size() != address.size()) {
         value.resize(address.size());

@@ -254,7 +254,7 @@ ErrorCodes_t EmcrFtdiDevice::setCalibrationMode(bool calibModeFlag) {
 
         this->stopCommunication();
 
-        calibrationEeprom->openConnection(Ftd2xxWrapper::getDeviceIndex(deviceId+spiChannel));
+        calibrationEeprom->openConnection(deviceId+spiChannel);
     }
     else {
         calibrationEeprom->closeConnection();
