@@ -93,7 +93,8 @@ Emcr192Blm_EL03c_Mb03_Mez04_fw_v01::Emcr192Blm_EL03c_Mb03_Mez04_fw_v01(std::stri
     vcCurrentRangesArray[VCCurrentRange200nA].step = vcCurrentRangesArray[VCCurrentRange200nA].max/(SHORT_MAX+1.0);
     vcCurrentRangesArray[VCCurrentRange200nA].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange200nA].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange200pA;
+    defaultVcCurrentRangeIdxs.resize(1);
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange200pA;
 
     /*! Voltage ranges */
     /*! VC */
@@ -265,7 +266,7 @@ Emcr192Blm_EL03c_Mb03_Mez04_fw_v01::Emcr192Blm_EL03c_Mb03_Mez04_fw_v01(std::stri
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
-    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdxs[0]]);
     currentResolutions.resize(currentChannelsNum);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
     voltageRanges.resize(voltageChannelsNum);

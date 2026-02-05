@@ -91,7 +91,8 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
     vcCurrentRangesArray[VCCurrentRange1000nA].step = vcCurrentRangesArray[VCCurrentRange1000nA].max/SHORT_MAX;
     vcCurrentRangesArray[VCCurrentRange1000nA].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange1000nA].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange100nA;
+    defaultVcCurrentRangeIdxs.resize(1);
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange100nA;
 
     /*! Voltage ranges */
     /*! VC */
@@ -238,7 +239,7 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
-    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdxs[0]]);
     currentResolutions.resize(currentChannelsNum);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
     voltageRanges.resize(voltageChannelsNum);

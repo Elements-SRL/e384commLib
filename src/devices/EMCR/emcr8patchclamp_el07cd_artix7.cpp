@@ -114,7 +114,8 @@ Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV0
     vcCurrentRangesArray[VCCurrentRange400nA].step = vcCurrentRangesArray[VCCurrentRange400nA].max/(SHORT_MAX+1.0);
     vcCurrentRangesArray[VCCurrentRange400nA].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange400nA].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange10nA;
+    defaultVcCurrentRangeIdxs.resize(1);
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange10nA;
 
     /*! Voltage ranges */
     /*! VC */
@@ -537,7 +538,7 @@ Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV0
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
-    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdxs[0]]);
     currentResolutions.resize(currentChannelsNum);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
     voltageRanges.resize(voltageChannelsNum);
@@ -2392,7 +2393,8 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v03::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     vcCurrentRangesArray[VCCurrentRange400nA].step = vcCurrentRangesArray[VCCurrentRange400nA].max/(SHORT_MAX+1.0);
     vcCurrentRangesArray[VCCurrentRange400nA].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange400nA].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange10nA;
+    defaultVcCurrentRangeIdxs.resize(1);
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange10nA;
 
     /*! Voltage ranges */
     /*! VC */
@@ -2814,7 +2816,7 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v03::Emcr8PatchClamp_EL07c_artix7_PCBV01_
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
-    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdxs[0]]);
     currentResolutions.resize(currentChannelsNum);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
     voltageRanges.resize(voltageChannelsNum);

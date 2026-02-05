@@ -82,7 +82,8 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     vcCurrentRangesArray[VCCurrentRange200nA].step = vcCurrentRangesArray[VCCurrentRange200nA].max/SHORT_MAX;
     vcCurrentRangesArray[VCCurrentRange200nA].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange200nA].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange200nA;
+    defaultVcCurrentRangeIdxs.resize(1);
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange200nA;
 
     /*! Voltage ranges */
     /*! VC */
@@ -250,7 +251,7 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
-    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdxs[0]]);
     currentResolutions.resize(currentChannelsNum);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
     voltageRanges.resize(voltageChannelsNum);

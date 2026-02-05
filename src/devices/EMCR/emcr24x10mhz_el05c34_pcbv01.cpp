@@ -85,7 +85,8 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     vcCurrentRangesArray[VCCurrentRange100nA].step = vcCurrentRangesArray[VCCurrentRange100nA].max/SHORT_MAX;
     vcCurrentRangesArray[VCCurrentRange100nA].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange100nA].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange100nA;
+    defaultVcCurrentRangeIdxs.resize(1);
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange100nA;
 
     /*! Voltage ranges */
     /*! VC */
@@ -231,7 +232,7 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
-    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdxs[0]]);
     currentResolutions.resize(currentChannelsNum);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
     voltageRanges.resize(voltageChannelsNum);

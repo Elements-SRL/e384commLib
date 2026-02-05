@@ -810,8 +810,8 @@ ErrorCodes_t EmcrDevice::resetCalibRShuntConductance(std::vector <uint16_t> chan
 
 ErrorCodes_t EmcrDevice::setVCCurrentRange(uint16_t currentRangeIdx, bool applyFlag) {
     std::vector <uint16_t> currentRangeIdxs;
-    currentRangeIdxs.resize(currentChannelsNum);
-    std::fill(currentRangeIdxs.begin(), currentRangeIdxs.end(), currentRangeIdx);
+    currentRangeIdxs.resize(1);
+    currentRangeIdxs[0] = currentRangeIdx;
     return setVCCurrentRange(allChannelIndexes, currentRangeIdxs, applyFlag);
 }
 
@@ -825,17 +825,25 @@ ErrorCodes_t EmcrDevice::setVCCurrentRange(std::vector <uint16_t> channelIndexes
     if (!allLessThan(currentRangeIdx, (uint16_t)vcCurrentRangesNum)) {
         return ErrorValueOutOfRange;
     }
-    for (int idx = 0; idx < channelIndexes.size(); idx++) {
-        auto chIdx = channelIndexes[idx];
-        if (independentVcCurrentRanges) {
+
+    if (independentVcCurrentRanges) {
+        for (int idx = 0; idx < channelIndexes.size(); idx++) {
+            auto chIdx = channelIndexes[idx];
             vcCurrentRangeCoders[chIdx]->encode(currentRangeIdx[idx], txStatus);
+            selectedVcCurrentRangeIdx[chIdx] = currentRangeIdx[idx];
+            currentRanges[chIdx] = vcCurrentRangesArray[selectedVcCurrentRangeIdx[chIdx]];
+            currentResolutions[chIdx] = currentRanges[chIdx].step;
         }
-        else {
-            vcCurrentRangeCoders[0]->encode(currentRangeIdx[idx], txStatus);
+    }
+    else {
+        channelIndexes = allChannelIndexes;
+        vcCurrentRangeCoders[0]->encode(currentRangeIdx[0], txStatus);
+        for (int idx = 0; idx < channelIndexes.size(); idx++) {
+            auto chIdx = channelIndexes[idx];
+            selectedVcCurrentRangeIdx[chIdx] = currentRangeIdx[0];
+            currentRanges[chIdx] = vcCurrentRangesArray[selectedVcCurrentRangeIdx[chIdx]];
+            currentResolutions[chIdx] = currentRanges[chIdx].step;
         }
-        selectedVcCurrentRangeIdx[chIdx] = currentRangeIdx[idx];
-        currentRanges[chIdx] = vcCurrentRangesArray[selectedVcCurrentRangeIdx[chIdx]];
-        currentResolutions[chIdx] = currentRanges[chIdx].step;
     }
 
     this->updateCalibVcCurrentGain(channelIndexes, false);
@@ -2876,8 +2884,13 @@ ErrorCodes_t EmcrDevice::initializeMemory() {
     txMsgToBeSentWords.resize(TX_MSG_BUFFER_SIZE);
     txMsgOption.resize(TX_MSG_BUFFER_SIZE);
 
-    selectedVcCurrentRangeIdx.resize(currentChannelsNum);
-    std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdx);
+    if (independentVcCurrentRanges) {
+        selectedVcCurrentRangeIdx = defaultVcCurrentRangeIdxs;
+    }
+    else {
+        selectedVcCurrentRangeIdx.resize(currentChannelsNum);
+        std::fill(selectedVcCurrentRangeIdx.begin(), selectedVcCurrentRangeIdx.end(), defaultVcCurrentRangeIdxs[0]);
+    }
 
     selectedCcVoltageRangeIdx.resize(voltageChannelsNum);
     std::fill(selectedCcVoltageRangeIdx.begin(), selectedCcVoltageRangeIdx.end(), defaultCcVoltageRangeIdx);

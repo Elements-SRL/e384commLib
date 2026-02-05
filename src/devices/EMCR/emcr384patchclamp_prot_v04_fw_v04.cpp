@@ -106,7 +106,8 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
     vcCurrentRangesArray[VCCurrentRange400nA].step = vcCurrentRangesArray[VCCurrentRange400nA].max/(SHORT_MAX+1.0);
     vcCurrentRangesArray[VCCurrentRange400nA].prefix = UnitPfxNano;
     vcCurrentRangesArray[VCCurrentRange400nA].unit = "A";
-    defaultVcCurrentRangeIdx = VCCurrentRange10nA;
+    defaultVcCurrentRangeIdxs.resize(1);
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange10nA;
 
     /*! Voltage ranges */
     /*! VC */
@@ -507,7 +508,7 @@ Emcr384PatchClamp_prot_v04_fw_v04::Emcr384PatchClamp_prot_v04_fw_v04(std::string
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
-    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdx]);
+    std::fill(currentRanges.begin(), currentRanges.end(), vcCurrentRangesArray[defaultVcCurrentRangeIdxs[0]]);
     currentResolutions.resize(currentChannelsNum);
     std::fill(currentResolutions.begin(), currentResolutions.end(), currentRanges[0].step);
     voltageRanges.resize(voltageChannelsNum);
