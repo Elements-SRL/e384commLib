@@ -33,6 +33,7 @@
 #include "emcr2x10mhz.h"
 #include "emcr2x10mhz_fet.h"
 #include "emcr2x10mhz_sb_pcbv02_festim.h"
+#include "emcr4x10mhz_sb_pcbv02_festim_ch12_v01.h"
 #include "emcr10mhzsb.h"
 #include "emcr24x10mhz_only8ch.h"
 #include "emcr24x10mhz_el05c12_pcbv01.h"
@@ -84,6 +85,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07e, 1, DeviceTestBoardEL07ce},                                           //    6, 21,  1 : EL07e test board
     {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV01, 1, Device2x10MHz_FET},                                           //  254, 25,  1 : 2x10MHz with controllable reference voltages
     {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV02, 1, Device2x10MHz_FET},                                           //  254, 26,  1 : 2x10MHz with controllable reference voltages
+    {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_PCBV02_FEStim_CH12, 1, Device4x10MHz_PCBV02_FEStim_CH12},                    //  254, 29,  1 : 4x10MHz with stimulus from front end on channels 1 and 2
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
@@ -428,6 +430,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device2x10MHz_FET:
         messageDispatcher = new Emcr2x10MHz_FET_SB_PCBV01_V01(deviceId);
+        break;
+
+    case Device4x10MHz_PCBV02_FEStim_CH12:
+        messageDispatcher = new Emcr4x10MHz_SB_PCBV02_FEStim_Ch12_V01(deviceId);
         break;
 
     case Device384Fake:

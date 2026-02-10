@@ -78,6 +78,7 @@ public:
         /*! Subversions used for version = 0xFE */
         DeviceSubversion2x10MHz_FET_PCBV01 = 0x19,
         DeviceSubversion2x10MHz_FET_PCBV02 = 0x1A,
+        DeviceSubversion4x10MHz_PCBV02_FEStim_CH12 = 0x1D,
 
         /*! Subversions used for Version = 0xFF */
         DeviceSubversionUndefined = 0xFF

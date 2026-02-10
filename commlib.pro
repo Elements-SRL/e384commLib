@@ -44,6 +44,7 @@ SOURCES += \
     src/commandcoder.cpp \
     src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v04.cpp \
     src/devices/EMCR/emcr384patchclamp_el07e_fw_v04.cpp \
+    src/devices/EMCR/emcr4x10mhz_sb_pcbv02_festim_ch12_v01.cpp \
     src/framemanager.cpp \
     src/messagedispatcher.cpp \
     src/devices/EMCR/emcrdevice.cpp \
@@ -121,6 +122,7 @@ SOURCES += \
 HEADERS += \
     src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v04.h \
     src/devices/EMCR/emcr384patchclamp_el07e_fw_v04.h \
+    src/devices/EMCR/emcr4x10mhz_sb_pcbv02_festim_ch12_v01.h \
     src/e384commlib_global.h \
     src/e384commlib_global_addendum.h \
     src/e384commlib_errorcodes.h \
