@@ -1982,7 +1982,6 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 #else
                             data[outSampleIdx++] = (int16_t)round(this->applyRawDataFilter(currentChannelIdx+voltageChannelsNum, (double)rawFloat, iirINum, iirIDen));
 #endif
-                            outSampleIdx++;
                         }
                     }
                     else {

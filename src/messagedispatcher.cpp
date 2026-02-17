@@ -554,8 +554,8 @@ ErrorCodes_t MessageDispatcher::setDownsamplingRatio(uint32_t ratio) {
 
     if (ratio == 1) {
         downsamplingFlag = false;
-
-    } else {
+    }
+    else {
         downsamplingFlag = true;
     }
     selectedDownsamplingRatio = ratio;
@@ -1651,8 +1651,8 @@ void MessageDispatcher::computeRawDataFilterCoefficients() {
         rawDataFilterCutoffFrequencyOverride.convertValue(UnitPfxNone);
         rawDataFilterCutoffFrequencyOverride.value = samplingRate.getNoPrefixValue()*0.25/(double)selectedDownsamplingRatio;
         rawDataFilterLowPassFlagOverride = true;
-
-    } else {
+    }
+    else {
         rawDataFilterCutoffFrequencyOverride.convertValue(UnitPfxTera);
         rawDataFilterCutoffFrequencyOverride.value = 1.0e9;
         rawDataFilterLowPassFlagOverride = false;
