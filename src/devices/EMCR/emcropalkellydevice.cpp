@@ -15,6 +15,7 @@
 #include "emcr192blm_el03c_mb03_mez04_fw_v03.h"
 #include "emcr192blm_el03c_mb03_mez04_fw_v04.h"
 #include "emcr192blm_el03c_mb03_mez04_fw_v05.h"
+#include "emcr8blm_el03c_digbrd_fw_v01.h"
 #include "emcr384nanopores.h"
 #include "emcr384nanopores_sr7p5khz_v01.h"
 #include "emcr384patchclamp_prot_v01_fw_v02.h"
@@ -72,6 +73,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 3, Device192Blm_el03c_mb03_mez04_fw_v03},                       //   13,  2,  3 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 4, Device192Blm_el03c_mb03_mez04_fw_v04},                       //   13,  2,  4 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 5, Device192Blm_el03c_mb03_mez04_fw_v05},                       //   13,  2,  5 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion8Blm_EL03c_DigitalTester, 1, Device8Blm_el03c_digitalTester_fw_v01},                    //   13,  3,  1 : 8-channels device consisting of a single 8-channels analog board
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},             //   15,  1,  2 : 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03},     //   15,  2,  3 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 4, Device384PatchClamp_prot_el07c_v08_fw_v04},     //   15,  2,  4 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
@@ -294,6 +296,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device192Blm_el03c_mb03_mez04_fw_v05:
         messageDispatcher = new Emcr192Blm_EL03c_Mb03_Mez04_fw_v05(deviceId);
+        break;
+
+    case Device8Blm_el03c_digitalTester_fw_v01:
+        messageDispatcher = new Emcr8Blm_EL03c_DigBrd_fw_v01(deviceId);
         break;
 
     case Device384Nanopores:

@@ -207,6 +207,7 @@ void CsvCalibrationManager::loadDefaultParams() {
     calibrationParams.initialize(CalTypesVcOffsetAdc, samplingRateModesNum, vcCurrentRangesNum, currentChannelsNum, zeroA);
 
     calibrationParams.initialize(CalTypesVcGainDac, 1, vcVoltageRangesNum, currentChannelsNum, one);
+    calibrationParams.initialize(CalTypesVcGainODac, 1, 1, currentChannelsNum, one);
     calibrationParams.initialize(CalTypesVcOffsetDac, 1, vcVoltageRangesNum, currentChannelsNum, zeroV);
 
     calibrationParams.initialize(CalTypesRsCorrOffsetDac, 1, vcCurrentRangesNum, currentChannelsNum, zeroV);

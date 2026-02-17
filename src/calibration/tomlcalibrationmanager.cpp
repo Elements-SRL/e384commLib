@@ -15,6 +15,9 @@ std::string getParamName(CalibrationTypes_t type) {
     case CalTypesVcGainDac:
         return "gains";
 
+    case CalTypesVcGainODac:
+        return "gains";
+
     case CalTypesVcOffsetDac:
         return "offsets";
 
@@ -48,6 +51,9 @@ std::string getParamUnit(CalibrationTypes_t type) {
         return "A";
 
     case CalTypesVcGainDac:
+        return "";
+
+    case CalTypesVcGainODac:
         return "";
 
     case CalTypesVcOffsetDac:
@@ -84,6 +90,9 @@ std::string getParamKey(CalibrationTypes_t type) {
 
     case CalTypesVcGainDac:
         return "voltage_dac";
+
+    case CalTypesVcGainODac:
+        return "odac";
 
     case CalTypesVcOffsetDac:
         return "voltage_dac";
@@ -230,6 +239,7 @@ void TomlCalibrationManager::loadDefaultParams() {
     calibrationParams.initialize(CalTypesVcOffsetAdc, samplingRateModesNum, vcCurrentRangesNum, currentChannelsNum, zeroA);
 
     calibrationParams.initialize(CalTypesVcGainDac, 1, vcVoltageRangesNum, currentChannelsNum, one);
+    calibrationParams.initialize(CalTypesVcGainODac, 1, 1, currentChannelsNum, one);
     calibrationParams.initialize(CalTypesVcOffsetDac, 1, vcVoltageRangesNum, currentChannelsNum, zeroV);
 
     calibrationParams.initialize(CalTypesRsCorrOffsetDac, 1, vcCurrentRangesNum, currentChannelsNum, zeroV);

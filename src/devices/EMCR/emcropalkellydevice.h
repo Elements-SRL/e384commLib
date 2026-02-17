@@ -69,6 +69,7 @@ public:
         /*! Subversions used for version = 0x0D */
         DeviceSubversion192Blm_EL03c_MB02Mez03 = 0x01,
         DeviceSubversion192Blm_EL03c_MB03Mez04 = 0x02,
+        DeviceSubversion8Blm_EL03c_DigitalTester = 0x03,
 
         /*! Subversions used for version = 0x0F */
         DeviceSubversion384Patch_EL07c_FirstProto = 0x01,

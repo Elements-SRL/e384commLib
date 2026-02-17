@@ -938,6 +938,7 @@ typedef enum CalibrationTypes {
     CalTypesVcGainAdc,
     CalTypesVcOffsetAdc,
     CalTypesVcGainDac,
+    CalTypesVcGainODac,
     CalTypesVcOffsetDac,
     CalTypesRsCorrOffsetDac,
     CalTypesRShuntConductance,
@@ -1101,6 +1102,7 @@ typedef struct CalibrationParams {
             }
             return false;
         case CalTypesVcGainDac:
+        case CalTypesVcGainODac:
         case CalTypesVcOffsetDac:
         case CalTypesRsCorrOffsetDac:
         case CalTypesRShuntConductance:
