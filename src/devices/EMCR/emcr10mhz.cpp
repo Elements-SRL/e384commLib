@@ -306,6 +306,21 @@ Emcr10MHz_V01::Emcr10MHz_V01(std::string di) :
         }
     }
 
+    /*! Enable stimulus */
+    boolConfig.initialWord = 0;
+    boolConfig.initialBit = 5;
+    boolConfig.bitsNum = 1;
+    enableStimulusCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        enableStimulusCoders[idx] = new BoolNegatedArrayCoder(boolConfig);
+        coders.push_back(enableStimulusCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
     /*! Protocol structure */
     boolConfig.initialWord = protocolWordOffset;
     boolConfig.initialBit = 0;

@@ -1310,7 +1310,7 @@ ErrorCodes_t EmcrDevice::setSourceForCurrentChannel(uint16_t source, bool applyF
 }
 
 ErrorCodes_t EmcrDevice::readoutOffsetRecalibration(std::vector <uint16_t> channelIndexes, std::vector <bool> onValues, bool applyFlag) {
-    if (liquidJunctionCompensationCoders.empty()) {
+    if (enableStimulusCoders.empty()) {
         return ErrorFeatureNotImplemented;
     }
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
@@ -1323,7 +1323,7 @@ ErrorCodes_t EmcrDevice::readoutOffsetRecalibration(std::vector <uint16_t> chann
 
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         uint16_t chIdx = channelIndexes[i];
-        liquidJunctionCompensationCoders[chIdx]->encode(onValues[i], txStatus); /*!< Disables protocols and vhold */
+        enableStimulusCoders[chIdx]->encode(!onValues[i], txStatus); /*!< Disables protocols and vhold */
         channelModels[chIdx]->setRecalibratingReadoutOffset(onValues[i]);
         if (onValues[i] && (offsetRecalibStates[chIdx] == OffsetRecalibIdle)) {
             offsetRecalibStates[chIdx] = OffsetRecalibStarting;
