@@ -5,6 +5,8 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
 
     deviceName = "8Blm";
 
+    okTransferSize = 0x4000;
+
     fwSize_B = 0;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+2;
     waitingTimeBeforeReadingData = 2; //s
@@ -25,7 +27,7 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
     rxMaxWords = totalChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
 
-    txDataWords = 307;
+    txDataWords = 315;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
@@ -55,9 +57,9 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
     voltageProtocolRampImplemented = true;
     voltageProtocolSinImplemented = false;
 
-    protocolMaxItemsNum = 12;
+    protocolMaxItemsNum = 20;
     protocolWordOffset = 12;
-    protocolItemsWordsNum = 20;
+    protocolItemsWordsNum = 12;
 
     /*! Current ranges */
     /*! VC */
@@ -421,7 +423,7 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
 
     /*! Protocol items */
     doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 32;
+    doubleConfig.bitsNum = 16;
     voltageProtocolStim0Coders.resize(VCVoltageRangesNum);
     voltageProtocolStim0StepCoders.resize(VCVoltageRangesNum);
     voltageProtocolStim1Coders.resize(VCVoltageRangesNum);
@@ -442,15 +444,15 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
             voltageProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim0Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+5+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim0StepCoders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim1Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+7+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim1StepCoders[rangeIdx][itemIdx]);
         }
@@ -464,7 +466,7 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
     protocolTime0Coders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
         protocolTime0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(protocolTime0Coders[itemIdx]);
     }
@@ -477,9 +479,35 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
     protocolTime0StepCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
         protocolTime0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(protocolTime0StepCoders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = positiveProtocolFrequencyRange.step;
+    doubleConfig.minValue = positiveProtocolFrequencyRange.min;
+    doubleConfig.maxValue = positiveProtocolFrequencyRange.max;
+    protocolFrequency0Coders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+        protocolFrequency0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(protocolFrequency0Coders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = protocolFrequencyRange.step;
+    doubleConfig.minValue = protocolFrequencyRange.min;
+    doubleConfig.maxValue = protocolFrequencyRange.max;
+    protocolFrequency0StepCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+        protocolFrequency0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(protocolFrequency0StepCoders[itemIdx]);
     }
 
     boolConfig.initialBit = 0;
@@ -489,15 +517,15 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
     protocolLoopRepetitionsCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+16+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
         protocolItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolItemIdxCoders[itemIdx]);
 
-        boolConfig.initialWord = protocolWordOffset+17+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+13+protocolItemsWordsNum*itemIdx;
         protocolNextItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolNextItemIdxCoders[itemIdx]);
 
-        boolConfig.initialWord = protocolWordOffset+18+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
         protocolLoopRepetitionsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolLoopRepetitionsCoders[itemIdx]);
     }
@@ -507,7 +535,7 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
     protocolApplyStepsCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
         protocolApplyStepsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolApplyStepsCoders[itemIdx]);
     }
@@ -517,7 +545,7 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
     protocolItemTypeCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
         protocolItemTypeCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolItemTypeCoders[itemIdx]);
     }
@@ -550,7 +578,7 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
         doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
         liquidJunctionVoltageCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            liquidJunctionVoltageCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            liquidJunctionVoltageCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(liquidJunctionVoltageCoders[rangeIdx][channelIdx]);
             doubleConfig.initialWord++;
         }

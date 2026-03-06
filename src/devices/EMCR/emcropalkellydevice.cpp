@@ -50,6 +50,7 @@
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                                                  //   11,  3,  1 : 10MHz nanopore reader, single board with EL05a
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a_PCBV03, 1, Device10MHz_SB_V01},                                           //   11, 15,  1 : 10MHz nanopore reader, single board with EL05a
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_PCBV02_EL05a, 6, Device2x10MHz_PCBV02_FWV06},                                    //   11,  4,  6 : 2 channels 10MHz nanopore reader, with EL05a
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 1, Device4x10MHz_SB_PCBV01_FWV01},                              //   11,  9,  1 : 4 channels 10MHz nanopore reader, single board with EL05a
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_SB_EL05a_PCBV01, 2, Device4x10MHz_SB_PCBV01_FWV02},                              //   11,  9,  2 : 4 channels 10MHz nanopore reader, single board with EL05a with protocol reset
@@ -58,7 +59,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 1, Device24x10MHz_Only8Ch_PCBV01_EL05c4},                       //   11, 13,  1 : 24 channels 10MHz nanopore reader, but only 8 active, slot 1 EL05c4
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 2, Device24x10MHz_Only8Ch_PCBV01_EL05c3},                       //   11, 13,  2 : 24 channels 10MHz nanopore reader, but only 8 active, slot 2 EL05c3
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 3, Device24x10MHz_Only8Ch_PCBV01_EL05c4},                       //   11, 13,  3 : 24 channels 10MHz nanopore reader, but only 8 active, slot 3 EL05c4
-    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 4, Device24x10MHz_PCBV01_EL05c34},                              //   11, 14,  4 : 24 channels 10MHz nanopore reader, slot 1 EL05c4, slot 2 EL05c3, slot 3 EL05c4
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c34, 4, Device24x10MHz_PCBV01_EL05c34},                              //   11, 13,  4 : 24 channels 10MHz nanopore reader, slot 1 EL05c4, slot 2 EL05c3, slot 3 EL05c4
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 1, Device24x10MHz_Only8Ch_PCBV01_EL05c1},                       //   11, 14,  1 : 24 channels 10MHz nanopore reader, but only 8 active, slot 1 EL05c1
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 2, Device24x10MHz_Only8Ch_PCBV01_EL05c1},                       //   11, 14,  2 : 24 channels 10MHz nanopore reader, but only 8 active, slot 2 EL05c1P
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 3, Device24x10MHz_Only8Ch_PCBV01_EL05c2},                       //   11, 14,  3 : 24 channels 10MHz nanopore reader, but only 8 active, slot 3 EL05c2
@@ -77,7 +78,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},             //   15,  1,  2 : 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03},     //   15,  2,  3 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 4, Device384PatchClamp_prot_el07c_v08_fw_v04},     //   15,  2,  4 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
-    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 4, Device384PatchClamp_el07e_fw_v04},              //   15,  3,  1 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 1, Device384PatchClamp_el07e_fw_v04},              //   15,  3,  1 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                                            //    6, 13,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},                                //    6, 14,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07a, 1, DeviceTestBoardEL07ab},                                           //    6, 17,  1 : EL07a test board
@@ -838,8 +839,8 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
             dev.OpenBySerial(deviceId);
         }
         std::this_thread::sleep_for (std::chrono::milliseconds(100));
-
-    } else {
+    }
+    else {
         if (debugLevelEnabled(DebugLevelRxRaw)) {
             fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(rxRawBuffer[0]), bytesRead, rxRawFid);
             fflush(rxRawFid);

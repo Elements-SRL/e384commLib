@@ -83,7 +83,7 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
 //    availableCurrentSourcesIdxs.CurrentFromCurrentPlusDynamicClamp = ChannelSourceCurrentFromCurrentPlusDynamicClamp;
 
     /*! Protocols parameters */
-    protocolFpgaClockFrequencyHz = 10.0e3;
+    protocolFpgaClockFrequencyHz = 10.0e6;
 
     protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
     protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
@@ -102,9 +102,9 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
     currentProtocolRampImplemented = true;
     currentProtocolSinImplemented = false;
 
-    protocolMaxItemsNum = 15;
+    protocolMaxItemsNum = 20;
     protocolWordOffset = 300;
-    protocolItemsWordsNum = 16;
+    protocolItemsWordsNum = 12;
 
     /*! Current ranges */
     /*! VC */
@@ -930,7 +930,7 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
 
     /*! Protocol items */
     doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 32;
+    doubleConfig.bitsNum = 16;
     voltageProtocolStim0Coders.resize(VCVoltageRangesNum);
     voltageProtocolStim0StepCoders.resize(VCVoltageRangesNum);
     voltageProtocolStim1Coders.resize(VCVoltageRangesNum);
@@ -951,22 +951,22 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
             voltageProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim0Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+5+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim0StepCoders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim1Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+7+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim1StepCoders[rangeIdx][itemIdx]);
         }
     }
 
     doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 32;
+    doubleConfig.bitsNum = 16;
     currentProtocolStim0Coders.resize(CCCurrentRangesNum);
     currentProtocolStim0StepCoders.resize(CCCurrentRangesNum);
     currentProtocolStim1Coders.resize(CCCurrentRangesNum);
@@ -987,15 +987,15 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
             currentProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(currentProtocolStim0Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+5+protocolItemsWordsNum*itemIdx;
             currentProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(currentProtocolStim0StepCoders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
             currentProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(currentProtocolStim1Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+7+protocolItemsWordsNum*itemIdx;
             currentProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(currentProtocolStim1StepCoders[rangeIdx][itemIdx]);
         }
@@ -1009,7 +1009,7 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
     protocolTime0Coders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
         protocolTime0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(protocolTime0Coders[itemIdx]);
     }
@@ -1022,7 +1022,7 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
     protocolTime0StepCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
         protocolTime0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(protocolTime0StepCoders[itemIdx]);
     }
@@ -1034,15 +1034,15 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
     protocolLoopRepetitionsCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+16+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
         protocolItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolItemIdxCoders[itemIdx]);
 
-        boolConfig.initialWord = protocolWordOffset+17+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+13+protocolItemsWordsNum*itemIdx;
         protocolNextItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolNextItemIdxCoders[itemIdx]);
 
-        boolConfig.initialWord = protocolWordOffset+18+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
         protocolLoopRepetitionsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolLoopRepetitionsCoders[itemIdx]);
     }
@@ -1052,7 +1052,7 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
     protocolApplyStepsCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
         protocolApplyStepsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolApplyStepsCoders[itemIdx]);
     }
@@ -1062,7 +1062,7 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
     protocolStimHalfCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
         protocolStimHalfCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolStimHalfCoders[itemIdx]);
     }
@@ -1072,7 +1072,7 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
     protocolItemTypeCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
         protocolItemTypeCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolItemTypeCoders[itemIdx]);
     }
@@ -1307,7 +1307,7 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
         }
     }
 
-    /*! Compensation coders*/
+    /*! Compensation coders */
     /*! Cfast / pipette capacitance compensation ENABLE */
     boolConfig.initialWord = 3424;
     boolConfig.initialBit = 0;
