@@ -2169,11 +2169,10 @@ protected:
     } MsgResume_t;
 
     typedef enum LiquidJunctionProcessing {
+        LiquidJunctionProcessingWaitCommandApplied,
         LiquidJunctionProcessingTransientsStarted,
         LiquidJunctionProcessingWaitTransients,
-        LiquidJunctionProcessingResetRequired,
         LiquidJunctionProcessingCollectData,
-        LiquidJunctionProcessingWaitCommandApplied,
         LiquidJunctionProcessingNum,
     } LiquidJunctionProcessing_t;
 
@@ -2510,8 +2509,7 @@ protected:
 
     mutable std::mutex ljMutex;
     bool liquidJunctionControlPending = false;
-    LiquidJunctionProcessing_t liquidJunctionProcessing = LiquidJunctionProcessingTransientsStarted;
-    std::chrono::steady_clock::time_point liquidJunctionTransientsStartTime;
+    LiquidJunctionProcessing_t liquidJunctionProcessing = LiquidJunctionProcessingWaitCommandApplied;
 
     std::thread liquidJunctionThread;
 

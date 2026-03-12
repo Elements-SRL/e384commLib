@@ -219,12 +219,7 @@ ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndex
 
         r = (finalVoltages[i].value-initialVoltages[i].value)-durations[i].value*q;
         remRampTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(r, txStatus);
-        if (finalVoltages[i].value == initialVoltages[i].value) {
-            activateRampTunerCoders[channelIndexes[i]]->encode(false, txStatus);
-        }
-        else {
-            activateRampTunerCoders[channelIndexes[i]]->encode(true, txStatus);
-        }
+        activateRampTunerCoders[channelIndexes[i]]->encode(true, txStatus);
     }
 
     if (applyFlag) {
@@ -1336,6 +1331,7 @@ ErrorCodes_t EmcrDevice::readoutOffsetRecalibration(std::vector <uint16_t> chann
         }
     }
     if (anyOffsetRecalibrationActive) {
+        liquidJunctionControlPending = true;
         computeCurrentOffsetFlag = true;
     }
 
@@ -1380,6 +1376,7 @@ ErrorCodes_t EmcrDevice::liquidJunctionCompensation(std::vector <uint16_t> chann
         }
     }
     if (anyLiquidJunctionActive) {
+        liquidJunctionControlPending = true;
         computeCurrentOffsetFlag = true;
         targetCurrentEnabled = false;
     }
@@ -1428,6 +1425,7 @@ ErrorCodes_t EmcrDevice::setCurrentTracking(std::vector <uint16_t> channelIndexe
         }
     }
     if (anyLiquidJunctionActive) {
+        liquidJunctionControlPending = true;
         computeCurrentOffsetFlag = true;
         targetCurrentEnabled = true;
     }
@@ -2263,21 +2261,27 @@ void EmcrDevice::processLiquidJunctionData(RxMessage_t msg) {
         int offset = 0;
         bool anyCommand;
         switch (liquidJunctionProcessing) {
+        case LiquidJunctionProcessingWaitCommandApplied: {
+            /*! This is to ensure that the command has been submitted to the FPGA */
+            std::unique_lock <std::mutex> txMutexLock(txMutex);
+            if (!liquidJunctionControlPending) {
+                liquidJunctionProcessing = LiquidJunctionProcessingTransientsStarted;
+            }
+            txMutexLock.unlock();
+        }
+        break;
+
         case LiquidJunctionProcessingTransientsStarted:
-            liquidJunctionTransientsStartTime = std::chrono::steady_clock::now();
+            liquidJunctionCurrentEstimatesNum = 0;
             liquidJunctionProcessing = LiquidJunctionProcessingWaitTransients;
             break;
 
         case LiquidJunctionProcessingWaitTransients:
-            if (std::chrono::duration_cast <std::chrono::milliseconds> (std::chrono::steady_clock::now()-liquidJunctionTransientsStartTime).count() < minLiquidJunctionTransientTimeS*1000.0) {
+            liquidJunctionCurrentEstimatesNum += msg.data.size()/totalChannelsNum;
+            if (liquidJunctionCurrentEstimatesNum < minLiquidJunctionTransientTimeS*samplingRate.getNoPrefixValue()) {
                 break;
             }
-            else {
-                liquidJunctionProcessing = LiquidJunctionProcessingResetRequired;
-                /*! No break because we can directly execute the next step without waiting for another message */
-            }
 
-        case LiquidJunctionProcessingResetRequired:
             liquidJunctionCurrentEstimatesNum = 0;
             std::fill(liquidJunctionCurrentSums.begin(), liquidJunctionCurrentSums.end(), 0);
 
@@ -2289,9 +2293,7 @@ void EmcrDevice::processLiquidJunctionData(RxMessage_t msg) {
             while (offset < msg.data.size()) {
                 offset += voltageChannelsNum;
                 for (uint16_t currentChannelIdx = 0; currentChannelIdx < currentChannelsNum; currentChannelIdx++) {
-                    if (computeCurrentOffsetFlag) {
-                        liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)((int16_t)msg.data[offset++]);
-                    }
+                    liquidJunctionCurrentSums[currentChannelIdx] += (int64_t)((int16_t)msg.data[offset++]);
                 }
                 liquidJunctionCurrentEstimatesNum++;
             }
@@ -2301,24 +2303,18 @@ void EmcrDevice::processLiquidJunctionData(RxMessage_t msg) {
             if (anyCommand) {
                 liquidJunctionProcessing = LiquidJunctionProcessingWaitCommandApplied;
             }
-            else if (liquidJunctionCurrentEstimatesNum > minLiquidJunctionEstimationTimeS*samplingRate.getNoPrefixValue()) {
+            else if (liquidJunctionCurrentEstimatesNum >= minLiquidJunctionEstimationTimeS*samplingRate.getNoPrefixValue()) {
                 /*! Move to the next state only if enough data was collected, otherwise it means the process needs to collect more data */
-                /*! \todo FCON meglio gestire più uscite dalla funzione precedente piuttosto che fare con un booleano ed un conto astruso */
                 liquidJunctionProcessing = LiquidJunctionProcessingTransientsStarted;
             }
 
             computeCurrentOffsetFlag = anyOffsetRecalibrationActive || anyLiquidJunctionActive;
             break;
-
-        case LiquidJunctionProcessingWaitCommandApplied:
-            /*! This is to ensure that the command has been submitted to the FPGA */
-            std::unique_lock <std::mutex> txMutexLock(txMutex);
-            if (!liquidJunctionControlPending) {
-                liquidJunctionProcessing = LiquidJunctionProcessingTransientsStarted;
-            }
-            txMutexLock.unlock();
-            break;
         }
+    }
+    else {
+        /*! Whenever the computation is not active, reset the starting state */
+        liquidJunctionProcessing = LiquidJunctionProcessingWaitCommandApplied;
     }
 }
 
@@ -2341,6 +2337,8 @@ bool EmcrDevice::computeOffetCorrection() {
                 anyOffsetRecalibrationActive = true;
                 offsetRecalibStates[channelIdx] = OffsetRecalibFirstStep;
                 offsetRecalibStatuses[channelIdx] = OffsetRecalibExecuting;
+                offsetRecalibrationReadouts[channelIdx] = 32767.0;
+                offsetRecalibrationReadCount[channelIdx] = 0;
                 break;
 
             case OffsetRecalibFirstStep:
@@ -2355,11 +2353,14 @@ bool EmcrDevice::computeOffetCorrection() {
 
             case OffsetRecalibCheck:
                 anyOffsetRecalibrationActive = true;
-                readoutOffset = ((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum;
+                readoutOffset = abs((double)liquidJunctionCurrentSums[channelIdx])/(double)liquidJunctionCurrentEstimatesNum;
 
-                if (abs(readoutOffset) < 5.0) {
+                if (readoutOffset < 5.0) {
                     /*! current offset smaller than 5 LSB */
                     offsetRecalibStates[channelIdx] = OffsetRecalibSuccess;
+                }
+                else if (readoutOffset < offsetRecalibrationReadouts[channelIdx] && ++offsetRecalibrationReadCount[channelIdx] < 3) {
+                    offsetRecalibrationReadouts[channelIdx] = readoutOffset;
                 }
                 else {
                     /*! current offset greater than 5 LSB */
@@ -2980,6 +2981,10 @@ void EmcrDevice::initializeCalibration() {
 
 void EmcrDevice::initializeLiquidJunction() {
     liquidJunctionCurrentEstimatesNum = 0;
+    offsetRecalibrationReadouts.resize(currentChannelsNum);
+    std::fill(offsetRecalibrationReadouts.begin(), offsetRecalibrationReadouts.end(), 0.0);
+    offsetRecalibrationReadCount.resize(currentChannelsNum);
+    std::fill(offsetRecalibrationReadCount.begin(), offsetRecalibrationReadCount.end(), 0);
     liquidJunctionStatuses.resize(currentChannelsNum);
     std::fill(liquidJunctionStatuses.begin(), liquidJunctionStatuses.end(), LiquidJunctionNotPerformed);
     liquidJunctionStates.resize(currentChannelsNum);

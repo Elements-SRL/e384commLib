@@ -422,6 +422,8 @@ protected:
     std::vector <BoolArrayCoder *> customOptionsCoders;
     std::vector <DoubleCoder *> customDoublesCoders;
 
+    std::vector <double> offsetRecalibrationReadouts;
+    std::vector <double> offsetRecalibrationReadCount;
     std::vector <LiquidJunctionState_t> liquidJunctionStates;
     std::vector <int64_t> liquidJunctionCurrentSums;
     std::vector <double> liquidJunctionCurrentEstimates;
