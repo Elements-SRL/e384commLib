@@ -12,7 +12,11 @@
 #include "emcrftdidevice.h"
 #include "utils.h"
 
-static std::list <MessageDispatcher *> connectedDevices;
+/********************************************************************************************\
+ *                                                                                          *
+ *                                 MessageDispatcher                                        *
+ *                                                                                          *
+\********************************************************************************************/
 
 /*****************\
  *  Ctor / Dtor  *
@@ -34,24 +38,14 @@ MessageDispatcher::~MessageDispatcher() {
 ErrorCodes_t MessageDispatcher::detectDevices(
         std::vector <std::string> &deviceIds) {
 
-    ErrorCodes_t ret = e384CommLib::ErrorNoDeviceFound;
+    ErrorCodes_t ret;
     deviceIds.clear();
     std::vector <std::string> demoDeviceIds;
     std::vector <std::string> deviceIdsTemp;
 
-    for (auto &d : connectedDevices) {
-        if (d->isStreaming()) {
-            deviceIds.push_back(d->getDeviceSerial());
-            ret = Success;
-        }
-    }
-
     ErrorCodes_t retTemp = EZPatchFtdiDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
         for (auto &s : deviceIdsTemp) {
-            if (std::find(deviceIds.begin(), deviceIds.end(), s) == deviceIds.end()) {
-                continue;
-            }
             if (EZPatchFtdiDevice::isDeviceRecognized(s) != Success) {
                 continue;
             }
@@ -62,15 +56,13 @@ ErrorCodes_t MessageDispatcher::detectDevices(
                 deviceIds.push_back(s);
             }
         }
-        ret = retTemp;
     }
+    ret = retTemp; /*! Set the first return anyway, so even if all methods return an error the return is set here.
+                       Afterwards update only on a Success */
 
     retTemp = EmcrUdbDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
         for (auto &s : deviceIdsTemp) {
-            if (std::find(deviceIds.begin(), deviceIds.end(), s) == deviceIds.end()) {
-                continue;
-            }
             if (EmcrUdbDevice::isDeviceRecognized(s) != Success) {
                 continue;
             }
@@ -87,9 +79,6 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     retTemp = EmcrFtdiDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
         for (auto &s : deviceIdsTemp) {
-            if (std::find(deviceIds.begin(), deviceIds.end(), s) == deviceIds.end()) {
-                continue;
-            }
             if (EmcrFtdiDevice::isDeviceRecognized(s) != Success) {
                 continue;
             }
@@ -106,9 +95,6 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     retTemp = EmcrOpalKellyDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
         for (auto &s : deviceIdsTemp) {
-            if (std::find(deviceIds.begin(), deviceIds.end(), s) == deviceIds.end()) {
-                continue;
-            }
             if (EmcrOpalKellyDevice::isDeviceRecognized(s) != Success) {
                 continue;
             }
@@ -153,35 +139,19 @@ ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int
 ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher) {
     messageDispatcher = nullptr;
     if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
-        auto err = EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher);
-        if (err == Success) {
-            connectedDevices.push_back(messageDispatcher);
-        }
-        return err;
+        return EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher);
     }
 
     if (EmcrUdbDevice::isDeviceRecognized(deviceId) == Success) {
-        auto err = EmcrUdbDevice::connectDevice(deviceId, messageDispatcher);
-        if (err == Success) {
-            connectedDevices.push_back(messageDispatcher);
-        }
-        return err;
+        return EmcrUdbDevice::connectDevice(deviceId, messageDispatcher);
     }
 
     if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        auto err = EmcrFtdiDevice::connectDevice(deviceId, messageDispatcher);
-        if (err == Success) {
-            connectedDevices.push_back(messageDispatcher);
-        }
-        return err;
+        return EmcrFtdiDevice::connectDevice(deviceId, messageDispatcher);
     }
 
     if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        auto err = EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher);
-        if (err == Success) {
-            connectedDevices.push_back(messageDispatcher);
-        }
-        return err;
+        return EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher);
     }
     return ErrorDeviceTypeNotRecognized;
 }
@@ -274,11 +244,7 @@ ErrorCodes_t MessageDispatcher::getChannelsOnRow(uint16_t rowIdx, std::vector <C
 }
 
 std::string MessageDispatcher::getDeviceName() {
-    return deviceName;
-}
-
-std::string MessageDispatcher::getDeviceSerial() {
-    return deviceId;
+    return this->deviceName;
 }
 
 ErrorCodes_t MessageDispatcher::sendCommands() {

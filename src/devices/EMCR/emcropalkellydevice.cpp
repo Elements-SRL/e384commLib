@@ -635,7 +635,6 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
                 uint32_t bytesRead = this->readDataFromDevice();
                 if (bytesRead != 0) {
                     anyOperationPerformed = true;
-                    streamingFlag = true;
                 }
 
                 if (bytesRead <= INT32_MAX) {
@@ -646,9 +645,6 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
 #ifdef SPT_LOG_READ_FROM_DEVICE
                     speedTestLog(SpeedTestReadFromDevice, bytesRead);
 #endif
-                }
-                else {
-                    streamingFlag = false;
                 }
             }
             else {
