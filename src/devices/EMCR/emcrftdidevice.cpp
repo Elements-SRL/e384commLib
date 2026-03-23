@@ -26,6 +26,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV02, 1, DeviceE8PPatchEL07CD_artix7_PCBV01_FW3},         //  10, 22,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V02. */
     {DeviceVersionTestBoard, DeviceSubversionTestBoardQC01a_PCBV02, 1, DeviceTestBoardQC02a_PCBV02},                    //   6, 15,  1 : QC01a testboard PCB V02. */
     {DeviceVersionSuperDuck, DeviceSubversionSuperDuckPcbV01, 1, DeviceSuperDuck_PCBV01},                               //  17, 11,  1 : SuperDuck. */
+    {DeviceVersionSuperDuck, DeviceSubversionSuperDuckPcbV01, 4, DeviceSuperDuck_PCBV01},                               //  17, 11,  4 : SuperDuck. */
 };
 
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
@@ -426,6 +427,7 @@ void EmcrFtdiDevice::handleCommunicationWithDevice() {
     bool anyOperationPerformed;
     parsingStatus = ParsingParsing;
     fwLoadedFlag = false || true;
+    streamingFlag = fwLoadedFlag;
 
     while (!stopConnectionFlag) {
         anyOperationPerformed = false;

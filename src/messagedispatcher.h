@@ -235,6 +235,18 @@ public:
      */
     std::string getDeviceName();
 
+    /*! \brief Get the serial number of the connected device.
+     *
+     * \return The device's serial number.
+     */
+    std::string getDeviceSerial();
+
+    /*! \brief Check if the device is streaming.
+     *
+     * \return True if the device is streaming data.
+     */
+    bool streamingFlag();
+
     /*! \brief Get information about a connected device.
      *
      * \param deviceVersion [out] Version of the device (device family). -1 if not available.
@@ -2471,6 +2483,7 @@ protected:
     std::vector <double> customDoublesDefault;
 
     std::vector <LiquidJunctionStatus_t> liquidJunctionStatuses;
+    bool streamingFlag = false;
 
     /***********************\
      *  Filters variables  *

@@ -1,7 +1,5 @@
 #include "emcropalkellydevice.h"
 
-#include <fstream>
-
 #include "okprogrammer.h"
 #include "speed_test.h"
 
@@ -76,7 +74,8 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 4, Device192Blm_el03c_mb03_mez04_fw_v04},                       //   13,  2,  4 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 5, Device192Blm_el03c_mb03_mez04_fw_v05},                       //   13,  2,  5 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 6, Device192Blm_el03c_mb03_mez04_fw_v06},                       //   13,  2,  6 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
-    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion8Blm_EL03c_DigitalTester, 1, Device8Blm_el03c_digitalTester_fw_v01},                    //   13,  3,  1 : 8-channels device consisting of a single 8-channels analog board
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion8Blm_EL03c_DigitalTester_PCBV01, 1, Device8Blm_el03c_digitalTester_fw_v01},             //   13,  3,  1 : 8-channels device consisting of a single 8-channels analog board
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion8Blm_EL03c_DigitalTester_PCBV02, 1, Device8Blm_el03c_digitalTester_fw_v01},             //   13,  4,  1 : 8-channels device consisting of a single 8-channels analog board
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},             //   15,  1,  2 : 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03},     //   15,  2,  3 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 4, Device384PatchClamp_prot_el07c_v08_fw_v04},     //   15,  2,  4 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
@@ -555,10 +554,7 @@ ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
     if (dev.IsFrontPanelEnabled()) {
         return Success;
     }
-    else {
-        return ErrorDeviceFwLoadingFailed;
-    }
-    return Success;
+    return ErrorDeviceFwLoadingFailed;
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::stopCommunication() {
@@ -613,7 +609,7 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
             txMsgBufferNotFull.notify_all();
         }
 
-        /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout, which appears to be a non escapable condition */
+        /*! Avoid performing reads too early, might trigger Opal Kelly's API timeout */
         if (!waitingTimeForReadingPassed || resetStateFlag) {
             long long t = std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now()-startWhileTime).count();
             if (t > waitingTimeBeforeReadingData*1e6) {
@@ -639,6 +635,7 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
                 uint32_t bytesRead = this->readDataFromDevice();
                 if (bytesRead != 0) {
                     anyOperationPerformed = true;
+                    streamingFlag = true;
                 }
 
                 if (bytesRead <= INT32_MAX) {
@@ -649,6 +646,9 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
 #ifdef SPT_LOG_READ_FROM_DEVICE
                     speedTestLog(SpeedTestReadFromDevice, bytesRead);
 #endif
+                }
+                else {
+                    streamingFlag = false;
                 }
             }
             else {

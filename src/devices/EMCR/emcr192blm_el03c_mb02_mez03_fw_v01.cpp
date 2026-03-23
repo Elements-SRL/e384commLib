@@ -8,7 +8,7 @@ Emcr192Blm_EL03c_Mb02_Mez03_fw_v01::Emcr192Blm_EL03c_Mb02_Mez03_fw_v01(std::stri
     fwSize_B = 3709388;
     motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
     waitingTimeBeforeReadingData = 2; //s
-    okTransferSize = 0x40000;
+    okTransferSize = 0x8000;
 
     rxSyncWord = 0x5aa5;
 

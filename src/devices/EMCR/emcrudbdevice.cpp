@@ -423,13 +423,17 @@ void EmcrUdbDevice::handleCommunicationWithDevice() {
                     uint32_t bytesRead = this->readDataFromDevice();
 
                     if (bytesRead <= INT32_MAX) {
+                        streamingFlag = true;
                         rxRawMutexLock.lock();
                         rxRawBufferReadLength += bytesRead;
                         rxRawMutexLock.unlock();
                         rxRawBufferNotEmpty.notify_all();
                     }
-
-                } else {
+                    else {
+                        streamingFlag = false;
+                    }
+                }
+                else {
                     rxRawMutexLock.unlock();
                 }
             }
