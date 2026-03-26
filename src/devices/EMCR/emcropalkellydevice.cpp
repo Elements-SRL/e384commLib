@@ -546,6 +546,7 @@ std::string EmcrOpalKellyDevice::getDeviceSerial(uint32_t index) {
     getDeviceCount(numDevs);
     if (index < numDevs) {
         okCFrontPanel okDev;
+        okDev.GetDeviceCount(); /*! Needed to update the serial numbers */
         serial = okDev.GetDeviceListSerial(index);
         return serial;
 
@@ -1055,7 +1056,7 @@ ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
     okManager = new OpalKellyDeviceManager(deviceId);
-    okManager->StartMonitoring();
+    monitoringThread = std::thread(&EmcrOpalKellyDevice::monitoringLoop, this);
 
     return EmcrDevice::initializeMemory();
 }
@@ -1067,8 +1068,16 @@ void EmcrOpalKellyDevice::deinitializeMemory() {
     }
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
+    okManager->ExitMonitorLoop();
+    monitoringThread.join();
     delete okManager;
     okManager = nullptr;
 
     EmcrDevice::deinitializeMemory();
+}
+
+void EmcrOpalKellyDevice::monitoringLoop() {
+    okManager->StartMonitoring();
+    okManager->EnterMonitorLoop();
+    okManager->StopMonitoring();
 }

@@ -139,6 +139,8 @@ protected:
     virtual ErrorCodes_t initializeMemory() override;
     virtual void deinitializeMemory() override;
 
+    void monitoringLoop();
+
     /****************\
      *  Parameters  *
     \****************/
@@ -158,6 +160,7 @@ protected:
     uint32_t txMsgBufferReadOffset = 0; /*!< Offset of the part of buffer to be processed */
 
     long okTransferSize = OKY_RX_TRANSFER_SIZE;
+    std::thread monitoringThread;
 };
 
 #endif // EMCROPALKELLYDEVICE_H
