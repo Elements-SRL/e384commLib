@@ -102,6 +102,26 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"DEMO_2x10MHz", Device2x10MHzFake}
 };
 
+OpalKellyDeviceManager::OpalKellyDeviceManager(std::string deviceId) :
+    OpalKelly::FrontPanelManager(),
+    deviceId(deviceId) {
+
+}
+
+void OpalKellyDeviceManager::OnDeviceAdded(const char*) {
+
+}
+
+void OpalKellyDeviceManager::OnDeviceRemoved(const char* serial) {
+    if (deviceId == serial) {
+        deviceRemovedFlag = true;
+    }
+}
+
+bool OpalKellyDeviceManager::isDeviceRemoved() {
+    return deviceRemovedFlag;
+}
+
 EmcrOpalKellyDevice::EmcrOpalKellyDevice(std::string deviceId) :
     EmcrDevice(deviceId) {
 
@@ -485,17 +505,19 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
     return ret;
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::disconnectDevice() {
-    this->deinitialize();
-    return Success;
-}
-
 ErrorCodes_t EmcrOpalKellyDevice::setCalibrationMode(bool) {
     return Success;
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
     return EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+}
+
+bool EmcrOpalKellyDevice::isDeviceConnected() {
+    if (okManager == nullptr) {
+        return false;
+    }
+    return !(okManager->isDeviceRemoved());
 }
 
 int32_t EmcrOpalKellyDevice::getDeviceIndex(std::string serial) {
@@ -524,7 +546,6 @@ std::string EmcrOpalKellyDevice::getDeviceSerial(uint32_t index) {
     getDeviceCount(numDevs);
     if (index < numDevs) {
         okCFrontPanel okDev;
-        okDev.GetDeviceCount();
         serial = okDev.GetDeviceListSerial(index);
         return serial;
 
@@ -1032,6 +1053,10 @@ ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {
     }
 
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
+
+    okManager = new OpalKellyDeviceManager(deviceId);
+    okManager->StartMonitoring();
+
     return EmcrDevice::initializeMemory();
 }
 
@@ -1041,6 +1066,9 @@ void EmcrOpalKellyDevice::deinitializeMemory() {
         rxRawBuffer = nullptr;
     }
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
+
+    delete okManager;
+    okManager = nullptr;
 
     EmcrDevice::deinitializeMemory();
 }

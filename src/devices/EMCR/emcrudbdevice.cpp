@@ -317,11 +317,6 @@ ErrorCodes_t EmcrUdbDevice::getUpgradeProgress(int32_t &progress) {
     return Success;
 }
 
-ErrorCodes_t EmcrUdbDevice::disconnectDevice() {
-    this->deinitialize();
-    return Success;
-}
-
 ErrorCodes_t EmcrUdbDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
     return EmcrUdbDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
 }

@@ -12,11 +12,7 @@
 #include "emcrftdidevice.h"
 #include "utils.h"
 
-/********************************************************************************************\
- *                                                                                          *
- *                                 MessageDispatcher                                        *
- *                                                                                          *
-\********************************************************************************************/
+static std::list <MessageDispatcher *> connectedDevices;
 
 /*****************\
  *  Ctor / Dtor  *
@@ -113,6 +109,63 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     return ret;
 }
 
+ErrorCodes_t MessageDispatcher::listAllDevices(
+    std::vector <std::string> &deviceIds) {
+
+    deviceIds.clear();
+    std::unordered_set <std::string> deviceIdSet;
+
+    for (auto & d : connectedDevices) {
+        auto okd = dynamic_cast <EmcrOpalKellyDevice *> (d);
+        if (okd == nullptr) {
+            continue;
+        }
+        if (okd->isDeviceConnected()) {
+            deviceIdSet.emplace(d->getDeviceSerial());
+        }
+    }
+
+    std::vector <std::string> deviceIdsTemp;
+
+    if (EZPatchFtdiDevice::detectDevices(deviceIdsTemp) == Success) {
+        for (auto &s : deviceIdsTemp) {
+            if (!s.starts_with("DEMO")) {
+                deviceIdSet.emplace(s);
+            }
+        }
+    }
+
+    if (EmcrUdbDevice::detectDevices(deviceIdsTemp) == Success) {
+        for (auto &s : deviceIdsTemp) {
+            if (!s.starts_with("DEMO")) {
+                deviceIdSet.emplace(s);
+            }
+        }
+    }
+
+    if (EmcrFtdiDevice::detectDevices(deviceIdsTemp) == Success) {
+        for (auto &s : deviceIdsTemp) {
+            if (!s.starts_with("DEMO")) {
+                deviceIdSet.emplace(s);
+            }
+        }
+    }
+
+    if (EmcrOpalKellyDevice::detectDevices(deviceIdsTemp) == Success) {
+        for (auto &s : deviceIdsTemp) {
+            if (!s.starts_with("DEMO")) {
+                deviceIdSet.emplace(s);
+            }
+        }
+    }
+
+    deviceIds.assign(deviceIdSet.begin(), deviceIdSet.end());
+    if (deviceIds.empty()) {
+        return ErrorNoDeviceFound;
+    }
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
     if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
         EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
@@ -138,22 +191,29 @@ ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int
 
 ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher) {
     messageDispatcher = nullptr;
+    ErrorCodes_t ret = ErrorDeviceTypeNotRecognized;
     if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
-        return EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher);
+        if ((ret = EmcrOpalKellyDevice::connectDevice(deviceId, messageDispatcher)) == Success) {
+            connectedDevices.push_back(messageDispatcher);
+        }
+        return ret;
     }
 
     if (EmcrUdbDevice::isDeviceRecognized(deviceId) == Success) {
-        return EmcrUdbDevice::connectDevice(deviceId, messageDispatcher);
+        ret = EmcrUdbDevice::connectDevice(deviceId, messageDispatcher);
+        return ret;
     }
 
     if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        return EmcrFtdiDevice::connectDevice(deviceId, messageDispatcher);
+        ret = EmcrFtdiDevice::connectDevice(deviceId, messageDispatcher);
+        return ret;
     }
 
     if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        return EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher);
+        ret = EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher);
+        return ret;
     }
-    return ErrorDeviceTypeNotRecognized;
+    return ret;
 }
 
 ErrorCodes_t MessageDispatcher::isDeviceUpgradable(std::string deviceId) {
@@ -196,6 +256,12 @@ ErrorCodes_t MessageDispatcher::upgradeDevice(std::string deviceId) {
         return ErrorDeviceNotUpgradable;
     }
     return ErrorDeviceTypeNotRecognized;
+}
+
+ErrorCodes_t MessageDispatcher::disconnectDevice() {
+    this->deinitialize();
+    connectedDevices.remove(this);
+    return Success;
 }
 
 //ErrorCodes_t MessageDispatcher::getUpgradeProgress(int32_t &progress) {
@@ -245,6 +311,10 @@ ErrorCodes_t MessageDispatcher::getChannelsOnRow(uint16_t rowIdx, std::vector <C
 
 std::string MessageDispatcher::getDeviceName() {
     return this->deviceName;
+}
+
+std::string MessageDispatcher::getDeviceSerial() {
+    return deviceId;
 }
 
 ErrorCodes_t MessageDispatcher::sendCommands() {

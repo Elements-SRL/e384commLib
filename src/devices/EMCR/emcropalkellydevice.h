@@ -31,6 +31,20 @@
 #include "emcrdevice.h"
 #include "utils.h"
 
+class OpalKellyDeviceManager : public OpalKelly::FrontPanelManager {
+public:
+    OpalKellyDeviceManager(std::string deviceId);
+
+    virtual void OnDeviceAdded(const char* serial) override;
+    virtual void OnDeviceRemoved(const char* serial) override;
+
+    bool isDeviceRemoved();
+
+private:
+    std::string deviceId = "";
+    bool deviceRemovedFlag = false;
+};
+
 class EmcrOpalKellyDevice : public EmcrDevice {
 public:
     EmcrOpalKellyDevice(std::string deviceId);
@@ -93,10 +107,10 @@ public:
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
     static ErrorCodes_t isDeviceRecognized(std::string deviceId);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
-    ErrorCodes_t disconnectDevice() override;
 
     ErrorCodes_t setCalibrationMode(bool calibModeFlag) override;
     virtual ErrorCodes_t getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) override;
+    bool isDeviceConnected();
 
 protected:
     typedef enum {
@@ -130,6 +144,7 @@ protected:
     \****************/
 
     okCFrontPanel dev;
+    OpalKellyDeviceManager * okManager = nullptr;
 
     /***************\
      *  Variables  *

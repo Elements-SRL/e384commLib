@@ -54,13 +54,19 @@ ErrorCodes_t EmcrFtdiDevice::detectDevices(
 
     deviceIds.clear();
     std::string deviceName;
+    std::list <std::string> partialDevices;
 
     /*! Lists all serial numbers */
     for (uint32_t i = 0; i < numDevs; i++) {
         deviceName = Ftd2xxWrapper::getDeviceSerial(i, true);
-        if (deviceName.size() > 0 && find(deviceIds.begin(), deviceIds.end(), deviceName) == deviceIds.end()) {
-            /*! Adds only new devices (no distinction between channels A and B creates duplicates) */
+        if (deviceName.size() > 0 && find(partialDevices.begin(), partialDevices.end(), deviceName) == partialDevices.end()) {
+            /*! If a serial is found once it is either channel A or B, do not add to the final list, but to a partial list */
+            partialDevices.push_back(deviceName);
+        }
+        else {
+            /*! When a serial is found inside the partial list it means both channels A and B are available. Put the serial numebr in the final list and remove it from the partial one */
             deviceIds.push_back(deviceName);
+            partialDevices.remove(deviceName);
         }
     }
 
@@ -234,11 +240,6 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
     }
 
     return ret;
-}
-
-ErrorCodes_t EmcrFtdiDevice::disconnectDevice() {
-    this->deinitialize();
-    return Success;
 }
 
 ErrorCodes_t EmcrFtdiDevice::setCalibrationMode(bool calibModeFlag) {

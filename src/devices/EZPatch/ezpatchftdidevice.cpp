@@ -155,16 +155,19 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
 
     deviceIds.clear();
     std::string deviceName;
+    std::list <std::string> partialDevices;
 
     /*! Lists all serial numbers */
     for (uint32_t i = 0; i < numDevs; i++) {
         deviceName = Ftd2xxWrapper::getDeviceSerial(i, true);
-        if (find(deviceIds.begin(), deviceIds.end(), deviceName) == deviceIds.end()) {
-            /*! Adds only new devices (no distinction between channels A and B creates duplicates) */
-            if (deviceName.size() > 0) {
-                /*! Devices with an open channel are detected wrongly and their name is an empty std::string */
-                deviceIds.push_back(Ftd2xxWrapper::getDeviceSerial(i, true));
-            }
+        if (deviceName.size() > 0 && find(partialDevices.begin(), partialDevices.end(), deviceName) == partialDevices.end()) {
+            /*! If a serial is found once it is either channel A or B, do not add to the final list, but to a partial list */
+            partialDevices.push_back(deviceName);
+        }
+        else {
+            /*! When a serial is found inside the partial list it means both channels A and B are available. Put the serial numebr in the final list and remove it from the partial one */
+            deviceIds.push_back(deviceName);
+            partialDevices.remove(deviceName);
         }
     }
 
@@ -536,11 +539,6 @@ ErrorCodes_t EZPatchFtdiDevice::pauseConnection(bool pauseFlag) {
         }
     }
     return ret;
-}
-
-ErrorCodes_t EZPatchFtdiDevice::disconnectDevice() {
-    this->deinitialize();
-    return Success;
 }
 
 ErrorCodes_t EZPatchFtdiDevice::getCalibrationEepromSize(uint32_t &size) {

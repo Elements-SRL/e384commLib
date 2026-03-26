@@ -52,7 +52,6 @@ public:
     static ErrorCodes_t isDeviceUpgradable(std::string deviceId);
     static ErrorCodes_t upgradeDevice(std::string deviceId);
     static ErrorCodes_t getUpgradeProgress(int32_t &progress);
-    ErrorCodes_t disconnectDevice() override;
 
     virtual ErrorCodes_t getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) override;
 
