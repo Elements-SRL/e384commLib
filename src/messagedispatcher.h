@@ -206,7 +206,7 @@ public:
      *
      * \return Error code.
      */
-    ErrorCodes_t disconnectDevice();
+    virtual ErrorCodes_t disconnectDevice();
 
     /*! \brief Enables or disables message types, so that disabled messages are not returned by getNextMessage.
      *  \note Message types are available in e384comllib_global.h.
