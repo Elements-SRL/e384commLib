@@ -26,6 +26,7 @@
 #include "emcr384patchclamp_el07c_prot_v07_fw_v03.h"
 #include "emcr384patchclamp_el07c_prot_v08_fw_v04.h"
 #include "emcr384patchclamp_el07e_fw_v04.h"
+#include "emcr384patchclamp_el07e_fw_v05.h"
 #include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
 #include "emcrtestboardel07cd.h"
@@ -79,7 +80,9 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},             //   15,  1,  2 : 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 3, Device384PatchClamp_prot_el07c_v07_fw_v03},     //   15,  2,  3 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_TemperatureControl, 4, Device384PatchClamp_prot_el07c_v08_fw_v04},     //   15,  2,  4 : 384-channel EL07c (Analog V03, Motherboard V03, Mezzanine V04)
-    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 1, Device384PatchClamp_el07e_fw_v04},              //   15,  3,  1 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 1, Device384PatchClamp_el07e_fw_v04},              //   15,  3,  1 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04) /*! \note FCON fw version sbagliata, mantenere finchè c'è almeno un device in giro */
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 4, Device384PatchClamp_el07e_fw_v04},              //   15,  3,  4 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 5, Device384PatchClamp_el07e_fw_v05},              //   15,  3,  5 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                                            //    6, 13,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},                                //    6, 14,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07a, 1, DeviceTestBoardEL07ab},                                           //    6, 17,  1 : EL07a test board
@@ -370,6 +373,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device384PatchClamp_el07e_fw_v04:
         messageDispatcher = new Emcr384PatchClamp_EL07e_fw_v04(deviceId);
+        break;
+
+    case Device384PatchClamp_el07e_fw_v05:
+        messageDispatcher = new Emcr384PatchClamp_EL07e_fw_v05(deviceId);
         break;
 
     case Device384VoltageClamp_prot_v04_fw_v03:
@@ -1066,12 +1073,14 @@ void EmcrOpalKellyDevice::deinitializeMemory() {
         delete [] rxRawBuffer;
         rxRawBuffer = nullptr;
     }
-    rxRawBuffer16 = (uint16_t *)rxRawBuffer;
+    rxRawBuffer16 = nullptr;
 
-    okManager->ExitMonitorLoop();
-    monitoringThread.join();
-    delete okManager;
-    okManager = nullptr;
+    if (okManager != nullptr) {
+        okManager->ExitMonitorLoop();
+        monitoringThread.join();
+        delete okManager;
+        okManager = nullptr;
+    }
 
     EmcrDevice::deinitializeMemory();
 }

@@ -259,6 +259,9 @@ ErrorCodes_t MessageDispatcher::upgradeDevice(std::string deviceId) {
 }
 
 ErrorCodes_t MessageDispatcher::disconnectDevice() {
+    if (std::find(connectedDevices.begin(), connectedDevices.end(), this) == connectedDevices.end()) {
+        return Success;
+    }
     this->deinitialize();
     connectedDevices.remove(this);
     return Success;

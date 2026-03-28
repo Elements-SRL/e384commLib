@@ -167,6 +167,18 @@ ErrorCodes_t detectDevices(
     return Success;
 }
 
+ErrorCodes_t listAllDevices(
+    LStrHandle * deviceIdsOut) {
+
+    std::vector <std::string> deviceIds;
+
+    MessageDispatcher::listAllDevices(deviceIds);
+
+    vectorString2Output(deviceIds, deviceIdsOut);
+
+    return Success;
+}
+
 ErrorCodes_t connectDevice(
         LStrHandle deviceIdIn) {
 

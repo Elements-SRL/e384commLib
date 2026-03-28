@@ -79,14 +79,25 @@ ErrorCodes_t setMeasInVec(
  *  Connection methods  *
 \************************/
 
-/*! \brief Detects plugged in devices.
+/*! \brief Detects devices the library can connect to.
+ *  \note the device must be recognizable and not already owned.
+ *
+ * \param deviceIds [out] List devices IDs.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t detectDevices(
+        E384CL_ARGOUT LStrHandle * deviceIds);
+
+/*! \brief Lists all plugged in devices.
  *
  * \param deviceIds [out] List of plugged in devices IDs.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
-ErrorCodes_t detectDevices(
+ErrorCodes_t listAllDevices(
         E384CL_ARGOUT LStrHandle * deviceIds);
 
 /*! \brief Connects to a specific device

@@ -45,6 +45,7 @@ SOURCES += \
     src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v06.cpp \
     src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v04.cpp \
     src/devices/EMCR/emcr384patchclamp_el07e_fw_v04.cpp \
+    src/devices/EMCR/emcr384patchclamp_el07e_fw_v05.cpp \
     src/devices/EMCR/emcr4x10mhz_sb_pcbv02_festim_ch12_v01.cpp \
     src/devices/EMCR/emcr8blm_el03c_digbrd_fw_v01.cpp \
     src/framemanager.cpp \
@@ -125,6 +126,7 @@ HEADERS += \
     src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v06.h \
     src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v04.h \
     src/devices/EMCR/emcr384patchclamp_el07e_fw_v04.h \
+    src/devices/EMCR/emcr384patchclamp_el07e_fw_v05.h \
     src/devices/EMCR/emcr4x10mhz_sb_pcbv02_festim_ch12_v01.h \
     src/devices/EMCR/emcr8blm_el03c_digbrd_fw_v01.h \
     src/e384commlib_global.h \
