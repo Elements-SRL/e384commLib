@@ -200,17 +200,23 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
     }
 
     if (EmcrUdbDevice::isDeviceRecognized(deviceId) == Success) {
-        ret = EmcrUdbDevice::connectDevice(deviceId, messageDispatcher);
+        if ((ret = EmcrUdbDevice::connectDevice(deviceId, messageDispatcher)) == Success) {
+            connectedDevices.push_back(messageDispatcher);
+        }
         return ret;
     }
 
     if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        ret = EmcrFtdiDevice::connectDevice(deviceId, messageDispatcher);
+        if ((ret = EmcrFtdiDevice::connectDevice(deviceId, messageDispatcher)) == Success) {
+            connectedDevices.push_back(messageDispatcher);
+        }
         return ret;
     }
 
     if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        ret = EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher);
+        if ((ret = EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher)) == Success) {
+            connectedDevices.push_back(messageDispatcher);
+        }
         return ret;
     }
     return ret;

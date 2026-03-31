@@ -93,31 +93,31 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionEpatch, DeviceSubversionEl04F, 129, DeviceEPatchEL04F},                                                   //  7,  4,  129 : VC-CC device with 1 chip (EL04F)
     {DeviceVersionEpatch, DeviceSubversionEl04F, 131, DeviceEPatchEL04F},                                                   //  7,  4,  131 : VC-CC device with 1 chip (EL04F)
     /*! e4P EL04F */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx4, 135, DeviceE4PEL04F},                                                       //  10, 1,  135 : VC-CC device with 4 channels (EL04F)
-    {DeviceVersionE4p, DeviceSubversionEl04Fx4Patch, 134, DeviceE4PPatch},                                                  //  10, 2,  134 : VC-CC device with 4 channels (EL04F). */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx4Patch, 135, DeviceE4PPatch},                                                  //  10, 2,  135 : VC-CC device with 4 channels (EL04F). */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 129, DeviceE8PPatch},                                                  //  10, 3,  129 : VC-CC device with 8 channels (EL04F). */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 135, DeviceE8PPatch},                                                  //  10, 3,  135 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp both in voltage and current clamp. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 134, DeviceE8PPatch},                                                  //  10, 3,  134 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp, only in current clamp (worked only in voltage clamp before). */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 133, DeviceE8PPatch},                                                  //  10, 3,  133 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp, fixed sampling of DC output. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 132, DeviceE8PPatch},                                                  //  10, 3,  132 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 131, DeviceE8PPatch},                                                  //  10, 3,  131 : VC-CC device with 8 channels (EL04F) fix on digital pins mapping. */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 130, DeviceE8PPatch},                                                  //  10, 3,  130 : VC-CC device with 8 channels (EL04F). */
-    {DeviceVersionE4p, DeviceSubversionEl04Fx8Patch, 129, DeviceE8PPatch},                                                  //  10, 3,  129 : VC-CC device with 8 channels (EL04F). */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx4Patch, 129, DeviceE4PPatchEL07AB},                                           //  10, 5,  129 : VC-CC device with 4 channels (EL07AB). */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 136, DeviceE8PPatchEL07AB},                                           //  10, 6,  136 : VC-CC device with 8 channels (EL07AB). */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 135, DeviceE8PPatchEL07AB},                                           //  10, 6,  135 : VC-CC device with 8 channels (EL07AB). */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 134, DeviceE8PPatchEL07AB},                                           //  10, 6,  134 : VC-CC device with 8 channels (EL07AB). */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 133, DeviceE8PPatchEL07AB},                                           //  10, 6,  133 : VC-CC device with 8 channels (EL07AB). */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 132, DeviceE8PPatchEL07AB},                                           //  10, 6,  132 : VC-CC device with 8 channels (EL07AB). */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 131, DeviceE8PPatchEL07AB},                                           //  10, 6,  131 : VC-CC device with 8 channels (EL07AB). */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 130, DeviceE8PPatchEL07AB},                                           //  10, 6,  130 : VC-CC device with 8 channels (EL07AB). */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch, 129, DeviceE8PPatchEL07AB},                                           //  10, 6,  129 : VC-CC device with 8 channels (EL07AB). */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV00_2, 131, DeviceE8PPatchEL07AB_artix7_PCBV00_2_V02},       //  10,10,  131 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V02. increased protocol items to 256. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV00_2, 129, DeviceE8PPatchEL07AB_artix7_PCBV00_2_V01},       //  10,10,  129 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V02. */
-    {DeviceVersionE4p, DeviceSubversionEl07ABx8Patch_artix7_PCBV00_1, 129, DeviceE8PPatchEL07AB_artix7_PCBV00_1},           //  10, 8,  129 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V01. */
-    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV00_2, 129, DeviceE8PPatchEL07CD_artix7_PCBV00_2},           //  10,14,  129 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V02. */
-    {DeviceVersionE4p, DeviceSubversionEl07CDx8Patch_artix7_PCBV00_1, 129, DeviceE8PPatchEL07CD_artix7_PCBV00_1},           //  10,12,  129 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEL04Fx4, 135, DeviceE4PEL04F},                                                       //  10, 1,  135 : VC-CC device with 4 channels (EL04F)
+    {DeviceVersionE4p, DeviceSubversionEL04Fx4Patch, 134, DeviceE4PPatch},                                                  //  10, 2,  134 : VC-CC device with 4 channels (EL04F). */
+    {DeviceVersionE4p, DeviceSubversionEL04Fx4Patch, 135, DeviceE4PPatch},                                                  //  10, 2,  135 : VC-CC device with 4 channels (EL04F). */
+    {DeviceVersionE4p, DeviceSubversionEL04Fx8Patch, 129, DeviceE8PPatch},                                                  //  10, 3,  129 : VC-CC device with 8 channels (EL04F). */
+    {DeviceVersionE4p, DeviceSubversionEL04Fx8Patch, 135, DeviceE8PPatch},                                                  //  10, 3,  135 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp both in voltage and current clamp. */
+    {DeviceVersionE4p, DeviceSubversionEL04Fx8Patch, 134, DeviceE8PPatch},                                                  //  10, 3,  134 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp, only in current clamp (worked only in voltage clamp before). */
+    {DeviceVersionE4p, DeviceSubversionEL04Fx8Patch, 133, DeviceE8PPatch},                                                  //  10, 3,  133 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp, fixed sampling of DC output. */
+    {DeviceVersionE4p, DeviceSubversionEL04Fx8Patch, 132, DeviceE8PPatch},                                                  //  10, 3,  132 : VC-CC device with 8 channels (EL04F) compatible with dynamic clamp. */
+    {DeviceVersionE4p, DeviceSubversionEL04Fx8Patch, 131, DeviceE8PPatch},                                                  //  10, 3,  131 : VC-CC device with 8 channels (EL04F) fix on digital pins mapping. */
+    {DeviceVersionE4p, DeviceSubversionEL04Fx8Patch, 130, DeviceE8PPatch},                                                  //  10, 3,  130 : VC-CC device with 8 channels (EL04F). */
+    {DeviceVersionE4p, DeviceSubversionEL04Fx8Patch, 129, DeviceE8PPatch},                                                  //  10, 3,  129 : VC-CC device with 8 channels (EL04F). */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx4Patch, 129, DeviceE4PPatchEL07AB},                                           //  10, 5,  129 : VC-CC device with 4 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx8Patch, 136, DeviceE8PPatchEL07AB},                                           //  10, 6,  136 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx8Patch, 135, DeviceE8PPatchEL07AB},                                           //  10, 6,  135 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx8Patch, 134, DeviceE8PPatchEL07AB},                                           //  10, 6,  134 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx8Patch, 133, DeviceE8PPatchEL07AB},                                           //  10, 6,  133 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx8Patch, 132, DeviceE8PPatchEL07AB},                                           //  10, 6,  132 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx8Patch, 131, DeviceE8PPatchEL07AB},                                           //  10, 6,  131 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx8Patch, 130, DeviceE8PPatchEL07AB},                                           //  10, 6,  130 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx8Patch, 129, DeviceE8PPatchEL07AB},                                           //  10, 6,  129 : VC-CC device with 8 channels (EL07AB). */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx8Patch_artix7_PCBV00_2, 131, DeviceE8PPatchEL07AB_artix7_PCBV00_2_V02},       //  10,10,  131 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V02. increased protocol items to 256. */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx8Patch_artix7_PCBV00_2, 129, DeviceE8PPatchEL07AB_artix7_PCBV00_2_V01},       //  10,10,  129 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V02. */
+    {DeviceVersionE4p, DeviceSubversionEL07ABx8Patch_artix7_PCBV00_1, 129, DeviceE8PPatchEL07AB_artix7_PCBV00_1},           //  10, 8,  129 : VC-CC device with 8 channels (EL07AB) (FPGA artix7) PCB V01. */
+    {DeviceVersionE4p, DeviceSubversionEL07CDx8Patch_artix7_PCBV00_2, 129, DeviceE8PPatchEL07CD_artix7_PCBV00_2},           //  10,14,  129 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V02. */
+    {DeviceVersionE4p, DeviceSubversionEL07CDx8Patch_artix7_PCBV00_1, 129, DeviceE8PPatchEL07CD_artix7_PCBV00_1},           //  10,12,  129 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V01. */
     /*! Test boards */
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04d, 129, DeviceEPatchEL04E},                                       //  6,  9,  129 : test board for EL04d chips (only current clamp works)
     {DeviceVersionTestBoard, DeviceSubversionTestBoardEL04e, 129, DeviceEPatchEL04E},                                       //  6, 10,  129 : test board for EL04e chips
