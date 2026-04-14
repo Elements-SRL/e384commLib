@@ -1565,7 +1565,7 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolStructure(uint16_t protId, uint16_t i
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
+ErrorCodes_t EmcrDevice::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag, std::vector <uint16_t> activeDigitalOutputs) {
     if (!voltageProtocolStepImplemented) {
         return ErrorFeatureNotImplemented;
     }
@@ -1582,6 +1582,17 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextI
     if (!protocolStimHalfCoders.empty()) {
         protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus);
     }
+    if (!protocolItemDigitalOutCoders.empty()) {
+        if (!activeDigitalOutputs.empty()) {
+            uint32_t digOuts = 0;
+            for (auto idx : activeDigitalOutputs) {
+                if (idx < digitalOutputsNum) {
+                    digOuts |= (((uint32_t)1) << idx);
+                }
+            }
+            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
+        }
+    }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus);
     v0.convertValue(voltagePrefix);
     voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus);
@@ -1596,7 +1607,7 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextI
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
+ErrorCodes_t EmcrDevice::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag, std::vector <uint16_t> activeDigitalOutputs) {
     if (!voltageProtocolRampImplemented) {
         return ErrorFeatureNotImplemented;
 
@@ -1614,6 +1625,17 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextI
     if (!protocolStimHalfCoders.empty()) {
         protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus);
     }
+    if (!protocolItemDigitalOutCoders.empty()) {
+        if (!activeDigitalOutputs.empty()) {
+            uint32_t digOuts = 0;
+            for (auto idx : activeDigitalOutputs) {
+                if (idx < digitalOutputsNum) {
+                    digOuts |= (((uint32_t)1) << idx);
+                }
+            }
+            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
+        }
+    }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus);
     v0.convertValue(voltagePrefix);
     voltageProtocolStim0Coders[selectedVcVoltageRangeIdx][itemIdx]->encode(v0.value, txStatus);
@@ -1630,7 +1652,7 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextI
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step, bool vHalfFlag) {
+ErrorCodes_t EmcrDevice::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step, bool vHalfFlag, std::vector <uint16_t> activeDigitalOutputs) {
     if (!voltageProtocolSinImplemented) {
         return ErrorFeatureNotImplemented;
 
@@ -1647,6 +1669,17 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextIt
     protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus);
     if (!protocolStimHalfCoders.empty()) {
         protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus);
+    }
+    if (!protocolItemDigitalOutCoders.empty()) {
+        if (!activeDigitalOutputs.empty()) {
+            uint32_t digOuts = 0;
+            for (auto idx : activeDigitalOutputs) {
+                if (idx < digitalOutputsNum) {
+                    digOuts |= (((uint32_t)1) << idx);
+                }
+            }
+            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
+        }
     }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus);
     v0.convertValue(voltagePrefix);
@@ -1687,7 +1720,7 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolStructure(uint16_t protId, uint16_t i
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag) {
+ErrorCodes_t EmcrDevice::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag, std::vector <uint16_t> activeDigitalOutputs) {
     if (!currentProtocolStepImplemented) {
         return ErrorFeatureNotImplemented;
 
@@ -1704,6 +1737,17 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextI
     if (!protocolStimHalfCoders.empty()) {
         protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus);
     }
+    if (!protocolItemDigitalOutCoders.empty()) {
+        if (!activeDigitalOutputs.empty()) {
+            uint32_t digOuts = 0;
+            for (auto idx : activeDigitalOutputs) {
+                if (idx < digitalOutputsNum) {
+                    digOuts |= (((uint32_t)1) << idx);
+                }
+            }
+            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
+        }
+    }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus);
     i0.convertValue(currentPrefix);
     currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus);
@@ -1718,7 +1762,7 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextI
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag) {
+ErrorCodes_t EmcrDevice::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag, std::vector <uint16_t> activeDigitalOutputs) {
     if (!currentProtocolRampImplemented) {
         return ErrorFeatureNotImplemented;
 
@@ -1736,6 +1780,17 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextI
     if (!protocolStimHalfCoders.empty()) {
         protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus);
     }
+    if (!protocolItemDigitalOutCoders.empty()) {
+        if (!activeDigitalOutputs.empty()) {
+            uint32_t digOuts = 0;
+            for (auto idx : activeDigitalOutputs) {
+                if (idx < digitalOutputsNum) {
+                    digOuts |= (((uint32_t)1) << idx);
+                }
+            }
+            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
+        }
+    }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus);
     i0.convertValue(currentPrefix);
     currentProtocolStim0Coders[selectedCcCurrentRangeIdx][itemIdx]->encode(i0.value, txStatus);
@@ -1752,7 +1807,7 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextI
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag) {
+ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag, std::vector <uint16_t> activeDigitalOutputs) {
     if (!currentProtocolSinImplemented) {
         return ErrorFeatureNotImplemented;
     } else if (itemIdx >= protocolMaxItemsNum || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0) || !ccCurrentRangesArray[selectedCcCurrentRangeIdx].includes(i0Step) ||
@@ -1768,6 +1823,17 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextIt
     protocolApplyStepsCoders[itemIdx]->encode(applyStepsFlag, txStatus);
     if (!protocolStimHalfCoders.empty()) {
         protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus);
+    }
+    if (!protocolItemDigitalOutCoders.empty()) {
+        if (!activeDigitalOutputs.empty()) {
+            uint32_t digOuts = 0;
+            for (auto idx : activeDigitalOutputs) {
+                if (idx < digitalOutputsNum) {
+                    digOuts |= (((uint32_t)1) << idx);
+                }
+            }
+            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
+        }
     }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus);
     i0.convertValue(currentPrefix);

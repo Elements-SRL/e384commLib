@@ -105,6 +105,7 @@ Emcr384PatchClamp_EL07e_fw_v05::Emcr384PatchClamp_EL07e_fw_v05(std::string di) :
     protocolMaxItemsNum = 64;
     protocolWordOffset = 300;
     protocolItemsWordsNum = 12;
+    digitalOutputsNum = 4;
 
     /*! Current ranges */
     /*! VC */
@@ -1077,6 +1078,16 @@ Emcr384PatchClamp_EL07e_fw_v05::Emcr384PatchClamp_EL07e_fw_v05(std::string di) :
         coders.push_back(protocolItemTypeCoders[itemIdx]);
     }
 
+    boolConfig.initialBit = 6;
+    boolConfig.bitsNum = 4;
+    protocolItemDigitalOutCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
+        protocolItemDigitalOutCoders[itemIdx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(protocolItemDigitalOutCoders[itemIdx]);
+    }
+
     /*! V holding tuner */
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
@@ -1693,7 +1704,7 @@ Emcr384PatchClamp_EL07e_fw_v05::Emcr384PatchClamp_EL07e_fw_v05(std::string di) :
 
     /*! Default status */
     txStatus.init(txDataWords);
-    txStatus.encodingWords[2] = 0x0070; // fans on
+    txStatus.encodingWords[8] = 0x000F; // dig dir out
     for (int idx = 1840; idx < 2032; idx++) {
         txStatus.encodingWords[idx] = 0x4040; // Set 0 of secondary DAC
     }

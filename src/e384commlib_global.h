@@ -338,7 +338,13 @@ typedef enum TxTriggerType {
     TxTriggerReadCalEeprom = 6,
     TxTriggerGetCalRam = 7,
     TxTriggerSetCalRam = 8,
-    TxTriggerWriteCalEeprom = 9
+    TxTriggerWriteCalEeprom = 9,
+    TxTriggerReadOnTime = 10,
+    TxTriggerDebug0 = 11,
+    TxTriggerDebug1 = 12,
+    TxTriggerDebug2 = 13,
+    TxTriggerDebug3 = 14,
+    TxTriggerDebug4 = 15,
 } TxTriggerType_t;
 
 /*! \enum ResetControl_t

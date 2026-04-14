@@ -75,6 +75,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 4, Device192Blm_el03c_mb03_mez04_fw_v04},                       //   13,  2,  4 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 5, Device192Blm_el03c_mb03_mez04_fw_v05},                       //   13,  2,  5 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 6, Device192Blm_el03c_mb03_mez04_fw_v06},                       //   13,  2,  6 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 7, Device192Blm_el03c_mb03_mez04_fw_v06},                       //   13,  5,  7 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion8Blm_EL03c_DigitalTester_PCBV01, 1, Device8Blm_el03c_digitalTester_fw_v01},             //   13,  3,  1 : 8-channels device consisting of a single 8-channels analog board
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion8Blm_EL03c_DigitalTester_PCBV02, 1, Device8Blm_el03c_digitalTester_fw_v01},             //   13,  4,  1 : 8-channels device consisting of a single 8-channels analog board
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07c_FirstProto, 2, Device384PatchClamp_prot_el07c_v06_fw_v02},             //   15,  1,  2 : 384-channel EL07c (Analog V03, Motherboard V02, Mezzanine V03)
@@ -83,6 +84,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 1, Device384PatchClamp_el07e_fw_v04},              //   15,  3,  1 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04) /*! \note FCON fw version sbagliata, mantenere finchè c'è almeno un device in giro */
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 4, Device384PatchClamp_el07e_fw_v04},              //   15,  3,  4 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 5, Device384PatchClamp_el07e_fw_v05},              //   15,  3,  5 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_MB03Mez05, 5, Device384PatchClamp_el07e_fw_v05},                       //   15,  4,  5 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V05)
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                                            //    6, 13,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},                                //    6, 14,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07a, 1, DeviceTestBoardEL07ab},                                           //    6, 17,  1 : EL07a test board
@@ -840,10 +842,40 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
         dev.ActivateTriggerIn(OKY_SET_CAL_RAM_TRIGGER_IN_ADDR, OKY_SET_CAL_RAM_TRIGGER_IN_BIT);
         break;
 
-    case TxTriggerWriteCalEeprom:
+    case TxTriggerReadOnTime:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_WRITE_CAL_EEPROM_TRIGGER_IN_ADDR, OKY_WRITE_CAL_EEPROM_TRIGGER_IN_BIT);
+        dev.ActivateTriggerIn(OKY_READ_ON_TIME_TRIGGER_IN_ADDR, OKY_READ_ON_TIME_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerDebug0:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        dev.ActivateTriggerIn(OKY_DEBUG_0_TRIGGER_IN_ADDR, OKY_DEBUG_0_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerDebug1:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        dev.ActivateTriggerIn(OKY_DEBUG_1_TRIGGER_IN_ADDR, OKY_DEBUG_1_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerDebug2:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        dev.ActivateTriggerIn(OKY_DEBUG_2_TRIGGER_IN_ADDR, OKY_DEBUG_2_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerDebug3:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        dev.ActivateTriggerIn(OKY_DEBUG_3_TRIGGER_IN_ADDR, OKY_DEBUG_3_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerDebug4:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        dev.ActivateTriggerIn(OKY_DEBUG_4_TRIGGER_IN_ADDR, OKY_DEBUG_4_TRIGGER_IN_BIT);
         break;
     }
     return true;

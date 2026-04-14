@@ -2321,15 +2321,15 @@ ErrorCodes_t EZPatchDevice::voltSin(Measurement_t v0, Measurement_t vAmp, Measur
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
+ErrorCodes_t EZPatchDevice::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag, std::vector <uint16_t>) {
     return this->voltStepTimeStep(v0, v0Step, t0, t0Step, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
 }
 
-ErrorCodes_t EZPatchDevice::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag) {
+ErrorCodes_t EZPatchDevice::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag, std::vector <uint16_t>) {
     return this->voltRamp(v0, vFinal, t0, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
 }
 
-ErrorCodes_t EZPatchDevice::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step, bool vHalfFlag) {
+ErrorCodes_t EZPatchDevice::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step, bool vHalfFlag, std::vector <uint16_t>) {
     return this->voltSin(v0, vAmp, f0, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
 }
 
@@ -2524,15 +2524,15 @@ ErrorCodes_t EZPatchDevice::currSin(Measurement_t i0, Measurement_t iAmp, Measur
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step, bool iHalfFlag) {
+ErrorCodes_t EZPatchDevice::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step, bool iHalfFlag, std::vector <uint16_t>) {
     return this->currStepTimeStep(i0, i0Step, t0, t0Step, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
 }
 
-ErrorCodes_t EZPatchDevice::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool iHalfFlag) {
+ErrorCodes_t EZPatchDevice::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool iHalfFlag, std::vector <uint16_t>) {
     return this->currRamp(i0, iFinal, t0, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
 }
 
-ErrorCodes_t EZPatchDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool iHalfFlag) {
+ErrorCodes_t EZPatchDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool iHalfFlag, std::vector <uint16_t>) {
     return this->currSin(i0, iAmp, f0, itemIdx, nextItemIdx, loopReps, applyStepsFlag);
 }
 

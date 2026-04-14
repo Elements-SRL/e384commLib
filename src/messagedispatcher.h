@@ -936,10 +936,11 @@ public:
      * \param t0 [in] Initial duration.
      * \param t0Step [in] Duration step.
      * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+     * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
      * \note Items that do not end a loop must have \p nextItemIdx = \<actual item\> + 1 and \p loopReps = 1.
      * \return Error code.
      */
-    virtual ErrorCodes_t setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag);
+    virtual ErrorCodes_t setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag, std::vector <uint16_t> activeDigitalOutputs = {});
 
     /*! \brief Commits a voltage protocol item consisting of a voltage ramp.
      *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -957,10 +958,11 @@ public:
      * \param t0 [in] Duration.
      * \param t0Step [in] Duration step.
      * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+     * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
      * \note Items that do not end a loop must have \p nextItemIdx = \<actual item\> + 1 and \p loopReps = 1.
      * \return Error code.
      */
-    virtual ErrorCodes_t setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag);
+    virtual ErrorCodes_t setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vFinal, Measurement_t vFinalStep, Measurement_t t0, Measurement_t t0Step, bool vHalfFlag, std::vector <uint16_t> activeDigitalOutputs = {});
 
     /*! \brief Commits a voltage protocol item consisting of a sinusoidal wave.
      *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -978,10 +980,11 @@ public:
      * \param f0 [in] Oscillation frequency.
      * \param f0Step [in] Oscillation frequency step.
      * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+     * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
      * \note Items that do not end a loop must have \p nextItemIdx = \<actual item\> + 1 and \p loopReps = 1.
      * \return Error code.
      */
-    virtual ErrorCodes_t setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step, bool vHalfFlag);
+    virtual ErrorCodes_t setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t v0, Measurement_t v0Step, Measurement_t vAmp, Measurement_t vAmpStep, Measurement_t f0, Measurement_t f0Step, bool vHalfFlag, std::vector <uint16_t> activeDigitalOutputs = {});
 
     /*! \brief Describes the structure of an incoming current protocol.
      *
@@ -1010,10 +1013,11 @@ public:
      * \param t0 [in] Initial duration.
      * \param t0Step [in] Duration step.
      * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+     * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
      * \note Items that do not end a loop must have \p nextItemIdx = \<actual item\> + 1 and \p loopReps = 1.
      * \return Error code.
      */
-    virtual ErrorCodes_t setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag);
+    virtual ErrorCodes_t setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag, std::vector <uint16_t> activeDigitalOutputs = {});
 
     /*! \brief Commits a current protocol item consisting of a current ramp.
      *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1031,10 +1035,11 @@ public:
      * \param t0 [in] Duration.
      * \param t0Step [in] Duration step.
      * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+     * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
      * \note Items that do not end a loop must have \p nextItemIdx = \<actual item\> + 1 and \p loopReps = 1.
      * \return Error code.
      */
-    virtual ErrorCodes_t setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag);
+    virtual ErrorCodes_t setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iFinal, Measurement_t iFinalStep, Measurement_t t0, Measurement_t t0Step, bool cHalfFlag, std::vector <uint16_t> activeDigitalOutputs = {});
 
     /*! \brief Commits a current protocol item consisting of a sinusoidal wave.
      *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1052,10 +1057,11 @@ public:
      * \param f0 [in] Oscillation frequency.
      * \param f0Step [in] Oscillation frequency step.
      * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+     * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
      * \note Items that do not end a loop must have \p nextItemIdx = \<actual item\> + 1 and \p loopReps = 1.
      * \return Error code.
      */
-    virtual ErrorCodes_t setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag);
+    virtual ErrorCodes_t setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextItemIdx, uint16_t loopReps, bool applyStepsFlag, Measurement_t i0, Measurement_t i0Step, Measurement_t iAmp, Measurement_t iAmpStep, Measurement_t f0, Measurement_t f0Step, bool cHalfFlag, std::vector <uint16_t> activeDigitalOutputs = {});
 
     /*! \brief Describes the structure of an incoming state array.
      *

@@ -674,15 +674,15 @@ ErrorCodes_t MessageDispatcher::setVoltageProtocolStructure(uint16_t, uint16_t, 
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
+ErrorCodes_t MessageDispatcher::setVoltageProtocolStep(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool, std::vector <uint16_t>) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
+ErrorCodes_t MessageDispatcher::setVoltageProtocolRamp(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool, std::vector <uint16_t>) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
+ErrorCodes_t MessageDispatcher::setVoltageProtocolSin(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool, std::vector <uint16_t>) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -690,15 +690,15 @@ ErrorCodes_t MessageDispatcher::setCurrentProtocolStructure(uint16_t, uint16_t, 
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
+ErrorCodes_t MessageDispatcher::setCurrentProtocolStep(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool, std::vector <uint16_t>) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
+ErrorCodes_t MessageDispatcher::setCurrentProtocolRamp(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool, std::vector <uint16_t>) {
     return ErrorFeatureNotImplemented;
 }
 
-ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool) {
+ErrorCodes_t MessageDispatcher::setCurrentProtocolSin(uint16_t, uint16_t, uint16_t, bool, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, Measurement_t, bool, std::vector <uint16_t>) {
     return ErrorFeatureNotImplemented;
 }
 

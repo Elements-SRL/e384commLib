@@ -1693,7 +1693,6 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
 
     /*! Default status */
     txStatus.init(txDataWords);
-    txStatus.encodingWords[2] = 0x0070; // fans on
     for (int idx = 1312; idx < 1504; idx++) {
         txStatus.encodingWords[idx] = 0x4040; // Set 0 of secondary DAC
     }
