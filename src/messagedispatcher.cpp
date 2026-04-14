@@ -820,6 +820,12 @@ ErrorCodes_t MessageDispatcher::convertTemperatureValues(int16_t * intValues, do
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::convertOnTimeValue(int16_t * intValues, double * fltValue) {
+    fltValue[0] = onTimeRange.step*(((double)intValues[0])*USHORT_MAX+(double)intValues[1]);
+
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getReadoutOffsetRecalibrationStatuses(std::vector <uint16_t> channelIndexes, std::vector <OffsetRecalibStatus_t> &statuses) {
     if (offsetRecalibStatuses.empty()) {
         return ErrorFeatureNotImplemented;
@@ -1256,6 +1262,14 @@ ErrorCodes_t MessageDispatcher::getTemperatureChannelsFeatures(std::vector <std:
     return Success;
 }
 
+ErrorCodes_t MessageDispatcher::getOnTimeFeatures(RangedMeasurement_t &range) {
+    if (!onTimeHwFlag) {
+        return ErrorFeatureNotImplemented;
+    }
+    range = onTimeRange;
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::getSamplingRatesFeatures(std::vector <Measurement_t> &samplingRates) {
     if (realSamplingRatesArray.empty()) {
         return ErrorFeatureNotImplemented;
@@ -1574,6 +1588,7 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
     if (this->hasProperHeaderPackets() == Success) {
         this->enableRxMessageType(MsgTypeIdAcquisitionHeader, true);
     }
+
     /*! Some default values*/
     std::vector <bool> allTrue(currentChannelsNum, true);
     std::vector <bool> allFalse(currentChannelsNum, false);

@@ -28,7 +28,8 @@ FrameManager::FrameManager(MessageDispatcher * md) :
     rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionDataOverflow)] = false;
     rxEnabledTypesMap[type2Pc(MsgTypeIdInvalid)] = false;
     rxEnabledTypesMap[type2Pc(MsgTypeIdDeviceStatus)] = false;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionTemperature)] = true;
+    rxEnabledTypesMap[type2Pc(MsgTypeIdTemperature)] = true;
+    rxEnabledTypesMap[type2Pc(MsgTypeIdOnTime)] = false;
 
     /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
     voltageDataValues.resize(voltageChannelsNum);
@@ -91,7 +92,10 @@ void FrameManager::storeFrameData(uint16_t rxWordOffset) {
         this->storeFrameDataType(type2Pc(MsgTypeIdDeviceStatus), MessageDispatcher::RxMessageStatus);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageTemperature]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionTemperature), MessageDispatcher::RxMessageTemperature);
+        this->storeFrameDataType(type2Pc(MsgTypeIdTemperature), MessageDispatcher::RxMessageTemperature);
+    }
+    else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageOnTime]) {
+        this->storeFrameDataType(type2Pc(MsgTypeIdOnTime), MessageDispatcher::RxMessageOnTime);
     }
 }
 
@@ -352,6 +356,15 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         }
         this->pushMessage(msg);
         emd->processTemperatureData(msg);
+        break;
+
+    case MessageDispatcher::RxMessageOnTime:
+        msg.typeId = rxMsgTypeId;
+        msg.data.resize(rxDataWords);
+        for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
+            msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
+        }
+        this->pushMessage(msg);
         break;
     }
 

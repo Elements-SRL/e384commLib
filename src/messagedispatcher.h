@@ -100,6 +100,7 @@ public:
         RxMessageDataTail,
         RxMessageStatus,
         RxMessageTemperature,
+        RxMessageOnTime,
         RxMessageNum
     } RxMessageTypes_t;
 
@@ -1364,6 +1365,15 @@ public:
      */
     ErrorCodes_t convertTemperatureValues(int16_t * intValues, double * fltValues);
 
+    /*! \brief Convert an array of power-on time values returned by getNextMessage from integer to a floating point.
+     *
+     * \param intValue [in] Array of 2 integer power-on time values obtained with the getNextMessage method.
+     * \param fltValue [out] Array of 1 floating point power-on time value expressed in the unit of the power-on time range.
+     * \note The number of items must match the number of temperature channels.
+     * \return Error code.
+     */
+    ErrorCodes_t convertOnTimeValue(int16_t * intValues, double * fltValue);
+
     /*! \brief Get the current status of the readout offset recalibration algorithm for each channel.
      *
      * \param channelIndexes [in] Vector of channel indexes.
@@ -1798,6 +1808,14 @@ public:
      * \return Error code.
      */
     ErrorCodes_t getTemperatureChannelsFeatures(std::vector <std::string> &names, std::vector <RangedMeasurement_t> &ranges);
+
+    /*! \brief Get information on the power-on time readout.
+     *
+     * \param range [out] Range of the power-on time readout.
+     *
+     * \return Error code.
+     */
+    ErrorCodes_t getOnTimeFeatures(RangedMeasurement_t &range);
 
     /*! \brief Get the sampling rates available for the device.
      *
@@ -2274,6 +2292,9 @@ protected:
     uint16_t temperatureChannelsNum = 0;
     std::vector <std::string> temperatureChannelsNames;
     std::vector <RangedMeasurement_t> temperatureChannelsRanges;
+
+    bool onTimeHwFlag = false;
+    RangedMeasurement_t onTimeRange = {0.0, (std::numeric_limits <double> ::max)(), 1.0, UnitPfxNone, "s"};
 
     bool canDoEpisodic = false;
     bool properHeaderPackets = false;

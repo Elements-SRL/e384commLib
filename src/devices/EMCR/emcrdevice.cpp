@@ -2136,13 +2136,20 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
             // not really managed, ignore it
             break;
 
-        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionTemperature):
+        case (MsgDirectionDeviceToPc+MsgTypeIdTemperature):
             /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
             rxOutput.dataLen = temperatureChannelsNum;
             /*! \todo FCON check sulla lunghezza del messaggio */
             for (uint16_t temperatureChannelIdx = 0; temperatureChannelIdx < temperatureChannelsNum; temperatureChannelIdx++) {
                 data[temperatureChannelIdx] = (int16_t)msg.data[sampleIdx++];
             }
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdOnTime):
+            /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
+            rxOutput.dataLen = 2;
+            data[0] = (int16_t)msg.data[sampleIdx++];
+            data[1] = (int16_t)msg.data[sampleIdx++];
             break;
         }
         keepReading = msg.mergeable && (rxOutput.dataLen+frameManager->getMaxDataMessageSize() < E384CL_OUT_STRUCT_DATA_LEN);
