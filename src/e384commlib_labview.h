@@ -1479,21 +1479,25 @@ ErrorCodes_t setVoltageProtocolStructureVec(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltStepTimeStep(
-        E384CL_ARGIN LVMeasurement_t v0,
-        E384CL_ARGIN LVMeasurement_t vStep,
-        E384CL_ARGIN LVMeasurement_t t0,
-        E384CL_ARGIN LVMeasurement_t tStep,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t vHalfFlag);
+    E384CL_ARGIN LVMeasurement_t v0,
+    E384CL_ARGIN LVMeasurement_t vStep,
+    E384CL_ARGIN LVMeasurement_t t0,
+    E384CL_ARGIN LVMeasurement_t tStep,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t vHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Commits a voltage protocol item consisting of a constant voltage.
  *  Steps can be defined for both voltage and duration to make them change at any iteration.
@@ -1512,18 +1516,22 @@ ErrorCodes_t voltStepTimeStep(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltStepTimeStepVec(
-        E384CL_ARGIN LMeasHandle * vec,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t vHalfFlag);
+    E384CL_ARGIN LMeasHandle * vec,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t vHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Commits a voltage protocol item consisting of a voltage ramp.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1538,20 +1546,24 @@ ErrorCodes_t voltStepTimeStepVec(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltRamp(
-        E384CL_ARGIN LVMeasurement_t v0,
-        E384CL_ARGIN LVMeasurement_t vFinal,
-        E384CL_ARGIN LVMeasurement_t t,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t vHalfFlag);
+    E384CL_ARGIN LVMeasurement_t v0,
+    E384CL_ARGIN LVMeasurement_t vFinal,
+    E384CL_ARGIN LVMeasurement_t t,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t vHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Commits a voltage protocol item consisting of a voltage ramp.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1568,18 +1580,22 @@ ErrorCodes_t voltRamp(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltRampVec(
-        E384CL_ARGIN LMeasHandle * vec,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t vHalfFlag);
+    E384CL_ARGIN LMeasHandle * vec,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t vHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Commits a voltage protocol item consisting of a sinusoidal wave.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1594,20 +1610,24 @@ ErrorCodes_t voltRampVec(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltSin(
-        E384CL_ARGIN LVMeasurement_t v0,
-        E384CL_ARGIN LVMeasurement_t vAmp,
-        E384CL_ARGIN LVMeasurement_t freq,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t vHalfFlag);
+    E384CL_ARGIN LVMeasurement_t v0,
+    E384CL_ARGIN LVMeasurement_t vAmp,
+    E384CL_ARGIN LVMeasurement_t freq,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t vHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Commits a voltage protocol item consisting of a sinusoidal wave.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1624,18 +1644,22 @@ ErrorCodes_t voltSin(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param vHalfFlag [in] 0x0: do not add vHalfFlag to this item; 0x1 add vHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t voltSinVec(
-        E384CL_ARGIN LMeasHandle * vec,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t vHalfFlag);
+    E384CL_ARGIN LMeasHandle * vec,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t vHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Start a protocol.
  *
@@ -1706,21 +1730,25 @@ ErrorCodes_t setCurrentProtocolStructureVec(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currStepTimeStep(
-        E384CL_ARGIN LVMeasurement_t i0,
-        E384CL_ARGIN LVMeasurement_t iStep,
-        E384CL_ARGIN LVMeasurement_t t0,
-        E384CL_ARGIN LVMeasurement_t tStep,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t cHalfFlag);
+    E384CL_ARGIN LVMeasurement_t i0,
+    E384CL_ARGIN LVMeasurement_t iStep,
+    E384CL_ARGIN LVMeasurement_t t0,
+    E384CL_ARGIN LVMeasurement_t tStep,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t cHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Commits a current protocol item consisting of a constant current.
  *  Steps can be defined for both current and duration to make them change at any iteration.
@@ -1739,18 +1767,22 @@ ErrorCodes_t currStepTimeStep(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currStepTimeStepVec(
-        E384CL_ARGIN LMeasHandle * vec,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t cHalfFlag);
+    E384CL_ARGIN LMeasHandle * vec,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t cHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Commits a current protocol item consisting of a current ramp.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1765,20 +1797,24 @@ ErrorCodes_t currStepTimeStepVec(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currRamp(
-        E384CL_ARGIN LVMeasurement_t i0,
-        E384CL_ARGIN LVMeasurement_t iFinal,
-        E384CL_ARGIN LVMeasurement_t t,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t cHalfFlag);
+    E384CL_ARGIN LVMeasurement_t i0,
+    E384CL_ARGIN LVMeasurement_t iFinal,
+    E384CL_ARGIN LVMeasurement_t t,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t cHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Commits a current protocol item consisting of a current ramp.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1795,18 +1831,22 @@ ErrorCodes_t currRamp(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currRampVec(
-        E384CL_ARGIN LMeasHandle * vec,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t cHalfFlag);
+    E384CL_ARGIN LMeasHandle * vec,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t cHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Commits a current protocol item consisting of a sinusoidal wave.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1821,20 +1861,24 @@ ErrorCodes_t currRampVec(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currSin(
-        E384CL_ARGIN LVMeasurement_t i0,
-        E384CL_ARGIN LVMeasurement_t iAmp,
-        E384CL_ARGIN LVMeasurement_t freq,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t cHalfFlag);
+    E384CL_ARGIN LVMeasurement_t i0,
+    E384CL_ARGIN LVMeasurement_t iAmp,
+    E384CL_ARGIN LVMeasurement_t freq,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t cHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Commits a current protocol item consisting of a sinusoidal wave.
  *  Loops can also be defined to repeat a given sequence of items more than once,
@@ -1851,18 +1895,22 @@ ErrorCodes_t currSin(
  * \param repsNum [in] Number of loop repetitions before moving on.
  * \param applySteps [in] 0x0: each repetition is a replica; 0x1 each repetition increases stepped parameters by 1 step.
  * \param cHalfFlag [in] 0x0: do not add cHalfFlag to this item; 0x1 add cHalfFlag to this item.
+ * \param activeDigitalOutputs [in] Vector (could be empty) of the indexes of the digital outputs that must be logically high during the item execution.
+ * \param activeDigitalOutputsNum [in] Length of the vector activeDigitalOutputsNum.
  * \note Items that do not end a loop must have \p nextItem = \<actual item\> + 1 and \p repsNum = 1.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t currSinVec(
-        E384CL_ARGIN LMeasHandle * vec,
-        E384CL_ARGIN uint16_t currentItem,
-        E384CL_ARGIN uint16_t nextItem,
-        E384CL_ARGIN uint16_t repsNum,
-        E384CL_ARGIN uint16_t applySteps,
-        E384CL_ARGIN uint16_t cHalfFlag);
+    E384CL_ARGIN LMeasHandle * vec,
+    E384CL_ARGIN uint16_t currentItem,
+    E384CL_ARGIN uint16_t nextItem,
+    E384CL_ARGIN uint16_t repsNum,
+    E384CL_ARGIN uint16_t applySteps,
+    E384CL_ARGIN uint16_t cHalfFlag,
+    E384CL_ARGIN uint16_t * activeDigitalOutputs,
+    E384CL_ARGIN uint16_t activeDigitalOutputsNum);
 
 /*! \brief Reset the device's ASIC.
  *
@@ -2220,8 +2268,19 @@ ErrorCodes_t getCCVoltageRange(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getTemperatureChannelsInfo(
-        E384CL_ARGOUT LStrHandle * names,
-        E384CL_ARGOUT LRangeHandle * ranges);
+    E384CL_ARGOUT LStrHandle * names,
+    E384CL_ARGOUT LRangeHandle * ranges);
+
+/*! \brief Get information on the power-on time readout.
+ *
+ * \param range [out] Range of the power-on time readout.
+ *
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getOnTimeFeatures(
+    E384CL_ARGOUT LVRangedMeasurement_t &rangeOut);
 
 /*! \brief Get the sampling rates available for the device.
  *
@@ -2231,7 +2290,7 @@ ErrorCodes_t getTemperatureChannelsInfo(
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t getSamplingRates(
-        E384CL_ARGOUT LMeasHandle * samplingRates);
+    E384CL_ARGOUT LMeasHandle * samplingRates);
 
 /*! \brief Get the real sampling rates available for the device.
  *
