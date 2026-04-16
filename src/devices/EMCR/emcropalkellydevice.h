@@ -97,14 +97,15 @@ public:
         DeviceSubversion192Blm_EL03c_MB02Mez03 = 0x01,
         DeviceSubversion192Blm_EL03c_MB03Mez04 = 0x02,
         DeviceSubversion8Blm_EL03c_DigitalTester_PCBV01 = 0x03,
-        DeviceSubversion8Blm_EL03c_DigitalTester_PCBV02 = 0x04,
+        DeviceSubversion8Blm_EL03c_DigitalTester_PCBV01b = 0x04,
         DeviceSubversion192Blm_EL03c_MB03Mez05 = 0x05,
 
         /*! Subversions used for version = 0x0F */
         DeviceSubversion384Patch_EL07c_FirstProto = 0x01,
         DeviceSubversion384Patch_EL07c_TemperatureControl = 0x02,
         DeviceSubversion384Patch_EL07e_TemperatureControl = 0x03,
-        DeviceSubversion384Patch_EL07e_MB03Mez05 = 0x03,
+        DeviceSubversion384Patch_EL07e_MB03Mez05 = 0x04,
+        DeviceSubversion16Patch_EL07e_DigitalTester_PCBV01b = 0x05,
 
         /*! Subversions used for version = 0xFE */
         DeviceSubversion2x10MHz_FET_PCBV01 = 0x19,

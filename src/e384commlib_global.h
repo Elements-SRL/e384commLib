@@ -184,32 +184,33 @@ typedef enum{
  */
 typedef enum DeviceTypes {
     /*! EMCR devices */
-    Device192Blm_el03c_mb02_mez03_fw_v01,       /*!< 192 channels device for BLM experiments */
-    Device192Blm_el03c_mb02_mez03_fw_v02,       /*!< 192 channels device for BLM experiments */
-    Device192Blm_el03c_mb02_mez03_fw_v03,       /*!< 192 channels device for BLM experiments */
-    Device192Blm_el03c_mb02_mez03_fw_v04,       /*!< 192 channels device for BLM experiments */
-    Device192Blm_el03c_mb02_mez03_fw_v05,       /*!< 192 channels device for BLM experiments */
-    Device192Blm_el03c_mb03_mez04_fw_v01,       /*!< 192 channels device for BLM experiments */
-    Device192Blm_el03c_mb03_mez04_fw_v02,       /*!< 192 channels device for BLM experiments */
-    Device192Blm_el03c_mb03_mez04_fw_v03,       /*!< 192 channels device for BLM experiments */
-    Device192Blm_el03c_mb03_mez04_fw_v04,       /*!< 192 channels device for BLM experiments */
-    Device192Blm_el03c_mb03_mez04_fw_v05,       /*!< 192 channels device for BLM experiments */
-    Device192Blm_el03c_mb03_mez04_fw_v06,       /*!< 192 channels device for BLM experiments */
-    Device192Blm_el03c_mb03_mez05_fw_v07,       /*!< 192 channels device for BLM experiments */
-    Device8Blm_el03c_digitalTester_fw_v01,      /*!< 8 channels device consisting of a single 8-channels analog board */
-    Device384Nanopores,                         /*!< 384 channels device for nanopores experiments */
-    Device384Nanopores_SR7p5kHz,                /*!< 384 channels device for nanopores experiments */
-    Device384PatchClamp_prot_v01_fw_v02,        /*!< 384 channels device for patchclamp experiments */
-    Device384PatchClamp_prot_v04_fw_v03,        /*!< 384 channels device for patchclamp experiments */
-    Device384PatchClamp_prot_v04_fw_v04,        /*!< 384 channels device for patchclamp experiments */
-    Device384PatchClamp_prot_v04_fw_v05,        /*!< 384 channels device for patchclamp experiments */
-    Device384PatchClamp_prot_v05_fw_v06,        /*! Header packet */
-    Device384PatchClamp_prot_el07c_v06_fw_v02,  /*!< 384 channels device for patchclamp experiments */
-    Device384PatchClamp_prot_el07c_v07_fw_v03,  /*!< 384 channels device for patchclamp experiments */
-    Device384PatchClamp_prot_el07c_v08_fw_v04,  /*!< 384 channels device for patchclamp experiments */
-    Device384PatchClamp_el07e_fw_v04,           /*!< 384 channels device for patchclamp experiments */
-    Device384PatchClamp_el07e_fw_v05,           /*!< 384 channels device for patchclamp experiments */
-    Device384VoltageClamp_prot_v04_fw_v03,      /*!< 384 channels device for voltageclamp experiments */
+    Device192Blm_el03c_mb02_mez03_fw_v01,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb02_mez03_fw_v02,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb02_mez03_fw_v03,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb02_mez03_fw_v04,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb02_mez03_fw_v05,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb03_mez04_fw_v01,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb03_mez04_fw_v02,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb03_mez04_fw_v03,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb03_mez04_fw_v04,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb03_mez04_fw_v05,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb03_mez04_fw_v06,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb03_mez05_fw_v07,               /*!< 192 channels device for BLM experiments */
+    Device8Blm_el03c_digitalTester_fw_v01,              /*!< 8 channels device consisting of a single 8-channels analog board */
+    Device384Nanopores,                                 /*!< 384 channels device for nanopores experiments */
+    Device384Nanopores_SR7p5kHz,                        /*!< 384 channels device for nanopores experiments */
+    Device384PatchClamp_prot_v01_fw_v02,                /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_prot_v04_fw_v03,                /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_prot_v04_fw_v04,                /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_prot_v04_fw_v05,                /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_prot_v05_fw_v06,                /*! Header packet */
+    Device384PatchClamp_prot_el07c_v06_fw_v02,          /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_prot_el07c_v07_fw_v03,          /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_prot_el07c_v08_fw_v04,          /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_el07e_fw_v04,                   /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_el07e_fw_v05,                   /*!< 384 channels device for patchclamp experiments */
+    Device16PatchClamp_el07e_digitalTesterfw_v01,       /*!< 384 channels device for patchclamp experiments */
+    Device384VoltageClamp_prot_v04_fw_v03,              /*!< 384 channels device for voltageclamp experiments */
     DeviceTestBoardEL07ab,
     DeviceTestBoardEL07ce,
     DeviceTestBoardEL07d,
