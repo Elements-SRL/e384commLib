@@ -5,9 +5,12 @@ Emcr16PatchClamp_EL07e_DigBrd_fw_v01::Emcr16PatchClamp_EL07e_DigBrd_fw_v01(std::
 
     deviceName = "384PatchClamp";
 
-    waitingTimeBeforeReadingData = 2; //s
-
     rxSyncWord = 0x5aa55aa5;
+
+    okTransferSize = 0x4000;
+    fwSize_B = 0;
+    motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+2;
+    waitingTimeBeforeReadingData = 2; //s
 
     packetsPerFrame = 1;
 
