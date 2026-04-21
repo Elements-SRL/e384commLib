@@ -2299,6 +2299,13 @@ ErrorCodes_t EmcrDevice::getZapFeatures(RangedMeasurement_t &durationRange) {
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::getCalibrationStatus() {
+    if (!calibrationFileRequired) {
+        return Success;
+    }
+    return calibrationLoadingError;
+}
+
 ErrorCodes_t EmcrDevice::getCalibParams(CalibrationParams_t &calibParams) {
     for (int type = 0; type < CalTypesNum; type++) {
         if (!calibrationParams.types[type].modes.empty()) {

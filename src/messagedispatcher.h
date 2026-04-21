@@ -2044,6 +2044,12 @@ public:
      */
     virtual ErrorCodes_t getZapFeatures(RangedMeasurement_t &durationRange);
 
+    /*! \brief Get information on the status of the device's calibration.
+     *
+     * \return Success if the device could succesfully load the calibration parameters.
+     */
+    virtual ErrorCodes_t getCalibrationStatus();
+
     /*! \brief Get a structure containing the calibration parameters.
      *
      * \param calibParams [out] calibration parameters.

@@ -27,8 +27,9 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_EL07c_PCBV02, 1, DeviceE8nPatchEL07C_artix7_PCBV01_FW1},         //  16,  2,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V01. */
     {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_EL07e_PCBV02, 1, DeviceE8nPatchEL07C_artix7_EL07e_PCBV02_FW1},   //  16,  3,  1 : VC-CC device with 8 channels (EL07E) (FPGA artix7) PCB V01. */
     {DeviceVersionTestBoard, DeviceSubversionTestBoardQC01a_PCBV02, 1, DeviceTestBoardQC02a_PCBV02},                    //   6, 15,  1 : QC01a testboard PCB V02. */
-    {DeviceVersionSuperDuck, DeviceSubversionSuperDuckPcbV01, 1, DeviceSuperDuck_PCBV01},                               //  17,  1,  1 : SuperDuck. */
-    {DeviceVersionSuperDuck, DeviceSubversionSuperDuckPcbV01, 4, DeviceSuperDuck_PCBV01},                               //  17,  1,  4 : SuperDuck. */
+    {DeviceVersionSuperDuck, DeviceSubversionSuperDuckPcbV01, 1, DeviceSuperDuck_PCBV012},                              //  17,  1,  1 : SuperDuck. */
+    {DeviceVersionSuperDuck, DeviceSubversionSuperDuckPcbV01, 4, DeviceSuperDuck_PCBV012},                              //  17,  1,  4 : SuperDuck. */
+    {DeviceVersionSuperDuck, DeviceSubversionSuperDuckPcbV02, 4, DeviceSuperDuck_PCBV012},                              //  17,  2,  4 : SuperDuck. */
 };
 
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
@@ -227,7 +228,7 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
         messageDispatcher = new EmcrQc01aTB_PCBV02(deviceId);
         break;
 
-    case DeviceSuperDuck_PCBV01:
+    case DeviceSuperDuck_PCBV012:
         messageDispatcher = new EmcrSuperDuck_PCBV01(deviceId);
         break;
 

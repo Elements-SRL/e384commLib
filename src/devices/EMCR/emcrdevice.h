@@ -143,6 +143,7 @@ public:
     ErrorCodes_t isStateArrayAvailable() override;
     ErrorCodes_t getZapFeatures(RangedMeasurement_t &durationRange) override;
 
+    ErrorCodes_t getCalibrationStatus() override;
     ErrorCodes_t getCalibParams(CalibrationParams_t &calibParams) override;
     ErrorCodes_t getCalibFileNames(std::vector <std::string> &calibFileNames) override;
     ErrorCodes_t getCalibFilesFlags(std::vector <std::vector <bool> > &calibFilesFlags) override;
@@ -278,9 +279,11 @@ protected:
 
     ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
     std::vector <std::string> calibrationFileNames = {""};
-    std::vector <std::vector <bool> > calibrationFilesOkFlags = {{false}};
+    std::vector <std::vector <bool>> calibrationFilesOkFlags = {{false}};
     std::string calibrationMappingFileDir = "";
     std::string calibrationMappingFilePath = "";
+
+    bool calibrationFileRequired = false;
 
     double minLiquidJunctionEstimationTimeS = 0.25;
     double minLiquidJunctionTransientTimeS = 0.25;

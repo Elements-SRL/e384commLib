@@ -134,6 +134,7 @@ EmcrOpalKellyDevice::EmcrOpalKellyDevice(std::string deviceId) :
     EmcrDevice(deviceId) {
 
     rxRawBufferMask = OKY_RX_BUFFER_MASK;
+    calibrationFileRequired = true;
 }
 
 EmcrOpalKellyDevice::~EmcrOpalKellyDevice() {

@@ -237,7 +237,7 @@ typedef enum DeviceTypes {
     Device4x10MHz_PCBV02_FEStim_CH12,           /*!< 4 channels 10MHz nanopore reader, Stimulus from front end on channels 1 and 2 */
     Device10MHzOld,                             /*!< UDB based 10MHz nanopore reader, old firmware */
     Device10MHzV01,                             /*!< UDB based 10MHz nanopore reader */
-    DeviceSuperDuck_PCBV01,
+    DeviceSuperDuck_PCBV012,
     /*! EZ patch devices */
     DeviceEPatchEL03D_V04,                      /*!< ePatch device with EL03D chip: digital repetitive trigger output. */
     DeviceEPatchEL03D_V03,                      /*!< ePatch device with EL03D chip: increased maximum amount of digital trigger output events. */

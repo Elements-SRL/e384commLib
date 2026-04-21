@@ -1530,6 +1530,10 @@ ErrorCodes_t MessageDispatcher::getZapFeatures(RangedMeasurement_t &) {
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::getCalibrationStatus() {
+    return Success;
+}
+
 /*********************\
  *  Private methods  *
 \*********************/
