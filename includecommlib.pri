@@ -19,6 +19,7 @@ else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PA
 else:msvc:win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PATH)lib/release/e384commlib.lib
 else:msvc:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PATH)lib/debug/e384commlibd.lib
 
+include($$(E384COMMLIB_PATH)version.pri)
 include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
 include($$(FTDI_UTILS_PATH)includeftdiutils.pri)

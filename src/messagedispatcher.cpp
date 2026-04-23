@@ -821,7 +821,7 @@ ErrorCodes_t MessageDispatcher::convertTemperatureValues(int16_t * intValues, do
 }
 
 ErrorCodes_t MessageDispatcher::convertOnTimeValue(int16_t * intValues, double * fltValue) {
-    fltValue[0] = onTimeRange.step*(((double)intValues[0])*USHORT_MAX+(double)intValues[1]);
+    fltValue[0] = onTimeRange.step*(((double)((uint16_t)intValues[0]))*USHORT_MAX+(double)((uint16_t)intValues[1]));
 
     return Success;
 }

@@ -1530,6 +1530,12 @@ ErrorCodes_t EmcrDevice::setDebugTrigger(uint16_t bitOffset) {
     case TxTriggerGetCalRam:
     case TxTriggerSetCalRam:
     case TxTriggerWriteCalEeprom:
+    case TxTriggerReadOnTime:
+    case TxTriggerDebug0:
+    case TxTriggerDebug1:
+    case TxTriggerDebug2:
+    case TxTriggerDebug3:
+    case TxTriggerDebug4:
         break;
 
     default:
