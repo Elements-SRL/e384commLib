@@ -1369,7 +1369,6 @@ public:
      *
      * \param intValue [in] Array of 2 integer power-on time values obtained with the getNextMessage method.
      * \param fltValue [out] Array of 1 floating point power-on time value expressed in the unit of the power-on time range.
-     * \note The number of items must match the number of temperature channels.
      * \return Error code.
      */
     ErrorCodes_t convertOnTimeValue(int16_t * intValues, double * fltValue);

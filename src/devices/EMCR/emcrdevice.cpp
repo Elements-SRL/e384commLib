@@ -2389,7 +2389,7 @@ void EmcrDevice::processLiquidJunctionData(RxMessage_t msg) {
             if (anyCommand) {
                 liquidJunctionProcessing = LiquidJunctionProcessingWaitCommandApplied;
             }
-            else if (liquidJunctionCurrentEstimatesNum >= minLiquidJunctionEstimationTimeS*samplingRate.getNoPrefixValue()) {
+            else if (liquidJunctionCurrentEstimatesNum > minLiquidJunctionEstimationTimeS*samplingRate.getNoPrefixValue()) {
                 /*! Move to the next state only if enough data was collected, otherwise it means the process needs to collect more data */
                 liquidJunctionProcessing = LiquidJunctionProcessingTransientsStarted;
             }
@@ -2486,9 +2486,7 @@ bool EmcrDevice::computeOffetCorrection() {
         }
         return anyCommand;
     }
-    else {
-        return false;
-    }
+    return false;
 }
 
 bool EmcrDevice::computeLiquidJunction() {
