@@ -26,6 +26,7 @@ FrameManager::FrameManager(MessageDispatcher * md) :
     rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionSaturation)] = false;
     rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionDataLoss)] = false;
     rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionDataOverflow)] = false;
+    rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionSyncStatus)] = true;
     rxEnabledTypesMap[type2Pc(MsgTypeIdInvalid)] = false;
     rxEnabledTypesMap[type2Pc(MsgTypeIdDeviceStatus)] = false;
     rxEnabledTypesMap[type2Pc(MsgTypeIdTemperature)] = true;
@@ -96,6 +97,9 @@ void FrameManager::storeFrameData(uint16_t rxWordOffset) {
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageOnTime]) {
         this->storeFrameDataType(type2Pc(MsgTypeIdOnTime), MessageDispatcher::RxMessageOnTime);
+    }
+    else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageSyncStatus]) {
+        this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionSyncStatus), MessageDispatcher::RxMessageSyncStatus);
     }
 }
 
@@ -331,15 +335,9 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         break;
 
     case MessageDispatcher::RxMessageDataTail:
-        msg.typeId = rxMsgTypeId;
-        msg.data.resize(rxDataWords);
-        for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
-            msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
-        }
-        this->pushMessage(msg);
-        break;
-
     case MessageDispatcher::RxMessageStatus:
+    case MessageDispatcher::RxMessageOnTime:
+    case MessageDispatcher::RxMessageSyncStatus:
         msg.typeId = rxMsgTypeId;
         msg.data.resize(rxDataWords);
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
@@ -356,15 +354,6 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         }
         this->pushMessage(msg);
         emd->processTemperatureData(msg);
-        break;
-
-    case MessageDispatcher::RxMessageOnTime:
-        msg.typeId = rxMsgTypeId;
-        msg.data.resize(rxDataWords);
-        for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
-            msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
-        }
-        this->pushMessage(msg);
         break;
     }
 

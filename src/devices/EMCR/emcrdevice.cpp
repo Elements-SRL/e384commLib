@@ -2138,6 +2138,12 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
             data[1] = (int16_t)msg.data[sampleIdx++];
             break;
 
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionSyncStatus):
+            rxOutput.dataLen = 2;
+            data[1] = (int16_t)msg.data[sampleIdx++];
+            data[0] = (int16_t)msg.data[sampleIdx++];
+            break;
+
         case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
             // not really managed, ignore it
             break;

@@ -14,6 +14,7 @@
 #include "emcr192blm_el03c_mb03_mez04_fw_v04.h"
 #include "emcr192blm_el03c_mb03_mez04_fw_v05.h"
 #include "emcr192blm_el03c_mb03_mez04_fw_v06.h"
+#include "emcr192blm_el03c_mb03_mez04_fw_v08.h"
 #include "emcr192blm_el03c_mb03_mez05_fw_v07.h"
 #include "emcr8blm_el03c_digbrd_fw_v01.h"
 #include "emcr384nanopores.h"
@@ -77,6 +78,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 4, Device192Blm_el03c_mb03_mez04_fw_v04},                       //   13,  2,  4 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 5, Device192Blm_el03c_mb03_mez04_fw_v05},                       //   13,  2,  5 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 6, Device192Blm_el03c_mb03_mez04_fw_v06},                       //   13,  2,  6 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez04, 8, Device192Blm_el03c_mb03_mez04_fw_v08},                       //   13,  2,  8 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB03Mez05, 7, Device192Blm_el03c_mb03_mez05_fw_v07},                       //   13,  5,  7 : 192-channel EL03c (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion8Blm_EL03c_DigitalTester_PCBV01, 1, Device8Blm_el03c_digitalTester_fw_v01},             //   13,  3,  1 : 8-channels device consisting of a single 8-channels analog board
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion8Blm_EL03c_DigitalTester_PCBV01b, 1, Device8Blm_el03c_digitalTester_fw_v01},            //   13,  4,  1 : 8-channels device consisting of a single 8-channels analog board
@@ -331,6 +333,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device192Blm_el03c_mb03_mez04_fw_v06:
         messageDispatcher = new Emcr192Blm_EL03c_Mb03_Mez04_fw_v06(deviceId);
+        break;
+
+    case Device192Blm_el03c_mb03_mez04_fw_v08:
+        messageDispatcher = new Emcr192Blm_EL03c_Mb03_Mez04_fw_v08(deviceId);
         break;
 
     case Device192Blm_el03c_mb03_mez05_fw_v07:

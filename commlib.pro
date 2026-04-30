@@ -44,6 +44,7 @@ SOURCES += \
     src/commandcoder.cpp \
     src/devices/EMCR/emcr16patchclamp_el07e_digbrd_fw_v01.cpp \
     src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v06.cpp \
+    src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v08.cpp \
     src/devices/EMCR/emcr192blm_el03c_mb03_mez05_fw_v07.cpp \
     src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v04.cpp \
     src/devices/EMCR/emcr384patchclamp_el07e_fw_v04.cpp \
@@ -128,6 +129,7 @@ SOURCES += \
 HEADERS += \
     src/devices/EMCR/emcr16patchclamp_el07e_digbrd_fw_v01.h \
     src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v06.h \
+    src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v08.h \
     src/devices/EMCR/emcr192blm_el03c_mb03_mez05_fw_v07.h \
     src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v04.h \
     src/devices/EMCR/emcr384patchclamp_el07e_fw_v04.h \

@@ -143,6 +143,7 @@ typedef enum MsgTypeId {
     MsgTypeIdAcquisitionSaturation =            MsgGroupAcquiredData+0x0004, /*!< Message that notifies the saturation of the front-end. */
     MsgTypeIdAcquisitionDataLoss =              MsgGroupAcquiredData+0x0005, /*!< Message that notifies the loss of data. */
     MsgTypeIdAcquisitionDataOverflow =          MsgGroupAcquiredData+0x0006, /*!< Message that notifies the overflow of data. */
+    MsgTypeIdAcquisitionSyncStatus =            MsgGroupAcquiredData+0x0007, /*!< Message that notifies which boards are correctly streaming their synchronization signal for data digitization. */
 
     /*! Features messages */
     MsgTypeIdLiquidJunctionComp =               MsgGroupFeatures+0x0001, /*!< Message used to apply the liquid junction  compensation. */
@@ -195,6 +196,7 @@ typedef enum DeviceTypes {
     Device192Blm_el03c_mb03_mez04_fw_v04,               /*!< 192 channels device for BLM experiments */
     Device192Blm_el03c_mb03_mez04_fw_v05,               /*!< 192 channels device for BLM experiments */
     Device192Blm_el03c_mb03_mez04_fw_v06,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb03_mez04_fw_v08,               /*!< 192 channels device for BLM experiments */
     Device192Blm_el03c_mb03_mez05_fw_v07,               /*!< 192 channels device for BLM experiments */
     Device8Blm_el03c_digitalTester_fw_v01,              /*!< 8 channels device consisting of a single 8-channels analog board */
     Device384Nanopores,                                 /*!< 384 channels device for nanopores experiments */
