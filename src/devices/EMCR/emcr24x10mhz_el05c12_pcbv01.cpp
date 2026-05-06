@@ -198,7 +198,7 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
     customOptionsDefault.resize(customOptionsNum);
     for (int optIdx = 16; optIdx < customOptionsNum; optIdx++) {
         customOptionsNames[optIdx] = "Dac Ch " + std::to_string(optIdx+1);
-        customOptionsDescriptions[optIdx].resize(2);
+        customOptionsDescriptions[optIdx].resize(3);
         customOptionsDescriptions[optIdx][0] = "Dac Vcm";
         customOptionsDescriptions[optIdx][1] = "GND";
         customOptionsDescriptions[optIdx][2] = "Vdd";
@@ -585,7 +585,7 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 2;
     customOptionsCoders.resize(customOptionsNum);
-    for (int optIdx = 0; optIdx < customOptionsNum; optIdx++) {
+    for (int optIdx = 16; optIdx < customOptionsNum; optIdx++) {
         customOptionsCoders[optIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(customOptionsCoders[optIdx]);
         boolConfig.initialBit += 2;

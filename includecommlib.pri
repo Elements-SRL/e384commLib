@@ -20,6 +20,7 @@ else:msvc:win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB
 else:msvc:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$(E384COMMLIB_PATH)lib/debug/e384commlibd.lib
 
 include($$(E384COMMLIB_PATH)version.pri)
+include($$(TOML_PP_PATH)includetoml++.pri)
 include($$(CY_API_PATH)includecyapi.pri)
 include($$(FRONT_PANEL_PATH)includefrontpanel.pri)
 include($$(FTDI_UTILS_PATH)includeftdiutils.pri)
