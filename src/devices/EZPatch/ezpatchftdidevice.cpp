@@ -171,12 +171,12 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
         }
     }
 
-    if (debugLevelEnabled(DebugLevelDevice)) {
-        numDevs++;
-        deviceIds.push_back("DEMO_ePatch");
-        numDevs++;
-        deviceIds.push_back("DEMO_e8Patch");
-    }
+    // if (debugLevelEnabled(DebugLevelDevice)) {
+    //     numDevs++;
+    //     deviceIds.push_back("DEMO_ePatch");
+    //     numDevs++;
+    //     deviceIds.push_back("DEMO_e8Patch");
+    // }
 
     return Success;
 }
