@@ -112,6 +112,8 @@ public:
 
     /*! Device specific controls */
 
+    virtual ErrorCodes_t sendSpiCommand(uint32_t command, uint32_t dataLoad) override;
+
     virtual ErrorCodes_t setCustomFlag(uint16_t idx, bool flag, bool applyFlag) override;
     virtual ErrorCodes_t setCustomOption(uint16_t idx, uint16_t value, bool applyFlag) override;
     virtual ErrorCodes_t setCustomDouble(uint16_t idx, double value, bool applyFlag) override;
@@ -194,6 +196,7 @@ protected:
     virtual ErrorCodes_t deviceConfiguration() override;
     virtual void createCommunicationThreads() override;
 
+    virtual void enableOverheatingCounterMeasures() override;
     virtual void deinitializeMemory() override;
     virtual void deinitializeVariables() override;
 
@@ -298,6 +301,7 @@ protected:
 
     BoolCoder * asicResetCoder = nullptr;
     BoolCoder * fpgaResetCoder = nullptr;
+    BoolCoder * overHeatingModeCoder = nullptr;
 
     BoolCoder * clampingModeCoder = nullptr;
     std::vector <BoolCoder *> vcCurrentRangeCoders;
@@ -423,6 +427,9 @@ protected:
     std::vector <DoubleCoder*> rsPredTauCompensationCoders;
     std::vector <BoolCoder*> pipetteCapCcEnCompensationCoders;
     std::vector <MultiCoder*> pipetteCapCcValCompensationMultiCoders;
+
+    BoolCoder * spiCommandCoder = nullptr;
+    BoolCoder * spiDataLoadCoder = nullptr;
 
     std::vector <BoolArrayCoder *> customFlagsCoders;
     std::vector <BoolArrayCoder *> customOptionsCoders;

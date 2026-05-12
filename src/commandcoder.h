@@ -21,6 +21,17 @@ typedef struct CommandStatus {
         size = words;
     }
 
+    void resize(int words) {
+        int prevWords = changedWords.size();
+        changedWords.resize(words);
+        encodingWords.resize(words);
+        if (words > prevWords) {
+            std::fill(changedWords.begin()+prevWords, changedWords.end(), false);
+            std::fill(encodingWords.begin()+prevWords, encodingWords.end(), 0x0000);
+        }
+        size = words;
+    }
+
     void allChanged() {
         std::fill(changedWords.begin(), changedWords.end(), true);
         anyChanged = true;

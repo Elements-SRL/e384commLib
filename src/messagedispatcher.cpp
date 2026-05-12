@@ -264,9 +264,12 @@ ErrorCodes_t MessageDispatcher::upgradeDevice(std::string deviceId) {
     return ErrorDeviceTypeNotRecognized;
 }
 
-ErrorCodes_t MessageDispatcher::disconnectDevice() {
+ErrorCodes_t MessageDispatcher::disconnectDevice(bool overheatFlag) {
     if (std::find(connectedDevices.begin(), connectedDevices.end(), this) == connectedDevices.end()) {
         return Success;
+    }
+    if (overheatFlag) {
+        this->enableOverheatingCounterMeasures();
     }
     this->deinitialize();
     connectedDevices.remove(this);
@@ -1649,6 +1652,10 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
     return Success;
 }
 
+void MessageDispatcher::enableOverheatingCounterMeasures() {
+
+}
+
 void MessageDispatcher::deinitializeVariables() {
     this->deinitializeCalibration();
     this->deInitializeRawDataFilterVariables();
@@ -2026,6 +2033,10 @@ ErrorCodes_t MessageDispatcher::setTemperatureControl(Measurement_t, bool) {
 }
 
 ErrorCodes_t MessageDispatcher::setTemperatureControlPid(PidParams_t) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::sendSpiCommand(uint32_t, uint32_t) {
     return ErrorFeatureNotImplemented;
 }
 

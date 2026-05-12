@@ -102,6 +102,7 @@ public:
         RxMessageTemperature,
         RxMessageOnTime,
         RxMessageSyncStatus,
+        RxMessageSpiDataLoad,
         RxMessageNum
     } RxMessageTypes_t;
 
@@ -204,11 +205,12 @@ public:
     virtual void deinitialize() = 0;
 
     /*! \brief Disconnects from connected device.
+     * \param overheatFlag [in] false: standard disconnection; true: enable, (if available) overheating conuntermeasures (e.g. turn off power supplies).
      * Calling this method if no device is connected will return an error code.
      *
      * \return Error code.
      */
-    virtual ErrorCodes_t disconnectDevice();
+    virtual ErrorCodes_t disconnectDevice(bool overheatFlag = false);
 
     /*! \brief Enables or disables message types, so that disabled messages are not returned by getNextMessage.
      *  \note Message types are available in e384comllib_global.h.
@@ -1175,10 +1177,19 @@ public:
 
     /*! \brief Set temperature control PID parameters.
      *
-     * \param PidParams_t [in] Struct with PID parameters.
+     * \param params [in] Struct with PID parameters.
      * \return Error code.
      */
     virtual ErrorCodes_t setTemperatureControlPid(PidParams_t params);
+
+    /*! \brief Send an SPI command.
+     *
+     * \param command [in] Command code.
+     * \param dataLoad [in] Data load. If the command is a read command.
+     * \note If command encodes a read command keep dataLoadwill be ignored, and the reply will be returned in the next MsgTypeIdSpiDataLoad message.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t sendSpiCommand(uint32_t command, uint32_t dataLoad);
 
     /*! \brief Set a custom flag.
      *
@@ -2249,6 +2260,7 @@ protected:
     virtual void createCommunicationThreads() = 0;
     virtual ErrorCodes_t initializeHW() = 0;
 
+    virtual void enableOverheatingCounterMeasures();
     virtual ErrorCodes_t stopCommunication() = 0;
     virtual void deinitializeMemory() = 0;
     virtual void deinitializeVariables();

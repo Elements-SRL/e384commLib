@@ -1522,6 +1522,7 @@ ErrorCodes_t EmcrDevice::setDebugWord(uint16_t wordOffset, uint16_t wordValue) {
 ErrorCodes_t EmcrDevice::setDebugTrigger(uint16_t bitOffset) {
     switch (bitOffset) {
     case TxTriggerParameteresUpdated:
+    case TxTriggerDebug0:
     case TxTriggerStartProtocol:
     case TxTriggerStartStateArray:
     case TxTriggerZap:
@@ -1531,7 +1532,7 @@ ErrorCodes_t EmcrDevice::setDebugTrigger(uint16_t bitOffset) {
     case TxTriggerSetCalRam:
     case TxTriggerWriteCalEeprom:
     case TxTriggerReadOnTime:
-    case TxTriggerDebug0:
+    case TxTriggerSpiSendCommand:
     case TxTriggerDebug1:
     case TxTriggerDebug2:
     case TxTriggerDebug3:
@@ -1956,6 +1957,17 @@ ErrorCodes_t EmcrDevice::setStateArrayEnabled(int chIdx, bool enabledFlag) {
     return Success;
 }
 
+ErrorCodes_t EmcrDevice::sendSpiCommand(uint32_t command, uint32_t dataLoad) {
+    if (spiCommandCoder == nullptr) {
+        return ErrorFeatureNotImplemented;
+    }
+    spiCommandCoder->encode(command, txStatus);
+    spiDataLoadCoder->encode(dataLoad, txStatus);
+
+    this->stackOutgoingMessage(txStatus, {TxTriggerSpiSendCommand, ResetIndifferent});
+    return Success;
+}
+
 ErrorCodes_t EmcrDevice::setCustomFlag(uint16_t idx, bool flag, bool applyFlag) {
     if (idx >= customFlagsNum) {
         return ErrorValueOutOfRange;
@@ -2142,6 +2154,12 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
             rxOutput.dataLen = 2;
             data[1] = (int16_t)msg.data[sampleIdx++];
             data[0] = (int16_t)msg.data[sampleIdx++];
+            break;
+
+        case (MsgDirectionDeviceToPc+MsgTypeIdSpiDataLoad):
+            rxOutput.dataLen = 2;
+            data[0] = (int16_t)msg.data[sampleIdx++];
+            data[1] = (int16_t)msg.data[sampleIdx++];
             break;
 
         case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
@@ -3022,6 +3040,13 @@ void EmcrDevice::createCommunicationThreads() {
 
         threadsStarted = true;
     }
+}
+
+void EmcrDevice::enableOverheatingCounterMeasures() {
+    if (overHeatingModeCoder == nullptr) {
+        return;
+    }
+    overHeatingModeCoder->encode(1, txStatus);
 }
 
 void EmcrDevice::deinitializeMemory() {

@@ -158,6 +158,7 @@ typedef enum MsgTypeId {
     MsgTypeIdDigitalRepetitiveTriggerOutput =   MsgGroupFeatures+0x0006, /*!< Message used to configure the digital repetitive trigger output. */
     MsgTypeIdTemperature =                      MsgGroupFeatures+0x0007, /*!< Message containing temperature data. */
     MsgTypeIdOnTime =                           MsgGroupFeatures+0x0008, /*!< Message containing the device's cumulative power-on time. */
+    MsgTypeIdSpiDataLoad =                      MsgGroupFeatures+0x0009, /*!< Message containing the data load from an SPI device. */
     MsgTypeIdInvalid =                          MsgGroupFeatures+0x03FF, /*!< Invalid message used only for initiliazation purposes. */
 
     /*! Device status message*/
@@ -197,7 +198,9 @@ typedef enum DeviceTypes {
     Device192Blm_el03c_mb03_mez04_fw_v05,               /*!< 192 channels device for BLM experiments */
     Device192Blm_el03c_mb03_mez04_fw_v06,               /*!< 192 channels device for BLM experiments */
     Device192Blm_el03c_mb03_mez04_fw_v08,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb03_mez04_fw_v09,               /*!< 192 channels device for BLM experiments */
     Device192Blm_el03c_mb03_mez05_fw_v07,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el03c_mb03_mez05_fw_v09,               /*!< 192 channels device for BLM experiments */
     Device8Blm_el03c_digitalTester_fw_v01,              /*!< 8 channels device consisting of a single 8-channels analog board */
     Device384Nanopores,                                 /*!< 384 channels device for nanopores experiments */
     Device384Nanopores_SR7p5kHz,                        /*!< 384 channels device for nanopores experiments */
@@ -337,6 +340,7 @@ typedef enum ProtocolItemTypes {
 typedef enum TxTriggerType {
     TxTriggerParameteresUpdated = 0,
     TxTriggerStartProtocol = 1,
+    TxTriggerDebug0 = 2, // old never used
     TxTriggerStartStateArray = 3,
     TxTriggerZap = 4,
     TxTriggerSingleChannelRamp = 5,
@@ -344,8 +348,8 @@ typedef enum TxTriggerType {
     TxTriggerGetCalRam = 7,
     TxTriggerSetCalRam = 8,
     TxTriggerWriteCalEeprom = 9,
-    TxTriggerReadOnTime = 10,
-    TxTriggerDebug0 = 11,
+    TxTriggerReadOnTime = 10, // debug control
+    TxTriggerSpiSendCommand = 11,
     TxTriggerDebug1 = 12,
     TxTriggerDebug2 = 13,
     TxTriggerDebug3 = 14,
