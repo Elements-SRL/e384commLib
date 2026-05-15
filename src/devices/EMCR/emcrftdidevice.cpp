@@ -76,7 +76,7 @@ ErrorCodes_t EmcrFtdiDevice::detectDevices(
     return Success;
 }
 
-ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
     static std::unordered_map <std::string, unsigned int> deviceVersionCache;
     static std::unordered_map <std::string, unsigned int> deviceSubVersionCache;
     static std::unordered_map <std::string, unsigned int> fwVersionCache;
@@ -85,7 +85,9 @@ ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &d
     if (it != deviceVersionCache.end()) {
         deviceVersion = deviceVersionCache[deviceId];
         deviceSubVersion = deviceSubVersionCache[deviceId];
-        fwVersion = fwVersionCache[deviceId];
+        fwMajor = fwVersionCache[deviceId];
+        fwMinor = 0;
+        fwPatch = 0;
         return Success;
     }
 
@@ -102,11 +104,13 @@ ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &d
     }
     deviceVersion = tuple.version;
     deviceSubVersion = tuple.subversion;
-    fwVersion = tuple.fwVersion;
+    fwMajor = tuple.fwVersion;
+    fwMinor = 0;
+    fwPatch = 0;
 
     deviceVersionCache[deviceId] = deviceVersion;
     deviceSubVersionCache[deviceId] = deviceSubVersion;
-    fwVersionCache[deviceId] = fwVersion;
+    fwVersionCache[deviceId] = fwMajor;
 
     return Success;
 }
@@ -339,8 +343,8 @@ ErrorCodes_t EmcrFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &value
     return Success;
 }
 
-ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
-    return EmcrFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
+    return EmcrFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
 }
 
 ErrorCodes_t EmcrFtdiDevice::startCommunication(std::string) {

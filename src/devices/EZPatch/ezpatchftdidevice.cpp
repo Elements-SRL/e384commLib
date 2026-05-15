@@ -181,7 +181,7 @@ ErrorCodes_t EZPatchFtdiDevice::detectDevices(
     return Success;
 }
 
-ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
     static std::unordered_map <std::string, unsigned int> deviceVersionCache;
     static std::unordered_map <std::string, unsigned int> deviceSubVersionCache;
     static std::unordered_map <std::string, unsigned int> fwVersionCache;
@@ -190,19 +190,25 @@ ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int
     if (it != deviceVersionCache.end()) {
         deviceVersion = deviceVersionCache[deviceId];
         deviceSubVersion = deviceSubVersionCache[deviceId];
-        fwVersion = fwVersionCache[deviceId];
+        fwMajor = fwVersionCache[deviceId];
+        fwMinor = 0;
+        fwPatch = 0;
         return Success;
     }
 
     if (deviceId == "DEMO_ePatch") {
         deviceVersion = DeviceVersionDemo;
         deviceSubVersion = DeviceSubversionEPatchDemo;
-        fwVersion = 129;
+        fwMajor = 129;
+        fwMinor = 0;
+        fwPatch = 0;
     }
     else if (deviceId == "DEMO_e8Patch") {
         deviceVersion = DeviceVersionDemo;
         deviceSubVersion = DeviceSubversionE8PatchDemo;
-        fwVersion = 129;
+        fwMajor = 129;
+        fwMinor = 0;
+        fwPatch = 0;
     }
     else {
         FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
@@ -218,12 +224,14 @@ ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int
         }
         deviceVersion = tuple.version;
         deviceSubVersion = tuple.subversion;
-        fwVersion = tuple.fwVersion;
+        fwMajor = tuple.fwVersion;
+        fwMinor = 0;
+        fwPatch = 0;
     }
 
     deviceVersionCache[deviceId] = deviceVersion;
     deviceSubVersionCache[deviceId] = deviceSubVersion;
-    fwVersionCache[deviceId] = fwVersion;
+    fwVersionCache[deviceId] = fwMajor;
 
     return Success;
 }
@@ -647,8 +655,8 @@ ErrorCodes_t EZPatchFtdiDevice::readCalibrationEeprom(std::vector <uint32_t> &va
     return ret;
 }
 
-ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
-    return EZPatchFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+ErrorCodes_t EZPatchFtdiDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
+    return EZPatchFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
 }
 
 ErrorCodes_t EZPatchFtdiDevice::startCommunication(std::string) {

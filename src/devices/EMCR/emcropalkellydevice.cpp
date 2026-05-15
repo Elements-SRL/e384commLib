@@ -183,23 +183,29 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
     return Success;
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
     static std::unordered_map <std::string, unsigned int> deviceVersionCache;
     static std::unordered_map <std::string, unsigned int> deviceSubVersionCache;
-    static std::unordered_map <std::string, unsigned int> fwVersionCache;
+    static std::unordered_map <std::string, unsigned int> fwMajorCache;
+    static std::unordered_map <std::string, unsigned int> fwMinorCache;
+    static std::unordered_map <std::string, unsigned int> fwPatchCache;
 
     auto it = deviceVersionCache.find(deviceId);
     if (it != deviceVersionCache.end()) {
         deviceVersion = deviceVersionCache[deviceId];
         deviceSubVersion = deviceSubVersionCache[deviceId];
-        fwVersion = fwVersionCache[deviceId];
+        fwMajor = fwMajorCache[deviceId];
+        fwMinor = fwMinorCache[deviceId];
+        fwPatch = fwPatchCache[deviceId];
         return Success;
     }
 
     if (deviceId.starts_with("DEMO")) {
         deviceVersion = DeviceVersion10MHz;
         deviceSubVersion = DeviceSubversionOk_FAKE;
-        fwVersion = 254;
+        fwMajor = 254;
+        fwMinor = 0;
+        fwPatch = 0;
     }
     else {
         OkProgrammer * programmer = new OkProgrammer;
@@ -210,12 +216,16 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned i
 
         deviceVersion = tuple.deviceVersion;
         deviceSubVersion = tuple.deviceSubVersion;
-        fwVersion = tuple.fpgaFwVersion.major;
+        fwMajor = tuple.fpgaFwVersion.major;
+        fwMinor = tuple.fpgaFwVersion.minor;
+        fwPatch = tuple.fpgaFwVersion.patch;
     }
 
     deviceVersionCache[deviceId] = deviceVersion;
     deviceSubVersionCache[deviceId] = deviceSubVersion;
-    fwVersionCache[deviceId] = fwVersion;
+    fwMajorCache[deviceId] = fwMajor;
+    fwMinorCache[deviceId] = fwMinor;
+    fwPatchCache[deviceId] = fwPatch;
 
     return Success;
 }
@@ -223,15 +233,17 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned i
 ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
     unsigned int deviceVersion;
     unsigned int deviceSubVersion;
-    unsigned int fwVersion;
+    unsigned int fwMajor;
+    unsigned int fwMinor;
+    unsigned int fwPatch;
 
-    EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+    EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
 
     bool deviceFound = false;
     for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
         if (deviceVersion == deviceTupleMapping[mappingIdx][0] &&
             deviceSubVersion == deviceTupleMapping[mappingIdx][1] &&
-            fwVersion == deviceTupleMapping[mappingIdx][2]) {
+            fwMajor == deviceTupleMapping[mappingIdx][2]) {
             type = (DeviceTypes_t)deviceTupleMapping[mappingIdx][3];
             deviceFound = true;
             break;
@@ -548,8 +560,8 @@ ErrorCodes_t EmcrOpalKellyDevice::setCalibrationMode(bool) {
     return Success;
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
-    return EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
+    return EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
 }
 
 bool EmcrOpalKellyDevice::isDeviceConnected() {

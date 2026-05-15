@@ -159,10 +159,12 @@ public:
      * \param deviceId [in] Serial number of the device.
      * \param deviceVersion [out] Version of the device (device family). -1 if not available.
      * \param deviceSubVersion [out] Subversion of the device (increases with PCB changes). -1 if not available.
-     * \param fwVersion [out] Version of the firmware (increases with device's firmware). -1 if not available.
+     * \param fwMajor [out] Major version of the firmware (increases with device's firmware major releases, i.e. lost retrocompatibility, need of a new SW class). -1 if not available.
+     * \param fwMajor [out] Minor version of the firmware (increases with device's firmware minor releases, i.e. retrocompatibility, new feature which does not require a new SW class). -1 if not available.
+     * \param fwPatch [out] Patch version of the firmware (increases with device's firmware patch releases, i.e. retrocompatibility, bug fix which does not require a new SW class). -1 if not available.
      * \return Error code.
      */
-    static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion);
+    static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch);
 
     /*! \brief Connects to a specific device.
      * Calling this method if a device is already connected will return an error code.
@@ -257,10 +259,12 @@ public:
      *
      * \param deviceVersion [out] Version of the device (device family). -1 if not available.
      * \param deviceSubVersion [out] Subversion of the device (increases with PCB changes). -1 if not available.
-     * \param fwVersion [out] Version of the firmware (increases with device's firmware). -1 if not available.
+     * \param fwMajor [out] Major version of the firmware (increases with device's firmware major releases, i.e. lost retrocompatibility, need of a new SW class). -1 if not available.
+     * \param fwMajor [out] Minor version of the firmware (increases with device's firmware minor releases, i.e. retrocompatibility, new feature which does not require a new SW class). -1 if not available.
+     * \param fwPatch [out] Patch version of the firmware (increases with device's firmware patch releases, i.e. retrocompatibility, bug fix which does not require a new SW class). -1 if not available.
      * \return Error code.
      */
-    virtual ErrorCodes_t getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) = 0;
+    virtual ErrorCodes_t getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) = 0;
 
     /****************\
      *  Tx methods  *

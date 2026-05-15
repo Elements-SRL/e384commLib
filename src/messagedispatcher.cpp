@@ -166,24 +166,24 @@ ErrorCodes_t MessageDispatcher::listAllDevices(
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwVersion) {
+ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
     if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
-        EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+        EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
         return Success;
     }
 
     if (EmcrUdbDevice::isDeviceRecognized(deviceId) == Success) {
-        EmcrUdbDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+        EmcrUdbDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
         return Success;
     }
 
     if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        EmcrFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+        EmcrFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
         return Success;
     }
 
     if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        EZPatchFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwVersion);
+        EZPatchFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
         return Success;
     }
     return ErrorDeviceTypeNotRecognized;

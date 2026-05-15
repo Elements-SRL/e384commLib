@@ -1,0 +1,22 @@
+@PACKAGE_INIT@
+
+cmake_path(SET FTDI_UTILS_PATH_CMAKE "$ENV{FTDI_UTILS_PATH}")
+list(APPEND CMAKE_MODULE_PATH "${FTDI_UTILS_PATH_CMAKE}cmake")
+cmake_path(SET FRONT_PANEL_PATH_CMAKE "$ENV{FRONT_PANEL_PATH}")
+list(APPEND CMAKE_MODULE_PATH "${FRONT_PANEL_PATH_CMAKE}cmake")
+cmake_path(SET CY_API_PATH_CMAKE "$ENV{CY_API_PATH}")
+list(APPEND CMAKE_MODULE_PATH "${CY_API_PATH_CMAKE}cmake")
+cmake_path(SET TOML_PP_PATH_CMAKE "$ENV{TOML_PP_PATH}")
+list(APPEND CMAKE_MODULE_PATH "${TOML_PP_PATH_CMAKE}cmake")
+include(CMakeFindDependencyMacro)
+
+find_dependency(ftdi_utils REQUIRED)
+find_dependency(FrontPanel REQUIRED)
+find_dependency(CyAPI REQUIRED)
+find_dependency(tomlpp REQUIRED)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CURRENT_CONFIG "Release")
+else()
+    set(CURRENT_CONFIG "${CMAKE_BUILD_TYPE}")
+endif()
+include("${CMAKE_CURRENT_LIST_DIR}/${CURRENT_CONFIG}/e384commlibTargets.cmake")
