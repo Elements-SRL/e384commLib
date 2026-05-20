@@ -6,6 +6,7 @@ project(e384commlib
 )
 
 include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
 #
 # Libreria
@@ -193,8 +194,6 @@ cmake_path(SET E384COMMLIB_PATH_CMAKE "$ENV{E384COMMLIB_PATH}")
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX ${E384COMMLIB_PATH_CMAKE} CACHE PATH "Install path" FORCE)
 endif()
-
-include(GNUInstallDirs)
 
 install(TARGETS e384commlib
     EXPORT e384commlibTargets

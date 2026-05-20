@@ -31,6 +31,7 @@
 #include "emcr384patchclamp_el07c_prot_v08_fw_v04.h"
 #include "emcr384patchclamp_el07e_fw_v04.h"
 #include "emcr384patchclamp_el07e_fw_v05.h"
+#include "emcr384patchclamp_el07e_fw_v06.h"
 #include "emcr16patchclamp_el07e_digbrd_fw_v01.h"
 #include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
@@ -92,8 +93,10 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 1, Device384PatchClamp_el07e_fw_v04},              //   15,  3,  1 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04) /*! \note FCON fw version sbagliata, mantenere finchè c'è almeno un device in giro */
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 4, Device384PatchClamp_el07e_fw_v04},              //   15,  3,  4 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 5, Device384PatchClamp_el07e_fw_v05},              //   15,  3,  5 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 6, Device384PatchClamp_el07e_fw_v06},              //   15,  3,  6 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_MB03Mez05, 5, Device384PatchClamp_el07e_fw_v05},                       //   15,  4,  5 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V05)
-    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion16Patch_EL07e_DigitalTester_PCBV01b, 1, Device16PatchClamp_el07e_digitalTesterfw_v01},//   15,  5,  1 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V05)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_MB03Mez05, 6, Device384PatchClamp_el07e_fw_v06},                       //   15,  4,  6 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V05)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion16Patch_EL07e_DigitalTester_PCBV01b, 1, Device16PatchClamp_el07e_digitalTesterfw_v01},//   15,  5,  1 : 16-channel device consisting of a single 16-channels analog board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01a, 0, DeviceTestBoardQC01a},                                            //    6, 13,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardQC01aExtVcm, 0, DeviceTestBoardQC01aExtVcm},                                //    6, 14,  0 : QC01a test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07a, 1, DeviceTestBoardEL07ab},                                           //    6, 17,  1 : EL07a test board
@@ -417,6 +420,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device384PatchClamp_el07e_fw_v05:
         messageDispatcher = new Emcr384PatchClamp_EL07e_fw_v05(deviceId);
+        break;
+
+    case Device384PatchClamp_el07e_fw_v06:
+        messageDispatcher = new Emcr384PatchClamp_EL07e_fw_v06(deviceId);
         break;
 
     case Device16PatchClamp_el07e_digitalTesterfw_v01:

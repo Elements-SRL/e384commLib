@@ -163,7 +163,6 @@ typedef enum MsgTypeId {
 
     /*! Device status message*/
     MsgTypeIdDeviceStatus =                     MsgGroupDeviceStatus+0x0001, /*!< Message containing the device status. */
-
 } MsgTypeId_t;
 
 /********************\
@@ -214,6 +213,7 @@ typedef enum DeviceTypes {
     Device384PatchClamp_prot_el07c_v08_fw_v04,          /*!< 384 channels device for patchclamp experiments */
     Device384PatchClamp_el07e_fw_v04,                   /*!< 384 channels device for patchclamp experiments */
     Device384PatchClamp_el07e_fw_v05,                   /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_el07e_fw_v06,                   /*!< 384 channels device for patchclamp experiments */
     Device16PatchClamp_el07e_digitalTesterfw_v01,       /*!< 384 channels device for patchclamp experiments */
     Device384VoltageClamp_prot_v04_fw_v03,              /*!< 384 channels device for voltageclamp experiments */
     DeviceTestBoardEL07ab,

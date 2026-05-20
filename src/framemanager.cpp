@@ -102,6 +102,9 @@ void FrameManager::storeFrameData(uint16_t rxWordOffset) {
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageSyncStatus]) {
         this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionSyncStatus), MessageDispatcher::RxMessageSyncStatus);
     }
+    else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDoubleSyncStatus]) {
+        this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionSyncStatus), MessageDispatcher::RxMessageDoubleSyncStatus);
+    }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageSpiDataLoad]) {
         this->storeFrameDataType(type2Pc(MsgTypeIdSpiDataLoad), MessageDispatcher::RxMessageSpiDataLoad);
     }
@@ -350,6 +353,28 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         }
         this->pushMessage(msg);
         break;
+
+    case MessageDispatcher::RxMessageDoubleSyncStatus:{
+        msg.typeId = rxMsgTypeId;
+        int rxDataWords2 = rxDataWords/2;
+        msg.data.resize(rxDataWords2);
+        for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords2; rxDataBufferWriteIdx++) {
+            uint16_t dat = emd->popUint16FromRxRawBuffer();
+            dat = (dat | (dat << 1)) & 0xAAAA;
+            dat = (dat | (dat << 1)) & 0xCCCC;
+            dat = (dat | (dat << 2)) & 0xF0F0;
+            dat = (dat | (dat << 4)) & 0xFF00;
+            msg.data[rxDataBufferWriteIdx] = dat;
+            dat = emd->popUint16FromRxRawBuffer();
+            dat = (dat | (dat >> 1)) & 0x5555;
+            dat = (dat | (dat >> 1)) & 0x3333;
+            dat = (dat | (dat >> 2)) & 0x0F0F;
+            dat = (dat | (dat >> 4)) & 0x00FF;
+            msg.data[rxDataBufferWriteIdx] |= dat;
+        }
+        this->pushMessage(msg);
+        break;
+    }
 
     case MessageDispatcher::RxMessageTemperature:
         msg.typeId = rxMsgTypeId;

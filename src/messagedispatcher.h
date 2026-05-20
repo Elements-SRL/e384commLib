@@ -102,6 +102,7 @@ public:
         RxMessageTemperature,
         RxMessageOnTime,
         RxMessageSyncStatus,
+        RxMessageDoubleSyncStatus,
         RxMessageSpiDataLoad,
         RxMessageNum
     } RxMessageTypes_t;
