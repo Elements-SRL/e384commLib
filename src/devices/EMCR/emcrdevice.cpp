@@ -717,9 +717,6 @@ ErrorCodes_t EmcrDevice::updateCalibCcCurrentOffset(std::vector <uint16_t> chann
 }
 
 ErrorCodes_t EmcrDevice::setCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) {
-    if (calibRsCorrOffsetDacCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
@@ -733,19 +730,18 @@ ErrorCodes_t EmcrDevice::setCalibRsCorrOffsetDac(std::vector <uint16_t> channelI
 }
 
 ErrorCodes_t EmcrDevice::updateCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, bool applyFlag) {
-    if (calibRsCorrOffsetDacCoders.empty()) {
-        return ErrorFeatureNotImplemented;
-    }
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
     }
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         calibrationParams.convertValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i], liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx].prefix);
         double offset = calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i]).value;
-        calibRsCorrOffsetDacCoders[selectedVcCurrentRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(offset, txStatus);
+        if (!(calibRsCorrOffsetDacCoders.empty())) {
+            calibRsCorrOffsetDacCoders[selectedVcCurrentRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(offset, txStatus);
+        }
     }
 
-    if (applyFlag) {
+    if (!(calibRsCorrOffsetDacCoders.empty()) && applyFlag) {
         this->stackOutgoingMessage(txStatus);
     }
     return Success;

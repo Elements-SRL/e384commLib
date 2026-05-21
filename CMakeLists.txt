@@ -8,24 +8,10 @@ project(e384commlib
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-#
-# Libreria
-#
+# Library
 
 add_library(e384commlib STATIC
     src/commandcoder.cpp
-    src/devices/EMCR/emcr16patchclamp_el07e_digbrd_fw_v01.cpp
-    src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v06.cpp
-    src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v08.cpp
-    src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v09.cpp
-    src/devices/EMCR/emcr192blm_el03c_mb03_mez05_fw_v07.cpp
-    src/devices/EMCR/emcr192blm_el03c_mb03_mez05_fw_v09.cpp
-    src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v04.cpp
-    src/devices/EMCR/emcr384patchclamp_el07e_fw_v04.cpp
-    src/devices/EMCR/emcr384patchclamp_el07e_fw_v05.cpp
-    src/devices/EMCR/emcr4x10mhz_sb_pcbv02_festim_ch12_v01.cpp
-    src/devices/EMCR/emcr8blm_el03c_digbrd_fw_v01.cpp
-    src/devices/EMCR/emcr8patchclamp_el07e_artix7_pcbv03_fw_v01.cpp
     src/framemanager.cpp
     src/messagedispatcher.cpp
     src/devices/EMCR/emcrdevice.cpp
@@ -42,6 +28,12 @@ add_library(e384commlib STATIC
     src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v03.cpp
     src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v04.cpp
     src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v05.cpp
+    src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v06.cpp
+    src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v08.cpp
+    src/devices/EMCR/emcr192blm_el03c_mb03_mez04_fw_v09.cpp
+    src/devices/EMCR/emcr192blm_el03c_mb03_mez05_fw_v07.cpp
+    src/devices/EMCR/emcr192blm_el03c_mb03_mez05_fw_v09.cpp
+    src/devices/EMCR/emcr8blm_el03c_digbrd_fw_v01.cpp
     src/devices/EMCR/emcr384nanopores.cpp
     src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.cpp
     src/devices/EMCR/emcr384patchclamp_prot_v01_fw_v02.cpp
@@ -52,6 +44,11 @@ add_library(e384commlib STATIC
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v01.cpp
     src/devices/EMCR/emcr384patchclamp_el07cd_prot_v06_fw_v02.cpp
     src/devices/EMCR/emcr384patchclamp_el07c_prot_v07_fw_v03.cpp
+    src/devices/EMCR/emcr384patchclamp_el07c_prot_v08_fw_v04.cpp
+    src/devices/EMCR/emcr384patchclamp_el07e_fw_v04.cpp
+    src/devices/EMCR/emcr384patchclamp_el07e_fw_v05.cpp
+    src/devices/EMCR/emcr384patchclamp_el07e_fw_v06.cpp
+    src/devices/EMCR/emcr16patchclamp_el07e_digbrd_fw_v01.cpp
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.cpp
     src/devices/EMCR/emcr10mhz.cpp
     src/devices/EMCR/emcr10mhzsb.cpp
@@ -59,6 +56,7 @@ add_library(e384commlib STATIC
     src/devices/EMCR/emcr2x10mhz_fet.cpp
     src/devices/EMCR/emcr2x10mhz_sb_pcbv02_festim.cpp
     src/devices/EMCR/emcr4x10mhz.cpp
+    src/devices/EMCR/emcr4x10mhz_sb_pcbv02_festim_ch12_v01.cpp
     src/devices/EMCR/emcr24x10mhz_only8ch.cpp
     src/devices/EMCR/emcr24x10mhz_el05c12_pcbv01.cpp
     src/devices/EMCR/emcr24x10mhz_el05c34_pcbv01.cpp
@@ -67,6 +65,7 @@ add_library(e384commlib STATIC
     src/devices/EMCR/emcrqc01atb_v01.cpp
     src/devices/EMCR/emcrqc01atb_pcbv02.cpp
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.cpp
+    src/devices/EMCR/emcr8patchclamp_el07e_artix7_pcbv03_fw_v01.cpp
     src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.cpp
     src/devices/EMCR/emcr8npatchclamp_el07e_artix7_pcbv02.cpp
     src/devices/EMCR/emcrsuperduck_pcbv01.cpp
@@ -103,9 +102,7 @@ add_library(e384commlib STATIC
 
 add_library(e384commlib::e384commlib ALIAS e384commlib)
 
-#
 # C standard
-#
 
 set_target_properties(e384commlib PROPERTIES
     CXX_STANDARD 20
@@ -113,60 +110,40 @@ set_target_properties(e384commlib PROPERTIES
     CXX_EXTENSIONS OFF
 )
 
-#
-# Header pubblici
-#
+# Include directories
 
 target_include_directories(e384commlib
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/calibration>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/devices/EMCR>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/devices/EZPatch>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/model>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/peripherals>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/calibration>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/devices/EMCR>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/devices/EZPatch>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/model>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/peripherals>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/model>
 )
 
-#
-# Define pubbliche
-#
+# Defines
 
 target_compile_definitions(e384commlib
     PUBLIC
-        E384COMMLIB_STATIC
-        COMMLIB_MAJOR=${PROJECT_VERSION_MAJOR}
-        COMMLIB_MINOR=${PROJECT_VERSION_MINOR}
-        COMMLIB_PATCH=${PROJECT_VERSION_PATCH}
+    E384COMMLIB_STATIC
+    COMMLIB_MAJOR=${PROJECT_VERSION_MAJOR}
+    COMMLIB_MINOR=${PROJECT_VERSION_MINOR}
+    COMMLIB_PATCH=${PROJECT_VERSION_PATCH}
 )
 
-#
-# Dipendenza transitiva
-#
+# Transitive dependency
 
 cmake_path(SET FRONT_PANEL_PATH_CMAKE "$ENV{FRONT_PANEL_PATH}")
 include(${FRONT_PANEL_PATH_CMAKE}cmake/FindFrontPanel.cmake)
 
-target_link_libraries(e384commlib
-    PUBLIC
-        FrontPanel::FrontPanel
-)
-
 cmake_path(SET CY_API_PATH_CMAKE "$ENV{CY_API_PATH}")
 include(${CY_API_PATH_CMAKE}cmake/FindCyAPI.cmake)
 
-target_link_libraries(e384commlib
-    PUBLIC
-        CyAPI::CyAPI
-)
-
 cmake_path(SET TOML_PP_PATH_CMAKE "$ENV{TOML_PP_PATH}")
 include(${TOML_PP_PATH_CMAKE}cmake/Findtomlpp.cmake)
-
-target_link_libraries(e384commlib
-    PUBLIC
-        tomlpp::tomlpp
-)
 
 cmake_path(SET FTDI_UTILS_PATH_CMAKE "$ENV{FTDI_UTILS_PATH}")
 list(APPEND CMAKE_PREFIX_PATH "${FTDI_UTILS_PATH_CMAKE}")
@@ -175,20 +152,19 @@ find_package(ftdi_utils REQUIRED CONFIG)
 
 target_link_libraries(e384commlib
     PUBLIC
-        ftdi_utils::ftdi_utils
+    FrontPanel::FrontPanel
+    CyAPI::CyAPI
+    tomlpp::tomlpp
+    ftdi_utils::ftdi_utils
 )
 
-#
-# Nome output debug/release
-#
+# target name debug/release
 
 set_target_properties(e384commlib PROPERTIES
     DEBUG_POSTFIX d
 )
 
-#
 # Install
-#
 
 cmake_path(SET E384COMMLIB_PATH_CMAKE "$ENV{E384COMMLIB_PATH}")
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -202,9 +178,7 @@ install(TARGETS e384commlib
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-#
 # Install header
-#
 
 install(DIRECTORY src/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
@@ -213,9 +187,7 @@ install(DIRECTORY src/
     PATTERN "*.hpp"
 )
 
-#
 # Export target
-#
 
 install(EXPORT e384commlibTargets
     FILE e384commlibTargets.cmake
@@ -223,9 +195,7 @@ install(EXPORT e384commlibTargets
     DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake/\${CMAKE_INSTALL_CONFIG_NAME}"
 )
 
-#
 # Config package
-#
 
 configure_package_config_file(
     cmake/e384commlibConfig.cmake.in

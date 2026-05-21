@@ -132,6 +132,7 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     ccCurrentRangesArray[CCCurrentRange8nA].max = 8000.0;
     ccCurrentRangesArray[CCCurrentRange8nA].min = -8000.0;
     ccCurrentRangesArray[CCCurrentRange8nA].step = ccCurrentRangesArray[CCCurrentRange8nA].max/(INT13_MAX+1.0);
+    ccCurrentRangesArray[CCCurrentRange8nA].max -= ccCurrentRangesArray[CCCurrentRange8nA].step;
     ccCurrentRangesArray[CCCurrentRange8nA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange8nA].unit = "A";
     defaultCcCurrentRangeIdx = CCCurrentRange8nA;

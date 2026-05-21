@@ -131,6 +131,7 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     ccCurrentRangesArray[CCCurrentRange8nA].max = 8000.0;
     ccCurrentRangesArray[CCCurrentRange8nA].min = -8000.0;
     ccCurrentRangesArray[CCCurrentRange8nA].step = ccCurrentRangesArray[CCCurrentRange8nA].max/(INT13_MAX+1.0);
+    ccCurrentRangesArray[CCCurrentRange8nA].max -= ccCurrentRangesArray[CCCurrentRange8nA].step;
     ccCurrentRangesArray[CCCurrentRange8nA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange8nA].unit = "A";
     defaultCcCurrentRangeIdx = CCCurrentRange8nA;

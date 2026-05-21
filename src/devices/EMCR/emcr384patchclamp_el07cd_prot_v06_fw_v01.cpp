@@ -155,11 +155,13 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     ccCurrentRangesArray[CCCurrentRange8nA].max = 8000.0;
     ccCurrentRangesArray[CCCurrentRange8nA].min = -8000.0;
     ccCurrentRangesArray[CCCurrentRange8nA].step = ccCurrentRangesArray[CCCurrentRange8nA].max/(INT13_MAX+1.0);
+    ccCurrentRangesArray[CCCurrentRange8nA].max -= ccCurrentRangesArray[CCCurrentRange8nA].step;
     ccCurrentRangesArray[CCCurrentRange8nA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange8nA].unit = "A";
     ccCurrentRangesArray[CCCurrentRange2nA].max = 2000.0;
     ccCurrentRangesArray[CCCurrentRange2nA].min = -2000.0;
     ccCurrentRangesArray[CCCurrentRange2nA].step = ccCurrentRangesArray[CCCurrentRange2nA].max/(INT13_MAX+1.0);
+    ccCurrentRangesArray[CCCurrentRange2nA].max -= ccCurrentRangesArray[CCCurrentRange2nA].step;
     ccCurrentRangesArray[CCCurrentRange2nA].prefix = UnitPfxPico;
     ccCurrentRangesArray[CCCurrentRange2nA].unit = "A";
     defaultCcCurrentRangeIdx = CCCurrentRange8nA;
