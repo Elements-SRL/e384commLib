@@ -1,16 +1,18 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(e384commlib
-    VERSION 0.35.0
+    VERSION 0.37.1
     LANGUAGES CXX
 )
 
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
+option(BUILD_FOR_LABVIEW "Build the library as a DLL wrapper for LabVIEW" OFF)
+
 # Library
 
-add_library(e384commlib STATIC
+set(LIB_SOURCES
     src/commandcoder.cpp
     src/framemanager.cpp
     src/messagedispatcher.cpp
@@ -100,11 +102,41 @@ add_library(e384commlib STATIC
     src/peripherals/udbutils.cpp
 )
 
-add_library(e384commlib::e384commlib ALIAS e384commlib)
+if(BUILD_FOR_LABVIEW)
+    set(TARGET_NAME "e384commlib_labview")
+
+    list(APPEND LIB_SOURCES src/e384commlib_labview.cpp)
+    set(LIB_HEADERS src/e384commlib_labview.h)
+
+    add_library(${TARGET_NAME} SHARED ${LIB_SOURCES} ${LIB_HEADERS})
+    add_library(e384commlib::e384commlib ALIAS ${TARGET_NAME})
+
+    target_compile_definitions(${TARGET_NAME} PRIVATE
+        E384COMMLIB_LABVIEW_WRAPPER
+        E384COMMLIB_LIBRARY
+    )
+
+    cmake_path(SET LABVIEW_TO_C_PATH_CMAKE "$ENV{LABVIEW_TO_C_PATH}")
+    if(LABVIEW_TO_C_PATH_CMAKE)
+        target_include_directories(${TARGET_NAME} PUBLIC ${LABVIEW_TO_C_PATH_CMAKE}/include)
+        target_link_libraries(${TARGET_NAME} PUBLIC
+                        "${LABVIEW_TO_C_PATH_CMAKE}/lib/labview.lib"
+                        "user32.lib")
+    endif()
+
+else()
+    set(TARGET_NAME "e384commlib")
+
+    add_library(${TARGET_NAME} STATIC ${LIB_SOURCES})
+    add_library(e384commlib::e384commlib ALIAS ${TARGET_NAME})
+
+    target_compile_definitions(${TARGET_NAME} PUBLIC E384COMMLIB_STATIC)
+
+endif()
 
 # C standard
 
-set_target_properties(e384commlib PROPERTIES
+set_target_properties(${TARGET_NAME} PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
@@ -112,7 +144,7 @@ set_target_properties(e384commlib PROPERTIES
 
 # Include directories
 
-target_include_directories(e384commlib
+target_include_directories(${TARGET_NAME}
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/calibration>
@@ -126,7 +158,7 @@ target_include_directories(e384commlib
 
 # Defines
 
-target_compile_definitions(e384commlib
+target_compile_definitions(${TARGET_NAME}
     PUBLIC
     E384COMMLIB_STATIC
     COMMLIB_MAJOR=${PROJECT_VERSION_MAJOR}
@@ -150,7 +182,7 @@ list(APPEND CMAKE_PREFIX_PATH "${FTDI_UTILS_PATH_CMAKE}")
 
 find_package(ftdi_utils REQUIRED CONFIG)
 
-target_link_libraries(e384commlib
+target_link_libraries(${TARGET_NAME}
     PUBLIC
     FrontPanel::FrontPanel
     CyAPI::CyAPI
@@ -160,7 +192,7 @@ target_link_libraries(e384commlib
 
 # target name debug/release
 
-set_target_properties(e384commlib PROPERTIES
+set_target_properties(${TARGET_NAME} PROPERTIES
     DEBUG_POSTFIX d
 )
 
@@ -171,7 +203,7 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX ${E384COMMLIB_PATH_CMAKE} CACHE PATH "Install path" FORCE)
 endif()
 
-install(TARGETS e384commlib
+install(TARGETS ${TARGET_NAME}
     EXPORT e384commlibTargets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
