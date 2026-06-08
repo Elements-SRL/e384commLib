@@ -112,17 +112,23 @@ if(BUILD_FOR_LABVIEW)
     add_library(e384commlib::e384commlib ALIAS ${TARGET_NAME})
 
     target_compile_definitions(${TARGET_NAME} PRIVATE
-        E384COMMLIB_LABVIEW_WRAPPER
         E384COMMLIB_LIBRARY
     )
 
+    target_compile_definitions(${TARGET_NAME} PUBLIC
+        E384COMMLIB_LABVIEW_WRAPPER
+    )
+
     cmake_path(SET LABVIEW_TO_C_PATH_CMAKE "$ENV{LABVIEW_TO_C_PATH}")
-    if(LABVIEW_TO_C_PATH_CMAKE)
-        target_include_directories(${TARGET_NAME} PUBLIC ${LABVIEW_TO_C_PATH_CMAKE}/include)
-        target_link_libraries(${TARGET_NAME} PUBLIC
-                        "${LABVIEW_TO_C_PATH_CMAKE}/lib/labview.lib"
-                        "user32.lib")
-    endif()
+    message(${LABVIEW_TO_C_PATH_CMAKE})
+    target_include_directories(${TARGET_NAME}
+        PUBLIC
+        ${LABVIEW_TO_C_PATH_CMAKE}/include)
+    target_link_libraries(${TARGET_NAME}
+        PUBLIC
+        "${LABVIEW_TO_C_PATH_CMAKE}/lib/labview.lib"
+        "user32.lib")
+    message("labview")
 
 else()
     set(TARGET_NAME "e384commlib")
@@ -160,7 +166,6 @@ target_include_directories(${TARGET_NAME}
 
 target_compile_definitions(${TARGET_NAME}
     PUBLIC
-    E384COMMLIB_STATIC
     COMMLIB_MAJOR=${PROJECT_VERSION_MAJOR}
     COMMLIB_MINOR=${PROJECT_VERSION_MINOR}
     COMMLIB_PATCH=${PROJECT_VERSION_PATCH}

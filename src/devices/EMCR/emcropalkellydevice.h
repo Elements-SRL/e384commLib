@@ -108,6 +108,7 @@ public:
         DeviceSubversion384Patch_EL07e_TemperatureControl = 0x03,
         DeviceSubversion384Patch_EL07e_MB03Mez05 = 0x04,
         DeviceSubversion16Patch_EL07e_DigitalTester_PCBV01b = 0x05,
+        DeviceSubversion384Patch_EL07e_MB03Mez05An05 = 0x07,
 
         /*! Subversions used for version = 0xFE */
         DeviceSubversion2x10MHz_FET_PCBV01 = 0x19,
