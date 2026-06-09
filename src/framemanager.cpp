@@ -116,10 +116,8 @@ void FrameManager::storeFrameDataLoss(int32_t dataLossCount) {
         msg.data.resize(2);
         msg.data[0] = (uint16_t)(dataLossCount & (0xFFFF));
         msg.data[1] = (uint16_t)((dataLossCount >> 16) & (0xFFFF));
-        std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
         this->pushMessage(msg);
 
-        rxMutexLock.unlock();
         rxMsgBufferNotEmpty.notify_all();
     }
 }
@@ -392,10 +390,10 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
 }
 
 bool FrameManager::pushMessage(RxMessage_t msg) {
+    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (!isPushable(msg)) {
         return false;
     }
-    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     messages.push_back(msg);
     listSize += msg.data.size();
     return true;
@@ -441,11 +439,11 @@ bool FrameManager::pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFi
 }
 
 bool FrameManager::pushDataMessage(RxMessage_t msg) {
+    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (!isPushable(msg)) {
         return false;
     }
 #ifndef SPT_DISABLE_GET_NEXT_MESSAGE
-    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     messages.push_back(msg);
     listSize += msg.data.size();
 #endif
@@ -461,12 +459,14 @@ bool FrameManager::pushDataMessage(RxMessage_t msg) {
 }
 
 bool FrameManager::pushLastDataMessage() {
+    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (!lastDataMessageAvailable) {
         /*! Do not push if the last data message is not available
             \note avoiding the check if the message is pushable, since it is checked in the pushDataMessage function
             If something changes in the logic the check must be reintroduced here */
         return false;
     }
+    rxMutexLock.unlock();
     return this->pushDataMessage(lastDataMessage);
 }
 
