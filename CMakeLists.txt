@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(e384commlib
-    VERSION 0.37.1
+    VERSION 0.37.2
     LANGUAGES CXX
 )
 
