@@ -150,34 +150,25 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
 #endif
         return ret;
     }
-    if (uType == ACQ_DATA_TYPE) {
-        /*! Return first data message */
-        for (auto it = messages.begin(); it != messages.end(); ++it) {
-            if (it->typeId == uType) {
-                ret = *it;
-#ifndef SPT_DISABLE_PARSE_DATA_AFTER_A_WHILE
-                messages.erase(it);
-                listSize -= ret.data.size();
-#endif
-                return ret;
-            }
-        }
-        return ret;
-    }
+    size_t totalDeletion = 0;
     for (auto it = messages.begin(); it != messages.end(); ++it) {
         /*! Look for type specific message */
         if (it->typeId == uType) {
             ret = *it;
 #ifndef SPT_DISABLE_PARSE_DATA_AFTER_A_WHILE
-            if (it != messages.begin() && std::next(it) != messages.end()) {
-                this->mergeDataMessages(std::prev(it), std::next(it));
-            }
-            messages.erase(it);
-            listSize -= ret.data.size();
+            messages.erase(messages.begin(), std::next(it));
+            listSize -= ret.data.size()+totalDeletion;
 #endif
             return ret;
         }
+        else {
+            /*! Delete all other messages found along the way */
+            totalDeletion += (*it).data.size();
+        }
     }
+    /*! No desired message found, clear the list */
+    messages.clear();
+    listSize = 0;
     return ret;
 }
 
@@ -417,8 +408,8 @@ bool FrameManager::pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFi
         /*! Last data message has less samples than required by the header, push it entirely and set it not available */
         rxMutexLock.unlock();
         this->pushLastDataMessage();
-        rxMutexLock.lock();
         lastDataMessageAvailable = false;
+        rxMutexLock.lock();
         messages.push_back(msg);
         listSize += msg.data.size();
         return true;
@@ -459,14 +450,12 @@ bool FrameManager::pushDataMessage(RxMessage_t msg) {
 }
 
 bool FrameManager::pushLastDataMessage() {
-    std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (!lastDataMessageAvailable) {
         /*! Do not push if the last data message is not available
             \note avoiding the check if the message is pushable, since it is checked in the pushDataMessage function
             If something changes in the logic the check must be reintroduced here */
         return false;
     }
-    rxMutexLock.unlock();
     return this->pushDataMessage(lastDataMessage);
 }
 

@@ -2642,7 +2642,7 @@ ErrorCodes_t EZPatchDevice::isDeviceUpgradable(std::string &upgradeNotes, std::s
     return ret;
 }
 
-ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
+ErrorCodes_t EZPatchDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data, MsgTypeId_t) {
     ErrorCodes_t ret = Success;
     double xFlt;
 
@@ -3329,7 +3329,7 @@ ErrorCodes_t EZPatchDevice::initializeHW() {
 
         this->resetFpga();
         while (rxOutput.msgTypeId != MsgDirectionDeviceToPc+MsgTypeIdFpgaReset) {
-            ret = this->getNextMessage(rxOutput, datain);
+            ret = this->getNextMessage(rxOutput, datain, MsgTypeIdInvalid);
             if (ret == ErrorNoDataAvailable) { /*! If another valid packet is obtained it doesn't count as a fail, only if no packets are available it is in fact a retry */
                 if (fpgaResetTries++ > EZP_MAX_FPGA_RESET_TRIES) {
                     return ErrorConnectionFpgaResetFailed;

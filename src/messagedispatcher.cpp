@@ -759,7 +759,7 @@ ErrorCodes_t MessageDispatcher::deallocateRxDataBuffer(int16_t * &data) {
     return Success;
 }
 
-ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &, int16_t *) {
+ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &, int16_t *, MsgTypeId_t) {
     return ErrorFeatureNotImplemented;
 }
 

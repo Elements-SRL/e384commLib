@@ -199,7 +199,7 @@ public:
     \****************/
 
     ErrorCodes_t isDeviceUpgradable(std::string &upgradeNotes, std::string &notificationTag);
-    virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data) override;
+    virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data, MsgTypeId_t type) override;
     ErrorCodes_t purgeData() override;
 
     ErrorCodes_t hasChannelSwitches() override;

@@ -122,7 +122,7 @@ public:
      *  Rx methods  *
     \****************/
 
-    ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data) override;
+    ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data, MsgTypeId_t type) override;
     ErrorCodes_t purgeData() override;
 
     ErrorCodes_t getVoltageHoldTunerFeatures(std::vector <RangedMeasurement_t> &voltageHoldTunerFeatures) override;

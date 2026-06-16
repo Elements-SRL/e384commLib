@@ -1306,9 +1306,10 @@ public:
      *
      * \param rxOutput [out] Struct containing info on the received message.
      * \param data [out] array of output data.
+     * \param type [in] desired data type. Other messages found before the desired type are deleted.
      * \return Error code.
      */
-    virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data);
+    virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data, MsgTypeId type = MsgTypeIdInvalid);
 
     /*! \brief Purge buffered data.
      *  \note Purges the data stored in the library, but not necessarily the data buffered in the device's memory.

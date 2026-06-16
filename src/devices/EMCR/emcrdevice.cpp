@@ -2000,7 +2000,7 @@ ErrorCodes_t EmcrDevice::setCustomDouble(uint16_t idx, double value, bool applyF
     return Success;
 }
 
-ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
+ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data, MsgTypeId_t type) {
     if (parsingStatus != ParsingParsing) {
         return ErrorDeviceNotConnected;
     }
@@ -2018,7 +2018,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data) {
 
     while (keepReading) {
         sampleIdx = 0;
-        auto msg = frameManager->getNextMessage();
+        auto msg = frameManager->getNextMessage(type);
         if (msg.typeId == MsgDirectionDeviceToPc+MsgTypeIdInvalid) {
             return ret;
         }

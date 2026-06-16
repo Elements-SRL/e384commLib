@@ -3,32 +3,32 @@
 #define TEST_DATA
 
 Emcr384FakePatchClamp::Emcr384FakePatchClamp(std::string id) :
-    Emcr384PatchClamp_EL07c_prot_v06_fw_v01(id) {
+    Emcr384PatchClamp_EL07e_fw_v06(id) {
 
     waitingTimeBeforeReadingData = 0;
     motherboardBootTime_s = 0;
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
-    defaultSamplingRateIdx = SamplingRate80kHz;
+    defaultSamplingRateIdx = SamplingRate20kHz;
 
     realSamplingRatesArray.resize(samplingRatesNum);
-    realSamplingRatesArray[SamplingRate80kHz].value = samplingRatesMHz*1000.0;
-    realSamplingRatesArray[SamplingRate80kHz].prefix = UnitPfxKilo;
-    realSamplingRatesArray[SamplingRate80kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate20kHz].value = samplingRatesMHz*1000.0;
+    realSamplingRatesArray[SamplingRate20kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate20kHz].unit = "Hz";
     sr2srm.clear();
-    sr2srm[SamplingRate80kHz] = 0;
+    sr2srm[SamplingRate20kHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
-    integrationStepArray[SamplingRate80kHz].value = 1000.0/realSamplingRatesArray[SamplingRate80kHz].value;
-    integrationStepArray[SamplingRate80kHz].prefix = UnitPfxMicro;
-    integrationStepArray[SamplingRate80kHz].unit = "s";
+    integrationStepArray[SamplingRate20kHz].value = 1000.0/realSamplingRatesArray[SamplingRate20kHz].value;
+    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate20kHz].unit = "s";
 
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
     selectedSamplingRateIdx = defaultSamplingRateIdx;
-    bytesPerFrame = (totalChannelsNum*packetsPerFrame+6)*RX_WORD_SIZE;
+    bytesPerFrame = (totalChannelsNum*packetsPerFrame+3)*RX_WORD_SIZE;
 }
 
 ErrorCodes_t Emcr384FakePatchClamp::startCommunication(std::string fwPath) {
@@ -73,25 +73,29 @@ uint32_t Emcr384FakePatchClamp::readDataFromDevice() {
 
     while (bytesRead+maxElementsLong < OKY_RX_TRANSFER_SIZE) {
         if (fileOkLong) {
+            int N;
             if (readElementsLong+maxElementsLong > numElementsLong) {
+                N = numElementsLong-readElementsLong;
+                fileLong.read(reinterpret_cast <char *> (dataLong.data()), N*RX_WORD_SIZE);
                 fileLong.seekg(0, std::ios::beg);
                 readElementsLong = 0;
             }
-            fileLong.read(reinterpret_cast <char *> (dataLong.data()), maxElementsLong*RX_WORD_SIZE);
-            readElementsLong += maxElementsLong;
+            else {
+                N = maxElementsLong;
+                fileLong.read(reinterpret_cast <char *> (dataLong.data()), N*RX_WORD_SIZE);
+                readElementsLong += maxElementsLong;
+            }
             syntheticData = 0;
 
-            for (uint32_t idx = 0; idx < maxElementsLong/2; idx++) {
+            for (uint32_t idx = 0; idx < N; idx++) {
                 rxRawBuffer[rxRawBufferWriteOffset] = (dataLong[syntheticData] & 0xFF00) >> 8;
                 rxRawBuffer[rxRawBufferWriteOffset+1] = dataLong[syntheticData] & 0x00FF;
                 rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
                 syntheticData++;
             }
+            bytesRead += N*RX_WORD_SIZE;
 
         } else {
-            rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
-            rxRawBuffer[rxRawBufferWriteOffset+1] = 0XA5;
-            rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
             rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
             rxRawBuffer[rxRawBufferWriteOffset+1] = 0XA5;
             rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
@@ -116,8 +120,8 @@ uint32_t Emcr384FakePatchClamp::readDataFromDevice() {
                     syntheticData++;
                 }
             }
+            bytesRead += bytesPerFrame;
         }
-        bytesRead += maxElementsLong;
     }
     return bytesRead;
 #else
