@@ -4,14 +4,13 @@
 #define OKY_RX_PIPE_ADDR 0xA0
 #define OKY_RX_BUFFER_SIZE 0x1000000 /*!< Number of bytes. Always use a power of 2 for efficient circular buffer management through index masking */
 #define OKY_RX_BUFFER_MASK (OKY_RX_BUFFER_SIZE-1)
-#define OKY_RX_TRANSFER_SIZE 0x100000 /*! 1MB. Default value */
-#define OKY_RX_BLOCK_SIZE 0x4000 /*! 16kB. Must match value in FPGA FW */
+#define OKY_RX_TRANSFER_TIME_GOAL 0.005 /*!< 5ms. Ideally download data corresponding to this amount of time with each transfer, but no less to keep overhead low */
+#define OKY_RX_TRANSFER_SIZE 0x100000 /*!< 1MB. Default value */
+#define OKY_RX_BLOCK_SIZE 0x4000 /*!< 16kB. Must match value in FPGA FW */
 #define OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR 0x53
 #define OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT 0x0
 #define OKY_START_PROTOCOL_TRIGGER_IN_ADDR 0x53
 #define OKY_START_PROTOCOL_TRIGGER_IN_BIT 0x1
-#define OKY_DEBUG_0_TRIGGER_IN_ADDR 0x53
-#define OKY_DEBUG_0_TRIGGER_IN_BIT 0x2
 #define OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR 0x53
 #define OKY_START_STATE_ARRAY_TRIGGER_IN_BIT 0x3
 #define OKY_ZAP_PULSE_TRIGGER_IN_ADDR 0x53
@@ -44,6 +43,14 @@
 
 #include "emcrdevice.h"
 #include "utils.h"
+
+constexpr uint32_t LOG2(uint32_t n) {
+    return std::bit_width(static_cast <unsigned> (n)) - 1;
+}
+
+const uint32_t OKY_RX_TRANSFER_MAX_EXP = LOG2(OKY_RX_TRANSFER_SIZE); /*!< 20. Let's keep the transfer size a power of 2, such that the size doesn't exceed OKY_RX_TRANSFER_SIZE */
+const uint32_t OKY_RX_TRANSFER_MIN_EXP = LOG2(OKY_RX_BLOCK_SIZE); /*!< 14. Let's keep the transfer size a power of 2, such that the size doesn't go below OKY_RX_BLOCK_SIZE */
+const uint32_t OKY_RX_EXTENDED_BUFFER_SIZE = OKY_RX_BUFFER_SIZE+OKY_RX_TRANSFER_SIZE;  /*!< Add space to be able to always store data from the ReadFromBlockPipeOut */
 
 class OpalKellyDeviceManager : public OpalKelly::FrontPanelManager {
 public:
@@ -157,6 +164,7 @@ protected:
     virtual ErrorCodes_t initializeMemory() override;
     virtual void deinitializeMemory() override;
 
+    virtual void computeDataReadPolicy() override;
     void monitoringLoop();
 
     /****************\
@@ -171,6 +179,7 @@ protected:
     \***************/
 
     int waitingTimeBeforeReadingData = 1;
+    bool protocolLock = false;
 
     okTRegisterEntries regs;
 

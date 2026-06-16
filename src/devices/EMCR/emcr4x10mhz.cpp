@@ -247,11 +247,6 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
-    // Selected default Idx
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
-
     /**********\
      * Coders *
     \**********/
@@ -985,11 +980,6 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     std::fill(voltageResolutions.begin(), voltageResolutions.end(), voltageRanges[0].step);
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
-
-    // Selected default Idx
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
 
     /**********\
      * Coders *

@@ -27,7 +27,6 @@ Emcr384FakePatchClamp::Emcr384FakePatchClamp(std::string id) :
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
     bytesPerFrame = (totalChannelsNum*packetsPerFrame+3)*RX_WORD_SIZE;
 }
 
@@ -71,31 +70,31 @@ uint32_t Emcr384FakePatchClamp::readDataFromDevice() {
     }
     startTime = currentTime;
 
-    while (bytesRead+maxElementsLong < OKY_RX_TRANSFER_SIZE) {
-        if (fileOkLong) {
-            int N;
-            if (readElementsLong+maxElementsLong > numElementsLong) {
-                N = numElementsLong-readElementsLong;
-                fileLong.read(reinterpret_cast <char *> (dataLong.data()), N*RX_WORD_SIZE);
-                fileLong.seekg(0, std::ios::beg);
-                readElementsLong = 0;
-            }
-            else {
-                N = maxElementsLong;
-                fileLong.read(reinterpret_cast <char *> (dataLong.data()), N*RX_WORD_SIZE);
-                readElementsLong += maxElementsLong;
-            }
-            syntheticData = 0;
+    if (fileOkLong) {
+        int N;
+        if (readElementsLong+OKY_RX_TRANSFER_SIZE > numElementsLong) {
+            N = numElementsLong-readElementsLong;
+            fileLong.read(reinterpret_cast <char *> (dataLong.data()), N*RX_WORD_SIZE);
+            fileLong.seekg(0, std::ios::beg);
+            readElementsLong = 0;
+        }
+        else {
+            N = OKY_RX_TRANSFER_SIZE;
+            fileLong.read(reinterpret_cast <char *> (dataLong.data()), N*RX_WORD_SIZE);
+            readElementsLong += N;
+        }
+        syntheticData = 0;
 
-            for (uint32_t idx = 0; idx < N; idx++) {
-                rxRawBuffer[rxRawBufferWriteOffset] = (dataLong[syntheticData] & 0xFF00) >> 8;
-                rxRawBuffer[rxRawBufferWriteOffset+1] = dataLong[syntheticData] & 0x00FF;
-                rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
-                syntheticData++;
-            }
-            bytesRead += N*RX_WORD_SIZE;
+        for (uint32_t idx = 0; idx < N; idx++) {
+            rxRawBuffer[rxRawBufferWriteOffset] = (dataLong[syntheticData] & 0xFF00) >> 8;
+            rxRawBuffer[rxRawBufferWriteOffset+1] = dataLong[syntheticData] & 0x00FF;
+            rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;
+            syntheticData++;
+        }
+        bytesRead = N*RX_WORD_SIZE;
 
-        } else {
+    } else {
+        while (bytesRead+maxElementsLong < OKY_RX_TRANSFER_SIZE) {
             rxRawBuffer[rxRawBufferWriteOffset] = 0X5A;
             rxRawBuffer[rxRawBufferWriteOffset+1] = 0XA5;
             rxRawBufferWriteOffset = (rxRawBufferWriteOffset+RX_WORD_SIZE) & OKY_RX_BUFFER_MASK;

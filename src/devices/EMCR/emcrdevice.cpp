@@ -46,6 +46,7 @@ ErrorCodes_t EmcrDevice::startProtocol() {
     if (protocolResetCoder == nullptr) {
         this->forceOutMessage();
         this->stackOutgoingMessage(txStatus, {TxTriggerStartProtocol, ResetIndifferent});
+        this->stackOutgoingMessage(txStatus, {TxTriggerSw, ResetIndifferent});
     }
     else {
         if (protocolResetFlag == false) {
@@ -55,7 +56,7 @@ ErrorCodes_t EmcrDevice::startProtocol() {
         }
         this->stackOutgoingMessage(txStatus); /*! Make sure the registers are submitted */
         protocolResetCoder->encode(0, txStatus);
-        this->stackOutgoingMessage(txStatus); /*! Then take the protocol out of the reset state */
+        this->stackOutgoingMessage(txStatus, {TxTriggerSw, ResetIndifferent}); /*! Then take the protocol out of the reset state */
         protocolResetFlag = false;
     }
     return Success;
@@ -1457,16 +1458,23 @@ ErrorCodes_t EmcrDevice::setAdcFilter(bool applyFlag) {
 ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
     if (samplingRateCoder == nullptr) {
         return ErrorFeatureNotImplemented;
+    }
 
-    } else if (samplingRateIdx >= samplingRatesNum) {
+    if (samplingRateIdx >= samplingRatesNum) {
         return ErrorValueOutOfRange;
     }
+
+    if (samplingRateIdx == selectedSamplingRateIdx) {
+        return Success;
+    }
+
     samplingRateCoder->encode(samplingRateIdx, txStatus);
     selectedSamplingRateIdx = samplingRateIdx;
     samplingRate = realSamplingRatesArray[selectedSamplingRateIdx];
     integrationStep = integrationStepArray[selectedSamplingRateIdx];
     this->setAdcFilter();
     this->computeRawDataFilterCoefficients();
+    this->computeDataReadPolicy();
     switch (selectedClampingModality) {
     case VOLTAGE_CLAMP:
         this->updateCalibVcCurrentGain(allChannelIndexes, false);
@@ -1518,7 +1526,7 @@ ErrorCodes_t EmcrDevice::setDebugWord(uint16_t wordOffset, uint16_t wordValue) {
 ErrorCodes_t EmcrDevice::setDebugTrigger(uint16_t bitOffset) {
     switch (bitOffset) {
     case TxTriggerParameteresUpdated:
-    case TxTriggerDebug0:
+    case TxTriggerSw:
     case TxTriggerStartProtocol:
     case TxTriggerStartStateArray:
     case TxTriggerZap:

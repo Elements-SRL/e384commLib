@@ -1622,7 +1622,7 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
         this->setSamplingRate(defaultSamplingRateIdx, false);
         this->setVCCurrentRange(allChannelIndexes, defaultVcCurrentRangeIdxs, false);
         this->setVCVoltageRange(defaultVcVoltageRangeIdx, false);
-        this->setVoltageStimulusLpf(selectedVcVoltageFilterIdx, false);
+        this->setVoltageStimulusLpf(defaultVcVoltageFilterIdx, false);
         this->setGateVoltages(boardIndexes, selectedGateVoltageVector, false);
         this->setSourceVoltages(boardIndexes, selectedSourceVoltageVector, false);
         this->liquidJunctionCompensation(allChannelIndexes, allFalse, false);
@@ -1990,6 +1990,10 @@ double MessageDispatcher::applyRawDataFilter(uint16_t channelIdx, double x, doub
 
     iirY[channelIdx][iirOff] = y;
     return y;
+}
+
+void MessageDispatcher::computeDataReadPolicy() {
+    return;
 }
 
 uint32_t MessageDispatcher::getSamplingRateModesNum() {

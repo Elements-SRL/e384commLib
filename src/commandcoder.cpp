@@ -1,4 +1,5 @@
 #include "commandcoder.h"
+#include "utils.h"
 
 CommandCoder::CommandCoder(uint16_t initialWord, uint16_t initialBit, uint16_t bitsNum):
     initialWord(initialWord),
@@ -112,10 +113,6 @@ DoubleCoder::DoubleCoder(CoderConfig_t config) :
     }
 }
 
-double DoubleCoder::clip(double value) {
-    return (value > maxValue ? maxValue : (value < minValue ? minValue : value));
-}
-
 DoubleTwosCompCoder::DoubleTwosCompCoder(CoderConfig_t config) :
     DoubleCoder(config) {
 
@@ -123,13 +120,13 @@ DoubleTwosCompCoder::DoubleTwosCompCoder(CoderConfig_t config) :
 
 double DoubleTwosCompCoder::encode(double value, CommandStatus_t &status) {
     if (!invertedScale) {
-        value = this->clip(value);
+        value = clip(value, minValue, maxValue);
         int32_t intValue = (int32_t)round(value/resolution);
         this->encodeUint((uint32_t)intValue, status);
         return resolution*(double)intValue;
 
     } else {
-        value = this->clip(-value);
+        value = clip(-value, minValue, maxValue);
         int32_t intValue = (int32_t)round(value/resolution);
         this->encodeUint((uint32_t)intValue, status);
         return -resolution*(double)intValue;
@@ -143,13 +140,13 @@ DoubleOffsetBinaryCoder::DoubleOffsetBinaryCoder(CoderConfig_t config) :
 
 double DoubleOffsetBinaryCoder::encode(double value, CommandStatus_t &status) {
     if (!invertedScale) {
-        value = this->clip(value);
+        value = clip(value, minValue, maxValue);
         uint32_t uintValue = (uint32_t)round((value-minValue)/resolution);
         this->encodeUint(uintValue, status);
         return minValue+resolution*(double)uintValue;
 
     } else {
-        value = this->clip(-value);
+        value = clip(-value, minValue, maxValue);
         uint32_t uintValue = (uint32_t)round((value+maxValue)/resolution);
         this->encodeUint(uintValue, status);
         return maxValue-resolution*(double)uintValue;
@@ -163,7 +160,7 @@ DoubleSignAbsCoder::DoubleSignAbsCoder(CoderConfig_t config) :
 
 double DoubleSignAbsCoder::encode(double value, CommandStatus_t &status) {
     if (!invertedScale) {
-        value = this->clip(value);
+        value = clip(value, minValue, maxValue);
         uint32_t uintValue = (uint32_t)round(fabs(value)/resolution);
         uint32_t signValue = (value < 0.0 ? 1 << (bitsNum-1) : 0);
         this->encodeUint(uintValue+signValue, status);
@@ -175,7 +172,7 @@ double DoubleSignAbsCoder::encode(double value, CommandStatus_t &status) {
         }
 
     } else {
-        value = this->clip(-value);
+        value = clip(-value, minValue, maxValue);
         uint32_t uintValue = (uint32_t)round(fabs(value)/resolution);
         uint32_t signValue = (value < 0.0 ? 1 << (bitsNum-1) : 0);
         this->encodeUint(uintValue+signValue, status);

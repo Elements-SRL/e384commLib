@@ -340,7 +340,7 @@ typedef enum ProtocolItemTypes {
 typedef enum TxTriggerType {
     TxTriggerParameteresUpdated = 0,
     TxTriggerStartProtocol = 1,
-    TxTriggerDebug0 = 2, // old never used
+    TxTriggerSw = 2, // used by the software only
     TxTriggerStartStateArray = 3,
     TxTriggerZap = 4,
     TxTriggerSingleChannelRamp = 5,

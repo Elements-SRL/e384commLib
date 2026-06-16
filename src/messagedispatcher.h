@@ -2284,6 +2284,7 @@ protected:
     void deInitializeRawDataFilterVariables();
     void computeRawDataFilterCoefficients();
     double applyRawDataFilter(uint16_t channelIdx, double x, double * iirNum, double * iirDen);
+    virtual void computeDataReadPolicy();
 
     uint32_t getSamplingRateModesNum();
     virtual std::vector <double> user2AsicDomainTransform(int chIdx, std::vector <double> userDomainParams);
@@ -2502,7 +2503,7 @@ protected:
     std::vector <BoardModel *> boardModels;
     std::vector <ChannelModel *> channelModels;
 
-    uint16_t selectedSamplingRateIdx = 0;
+    uint16_t selectedSamplingRateIdx = -1;
 
     std::vector <double> currentResolutions;
     std::vector <double> voltageResolutions;

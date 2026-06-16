@@ -2,6 +2,7 @@
 
 #include "okprogrammer.h"
 #include "speed_test.h"
+#include "utils.h"
 
 #include "emcr192blm_el03c_mb02_mez03_fw_v01.h"
 #include "emcr192blm_el03c_mb02_mez03_fw_v02.h"
@@ -670,10 +671,10 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         \***********************/
 
         txMutexLock.lock();
-        while (txMsgBufferReadLength > 0) {
+        while (txMsgBufferReadLength > 0 || protocolLock) {
             anyOperationPerformed = true;
             auto t = std::chrono::steady_clock::now();
-            if (std::chrono::duration_cast <std::chrono::microseconds> (t-lastTxTime).count() > 30) {
+            if (std::chrono::duration_cast <std::chrono::microseconds> (t-lastTxTime).count() > 30) { /*! 30us is the time required by the 384 patch clamp device (the device with most registers), to stream all registers from the controller to the motherboard */
                 this->sendCommandsToDevice();
                 lastTxTime = t;
                 txMsgBufferReadLength--;
@@ -683,7 +684,6 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
                 }
             }
             else {
-                break;
             }
         }
         txMutexLock.unlock();
@@ -801,8 +801,8 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
                 fflush(txFid);
                 break;
 
-            case TxTriggerDebug0:
-                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER DEBUG 0\n");
+            case TxTriggerSw:
+                fprintf(txFid, "TRIGGER REGISTERS\nTRIGGER SW\n");
                 fflush(txFid);
                 break;
 
@@ -888,14 +888,13 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
 
     case TxTriggerStartProtocol:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
         dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
+        protocolLock = true;
         break;
 
-    case TxTriggerDebug0:
+    case TxTriggerSw:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_DEBUG_0_TRIGGER_IN_ADDR, OKY_DEBUG_0_TRIGGER_IN_BIT);
+        protocolLock = false;
         break;
 
     case TxTriggerStartStateArray:
@@ -1001,6 +1000,12 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
             fflush(rxRawFid);
         }
 
+        if (rxRawBufferWriteOffset+bytesRead > OKY_RX_BUFFER_SIZE) {
+            for (uint32_t idx = 0; idx < rxRawBufferWriteOffset+bytesRead-OKY_RX_BUFFER_SIZE; idx++) {
+                rxRawBuffer[idx] = rxRawBuffer[OKY_RX_BUFFER_SIZE+idx];
+            }
+        }
+
         rxRawBufferWriteOffset = (rxRawBufferWriteOffset+bytesRead) & rxRawBufferMask;
     }
     /*! Update buffer writing point */
@@ -1048,9 +1053,9 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
         }
 #endif
         rxRawMutexLock.lock();
-        /*! Since okTransferSize bytes are obtained each time from the opal kelly, wait that at least these many are available,
+        /*! Since OKY_RX_BLOCK_SIZE bytes are obtained at least from the opal kelly, wait that at least these many are available,
          *  Otherwise it means that no reads from the Opal kelly took place. */
-        while (rxRawBufferReadLength < (uint32_t)okTransferSize && !stopConnectionFlag && !rxRawBufferFull) {
+        while (rxRawBufferReadLength < (uint32_t)OKY_RX_BLOCK_SIZE && !stopConnectionFlag && !rxRawBufferFull) {
             rxRawBufferNotEmpty.wait_for(rxRawMutexLock, std::chrono::milliseconds(3));
         }
         if (!rxRawBufferFull) {
@@ -1178,7 +1183,7 @@ void EmcrOpalKellyDevice::parseDataFromDevice() {
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {
-    rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_BUFFER_SIZE];
+    rxRawBuffer = new (std::nothrow) uint8_t[OKY_RX_EXTENDED_BUFFER_SIZE];
     if (rxRawBuffer == nullptr) {
         this->deinitializeMemory();
         return ErrorMemoryInitialization;
@@ -1207,6 +1212,14 @@ void EmcrOpalKellyDevice::deinitializeMemory() {
     }
 
     EmcrDevice::deinitializeMemory();
+}
+
+void EmcrOpalKellyDevice::computeDataReadPolicy() {
+    double idealTransferSize = OKY_RX_TRANSFER_TIME_GOAL*samplingRate.getNoPrefixValue()*(double)(totalChannelsNum*RX_WORD_SIZE);
+    uint32_t idealExp = LOG2((uint32_t)idealTransferSize)+1; /*! cast to integer followed by +1 is a simplified ceil() function. */
+
+    std::unique_lock <std::mutex> rxRawMutexLock(rxRawMutex);
+    okTransferSize = 1 << clip(idealExp, OKY_RX_TRANSFER_MIN_EXP, OKY_RX_TRANSFER_MAX_EXP);
 }
 
 void EmcrOpalKellyDevice::monitoringLoop() {

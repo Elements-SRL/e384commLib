@@ -253,11 +253,6 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
-    // Selected default Idx
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
-
     /**********\
      * Coders *
     \**********/

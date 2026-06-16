@@ -530,11 +530,6 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     defaultUserDomainParams[U_RsPg] = rsPredGainRange.min;
     defaultUserDomainParams[U_CpCc] = pipetteCapacitanceRange[0].min;
 
-    // Selected default Idx
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
-
     // Initialization of the USER compensation domain with standard parameters
     for (int i = 0; i < currentChannelsNum; i++) {
         compValueMatrix[i][U_CpVc] =  defaultUserDomainParams[U_CpVc];

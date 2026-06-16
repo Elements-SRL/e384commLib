@@ -261,11 +261,6 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
-    // Selected default Idx
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
-
     fill(selectedGateVoltageVector.begin(), selectedGateVoltageVector.end(), defaultGateVoltage);
     fill(selectedSourceVoltageVector.begin(), selectedSourceVoltageVector.end(), defaultSourceVoltage);
 

@@ -232,11 +232,6 @@ Emcr10MHzSB_V01::Emcr10MHzSB_V01(std::string di) :
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
-    // Selected default Idx
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
-
     /**********\
      * Coders *
     \**********/

@@ -554,11 +554,6 @@ Emcr16PatchClamp_EL07e_DigBrd_fw_v01::Emcr16PatchClamp_EL07e_DigBrd_fw_v01(std::
     defaultUserDomainParams[U_RsPg] = rsPredGainRange.min;
     defaultUserDomainParams[U_CpCc] = ccPipetteCapacitanceRange[0].min;
 
-    // Selected default Idx
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
-
     // Initialization of the USER compensation domain with standard parameters
     for (int i = 0; i < currentChannelsNum; i++) {
         compValueMatrix[i][U_CpVc] =  defaultUserDomainParams[U_CpVc];

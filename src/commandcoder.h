@@ -131,8 +131,6 @@ public:
     virtual double encode(double value, CommandStatus_t &status) = 0;
 
 protected:
-    double clip(double value);
-
     CoderConfig_t config;
 
     double resolution;

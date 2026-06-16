@@ -276,11 +276,6 @@ Emcr24x10MHz_Only8Ch_EL05c4_PCBV01::Emcr24x10MHz_Only8Ch_EL05c4_PCBV01(std::stri
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
-    // Selected default Idx
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
-
     /**********\
      * Coders *
     \**********/

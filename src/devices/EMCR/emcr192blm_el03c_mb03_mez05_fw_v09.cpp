@@ -26,12 +26,12 @@ Emcr192Blm_EL03c_Mb03_Mez05_fw_v09::Emcr192Blm_EL03c_Mb03_Mez05_fw_v09(std::stri
     boolConfig.bitsNum = 1;
     overHeatingModeCoder = new BoolArrayCoder(boolConfig);
 
-    boolConfig.initialWord = 3017;
+    boolConfig.initialWord = 3016;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 8;
     spiCommandCoder = new BoolArrayCoder(boolConfig);
 
-    boolConfig.initialWord = 3018;
+    boolConfig.initialWord = 3017;
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 32;
     spiDataLoadCoder = new BoolArrayCoder(boolConfig);

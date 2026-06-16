@@ -235,11 +235,6 @@ Emcr4x10MHz_SB_PCBV02_FEStim_Ch12_V01::Emcr4x10MHz_SB_PCBV02_FEStim_Ch12_V01(std
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
-    // Selected default Idx
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
-
     /**********\
      * Coders *
     \**********/

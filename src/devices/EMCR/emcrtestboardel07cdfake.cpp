@@ -21,8 +21,6 @@ EmcrTestBoardEl07cdFake::EmcrTestBoardEl07cdFake(std::string id) :
 
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
-
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
 }
 
 ErrorCodes_t EmcrTestBoardEl07cdFake::startCommunication(std::string) {

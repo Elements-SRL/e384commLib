@@ -542,11 +542,6 @@ Emcr8nPatchClamp_EL07e_artix7_PCBV02_fw_v01::Emcr8nPatchClamp_EL07e_artix7_PCBV0
     defaultUserDomainParams[U_RsPg] = rsPredGainRange.min;
     defaultUserDomainParams[U_CpCc] = ccPipetteCapacitanceRange[0].min;
 
-    // Selected default Idx
-    selectedVcVoltageRangeIdx = defaultVcVoltageRangeIdx;
-    selectedVcCurrentFilterIdx = defaultVcCurrentFilterIdx;
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
-
     // Initialization of the USER compensation domain with standard parameters
     for (int i = 0; i < currentChannelsNum; i++) {
         compValueMatrix[i][U_CpVc] =  defaultUserDomainParams[U_CpVc];

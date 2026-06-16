@@ -24,7 +24,6 @@ Emcr10MHzFake::Emcr10MHzFake(std::string id) :
     samplingRate = realSamplingRatesArray[defaultSamplingRateIdx];
     integrationStep = integrationStepArray[defaultSamplingRateIdx];
 
-    selectedSamplingRateIdx = defaultSamplingRateIdx;
     bytesPerFrame = (totalChannelsNum*packetsPerFrame+8)*RX_WORD_SIZE;
 }
 

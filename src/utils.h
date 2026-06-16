@@ -123,6 +123,18 @@ template<typename I_t> bool inRange(I_t value, I_t minValue, I_t maxValue) {
     return true;
 }
 
+template <typename I_t> I_t clip(I_t value, I_t minValue, I_t maxValue) {
+    if (value > maxValue) {
+        return maxValue;
+    }
+
+    if (value < minValue) {
+        return minValue;
+    }
+
+    return value;
+}
+
 inline void createDebugFile(FILE * &fid, std::string fileName) {
     const char * home = std::getenv("USERPROFILE");
     std::filesystem::path filePath = std::filesystem::path(home) / (fileName + ".txt");
