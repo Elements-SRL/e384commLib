@@ -120,7 +120,6 @@ if(BUILD_FOR_LABVIEW)
     )
 
     cmake_path(SET LABVIEW_TO_C_PATH_CMAKE "$ENV{LABVIEW_TO_C_PATH}")
-    message(${LABVIEW_TO_C_PATH_CMAKE})
     target_include_directories(${TARGET_NAME}
         PUBLIC
         ${LABVIEW_TO_C_PATH_CMAKE}/include)
@@ -128,7 +127,6 @@ if(BUILD_FOR_LABVIEW)
         PUBLIC
         "${LABVIEW_TO_C_PATH_CMAKE}/lib/labview.lib"
         "user32.lib")
-    message("labview")
 
 else()
     set(TARGET_NAME "e384commlib")
