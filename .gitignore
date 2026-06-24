@@ -43,3 +43,4 @@ commlib/
 debug/
 release/
 build/
+.qtcreator/
