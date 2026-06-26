@@ -671,7 +671,7 @@ void EmcrOpalKellyDevice::handleCommunicationWithDevice() {
         \***********************/
 
         txMutexLock.lock();
-        while (txMsgBufferReadLength > 0 || protocolLock) {
+        while (txMsgBufferReadLength > 0) {
             anyOperationPerformed = true;
             auto t = std::chrono::steady_clock::now();
             if (std::chrono::duration_cast <std::chrono::microseconds> (t-lastTxTime).count() > 30) { /*! 30us is the time required by the 384 patch clamp device (the device with most registers), to stream all registers from the controller to the motherboard */
@@ -889,12 +889,10 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
     case TxTriggerStartProtocol:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
-        protocolLock = true;
         break;
 
     case TxTriggerSw:
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        protocolLock = false;
         break;
 
     case TxTriggerStartStateArray:

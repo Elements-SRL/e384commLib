@@ -179,7 +179,6 @@ protected:
     \***************/
 
     int waitingTimeBeforeReadingData = 1;
-    bool protocolLock = false;
 
     okTRegisterEntries regs;
 

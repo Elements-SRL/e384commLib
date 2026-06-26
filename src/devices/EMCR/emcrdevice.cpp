@@ -46,7 +46,7 @@ ErrorCodes_t EmcrDevice::startProtocol() {
     if (protocolResetCoder == nullptr) {
         this->forceOutMessage();
         this->stackOutgoingMessage(txStatus, {TxTriggerStartProtocol, ResetIndifferent});
-        this->stackOutgoingMessage(txStatus, {TxTriggerSw, ResetIndifferent});
+        // this->stackOutgoingMessage(txStatus, {TxTriggerSw, ResetIndifferent});
     }
     else {
         if (protocolResetFlag == false) {
@@ -56,7 +56,7 @@ ErrorCodes_t EmcrDevice::startProtocol() {
         }
         this->stackOutgoingMessage(txStatus); /*! Make sure the registers are submitted */
         protocolResetCoder->encode(0, txStatus);
-        this->stackOutgoingMessage(txStatus, {TxTriggerSw, ResetIndifferent}); /*! Then take the protocol out of the reset state */
+        this->stackOutgoingMessage(txStatus); /*! Then take the protocol out of the reset state */
         protocolResetFlag = false;
     }
     return Success;
