@@ -122,6 +122,7 @@ typedef enum MsgTypeId {
     MsgTypeIdSwitchCtrl =                       MsgGroupHwConfiguration+0x0001, /*!< Message used to control the device internal circuitry. */
     MsgTypeIdRegistersCtrl =                    MsgGroupHwConfiguration+0x0002, /*!< Message used to control the device internal registers. */
     MsgTypeIdFpgaReset =                        MsgGroupHwConfiguration+0x0003, /*!< Message used to reset the FPGA */
+    MsgTypeIdCalEeprom =                        MsgGroupHwConfiguration+0x0004, /*!< Message containing data from the calibration eeprom */
 
     /*! Voltage trials messages */
     MsgTypeIdVoltageProtocolStruct =            MsgGroupVoltageTrials+0x0001, /*!< Message used to describe the struct of a voltage protocol. \note The composition of voltage protocol messages is implicitly handled by the library. */
@@ -214,6 +215,7 @@ typedef enum DeviceTypes {
     Device384PatchClamp_el07e_fw_v04,                   /*!< 384 channels device for patchclamp experiments */
     Device384PatchClamp_el07e_fw_v05,                   /*!< 384 channels device for patchclamp experiments */
     Device384PatchClamp_el07e_fw_v06,                   /*!< 384 channels device for patchclamp experiments */
+    Device384PatchClamp_el07e_fw_v07,                   /*!< 384 channels device for patchclamp experiments */
     Device16PatchClamp_el07e_digitalTesterfw_v01,       /*!< 384 channels device for patchclamp experiments */
     Device384VoltageClamp_prot_v04_fw_v03,              /*!< 384 channels device for voltageclamp experiments */
     DeviceTestBoardEL07ab,

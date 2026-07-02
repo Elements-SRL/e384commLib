@@ -104,6 +104,7 @@ public:
         RxMessageSyncStatus,
         RxMessageDoubleSyncStatus,
         RxMessageSpiDataLoad,
+        RxMessageCalEeepromDataLoad,
         RxMessageNum
     } RxMessageTypes_t;
 
@@ -2134,6 +2135,12 @@ public:
      * \return Error code.
      */
     virtual ErrorCodes_t readCalibrationEeprom(std::vector <uint32_t> &value, std::vector <uint32_t> address, std::vector <uint32_t> size);
+
+    virtual ErrorCodes_t okMoveCalibrationEepromToRams();
+    virtual ErrorCodes_t okMoveCalibrationRamsToEeprom();
+    virtual ErrorCodes_t okSelectCalibrationRam(uint16_t ramIdx);
+    virtual ErrorCodes_t okWriteCalibrationRam(uint16_t address, uint8_t value);
+    virtual ErrorCodes_t okReadCalibrationRam();
 
     /*! \brief Check if the device has a specific compensation parameter.
      *

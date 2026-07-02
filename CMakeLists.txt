@@ -50,6 +50,7 @@ set(LIB_SOURCES
     src/devices/EMCR/emcr384patchclamp_el07e_fw_v04.cpp
     src/devices/EMCR/emcr384patchclamp_el07e_fw_v05.cpp
     src/devices/EMCR/emcr384patchclamp_el07e_fw_v06.cpp
+    src/devices/EMCR/emcr384patchclamp_el07e_fw_v07.cpp
     src/devices/EMCR/emcr16patchclamp_el07e_digbrd_fw_v01.cpp
     src/devices/EMCR/emcr384voltageclamp_prot_v04_fw_v03.cpp
     src/devices/EMCR/emcr10mhz.cpp

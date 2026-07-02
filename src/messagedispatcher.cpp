@@ -1463,6 +1463,26 @@ ErrorCodes_t MessageDispatcher::readCalibrationEeprom(std::vector <uint32_t> &, 
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::okMoveCalibrationEepromToRams() {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::okMoveCalibrationRamsToEeprom() {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::okSelectCalibrationRam(uint16_t) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::okWriteCalibrationRam(uint16_t, uint8_t) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::okReadCalibrationRam() {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::getVoltageProtocolRangeFeature(uint16_t rangeIdx, RangedMeasurement_t &range) {
     if (vcVoltageRangesArray.empty()) {
         return ErrorFeatureNotImplemented;

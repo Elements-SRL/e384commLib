@@ -2166,6 +2166,13 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data, Ms
             data[1] = (int16_t)msg.data[sampleIdx++];
             break;
 
+        case (MsgDirectionDeviceToPc+MsgTypeIdCalEeprom):
+            rxOutput.dataLen = msg.data.size();
+            for (int idx = 0; idx < msg.data.size(); idx++) {
+                data[idx] = (int16_t)msg.data[sampleIdx++];
+            }
+            break;
+
         case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
             // not really managed, ignore it
             break;

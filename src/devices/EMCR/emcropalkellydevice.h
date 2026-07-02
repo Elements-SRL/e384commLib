@@ -114,7 +114,8 @@ public:
         DeviceSubversion384Patch_EL07c_TemperatureControl = 0x02,
         DeviceSubversion384Patch_EL07e_TemperatureControl = 0x03,
         DeviceSubversion384Patch_EL07e_MB03Mez05 = 0x04,
-        DeviceSubversion16Patch_EL07e_DigitalTester_PCBV01b = 0x05,
+        DeviceSubversion16Patch_EL07e_DigitalTester_PCBV01 = 0x05,
+        DeviceSubversion16Patch_EL07e_DigitalTester_PCBV01b = 0x06,
         DeviceSubversion384Patch_EL07e_MB03Mez05An05 = 0x07,
 
         /*! Subversions used for version = 0xFE */
@@ -134,6 +135,13 @@ public:
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
 
     ErrorCodes_t setCalibrationMode(bool calibModeFlag) override;
+
+    virtual ErrorCodes_t okMoveCalibrationEepromToRams() override;
+    virtual ErrorCodes_t okMoveCalibrationRamsToEeprom() override;
+    virtual ErrorCodes_t okSelectCalibrationRam(uint16_t ramIdx) override;
+    virtual ErrorCodes_t okWriteCalibrationRam(uint16_t address, uint8_t value) override;
+    virtual ErrorCodes_t okReadCalibrationRam() override;
+
     virtual ErrorCodes_t getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) override;
     bool isDeviceConnected();
 
@@ -173,6 +181,10 @@ protected:
 
     okCFrontPanel dev;
     OpalKellyDeviceManager * okManager = nullptr;
+
+    BoolCoder * calibrationRamSelectorCoder = nullptr;
+    BoolCoder * calibrationRamAddressCoder = nullptr;
+    BoolCoder * calibrationRamValueCoder = nullptr;
 
     /***************\
      *  Variables  *

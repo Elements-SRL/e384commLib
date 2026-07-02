@@ -28,6 +28,7 @@ FrameManager::FrameManager(MessageDispatcher * md) :
     rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionDataOverflow)] = false;
     rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionSyncStatus)] = true;
     rxEnabledTypesMap[type2Pc(MsgTypeIdSpiDataLoad)] = true;
+    rxEnabledTypesMap[type2Pc(MsgTypeIdCalEeprom)] = true;
     rxEnabledTypesMap[type2Pc(MsgTypeIdInvalid)] = false;
     rxEnabledTypesMap[type2Pc(MsgTypeIdDeviceStatus)] = false;
     rxEnabledTypesMap[type2Pc(MsgTypeIdTemperature)] = true;
@@ -107,6 +108,9 @@ void FrameManager::storeFrameData(uint16_t rxWordOffset) {
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageSpiDataLoad]) {
         this->storeFrameDataType(type2Pc(MsgTypeIdSpiDataLoad), MessageDispatcher::RxMessageSpiDataLoad);
+    }
+    else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageCalEeepromDataLoad]) {
+        this->storeFrameDataType(type2Pc(MsgTypeIdCalEeprom), MessageDispatcher::RxMessageCalEeepromDataLoad);
     }
 }
 
@@ -335,6 +339,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
     case MessageDispatcher::RxMessageOnTime:
     case MessageDispatcher::RxMessageSyncStatus:
     case MessageDispatcher::RxMessageSpiDataLoad:
+    case MessageDispatcher::RxMessageCalEeepromDataLoad:
         msg.typeId = rxMsgTypeId;
         msg.data.resize(rxDataWords);
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
