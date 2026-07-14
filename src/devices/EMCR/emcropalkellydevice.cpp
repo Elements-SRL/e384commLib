@@ -580,7 +580,7 @@ ErrorCodes_t EmcrOpalKellyDevice::setCalibrationMode(bool) {
 
 ErrorCodes_t EmcrOpalKellyDevice::okMoveCalibrationEepromToRams() {
     if (calibrationRamAddressCoder == nullptr) {
-        return e384CommLib::ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
     }
     this->forceOutMessage();
     this->stackOutgoingMessage(txStatus, {TxTriggerReadCalEeprom, ResetIndifferent});
@@ -589,7 +589,7 @@ ErrorCodes_t EmcrOpalKellyDevice::okMoveCalibrationEepromToRams() {
 
 ErrorCodes_t EmcrOpalKellyDevice::okMoveCalibrationRamsToEeprom() {
     if (calibrationRamAddressCoder == nullptr) {
-        return e384CommLib::ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
     }
     this->forceOutMessage();
     this->stackOutgoingMessage(txStatus, {TxTriggerWriteCalEeprom, ResetIndifferent});
@@ -598,7 +598,7 @@ ErrorCodes_t EmcrOpalKellyDevice::okMoveCalibrationRamsToEeprom() {
 
 ErrorCodes_t EmcrOpalKellyDevice::okSelectCalibrationRam(uint16_t ramIdx) {
     if (calibrationRamSelectorCoder == nullptr) {
-        return e384CommLib::ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
     }
     calibrationRamSelectorCoder->encode(ramIdx, txStatus);
     this->stackOutgoingMessage(txStatus);
@@ -607,7 +607,7 @@ ErrorCodes_t EmcrOpalKellyDevice::okSelectCalibrationRam(uint16_t ramIdx) {
 
 ErrorCodes_t EmcrOpalKellyDevice::okWriteCalibrationRam(uint16_t address, uint8_t value) {
     if (calibrationRamAddressCoder == nullptr) {
-        return e384CommLib::ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
     }
     calibrationRamAddressCoder->encode(address, txStatus);
     calibrationRamValueCoder->encode(value, txStatus);
@@ -617,7 +617,7 @@ ErrorCodes_t EmcrOpalKellyDevice::okWriteCalibrationRam(uint16_t address, uint8_
 
 ErrorCodes_t EmcrOpalKellyDevice::okReadCalibrationRam() {
     if (calibrationRamAddressCoder == nullptr) {
-        return e384CommLib::ErrorFeatureNotImplemented;
+        return ErrorFeatureNotImplemented;
     }
     this->stackOutgoingMessage(txStatus, {TxTriggerGetCalRam, ResetIndifferent});
     return Success;
