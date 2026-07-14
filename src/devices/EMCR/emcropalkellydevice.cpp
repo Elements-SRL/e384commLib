@@ -619,6 +619,7 @@ ErrorCodes_t EmcrOpalKellyDevice::okReadCalibrationRam() {
     if (calibrationRamAddressCoder == nullptr) {
         return ErrorFeatureNotImplemented;
     }
+    this->forceOutMessage();
     this->stackOutgoingMessage(txStatus, {TxTriggerGetCalRam, ResetIndifferent});
     return Success;
 }

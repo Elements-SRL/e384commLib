@@ -58,7 +58,7 @@
 #define RX_MAX_BYTES_TO_WAIT_FOR 16384
 
 #define TX_WORD_SIZE (sizeof(uint16_t)) // 16 bit word
-#define TX_MSG_BUFFER_SIZE 0x100 /*!< Number of messages. Always use a power of 2 for efficient circular buffer management through index masking */
+#define TX_MSG_BUFFER_SIZE 0x10000 /*!< Number of messages. Always use a power of 2 for efficient circular buffer management through index masking */
 #define TX_MSG_BUFFER_MASK (TX_MSG_BUFFER_SIZE-1)
 #define TX_MAX_WRITE_TRIES 10
 
