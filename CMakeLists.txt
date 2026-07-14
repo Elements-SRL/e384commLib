@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(e384commlib
-    VERSION 0.39.0
+    VERSION 0.40.0
     LANGUAGES CXX
 )
 
@@ -71,6 +71,7 @@ set(LIB_SOURCES
     src/devices/EMCR/emcr8patchclamp_el07e_artix7_pcbv03_fw_v01.cpp
     src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.cpp
     src/devices/EMCR/emcr8npatchclamp_el07e_artix7_pcbv02.cpp
+    src/devices/EMCR/emcr8npatchclamp_el07e_artix7_pcbv02_fw_v02.cpp
     src/devices/EMCR/emcrsuperduck_pcbv01.cpp
     src/devices/EMCR/emcr384nanoporesfake.cpp
     src/devices/EMCR/emcr384patchclampfake.cpp

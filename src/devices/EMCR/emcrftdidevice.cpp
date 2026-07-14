@@ -6,6 +6,7 @@
 #include "emcr8patchclamp_el07e_artix7_pcbv03_fw_v01.h"
 #include "emcr8npatchclamp_el07c_artix7_pcbv01.h"
 #include "emcr8npatchclamp_el07e_artix7_pcbv02.h"
+#include "emcr8npatchclamp_el07e_artix7_pcbv02_fw_v02.h"
 #include "emcrqc01atb_pcbv02.h"
 #include "emcrsuperduck_pcbv01.h"
 
@@ -26,6 +27,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_PCBV01, 1, DeviceE8nPatchEL07C_artix7_PCBV01_FW1},               //  16,  1,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V01. */
     {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_EL07c_PCBV02, 1, DeviceE8nPatchEL07C_artix7_PCBV01_FW1},         //  16,  2,  1 : VC-CC device with 8 channels (EL07C) (FPGA artix7) PCB V01. */
     {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_EL07e_PCBV02, 1, DeviceE8nPatchEL07C_artix7_EL07e_PCBV02_FW1},   //  16,  3,  1 : VC-CC device with 8 channels (EL07E) (FPGA artix7) PCB V01. */
+    {DeviceVersionE8p, DeviceSubversionE8nPatch_artix7_EL07e_PCBV02, 2, DeviceE8nPatchEL07C_artix7_EL07e_PCBV02_FW2},   //  16,  3,  2 : VC-CC device with 8 channels (EL07E) (FPGA artix7) PCB V01. */
     {DeviceVersionTestBoard, DeviceSubversionTestBoardQC01a_PCBV02, 1, DeviceTestBoardQC02a_PCBV02},                    //   6, 15,  1 : QC01a testboard PCB V02. */
     {DeviceVersionSuperDuck, DeviceSubversionSuperDuckPcbV01, 1, DeviceSuperDuck_PCBV012},                              //  17,  1,  1 : SuperDuck. */
     {DeviceVersionSuperDuck, DeviceSubversionSuperDuckPcbV01, 4, DeviceSuperDuck_PCBV012},                              //  17,  1,  4 : SuperDuck. */
@@ -194,6 +196,10 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
     switch (deviceType) {
     case DeviceE8nPatchEL07C_artix7_EL07e_PCBV02_FW1:
         messageDispatcher = new Emcr8nPatchClamp_EL07e_artix7_PCBV02_fw_v01(deviceId);
+        break;
+
+    case DeviceE8nPatchEL07C_artix7_EL07e_PCBV02_FW2:
+        messageDispatcher = new Emcr8nPatchClamp_EL07e_artix7_PCBV02_fw_v02(deviceId);
         break;
 
     case DeviceE8nPatchEL07C_artix7_PCBV01_FW1:

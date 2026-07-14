@@ -289,6 +289,7 @@ typedef enum DeviceTypes {
     DeviceE8PPatchEL07E_artix7_PCBV03_FW1,      /*!< ePatch device with 1 EL07E chips PCB V03 (FPGA artix7) with 64 protocol items. */
     DeviceE8nPatchEL07C_artix7_PCBV01_FW1,      /*!< ePatch device with 1 EL07C chip PCB V01 (FPGA artix7). */
     DeviceE8nPatchEL07C_artix7_EL07e_PCBV02_FW1,/*!< ePatch device with 1 EL07C chip PCB V01 (FPGA artix7). */
+    DeviceE8nPatchEL07C_artix7_EL07e_PCBV02_FW2,/*!< ePatch device with 1 EL07C chip PCB V01 (FPGA artix7). */
     DeviceEPatchDlp,                            /*!< ePatch device with dlp fpga. */
     Device384Fake,                              /*!< Fake nanopore device */
     Device384FakePatchClamp,                    /*!< Fake patch clamp device */

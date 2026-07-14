@@ -1534,7 +1534,6 @@ Emcr8nPatchClamp_EL07e_artix7_PCBV02_fw_v01::Emcr8nPatchClamp_EL07e_artix7_PCBV0
 
     /*! Default status */
     txStatus.init(txDataWords);
-    // txStatus.encodingWords[17] = 0x00FF; // GR_EN active
     txStatus.encodingWords[1076] = 0x4040; // Secondary DAC
     txStatus.encodingWords[1077] = 0x4040;
     txStatus.encodingWords[1078] = 0x4040;
