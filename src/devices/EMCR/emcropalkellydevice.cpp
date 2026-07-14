@@ -96,6 +96,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 4, Device384PatchClamp_el07e_fw_v04},              //   15,  3,  4 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 5, Device384PatchClamp_el07e_fw_v05},              //   15,  3,  5 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 6, Device384PatchClamp_el07e_fw_v06},              //   15,  3,  6 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
+    {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_TemperatureControl, 7, Device384PatchClamp_el07e_fw_v07},              //   15,  3,  7 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V04)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_MB03Mez05, 5, Device384PatchClamp_el07e_fw_v05},                       //   15,  4,  5 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V05)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion384Patch_EL07e_MB03Mez05, 6, Device384PatchClamp_el07e_fw_v06},                       //   15,  4,  6 : 384-channel EL07e (Analog V03, Motherboard V03, Mezzanine V05)
     {EmcrOpalKellyDevice::DeviceVersion384Patch, EmcrOpalKellyDevice::DeviceSubversion16Patch_EL07e_DigitalTester_PCBV01, 1, Device16PatchClamp_el07e_digitalTesterfw_v01}, //   15,  5,  1 : 16-channel device consisting of a single 16-channels analog board
@@ -581,6 +582,7 @@ ErrorCodes_t EmcrOpalKellyDevice::okMoveCalibrationEepromToRams() {
     if (calibrationRamAddressCoder == nullptr) {
         return e384CommLib::ErrorFeatureNotImplemented;
     }
+    this->forceOutMessage();
     this->stackOutgoingMessage(txStatus, {TxTriggerReadCalEeprom, ResetIndifferent});
     return Success;
 }
@@ -589,6 +591,7 @@ ErrorCodes_t EmcrOpalKellyDevice::okMoveCalibrationRamsToEeprom() {
     if (calibrationRamAddressCoder == nullptr) {
         return e384CommLib::ErrorFeatureNotImplemented;
     }
+    this->forceOutMessage();
     this->stackOutgoingMessage(txStatus, {TxTriggerWriteCalEeprom, ResetIndifferent});
     return Success;
 }
@@ -979,6 +982,12 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
         dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
         dev.ActivateTriggerIn(OKY_SET_CAL_RAM_TRIGGER_IN_ADDR, OKY_SET_CAL_RAM_TRIGGER_IN_BIT);
+        break;
+
+    case TxTriggerWriteCalEeprom:
+        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        dev.ActivateTriggerIn(OKY_WRITE_CAL_EEPROM_TRIGGER_IN_ADDR, OKY_WRITE_CAL_EEPROM_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerReadOnTime:
