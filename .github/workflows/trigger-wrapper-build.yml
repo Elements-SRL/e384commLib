@@ -1,0 +1,55 @@
+# Fires when a tag is pushed to e384commlib.
+# 1. Verifies the tag was pushed by an authorised user (actor-check).
+# 2. Dispatches a build request to the cl384_python repo, passing the tag along.
+#
+# This workflow does NOT build anything itself. It only forwards the event.
+# The actual .pyd build happens in cl384_python (see build-and-release.yml there).
+
+name: Trigger wrapper build
+
+on:
+  push:
+    tags:
+      - 'v*'          # adjust to match your tagging scheme (e.g. v0.40.0)
+
+# GitHub-hosted runner is fine here: this job does no native build,
+# it just performs a check and sends an HTTP dispatch.
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      # ----- SECURITY GATE (actor-check) --------------------------------
+      # github.actor is the user who pushed the tag. This is an
+      # authentication signal, NOT tamper-proof authorisation. It reliably
+      # stops the wrong teammate from accidentally cutting a release; it does
+      # not defend against a compromised account. For stronger guarantees see
+      # docs/SECURITY.md (Environments + required reviewers).
+      - name: Verify authorised actor
+        env:
+          AUTHORISED_ACTOR: your-github-username   # <-- CHANGE ME
+        run: |
+          echo "Tag pushed by: $GITHUB_ACTOR"
+          if [ "$GITHUB_ACTOR" != "$AUTHORISED_ACTOR" ]; then
+            echo "::error::User '$GITHUB_ACTOR' is not authorised to trigger a release build."
+            exit 1
+          fi
+          echo "Actor authorised."
+
+      # ----- FORWARD THE EVENT TO THE WRAPPER REPO ----------------------
+      # Sends a repository_dispatch to cl384_python. The tag name travels in
+      # client_payload so the wrapper build can check out commlib at that ref.
+      #
+      # Requires a secret named DISPATCH_TOKEN: a fine-grained PAT (or GitHub
+      # App token) owned by you, with "Contents: read & write" on cl384_python.
+      # See docs/PIPELINE_SETUP.md for how to create and store it.
+      - name: Dispatch build to cl384_python
+        env:
+          DISPATCH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
+        run: |
+          curl -sSf -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $DISPATCH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/YOUR_ORG/cl384_python/dispatches \
+            -d "{\"event_type\":\"commlib-tagged\",\"client_payload\":{\"commlib_ref\":\"${GITHUB_REF_NAME}\",\"commlib_sha\":\"${GITHUB_SHA}\",\"actor\":\"${GITHUB_ACTOR}\"}}"
+          echo "Dispatched commlib-tagged for ref ${GITHUB_REF_NAME}"
