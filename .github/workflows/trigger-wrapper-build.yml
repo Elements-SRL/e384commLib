@@ -1,9 +1,9 @@
 # Fires when a tag is pushed to e384commlib.
 # 1. Verifies the tag was pushed by an authorised user (actor-check).
-# 2. Dispatches a build request to the cl384_python repo, passing the tag along.
+# 2. Dispatches a build request to the cl384-python repo, passing the tag along.
 #
 # This workflow does NOT build anything itself. It only forwards the event.
-# The actual .pyd build happens in cl384_python (see build-and-release.yml there).
+# The actual .pyd build happens in cl384-python (see build-and-release.yml there).
 
 name: Trigger wrapper build
 
@@ -40,13 +40,13 @@ jobs:
           exit 1
 
       # ----- FORWARD THE EVENT TO THE WRAPPER REPO ----------------------
-      # Sends a repository_dispatch to cl384_python. The tag name travels in
+      # Sends a repository_dispatch to cl384-python. The tag name travels in
       # client_payload so the wrapper build can check out commlib at that ref.
       #
       # Requires a secret named DISPATCH_TOKEN: a fine-grained PAT (or GitHub
-      # App token) owned by you, with "Contents: read & write" on cl384_python.
+      # App token) owned by you, with "Contents: read & write" on cl384-python.
       # See docs/PIPELINE_SETUP.md for how to create and store it.
-      - name: Dispatch build to cl384_python
+      - name: Dispatch build to cl384-python
         env:
           DISPATCH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
         run: |
@@ -61,7 +61,7 @@ jobs:
           echo "--- can I see the repo ---"
           curl -sS -w "\nHTTP %{http_code}\n" \
             -H "Authorization: Bearer $DISPATCH_TOKEN" \
-            https://api.github.com/repos/Elements-SRL/cl384_python
+            https://api.github.com/repos/Elements-SRL/cl384-python
       
           echo "--- dispatch ---"
           curl -sS -w "\nHTTP %{http_code}\n" \
@@ -69,5 +69,5 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer $DISPATCH_TOKEN" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/Elements-SRL/cl384_python/dispatches \
+            https://api.github.com/repos/Elements-SRL/cl384-python/dispatches \
             -d '{"event_type":"commlib-tagged"}'
