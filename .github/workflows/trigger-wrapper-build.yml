@@ -27,7 +27,7 @@ jobs:
       # docs/SECURITY.md (Environments + required reviewers).
       - name: Verify authorised actor
         env:
-          AUTHORISED_ACTORS: "FConaElements YourUsername"   # space-separated
+          AUTHORISED_ACTORS: "FConaElements lucarossi147"   # space-separated
         run: |
           echo "Tag pushed by: $GITHUB_ACTOR"
           for a in $AUTHORISED_ACTORS; do
