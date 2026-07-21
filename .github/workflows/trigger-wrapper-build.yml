@@ -11,6 +11,7 @@ on:
   push:
     tags:
       - '*'          # adjust to match your tagging scheme (e.g. v0.40.0)
+  workflow_dispatch:
 
 # GitHub-hosted runner is fine here: this job does no native build,
 # it just performs a check and sends an HTTP dispatch.
@@ -26,14 +27,17 @@ jobs:
       # docs/SECURITY.md (Environments + required reviewers).
       - name: Verify authorised actor
         env:
-          AUTHORISED_ACTOR: FConaElements   # <-- CHANGE ME
+          AUTHORISED_ACTORS: "FConaElements YourUsername"   # space-separated
         run: |
           echo "Tag pushed by: $GITHUB_ACTOR"
-          if [ "$GITHUB_ACTOR" != "$AUTHORISED_ACTOR" ]; then
-            echo "::error::User '$GITHUB_ACTOR' is not authorised to trigger a release build."
-            exit 1
-          fi
-          echo "Actor authorised."
+          for a in $AUTHORISED_ACTORS; do
+            if [ "$GITHUB_ACTOR" = "$a" ]; then
+              echo "Actor authorised."
+              exit 0
+            fi
+          done
+          echo "::error::User '$GITHUB_ACTOR' is not authorised to trigger a release build."
+          exit 1
 
       # ----- FORWARD THE EVENT TO THE WRAPPER REPO ----------------------
       # Sends a repository_dispatch to cl384_python. The tag name travels in
