@@ -10,7 +10,7 @@ name: Trigger wrapper build
 on:
   push:
     tags:
-      - '*'          # adjust to match your tagging scheme (e.g. v0.40.0)
+      - '*'          # adjust to match your tagging scheme (e.g. 0.40.0)
   workflow_dispatch:
 
 # GitHub-hosted runner is fine here: this job does no native build,
