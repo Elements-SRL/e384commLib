@@ -31,3 +31,11 @@ Emcr384PatchClamp_EL07e_fw_v07::Emcr384PatchClamp_EL07e_fw_v07(std::string di) :
     /*! Default status */
     txStatus.encodingWords[2] |= 0x8000;
 }
+
+ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v07::initializeHW() {
+    Emcr384PatchClamp_EL07e_fw_v05::initializeHW();
+    this->setDebugBit(4, 11, true, false);
+    this->setDebugBit(2, 15, true, false);
+    this->stackOutgoingMessage(txStatus, {TxTriggerReadCalEeprom, ResetIndifferent});
+    return Success;
+}

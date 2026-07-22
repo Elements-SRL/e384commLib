@@ -6,6 +6,9 @@
 class Emcr384PatchClamp_EL07e_fw_v07 : public Emcr384PatchClamp_EL07e_fw_v06 {
 public:
     Emcr384PatchClamp_EL07e_fw_v07(std::string di);
+
+protected:
+    virtual ErrorCodes_t initializeHW() override;
 };
 
 #endif // EMCR384PATCHCLAMP_EL_7E_FW_V_7_H
