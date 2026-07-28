@@ -122,6 +122,7 @@ public:
         DeviceSubversion2x10MHz_FET_PCBV01 = 0x19,
         DeviceSubversion2x10MHz_FET_PCBV02 = 0x1A,
         DeviceSubversion4x10MHz_PCBV02_FEStim_CH12 = 0x1D,
+        DeviceSubversion32x10MHz_OnlyDig_PcbV01 = 0x1E,
 
         /*! Subversions used for Version = 0xFF */
         DeviceSubversionUndefined = 0xFF
