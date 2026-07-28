@@ -14,25 +14,25 @@ FrameManager::FrameManager(MessageDispatcher * md) :
     totalChannelsNum = voltageChannelsNum+currentChannelsNum+gpChannelsNum;
     ivChannelsNum = voltageChannelsNum+currentChannelsNum;
 
-    rxEnabledTypesMap.resize(MsgDirectionDeviceToPc*2);
-    rxEnabledTypesMap[type2Pc(MsgTypeIdAck)] = false;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdNack)] = false;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdPing)] = false;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdFpgaReset)] = true;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdLiquidJunctionComp)] = true;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionHeader)] = false;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionData)] = true;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionTail)] = false;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionSaturation)] = false;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionDataLoss)] = false;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionDataOverflow)] = false;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdAcquisitionSyncStatus)] = true;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdSpiDataLoad)] = true;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdCalEeprom)] = true;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdInvalid)] = false;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdDeviceStatus)] = false;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdTemperature)] = true;
-    rxEnabledTypesMap[type2Pc(MsgTypeIdOnTime)] = false;
+    rxEnabledTypesMap.resize(MsgDirectionDeviceToPc);
+    rxEnabledTypesMap[MsgTypeIdAck] = false;
+    rxEnabledTypesMap[MsgTypeIdNack] = false;
+    rxEnabledTypesMap[MsgTypeIdPing] = false;
+    rxEnabledTypesMap[MsgTypeIdFpgaReset] = true;
+    rxEnabledTypesMap[MsgTypeIdLiquidJunctionComp] = true;
+    rxEnabledTypesMap[MsgTypeIdAcquisitionHeader] = false;
+    rxEnabledTypesMap[MsgTypeIdAcquisitionData] = true;
+    rxEnabledTypesMap[MsgTypeIdAcquisitionTail] = false;
+    rxEnabledTypesMap[MsgTypeIdAcquisitionSaturation] = false;
+    rxEnabledTypesMap[MsgTypeIdAcquisitionDataLoss] = false;
+    rxEnabledTypesMap[MsgTypeIdAcquisitionDataOverflow] = false;
+    rxEnabledTypesMap[MsgTypeIdAcquisitionSyncStatus] = true;
+    rxEnabledTypesMap[MsgTypeIdSpiDataLoad] = true;
+    rxEnabledTypesMap[MsgTypeIdCalEeprom] = true;
+    rxEnabledTypesMap[MsgTypeIdInvalid] = false;
+    rxEnabledTypesMap[MsgTypeIdDeviceStatus] = false;
+    rxEnabledTypesMap[MsgTypeIdTemperature] = true;
+    rxEnabledTypesMap[MsgTypeIdOnTime] = false;
 
     /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
     voltageDataValues.resize(voltageChannelsNum);
@@ -42,11 +42,11 @@ FrameManager::FrameManager(MessageDispatcher * md) :
 }
 
 void FrameManager::enableRxMessageType(MsgTypeId_t messageType, bool flag) {
-    rxEnabledTypesMap[type2Pc(messageType)] = flag;
+    rxEnabledTypesMap[typeNoDir(messageType)] = flag;
 }
 
 bool FrameManager::isRxMessageTypeEnabled(MsgTypeId_t messageType) {
-    return rxEnabledTypesMap[type2Pc(messageType)];
+    return rxEnabledTypesMap[typeNoDir(messageType)];
 }
 
 void FrameManager::setMaxDataMessageSize(uint32_t size) {
@@ -68,55 +68,56 @@ void FrameManager::setCurrentBlockLength(uint16_t blockLen) {
 
 void FrameManager::storeFrameData(uint16_t rxWordOffset) {
     if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDataLoad]) {
-        this->storeFrameDataType(ACQ_DATA_TYPE, MessageDispatcher::RxMessageDataLoad);
+        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageDataLoad);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageVoltageThenCurrentDataLoad]) {
-        this->storeFrameDataType(ACQ_DATA_TYPE, MessageDispatcher::RxMessageVoltageThenCurrentDataLoad);
+        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageVoltageThenCurrentDataLoad);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageCurrentDataLoad]) {
-        this->storeFrameDataType(ACQ_DATA_TYPE, MessageDispatcher::RxMessageCurrentDataLoad);
+        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageCurrentDataLoad);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageCurrentBlocksDataLoad]) {
-        this->storeFrameDataType(ACQ_DATA_TYPE, MessageDispatcher::RxMessageCurrentBlocksDataLoad);
+        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageCurrentBlocksDataLoad);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageVoltageDataLoad]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdInvalid), MessageDispatcher::RxMessageVoltageDataLoad);
+        this->storeFrameDataType(MsgTypeIdInvalid, MessageDispatcher::RxMessageVoltageDataLoad);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageVoltageAndGpDataLoad]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdInvalid), MessageDispatcher::RxMessageVoltageAndGpDataLoad);
+        this->storeFrameDataType(MsgTypeIdInvalid, MessageDispatcher::RxMessageVoltageAndGpDataLoad);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDataHeader]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionHeader), MessageDispatcher::RxMessageDataHeader);
+        this->storeFrameDataType(MsgTypeIdAcquisitionHeader, MessageDispatcher::RxMessageDataHeader);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDataTail]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionTail), MessageDispatcher::RxMessageDataTail);
+        this->storeFrameDataType(MsgTypeIdAcquisitionTail, MessageDispatcher::RxMessageDataTail);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageStatus]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdDeviceStatus), MessageDispatcher::RxMessageStatus);
+        this->storeFrameDataType(MsgTypeIdDeviceStatus, MessageDispatcher::RxMessageStatus);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageTemperature]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdTemperature), MessageDispatcher::RxMessageTemperature);
+        this->storeFrameDataType(MsgTypeIdTemperature, MessageDispatcher::RxMessageTemperature);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageOnTime]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdOnTime), MessageDispatcher::RxMessageOnTime);
+        this->storeFrameDataType(MsgTypeIdOnTime, MessageDispatcher::RxMessageOnTime);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageSyncStatus]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionSyncStatus), MessageDispatcher::RxMessageSyncStatus);
+        this->storeFrameDataType(MsgTypeIdAcquisitionSyncStatus, MessageDispatcher::RxMessageSyncStatus);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDoubleSyncStatus]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdAcquisitionSyncStatus), MessageDispatcher::RxMessageDoubleSyncStatus);
+        this->storeFrameDataType(MsgTypeIdAcquisitionSyncStatus, MessageDispatcher::RxMessageDoubleSyncStatus);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageSpiDataLoad]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdSpiDataLoad), MessageDispatcher::RxMessageSpiDataLoad);
+        this->storeFrameDataType(MsgTypeIdSpiDataLoad, MessageDispatcher::RxMessageSpiDataLoad);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageCalEeepromDataLoad]) {
-        this->storeFrameDataType(type2Pc(MsgTypeIdCalEeprom), MessageDispatcher::RxMessageCalEeepromDataLoad);
+        this->storeFrameDataType(MsgTypeIdCalEeprom, MessageDispatcher::RxMessageCalEeepromDataLoad);
     }
 }
 
 void FrameManager::storeFrameDataLoss(int32_t dataLossCount) {
     if (dataLossCount > 0 && this->isRxMessageTypeEnabled(MsgTypeIdAcquisitionDataLoss)) {
-        msg.typeId = MsgDirectionDeviceToPc+MsgTypeIdAcquisitionDataLoss;
+        RxMessage_t msg;
+        msg.typeId = MsgTypeIdAcquisitionDataLoss;
         msg.data.resize(2);
         msg.data[0] = (uint16_t)(dataLossCount & (0xFFFF));
         msg.data[1] = (uint16_t)((dataLossCount >> 16) & (0xFFFF));
@@ -128,7 +129,7 @@ void FrameManager::storeFrameDataLoss(int32_t dataLossCount) {
 
 RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
     RxMessage_t ret;
-    ret.typeId = type2Pc(MsgTypeIdInvalid);
+    ret.typeId = MsgTypeIdInvalid;
 #ifdef SPT_DISABLE_GET_NEXT_MESSAGE
     return ret;
 #endif
@@ -144,8 +145,8 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
 #endif
     }
 
-    uint16_t uType = type2Pc(messageType);
-    if (uType == type2Pc(MsgTypeIdInvalid)) {
+    uint16_t uType = messageType;
+    if (uType == MsgTypeIdInvalid) {
         /*! Return first message regardless of type */
         ret = messages.front();
 #ifndef SPT_DISABLE_PARSE_DATA_AFTER_A_WHILE
@@ -176,12 +177,45 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
     return ret;
 }
 
+RxMessage_t FrameManager::getStoredMessage(MsgTypeId_t messageType) {
+    std::unique_lock <std::mutex> rxMutexLock(rxStatusMutex);
+    RxMessage_t msg;
+    switch (messageType) {
+    case MsgTypeIdTemperature:
+        return rxDeviceStatus.lastTemperatureMessage;
+
+    case MsgTypeIdOnTime:
+        return rxDeviceStatus.lastOnTimeMessage;
+
+    case MsgTypeIdAcquisitionSyncStatus:
+        return rxDeviceStatus.lastSyncStatusMessage;
+
+    case MsgTypeIdAcquisitionDataLoss:
+        return rxDeviceStatus.lastDataLossCountMessage;
+
+    case MsgTypeIdCalEeprom:
+        return rxDeviceStatus.lastCalEepromMessage;
+
+    case MsgTypeIdAcquisitionTail:
+        return rxDeviceStatus.lastDataTailMessage;
+
+    case MsgTypeIdSpiDataLoad:
+        if (rxDeviceStatus.lastSpiDataLoadMessages.empty()) {
+            return msg;
+        }
+        msg = rxDeviceStatus.lastSpiDataLoadMessages.front();
+        rxDeviceStatus.lastSpiDataLoadMessages.pop_front();
+        return msg;
+    }
+    return msg;
+}
+
 void FrameManager::purgeData() {
     purgeRequest = true;
 }
 
-uint16_t FrameManager::type2Pc(MsgTypeId_t messageType) {
-    return messageType | MsgDirectionDeviceToPc;
+uint16_t FrameManager::typeNoDir(MsgTypeId_t messageType) {
+    return messageType & ~MsgDirectionDeviceToPc;
 }
 
 void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::RxMessageTypes_t rxMessageType) {
@@ -196,6 +230,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
 
     uint32_t rxDataWords = rxWordLengths[rxMessageType];
     uint32_t newProtocolItemFirstIndex = 0;
+    RxMessage_t msg;
 
     switch (rxMessageType) {
     case MessageDispatcher::RxMessageDataLoad:
@@ -352,6 +387,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         msg.typeId = rxMsgTypeId;
         int rxDataWords2 = rxDataWords/2;
         msg.data.resize(rxDataWords2);
+        /*! The order of the bits is inversed with respect to other similar messages, the code below puts them in the same format */
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords2; rxDataBufferWriteIdx++) {
             uint16_t dat = emd->popUint16FromRxRawBuffer();
             dat = (dat | (dat << 1)) & 0xAAAA;
@@ -388,10 +424,45 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
 bool FrameManager::pushMessage(RxMessage_t msg) {
     std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (!isPushable(msg)) {
+        this->storeMessage(msg);
         return false;
     }
     messages.push_back(msg);
     listSize += msg.data.size();
+    return true;
+}
+
+bool FrameManager::storeMessage(RxMessage_t msg) {
+    std::unique_lock <std::mutex> rxMutexLock(rxStatusMutex);
+    switch (msg.typeId) {
+    case MsgTypeIdTemperature:
+        rxDeviceStatus.lastTemperatureMessage = msg;
+        break;
+
+    case MsgTypeIdOnTime:
+        rxDeviceStatus.lastOnTimeMessage = msg;
+        break;
+
+    case MsgTypeIdAcquisitionSyncStatus:
+        rxDeviceStatus.lastSyncStatusMessage = msg;
+        break;
+
+    case MsgTypeIdAcquisitionDataLoss:
+        rxDeviceStatus.lastDataLossCountMessage = msg;
+        break;
+
+    case MsgTypeIdCalEeprom:
+        rxDeviceStatus.lastCalEepromMessage = msg;
+        break;
+
+    case MsgTypeIdAcquisitionTail:
+        rxDeviceStatus.lastDataTailMessage = msg;
+        break;
+
+    case MsgTypeIdSpiDataLoad:
+        rxDeviceStatus.lastSpiDataLoadMessages.push_back(msg);
+        break;
+    }
     return true;
 }
 
@@ -466,7 +537,7 @@ bool FrameManager::pushLastDataMessage() {
 
 RxMessage_t FrameManager::splitLastDataMessage(uint32_t newProtocolItemFirstIndex) {
     RxMessage_t firstChunk;
-    firstChunk.typeId = ACQ_DATA_TYPE;
+    firstChunk.typeId = MsgTypeIdAcquisitionData;
     firstChunk.data.insert(firstChunk.data.end(), lastDataMessage.data.begin(), lastDataMessage.data.begin()+newProtocolItemFirstIndex);
     lastDataMessage.data.erase(lastDataMessage.data.begin(), lastDataMessage.data.begin() + newProtocolItemFirstIndex);
     return firstChunk;
