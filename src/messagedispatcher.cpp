@@ -763,6 +763,10 @@ ErrorCodes_t MessageDispatcher::getNextMessage(RxOutput_t &, int16_t *, MsgTypeI
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::getStoredMessage(RxOutput_t &, int16_t *, MsgTypeId) {
+    return ErrorFeatureNotImplemented;
+}
+
 ErrorCodes_t MessageDispatcher::purgeData() {
     return ErrorFeatureNotImplemented;
 }

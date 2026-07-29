@@ -7,13 +7,23 @@
 #include "messagedispatcher.h"
 
 typedef struct RxMessage {
-    uint16_t typeId;
+    uint16_t typeId = MsgTypeIdInvalid;
     std::vector <uint16_t> data;
     bool mergeable = false;
     bool operator == (const RxMessage& other) const {
         return typeId == other.typeId && data == other.data;
     }
 } RxMessage_t;
+
+typedef struct RxDeviceStatus {
+    RxMessage_t lastTemperatureMessage;
+    RxMessage_t lastOnTimeMessage;
+    RxMessage_t lastSyncStatusMessage;
+    RxMessage_t lastDataLossCountMessage;
+    RxMessage_t lastCalEepromMessage;
+    RxMessage_t lastDataTailMessage;
+    std::list <RxMessage_t> lastSpiDataLoadMessages;
+} RxDeviceStatus_t;
 
 class EmcrDevice;
 
@@ -31,14 +41,15 @@ public:
     void storeFrameData(uint16_t rxWordOffset);
     void storeFrameDataLoss(int32_t dataLossCount);
     RxMessage_t getNextMessage(MsgTypeId_t messageType = MsgTypeIdInvalid);
+    RxMessage_t getStoredMessage(MsgTypeId_t messageType);
     void purgeData();
 
 protected:
-    static uint16_t type2Pc(MsgTypeId_t messageType);
+    static uint16_t typeNoDir(MsgTypeId_t messageType);
     void storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::RxMessageTypes_t rxMessageType);
     template <typename it>
     bool mergeDataMessages(it to, it from) {
-        if (to->typeId != type2Pc(MsgTypeIdAcquisitionData) || from->typeId != to->typeId) {
+        if (to->typeId != MsgTypeIdAcquisitionData || from->typeId != to->typeId) {
             /*! Merge only data messages */
             return false;
         }
@@ -46,6 +57,7 @@ protected:
         return true;
     }
     bool pushMessage(RxMessage_t msg);
+    bool storeMessage(RxMessage_t msg);
     bool pushHeaderMessage(RxMessage_t msg, uint32_t newProtocolItemFirstIndex);
     bool pushDataMessage(RxMessage_t msg);
     bool pushLastDataMessage();
@@ -53,12 +65,14 @@ protected:
     bool isPushable(RxMessage_t msg);
 
     uint32_t maxDataMessageSize = -1;
-    std::list <RxMessage_t> messages; /*! Per gestire meglio la quantità di dati salvati si potrebbe estendere la std::list <RxMessage_t> per gestire automaticamente la list size ogni volta che viene chiamata un'operazione
+    std::list <RxMessage_t> messages; /*! \todo FCON Per gestire meglio la quantità di dati salvati si potrebbe estendere la std::list <RxMessage_t> per gestire automaticamente la list size ogni volta che viene chiamata un'operazione
                                             che la modificherebbe, come push_back, erase, clear, insert, pop_front, etc */
     size_t listSize = 0;
     RxMessage_t lastDataMessage;
     bool lastDataMessageAvailable = false;
-    RxMessage_t msg;
+
+    RxDeviceStatus rxDeviceStatus; /*! Collects the last message (or several messages, e.g. SpiDataLoad) if they are discarded from the main getNextMessageFlow */
+
     MessageDispatcher * md = nullptr;
     EmcrDevice * emd = nullptr;
     int currentChannelsNum;
@@ -74,7 +88,8 @@ protected:
     std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */
     bool purgeRequest = false;
 
-    mutable std::mutex rxMsgMutex;
+    mutable std::mutex rxMsgMutex; /*! Protects messages and listSize */
+    mutable std::mutex rxStatusMutex; /*! Protects rxDeviceStatus */
     std::condition_variable rxMsgBufferNotEmpty;
 };
 

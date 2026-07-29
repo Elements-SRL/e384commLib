@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(e384commlib
-    VERSION 0.41.0
+    VERSION 0.42.0
     LANGUAGES CXX
 )
 
@@ -63,6 +63,7 @@ set(LIB_SOURCES
     src/devices/EMCR/emcr24x10mhz_only8ch.cpp
     src/devices/EMCR/emcr24x10mhz_el05c12_pcbv01.cpp
     src/devices/EMCR/emcr24x10mhz_el05c34_pcbv01.cpp
+    src/devices/EMCR/emcr32x10mhz_only_dig_pcbv01.cpp
     src/devices/EMCR/emcrtestboardel07ab.cpp
     src/devices/EMCR/emcrtestboardel07cd.cpp
     src/devices/EMCR/emcrqc01atb_v01.cpp
