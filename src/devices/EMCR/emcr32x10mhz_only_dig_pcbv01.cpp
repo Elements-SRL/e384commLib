@@ -150,10 +150,10 @@ Emcr32x10MHz_OnlyDig_PCBV01::Emcr32x10MHz_OnlyDig_PCBV01(std::string di) :
     /*! Default status */
     txStatus.init(txDataWords);
     txStatus.encodingWords[0] = 0xC028;
+    txStatus.encodingWords[1] = 0x0003;
     txStatus.encodingWords[2] = 0x0003;
+    txStatus.encodingWords[3] = 0x0003;
     txStatus.encodingWords[4] = 0x0003;
-    txStatus.encodingWords[6] = 0x0003;
-    txStatus.encodingWords[8] = 0x0003;
 }
 
 ErrorCodes_t Emcr32x10MHz_OnlyDig_PCBV01::initializeHW() {

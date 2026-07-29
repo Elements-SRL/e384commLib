@@ -2648,7 +2648,6 @@ bool EmcrDevice::computeLiquidJunction() {
                 ljResSx[channelIdx] = 0.0;
                 ljResSy[channelIdx] = 0.0;
                 ljResSxy[channelIdx] = 0.0;
-                // ljMaxRes[channelIdx] = 100.0*currentResolutions[channelIdx]*currentRanges[channelIdx].multiplier()/liquidJunctionRange.multiplier();
 
                 break;
 
@@ -3232,8 +3231,6 @@ void EmcrDevice::initializeLiquidJunction() {
     std::fill(ljResSy.begin(), ljResSy.end(), 0.0);
     ljResSxy.resize(currentChannelsNum);
     std::fill(ljResSxy.begin(), ljResSxy.end(), 0.0);
-    // ljMaxRes.resize(currentChannelsNum);
-    // std::fill(ljMaxRes.begin(), ljMaxRes.end(), 1.0);
     ljTargetCurrents.resize(currentChannelsNum);
     std::fill(ljTargetCurrents.begin(), ljTargetCurrents.end(), 0.0);
 
