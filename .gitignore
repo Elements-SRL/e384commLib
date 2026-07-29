@@ -44,3 +44,5 @@ debug/
 release/
 build/
 .qtcreator/
+build-test/
+commlib-install-test/
