@@ -1457,6 +1457,7 @@ ErrorCodes_t EmcrDevice::setAdcFilter(bool applyFlag) {
 
 ErrorCodes_t EmcrDevice::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
     if (samplingRateCoder == nullptr) {
+        selectedSamplingRateIdx = 0;
         return ErrorFeatureNotImplemented;
     }
 
