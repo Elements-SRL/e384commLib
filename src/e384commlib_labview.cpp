@@ -1142,7 +1142,7 @@ ErrorCodes_t voltStepTimeStep(
     uint16_t applySteps,
     uint16_t vHalfFlag,
     uint16_t * activeDigitalOutputs,
-    uint16_t activeDigitalOutputsNum)
+    uint16_t activeDigitalOutputsNum) {
 
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
