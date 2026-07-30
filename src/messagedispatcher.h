@@ -1308,7 +1308,7 @@ public:
      *
      * \param rxOutput [out] Struct containing info on the received message.
      * \param data [out] array of output data.
-     * \param type [in] desired data type. Other messages found before the desired type are deleted.
+     * \param type [in] desired data type. If specified, other messages found before the desired type are deleted.
      * \return Error code.
      */
     virtual ErrorCodes_t getNextMessage(RxOutput_t &rxOutput, int16_t * data, MsgTypeId type = MsgTypeIdInvalid);
@@ -1318,7 +1318,7 @@ public:
      *
      * \param rxOutput [out] Struct containing info on the received message.
      * \param data [out] array of output data.
-     * \param type [in] desired data type. Other messages found before the desired type are deleted.
+     * \param type [in] desired data type.
      * \return Error code.
      */
     virtual ErrorCodes_t getStoredMessage(RxOutput_t &rxOutput, int16_t * data, MsgTypeId type);

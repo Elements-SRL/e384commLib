@@ -1142,7 +1142,7 @@ ErrorCodes_t voltStepTimeStep(
     uint16_t applySteps,
     uint16_t vHalfFlag,
     uint16_t * activeDigitalOutputs,
-    uint16_t activeDigitalOutputsNum) {
+    uint16_t activeDigitalOutputsNum)
 
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
@@ -1581,6 +1581,14 @@ ErrorCodes_t getSpecificMessage(
         return ErrorDeviceNotConnected;
     }
     return messageDispatcher->getNextMessage(rxOutput, data, type);
+}
+
+ErrorCodes_t getStoredMessage(
+    RxOutput_t &rxOutput, int16_t* data, MsgTypeId_t type) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->getStoredMessage(rxOutput, data, type);
 }
 
 ErrorCodes_t getLiquidJunctionVoltages(
