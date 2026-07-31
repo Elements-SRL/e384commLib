@@ -145,7 +145,7 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
 #endif
     }
 
-    uint16_t uType = messageType;
+    uint16_t uType = this->typeNoDir(messageType);
     if (uType == MsgTypeIdInvalid) {
         /*! Return first message regardless of type */
         ret = messages.front();
@@ -180,7 +180,8 @@ RxMessage_t FrameManager::getNextMessage(MsgTypeId_t messageType) {
 RxMessage_t FrameManager::getStoredMessage(MsgTypeId_t messageType) {
     std::unique_lock <std::mutex> rxMutexLock(rxStatusMutex);
     RxMessage_t msg;
-    switch (messageType) {
+    uint16_t uType = this->typeNoDir(messageType);
+    switch (uType) {
     case MsgTypeIdTemperature:
         return rxDeviceStatus.lastTemperatureMessage;
 
