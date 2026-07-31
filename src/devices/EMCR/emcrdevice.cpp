@@ -1586,15 +1586,13 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolStep(uint16_t itemIdx, uint16_t nextI
         protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus);
     }
     if (!protocolItemDigitalOutCoders.empty()) {
-        if (!activeDigitalOutputs.empty()) {
-            uint32_t digOuts = 0;
-            for (auto idx : activeDigitalOutputs) {
-                if (idx < digitalOutputsNum) {
-                    digOuts |= (((uint32_t)1) << idx);
-                }
+        uint32_t digOuts = 0;
+        for (auto idx : activeDigitalOutputs) {
+            if (idx < digitalOutputsNum) {
+                digOuts |= (((uint32_t)1) << idx);
             }
-            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
         }
+        protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
     }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus);
     v0.convertValue(voltagePrefix);
@@ -1629,15 +1627,13 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolRamp(uint16_t itemIdx, uint16_t nextI
         protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus);
     }
     if (!protocolItemDigitalOutCoders.empty()) {
-        if (!activeDigitalOutputs.empty()) {
-            uint32_t digOuts = 0;
-            for (auto idx : activeDigitalOutputs) {
-                if (idx < digitalOutputsNum) {
-                    digOuts |= (((uint32_t)1) << idx);
-                }
+        uint32_t digOuts = 0;
+        for (auto idx : activeDigitalOutputs) {
+            if (idx < digitalOutputsNum) {
+                digOuts |= (((uint32_t)1) << idx);
             }
-            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
         }
+        protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
     }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus);
     v0.convertValue(voltagePrefix);
@@ -1674,15 +1670,13 @@ ErrorCodes_t EmcrDevice::setVoltageProtocolSin(uint16_t itemIdx, uint16_t nextIt
         protocolStimHalfCoders[itemIdx]->encode(vHalfFlag, txStatus);
     }
     if (!protocolItemDigitalOutCoders.empty()) {
-        if (!activeDigitalOutputs.empty()) {
-            uint32_t digOuts = 0;
-            for (auto idx : activeDigitalOutputs) {
-                if (idx < digitalOutputsNum) {
-                    digOuts |= (((uint32_t)1) << idx);
-                }
+        uint32_t digOuts = 0;
+        for (auto idx : activeDigitalOutputs) {
+            if (idx < digitalOutputsNum) {
+                digOuts |= (((uint32_t)1) << idx);
             }
-            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
         }
+        protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
     }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus);
     v0.convertValue(voltagePrefix);
@@ -1741,15 +1735,13 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolStep(uint16_t itemIdx, uint16_t nextI
         protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus);
     }
     if (!protocolItemDigitalOutCoders.empty()) {
-        if (!activeDigitalOutputs.empty()) {
-            uint32_t digOuts = 0;
-            for (auto idx : activeDigitalOutputs) {
-                if (idx < digitalOutputsNum) {
-                    digOuts |= (((uint32_t)1) << idx);
-                }
+        uint32_t digOuts = 0;
+        for (auto idx : activeDigitalOutputs) {
+            if (idx < digitalOutputsNum) {
+                digOuts |= (((uint32_t)1) << idx);
             }
-            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
         }
+        protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
     }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemStep, txStatus);
     i0.convertValue(currentPrefix);
@@ -1784,15 +1776,13 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolRamp(uint16_t itemIdx, uint16_t nextI
         protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus);
     }
     if (!protocolItemDigitalOutCoders.empty()) {
-        if (!activeDigitalOutputs.empty()) {
-            uint32_t digOuts = 0;
-            for (auto idx : activeDigitalOutputs) {
-                if (idx < digitalOutputsNum) {
-                    digOuts |= (((uint32_t)1) << idx);
-                }
+        uint32_t digOuts = 0;
+        for (auto idx : activeDigitalOutputs) {
+            if (idx < digitalOutputsNum) {
+                digOuts |= (((uint32_t)1) << idx);
             }
-            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
         }
+        protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
     }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemRamp, txStatus);
     i0.convertValue(currentPrefix);
@@ -1828,15 +1818,13 @@ ErrorCodes_t EmcrDevice::setCurrentProtocolSin(uint16_t itemIdx, uint16_t nextIt
         protocolStimHalfCoders[itemIdx]->encode(cHalfFlag, txStatus);
     }
     if (!protocolItemDigitalOutCoders.empty()) {
-        if (!activeDigitalOutputs.empty()) {
-            uint32_t digOuts = 0;
-            for (auto idx : activeDigitalOutputs) {
-                if (idx < digitalOutputsNum) {
-                    digOuts |= (((uint32_t)1) << idx);
-                }
+        uint32_t digOuts = 0;
+        for (auto idx : activeDigitalOutputs) {
+            if (idx < digitalOutputsNum) {
+                digOuts |= (((uint32_t)1) << idx);
             }
-            protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
         }
+        protocolItemDigitalOutCoders[itemIdx]->encode(digOuts, txStatus);
     }
     protocolItemTypeCoders[itemIdx]->encode(ProtocolItemSin, txStatus);
     i0.convertValue(currentPrefix);

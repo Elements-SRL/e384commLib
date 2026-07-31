@@ -1583,6 +1583,14 @@ ErrorCodes_t getSpecificMessage(
     return messageDispatcher->getNextMessage(rxOutput, data, type);
 }
 
+ErrorCodes_t getStoredMessage(
+    RxOutput_t &rxOutput, int16_t* data, MsgTypeId_t type) {
+    if (messageDispatcher == nullptr) {
+        return ErrorDeviceNotConnected;
+    }
+    return messageDispatcher->getStoredMessage(rxOutput, data, type);
+}
+
 ErrorCodes_t getLiquidJunctionVoltages(
         uint16_t * channelIndexesIn,
         LMeasHandle * voltagesOut,

@@ -2085,6 +2085,21 @@ ErrorCodes_t getSpecificMessage(
     E384CL_ARGOUT int16_t * data,
     E384CL_ARGIN MsgTypeId_t type);
 
+/*! \brief Get the next message from the queue sent by the connected device.
+ *  \note The last message of a specific type not queued becaused it's disabled with enableRxMessageType can be retrieved via this method.
+ *
+ * \param rxOutput [out] Struct containing info on the received message.
+ * \param data [out] array of output data.
+ * \param type [in] desired data type.
+ * \return Error code.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+    ErrorCodes_t getStoredMessage(
+        E384CL_ARGOUT RxOutput_t &rxOutput,
+        E384CL_ARGOUT int16_t * data,
+        E384CL_ARGIN MsgTypeId_t type);
+
 /*! \brief Purge buffered data.
  *
  * \return Error code.
