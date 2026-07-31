@@ -2023,7 +2023,7 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data, Ms
 
         rxOutput.msgTypeId = msg.typeId;
         switch (msg.typeId) {
-        case (MsgTypeIdAcquisitionData+MsgTypeIdAcquisitionHeader):
+        case (MsgDirectionDeviceToPc+MsgTypeIdAcquisitionHeader):
             rxOutput.dataLen = 0;
             rxOutput.protocolId = msg.data[sampleIdx++];
             rxOutput.protocolItemIdx = msg.data[sampleIdx++];
