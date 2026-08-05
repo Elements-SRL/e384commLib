@@ -147,15 +147,22 @@ Emcr32x10MHz_OnlyDig_PCBV01::Emcr32x10MHz_OnlyDig_PCBV01(std::string di) :
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
 
+    /*! FPGA reset */
+    boolConfig.initialWord = 0;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    fpgaResetCoder = new BoolArrayCoder(boolConfig);
+    coders.push_back(asicResetCoder);
+
     /*! Default status */
     txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0xC028;
-    txStatus.encodingWords[1] = 0x0003;
-    txStatus.encodingWords[2] = 0x0003;
-    txStatus.encodingWords[3] = 0x0003;
-    txStatus.encodingWords[4] = 0x0003;
+    txStatus.encodingWords[0] = 0x8028;
 }
 
 ErrorCodes_t Emcr32x10MHz_OnlyDig_PCBV01::initializeHW() {
+    fpgaResetCoder->encode(1, txStatus);
+    this->stackOutgoingMessage(txStatus);
+    fpgaResetCoder->encode(0, txStatus);
+    this->stackOutgoingMessage(txStatus);
     return Success;
 }
