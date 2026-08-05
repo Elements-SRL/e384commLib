@@ -89,6 +89,10 @@ public:
         DeviceSubversionTestBoardEL07c = 0x13,
         DeviceSubversionTestBoardEL07d = 0x14,
         DeviceSubversionTestBoardEL07e = 0x15,
+        DeviceSubversionTestBoardEl05c5TransSe = 0x17,
+        DeviceSubversionTestBoardEl05c5ResSe = 0x18,
+        DeviceSubversionTestBoardEl05c5TransDiff = 0x19,
+        DeviceSubversionTestBoardEl05c5ResDiff = 0x1A,
 
         /*! Subversions used for version = 0x0B */
         DeviceSubversion10MHz_SB_EL05a = 0x03,
