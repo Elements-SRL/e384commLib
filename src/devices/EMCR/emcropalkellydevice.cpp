@@ -38,6 +38,7 @@
 #include "emcr384voltageclamp_prot_v04_fw_v03.h"
 #include "emcrtestboardel07ab.h"
 #include "emcrtestboardel07cd.h"
+#include "emcrtestboardel05c5_v01.h"
 #include "emcr4x10mhz.h"
 #include "emcr2x10mhz.h"
 #include "emcr2x10mhz_fet.h"
@@ -112,6 +113,10 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07c, 1, DeviceTestBoardEL07ce},                                           //    6, 19,  1 : EL07c test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07d, 1, DeviceTestBoardEL07d},                                            //    6, 20,  1 : EL07d test board
     {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEL07e, 1, DeviceTestBoardEL07ce},                                           //    6, 21,  1 : EL07e test board
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEl05c5TransSe, 1, DeviceTestBoardEL05c5TransSe},                            //    6, 23,  1 : EL05c5 test board configured with transistor feedback and single ended output
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEl05c5ResSe, 1, DeviceTestBoardEL05c5ResSe},                                //    6, 24,  1 : EL05c5 test board configured with resistive feedback and single ended output
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEl05c5TransDiff, 1, DeviceTestBoardEL05c5TransDiff},                        //    6, 25,  1 : EL05c5 test board configured with transistor feedback and differential output
+    {EmcrOpalKellyDevice::DeviceVersionTestBoard, EmcrOpalKellyDevice::DeviceSubversionTestBoardEl05c5ResDiff, 1, DeviceTestBoardEL05c5ResDiff},                            //    6, 26,  1 : EL05c5 test board configured with resistive feedback and differential output
     {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV01, 1, Device2x10MHz_FET},                                           //  254, 25,  1 : 2x10MHz with controllable reference voltages
     {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV02, 1, Device2x10MHz_FET},                                           //  254, 26,  1 : 2x10MHz with controllable reference voltages
     {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_PCBV02_FEStim_CH12, 1, Device4x10MHz_PCBV02_FEStim_CH12},                    //  254, 29,  1 : 4x10MHz with stimulus from front end on channels 1 and 2
@@ -453,6 +458,22 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case DeviceTestBoardEL07ce:
         messageDispatcher = new EmcrTestBoardEl07c(deviceId);
+        break;
+
+    case DeviceTestBoardEL05c5TransSe:
+        messageDispatcher = new EmcrTestBoardEl05c5TransistorFeSingleEndedOut(deviceId);
+        break;
+
+    case DeviceTestBoardEL05c5ResSe:
+        messageDispatcher = new EmcrTestBoardEl05c5ResistiveFeSingleEndedOut(deviceId);
+        break;
+
+    case DeviceTestBoardEL05c5TransDiff:
+        messageDispatcher = new EmcrTestBoardEl05c5TransistorFeDifferentialOut(deviceId);
+        break;
+
+    case DeviceTestBoardEL05c5ResDiff:
+        messageDispatcher = new EmcrTestBoardEl05c5ResistiveFeDifferentialOut(deviceId);
         break;
 
     case DeviceTestBoardEL07d:
