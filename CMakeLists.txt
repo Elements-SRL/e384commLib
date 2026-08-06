@@ -124,13 +124,12 @@ if(BUILD_FOR_LABVIEW)
     )
 
     cmake_path(SET LABVIEW_TO_C_PATH_CMAKE "$ENV{LABVIEW_TO_C_PATH}")
-    target_include_directories(${TARGET_NAME}
-        PUBLIC
-        ${LABVIEW_TO_C_PATH_CMAKE}/include)
-    target_link_libraries(${TARGET_NAME}
-        PUBLIC
-        "${LABVIEW_TO_C_PATH_CMAKE}/lib/labview.lib"
-        "user32.lib")
+	include(${LABVIEW_TO_C_PATH_CMAKE}cmake/Findlabview2c.cmake)
+
+	target_link_libraries(${TARGET_NAME}
+		PUBLIC
+		labview2c::labview2c
+	)
 
 else()
     set(TARGET_NAME "e384commlib")
@@ -176,13 +175,13 @@ target_compile_definitions(${TARGET_NAME}
 # Transitive dependency
 
 cmake_path(SET FRONT_PANEL_PATH_CMAKE "$ENV{FRONT_PANEL_PATH}")
-include(${FRONT_PANEL_PATH_CMAKE}cmake/FindFrontPanel.cmake)
+include(${FRONT_PANEL_PATH_CMAKE}/cmake/FindFrontPanel.cmake)
 
 cmake_path(SET CY_API_PATH_CMAKE "$ENV{CY_API_PATH}")
-include(${CY_API_PATH_CMAKE}cmake/FindCyAPI.cmake)
+include(${CY_API_PATH_CMAKE}/cmake/FindCyAPI.cmake)
 
 cmake_path(SET TOML_PP_PATH_CMAKE "$ENV{TOML_PP_PATH}")
-include(${TOML_PP_PATH_CMAKE}cmake/Findtomlpp.cmake)
+include(${TOML_PP_PATH_CMAKE}/cmake/Findtomlpp.cmake)
 
 cmake_path(SET FTDI_UTILS_PATH_CMAKE "$ENV{FTDI_UTILS_PATH}")
 list(APPEND CMAKE_PREFIX_PATH "${FTDI_UTILS_PATH_CMAKE}")
