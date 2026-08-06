@@ -328,8 +328,27 @@ ErrorCodes_t EmcrDevice::updateLiquidJunctionVoltage(uint16_t channelIdx, bool a
     }
 
     if (selectedClampingModality == VOLTAGE_CLAMP) {
-        selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
-        selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus);
+        if (calibRsCorrOffsetDacCoders.empty()) { /////////////////////// todo FCON, da rimuovere una volta testata la calibrazione in eeprom
+            if (compensationsEnableFlags[CompRsCorr].empty()) {
+                selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
+                selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus);
+            }
+            else if (compensationsEnableFlags[CompRsCorr][channelIdx] && !(calibrationParams.types[CalTypesRsCorrOffsetDac].modes.empty())) {
+                calibrationParams.convertValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx, liquidJunctionRange.prefix);
+                selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
+                selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(
+                                                                     selectedLiquidJunctionVector[channelIdx].value+calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx).value,
+                                                                     txStatus)-calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx).value;
+            }
+            else {
+                selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
+                selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus);
+            }
+        }
+        else { ////////////////////////// fin qui
+            selectedLiquidJunctionVector[channelIdx].convertValue(liquidJunctionRange.prefix);
+            selectedLiquidJunctionVector[channelIdx].value = liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(selectedLiquidJunctionVector[channelIdx].value, txStatus);
+        }
     }
     else {
         liquidJunctionVoltageCoders[selectedLiquidJunctionRangeIdx][channelIdx]->encode(0.0, txStatus);
@@ -706,7 +725,16 @@ ErrorCodes_t EmcrDevice::updateCalibCcCurrentOffset(std::vector <uint16_t> chann
 
 ErrorCodes_t EmcrDevice::setCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> offsets, bool applyFlag) {
     if (calibRsCorrOffsetDacCoders.empty()) {
-        return ErrorFeatureNotImplemented;
+        // return ErrorFeatureNotImplemented;
+        if (!allLessThan(channelIndexes, currentChannelsNum)) { /////////////////////// todo FCON, da rimuovere una volta testata la calibrazione in eeprom
+            return ErrorValueOutOfRange;
+        }
+        for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+            offsets[i].convertValue(liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx].prefix);
+            calibrationParams.setValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i], offsets[i]);
+        }
+        this->updateCalibRsCorrOffsetDac(channelIndexes, applyFlag);
+        return Success; ////////////////////////// fin qui
     }
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
@@ -722,7 +750,22 @@ ErrorCodes_t EmcrDevice::setCalibRsCorrOffsetDac(std::vector <uint16_t> channelI
 
 ErrorCodes_t EmcrDevice::updateCalibRsCorrOffsetDac(std::vector <uint16_t> channelIndexes, bool applyFlag) {
     if (calibRsCorrOffsetDacCoders.empty()) {
-        return ErrorFeatureNotImplemented;
+        // return ErrorFeatureNotImplemented;
+        if (!allLessThan(channelIndexes, currentChannelsNum)) { /////////////////////// todo FCON, da rimuovere una volta testata la calibrazione in eeprom
+            return ErrorValueOutOfRange;
+        }
+        for (uint32_t i = 0; i < channelIndexes.size(); i++) {
+            calibrationParams.convertValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i], liquidJunctionRangesArray[selectedLiquidJunctionRangeIdx].prefix);
+            double offset = calibrationParams.getValue(CalTypesRsCorrOffsetDac, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIndexes[i]], channelIndexes[i]).value;
+            if (!(calibRsCorrOffsetDacCoders.empty())) {
+                calibRsCorrOffsetDacCoders[selectedVcCurrentRangeIdx[channelIndexes[i]]][channelIndexes[i]]->encode(offset, txStatus);
+            }
+        }
+
+        if (!(calibRsCorrOffsetDacCoders.empty()) && applyFlag) {
+            this->stackOutgoingMessage(txStatus);
+        }
+        return Success; ////////////////////////// fin qui
     }
     if (!allLessThan(channelIndexes, currentChannelsNum)) {
         return ErrorValueOutOfRange;
