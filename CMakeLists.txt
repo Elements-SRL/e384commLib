@@ -64,11 +64,12 @@ set(LIB_SOURCES
     src/devices/EMCR/emcr24x10mhz_el05c12_pcbv01.cpp
     src/devices/EMCR/emcr24x10mhz_el05c34_pcbv01.cpp
     src/devices/EMCR/emcr32x10mhz_only_dig_pcbv01.cpp
+    src/devices/EMCR/emcr32x10mhz_el05c2_pcbv01.cpp
     src/devices/EMCR/emcrtestboardel07ab.cpp
     src/devices/EMCR/emcrtestboardel07cd.cpp
     src/devices/EMCR/emcrqc01atb_v01.cpp
     src/devices/EMCR/emcrqc01atb_pcbv02.cpp
-	src/devices/EMCR/emcrtestboardel05c5_v01.cpp
+    src/devices/EMCR/emcrtestboardel05c5_v01.cpp
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.cpp
     src/devices/EMCR/emcr8patchclamp_el07e_artix7_pcbv03_fw_v01.cpp
     src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.cpp

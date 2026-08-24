@@ -1,0 +1,10 @@
+#ifndef EMCR32X1_MHZ_EL_5C2_PCBV_1_H
+#define EMCR32X1_MHZ_EL_5C2_PCBV_1_H
+
+class Emcr32x10MHz_EL05c2_PCBV01
+{
+public:
+    Emcr32x10MHz_EL05c2_PCBV01();
+};
+
+#endif // EMCR32X1_MHZ_EL_5C2_PCBV_1_H
