@@ -1,0 +1,125 @@
+name: Release e384commlib
+
+on:
+  push:
+    tags:
+      - '[0-9]*.[0-9]*.[0-9]*'
+
+# Same physical runner as the regular build pipeline (LENOVO-LUCA / e384-build).
+# NOTE: if the existing build/test workflow also uses the "e384-build-runner"
+# concurrency group, sharing it here means a release run will queue behind
+# (or block) normal CI runs on the same tag push. Confirm this is desired -
+# if releases should never be blocked by/block CI, use a different group name
+# (e.g. "e384-release-runner") instead.
+concurrency:
+  group: e384-build-runner
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # needed for the GitHub Release step
+
+jobs:
+  build-lib:
+    name: Build e384commlib (static lib)
+    runs-on: [self-hosted, e384-build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Purge stale CMake cache
+        shell: powershell
+        run: |
+          if (Test-Path "build\lib") {
+            Remove-Item -Recurse -Force "build\lib"
+          }
+
+      - name: Configure (static lib)
+        shell: powershell
+        run: |
+          cmake -S . -B build\lib -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_CONFIGURATION_TYPES=Release `
+            -DBUILD_FOR_LABVIEW=OFF `
+            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}\install\lib"
+
+      - name: Build
+        shell: powershell
+        run: cmake --build build\lib --config Release
+
+      - name: Install
+        shell: powershell
+        run: cmake --install build\lib --config Release
+
+      - name: Upload lib artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: e384commlib-static
+          path: install\lib
+          retention-days: 7
+
+  build-labview:
+    name: Build e384commlib (LabVIEW wrapper)
+    needs: build-lib   # single shared runner - keep these serialized and explicit
+    runs-on: [self-hosted, e384-build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Purge stale CMake cache
+        shell: powershell
+        run: |
+          if (Test-Path "build\labview") {
+            Remove-Item -Recurse -Force "build\labview"
+          }
+
+      - name: Configure (LabVIEW wrapper)
+        shell: powershell
+        run: |
+          cmake -S . -B build\labview -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_CONFIGURATION_TYPES=Release `
+            -DBUILD_FOR_LABVIEW=ON `
+            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}\install\labview"
+
+      - name: Build
+        shell: powershell
+        run: cmake --build build\labview --config Release
+
+      - name: Install
+        shell: powershell
+        run: cmake --install build\labview --config Release
+
+      - name: Upload LabVIEW artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: e384commlib-labview
+          path: install\labview
+          retention-days: 7
+
+  package-release:
+    name: Package and publish release bundle
+    needs: [build-lib, build-labview]
+    # Pure zip/publish step - no vendor SDKs needed, so this does not need
+    # to occupy the self-hosted Windows runner.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download static lib artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: e384commlib-static
+          path: bundle/lib
+
+      - name: Download LabVIEW artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: e384commlib-labview
+          path: bundle/labview
+
+      - name: Zip bundle
+        run: |
+          cd bundle
+          zip -r "../e384commlib-${{ github.ref_name }}.zip" lib labview
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: e384commlib-${{ github.ref_name }}.zip
+          generate_release_notes: true
