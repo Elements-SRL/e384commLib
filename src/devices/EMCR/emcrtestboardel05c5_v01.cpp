@@ -38,7 +38,7 @@ EmcrTestBoardEl05c5TransistorFeSingleEndedOut::EmcrTestBoardEl05c5TransistorFeSi
     availableVoltageSourcesIdxs.VoltageFromVoltageClamp = ChannelSourceVoltageFromVoltageClamp;
 
     /*! Protocols parameters */
-    protocolFpgaClockFrequencyHz = 10.0e3;
+    protocolFpgaClockFrequencyHz = 10.0e6;
 
     protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
     protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
@@ -627,7 +627,7 @@ EmcrTestBoardEl05c5ResistiveFeSingleEndedOut::EmcrTestBoardEl05c5ResistiveFeSing
     availableVoltageSourcesIdxs.VoltageFromVoltageClamp = ChannelSourceVoltageFromVoltageClamp;
 
     /*! Protocols parameters */
-    protocolFpgaClockFrequencyHz = 10.0e3;
+    protocolFpgaClockFrequencyHz = 10.0e6;
 
     protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
     protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
@@ -1230,7 +1230,7 @@ EmcrTestBoardEl05c5TransistorFeDifferentialOut::EmcrTestBoardEl05c5TransistorFeD
     availableVoltageSourcesIdxs.VoltageFromVoltageClamp = ChannelSourceVoltageFromVoltageClamp;
 
     /*! Protocols parameters */
-    protocolFpgaClockFrequencyHz = 10.0e3;
+    protocolFpgaClockFrequencyHz = 10.0e6;
 
     protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
     protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
@@ -1827,7 +1827,7 @@ EmcrTestBoardEl05c5ResistiveFeDifferentialOut::EmcrTestBoardEl05c5ResistiveFeDif
     availableVoltageSourcesIdxs.VoltageFromVoltageClamp = ChannelSourceVoltageFromVoltageClamp;
 
     /*! Protocols parameters */
-    protocolFpgaClockFrequencyHz = 10.0e3;
+    protocolFpgaClockFrequencyHz = 10.0e6;
 
     protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
     protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
@@ -2081,9 +2081,9 @@ EmcrTestBoardEl05c5ResistiveFeDifferentialOut::EmcrTestBoardEl05c5ResistiveFeDif
     vcCurrentRangeCoders.clear();
     vcCurrentRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
     static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(0);
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(2);
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(4);
     static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(8);
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(4);
+    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(2);
     coders.push_back(vcCurrentRangeCoders[0]);
 
     /*! Voltage range VC */

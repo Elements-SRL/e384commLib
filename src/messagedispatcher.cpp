@@ -8,7 +8,6 @@
 
 #include "emcropalkellydevice.h"
 #include "emcrudbdevice.h"
-#include "ezpatchftdidevice.h"
 #include "emcrftdidevice.h"
 #include "utils.h"
 
@@ -39,24 +38,7 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     std::vector <std::string> demoDeviceIds;
     std::vector <std::string> deviceIdsTemp;
 
-    ErrorCodes_t retTemp = EZPatchFtdiDevice::detectDevices(deviceIdsTemp);
-    if (retTemp == Success) {
-        for (auto &s : deviceIdsTemp) {
-            if (EZPatchFtdiDevice::isDeviceRecognized(s) != Success) {
-                continue;
-            }
-            if (s.starts_with("DEMO")) {
-                demoDeviceIds.push_back(s);
-            }
-            else {
-                deviceIds.push_back(s);
-            }
-        }
-    }
-    ret = retTemp; /*! Set the first return anyway, so even if all methods return an error the return is set here.
-                       Afterwards update only on a Success */
-
-    retTemp = EmcrUdbDevice::detectDevices(deviceIdsTemp);
+    ErrorCodes_t retTemp = EmcrUdbDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
         for (auto &s : deviceIdsTemp) {
             if (EmcrUdbDevice::isDeviceRecognized(s) != Success) {
@@ -69,8 +51,9 @@ ErrorCodes_t MessageDispatcher::detectDevices(
                 deviceIds.push_back(s);
             }
         }
-        ret = retTemp;
     }
+    ret = retTemp; /*! Set the first return anyway, so even if all methods return an error the return is set here.
+                       Afterwards update only on a Success */
 
     retTemp = EmcrFtdiDevice::detectDevices(deviceIdsTemp);
     if (retTemp == Success) {
@@ -127,14 +110,6 @@ ErrorCodes_t MessageDispatcher::listAllDevices(
 
     std::vector <std::string> deviceIdsTemp;
 
-    if (EZPatchFtdiDevice::detectDevices(deviceIdsTemp) == Success) {
-        for (auto &s : deviceIdsTemp) {
-            if (!s.starts_with("DEMO")) {
-                deviceIdSet.emplace(s);
-            }
-        }
-    }
-
     if (EmcrUdbDevice::detectDevices(deviceIdsTemp) == Success) {
         for (auto &s : deviceIdsTemp) {
             if (!s.starts_with("DEMO")) {
@@ -181,11 +156,6 @@ ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int
         EmcrFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
         return Success;
     }
-
-    if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        EZPatchFtdiDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
-        return Success;
-    }
     return ErrorDeviceTypeNotRecognized;
 }
 
@@ -212,13 +182,6 @@ ErrorCodes_t MessageDispatcher::connectDevice(std::string deviceId, MessageDispa
         }
         return ret;
     }
-
-    if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        if ((ret = EZPatchFtdiDevice::connectDevice(deviceId, messageDispatcher)) == Success) {
-            connectedDevices.push_back(messageDispatcher);
-        }
-        return ret;
-    }
     return ret;
 }
 
@@ -233,10 +196,6 @@ ErrorCodes_t MessageDispatcher::isDeviceUpgradable(std::string deviceId) {
 
     if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
         return EmcrFtdiDevice::isDeviceUpgradable(deviceId);
-    }
-
-    if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        return ErrorDeviceNotUpgradable;
     }
     return ErrorDeviceTypeNotRecognized;
 }
@@ -256,10 +215,6 @@ ErrorCodes_t MessageDispatcher::upgradeDevice(std::string deviceId) {
 
     if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
         return EmcrFtdiDevice::upgradeDevice(deviceId);
-    }
-
-    if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-        return ErrorDeviceNotUpgradable;
     }
     return ErrorDeviceTypeNotRecognized;
 }
@@ -291,10 +246,6 @@ ErrorCodes_t MessageDispatcher::disconnectDevice(bool overheatFlag) {
 
 //    if (EmcrFtdiDevice::isDeviceRecognized(deviceId) == Success) {
 //        return EmcrFtdiDevice::upgradeDevice(deviceId);
-//    }
-
-//    if (EZPatchFtdiDevice::isDeviceRecognized(deviceId) == Success) {
-//        return ErrorDeviceNotUpgradable;
 //    }
 //    return ErrorDeviceTypeNotRecognized;
 //}

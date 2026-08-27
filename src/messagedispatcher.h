@@ -2325,6 +2325,7 @@ protected:
     uint16_t currentChannelsNum = 1;
     uint16_t gpChannelsNum = 0;
     uint16_t totalChannelsNum = voltageChannelsNum+currentChannelsNum+gpChannelsNum;
+    uint16_t stimulusBlockSize = 1;
 
     ChannelSources_t availableVoltageSourcesIdxs;
     ChannelSources_t availableCurrentSourcesIdxs;

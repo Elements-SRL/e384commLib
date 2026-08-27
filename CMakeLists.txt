@@ -64,11 +64,12 @@ set(LIB_SOURCES
     src/devices/EMCR/emcr24x10mhz_el05c12_pcbv01.cpp
     src/devices/EMCR/emcr24x10mhz_el05c34_pcbv01.cpp
     src/devices/EMCR/emcr32x10mhz_only_dig_pcbv01.cpp
+    src/devices/EMCR/emcr32x10mhz_el05c2_pcbv01.cpp
     src/devices/EMCR/emcrtestboardel07ab.cpp
     src/devices/EMCR/emcrtestboardel07cd.cpp
     src/devices/EMCR/emcrqc01atb_v01.cpp
     src/devices/EMCR/emcrqc01atb_pcbv02.cpp
-	src/devices/EMCR/emcrtestboardel05c5_v01.cpp
+    src/devices/EMCR/emcrtestboardel05c5_v01.cpp
     src/devices/EMCR/emcr8patchclamp_el07cd_artix7.cpp
     src/devices/EMCR/emcr8patchclamp_el07e_artix7_pcbv03_fw_v01.cpp
     src/devices/EMCR/emcr8npatchclamp_el07c_artix7_pcbv01.cpp
@@ -81,22 +82,6 @@ set(LIB_SOURCES
     src/devices/EMCR/emcr2x10mhzfake.cpp
     src/devices/EMCR/emcr4x10mhzfake.cpp
     src/devices/EMCR/emcrtestboardel07cdfake.cpp
-    src/devices/EZPatch/ezpatchdevice.cpp
-    src/devices/EZPatch/ezpatchftdidevice.cpp
-    src/devices/EZPatch/ezpatchepatchel03d.cpp
-    src/devices/EZPatch/ezpatchepatchel03f_4d.cpp
-    src/devices/EZPatch/ezpatchepatchel04e.cpp
-    src/devices/EZPatch/ezpatchepatchel04f.cpp
-    src/devices/EZPatch/ezpatchepatchel03f_4e.cpp
-    src/devices/EZPatch/ezpatchepatchel03f_4f.cpp
-    src/devices/EZPatch/ezpatche4pel04f.cpp
-    src/devices/EZPatch/ezpatche4ppatch.cpp
-    src/devices/EZPatch/ezpatche4ppatch_el07ab.cpp
-    src/devices/EZPatch/ezpatche8ppatch.cpp
-    src/devices/EZPatch/ezpatche8ppatch_el07ab.cpp
-    src/devices/EZPatch/ezpatche8ppatch_el07cd.cpp
-    src/devices/EZPatch/ezpatchfakepatch.cpp
-    src/devices/EZPatch/ezpatchfakep8.cpp
     src/model/boardmodel.cpp
     src/model/channelmodel.cpp
     src/calibration/tomlcalibrationmanager.cpp
@@ -156,7 +141,6 @@ target_include_directories(${TARGET_NAME}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/calibration>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/devices/EMCR>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/devices/EZPatch>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/model>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/peripherals>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
