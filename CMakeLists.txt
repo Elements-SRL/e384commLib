@@ -82,22 +82,6 @@ set(LIB_SOURCES
     src/devices/EMCR/emcr2x10mhzfake.cpp
     src/devices/EMCR/emcr4x10mhzfake.cpp
     src/devices/EMCR/emcrtestboardel07cdfake.cpp
-    src/devices/EZPatch/ezpatchdevice.cpp
-    src/devices/EZPatch/ezpatchftdidevice.cpp
-    src/devices/EZPatch/ezpatchepatchel03d.cpp
-    src/devices/EZPatch/ezpatchepatchel03f_4d.cpp
-    src/devices/EZPatch/ezpatchepatchel04e.cpp
-    src/devices/EZPatch/ezpatchepatchel04f.cpp
-    src/devices/EZPatch/ezpatchepatchel03f_4e.cpp
-    src/devices/EZPatch/ezpatchepatchel03f_4f.cpp
-    src/devices/EZPatch/ezpatche4pel04f.cpp
-    src/devices/EZPatch/ezpatche4ppatch.cpp
-    src/devices/EZPatch/ezpatche4ppatch_el07ab.cpp
-    src/devices/EZPatch/ezpatche8ppatch.cpp
-    src/devices/EZPatch/ezpatche8ppatch_el07ab.cpp
-    src/devices/EZPatch/ezpatche8ppatch_el07cd.cpp
-    src/devices/EZPatch/ezpatchfakepatch.cpp
-    src/devices/EZPatch/ezpatchfakep8.cpp
     src/model/boardmodel.cpp
     src/model/channelmodel.cpp
     src/calibration/tomlcalibrationmanager.cpp
@@ -157,7 +141,6 @@ target_include_directories(${TARGET_NAME}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/calibration>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/devices/EMCR>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/devices/EZPatch>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/model>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/peripherals>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>

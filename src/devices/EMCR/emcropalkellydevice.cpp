@@ -50,6 +50,7 @@
 #include "emcr24x10mhz_el05c34_pcbv01.h"
 #include "emcr24x10mhz_only8ch.h"
 #include "emcr32x10mhz_only_dig_pcbv01.h"
+#include "emcr32x10mhz_el05c2_pcbv01.h"
 #include "emcrqc01atb_v01.h"
 /*! Fake device that generates synthetic data */
 #include "emcr384nanoporesfake.h"
