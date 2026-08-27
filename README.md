@@ -4,6 +4,13 @@ Compatibility has been verified for the following systems:
 
 Note: Elements only provides free support for Windows 11+.
 
+# Prebuilt Binaries
+Prebuilt versions of the library are available in the [Releases](https://github.com/Elements-SRL/er4CommLib/releases) section.
+
+Each release archive contains:
+- **C++ static library** (compiled binaries and headers)
+- **LabVIEW wrapper**
+
 ## C++
 e384commlib requires c++20 or newer.
 
@@ -23,5 +30,4 @@ The e384commlib requires the following libraries:
 - cyUSB.lib as part of the EZ-USB FX3 SDK for the handling of Cypress based devices [infineon.com](https://www.infineon.com/design-resources/development-tools/sdk/usb-controllers-sdk/ez-usb-fx3-software-development-kit)
 - toml++ for toml files parsing [github.com](https://github.com/marzer/tomlplusplus/)
 
-# PREBUILT BINARIES
-Prebuilt versions of the library are available on Elements website [elements-ic.com](https://elements-ic.com/emcr/#api)
+
