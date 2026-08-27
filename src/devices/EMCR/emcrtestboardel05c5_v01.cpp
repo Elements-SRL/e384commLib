@@ -2007,7 +2007,7 @@ EmcrTestBoardEl05c5ResistiveFeDifferentialOut::EmcrTestBoardEl05c5ResistiveFeDif
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange1600mV].prefix, vcVoltageRangesArray[VCVoltageRange1600mV].unit};
 
     /*! Calib VC current gain */
-    calibVcCurrentGainRange.step = 1.0/16384.0;
+    calibVcCurrentGainRange.step = 1.0/1024.0;
     calibVcCurrentGainRange.min = 0;
     calibVcCurrentGainRange.max = SHORT_MAX * calibVcCurrentGainRange.step;
     calibVcCurrentGainRange.prefix = UnitPfxNone;
