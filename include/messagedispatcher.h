@@ -14,7 +14,6 @@
 #include "e384commlib_errorcodes.h"
 #include "e384commlib_global.h"
 #include "boardmodel.h"
-#include "utils.h"
 
 #ifdef E384COMMLIB_LABVIEW_WRAPPER
 #include "e384commlib_global_addendum.h"

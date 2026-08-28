@@ -12,6 +12,7 @@
 #include "emcrdevice.h"
 #include "ftdicalibrationeeprom.h"
 #include "ftdiutils.h"
+#include "utils.h"
 
 class EmcrFtdiDevice : public EmcrDevice {
 public:

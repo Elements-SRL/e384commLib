@@ -96,7 +96,7 @@ if(BUILD_FOR_LABVIEW)
     set(TARGET_NAME "e384commlib_labview")
 
     list(APPEND LIB_SOURCES src/e384commlib_labview.cpp)
-    set(LIB_HEADERS src/e384commlib_labview.h)
+    set(LIB_HEADERS include/e384commlib_labview.h)
 
     add_library(${TARGET_NAME} SHARED ${LIB_SOURCES} ${LIB_HEADERS})
     add_library(e384commlib::e384commlib ALIAS ${TARGET_NAME})
@@ -144,8 +144,8 @@ target_include_directories(${TARGET_NAME}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/devices/EMCR>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/model>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/peripherals>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/model>
 )
 
 # Defines
@@ -203,7 +203,7 @@ install(TARGETS ${TARGET_NAME}
 
 # Install header
 
-install(DIRECTORY src/
+install(DIRECTORY include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING
     PATTERN "*.h"
