@@ -1,6 +1,6 @@
-#include "emcr24x10mhz_el05c34_pcbv01.h"
+#include "emcr24x10mhz_el05c3_pcbv02.h"
 
-Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
+Emcr24x10MHz_EL05c3_PCBV02::Emcr24x10MHz_EL05c3_PCBV02(std::string di) :
     EmcrOpalKellyDevice(di) {
 
     deviceName = "24x10MHz";
@@ -75,11 +75,6 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     /*! VC */
     vcCurrentRangesNum = VCCurrentRangesNum;
     vcCurrentRangesArray.resize(vcCurrentRangesNum);
-    vcCurrentRangesArray[VCCurrentRange10nA].min = -10.0;
-    vcCurrentRangesArray[VCCurrentRange10nA].max = 10.0;
-    vcCurrentRangesArray[VCCurrentRange10nA].step = vcCurrentRangesArray[VCCurrentRange10nA].max/SHORT_MAX;
-    vcCurrentRangesArray[VCCurrentRange10nA].prefix = UnitPfxNano;
-    vcCurrentRangesArray[VCCurrentRange10nA].unit = "A";
     vcCurrentRangesArray[VCCurrentRange100nA].min = -100.0;
     vcCurrentRangesArray[VCCurrentRange100nA].max = 100.0;
     vcCurrentRangesArray[VCCurrentRange100nA].step = vcCurrentRangesArray[VCCurrentRange100nA].max/SHORT_MAX;
@@ -630,7 +625,7 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-ErrorCodes_t Emcr24x10MHz_EL05c34_PCBV01::initializeHW() {
+ErrorCodes_t Emcr24x10MHz_EL05c3_PCBV02::initializeHW() {
     this->resetFpga(true, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
     this->resetFpga(false, true);

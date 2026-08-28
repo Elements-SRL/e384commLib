@@ -105,6 +105,9 @@ public:
         DeviceSubversion24x10MHz_PCBV01_EL05c12 = 0x0E,
         DeviceSubversion10MHz_SB_EL05a_PCBV03 = 0x0F,
         DeviceSubversion32x10MHz_EL05c2_PCBV01 = 0x10,
+        DeviceSubversion24x10MHz_EL05c1_PCBV02 = 0x11,
+        DeviceSubversion24x10MHz_EL05c3_PCBV02 = 0x12,
+        DeviceSubversion24x10MHz_EL05c4_PCBV02 = 0x13,
         DeviceSubversionOk_FAKE = 0xFE,
 
         /*! Subversions used for version = 0x0D */

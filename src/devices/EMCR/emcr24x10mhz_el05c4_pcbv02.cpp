@@ -1,6 +1,6 @@
-#include "emcr24x10mhz_el05c34_pcbv01.h"
+#include "emcr24x10mhz_el05c4_pcbv02.h"
 
-Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
+Emcr24x10MHz_EL05c4_PCBV02::Emcr24x10MHz_EL05c4_PCBV02(std::string di) :
     EmcrOpalKellyDevice(di) {
 
     deviceName = "24x10MHz";
@@ -272,9 +272,7 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     vcCurrentRangeCoders.clear();
-    vcCurrentRangeCoders.push_back(new BoolRandomArrayCoder(boolConfig));
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(1);
-    static_cast <BoolRandomArrayCoder *> (vcCurrentRangeCoders[0])->addMapItem(0);
+    vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
     coders.push_back(vcCurrentRangeCoders[0]);
 
     /*! Voltage range VC */
@@ -630,7 +628,7 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
-ErrorCodes_t Emcr24x10MHz_EL05c34_PCBV01::initializeHW() {
+ErrorCodes_t Emcr24x10MHz_EL05c4_PCBV02::initializeHW() {
     this->resetFpga(true, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
     this->resetFpga(false, true);

@@ -48,6 +48,9 @@
 #include "emcr24x10mhz_only8ch.h"
 #include "emcr24x10mhz_el05c12_pcbv01.h"
 #include "emcr24x10mhz_el05c34_pcbv01.h"
+#include "emcr24x10mhz_el05c1_pcbv02.h"
+#include "emcr24x10mhz_el05c3_pcbv02.h"
+#include "emcr24x10mhz_el05c4_pcbv02.h"
 #include "emcr24x10mhz_only8ch.h"
 #include "emcr32x10mhz_only_dig_pcbv01.h"
 #include "emcr32x10mhz_el05c2_pcbv01.h"
@@ -76,6 +79,9 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 3, Device24x10MHz_Only8Ch_PCBV01_EL05c2},                       //   11, 14,  3 : 24 channels 10MHz nanopore reader, but only 8 active, slot 3 EL05c2
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 4, Device24x10MHz_PCBV01_EL05c12},                              //   11, 14,  4 : 24 channels 10MHz nanopore reader, slot 1 EL05c1, slot 2 EL05c1P, slot 3 EL05c2
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion32x10MHz_EL05c2_PCBV01, 1, Device32x10MHz_PCBV01_EL05c2},                                //   11, 16,  1 : 32 channels 10MHz nanopore reader, EL05c2
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_EL05c1_PCBV02, 1, Device24x10MHz_PCBV02_EL05c1},                                //   11, 17,  1 : 24 channels 10MHz nanopore reader, EL05c1
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_EL05c3_PCBV02, 1, Device24x10MHz_PCBV02_EL05c3},                                //   11, 18,  1 : 24 channels 10MHz nanopore reader, EL05c3
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_EL05c4_PCBV02, 1, Device24x10MHz_PCBV02_EL05c4},                                //   11, 19,  1 : 24 channels 10MHz nanopore reader, EL05c4
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB02Mez03, 1, Device192Blm_el03c_mb02_mez03_fw_v01},                       //   13,  1,  1 : 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB02Mez03, 2, Device192Blm_el03c_mb02_mez03_fw_v02},                       //   13,  1,  2 : 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB02Mez03, 3, Device192Blm_el03c_mb02_mez03_fw_v03},                       //   13,  1,  3 : 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
@@ -122,7 +128,6 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV01, 1, Device2x10MHz_FET},                                           //  254, 25,  1 : 2x10MHz with controllable reference voltages
     {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion2x10MHz_FET_PCBV02, 1, Device2x10MHz_FET},                                           //  254, 26,  1 : 2x10MHz with controllable reference voltages
     {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion4x10MHz_PCBV02_FEStim_CH12, 1, Device4x10MHz_PCBV02_FEStim_CH12},                    //  254, 29,  1 : 4x10MHz with stimulus from front end on channels 1 and 2
-    {EmcrOpalKellyDevice::DeviceVersionPrototype, EmcrOpalKellyDevice::DeviceSubversion32x10MHz_OnlyDig_PcbV01, 1, Device32x10MHz_OnlyDig_PCBV01},                          //  254, 30,  1 : 32x10MHz only digital board
 };
 
 static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
@@ -536,6 +541,18 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device32x10MHz_PCBV01_EL05c2:
         messageDispatcher = new Emcr32x10MHz_EL05c2_PCBV01(deviceId);
+        break;
+
+    case Device24x10MHz_PCBV02_EL05c1:
+        messageDispatcher = new Emcr24x10MHz_EL05c1_PCBV02(deviceId);
+        break;
+
+    case Device24x10MHz_PCBV02_EL05c3:
+        messageDispatcher = new Emcr24x10MHz_EL05c3_PCBV02(deviceId);
+        break;
+
+    case Device24x10MHz_PCBV02_EL05c4:
+        messageDispatcher = new Emcr24x10MHz_EL05c4_PCBV02(deviceId);
         break;
 
     case Device24x10MHz_PCBV01_EL05c34:

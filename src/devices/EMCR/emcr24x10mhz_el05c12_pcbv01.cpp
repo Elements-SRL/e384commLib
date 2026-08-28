@@ -539,10 +539,10 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
     doubleConfig.maxValue = calibVcVoltageGainRange.max;
     calibVcVoltageGainCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        if (currentChannelsNum < 8) {
+        if (idx < 8) {
             doubleConfig.initialWord = 315;
         }
-        else if (currentChannelsNum < 8) {
+        else if (idx < 16) {
             doubleConfig.initialWord = 321;
         }
         else {
@@ -562,10 +562,10 @@ Emcr24x10MHz_EL05c12_PCBV01::Emcr24x10MHz_EL05c12_PCBV01(std::string di) :
         doubleConfig.maxValue = calibVcVoltageOffsetRanges[rangeIdx].min;
         calibVcVoltageOffsetCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            if (currentChannelsNum < 8) {
+            if (idx < 8) {
                 doubleConfig.initialWord = 318;
             }
-            else if (currentChannelsNum < 8) {
+            else if (idx < 16) {
                 doubleConfig.initialWord = 324;
             }
             else {
