@@ -52,7 +52,6 @@
 #include "emcr24x10mhz_el05c3_pcbv02.h"
 #include "emcr24x10mhz_el05c4_pcbv02.h"
 #include "emcr24x10mhz_only8ch.h"
-#include "emcr32x10mhz_only_dig_pcbv01.h"
 #include "emcr32x10mhz_el05c2_pcbv01.h"
 #include "emcrqc01atb_v01.h"
 /*! Fake device that generates synthetic data */
@@ -581,10 +580,6 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device4x10MHz_PCBV02_FEStim_CH12:
         messageDispatcher = new Emcr4x10MHz_SB_PCBV02_FEStim_Ch12_V01(deviceId);
-        break;
-
-    case Device32x10MHz_OnlyDig_PCBV01:
-        messageDispatcher = new Emcr32x10MHz_OnlyDig_PCBV01(deviceId);
         break;
 
     case Device384Fake:
