@@ -36,6 +36,7 @@ set(LIB_SOURCES
     src/devices/EMCR/emcr192blm_el03c_mb03_mez05_fw_v07.cpp
     src/devices/EMCR/emcr192blm_el03c_mb03_mez05_fw_v09.cpp
     src/devices/EMCR/emcr8blm_el03c_digbrd_fw_v01.cpp
+    src/devices/EMCR/emcr8blm_el08b_digbrd_fw_v01.cpp
     src/devices/EMCR/emcr384nanopores.cpp
     src/devices/EMCR/emcr384nanopores_sr7p5khz_v01.cpp
     src/devices/EMCR/emcr384patchclamp_prot_v01_fw_v02.cpp
