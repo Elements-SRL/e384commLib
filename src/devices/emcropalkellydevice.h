@@ -44,10 +44,6 @@
 #include "emcrdevice.h"
 #include "utils.h"
 
-constexpr uint32_t LOG2(uint32_t n) {
-    return std::bit_width(static_cast <unsigned> (n)) - 1;
-}
-
 const uint32_t OKY_RX_TRANSFER_MAX_EXP = LOG2(OKY_RX_TRANSFER_SIZE); /*!< 20. Let's keep the transfer size a power of 2, such that the size doesn't exceed OKY_RX_TRANSFER_SIZE */
 const uint32_t OKY_RX_TRANSFER_MIN_EXP = LOG2(OKY_RX_BLOCK_SIZE); /*!< 14. Let's keep the transfer size a power of 2, such that the size doesn't go below OKY_RX_BLOCK_SIZE */
 const uint32_t OKY_RX_EXTENDED_BUFFER_SIZE = OKY_RX_BUFFER_SIZE+OKY_RX_TRANSFER_SIZE;  /*!< Add space to be able to always store data from the ReadFromBlockPipeOut */

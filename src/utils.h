@@ -17,6 +17,10 @@
 #define GLB_HERE { std::cout<<__FILE__<<__LINE__<<std::endl; }
 #endif
 
+constexpr uint32_t LOG2(uint32_t n) {
+    return std::bit_width(static_cast <unsigned> (n)) - 1;
+}
+
 typedef enum {
     DebugLevelDevice,
     DebugLevelRxRaw,
