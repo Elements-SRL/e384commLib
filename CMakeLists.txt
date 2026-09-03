@@ -67,6 +67,9 @@ set(LIB_SOURCES
     src/devices/emcr24x10mhz_el05c1_pcbv02.cpp
     src/devices/emcr24x10mhz_el05c3_pcbv02.cpp
     src/devices/emcr24x10mhz_el05c4_pcbv02.cpp
+    src/devices/emcr24x10mhz_el05c1_pcbv02_fwv05.cpp
+    src/devices/emcr24x10mhz_el05c3_pcbv02_fwv05.cpp
+    src/devices/emcr24x10mhz_el05c4_pcbv02_fwv05.cpp
     src/devices/emcr32x10mhz_el05c2_pcbv01.cpp
     src/devices/emcrtestboardel07ab.cpp
     src/devices/emcrtestboardel07cd.cpp
