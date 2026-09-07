@@ -104,6 +104,11 @@ protected:
         CustomDacVcmAsic3,
         CustomDacZapAsic3,
         CustomDacRefAsic3,
+        CustomDoubleMacAddressHost,
+        CustomDoubleIpAddressHost,
+        CustomDoublePortHost,
+        CustomDoubleIpAddressDevice,
+        CustomDoublePortDevice,
         CustomDoublesNum
     };
 

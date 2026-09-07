@@ -28,7 +28,7 @@ Emcr24x10MHz_EL05c4_PCBV02_FWV05::Emcr24x10MHz_EL05c4_PCBV02_FWV05(std::string d
     rxMaxWords = currentChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
 
-    txDataWords = 333; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
+    txDataWords = 348; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
@@ -643,6 +643,18 @@ Emcr24x10MHz_EL05c4_PCBV02_FWV05::Emcr24x10MHz_EL05c4_PCBV02_FWV05(std::string d
     for (int idx = 327; idx < 330; idx++) {
         txStatus.encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
     }
+    txStatus.encodingWords[334] = 0xDDEE;
+    txStatus.encodingWords[335] = 0xBBCC;
+    txStatus.encodingWords[336] = 0x02AA;
+    txStatus.encodingWords[338] = 0xFFFF;
+    txStatus.encodingWords[339] = 0xFFFF;
+    txStatus.encodingWords[340] = 0xFFFF;
+    txStatus.encodingWords[342] = 0x0101;
+    txStatus.encodingWords[343] = 0xC0A8;
+    txStatus.encodingWords[344] = 0x0102;
+    txStatus.encodingWords[345] = 0xC0A8;
+    txStatus.encodingWords[346] = 0x1F90;
+    txStatus.encodingWords[347] = 0x1F91;
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 

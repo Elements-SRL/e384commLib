@@ -6,7 +6,8 @@
 #include "utils.h"
 #include "toml.hpp"
 
-#define TOML_CAL_ROOT_FOLDER (std::string("C:") + UTL_SEPARATOR + "EMCR_calib_folder" + UTL_SEPARATOR)
+#define TOML_CAL_ROOT_FOLDER (std::string("C:") + UTL_SEPARATOR + "EMCR_calib_folder")
+#define TOML_CAL_ROOT_ALT1_FOLDER (std::string("C:") + UTL_SEPARATOR + "Rosen_calib_folder")
 
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
 namespace e384CommLib {
@@ -34,6 +35,7 @@ private:
     void loadDefaultParams();
     bool loadSetOfParams(CalibrationTypes_t type, toml::node_view <toml::node> node, uint32_t boardIdx,
                           CalibrationSamplingModes_t &outParams);
+    std::string findCalibFolder();
 
     ErrorCodes_t status = Success;
 

@@ -1,5 +1,9 @@
 #include "tomlcalibrationmanager.h"
 
+namespace fs = std::filesystem;
+
+static std::vector <std::string> search_paths = {TOML_CAL_ROOT_FOLDER, TOML_CAL_ROOT_ALT1_FOLDER};
+
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
 namespace e384CommLib {
 #endif
@@ -137,7 +141,7 @@ TomlCalibrationManager::TomlCalibrationManager(std::string serialNumber,
     samplingRatesNum(samplingRatesNum),
     samplingRateModesNum(samplingRateModesNum) {
 
-    calibrationFileName = TOML_CAL_ROOT_FOLDER + serialNumber + UTL_SEPARATOR + "calibration_file.toml";
+    calibrationFileName = this->findCalibFolder() + UTL_SEPARATOR + serialNumber + UTL_SEPARATOR + "calibration_file.toml";
 
     channelsPerBoard = currentChannelsNum/boardsNum;
 
@@ -297,6 +301,24 @@ bool TomlCalibrationManager::loadSetOfParams(CalibrationTypes_t type, toml::node
     }
 
     return ret;
+}
+
+std::string TomlCalibrationManager::findCalibFolder() {
+    bool found = false;
+
+    for (const auto& path_str : search_paths) {
+        fs::path current_path(path_str);
+
+        if (fs::exists(current_path) && fs::is_directory(current_path)) {
+            fs::path file_path = current_path / serialNumber / "calibration_file.toml";
+
+            if (fs::exists(file_path) && fs::is_regular_file(file_path)) {
+                found = true;
+                return path_str;
+            }
+        }
+    }
+    return "";
 }
 
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
