@@ -212,12 +212,13 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
     return Success;
 }
 
-ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
+ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch, std::vector <uint8_t> &userInfo) {
     static std::unordered_map <std::string, unsigned int> deviceVersionCache;
     static std::unordered_map <std::string, unsigned int> deviceSubVersionCache;
     static std::unordered_map <std::string, unsigned int> fwMajorCache;
     static std::unordered_map <std::string, unsigned int> fwMinorCache;
     static std::unordered_map <std::string, unsigned int> fwPatchCache;
+    static std::unordered_map <std::string, std::vector <uint8_t>> userInfoCache;
 
     auto it = deviceVersionCache.find(deviceId);
     if (it != deviceVersionCache.end()) {
@@ -226,6 +227,7 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned i
         fwMajor = fwMajorCache[deviceId];
         fwMinor = fwMinorCache[deviceId];
         fwPatch = fwPatchCache[deviceId];
+        userInfo = userInfoCache[deviceId];
         return Success;
     }
 

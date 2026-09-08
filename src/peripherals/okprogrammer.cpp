@@ -26,6 +26,12 @@ void OkProgrammer::getDeviceInfo(InfoStruct_t &info) {
     info.fpgaFwVersion.minor = buffer16[3];
     info.fpgaFwVersion.patch = buffer16[4];
 
+    auto userInfoOffset = OK_USER_INFO_ADDRESS-OK_INFO_ADDRESS;
+    info.userInfo.resize(OK_USER_INFO_SIZE);
+    for (int k = 0; k < OK_USER_INFO_SIZE; k++) {
+        info.userInfo[k] = buffer[k+userInfoOffset];
+    }
+
     delete [] buffer;
 }
 

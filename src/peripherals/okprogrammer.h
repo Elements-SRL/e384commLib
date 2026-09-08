@@ -3,6 +3,8 @@
 
 #define OK_INFO_ADDRESS 0x100000
 #define OK_INFO_SIZE    0x10000
+#define OK_USER_INFO_ADDRESS 0x108000
+#define OK_USER_INFO_SIZE    0x8000
 #define OK_FPGA_ADDRESS 0x110000
 #define OK_FPGA_SIZE    0xEF0000
 
@@ -28,6 +30,7 @@ public:
         uint16_t deviceVersion;
         uint16_t deviceSubVersion;
         FwVersion_t fpgaFwVersion;
+        std::vector <uint8_t> userInfo;
     } InfoStruct_t;
 
     OkProgrammer();
