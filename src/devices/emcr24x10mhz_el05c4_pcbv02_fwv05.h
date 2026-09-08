@@ -104,15 +104,20 @@ protected:
         CustomDacVcmAsic3,
         CustomDacZapAsic3,
         CustomDacRefAsic3,
-        CustomDoubleMacAddressHost,
-        CustomDoubleIpAddressHost,
-        CustomDoublePortHost,
-        CustomDoubleIpAddressDevice,
-        CustomDoublePortDevice,
+        CustomMacAddressHost,
+        CustomIpAddressHost,
+        CustomPortHost,
+        CustomIpAddressDevice,
+        CustomPortDevice,
         CustomDoublesNum
     };
 
     virtual ErrorCodes_t initializeHW() override;
+    virtual void setUserInfo(std::vector <uint8_t> userInfo) override;
+
+    DoubleOffsetBinaryCoder * deviceMacAddressCoder;
+
+    uint64_t macAddress;
 };
 
 #endif // EMCR24X1_MHZ_EL_5C4_PCBV_2_FWV_5_H

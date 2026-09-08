@@ -237,19 +237,21 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned i
         fwMajor = 254;
         fwMinor = 0;
         fwPatch = 0;
+        userInfo.clear();
     }
     else {
         OkProgrammer * programmer = new OkProgrammer;
-        OkProgrammer::InfoStruct_t tuple;
+        OkProgrammer::InfoStruct_t info;
         programmer->connect(deviceId, true);
-        programmer->getDeviceInfo(tuple);
+        programmer->getDeviceInfo(info);
         programmer->connect(deviceId, false);
 
-        deviceVersion = tuple.deviceVersion;
-        deviceSubVersion = tuple.deviceSubVersion;
-        fwMajor = tuple.fpgaFwVersion.major;
-        fwMinor = tuple.fpgaFwVersion.minor;
-        fwPatch = tuple.fpgaFwVersion.patch;
+        deviceVersion = info.deviceVersion;
+        deviceSubVersion = info.deviceSubVersion;
+        fwMajor = info.fpgaFwVersion.major;
+        fwMinor = info.fpgaFwVersion.minor;
+        fwPatch = info.fpgaFwVersion.patch;
+        userInfo = info.userInfo;
     }
 
     deviceVersionCache[deviceId] = deviceVersion;
@@ -257,6 +259,7 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned i
     fwMajorCache[deviceId] = fwMajor;
     fwMinorCache[deviceId] = fwMinor;
     fwPatchCache[deviceId] = fwPatch;
+    userInfoCache[deviceId] = userInfo;
 
     return Success;
 }
@@ -267,8 +270,9 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceType
     unsigned int fwMajor;
     unsigned int fwMinor;
     unsigned int fwPatch;
+    std::vector <uint8_t> userInfo;
 
-    EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
+    EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch, userInfo);
 
     bool deviceFound = false;
     for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
@@ -289,6 +293,17 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceType
         return ErrorDeviceTypeNotRecognized;
     }
     type = deviceIdMapping[deviceId];
+    return Success;
+}
+
+ErrorCodes_t EmcrOpalKellyDevice::getUserInfo(std::string deviceId, std::vector <uint8_t> &info) {
+    unsigned int deviceVersion;
+    unsigned int deviceSubVersion;
+    unsigned int fwMajor;
+    unsigned int fwMinor;
+    unsigned int fwPatch;
+
+    EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch, info);
     return Success;
 }
 
@@ -334,6 +349,8 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
     if (ret != Success) {
         return ErrorDeviceTypeNotRecognized;
     }
+    std::vector <uint8_t> userInfo;
+    EmcrOpalKellyDevice::getUserInfo(deviceId, userInfo);
 
     messageDispatcher = nullptr;
 
@@ -628,6 +645,7 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     if (messageDispatcher != nullptr) {
         ret = messageDispatcher->initialize(fwPath);
+        static_cast <EmcrOpalKellyDevice *> (messageDispatcher)->setUserInfo(userInfo);
 
         if (ret != Success) {
             messageDispatcher->deinitialize();
@@ -690,7 +708,8 @@ ErrorCodes_t EmcrOpalKellyDevice::okReadCalibrationRam() {
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
-    return EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
+    std::vector <uint8_t> userInfo;
+    return EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch, userInfo);
 }
 
 bool EmcrOpalKellyDevice::isDeviceConnected() {
@@ -1349,4 +1368,8 @@ void EmcrOpalKellyDevice::monitoringLoop() {
     okManager->StartMonitoring();
     okManager->EnterMonitorLoop();
     okManager->StopMonitoring();
+}
+
+void EmcrOpalKellyDevice::setUserInfo(std::vector <uint8_t> userInfo) {
+    return;
 }

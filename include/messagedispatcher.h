@@ -38,6 +38,7 @@
 #define LUINT32_MAX (static_cast <double> (0xFFFFFFFF))
 #define LINT32_MAX (static_cast <double> (0x7FFFFFFF))
 #define LINT32_MIN (-LINT32_MAX-1.0)
+#define UINT48_MAX (static_cast <double> (0xFFFFFFFFFFFF))
 
 //#define USE_2ND_ORDER_BUTTERWORTH
 

@@ -134,6 +134,7 @@ public:
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
     static ErrorCodes_t getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch, std::vector <uint8_t> &userInfo);
     static ErrorCodes_t getDeviceType(std::string deviceId, DeviceTypes_t &type);
+    static ErrorCodes_t getUserInfo(std::string deviceId, std::vector <uint8_t> &info);
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
     static ErrorCodes_t isDeviceRecognized(std::string deviceId);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
@@ -178,6 +179,8 @@ protected:
 
     virtual void computeDataReadPolicy() override;
     void monitoringLoop();
+
+    virtual void setUserInfo(std::vector <uint8_t> userInfo);
 
     /****************\
      *  Parameters  *

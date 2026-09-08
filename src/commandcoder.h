@@ -49,7 +49,7 @@ public:
     virtual ~CommandCoder() {}
 
 protected:
-    void encodeUint(uint32_t uintValue, CommandStatus_t &status);
+    void encodeUint(uint64_t uintValue, CommandStatus_t &status);
 
     uint16_t initialWord;
     uint16_t bitsNum;
@@ -69,7 +69,7 @@ public:
     BoolCoder(CoderConfig_t config);
     virtual ~BoolCoder() {}
 
-    virtual void encode(uint32_t value, CommandStatus_t &status) = 0;
+    virtual void encode(uint64_t value, CommandStatus_t &status) = 0;
 
 protected:
     CoderConfig_t config;
@@ -80,7 +80,7 @@ public:
     BoolArrayCoder(CoderConfig_t config);
     virtual ~BoolArrayCoder() {}
 
-    void encode(uint32_t value, CommandStatus_t &status) override;
+    void encode(uint64_t value, CommandStatus_t &status) override;
 };
 
 class BoolNegatedArrayCoder : public BoolArrayCoder {
@@ -88,7 +88,7 @@ public:
     BoolNegatedArrayCoder(CoderConfig_t config);
     virtual ~BoolNegatedArrayCoder() {}
 
-    void encode(uint32_t value, CommandStatus_t &status) override;
+    void encode(uint64_t value, CommandStatus_t &status) override;
 };
 
 class BoolRandomArrayCoder : public BoolArrayCoder {
@@ -96,14 +96,14 @@ public:
     BoolRandomArrayCoder(CoderConfig_t config);
     virtual ~BoolRandomArrayCoder() {}
 
-    void encode(uint32_t value, CommandStatus_t &status) override;
-    void addMapItem(uint32_t to);
+    void encode(uint64_t value, CommandStatus_t &status) override;
+    void addMapItem(uint64_t to);
 
 private:
-    uint32_t map(uint32_t from);
+    uint64_t map(uint64_t from);
 
-    std::vector <uint32_t> tos;
-    uint32_t toNum;
+    std::vector <uint64_t> tos;
+    uint64_t toNum;
 };
 
 class BoolOneHotCoder : public BoolCoder {
@@ -111,7 +111,7 @@ public:
     BoolOneHotCoder(CoderConfig_t config);
     virtual ~BoolOneHotCoder() {}
 
-    void encode(uint32_t value, CommandStatus_t &status) override;
+    void encode(uint64_t value, CommandStatus_t &status) override;
 };
 
 class DoubleCoder : public CommandCoder {

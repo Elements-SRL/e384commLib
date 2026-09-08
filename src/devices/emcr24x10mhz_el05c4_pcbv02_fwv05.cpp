@@ -235,6 +235,11 @@ Emcr24x10MHz_EL05c4_PCBV02_FWV05::Emcr24x10MHz_EL05c4_PCBV02_FWV05(std::string d
     customDoublesNames[CustomDacVcmAsic3] = "Vcm Asic 3";
     customDoublesNames[CustomDacZapAsic3] = "Zap Asic 3";
     customDoublesNames[CustomDacRefAsic3] = "Ref Asic 3";
+    customDoublesNames[CustomMacAddressHost] = "Host Mac Address";
+    customDoublesNames[CustomIpAddressHost] = "Host Ip Address Host";
+    customDoublesNames[CustomPortHost] = "Host Port";
+    customDoublesNames[CustomIpAddressDevice] = "Device Ip Address";
+    customDoublesNames[CustomPortDevice] = "Device Port";
     customDoublesRanges.resize(customDoublesNum);
     RangedMeasurement_t customRange = {-1650.0, -1650.0+65535.0*0.0625, 0.0625, UnitPfxMilli, "V"};
     std::fill(customDoublesRanges.begin(), customDoublesRanges.end(), customRange);
@@ -242,8 +247,21 @@ Emcr24x10MHz_EL05c4_PCBV02_FWV05::Emcr24x10MHz_EL05c4_PCBV02_FWV05(std::string d
     customDoublesRanges[CustomDacVcmAsic1] = customRange;
     customDoublesRanges[CustomDacVcmAsic2] = customRange;
     customDoublesRanges[CustomDacVcmAsic3] = customRange;
+    customRange = {0.0, UINT48_MAX, 1.0, UnitPfxNone, ""};
+    customDoublesRanges[CustomMacAddressHost] = customRange;
+    customRange = {0.0, UINT32_MAX, 1.0, UnitPfxNone, ""};
+    customDoublesRanges[CustomIpAddressHost] = customRange;
+    customDoublesRanges[CustomIpAddressDevice] = customRange;
+    customRange = {0.0, UINT16_MAX, 1.0, UnitPfxNone, ""};
+    customDoublesRanges[CustomPortHost] = customRange;
+    customDoublesRanges[CustomPortDevice] = customRange;
     customDoublesDefault.resize(customDoublesNum);
     std::fill(customDoublesDefault.begin(), customDoublesDefault.end(), 0.0);
+    customDoublesDefault[CustomMacAddressHost] = 0xFFFFFFFFFFFF;
+    customDoublesDefault[CustomIpAddressHost] = 0xC0A80101;
+    customDoublesDefault[CustomIpAddressDevice] = 0xC0A80102;
+    customDoublesDefault[CustomPortHost] = 0x1F91;
+    customDoublesDefault[CustomPortDevice] = 0x1F90;
 
     /*! Default values */
     currentRanges.resize(currentChannelsNum);
@@ -616,7 +634,7 @@ Emcr24x10MHz_EL05c4_PCBV02_FWV05::Emcr24x10MHz_EL05c4_PCBV02_FWV05(std::string d
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     customDoublesCoders.resize(customDoublesNum);
-    for (int idx = 0; idx < customDoublesNum; idx++) {
+    for (int idx = 0; idx <= CustomDacRefAsic3; idx++) {
         doubleConfig.minValue = customDoublesRanges[CustomDacRefAsic1].min;
         doubleConfig.maxValue = customDoublesRanges[CustomDacRefAsic1].max;
         doubleConfig.resolution = customDoublesRanges[CustomDacRefAsic1].step;
@@ -624,6 +642,60 @@ Emcr24x10MHz_EL05c4_PCBV02_FWV05::Emcr24x10MHz_EL05c4_PCBV02_FWV05(std::string d
         coders.push_back(customDoublesCoders[idx]);
         doubleConfig.initialWord++;
     }
+
+    doubleConfig.initialWord = 334;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 48;
+    doubleConfig.minValue = customDoublesRanges[CustomMacAddressHost].min;
+    doubleConfig.maxValue = customDoublesRanges[CustomMacAddressHost].max;
+    doubleConfig.resolution = customDoublesRanges[CustomMacAddressHost].step;
+    deviceMacAddressCoder = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(deviceMacAddressCoder);
+
+    doubleConfig.initialWord = 338;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 48;
+    doubleConfig.minValue = customDoublesRanges[CustomMacAddressHost].min;
+    doubleConfig.maxValue = customDoublesRanges[CustomMacAddressHost].max;
+    doubleConfig.resolution = customDoublesRanges[CustomMacAddressHost].step;
+    customDoublesCoders[CustomMacAddressHost] = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(customDoublesCoders[CustomMacAddressHost]);
+
+    doubleConfig.initialWord = 342;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.minValue = customDoublesRanges[CustomIpAddressDevice].min;
+    doubleConfig.maxValue = customDoublesRanges[CustomIpAddressDevice].max;
+    doubleConfig.resolution = customDoublesRanges[CustomIpAddressDevice].step;
+    customDoublesCoders[CustomIpAddressDevice] = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(customDoublesCoders[CustomIpAddressDevice]);
+
+    doubleConfig.initialWord = 344;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.minValue = customDoublesRanges[CustomIpAddressHost].min;
+    doubleConfig.maxValue = customDoublesRanges[CustomIpAddressHost].max;
+    doubleConfig.resolution = customDoublesRanges[CustomIpAddressHost].step;
+    customDoublesCoders[CustomIpAddressHost] = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(customDoublesCoders[CustomIpAddressHost]);
+
+    doubleConfig.initialWord = 346;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.minValue = customDoublesRanges[CustomPortDevice].min;
+    doubleConfig.maxValue = customDoublesRanges[CustomPortDevice].max;
+    doubleConfig.resolution = customDoublesRanges[CustomPortDevice].step;
+    customDoublesCoders[CustomPortDevice] = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(customDoublesCoders[CustomPortDevice]);
+
+    doubleConfig.initialWord = 347;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    doubleConfig.minValue = customDoublesRanges[CustomPortHost].min;
+    doubleConfig.maxValue = customDoublesRanges[CustomPortHost].max;
+    doubleConfig.resolution = customDoublesRanges[CustomPortHost].step;
+    customDoublesCoders[CustomPortHost] = new DoubleOffsetBinaryCoder(doubleConfig);
+    coders.push_back(customDoublesCoders[CustomPortHost]);
 
     /*! Default status */
     txStatus.init(txDataWords);
@@ -665,4 +737,14 @@ ErrorCodes_t Emcr24x10MHz_EL05c4_PCBV02_FWV05::initializeHW() {
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
 
     return Success;
+}
+
+void Emcr24x10MHz_EL05c4_PCBV02_FWV05::setUserInfo(std::vector <uint8_t> userInfo) {
+    macAddress = 0;
+    for (int k = 0; k < 6; k++) {
+        macAddress <<= 8;
+        macAddress += (uint64_t)userInfo[k];
+    }
+    deviceMacAddressCoder->encode(macAddress, txStatus);
+    this->stackOutgoingMessage(txStatus);
 }

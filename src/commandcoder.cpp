@@ -20,7 +20,7 @@ CommandCoder::CommandCoder(uint16_t initialWord, uint16_t initialBit, uint16_t b
     }
 }
 
-void CommandCoder::encodeUint(uint32_t uintValue, CommandStatus_t &status) {
+void CommandCoder::encodeUint(uint64_t uintValue, CommandStatus_t &status) {
     /*! Ensure that the words are changed in blocks of, since the devices might accept only data in blocks of 32 bits */
     if ((initialWord & 0x0001) > 0x0000) {
         status.changedWords[initialWord-1] = true;
@@ -48,7 +48,7 @@ BoolArrayCoder::BoolArrayCoder(CoderConfig_t config) :
 
 }
 
-void BoolArrayCoder::encode(uint32_t value, CommandStatus_t &status) {
+void BoolArrayCoder::encode(uint64_t value, CommandStatus_t &status) {
     this->encodeUint(value, status);
 }
 
@@ -57,7 +57,7 @@ BoolNegatedArrayCoder::BoolNegatedArrayCoder(CoderConfig_t config) :
 
 }
 
-void BoolNegatedArrayCoder::encode(uint32_t value, CommandStatus_t &status) {
+void BoolNegatedArrayCoder::encode(uint64_t value, CommandStatus_t &status) {
     this->encodeUint(~value, status);
 }
 
@@ -68,16 +68,16 @@ BoolRandomArrayCoder::BoolRandomArrayCoder(CoderConfig_t config) :
     toNum = 0;
 }
 
-void BoolRandomArrayCoder::encode(uint32_t value, CommandStatus_t &status) {
+void BoolRandomArrayCoder::encode(uint64_t value, CommandStatus_t &status) {
     this->encodeUint(this->map(value), status);
 }
 
-void BoolRandomArrayCoder::addMapItem(uint32_t to) {
+void BoolRandomArrayCoder::addMapItem(uint64_t to) {
     tos.push_back(to);
     toNum++;
 }
 
-uint32_t BoolRandomArrayCoder::map(uint32_t from) {
+uint64_t BoolRandomArrayCoder::map(uint64_t from) {
     if (from >= toNum) {
         from = 0;
     }
@@ -89,7 +89,7 @@ BoolOneHotCoder::BoolOneHotCoder(CoderConfig_t config) :
 
 }
 
-void BoolOneHotCoder::encode(uint32_t value, CommandStatus_t &status) {
+void BoolOneHotCoder::encode(uint64_t value, CommandStatus_t &status) {
     this->encodeUint(1 << value, status);
 }
 
@@ -122,13 +122,13 @@ double DoubleTwosCompCoder::encode(double value, CommandStatus_t &status) {
     if (!invertedScale) {
         value = clip(value, minValue, maxValue);
         int32_t intValue = (int32_t)round(value/resolution);
-        this->encodeUint((uint32_t)intValue, status);
+        this->encodeUint((uint64_t)intValue, status);
         return resolution*(double)intValue;
 
     } else {
         value = clip(-value, minValue, maxValue);
         int32_t intValue = (int32_t)round(value/resolution);
-        this->encodeUint((uint32_t)intValue, status);
+        this->encodeUint((uint64_t)intValue, status);
         return -resolution*(double)intValue;
     }
 }
@@ -141,13 +141,13 @@ DoubleOffsetBinaryCoder::DoubleOffsetBinaryCoder(CoderConfig_t config) :
 double DoubleOffsetBinaryCoder::encode(double value, CommandStatus_t &status) {
     if (!invertedScale) {
         value = clip(value, minValue, maxValue);
-        uint32_t uintValue = (uint32_t)round((value-minValue)/resolution);
+        uint64_t uintValue = (uint64_t)round((value-minValue)/resolution);
         this->encodeUint(uintValue, status);
         return minValue+resolution*(double)uintValue;
 
     } else {
         value = clip(-value, minValue, maxValue);
-        uint32_t uintValue = (uint32_t)round((value+maxValue)/resolution);
+        uint64_t uintValue = (uint64_t)round((value+maxValue)/resolution);
         this->encodeUint(uintValue, status);
         return maxValue-resolution*(double)uintValue;
     }
@@ -161,8 +161,8 @@ DoubleSignAbsCoder::DoubleSignAbsCoder(CoderConfig_t config) :
 double DoubleSignAbsCoder::encode(double value, CommandStatus_t &status) {
     if (!invertedScale) {
         value = clip(value, minValue, maxValue);
-        uint32_t uintValue = (uint32_t)round(fabs(value)/resolution);
-        uint32_t signValue = (value < 0.0 ? 1 << (bitsNum-1) : 0);
+        uint64_t uintValue = (uint64_t)round(fabs(value)/resolution);
+        uint64_t signValue = (value < 0.0 ? 1 << (bitsNum-1) : 0);
         this->encodeUint(uintValue+signValue, status);
         if (value < 0.0) {
             return -resolution*(double)uintValue;
@@ -173,8 +173,8 @@ double DoubleSignAbsCoder::encode(double value, CommandStatus_t &status) {
 
     } else {
         value = clip(-value, minValue, maxValue);
-        uint32_t uintValue = (uint32_t)round(fabs(value)/resolution);
-        uint32_t signValue = (value < 0.0 ? 1 << (bitsNum-1) : 0);
+        uint64_t uintValue = (uint64_t)round(fabs(value)/resolution);
+        uint64_t signValue = (value < 0.0 ? 1 << (bitsNum-1) : 0);
         this->encodeUint(uintValue+signValue, status);
         if (value < 0.0) {
             return resolution*(double)uintValue;
@@ -193,7 +193,7 @@ FloatCoder::FloatCoder(CoderConfig_t config) :
 
 double FloatCoder::encode(double value, CommandStatus_t &status) {
     float fltValue = (float)value;
-    uint32_t uintValue = *(uint32_t *)(&fltValue);
+    uint64_t uintValue = *(uint64_t *)(&fltValue);
     this->encodeUint(uintValue, status);
     return (double)fltValue;
 }
@@ -224,7 +224,6 @@ double MultiCoder::encode(double value, CommandStatus_t &status) {
         if (!done) {
             config.boolCoder->encode(i, status);
             ret = config.doubleCoderVector[i]->encode(value, status);
-            done = true;
         }
     }
     return ret;

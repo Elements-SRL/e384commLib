@@ -143,7 +143,8 @@ ErrorCodes_t MessageDispatcher::listAllDevices(
 
 ErrorCodes_t MessageDispatcher::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
     if (EmcrOpalKellyDevice::isDeviceRecognized(deviceId) == Success) {
-        EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
+        std::vector <uint8_t> userInfo;
+        EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch, userInfo);
         return Success;
     }
 
