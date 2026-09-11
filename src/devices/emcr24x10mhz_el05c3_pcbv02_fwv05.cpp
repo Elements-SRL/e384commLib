@@ -736,7 +736,7 @@ ErrorCodes_t Emcr24x10MHz_EL05c3_PCBV02_FWV05::initializeHW() {
     return Success;
 }
 
-void Emcr24x10MHz_EL05c4_PCBV02_FWV05::setUserInfo(std::vector <uint8_t> userInfo) {
+void Emcr24x10MHz_EL05c3_PCBV02_FWV05::setUserInfo(std::vector <uint8_t> userInfo) {
     macAddress = 0;
     for (int k = 0; k < 6; k++) {
         macAddress <<= 8;
