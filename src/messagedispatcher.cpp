@@ -1371,6 +1371,11 @@ ErrorCodes_t MessageDispatcher::hasChannelSwitches() {
     return ErrorFeatureNotImplemented;
 }
 
+ErrorCodes_t MessageDispatcher::getStimulusBlockSize(uint32_t &blockSize) {
+    blockSize = stimulusBlockSize;
+    return Success;
+}
+
 ErrorCodes_t MessageDispatcher::hasStimulusSwitches() {
     return ErrorFeatureNotImplemented;
 }

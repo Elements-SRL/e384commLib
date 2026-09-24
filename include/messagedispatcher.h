@@ -1982,6 +1982,13 @@ public:
      */
     virtual ErrorCodes_t hasChannelSwitches();
 
+    /*! \brief Get the stimulus block size, i.e. the number of channels that share the stimulus.
+     *
+     * \param blockSize [out] The channels consist of blocks of size blockSize; within each block the stimulus has the same value and cannot be set independently.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t getStimulusBlockSize(uint32_t &blockSize);
+
     /*! \brief Check if the device can selectively stop the stimulation on channels.
      *
      * \return Success if the device can selectively stop the stimulation on channels.
