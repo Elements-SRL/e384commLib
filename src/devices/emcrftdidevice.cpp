@@ -736,7 +736,7 @@ void EmcrFtdiDevice::parseDataFromDevice() {
                         frameManager->storeFrameDataLoss(dataLossCount);
                         dataLossCount = 0;
 
-                        frameManager->storeFrameData(rxWordOffset);
+                        frameManager->storeFrameData(rxWordOffset, rxWordsLength);
 
                         rxFrameOffset = rxRawBufferReadOffset;
                         /*! remove the bytes that were not popped to read the next header */

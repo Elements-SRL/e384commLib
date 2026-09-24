@@ -2201,6 +2201,13 @@ ErrorCodes_t EmcrDevice::getNextMessage(RxOutput_t &rxOutput, int16_t * data, Ms
             // not really managed, ignore it
             break;
 
+        case (MsgDirectionDeviceToPc+MsgTypeIdDebugData):
+            rxOutput.dataLen = msg.data.size();
+            for (int idx = 0; idx < msg.data.size(); idx++) {
+                data[idx] = (int16_t)msg.data[sampleIdx++];
+            }
+            break;
+
         case (MsgDirectionDeviceToPc+MsgTypeIdTemperature):
             /*! process the message if it is the first message to be processed during this call (lastParsedMsgType == MsgTypeIdInvalid) */
             rxOutput.dataLen = temperatureChannelsNum;
@@ -2279,6 +2286,13 @@ ErrorCodes_t EmcrDevice::getStoredMessage(RxOutput_t &rxOutput, int16_t * data, 
 
     case (MsgDirectionDeviceToPc+MsgTypeIdDeviceStatus):
         // not really managed, ignore it
+        break;
+
+    case (MsgDirectionDeviceToPc+MsgTypeIdDebugData):
+        rxOutput.dataLen = msg.data.size();
+        for (int idx = 0; idx < msg.data.size(); idx++) {
+            data[idx] = (int16_t)msg.data[sampleIdx++];
+        }
         break;
 
     case (MsgDirectionDeviceToPc+MsgTypeIdTemperature):
@@ -3132,7 +3146,7 @@ void EmcrDevice::initializeVariables() {
     MessageDispatcher::initializeVariables();
     frameManager = new FrameManager(this);
     frameManager->setMaxDataMessageSize(totalChannelsNum*packetsPerFrame);
-    frameManager->setRxWordParams(rxWordOffsets, rxWordLengths);
+    frameManager->setRxWordParams(rxWordOffsets);
     frameManager->setCurrentBlockLength(rxCurrentBlockLength);
 }
 

@@ -23,6 +23,7 @@ typedef struct RxDeviceStatus {
     RxMessage_t lastCalEepromMessage;
     RxMessage_t lastDataTailMessage;
     std::list <RxMessage_t> lastSpiDataLoadMessages;
+    std::list <RxMessage_t> lastDebugDataMessages;
 } RxDeviceStatus_t;
 
 class EmcrDevice;
@@ -36,9 +37,9 @@ public:
 
     void setMaxDataMessageSize(uint32_t size);
     uint32_t getMaxDataMessageSize();
-    void setRxWordParams(std::vector <uint16_t> rxWordOffsets, std::vector <uint16_t> rxWordLengths);
+    void setRxWordParams(std::vector <uint16_t> rxWordOffsets);
     void setCurrentBlockLength(uint16_t blockLen);
-    void storeFrameData(uint16_t rxWordOffset);
+    void storeFrameData(uint16_t rxWordOffset, uint16_t rxWordLength);
     void storeFrameDataLoss(int32_t dataLossCount);
     RxMessage_t getNextMessage(MsgTypeId_t messageType = MsgTypeIdInvalid);
     RxMessage_t getStoredMessage(MsgTypeId_t messageType);
@@ -46,7 +47,7 @@ public:
 
 protected:
     static uint16_t typeNoDir(MsgTypeId_t messageType);
-    void storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::RxMessageTypes_t rxMessageType);
+    void storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::RxMessageTypes_t rxMessageType, uint16_t rxWordLength);
     template <typename it>
     bool mergeDataMessages(it to, it from) {
         if (to->typeId != MsgTypeIdAcquisitionData || from->typeId != to->typeId) {
@@ -82,7 +83,6 @@ protected:
     int ivChannelsNum;
     int blockLen = 1;
     std::vector <uint16_t> rxWordOffsets;
-    std::vector <uint16_t> rxWordLengths;
     std::vector <uint16_t> voltageDataValues; /*! Store voltage data when current data and voltage data are not sent together in a single packet */
     std::vector <uint16_t> gpDataValues; /*! Store GP data when current data and GP data are not sent together in a single packet */
     std::vector <bool> rxEnabledTypesMap; /*! key is any message type ID, value tells if the message should be returned by the getNextMessage method */

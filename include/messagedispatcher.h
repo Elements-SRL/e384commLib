@@ -105,20 +105,21 @@ public:
         RxMessageDoubleSyncStatus,
         RxMessageSpiDataLoad,
         RxMessageCalEeepromDataLoad,
+        RxMessageDebugData,
         RxMessageNum
     } RxMessageTypes_t;
 
     typedef enum CompensationTypes {
-        CompCfast = 0,      // pipette voltage clamp
-        CompCslow = 1,      // membrane
-        CompRsComp = 2,     // rseries compensation
-        CompRsCorr = 3,     // rseries correction
-        CompRsPred = 4,     // rseries prediction
-        CompGLeak = 5,      // leakage conductance
-        VCCompensationsNum = 6,
-        CompCcCfast = 6,    // pipette current clamp
-        CompBridgeRes = 7,  // bridge balance
-        CompensationTypesNum = 8
+        CompCfast,      // pipette voltage clamp
+        CompCslow,      // membrane
+        CompRsComp,     // rseries compensation
+        CompRsCorr,     // rseries correction
+        CompRsPred,     // rseries prediction
+        CompGLeak,      // leakage conductance
+        VCCompensationsNum,
+        CompCcCfast = VCCompensationsNum,    // pipette current clamp
+        CompBridgeRes,  // bridge balance
+        CompensationTypesNum
     } CompensationTypes_t;
 
     typedef enum CompensationUserParams {

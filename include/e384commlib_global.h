@@ -164,6 +164,7 @@ typedef enum MsgTypeId {
 
     /*! Device status message*/
     MsgTypeIdDeviceStatus =                     MsgGroupDeviceStatus+0x0001, /*!< Message containing the device status. */
+    MsgTypeIdDebugData =                        MsgGroupDeviceStatus+0x0002, /*!< Message containing debug data. */
 } MsgTypeId_t;
 
 /********************\

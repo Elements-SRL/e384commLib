@@ -20,13 +20,14 @@ Emcr32x10MHz_EL05c2_PCBV01::Emcr32x10MHz_EL05c2_PCBV01(std::string di) :
 
     rxWordOffsets[RxMessageVoltageDataLoad] = 0;
     rxWordLengths[RxMessageVoltageDataLoad] = voltageChannelsNum;
-
     rxWordOffsets[RxMessageCurrentBlocksDataLoad] = rxWordOffsets[RxMessageVoltageDataLoad] + rxWordLengths[RxMessageVoltageDataLoad];
     rxWordLengths[RxMessageCurrentBlocksDataLoad] = currentChannelsNum*packetsPerFrame;
+    rxWordOffsets[RxMessageDebugData] = rxWordOffsets[RxMessageCurrentBlocksDataLoad] + rxWordLengths[RxMessageCurrentBlocksDataLoad];
+    rxWordLengths[RxMessageDebugData] = 0x4000;
 
     rxCurrentBlockLength = 8;
 
-    rxMaxWords = currentChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
+    rxMaxWords = 0x4000; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
 
     txDataWords = 354; /*! \todo FCON AGGIORNARE MAN MANO CHE SI AGGIUNGONO CAMPI */
@@ -605,13 +606,12 @@ ErrorCodes_t Emcr32x10MHz_EL05c2_PCBV01::initializeHW() {
     this->setDebugBit(0, 15, true, true);
     std::this_thread::sleep_for(std::chrono::seconds(1));
     this->setDebugWord(7, 0xFFFF);
-    this->setDebugWord(8, 0xFFFF);
-
     std::this_thread::sleep_for(std::chrono::seconds(1));
-
     this->setDebugWord(7, 0x0000);
-    this->setDebugWord(8, 0x0000);
+    this->setDebugWord(8, 0xFFFF);
     std::this_thread::sleep_for(std::chrono::seconds(1));
+    this->setDebugWord(8, 0x0000);
+
     this->setDebugBit(0, 15, false, true);
 
     return Success;

@@ -33,6 +33,7 @@ FrameManager::FrameManager(MessageDispatcher * md) :
     rxEnabledTypesMap[MsgTypeIdDeviceStatus] = false;
     rxEnabledTypesMap[MsgTypeIdTemperature] = true;
     rxEnabledTypesMap[MsgTypeIdOnTime] = false;
+    rxEnabledTypesMap[MsgTypeIdDebugData] = true;
 
     /*! Allocate memory for voltage values for devices that send only data current in standard data frames */
     voltageDataValues.resize(voltageChannelsNum);
@@ -57,60 +58,62 @@ uint32_t FrameManager::getMaxDataMessageSize() {
     return maxDataMessageSize;
 }
 
-void FrameManager::setRxWordParams(std::vector <uint16_t> rxWordOffsets, std::vector <uint16_t> rxWordLengths) {
+void FrameManager::setRxWordParams(std::vector <uint16_t> rxWordOffsets) {
     this->rxWordOffsets = rxWordOffsets;
-    this->rxWordLengths = rxWordLengths;
 }
 
 void FrameManager::setCurrentBlockLength(uint16_t blockLen) {
     this->blockLen = blockLen;
 }
 
-void FrameManager::storeFrameData(uint16_t rxWordOffset) {
+void FrameManager::storeFrameData(uint16_t rxWordOffset, uint16_t rxWordLength) {
     if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDataLoad]) {
-        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageDataLoad);
+        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageDataLoad, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageVoltageThenCurrentDataLoad]) {
-        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageVoltageThenCurrentDataLoad);
+        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageVoltageThenCurrentDataLoad, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageCurrentDataLoad]) {
-        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageCurrentDataLoad);
+        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageCurrentDataLoad, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageCurrentBlocksDataLoad]) {
-        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageCurrentBlocksDataLoad);
+        this->storeFrameDataType(MsgTypeIdAcquisitionData, MessageDispatcher::RxMessageCurrentBlocksDataLoad, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageVoltageDataLoad]) {
-        this->storeFrameDataType(MsgTypeIdInvalid, MessageDispatcher::RxMessageVoltageDataLoad);
+        this->storeFrameDataType(MsgTypeIdInvalid, MessageDispatcher::RxMessageVoltageDataLoad, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageVoltageAndGpDataLoad]) {
-        this->storeFrameDataType(MsgTypeIdInvalid, MessageDispatcher::RxMessageVoltageAndGpDataLoad);
+        this->storeFrameDataType(MsgTypeIdInvalid, MessageDispatcher::RxMessageVoltageAndGpDataLoad, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDataHeader]) {
-        this->storeFrameDataType(MsgTypeIdAcquisitionHeader, MessageDispatcher::RxMessageDataHeader);
+        this->storeFrameDataType(MsgTypeIdAcquisitionHeader, MessageDispatcher::RxMessageDataHeader, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDataTail]) {
-        this->storeFrameDataType(MsgTypeIdAcquisitionTail, MessageDispatcher::RxMessageDataTail);
+        this->storeFrameDataType(MsgTypeIdAcquisitionTail, MessageDispatcher::RxMessageDataTail, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageStatus]) {
-        this->storeFrameDataType(MsgTypeIdDeviceStatus, MessageDispatcher::RxMessageStatus);
+        this->storeFrameDataType(MsgTypeIdDeviceStatus, MessageDispatcher::RxMessageStatus, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageTemperature]) {
-        this->storeFrameDataType(MsgTypeIdTemperature, MessageDispatcher::RxMessageTemperature);
+        this->storeFrameDataType(MsgTypeIdTemperature, MessageDispatcher::RxMessageTemperature, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageOnTime]) {
-        this->storeFrameDataType(MsgTypeIdOnTime, MessageDispatcher::RxMessageOnTime);
+        this->storeFrameDataType(MsgTypeIdOnTime, MessageDispatcher::RxMessageOnTime, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageSyncStatus]) {
-        this->storeFrameDataType(MsgTypeIdAcquisitionSyncStatus, MessageDispatcher::RxMessageSyncStatus);
+        this->storeFrameDataType(MsgTypeIdAcquisitionSyncStatus, MessageDispatcher::RxMessageSyncStatus, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDoubleSyncStatus]) {
-        this->storeFrameDataType(MsgTypeIdAcquisitionSyncStatus, MessageDispatcher::RxMessageDoubleSyncStatus);
+        this->storeFrameDataType(MsgTypeIdAcquisitionSyncStatus, MessageDispatcher::RxMessageDoubleSyncStatus, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageSpiDataLoad]) {
-        this->storeFrameDataType(MsgTypeIdSpiDataLoad, MessageDispatcher::RxMessageSpiDataLoad);
+        this->storeFrameDataType(MsgTypeIdSpiDataLoad, MessageDispatcher::RxMessageSpiDataLoad, rxWordLength);
     }
     else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageCalEeepromDataLoad]) {
-        this->storeFrameDataType(MsgTypeIdCalEeprom, MessageDispatcher::RxMessageCalEeepromDataLoad);
+        this->storeFrameDataType(MsgTypeIdCalEeprom, MessageDispatcher::RxMessageCalEeepromDataLoad, rxWordLength);
+    }
+    else if (rxWordOffset == rxWordOffsets[MessageDispatcher::RxMessageDebugData]) {
+        this->storeFrameDataType(MsgTypeIdDebugData, MessageDispatcher::RxMessageDebugData, rxWordLength);
     }
 }
 
@@ -207,6 +210,14 @@ RxMessage_t FrameManager::getStoredMessage(MsgTypeId_t messageType) {
         msg = rxDeviceStatus.lastSpiDataLoadMessages.front();
         rxDeviceStatus.lastSpiDataLoadMessages.pop_front();
         return msg;
+
+    case MsgTypeIdDebugData:
+        if (rxDeviceStatus.lastDebugDataMessages.empty()) {
+            return msg;
+        }
+        msg = rxDeviceStatus.lastDebugDataMessages.front();
+        rxDeviceStatus.lastDebugDataMessages.pop_front();
+        return msg;
     }
     return msg;
 }
@@ -219,7 +230,7 @@ uint16_t FrameManager::typeNoDir(MsgTypeId_t messageType) {
     return messageType & ~MsgDirectionDeviceToPc;
 }
 
-void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::RxMessageTypes_t rxMessageType) {
+void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::RxMessageTypes_t rxMessageType, uint16_t rxWordLength) {
     std::unique_lock <std::mutex> rxMutexLock(rxMsgMutex);
     if (purgeRequest) {
         messages.clear();
@@ -229,7 +240,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
     }
     rxMutexLock.unlock();
 
-    uint32_t rxDataWords = rxWordLengths[rxMessageType];
+    uint32_t rxDataWords = rxWordLength;
     uint32_t newProtocolItemFirstIndex = 0;
     RxMessage_t msg;
 
@@ -359,7 +370,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
     }
 
     case MessageDispatcher::RxMessageDataHeader:
-        if (rxWordLengths[MessageDispatcher::RxMessageDataHeader] > 4) {
+        if (rxWordLength > 4) {
             newProtocolItemFirstIndex = (((uint32_t)emd->readUint16FromRxRawBuffer(4*2)) + ((emd->readUint16FromRxRawBuffer(5*2)) << 16))*totalChannelsNum;
         }
         msg.typeId = rxMsgTypeId;
@@ -376,6 +387,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
     case MessageDispatcher::RxMessageSyncStatus:
     case MessageDispatcher::RxMessageSpiDataLoad:
     case MessageDispatcher::RxMessageCalEeepromDataLoad:
+    case MessageDispatcher::RxMessageDebugData:
         msg.typeId = rxMsgTypeId;
         msg.data.resize(rxDataWords);
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
@@ -462,6 +474,10 @@ bool FrameManager::storeMessage(RxMessage_t msg) {
 
     case MsgTypeIdSpiDataLoad:
         rxDeviceStatus.lastSpiDataLoadMessages.push_back(msg);
+        break;
+
+    case MsgTypeIdDebugData:
+        rxDeviceStatus.lastDebugDataMessages.push_back(msg);
         break;
     }
     return true;
