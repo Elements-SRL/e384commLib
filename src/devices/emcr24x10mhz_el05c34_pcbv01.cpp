@@ -14,6 +14,7 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     voltageChannelsNum = 24;
     currentChannelsNum = 24;
     totalChannelsNum = voltageChannelsNum+currentChannelsNum;
+    stimulusBlockSize = 8;
 
     totalBoardsNum = 3;
 
@@ -489,7 +490,7 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     vHoldTunerCoders.resize(VCVoltageRangesNum);
-
+    uint16_t stimulusBlockIdx = stimulusBlockSize;
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
         doubleConfig.initialWord = 258;
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step; /*! The voltage is applied on the reference pin, so voltages must be reversed */
@@ -499,7 +500,10 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
             vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
             coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
-            // doubleConfig.initialWord++; /*! \todo FCON tutti sulla stessa word perchè il DAC è uno */
+            if (--stimulusBlockIdx == 0) {
+                doubleConfig.initialWord += 3; /*! Each board has 3 DACs here we set the Vcm and skip ref and zap */
+                stimulusBlockIdx = stimulusBlockSize;
+            }
         }
     }
 
@@ -538,6 +542,8 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     }
 
     /*! VC voltage gain calibration */
+    stimulusBlockIdx = stimulusBlockSize;
+    doubleConfig.initialWord = 315;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcVoltageGainRange.step;
@@ -545,22 +551,19 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
     doubleConfig.maxValue = calibVcVoltageGainRange.max;
     calibVcVoltageGainCoders.resize(currentChannelsNum);
     for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-        if (idx < 8) {
-            doubleConfig.initialWord = 315;
-        }
-        else if (idx < 16) {
-            doubleConfig.initialWord = 321;
-        }
-        else {
-            doubleConfig.initialWord = 327;
-        }
         calibVcVoltageGainCoders[idx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(calibVcVoltageGainCoders[idx]);
+        if (--stimulusBlockIdx == 0) {
+            doubleConfig.initialWord += 6; /*! Each board has 3 DACs, here we set the Vcm and skip ref and zap (gain and offset, so 6 words in total) */
+            stimulusBlockIdx = stimulusBlockSize;
+        }
     }
 
     /*! VC voltage offset calibration */
     calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
+        stimulusBlockIdx = stimulusBlockSize;
+        doubleConfig.initialWord = 318;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
@@ -568,17 +571,12 @@ Emcr24x10MHz_EL05c34_PCBV01::Emcr24x10MHz_EL05c34_PCBV01(std::string di) :
         doubleConfig.maxValue = calibVcVoltageOffsetRanges[rangeIdx].min;
         calibVcVoltageOffsetCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
-            if (idx < 8) {
-                doubleConfig.initialWord = 318;
-            }
-            else if (idx < 16) {
-                doubleConfig.initialWord = 324;
-            }
-            else {
-                doubleConfig.initialWord = 330;
-            }
             calibVcVoltageOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(calibVcVoltageOffsetCoders[rangeIdx][idx]);
+            if (--stimulusBlockIdx == 0) {
+                doubleConfig.initialWord += 6; /*! Each board has 3 DACs, here we set the Vcm and skip ref and zap (gain and offset, so 6 words in total) */
+                stimulusBlockIdx = stimulusBlockSize;
+            }
         }
     }
 
