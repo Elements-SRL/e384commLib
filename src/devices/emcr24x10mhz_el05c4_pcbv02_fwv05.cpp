@@ -150,6 +150,15 @@ Emcr24x10MHz_EL05c4_PCBV02_FWV05::Emcr24x10MHz_EL05c4_PCBV02_FWV05(std::string d
     realSamplingRatesArray[SamplingRate3_125MHz].value = 25.0/8.0;
     realSamplingRatesArray[SamplingRate3_125MHz].prefix = UnitPfxMega;
     realSamplingRatesArray[SamplingRate3_125MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate6_25MHz].value = 25.0/4.0;
+    realSamplingRatesArray[SamplingRate6_25MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate6_25MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate12_5MHz].value = 25.0/2.0;
+    realSamplingRatesArray[SamplingRate12_5MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate12_5MHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate25MHz].value = 25.0/1.0;
+    realSamplingRatesArray[SamplingRate25MHz].prefix = UnitPfxMega;
+    realSamplingRatesArray[SamplingRate25MHz].unit = "Hz";
     sr2srm.clear();
     sr2srm[SamplingRate781_25kHz] = 0;
     sr2srm[SamplingRate1_5625MHz] = 0;

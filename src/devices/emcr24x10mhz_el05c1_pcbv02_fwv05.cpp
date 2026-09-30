@@ -295,7 +295,7 @@ Emcr24x10MHz_EL05c1_PCBV02_FWV05::Emcr24x10MHz_EL05c1_PCBV02_FWV05(std::string d
 
     /*! Current range VC */
     boolConfig.initialWord = 10;
-    boolConfig.initialBit = 1;
+    boolConfig.initialBit = 0;
     boolConfig.bitsNum = 1;
     vcCurrentRangeCoders.clear();
     vcCurrentRangeCoders.push_back(new BoolArrayCoder(boolConfig));
