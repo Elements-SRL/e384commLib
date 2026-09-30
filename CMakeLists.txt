@@ -35,6 +35,7 @@ set(LIB_SOURCES
     src/devices/emcr192blm_el03c_mb03_mez04_fw_v09.cpp
     src/devices/emcr192blm_el03c_mb03_mez05_fw_v07.cpp
     src/devices/emcr192blm_el03c_mb03_mez05_fw_v09.cpp
+    # src/devices/emcr192blm_el08b_mb03_mez06_fw_v10.cpp
     src/devices/emcr8blm_el03c_digbrd_fw_v01.cpp
     src/devices/emcr8blm_el08b_digbrd_fw_v01.cpp
     src/devices/emcr384nanopores.cpp
