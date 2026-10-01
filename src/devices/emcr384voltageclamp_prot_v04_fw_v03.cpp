@@ -231,18 +231,18 @@ Emcr384VoltageClamp_prot_v04_fw_v03::Emcr384VoltageClamp_prot_v04_fw_v03(std::st
     /*! VC leak calibration (shunt resistance)*/
     rRShuntConductanceCalibRange.resize(VCCurrentRangesNum);
     rRShuntConductanceCalibRange[VCCurrentRange10nA].step = (vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step)/16384.0;
-    rRShuntConductanceCalibRange[VCCurrentRange10nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step);
-    rRShuntConductanceCalibRange[VCCurrentRange10nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange10nA].step;
+    rRShuntConductanceCalibRange[VCCurrentRange10nA].min = -2.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange10nA].max = 2.0*(vcCurrentRangesArray[VCCurrentRange10nA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange10nA].step;
     rRShuntConductanceCalibRange[VCCurrentRange10nA].prefix = UnitPfxMicro;
     rRShuntConductanceCalibRange[VCCurrentRange10nA].unit = "S";
     rRShuntConductanceCalibRange[VCCurrentRange40nALbw].step = (vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step)/16384.0;
-    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].min = -8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step);
-    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].max = 8.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange40nALbw].step;
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].min = -2.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange40nALbw].max = 2.0*(vcCurrentRangesArray[VCCurrentRange40nALbw].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange40nALbw].step;
     rRShuntConductanceCalibRange[VCCurrentRange40nALbw].prefix = UnitPfxMicro;
     rRShuntConductanceCalibRange[VCCurrentRange40nALbw].unit = "S";
     rRShuntConductanceCalibRange[VCCurrentRange400nA].step = (vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step)/16384.0;
-    rRShuntConductanceCalibRange[VCCurrentRange400nA].min = -8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step);
-    rRShuntConductanceCalibRange[VCCurrentRange400nA].max = 8.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange400nA].step;
+    rRShuntConductanceCalibRange[VCCurrentRange400nA].min = -2.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step);
+    rRShuntConductanceCalibRange[VCCurrentRange400nA].max = 2.0*(vcCurrentRangesArray[VCCurrentRange400nA].step/vcVoltageRangesArray[0].step) - rRShuntConductanceCalibRange[VCCurrentRange400nA].step;
     rRShuntConductanceCalibRange[VCCurrentRange400nA].prefix = UnitPfxMicro;
     rRShuntConductanceCalibRange[VCCurrentRange400nA].unit = "S";
 
