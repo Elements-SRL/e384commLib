@@ -1,12 +1,11 @@
-#include "emcr192blm_el08b_mb03_mez06_fw_v10.h"
+#include "emcr192blm_el08b_mb02_mez03_fw_v05.h"
 
-Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::string di) :
+Emcr192Blm_EL08b_Mb02_Mez03_fw_v05::Emcr192Blm_EL08b_Mb02_Mez03_fw_v05(std::string di) :
     EmcrOpalKellyDevice(di) {
 
     deviceName = "192Blm";
 
-    fwSize_B = 3709388;
-    motherboardBootTime_s = fwSize_B/OKY_MOTHERBOARD_FPGA_BYTES_PER_S+5;
+    motherboardBootTime_s = 30;
     waitingTimeBeforeReadingData = 2; //s
     okTransferSize = 0x8000;
 
@@ -35,7 +34,7 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     rxMaxWords = totalChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
 
-    txDataWords = 1660;
+    txDataWords = 3016;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
@@ -50,7 +49,7 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     availableVoltageSourcesIdxs.VoltageFromVoltageClamp = ChannelSourceVoltageFromVoltageClamp;
 
     /*! Protocols parameters */
-    protocolFpgaClockFrequencyHz = 10.0e3;
+    protocolFpgaClockFrequencyHz = 10.0e6;
 
     protocolTimeRange.step = 1000.0/protocolFpgaClockFrequencyHz;
     protocolTimeRange.min = LINT32_MIN*protocolTimeRange.step;
@@ -61,40 +60,49 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     positiveProtocolTimeRange = protocolTimeRange;
     positiveProtocolTimeRange.min = 0.0;
 
+    protocolFrequencyRange.step = protocolFpgaClockFrequencyHz/(256.0*(UINT24_MAX+1.0)); /*! 10.0MHz / 256 / 2^24 */
+    protocolFrequencyRange.min = INT24_MIN*protocolFrequencyRange.step;
+    protocolFrequencyRange.max = INT24_MAX*protocolFrequencyRange.step;
+    protocolFrequencyRange.prefix = UnitPfxNone;
+    protocolFrequencyRange.unit = "Hz";
+
+    positiveProtocolFrequencyRange = protocolFrequencyRange;
+    positiveProtocolFrequencyRange.min = 0.0;
+
     voltageProtocolStepImplemented = true;
     voltageProtocolRampImplemented = true;
-    voltageProtocolSinImplemented = false;
+    voltageProtocolSinImplemented = true;
 
-    protocolMaxItemsNum = 15;
+    protocolMaxItemsNum = 20;
     protocolWordOffset = 72;
-    protocolItemsWordsNum = 16;
+    protocolItemsWordsNum = 12;
 
     /*! Current ranges */
     /*! VC */
     vcCurrentRangesNum = VCCurrentRangesNum;
     vcCurrentRangesArray.resize(vcCurrentRangesNum);
-    vcCurrentRangesArray[VCCurrentRange200pA].max = 200.0;
-    vcCurrentRangesArray[VCCurrentRange200pA].min = -200.0;
-    vcCurrentRangesArray[VCCurrentRange200pA].step = vcCurrentRangesArray[VCCurrentRange200pA].max/(SHORT_MAX+1.0);
-    vcCurrentRangesArray[VCCurrentRange200pA].prefix = UnitPfxPico;
-    vcCurrentRangesArray[VCCurrentRange200pA].unit = "A";
-    vcCurrentRangesArray[VCCurrentRange2nA].max = 2.0;
-    vcCurrentRangesArray[VCCurrentRange2nA].min = -2.0;
-    vcCurrentRangesArray[VCCurrentRange2nA].step = vcCurrentRangesArray[VCCurrentRange2nA].max/(SHORT_MAX+1.0);
-    vcCurrentRangesArray[VCCurrentRange2nA].prefix = UnitPfxNano;
-    vcCurrentRangesArray[VCCurrentRange2nA].unit = "A";
-    vcCurrentRangesArray[VCCurrentRange20nA].max = 20.0;
-    vcCurrentRangesArray[VCCurrentRange20nA].min = -20.0;
-    vcCurrentRangesArray[VCCurrentRange20nA].step = vcCurrentRangesArray[VCCurrentRange20nA].max/(SHORT_MAX+1.0);
-    vcCurrentRangesArray[VCCurrentRange20nA].prefix = UnitPfxNano;
-    vcCurrentRangesArray[VCCurrentRange20nA].unit = "A";
-    vcCurrentRangesArray[VCCurrentRange200nA].max = 200.0;
-    vcCurrentRangesArray[VCCurrentRange200nA].min = -200.0;
-    vcCurrentRangesArray[VCCurrentRange200nA].step = vcCurrentRangesArray[VCCurrentRange200nA].max/(SHORT_MAX+1.0);
-    vcCurrentRangesArray[VCCurrentRange200nA].prefix = UnitPfxNano;
-    vcCurrentRangesArray[VCCurrentRange200nA].unit = "A";
+    vcCurrentRangesArray[VCCurrentRange250pA].max = 250.0;
+    vcCurrentRangesArray[VCCurrentRange250pA].min = -250.0;
+    vcCurrentRangesArray[VCCurrentRange250pA].step = vcCurrentRangesArray[VCCurrentRange250pA].max/(SHORT_MAX+1.0);
+    vcCurrentRangesArray[VCCurrentRange250pA].prefix = UnitPfxPico;
+    vcCurrentRangesArray[VCCurrentRange250pA].unit = "A";
+    vcCurrentRangesArray[VCCurrentRange2_5nA].max = 2.5;
+    vcCurrentRangesArray[VCCurrentRange2_5nA].min = -2.5;
+    vcCurrentRangesArray[VCCurrentRange2_5nA].step = vcCurrentRangesArray[VCCurrentRange2_5nA].max/(SHORT_MAX+1.0);
+    vcCurrentRangesArray[VCCurrentRange2_5nA].prefix = UnitPfxNano;
+    vcCurrentRangesArray[VCCurrentRange2_5nA].unit = "A";
+    vcCurrentRangesArray[VCCurrentRange25nA].max = 25.0;
+    vcCurrentRangesArray[VCCurrentRange25nA].min = -25.0;
+    vcCurrentRangesArray[VCCurrentRange25nA].step = vcCurrentRangesArray[VCCurrentRange25nA].max/(SHORT_MAX+1.0);
+    vcCurrentRangesArray[VCCurrentRange25nA].prefix = UnitPfxNano;
+    vcCurrentRangesArray[VCCurrentRange25nA].unit = "A";
+    vcCurrentRangesArray[VCCurrentRange250nA].max = 250.0;
+    vcCurrentRangesArray[VCCurrentRange250nA].min = -250.0;
+    vcCurrentRangesArray[VCCurrentRange250nA].step = vcCurrentRangesArray[VCCurrentRange250nA].max/(SHORT_MAX+1.0);
+    vcCurrentRangesArray[VCCurrentRange250nA].prefix = UnitPfxNano;
+    vcCurrentRangesArray[VCCurrentRange250nA].unit = "A";
     defaultVcCurrentRangeIdxs.resize(1);
-    defaultVcCurrentRangeIdxs[0] = VCCurrentRange200pA;
+    defaultVcCurrentRangeIdxs[0] = VCCurrentRange250pA;
 
     /*! Voltage ranges */
     /*! VC */
@@ -107,15 +115,10 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     vcVoltageRangesArray[VCVoltageRange500mV].unit = "V";
     defaultVcVoltageRangeIdx = VCVoltageRange500mV;
 
-    liquidJunctionSameRangeAsVcDac = false;
+    liquidJunctionSameRangeAsVcDac = true;
     liquidJunctionRangesNum = LJVoltageRangesNum;
-    liquidJunctionRangesArray.resize(vcVoltageRangesNum);
-    liquidJunctionRangesArray[LJVoltageRange50mV].step = 100.0/1024.0;
-    liquidJunctionRangesArray[LJVoltageRange50mV].min = -50.0;
-    liquidJunctionRangesArray[LJVoltageRange50mV].max = liquidJunctionRangesArray[LJVoltageRange50mV].min+1023.0*liquidJunctionRangesArray[LJVoltageRange50mV].step;
-    liquidJunctionRangesArray[LJVoltageRange50mV].prefix = UnitPfxMilli;
-    liquidJunctionRangesArray[LJVoltageRange50mV].unit = "V";
-    defaultLiquidJunctionRangeIdx = LJVoltageRange50mV;
+    liquidJunctionRangesArray = vcVoltageRangesArray;
+    defaultLiquidJunctionRangeIdx = defaultVcVoltageRangeIdx;
 
     /*! Current ranges */
     /*! CC */
@@ -127,44 +130,43 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     /*! VC */
     vcCurrentFiltersNum = VCCurrentFiltersNum;
     vcCurrentFiltersArray.resize(vcCurrentFiltersNum);
-    vcCurrentFiltersArray[VCCurrentFilter16kHz].value = 16.0;
-    vcCurrentFiltersArray[VCCurrentFilter16kHz].prefix = UnitPfxKilo;
-    vcCurrentFiltersArray[VCCurrentFilter16kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].value = 5.0;
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter5kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter10kHz].value = 10.0;
+    vcCurrentFiltersArray[VCCurrentFilter10kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter10kHz].unit = "Hz";
+    vcCurrentFiltersArray[VCCurrentFilter20kHz].value = 20.0;
+    vcCurrentFiltersArray[VCCurrentFilter20kHz].prefix = UnitPfxKilo;
+    vcCurrentFiltersArray[VCCurrentFilter20kHz].unit = "Hz";
     vcCurrentFiltersArray[VCCurrentFilter100kHz].value = 100.0;
     vcCurrentFiltersArray[VCCurrentFilter100kHz].prefix = UnitPfxKilo;
     vcCurrentFiltersArray[VCCurrentFilter100kHz].unit = "Hz";
-    defaultVcCurrentFilterIdx = VCCurrentFilter16kHz;
+    defaultVcCurrentFilterIdx = VCCurrentFilter5kHz;
 
     /*! Voltage filters */
     /*! VC */
     vcVoltageFiltersNum = VCVoltageFiltersNum;
     vcVoltageFiltersArray.resize(vcVoltageFiltersNum);
-    vcVoltageFiltersArray[VCVoltageFilter10Hz].value = 10.0;
-    vcVoltageFiltersArray[VCVoltageFilter10Hz].prefix = UnitPfxNone;
-    vcVoltageFiltersArray[VCVoltageFilter10Hz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter26Hz].value = 26.0;
+    vcVoltageFiltersArray[VCVoltageFilter26Hz].prefix = UnitPfxNone;
+    vcVoltageFiltersArray[VCVoltageFilter26Hz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter1kHz].value = 1.0;
+    vcVoltageFiltersArray[VCVoltageFilter1kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter1kHz].unit = "Hz";
+    vcVoltageFiltersArray[VCVoltageFilter5kHz].value = 5.0;
+    vcVoltageFiltersArray[VCVoltageFilter5kHz].prefix = UnitPfxKilo;
+    vcVoltageFiltersArray[VCVoltageFilter5kHz].unit = "Hz";
     vcVoltageFiltersArray[VCVoltageFilter10kHz].value = 10.0;
     vcVoltageFiltersArray[VCVoltageFilter10kHz].prefix = UnitPfxKilo;
     vcVoltageFiltersArray[VCVoltageFilter10kHz].unit = "Hz";
-    defaultVcVoltageFilterIdx = VCVoltageFilter10Hz;
+    defaultVcVoltageFilterIdx = VCVoltageFilter26Hz;
 
     /*! Current filters */
     /*! CC */
 
     /*! Voltage filters */
     /*! CC */
-    temperatureChannelsNum = TemperatureChannelsNum;
-
-    temperatureChannelsRanges.resize(TemperatureChannelsNum);
-    temperatureChannelsRanges[TemperatureSensor0].step = 0.25;
-    temperatureChannelsRanges[TemperatureSensor0].min = -8192.0;
-    temperatureChannelsRanges[TemperatureSensor0].max = temperatureChannelsRanges[TemperatureSensor0].min+temperatureChannelsRanges[TemperatureSensor0].step*USHORT_MAX;
-    temperatureChannelsRanges[TemperatureSensor0].prefix = UnitPfxNone;
-    temperatureChannelsRanges[TemperatureSensor0].unit = "°C";
-    temperatureChannelsRanges[TemperatureSensor1].step = 0.25;
-    temperatureChannelsRanges[TemperatureSensor1].min = -8192.0;
-    temperatureChannelsRanges[TemperatureSensor1].max = temperatureChannelsRanges[TemperatureSensor1].min+temperatureChannelsRanges[TemperatureSensor1].step*USHORT_MAX;
-    temperatureChannelsRanges[TemperatureSensor1].prefix = UnitPfxNone;
-    temperatureChannelsRanges[TemperatureSensor1].unit = "°C";
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
@@ -174,6 +176,9 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     realSamplingRatesArray[SamplingRate1_25kHz].value = 1250.0/1024.0;
     realSamplingRatesArray[SamplingRate1_25kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate1_25kHz].unit = "Hz";
+    realSamplingRatesArray[SamplingRate2_5kHz].value = 1250.0/512.0;
+    realSamplingRatesArray[SamplingRate2_5kHz].prefix = UnitPfxKilo;
+    realSamplingRatesArray[SamplingRate2_5kHz].unit = "Hz";
     realSamplingRatesArray[SamplingRate5kHz].value = 1250.0/256.0;
     realSamplingRatesArray[SamplingRate5kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate5kHz].unit = "Hz";
@@ -193,18 +198,22 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     realSamplingRatesArray[SamplingRate200kHz].prefix = UnitPfxKilo;
     realSamplingRatesArray[SamplingRate200kHz].unit = "Hz";
     sr2srm.clear();
-    sr2srm[SamplingRate1_25kHz] = 0;
-    sr2srm[SamplingRate5kHz] = 0;
-    sr2srm[SamplingRate10kHz] = 0;
-    sr2srm[SamplingRate20kHz] = 0;
+    sr2srm[SamplingRate1_25kHz] = 3;
+    sr2srm[SamplingRate2_5kHz] = 3;
+    sr2srm[SamplingRate5kHz] = 2;
+    sr2srm[SamplingRate10kHz] = 2;
+    sr2srm[SamplingRate20kHz] = 1;
     sr2srm[SamplingRate50kHz] = 1;
-    sr2srm[SamplingRate100kHz] = 1;
-    sr2srm[SamplingRate200kHz] = 1;
+    sr2srm[SamplingRate100kHz] = 0;
+    sr2srm[SamplingRate200kHz] = 0;
 
     integrationStepArray.resize(samplingRatesNum);
     integrationStepArray[SamplingRate1_25kHz].value = 1024.0/1.250;
     integrationStepArray[SamplingRate1_25kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate1_25kHz].unit = "s";
+    integrationStepArray[SamplingRate2_5kHz].value = 512.0/1.250;
+    integrationStepArray[SamplingRate2_5kHz].prefix = UnitPfxMicro;
+    integrationStepArray[SamplingRate2_5kHz].unit = "s";
     integrationStepArray[SamplingRate5kHz].value = 256.0/1.250;
     integrationStepArray[SamplingRate5kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate5kHz].unit = "s";
@@ -226,16 +235,24 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
 
     // mapping ADC Voltage Clamp
     sr2LpfVcCurrentMap = {
-        {SamplingRate1_25kHz, VCCurrentFilter16kHz},
-        {SamplingRate5kHz, VCCurrentFilter16kHz},
-        {SamplingRate10kHz, VCCurrentFilter16kHz},
-        {SamplingRate20kHz, VCCurrentFilter16kHz},
-        {SamplingRate50kHz, VCCurrentFilter100kHz},
-        {SamplingRate100kHz, VCCurrentFilter100kHz},
+        {SamplingRate1_25kHz, VCCurrentFilter5kHz},
+        {SamplingRate2_5kHz, VCCurrentFilter5kHz},
+        {SamplingRate5kHz, VCCurrentFilter5kHz},
+        {SamplingRate10kHz, VCCurrentFilter5kHz},
+        {SamplingRate20kHz, VCCurrentFilter10kHz},
+        {SamplingRate50kHz, VCCurrentFilter10kHz},
+        {SamplingRate100kHz, VCCurrentFilter20kHz},
         {SamplingRate200kHz, VCCurrentFilter100kHz}
     };
 
     defaultVoltageHoldTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
+
+    defaultVInitRampTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
+    defaultVFinalRampTuner = {0.0, vcVoltageRangesArray[VCVoltageRange500mV].prefix, vcVoltageRangesArray[VCVoltageRange500mV].unit};
+    defaultTRampTuner = {0.0, UnitPfxNone, "s"};
+
+    uint32_t vRampTunerCodersOffset = 316;
+    uint32_t vRampTunerCodersSize = 8;
 
     /*! Zap */
     zapDurationRange.step = 0.1;
@@ -245,7 +262,7 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     zapDurationRange.unit = "s";
 
     /*! VC voltage calib gain (DAC) RDAC */
-    calibVcVoltageGainRange.step = 1.0;
+    calibVcVoltageGainRange.step = 1.0
     calibVcVoltageGainRange.min = 0;
     calibVcVoltageGainRange.max = UINT10_MAX * calibVcVoltageGainRange.step;
     calibVcVoltageGainRange.prefix = UnitPfxNone;
@@ -283,7 +300,6 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     /*! Input controls */
     BoolCoder::CoderConfig_t boolConfig;
     DoubleCoder::CoderConfig_t doubleConfig;
-    MultiCoder::CoderConfig_t multiConfig;
 
     /*! Asic reset */
     boolConfig.initialWord = 0;
@@ -362,6 +378,50 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
         if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
             boolConfig.initialBit = 0;
             boolConfig.initialWord++;
+        }
+    }
+
+    boolConfig.initialWord = 1852;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    liquidJunctionResetCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        liquidJunctionResetCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(liquidJunctionResetCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    boolConfig.initialWord = 1864;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    liquidJunctionAutoStopCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        liquidJunctionAutoStopCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(liquidJunctionAutoStopCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
+        }
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    currentTrackingCoders.resize(VCCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 2044;
+        doubleConfig.resolution = vcCurrentRangesArray[rangeIdx].step;
+        doubleConfig.minValue = vcCurrentRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = vcCurrentRangesArray[rangeIdx].max;
+        currentTrackingCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            currentTrackingCoders[rangeIdx][channelIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+            coders.push_back(currentTrackingCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord++;
         }
     }
 
@@ -445,7 +505,7 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
 
     /*! Protocol items */
     doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 32;
+    doubleConfig.bitsNum = 16;
     voltageProtocolStim0Coders.resize(VCVoltageRangesNum);
     voltageProtocolStim0StepCoders.resize(VCVoltageRangesNum);
     voltageProtocolStim1Coders.resize(VCVoltageRangesNum);
@@ -466,15 +526,15 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
             voltageProtocolStim0Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim0Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+5+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim0StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim0StepCoders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+6+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim1Coders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim1Coders[rangeIdx][itemIdx]);
 
-            doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+            doubleConfig.initialWord = protocolWordOffset+7+protocolItemsWordsNum*itemIdx;
             voltageProtocolStim1StepCoders[rangeIdx][itemIdx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(voltageProtocolStim1StepCoders[rangeIdx][itemIdx]);
         }
@@ -488,7 +548,7 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     protocolTime0Coders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
         protocolTime0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
         coders.push_back(protocolTime0Coders[itemIdx]);
     }
@@ -501,9 +561,35 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     protocolTime0StepCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        doubleConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
+        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
         protocolTime0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
         coders.push_back(protocolTime0StepCoders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = positiveProtocolFrequencyRange.step;
+    doubleConfig.minValue = positiveProtocolFrequencyRange.min;
+    doubleConfig.maxValue = positiveProtocolFrequencyRange.max;
+    protocolFrequency0Coders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+8+protocolItemsWordsNum*itemIdx;
+        protocolFrequency0Coders[itemIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
+        coders.push_back(protocolFrequency0Coders[itemIdx]);
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = protocolFrequencyRange.step;
+    doubleConfig.minValue = protocolFrequencyRange.min;
+    doubleConfig.maxValue = protocolFrequencyRange.max;
+    protocolFrequency0StepCoders.resize(protocolMaxItemsNum);
+
+    for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
+        doubleConfig.initialWord = protocolWordOffset+10+protocolItemsWordsNum*itemIdx;
+        protocolFrequency0StepCoders[itemIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(protocolFrequency0StepCoders[itemIdx]);
     }
 
     boolConfig.initialBit = 0;
@@ -513,15 +599,15 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     protocolLoopRepetitionsCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+16+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+12+protocolItemsWordsNum*itemIdx;
         protocolItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolItemIdxCoders[itemIdx]);
 
-        boolConfig.initialWord = protocolWordOffset+17+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+13+protocolItemsWordsNum*itemIdx;
         protocolNextItemIdxCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolNextItemIdxCoders[itemIdx]);
 
-        boolConfig.initialWord = protocolWordOffset+18+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+14+protocolItemsWordsNum*itemIdx;
         protocolLoopRepetitionsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolLoopRepetitionsCoders[itemIdx]);
     }
@@ -531,7 +617,7 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     protocolApplyStepsCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
         protocolApplyStepsCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolApplyStepsCoders[itemIdx]);
     }
@@ -541,25 +627,104 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     protocolItemTypeCoders.resize(protocolMaxItemsNum);
 
     for (unsigned int itemIdx = 0; itemIdx < protocolMaxItemsNum; itemIdx++) {
-        boolConfig.initialWord = protocolWordOffset+19+protocolItemsWordsNum*itemIdx;
+        boolConfig.initialWord = protocolWordOffset+15+protocolItemsWordsNum*itemIdx;
         protocolItemTypeCoders[itemIdx] = new BoolArrayCoder(boolConfig);
         coders.push_back(protocolItemTypeCoders[itemIdx]);
     }
 
-    /*! V holding tuner */
+    /*! V Ramp tuner */
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
-    vHoldTunerCoders.resize(VCVoltageRangesNum);
+    vInitRampTunerCoders.resize(VCVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 316;
+        doubleConfig.initialWord = vRampTunerCodersOffset;
         doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
         doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
         doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
-        vHoldTunerCoders[rangeIdx].resize(currentChannelsNum);
+        vInitRampTunerCoders[rangeIdx].resize(currentChannelsNum);
         for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
-            vHoldTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
-            coders.push_back(vHoldTunerCoders[rangeIdx][channelIdx]);
-            doubleConfig.initialWord++;
+            vInitRampTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(vInitRampTunerCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord += vRampTunerCodersSize;
+        }
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    vFinalRampTunerCoders.resize(VCVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = vRampTunerCodersOffset+1;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
+        doubleConfig.minValue = vcVoltageRangesArray[rangeIdx].min;
+        doubleConfig.maxValue = vcVoltageRangesArray[rangeIdx].max;
+        vFinalRampTunerCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            vFinalRampTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(vFinalRampTunerCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord += vRampTunerCodersSize;
+        }
+    }
+
+    doubleConfig.initialWord = vRampTunerCodersOffset+2;
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    doubleConfig.resolution = positiveProtocolTimeRange.step;
+    doubleConfig.minValue = positiveProtocolTimeRange.min;
+    doubleConfig.maxValue = positiveProtocolTimeRange.max;
+    tRampTunerCoders.resize(currentChannelsNum);
+
+    for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+        tRampTunerCoders[channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+        coders.push_back(tRampTunerCoders[channelIdx]);
+        doubleConfig.initialWord += vRampTunerCodersSize;
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    quotRampTunerCoders.resize(VCVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = vRampTunerCodersOffset+4;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step/positiveProtocolTimeRange.step;
+        doubleConfig.minValue = LINT32_MIN*doubleConfig.resolution;
+        doubleConfig.maxValue = LINT32_MAX*doubleConfig.resolution;
+        quotRampTunerCoders[rangeIdx].resize(currentChannelsNum);
+
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            quotRampTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(quotRampTunerCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord += vRampTunerCodersSize;
+        }
+    }
+
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 32;
+    remRampTunerCoders.resize(VCVoltageRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < VCVoltageRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = vRampTunerCodersOffset+6;
+        doubleConfig.resolution = vcVoltageRangesArray[rangeIdx].step;
+        doubleConfig.minValue = LINT32_MIN*doubleConfig.resolution;
+        doubleConfig.maxValue = LINT32_MAX*doubleConfig.resolution;
+        remRampTunerCoders[rangeIdx].resize(currentChannelsNum);
+
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            remRampTunerCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(remRampTunerCoders[rangeIdx][channelIdx]);
+            doubleConfig.initialWord += vRampTunerCodersSize;
+        }
+    }
+
+    /*! Activate ramp tuners */
+    boolConfig.initialWord = 2236;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    activateRampTunerCoders.resize(currentChannelsNum);
+    for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
+        activateRampTunerCoders[idx] = new BoolArrayCoder(boolConfig);
+        coders.push_back(activateRampTunerCoders[idx]);
+        boolConfig.initialBit++;
+        if (boolConfig.initialBit == CMC_BITS_PER_WORD) {
+            boolConfig.initialBit = 0;
+            boolConfig.initialWord++;
         }
     }
 
@@ -568,7 +733,7 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     doubleConfig.bitsNum = 10;
     liquidJunctionVoltageCoders.resize(liquidJunctionRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < liquidJunctionRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 700;
+        doubleConfig.initialWord = 2044;
         doubleConfig.resolution = liquidJunctionRangesArray[rangeIdx].step;
         doubleConfig.minValue = liquidJunctionRangesArray[rangeIdx].min;
         doubleConfig.maxValue = liquidJunctionRangesArray[rangeIdx].max;
@@ -582,7 +747,7 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
 
     /*! DAC gain e offset */
     /*! VC Voltage gain */
-    doubleConfig.initialWord = 892;
+    doubleConfig.initialWord = 2248;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcVoltageGainRange.step;
@@ -598,7 +763,7 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     /*! VC Voltage offset */
     calibVcVoltageOffsetCoders.resize(vcVoltageRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcVoltageRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 1084;
+        doubleConfig.initialWord = 2440;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcVoltageOffsetRanges[rangeIdx].step;
@@ -614,7 +779,7 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
 
     /*! ADC gain e offset */
     /*! VC current gain */
-    doubleConfig.initialWord = 1276;
+    doubleConfig.initialWord = 2632;
     doubleConfig.initialBit = 0;
     doubleConfig.bitsNum = 16;
     doubleConfig.resolution = calibVcCurrentGainRange.step;
@@ -630,7 +795,7 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     /*! VC current offset */
     calibVcCurrentOffsetCoders.resize(vcCurrentRangesNum);
     for (uint32_t rangeIdx = 0; rangeIdx < vcCurrentRangesNum; rangeIdx++) {
-        doubleConfig.initialWord = 1468;
+        doubleConfig.initialWord = 2824;
         doubleConfig.initialBit = 0;
         doubleConfig.bitsNum = 16;
         doubleConfig.resolution = calibVcCurrentOffsetRanges[rangeIdx].step;
@@ -644,65 +809,10 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
         }
     }
 
-    /*! T control */
-    int fanTrimmerRangesNum = FanTrimmerRangesNum;
-
-    double fanTrimmerLevels = 256.0;
-    double Rb = 140.0;
-    double Rc = 0.06;
-    double Rp = 499.0;
-    double Rm = 50.0;
-
-    fanTrimmerRanges.resize(fanTrimmerRangesNum);
-    fanTrimmerRanges[FanTrimmerOff].step = 1.0;
-    fanTrimmerRanges[FanTrimmerOff].min = 0.0;
-    fanTrimmerRanges[FanTrimmerOff].max = 0.0;
-    fanTrimmerRanges[FanTrimmerOff].prefix = UnitPfxKilo;
-    fanTrimmerRanges[FanTrimmerOff].unit = "Ohm";
-    fanTrimmerRanges[FanTrimmerFast].step = Rm/fanTrimmerLevels;
-    fanTrimmerRanges[FanTrimmerFast].min = Rb+Rc;
-    fanTrimmerRanges[FanTrimmerFast].max = fanTrimmerRanges[FanTrimmerFast].min+(fanTrimmerLevels-1.0)*fanTrimmerRanges[FanTrimmerFast].step;
-    fanTrimmerRanges[FanTrimmerFast].prefix = UnitPfxKilo;
-    fanTrimmerRanges[FanTrimmerFast].unit = "Ohm";
-    fanTrimmerRanges[FanTrimmerSlow].min = fanTrimmerRanges[FanTrimmerFast].min*Rp/(fanTrimmerRanges[FanTrimmerFast].min+Rp);
-    fanTrimmerRanges[FanTrimmerSlow].max = fanTrimmerRanges[FanTrimmerFast].max*Rp/(fanTrimmerRanges[FanTrimmerFast].max+Rp);
-    fanTrimmerRanges[FanTrimmerSlow].step = (fanTrimmerRanges[FanTrimmerSlow].max-fanTrimmerRanges[FanTrimmerSlow].min)/fanTrimmerLevels;
-    fanTrimmerRanges[FanTrimmerSlow].prefix = UnitPfxKilo;
-    fanTrimmerRanges[FanTrimmerSlow].unit = "Ohm";
-
-    boolConfig.initialWord = 2;
-    boolConfig.initialBit = 12;
-    boolConfig.bitsNum = 2;
-
-    doubleConfig.initialWord = 7;
-    doubleConfig.initialBit = 0;
-    doubleConfig.bitsNum = 8;
-
-    multiConfig.doubleCoderVector.resize(fanTrimmerRangesNum);
-    multiConfig.thresholdVector.resize(fanTrimmerRangesNum-1);
-
-    multiConfig.boolCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x3);
-    static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x2);
-    static_cast <BoolRandomArrayCoder *> (multiConfig.boolCoder)->addMapItem(0x0);
-    coders.push_back(multiConfig.boolCoder);
-
-    for (uint32_t rangeIdx = 0; rangeIdx < fanTrimmerRangesNum; rangeIdx++) {
-        doubleConfig.minValue = fanTrimmerRanges[rangeIdx].min;
-        doubleConfig.maxValue = fanTrimmerRanges[rangeIdx].max;
-        doubleConfig.resolution = fanTrimmerRanges[rangeIdx].step;
-        multiConfig.doubleCoderVector[rangeIdx] = new DoubleOffsetBinaryCoder(doubleConfig);
-        coders.push_back(multiConfig.doubleCoderVector[rangeIdx]);
-        if (rangeIdx > 0) {
-            multiConfig.thresholdVector[rangeIdx-1] = (fanTrimmerRanges[rangeIdx].min + fanTrimmerRanges[rangeIdx-1].max)*0.5;
-        }
-    }
-    fanTrimmerCoder = new MultiCoder(multiConfig);
-    coders.push_back(fanTrimmerCoder);
-
     /*! Default status */
     txStatus.init(txDataWords);
-    txStatus.encodingWords[7] = 0x00FF; // fans max speed
+    txStatus.encodingWords[0] = 0x4000;
+    txStatus.encodingWords[2] = 0x0070; // fans on
     for (int c = 36; c < 48; c++) {
         txStatus.encodingWords[c] = 0xFFFF; // VC_int on
     }
@@ -711,95 +821,10 @@ Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::Emcr192Blm_EL08b_Mb03_Mez06_fw_v10(std::stri
     }
 }
 
-ErrorCodes_t Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::initializeHW() {
-    std::this_thread::sleep_for(std::chrono::seconds(motherboardBootTime_s));
+ErrorCodes_t Emcr192Blm_EL08b_Mb02_Mez03_fw_v05::initializeHW() {
+    std::this_thread::sleep_for (std::chrono::seconds(motherboardBootTime_s));
 
-    this->resetFpga(true, true);
-    this->resetFpga(false, true);
-    std::this_thread::sleep_for (std::chrono::milliseconds(1000));
-
-    this->resetAsic(true, true);
-    std::this_thread::sleep_for (std::chrono::milliseconds(1));
-    this->resetAsic(false, true); /*! Not synchronous across MB's FGPAs */
-    std::this_thread::sleep_for (std::chrono::milliseconds(10));
+    this->sendCommands();
 
     return Success;
-}
-
-ErrorCodes_t Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::setCoolingFansSpeed(Measurement_t speed, bool applyFlag) {
-    fanTrimmerCoder->encode(fanV2R(fanW2V(speed)).value, txStatus);
-    if (applyFlag) {
-        this->stackOutgoingMessage(txStatus);
-    }
-    return Success;
-}
-
-ErrorCodes_t Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::getCoolingFansSpeedRange(RangedMeasurement_t &range) {
-    range = {0.0, fanTrimmerWMax.value, 10.0, fanTrimmerWMax.prefix, fanTrimmerWMax.unit};
-    return Success;
-}
-
-ErrorCodes_t Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::setTemperatureControl(Measurement_t temperature, bool enabled) {
-    if (enabled == tControlEnabled) {
-        return Success;
-    }
-    temperatureSet = temperature;
-    temperatureSet.convertValue(UnitPfxNone);
-
-    tControlEnabled = enabled;
-    ie = 0.0;
-    preve = 0.0;
-    then = std::chrono::steady_clock::now();
-    return Success;
-}
-
-ErrorCodes_t Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::setTemperatureControlPid(PidParams_t params) {
-    pg = params.proportionalGain;
-    ig = params.integralGain;
-    dg = params.derivativeGain;
-    ieMax = params.integralAntiWindUp;
-    return Success;
-}
-
-void Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::processTemperatureData(std::vector <Measurement_t> temperaturesRead) {
-    /*! \todo FCON tutte le conversioni in real time potrebbero essere evitate assicurandosi nel costruttore che temperatureSet abbia la stessa unità dei range di corrente, ma credo sia meno compreonsibile perchè va */
-    temperaturesRead[0].convertValue(UnitPfxNone);
-    double temperatureIntMeas = temperaturesRead[0].value;
-    temperaturesRead[1].convertValue(UnitPfxNone);
-    double temperatureExtMeas = temperaturesRead[1].value;
-    if (tControlEnabled) {
-        auto now = std::chrono::steady_clock::now();
-        double elapsed = 1.0e-3*(double)(std::chrono::duration_cast<std::chrono::milliseconds>(now - then).count());
-        if (elapsed < 1.8) {
-            return;
-        }
-        then = now;
-        double e = temperatureSet.value-temperatureIntMeas;
-        ie += e*elapsed;
-        ie = (std::max)(-ieMax, (std::min)(ieMax, ie));
-        double de = (e-preve)/elapsed;
-        preve = e;
-        double RT = e*pg+ie*ig+de*dg;
-        Measurement_t speed = this->fanRT2W({RT, fanTrimmerRTMin.prefix, fanTrimmerRTMin.unit});
-        this->setCoolingFansSpeed(speed, true);
-        if (debugLevelEnabled(DebugLevelTemperature)) {
-            std::fprintf(tempFid, "%f %f %f %f\n", temperatureSet.value, temperatureIntMeas, temperatureExtMeas, speed.value);
-            std::fflush(tempFid);
-        }
-    }
-}
-
-Measurement_t Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::fanV2R(Measurement_t V) {
-    V.convertValue(fanTrimmerVRef.prefix);
-    return fanTrimmerRf*(V.value/fanTrimmerVRef.value-1.0);
-}
-
-Measurement_t Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::fanW2V(Measurement_t W) {
-    W.convertValue(fanTrimmerWMax.prefix);
-    return fanTrimmerVMax*(W.value/fanTrimmerWMax.value);
-}
-
-Measurement_t Emcr192Blm_EL08b_Mb03_Mez06_fw_v10::fanRT2W(Measurement_t RT) {
-    RT.convertValue(fanTrimmerRTMin.prefix);
-    return RT.value > 0.5*(fanTrimmerRTMax.value+fanTrimmerRTOff.value) ? fanTrimmerWMax*0.0 : fanTrimmerWMax+(fanTrimmerWMin-fanTrimmerWMax)*(RT.value-fanTrimmerRTMin.value)/(fanTrimmerRTMax.value-fanTrimmerRTMin.value);
 }
