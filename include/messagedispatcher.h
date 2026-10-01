@@ -863,6 +863,14 @@ public:
      */
     virtual ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag);
 
+    /*! \brief Set the ASIC's clock divider.
+     *
+     * \param clockDivIdx [in] Index of the clock divider to be set.
+     * \param applyFlag [in] true: immediately submit the command to the device; false: submit together with the next command.
+     * \return Error code.
+     */
+    virtual ErrorCodes_t setClockDiv(uint16_t clockDivIdx, bool applyFlag);
+
     /*! \brief Set the downsampling ratio, so that the final sampling rate is the value selected by the setSamplingRate method, divided by the downsampling ratio.
      *  \note In order to avoid aliasing, any downsampling ratio other than 1 will automatically activate a low pass filter with cut off frequency SR/4,
      *  were SR is the final sampling rate, after decimation.
@@ -1876,6 +1884,27 @@ public:
      */
     ErrorCodes_t getRealSamplingRatesFeatures(std::vector <Measurement_t> &realSamplingRates);
 
+    /*! \brief Get the ASIC's clock dividers available for the device.
+     *
+     * \param clockDividers [out] Array containing all the available clock dividers.
+     * \return Error code.
+     */
+    ErrorCodes_t getClockDividers(std::vector <uint32_t> &clockDividers);
+
+    /*! \brief Get the currently applied ASIC's clock divider.
+     *
+     * \param clockDivider [out] Currently applied clock divider.
+     * \return Error code.
+     */
+    ErrorCodes_t getClockDividers(uint32_t &clockDivider);
+
+    /*! \brief Get the currently applied clock divider.
+     *
+     * \param idx [out] Index of the currently applied clock divider.
+     * \return Error code.
+     */
+    ErrorCodes_t getClockDividerIdx(uint32_t &idx);
+
     /*! \brief Get the max downsampling ratio.
      *
      * \param ratio [out] Max downsampling ratio.
@@ -2454,6 +2483,9 @@ protected:
     std::unordered_map <uint16_t, uint16_t> sr2LpfVcCurrentMap;
     std::unordered_map <uint16_t, uint16_t> sr2LpfCcVoltageMap;
 
+    uint32_t clockDividersNum;
+    std::vector <uint32_t> clockDividersArray;
+
     std::vector <Measurement_t> selectedVoltageHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector <Measurement_t> selectedCurrentHoldVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
     std::vector <Measurement_t> selectedVoltageHalfVector; /*! \todo FCON sostituibile con le info reperibili dai channel model? */
@@ -2531,6 +2563,7 @@ protected:
     std::vector <ChannelModel *> channelModels;
 
     uint16_t selectedSamplingRateIdx = -1;
+    uint16_t selectedClockDividerIdx = -1;
 
     std::vector <double> currentResolutions;
     std::vector <double> voltageResolutions;

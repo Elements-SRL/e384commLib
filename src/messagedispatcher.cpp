@@ -352,7 +352,7 @@ ErrorCodes_t MessageDispatcher::resetOffsetRecalibration(std::vector <uint16_t> 
     int offsetIdx = 0;
     for (auto channelIdx : channelIndexes) {
         liquidJunctionStatuses[channelIdx] = LiquidJunctionResetted;
-        offsets[offsetIdx++] = originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx);
+        offsets[offsetIdx++] = originalCalibrationParams.getValue(CalTypesVcOffsetAdc, selectedClockDividerIdx, selectedSamplingRateIdx, selectedVcCurrentRangeIdx[channelIdx], channelIdx);
     }
     ljMutexLock.unlock();
     return this->setCalibVcCurrentOffset(channelIndexes, offsets, applyFlag);
@@ -578,6 +578,10 @@ ErrorCodes_t MessageDispatcher::setAdcFilter(bool) {
 }
 
 ErrorCodes_t MessageDispatcher::setSamplingRate(uint16_t, bool) {
+    return ErrorFeatureNotImplemented;
+}
+
+ErrorCodes_t MessageDispatcher::setClockDiv(uint16_t, bool) {
     return ErrorFeatureNotImplemented;
 }
 
@@ -1258,6 +1262,30 @@ ErrorCodes_t MessageDispatcher::getRealSamplingRatesFeatures(std::vector <Measur
         return ErrorFeatureNotImplemented;
     }
     realSamplingRates = realSamplingRatesArray;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getClockDividers(std::vector <uint32_t> &clockDividers) {
+    if (clockDividersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    clockDividers = clockDividersArray;
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getClockDividers(uint32_t &clockDivider) {
+    if (clockDividersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    clockDivider = clockDividersArray[selectedClockDividerIdx];
+    return Success;
+}
+
+ErrorCodes_t MessageDispatcher::getClockDividerIdx(uint32_t &idx) {
+    if (clockDividersArray.empty()) {
+        return ErrorFeatureNotImplemented;
+    }
+    idx = selectedClockDividerIdx;
     return Success;
 }
 

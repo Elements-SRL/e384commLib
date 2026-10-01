@@ -89,6 +89,7 @@ public:
 
     ErrorCodes_t setAdcFilter(bool applyFlag = false) override;
     ErrorCodes_t setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) override;
+    ErrorCodes_t setClockDiv(uint16_t clockDivIdx, bool applyFlag) override;
 
     ErrorCodes_t setDebugBit(uint16_t wordOffset, uint16_t bitOffset, bool status, bool applyFlag = true) override;
     ErrorCodes_t setDebugWord(uint16_t wordOffset, uint16_t wordValue) override;
@@ -317,6 +318,7 @@ protected:
     std::vector <BoolCoder *> enableStimulusCoders;
     std::vector <BoolCoder *> turnChannelsOnCoders;
     BoolCoder * samplingRateCoder = nullptr;
+    BoolCoder * clockDividerCoder = nullptr;
 
     std::vector <std::vector <DoubleCoder *> > vHoldTunerCoders;
     std::vector <std::vector <DoubleCoder *> > vHalfTunerCoders;

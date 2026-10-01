@@ -1114,47 +1114,77 @@ typedef struct CalibrationParams {
         return false;
     }
 
-    const CalibrationRanges_t& getRanges(CalibrationTypes_t type, int samplingRateIdx) const {
-        int samplingModeIdx = 0;
-        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+    const CalibrationRanges_t& getRanges(CalibrationTypes_t type, int samplingModeIdx, int samplingRateIdx) const {
+        if (samplingModeIdx < 0) {
+            samplingModeIdx = 0;
+            if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+                return types[type].getRanges(samplingModeIdx);
+            }
+        }
+        else {
             return types[type].getRanges(samplingModeIdx);
         }
         return rangeErr;
     }
 
-    const std::vector <Measurement_t>& getValues(CalibrationTypes_t type, int samplingRateIdx, int rangeIdx) const {
-        int samplingModeIdx = 0;
-        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+    const std::vector <Measurement_t>& getValues(CalibrationTypes_t type, int samplingModeIdx, int samplingRateIdx, int rangeIdx) const {
+        if (samplingModeIdx < 0) {
+            samplingModeIdx = 0;
+            if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+                return types[type].getValues(samplingModeIdx, rangeIdx);
+            }
+        }
+        else {
             return types[type].getValues(samplingModeIdx, rangeIdx);
         }
         return vecErr;
     }
 
-    const Measurement_t& getValue(CalibrationTypes_t type, int samplingRateIdx, int rangeIdx, int channelIdx) const {
-        int samplingModeIdx = 0;
-        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+    const Measurement_t& getValue(CalibrationTypes_t type, int samplingModeIdx, int samplingRateIdx, int rangeIdx, int channelIdx) const {
+        if (samplingModeIdx < 0) {
+            samplingModeIdx = 0;
+            if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+                return types[type].getValue(samplingModeIdx, rangeIdx, channelIdx);
+            }
+        }
+        else {
             return types[type].getValue(samplingModeIdx, rangeIdx, channelIdx);
         }
         return measErr;
     }
 
-    void setValues(CalibrationTypes_t type, int samplingRateIdx, int rangeIdx, std::vector <Measurement_t> values) {
-        int samplingModeIdx = 0;
-        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+    void setValues(CalibrationTypes_t type, int samplingModeIdx, int samplingRateIdx, int rangeIdx, std::vector <Measurement_t> values) {
+        if (samplingModeIdx < 0) {
+            samplingModeIdx = 0;
+            if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+                types[type].setValues(samplingModeIdx, rangeIdx, values);
+            }
+        }
+        else {
             types[type].setValues(samplingModeIdx, rangeIdx, values);
         }
     }
 
-    void setValue(CalibrationTypes_t type, int samplingRateIdx, int rangeIdx, int channelIdx, Measurement_t value) {
-        int samplingModeIdx = 0;
-        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+    void setValue(CalibrationTypes_t type, int samplingModeIdx, int samplingRateIdx, int rangeIdx, int channelIdx, Measurement_t value) {
+        if (samplingModeIdx < 0) {
+            samplingModeIdx = 0;
+            if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+                types[type].setValue(samplingModeIdx, rangeIdx, channelIdx, value);
+            }
+        }
+        else {
             types[type].setValue(samplingModeIdx, rangeIdx, channelIdx, value);
         }
     }
 
-    void convertValue(CalibrationTypes_t type, int samplingRateIdx, int rangeIdx, int channelIdx, UnitPfx_t prefix) {
-        int samplingModeIdx = 0;
-        if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+    void convertValue(CalibrationTypes_t type, int samplingModeIdx, int samplingRateIdx, int rangeIdx, int channelIdx, UnitPfx_t prefix) {
+        if (samplingModeIdx < 0) {
+            samplingModeIdx = 0;
+            if (getSamplingMode(type, samplingRateIdx, samplingModeIdx)) {
+                types[type].convertValue(samplingModeIdx, rangeIdx, channelIdx, prefix);
+            }
+        }
+        else {
             types[type].convertValue(samplingModeIdx, rangeIdx, channelIdx, prefix);
         }
     }
