@@ -9,7 +9,7 @@ Emcr192Blm_EL08b_Mb02_Mez03_fw_v05::Emcr192Blm_EL08b_Mb02_Mez03_fw_v05(std::stri
     waitingTimeBeforeReadingData = 2; //s
     okTransferSize = 0x8000;
 
-    rxSyncWord = 0x5aa5;
+    rxSyncWord = 0x5aa55aa5;
 
     packetsPerFrame = 1;
 
@@ -25,7 +25,7 @@ Emcr192Blm_EL08b_Mb02_Mez03_fw_v05::Emcr192Blm_EL08b_Mb02_Mez03_fw_v05(std::stri
     rxMaxWords = totalChannelsNum*packetsPerFrame; /*! \todo FCON da aggiornare se si aggiunge un pacchetto di ricezione più lungo del pacchetto dati */
     maxInputDataLoadSize = rxMaxWords*RX_WORD_SIZE;
 
-    txDataWords = 2832;
+    txDataWords = 3024;
     txDataWords = ((txDataWords+1)/2)*2; /*! Since registers are written in blocks of 2 16 bits words, create an even number */
     txMaxWords = txDataWords;
     txMaxRegs = (txMaxWords+1)/2; /*! Ceil of the division by 2 (each register is a 32 bits word) */
@@ -825,6 +825,23 @@ Emcr192Blm_EL08b_Mb02_Mez03_fw_v05::Emcr192Blm_EL08b_Mb02_Mez03_fw_v05(std::stri
         for (uint32_t idx = 0; idx < currentChannelsNum; idx++) {
             calibVcCurrentOffsetCoders[rangeIdx][idx] = new DoubleTwosCompCoder(doubleConfig);
             coders.push_back(calibVcCurrentOffsetCoders[rangeIdx][idx]);
+            doubleConfig.initialWord++;
+        }
+    }
+
+    /*! VC leak calibration */
+    doubleConfig.initialBit = 0;
+    doubleConfig.bitsNum = 16;
+    calibRShuntConductanceCoders.resize(VCCurrentRangesNum);
+    for (uint32_t rangeIdx = 0; rangeIdx < VCCurrentRangesNum; rangeIdx++) {
+        doubleConfig.initialWord = 2825;
+        doubleConfig.resolution = rRShuntConductanceCalibRange[rangeIdx].step;
+        doubleConfig.minValue = rRShuntConductanceCalibRange[rangeIdx].min;
+        doubleConfig.maxValue = rRShuntConductanceCalibRange[rangeIdx].max;
+        calibRShuntConductanceCoders[rangeIdx].resize(currentChannelsNum);
+        for (uint32_t channelIdx = 0; channelIdx < currentChannelsNum; channelIdx++) {
+            calibRShuntConductanceCoders[rangeIdx][channelIdx] = new DoubleTwosCompCoder(doubleConfig);
+            coders.push_back(calibRShuntConductanceCoders[rangeIdx][channelIdx]);
             doubleConfig.initialWord++;
         }
     }
