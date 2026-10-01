@@ -202,7 +202,9 @@ typedef enum DeviceTypes {
     Device192Blm_el03c_mb03_mez04_fw_v09,               /*!< 192 channels device for BLM experiments */
     Device192Blm_el03c_mb03_mez05_fw_v07,               /*!< 192 channels device for BLM experiments */
     Device192Blm_el03c_mb03_mez05_fw_v09,               /*!< 192 channels device for BLM experiments */
+    Device192Blm_el08b_mb02_mez03_fw_v05,               /*!< 192 channels device for BLM experiments */
     Device8Blm_el03c_digitalTester_fw_v01,              /*!< 8 channels device consisting of a single 8-channels analog board */
+    Device8Blm_el08b_digitalTester_fw_v01,              /*!< 8 channels device consisting of a single 8-channels analog board */
     Device384Nanopores,                                 /*!< 384 channels device for nanopores experiments */
     Device384Nanopores_SR7p5kHz,                        /*!< 384 channels device for nanopores experiments */
     Device384PatchClamp_prot_v01_fw_v02,                /*!< 384 channels device for patchclamp experiments */

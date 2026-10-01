@@ -112,6 +112,8 @@ public:
         DeviceSubversion8Blm_EL03c_DigitalTester_PCBV01 = 0x03,
         DeviceSubversion8Blm_EL03c_DigitalTester_PCBV01b = 0x04,
         DeviceSubversion192Blm_EL03c_MB03Mez05 = 0x05,
+        DeviceSubversion8Blm_EL08b_DigitalTester = 0x07,
+        DeviceSubversion192Blm_EL08b_MB02Mez03 = 0x09,
 
         /*! Subversions used for version = 0x0F */
         DeviceSubversion384Patch_EL07c_FirstProto = 0x01,
