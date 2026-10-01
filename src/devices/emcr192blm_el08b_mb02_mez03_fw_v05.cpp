@@ -166,10 +166,10 @@ Emcr192Blm_EL08b_Mb02_Mez03_fw_v05::Emcr192Blm_EL08b_Mb02_Mez03_fw_v05(std::stri
     clockDividersNum = ClockDividersNum;
 
     clockDividersArray.resize(clockDividersNum);
-    clockDividersArray[ClockDivider8] = 8;
-    clockDividersArray[ClockDivider4] = 4;
-    clockDividersArray[ClockDivider2] = 2;
     clockDividersArray[ClockDivider1] = 1;
+    clockDividersArray[ClockDivider2] = 2;
+    clockDividersArray[ClockDivider4] = 4;
+    clockDividersArray[ClockDivider8] = 8;
 
     /*! Sampling rates */
     samplingRatesNum = SamplingRatesNum;
@@ -352,11 +352,7 @@ Emcr192Blm_EL08b_Mb02_Mez03_fw_v05::Emcr192Blm_EL08b_Mb02_Mez03_fw_v05(std::stri
     boolConfig.initialWord = 0;
     boolConfig.initialBit = 7;
     boolConfig.bitsNum = 2;
-    clockDividerCoder = new BoolRandomArrayCoder(boolConfig);
-    static_cast <BoolRandomArrayCoder *> (clockDividerCoder)->addMapItem(3);
-    static_cast <BoolRandomArrayCoder *> (clockDividerCoder)->addMapItem(2);
-    static_cast <BoolRandomArrayCoder *> (clockDividerCoder)->addMapItem(1);
-    static_cast <BoolRandomArrayCoder *> (clockDividerCoder)->addMapItem(0);
+    clockDividerCoder = new BoolArrayCoder(boolConfig);
     coders.push_back(clockDividerCoder);
 
     boolConfig.initialWord = 0;

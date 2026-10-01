@@ -80,10 +80,10 @@ protected:
     };
 
     enum ClockDividers {
-        ClockDivider8,
-        ClockDivider4,
-        ClockDivider2,
         ClockDivider1,
+        ClockDivider2,
+        ClockDivider4,
+        ClockDivider8,
         ClockDividersNum
     };
 
