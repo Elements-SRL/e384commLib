@@ -174,7 +174,6 @@ public:
      *
      * \param deviceId [in] Device ID of the device to connect to.
      * \param messageDispatcher [out] Class to control the device.
-     * \param fwPathIn [in] Path of the Firmware file (empty string if it is in the same folder as the application that calls the library).
      * \return Error code.
      */
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher);
@@ -2562,8 +2561,8 @@ protected:
     std::vector <BoardModel *> boardModels;
     std::vector <ChannelModel *> channelModels;
 
-    uint16_t selectedSamplingRateIdx = -1;
-    uint16_t selectedClockDividerIdx = -1;
+    int16_t selectedSamplingRateIdx = -1;
+    int16_t selectedClockDividerIdx = -1;
 
     std::vector <double> currentResolutions;
     std::vector <double> voltageResolutions;

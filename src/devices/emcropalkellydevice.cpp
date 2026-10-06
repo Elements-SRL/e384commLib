@@ -149,6 +149,9 @@ static std::unordered_map <std::string, DeviceTypes_t> deviceIdMapping = {
     {"DEMO_2x10MHz", Device2x10MHzFake}
 };
 
+static OpalKellyDeviceManager * okManager = nullptr;
+static int okManagerRequests = 0;
+
 OpalKellyDeviceManager::OpalKellyDeviceManager(std::string deviceId) :
     OpalKelly::FrontPanelManager(),
     deviceId(deviceId) {
@@ -1345,8 +1348,11 @@ ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {
 
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
-    okManager = new OpalKellyDeviceManager(deviceId);
-    monitoringThread = std::thread(&EmcrOpalKellyDevice::monitoringLoop, this);
+    if (okManagerRequests == 0) {
+        okManager = new OpalKellyDeviceManager(deviceId);
+        monitoringThread = std::thread(&EmcrOpalKellyDevice::monitoringLoop, this);
+        okManagerRequests++;
+    }
 
     return EmcrDevice::initializeMemory();
 }
@@ -1359,10 +1365,13 @@ void EmcrOpalKellyDevice::deinitializeMemory() {
     rxRawBuffer16 = nullptr;
 
     if (okManager != nullptr) {
-        okManager->ExitMonitorLoop();
-        monitoringThread.join();
-        delete okManager;
-        okManager = nullptr;
+        okManagerRequests--;
+        if (okManagerRequests == 0) {
+            okManager->ExitMonitorLoop();
+            monitoringThread.join();
+            delete okManager;
+            okManager = nullptr;
+        }
     }
 
     EmcrDevice::deinitializeMemory();

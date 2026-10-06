@@ -189,7 +189,6 @@ protected:
     \****************/
 
     okCFrontPanel dev;
-    OpalKellyDeviceManager * okManager = nullptr;
 
     BoolCoder * calibrationRamSelectorCoder = nullptr;
     BoolCoder * calibrationRamAddressCoder = nullptr;
