@@ -29,6 +29,7 @@ typedef enum {
     DebugLevelTemperature,
     DebugLevelDigitallOffsetCompensation,
     DebugLevelMaxSpeed,
+    DebugLevelSimulateFtdiMissing, /*!< Simulates an FTDI device plugged in with the FTDI libraries missing */
     DebugLevelsNum
 } DebugLevels_t;
 
@@ -173,6 +174,10 @@ inline bool debugLevelEnabled(DebugLevels_t level) {
 
         case DebugLevelDigitallOffsetCompensation:
             filename = "e384_DOC.pls";
+            break;
+
+        case DebugLevelSimulateFtdiMissing:
+            filename = "e384_NOFTDI.pls";
             break;
 
         default:

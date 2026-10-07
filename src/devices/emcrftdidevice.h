@@ -8,6 +8,7 @@
 #define EMF_ZAP_PULSE_TRIGGER_IN_BIT 1
 #define EMF_TX_TRIGGER_BUFFER_SIZE 5 // header, type, length = 1, payload[2]
 #define EMF_MAX_WRITE_TRIES 3
+#define EMF_FTDI_LIB_TEST_FAKE_ID "DEMO_FTDI_LibLoadTest" /*!< Fake device listed with e384_DEMO.pls, tests only the loading of the FTDI libraries */
 
 #include "emcrdevice.h"
 #include "ftdicalibrationeeprom.h"
@@ -25,6 +26,7 @@ public:
     static ErrorCodes_t isDeviceSerialDetected(std::string deviceId);
     static ErrorCodes_t isDeviceRecognized(std::string deviceId);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
+    static ErrorCodes_t getDriverStatus(std::string &details);
     ErrorCodes_t setCalibrationMode(bool calibModeFlag) override;
     ErrorCodes_t getCalibrationEepromSize(uint32_t &size) override;
     ErrorCodes_t writeCalibrationEeprom(std::vector <uint32_t> value, std::vector <uint32_t> address, std::vector <uint32_t> size) override;
@@ -105,6 +107,8 @@ private:
     bool writeRegisters();
     bool activateTriggerIn(int address, int bit);
     bool writeToBulkOut(uint32_t * buffer);
+
+    static void applyDebugSimulations();
 };
 
 #endif // EMCRFTDIDEVICE_H

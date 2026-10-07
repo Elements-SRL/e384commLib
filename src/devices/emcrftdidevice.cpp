@@ -9,6 +9,10 @@
 #include "emcr8npatchclamp_el07e_artix7_pcbv02_fw_v02.h"
 #include "emcrqc01atb_pcbv02.h"
 #include "emcrsuperduck_pcbv01.h"
+#include "emcrftdilibloadtestfake.h"
+
+#include <filesystem>
+#include <mutex>
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEL07CDx8Patch_artix7_PCBV00_2, 4, DeviceE8PPatchEL07CD_artix7_PCBV00_2},         //  10, 14,  4 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V00.2. */
@@ -46,18 +50,19 @@ EmcrFtdiDevice::~EmcrFtdiDevice() {
 
 ErrorCodes_t EmcrFtdiDevice::detectDevices(
         std::vector <std::string> &deviceIds) {
+    applyDebugSimulations();
+    deviceIds.clear();
+
     /*! Gets number of devices */
-    DWORD numDevs;
+    ErrorCodes_t ret = Success;
+    DWORD numDevs = 0;
     bool devCountOk = Ftd2xxWrapper::getDeviceCount(numDevs);
     if (!devCountOk) {
-        return ErrorListDeviceFailed;
-
-    } else if (numDevs == 0) {
-        deviceIds.clear();
-        return ErrorNoDeviceFound;
+        /*! Distinguish a missing library from a failure of the enumeration itself */
+        ret = Ftd2xxWrapper::isFtd2xxLoaded() ? ErrorListDeviceFailed : ErrorFtdiDriverNotFound;
+        numDevs = 0;
     }
 
-    deviceIds.clear();
     std::string deviceName;
     std::list <std::string> partialDevices;
 
@@ -75,7 +80,15 @@ ErrorCodes_t EmcrFtdiDevice::detectDevices(
         }
     }
 
-    return Success;
+    /*! The fake device is listed even if the FTDI libraries are missing: its purpose is to test that case */
+    if (debugLevelEnabled(DebugLevelDevice)) {
+        deviceIds.push_back(EMF_FTDI_LIB_TEST_FAKE_ID);
+    }
+
+    if (!deviceIds.empty()) {
+        return Success;
+    }
+    return (ret == Success) ? ErrorNoDeviceFound : ret;
 }
 
 ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
@@ -93,16 +106,24 @@ ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &d
         return Success;
     }
 
-    FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
     DeviceTuple_t tuple;
-    switch (ftdiEepromId) {
-    case FtdiEepromId56:
-        tuple = FtdiEeprom56(deviceId).getDeviceTuple();
-        break;
+    if (deviceId == EMF_FTDI_LIB_TEST_FAKE_ID) {
+        /*! No EEPROM to read */
+        tuple.version = DeviceVersionSuperDuck;
+        tuple.subversion = DeviceSubversionSuperDuckPcbV01;
+        tuple.fwVersion = 254;
+    }
+    else {
+        FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
+        switch (ftdiEepromId) {
+        case FtdiEepromId56:
+            tuple = FtdiEeprom56(deviceId).getDeviceTuple();
+            break;
 
-    case FtdiEepromIdDemo:
-        tuple = FtdiEepromDemo(deviceId).getDeviceTuple();
-        break;
+        case FtdiEepromIdDemo:
+            tuple = FtdiEepromDemo(deviceId).getDeviceTuple();
+            break;
+        }
     }
     deviceVersion = tuple.version;
     deviceSubVersion = tuple.subversion;
@@ -118,6 +139,11 @@ ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(std::string deviceId, unsigned int &d
 }
 
 ErrorCodes_t EmcrFtdiDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
+    if (deviceId == EMF_FTDI_LIB_TEST_FAKE_ID) {
+        type = DeviceFtdiLibLoadTestFake;
+        return Success;
+    }
+
     FtdiEepromId_t ftdiEepromId = FtdiEeprom::getFtdiEepromId(deviceId);
     DeviceTuple_t tuple;
     switch (ftdiEepromId) {
@@ -242,6 +268,10 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
         messageDispatcher = new EmcrSuperDuck_PCBV01(deviceId);
         break;
 
+    case DeviceFtdiLibLoadTestFake:
+        messageDispatcher = new EmcrFtdiLibLoadTestFake(deviceId);
+        break;
+
     default:
         return ErrorDeviceTypeNotRecognized;
     }
@@ -257,6 +287,36 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
     }
 
     return ret;
+}
+
+ErrorCodes_t EmcrFtdiDevice::getDriverStatus(std::string &details) {
+    applyDebugSimulations();
+    details.clear();
+
+    ErrorCodes_t ret = Success;
+    if (!Ftd2xxWrapper::isFtd2xxLoaded() && Ftd2xxWrapper::isFtdiDevicePresent()) {
+        /*! An FTDI device is plugged in: the library is needed, try to load it */
+        if (!Ftd2xxWrapper::loadFtd2xx()) {
+            ret = ErrorFtdiDriverNotFound;
+        }
+    }
+    /*! Always return the last loading error, it may refer to libMPSSE as well (e.g. after a failed connection) */
+    details = Ftd2xxWrapper::getLastLoadError();
+    return ret;
+}
+
+void EmcrFtdiDevice::applyDebugSimulations() {
+    static std::once_flag flag;
+    std::call_once(flag, []() {
+        if (debugLevelEnabled(DebugLevelSimulateFtdiMissing)) {
+            /*! Load the FTDI libraries from a folder that does not exist (no fallback to System32)
+             *  and act as if an FTDI device was plugged in */
+            const char * home = std::getenv("USERPROFILE");
+            std::filesystem::path missingDir = std::filesystem::path(home ? home : ".") / "e384_NOFTDI_missing_dir";
+            Ftd2xxWrapper::setLibraryDirectory(missingDir.string());
+            Ftd2xxWrapper::setUsbVendorIds({});
+        }
+    });
 }
 
 ErrorCodes_t EmcrFtdiDevice::setCalibrationMode(bool calibModeFlag) {
@@ -354,6 +414,10 @@ ErrorCodes_t EmcrFtdiDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned
 }
 
 ErrorCodes_t EmcrFtdiDevice::startCommunication(std::string) {
+    if (!Ftd2xxWrapper::loadFtd2xx()) {
+        return ErrorFtdiDriverNotFound;
+    }
+
     ErrorCodes_t ret = this->loadFpgaFw();
     if (ret != Success) {
         return ret;
@@ -820,6 +884,10 @@ ErrorCodes_t EmcrFtdiDevice::loadFpgaFw() {
         FT_STATUS status;
         FT_HANDLE spiHandle;
         std::string spiChannelStr = deviceId+spiChannel;
+
+        if (!Ftd2xxWrapper::loadMpsse()) {
+            return ErrorFtdiDriverNotFound;
+        }
 
         Ftd2xxWrapper::SPIW_Init_libMPSSE();
 

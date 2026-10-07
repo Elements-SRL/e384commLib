@@ -92,6 +92,10 @@ ErrorCodes_t MessageDispatcher::detectDevices(
     return ret;
 }
 
+ErrorCodes_t MessageDispatcher::getFtdiDriverStatus(std::string &details) {
+    return EmcrFtdiDevice::getDriverStatus(details);
+}
+
 ErrorCodes_t MessageDispatcher::listAllDevices(
     std::vector <std::string> &deviceIds) {
 

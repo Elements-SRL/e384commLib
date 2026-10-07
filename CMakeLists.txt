@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.27) # ftdi_utils >= 1.6 exports $<COMPILE_ONLY:...>
 
 project(e384commlib
     VERSION 0.47.0
@@ -83,6 +83,7 @@ set(LIB_SOURCES
     src/devices/emcr8npatchclamp_el07e_artix7_pcbv02.cpp
     src/devices/emcr8npatchclamp_el07e_artix7_pcbv02_fw_v02.cpp
     src/devices/emcrsuperduck_pcbv01.cpp
+    src/devices/emcrftdilibloadtestfake.cpp
     src/devices/emcr384nanoporesfake.cpp
     src/devices/emcr384patchclampfake.cpp
     src/devices/emcr10mhzfake.cpp
@@ -177,7 +178,8 @@ include(${TOML_PP_PATH_CMAKE}/cmake/Findtomlpp.cmake)
 cmake_path(SET FTDI_UTILS_PATH_CMAKE "$ENV{FTDI_UTILS_PATH}")
 list(APPEND CMAKE_PREFIX_PATH "${FTDI_UTILS_PATH_CMAKE}")
 
-find_package(ftdi_utils REQUIRED CONFIG)
+# ftdi_utils >= 1.6 loads FTD2XX/MPSSE at runtime: nothing FTDI is linked here
+find_package(ftdi_utils 1.6 REQUIRED CONFIG)
 
 target_link_libraries(${TARGET_NAME}
     PUBLIC
@@ -221,7 +223,7 @@ install(DIRECTORY include/
 install(EXPORT e384commlibTargets
     FILE e384commlibTargets.cmake
     NAMESPACE e384commlib::
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake/\${CMAKE_INSTALL_CONFIG_NAME}"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
 )
 
 # Config package
