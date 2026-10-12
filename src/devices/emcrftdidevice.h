@@ -107,8 +107,6 @@ private:
     bool writeRegisters();
     bool activateTriggerIn(int address, int bit);
     bool writeToBulkOut(uint32_t * buffer);
-
-    static void applyDebugSimulations();
 };
 
 #endif // EMCRFTDIDEVICE_H

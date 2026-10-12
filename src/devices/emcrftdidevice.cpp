@@ -11,9 +11,6 @@
 #include "emcrsuperduck_pcbv01.h"
 #include "emcrftdilibloadtestfake.h"
 
-#include <filesystem>
-#include <mutex>
-
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {DeviceVersionE4p, DeviceSubversionEL07CDx8Patch_artix7_PCBV00_2, 4, DeviceE8PPatchEL07CD_artix7_PCBV00_2},         //  10, 14,  4 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V00.2. */
     {DeviceVersionE4p, DeviceSubversionEL07CDx8Patch_artix7_PCBV00_2, 5, DeviceE8PPatchEL07CD_artix7_PCBV00_2},         //  10, 14,  5 : VC-CC device with 8 channels (EL07CD) (FPGA artix7) PCB V00.2. */
@@ -50,7 +47,6 @@ EmcrFtdiDevice::~EmcrFtdiDevice() {
 
 ErrorCodes_t EmcrFtdiDevice::detectDevices(
         std::vector <std::string> &deviceIds) {
-    applyDebugSimulations();
     deviceIds.clear();
 
     /*! Gets number of devices */
@@ -290,7 +286,6 @@ ErrorCodes_t EmcrFtdiDevice::connectDevice(std::string deviceId, MessageDispatch
 }
 
 ErrorCodes_t EmcrFtdiDevice::getDriverStatus(std::string &details) {
-    applyDebugSimulations();
     details.clear();
 
     ErrorCodes_t ret = Success;
@@ -303,20 +298,6 @@ ErrorCodes_t EmcrFtdiDevice::getDriverStatus(std::string &details) {
     /*! Always return the last loading error, it may refer to libMPSSE as well (e.g. after a failed connection) */
     details = Ftd2xxWrapper::getLastLoadError();
     return ret;
-}
-
-void EmcrFtdiDevice::applyDebugSimulations() {
-    static std::once_flag flag;
-    std::call_once(flag, []() {
-        if (debugLevelEnabled(DebugLevelSimulateFtdiMissing)) {
-            /*! Load the FTDI libraries from a folder that does not exist (no fallback to System32)
-             *  and act as if an FTDI device was plugged in */
-            const char * home = std::getenv("USERPROFILE");
-            std::filesystem::path missingDir = std::filesystem::path(home ? home : ".") / "e384_NOFTDI_missing_dir";
-            Ftd2xxWrapper::setLibraryDirectory(missingDir.string());
-            Ftd2xxWrapper::setUsbVendorIds({});
-        }
-    });
 }
 
 ErrorCodes_t EmcrFtdiDevice::setCalibrationMode(bool calibModeFlag) {

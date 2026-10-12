@@ -4,10 +4,12 @@
 #include "emcrsuperduck_pcbv01.h"
 
 /*! \brief Fake FTDI device (DEMO_FTDI_LibLoadTest), listed when %USERPROFILE%\e384_DEMO.pls exists.
- *  It only tests the runtime loading of the FTDI libraries (FTD2XX and libMPSSE) during the connection:
+ *  It only tests the runtime loading of the REAL FTDI libraries (FTD2XX and libMPSSE) during the
+ *  connection, searched exactly as for a real device (folder of the executable, then System32):
  *  - libraries available: the connection succeeds, no data is produced;
  *  - libraries missing: the connection fails with ErrorFtdiDriverNotFound.
- *  Combine with %USERPROFILE%\e384_NOFTDI.pls to simulate missing libraries.
+ *  To test the second case remove MPSSE.dll from the folder of the executable
+ *  (FTD2XX.dll is usually also in System32, installed by the FTDI driver).
  *  Based on SuperDuck (1 channel, no FPGA load via SPI) only to reuse a minimal channel configuration. */
 class EmcrFtdiLibLoadTestFake : public EmcrSuperDuck_PCBV01 {
 public:
