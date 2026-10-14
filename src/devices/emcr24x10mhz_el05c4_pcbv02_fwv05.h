@@ -18,8 +18,8 @@ protected:
     };
 
     enum VCCurrentRanges {
-        VCCurrentRange100nA,
         VCCurrentRange10nA,
+        VCCurrentRange100nA,
         VCCurrentRangesNum
     };
 
@@ -64,6 +64,11 @@ protected:
         SamplingRate12_5MHz,
         SamplingRate25MHz,
         SamplingRatesNum
+    };
+
+    enum CustomFlags {
+        CustomFlagOnlyUsb,
+        CustomFlagsNum
     };
 
     enum CustomOptions {

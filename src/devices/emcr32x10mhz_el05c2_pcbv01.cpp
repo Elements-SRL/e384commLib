@@ -503,6 +503,7 @@ Emcr32x10MHz_EL05c2_PCBV01::Emcr32x10MHz_EL05c2_PCBV01(std::string di) :
         customFlagsNames[i] = "Zap " + std::to_string(i);
         customFlagsDefault[i] = false;
         customFlagsCoders[i] = new BoolArrayCoder(boolConfig);
+        coders.push_back(customFlagsCoders[i]);
         boolConfig.initialBit += 2;
         if (boolConfig.initialBit >= 16) {
             boolConfig.initialBit = 0;

@@ -530,8 +530,17 @@ Emcr24x10MHz_EL05c1_PCBV02_FWV05::Emcr24x10MHz_EL05c1_PCBV02_FWV05(std::string d
         }
     }
 
-    /*! liquid junction voltage */
-    // not available
+    customFlagsNum = CustomFlagsNum;
+    customFlagsNames.resize(customFlagsNum);
+    customFlagsDefault.resize(customFlagsNum);
+    customFlagsCoders.resize(customFlagsNum);
+    boolConfig.initialWord = 1;
+    boolConfig.initialBit = 0;
+    boolConfig.bitsNum = 1;
+    customFlagsNames[CustomFlagOnlyUsb] = "Only USB";
+    customFlagsDefault[CustomFlagOnlyUsb] = false;
+    customFlagsCoders[CustomFlagOnlyUsb] = new BoolArrayCoder(boolConfig);
+    coders.push_back(customFlagsCoders[CustomFlagOnlyUsb]);
 
     /*! VC current gain calibration */
     doubleConfig.initialWord = 267;

@@ -65,6 +65,11 @@ protected:
         SamplingRatesNum
     };
 
+    enum CustomFlags {
+        CustomFlagOnlyUsb,
+        CustomFlagsNum
+    };
+
     enum CustomOptions {
         ZapCh1,
         ZapCh2,

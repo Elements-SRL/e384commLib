@@ -63,6 +63,11 @@ protected:
         SamplingRatesNum
     };
 
+    enum CustomFlags {
+        CustomFlagOnlyUsb,
+        CustomFlagsNum
+    };
+
     enum CustomDouble {
         CustomDacVcmAsic1,
         CustomDacRefAsic1,
