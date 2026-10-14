@@ -139,10 +139,10 @@ template <typename I_t> I_t clip(I_t value, I_t minValue, I_t maxValue) {
     return value;
 }
 
-inline void createDebugFile(FILE * &fid, std::string fileName) {
+inline FILE * createDebugFile(std::string fileName) {
     const char * home = std::getenv("USERPROFILE");
     std::filesystem::path filePath = std::filesystem::path(home) / (fileName + ".txt");
-    fid = fopen(filePath.string().c_str(), "wb");
+    return fopen(filePath.string().c_str(), "wb");
 }
 
 inline bool debugLevelEnabled(DebugLevels_t level) {

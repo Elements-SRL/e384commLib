@@ -2313,6 +2313,7 @@ protected:
     \*************/
 
     void createDebugFiles();
+    void createDebugFiles(int debugLevel);
     virtual ErrorCodes_t startCommunication(std::string fwPath) = 0;
     virtual ErrorCodes_t initializeMemory() = 0;
     virtual void initializeVariables();
@@ -2326,6 +2327,7 @@ protected:
     virtual void deinitializeVariables();
 
     void closeDebugFiles();
+    void closeDebugFiles(int debugLevel);
     virtual void joinCommunicationThreads() = 0;
 
     virtual void initializeCalibration();

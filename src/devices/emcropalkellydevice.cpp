@@ -1132,6 +1132,7 @@ bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type
 uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
     /*! Declare variables to manage buffers indexing */
     uint32_t bytesRead; /*!< Bytes read during last transfer from Opal Kelly */
+    static uint32_t totalRawBytesLogged = 0;
 
     /******************\
      *  Reading part  *
@@ -1155,6 +1156,12 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
         if (debugLevelEnabled(DebugLevelRxRaw)) {
             fwrite(rxRawBuffer+rxRawBufferWriteOffset, sizeof(rxRawBuffer[0]), bytesRead, rxRawFid);
             fflush(rxRawFid);
+            totalRawBytesLogged += bytesRead;
+            if (totalRawBytesLogged > 0x40000000) {
+                this->closeDebugFiles(DebugLevelRxRaw);
+                this->createDebugFiles(DebugLevelRxRaw);
+                totalRawBytesLogged = 0;
+            }
         }
 
         if (rxRawBufferWriteOffset+bytesRead > OKY_RX_BUFFER_SIZE) {

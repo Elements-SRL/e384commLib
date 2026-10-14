@@ -1551,39 +1551,66 @@ ErrorCodes_t MessageDispatcher::getCalibrationStatus() {
 \*********************/
 
 void MessageDispatcher::createDebugFiles() {
-    if (debugLevelEnabled(DebugLevelTx)) {
-        if (txFid == nullptr) {
-            createDebugFile(txFid, "e384CommLib_tx");
-        }
-    }
-
-    if (debugLevelEnabled(DebugLevelRxRaw)) {
-        if (rxRawFid == nullptr) {
-            createDebugFile(rxRawFid, "e384CommLib_rxRaw");
-        }
-    }
-
-    if (debugLevelEnabled(DebugLevelRx)) {
-        if (rxFid == nullptr) {
-            createDebugFile(rxFid, "e384CommLib_rx");
-        }
-    }
-
-    if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
-        if (ljFid == nullptr) {
-            createDebugFile(ljFid, "e384CommLib_lj");
-        }
-    }
+    this->createDebugFiles(DebugLevelTx);
+    this->createDebugFiles(DebugLevelRxRaw);
+    this->createDebugFiles(DebugLevelRx);
+    this->createDebugFiles(DebugLevelDigitallOffsetCompensation);
+    this->createDebugFiles(DebugLevelTemperature);
 
     if (debugLevelEnabled(DebugLevelTx) || debugLevelEnabled(DebugLevelRx)) {
         startPrintfTime = std::chrono::steady_clock::now();
     }
 
     if (debugLevelEnabled(DebugLevelTemperature)) {
-        if (tempFid == nullptr) {
-            createDebugFile(tempFid, "e384CommLib_temp");
+        if (tempFid != nullptr) {
             std::fprintf(tempFid, "TSet TInt TExt Speed\n");
             std::fflush(tempFid);
+        }
+    }
+}
+
+void MessageDispatcher::createDebugFiles(int debugLevel) {
+    static std::string suffix = "_0";
+    std::string filename = "";
+
+    FILE ** fid;
+    fid = nullptr;
+    switch (debugLevel) {
+    case DebugLevelTx:
+        fid = &txFid;
+        filename = "e384CommLib_tx";
+        break;
+
+    case DebugLevelRxRaw:
+        fid = &rxRawFid;
+        if (suffix == "_0") {
+            suffix = "_1";
+        }
+        else {
+            suffix = "_0";
+        }
+        filename = "e384CommLib_rxRaw" + suffix;
+        break;
+
+    case DebugLevelRx:
+        fid = &rxFid;
+        filename = "e384CommLib_rx";
+        break;
+
+    case DebugLevelDigitallOffsetCompensation:
+        fid = &ljFid;
+        filename = "e384CommLib_lj";
+        break;
+
+    case DebugLevelTemperature:
+        fid = &tempFid;
+        filename = "e384CommLib_temp";
+        break;
+    }
+
+    if (fid != nullptr && debugLevelEnabled((DebugLevels_t)debugLevel)) {
+        if (* fid == nullptr) {
+            * fid = createDebugFile(filename);
         }
     }
 }
@@ -1672,24 +1699,41 @@ void MessageDispatcher::deinitializeVariables() {
 }
 
 void MessageDispatcher::closeDebugFiles() {
-    if (debugLevelEnabled(DebugLevelTx)) {
-        fclose(txFid);
+    this->closeDebugFiles(DebugLevelTx);
+    this->closeDebugFiles(DebugLevelRxRaw);
+    this->closeDebugFiles(DebugLevelRx);
+    this->closeDebugFiles(DebugLevelDigitallOffsetCompensation);
+    this->closeDebugFiles(DebugLevelTemperature);
+}
+
+void MessageDispatcher::closeDebugFiles(int debugLevel) {
+    FILE ** fid;
+    fid = nullptr;
+    switch (debugLevel) {
+    case DebugLevelTx:
+        fid = &txFid;
+        break;
+
+    case DebugLevelRxRaw:
+        fid = &rxRawFid;
+        break;
+
+    case DebugLevelRx:
+        fid = &rxFid;
+        break;
+
+    case DebugLevelDigitallOffsetCompensation:
+        fid = &ljFid;
+        break;
+
+    case DebugLevelTemperature:
+        fid = &tempFid;
+        break;
     }
 
-    if (debugLevelEnabled(DebugLevelRxRaw)) {
-        fclose(rxRawFid);
-    }
-
-    if (debugLevelEnabled(DebugLevelRx)) {
-        fclose(rxFid);
-    }
-
-    if (debugLevelEnabled(DebugLevelDigitallOffsetCompensation)) {
-        fclose(ljFid);
-    }
-
-    if (debugLevelEnabled(DebugLevelTemperature)) {
-        fclose(tempFid);
+    if (fid != nullptr && debugLevelEnabled((DebugLevels_t)debugLevel) && * fid != nullptr) {
+        fclose(* fid);
+        * fid = nullptr;
     }
 }
 
