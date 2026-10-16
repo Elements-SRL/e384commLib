@@ -2141,7 +2141,7 @@ ErrorCodes_t getVcAdcGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    calibrationRanges2Output(calibParams.getRanges(CalTypesVcGainAdc, samplingRateIdx), meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesVcGainAdc, -1, samplingRateIdx), meas);
     return ret;
 }
 
@@ -2155,7 +2155,7 @@ ErrorCodes_t getVcAdcOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    calibrationRanges2Output(calibParams.getRanges(CalTypesVcOffsetAdc, samplingRateIdx), meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesVcOffsetAdc, -1, samplingRateIdx), meas);
     return ret;
 }
 
@@ -2168,7 +2168,7 @@ ErrorCodes_t getVcDacGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    calibrationRanges2Output(calibParams.getRanges(CalTypesVcGainDac, 0), meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesVcGainDac, -1, 0), meas);
     return ret;
 }
 
@@ -2181,7 +2181,7 @@ ErrorCodes_t getVcDacOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    calibrationRanges2Output(calibParams.getRanges(CalTypesVcOffsetDac, 0), meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesVcOffsetDac, -1, 0), meas);
     return ret;
 }
 
@@ -2195,7 +2195,7 @@ ErrorCodes_t getCcAdcGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    calibrationRanges2Output(calibParams.getRanges(CalTypesCcGainAdc, samplingRateIdx), meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesCcGainAdc, -1, samplingRateIdx), meas);
     return ret;
 }
 
@@ -2209,7 +2209,7 @@ ErrorCodes_t getCcAdcOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    calibrationRanges2Output(calibParams.getRanges(CalTypesCcOffsetAdc, samplingRateIdx), meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesCcOffsetAdc, -1, samplingRateIdx), meas);
     return ret;
 }
 
@@ -2222,7 +2222,7 @@ ErrorCodes_t getCcDacGainCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    calibrationRanges2Output(calibParams.getRanges(CalTypesCcGainDac, 0), meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesCcGainDac, -1, 0), meas);
     return ret;
 }
 
@@ -2235,7 +2235,7 @@ ErrorCodes_t getCcDacOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    calibrationRanges2Output(calibParams.getRanges(CalTypesCcOffsetDac, 0), meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesCcOffsetDac, -1, 0), meas);
     return ret;
 }
 
@@ -2248,7 +2248,7 @@ ErrorCodes_t getRsCorrDacOffsetCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    calibrationRanges2Output(calibParams.getRanges(CalTypesRsCorrOffsetDac, 0), meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesRsCorrOffsetDac, -1, 0), meas);
     return ret;
 }
 
@@ -2261,7 +2261,7 @@ ErrorCodes_t getRsShuntConductanceCalibration(
 
     CalibrationParams_t calibParams;
     ErrorCodes_t ret = messageDispatcher->getCalibParams(calibParams);
-    calibrationRanges2Output(calibParams.getRanges(CalTypesRShuntConductance, 0), meas);
+    calibrationRanges2Output(calibParams.getRanges(CalTypesRShuntConductance, -1, 0), meas);
     return ret;
 }
 
