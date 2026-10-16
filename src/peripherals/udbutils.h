@@ -2,12 +2,14 @@
 #define UDBUTILS_H
 
 #include <string>
+#include <cstdint>
 
 #include "stdafx.h"
 #ifdef _WIN32
-#include <windows.h> /*! This has to be included before CyAPI.h, otherwise it won't be correctly interpreted */
+#include <windows.h> /*! Sleep() and the Windows types used by the UDB devices */
 #endif
-#include "CyAPI.h"
+/*! CyAPI is no longer used directly: the USB access goes through e384_cyusb.dll, loaded at runtime */
+#include "cyusbwrapper.h"
 
 #define UDB_BULKIN_ENDPOINT_TIMEOUT ((int)2000)
 #define UDB_BULKOUT_ENDPOINT_TIMEOUT ((int)2000)
@@ -39,6 +41,12 @@
 #define CYP_CMD_DISABLE_HYBRID_SECTORS 0xBC
 #define CYP_CMD_ERASE_FLASH_SECTOR 0xBE
 
+/*! USB IDs of the devices handled as UDB (from the Elements CyUSB3 INF).
+ *  Other devices may use the CyUSB3 driver too: they are not listed. */
+#define UDB_ELEMENTS_VID 0x3523         /*!< Elements devices, any PID */
+#define UDB_FX3_BOOTLOADER_VID 0x04B4   /*!< Cypress FX3 running the bootloader (firmware not loaded yet) */
+#define UDB_FX3_BOOTLOADER_PID 0x00F3
+
 class UdbUtils {
 public:
     typedef enum fwStatus {
@@ -62,24 +70,26 @@ public:
     UdbUtils();
 
     static bool getDeviceCount(int &numDevs);
+    static bool isSupportedDevice(uint32_t index);
     static int32_t getDeviceIndex(std::string serial);
     static std::string getDeviceSerial(uint32_t index);
 
-    static void findBulkEndpoints(CCyUSBDevice * dev, CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout);
-    static bool resetBulkEndpoints(CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout);
-    static void initEndpoints(uint32_t &readDataTransferSize, CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout);
+    /*! The bulk endpoints are found by cyw_open inside e384_cyusb.dll: 
+    no need for explicit findBulkEndpoints */
+    static bool resetBulkEndpoints(cyw_device * dev);
+    static void initEndpoints(uint32_t &readDataTransferSize, cyw_device * dev);
 
-    static unsigned char getFwStatus(CCyUSBDevice * dev);
-    static unsigned char getFlashStatus(CCyUSBDevice * dev);
-    static void switchToConfigMode(CCyUSBDevice * dev, CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout);
-    static void disableFlashHybridSectors(CCyUSBDevice * dev);
-    static bool bootFpgafromFLASH(CCyUSBDevice * dev);
-    static unsigned char fpgaLoadBitstreamStatus(CCyUSBDevice * dev);
+    static unsigned char getFwStatus(cyw_device * dev);
+    static unsigned char getFlashStatus(cyw_device * dev);
+    static void switchToConfigMode(cyw_device * dev);
+    static void disableFlashHybridSectors(cyw_device * dev);
+    static bool bootFpgafromFLASH(cyw_device * dev);
+    static unsigned char fpgaLoadBitstreamStatus(cyw_device * dev);
 
-    static void enableFlashWrite(CCyUSBDevice * dev);
-    static void eraseFlashSector(CCyUSBDevice * dev, unsigned int idx);
-    static void writeFlash(CCyUSBDevice * dev, unsigned int address, unsigned int length);
-    static void readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int &length);
+    static void enableFlashWrite(cyw_device * dev);
+    static void eraseFlashSector(cyw_device * dev, unsigned int idx);
+    static void writeFlash(cyw_device * dev, unsigned int address, unsigned int length);
+    static void readFlash(cyw_device * dev, unsigned int address, unsigned int &length);
 
     static long getRequiredLength(FlashBlock_t block);
     static long getStartAddress(FlashBlock_t block);
