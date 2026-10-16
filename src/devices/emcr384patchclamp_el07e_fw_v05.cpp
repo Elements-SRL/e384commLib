@@ -1710,13 +1710,12 @@ ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v05::initializeHW() {
     this->resetFpga(false, true);
     std::this_thread::sleep_for (std::chrono::milliseconds(1000));
 
-    this->resetAsic(true, true);
-    std::this_thread::sleep_for (std::chrono::milliseconds(1));
-    this->resetAsic(false, true); /*! Not synchronous across MB's FGPAs */
-    std::this_thread::sleep_for (std::chrono::milliseconds(10));
-
     this->setDebugBit(0, 14, true);
-    this->stackOutgoingMessage(txStatus);
+    std::this_thread::sleep_for (std::chrono::seconds(1));
+
+    this->resetAsic(true, true);
+    this->resetAsic(false, true);
+    std::this_thread::sleep_for (std::chrono::seconds(1));
 
     return Success;
 }

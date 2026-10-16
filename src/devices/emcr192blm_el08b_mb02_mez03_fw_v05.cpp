@@ -224,7 +224,7 @@ Emcr192Blm_EL08b_Mb02_Mez03_fw_v05::Emcr192Blm_EL08b_Mb02_Mez03_fw_v05(std::stri
     integrationStepArray[SamplingRate10kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate10kHz].unit = "s";
     integrationStepArray[SamplingRate20kHz].value = 64.0/1.250;
-    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMilli;
+    integrationStepArray[SamplingRate20kHz].prefix = UnitPfxMicro;
     integrationStepArray[SamplingRate20kHz].unit = "s";
     integrationStepArray[SamplingRate50kHz].value = 20.0;
     integrationStepArray[SamplingRate50kHz].prefix = UnitPfxMicro;
