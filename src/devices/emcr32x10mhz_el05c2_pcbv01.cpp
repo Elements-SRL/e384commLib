@@ -67,7 +67,7 @@ Emcr32x10MHz_EL05c2_PCBV01::Emcr32x10MHz_EL05c2_PCBV01(std::string di) :
 
     voltageProtocolStepImplemented = true;
     voltageProtocolRampImplemented = true;
-    voltageProtocolSinImplemented = false;
+    voltageProtocolSinImplemented = true;
 
     protocolMaxItemsNum = 20;
     protocolWordOffset = 14;
