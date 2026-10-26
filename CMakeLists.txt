@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.27) # ftdi_utils >= 1.6 exports $<COMPILE_ONLY:...>
 
 project(e384commlib
     VERSION 0.48.3
@@ -83,6 +83,8 @@ set(LIB_SOURCES
     src/devices/emcr8npatchclamp_el07e_artix7_pcbv02.cpp
     src/devices/emcr8npatchclamp_el07e_artix7_pcbv02_fw_v02.cpp
     src/devices/emcrsuperduck_pcbv01.cpp
+    src/devices/emcrftdilibloadtestfake.cpp
+    src/devices/emcrcyusblibloadtestfake.cpp
     src/devices/emcr384nanoporesfake.cpp
     src/devices/emcr384patchclampfake.cpp
     src/devices/emcr10mhzfake.cpp
@@ -96,6 +98,7 @@ set(LIB_SOURCES
     src/peripherals/okprogrammer.cpp
     src/peripherals/udbprogrammer.cpp
     src/peripherals/udbutils.cpp
+    src/peripherals/cyusbwrapper.cpp
 )
 
 if(BUILD_FOR_LABVIEW)
@@ -168,23 +171,28 @@ target_compile_definitions(${TARGET_NAME}
 cmake_path(SET FRONT_PANEL_PATH_CMAKE "$ENV{FRONT_PANEL_PATH}")
 include(${FRONT_PANEL_PATH_CMAKE}/cmake/FindFrontPanel.cmake)
 
-cmake_path(SET CY_API_PATH_CMAKE "$ENV{CY_API_PATH}")
-include(${CY_API_PATH_CMAKE}/cmake/FindCyAPI.cmake)
-
 cmake_path(SET TOML_PP_PATH_CMAKE "$ENV{TOML_PP_PATH}")
 include(${TOML_PP_PATH_CMAKE}/cmake/Findtomlpp.cmake)
 
 cmake_path(SET FTDI_UTILS_PATH_CMAKE "$ENV{FTDI_UTILS_PATH}")
 list(APPEND CMAKE_PREFIX_PATH "${FTDI_UTILS_PATH_CMAKE}")
 
-find_package(ftdi_utils REQUIRED CONFIG)
+# ftdi_utils >= 1.6 loads FTD2XX/MPSSE at runtime: nothing FTDI is linked here
+find_package(ftdi_utils 1.6 REQUIRED CONFIG)
 
 target_link_libraries(${TARGET_NAME}
     PUBLIC
     FrontPanel::FrontPanel
-    CyAPI::CyAPI
     tomlpp::tomlpp
     ftdi_utils::ftdi_utils
+)
+
+# CyAPI (Cypress FX3 SDK) is no longer linked: the UDB devices use e384_cyusb.dll, loaded at
+# runtime (src/peripherals/cyusbwrapper.cpp). cfgmgr32 is the Windows API used to check whether
+# a UDB device is plugged in before loading the DLL.
+target_link_libraries(${TARGET_NAME}
+    PRIVATE
+    $<$<PLATFORM_ID:Windows>:cfgmgr32>
 )
 
 # target name debug/release
@@ -221,7 +229,7 @@ install(DIRECTORY include/
 install(EXPORT e384commlibTargets
     FILE e384commlibTargets.cmake
     NAMESPACE e384commlib::
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake/\${CMAKE_INSTALL_CONFIG_NAME}"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
 )
 
 # Config package

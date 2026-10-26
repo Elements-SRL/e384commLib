@@ -313,6 +313,8 @@ typedef enum DeviceTypes {
     Device10MHzFake,                            /*!< Fake 10MHz device */
     DeviceFakePatch,                            /*!< Fake ePatch device resembling EL04F chip. */
     DeviceFakeP8,                               /*!< Fake 8Patch device resembling EL07AB chip. */
+    DeviceFtdiLibLoadTestFake,                  /*!< Fake FTDI device: only tests the runtime loading of the FTDI libraries, no data. */
+    DeviceCyUsbLibLoadTestFake,                 /*!< Fake UDB device: only tests the runtime loading of e384_cyusb.dll, no data. */
     DeviceUnknown,                              /*!< Invalid item used only for initiliazation purposes. */
     DevicesNum
 } DeviceTypes_t;

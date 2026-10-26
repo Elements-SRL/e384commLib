@@ -3,16 +3,32 @@
 #include "thread"
 #include "chrono"
 
+/*! Vendor request on the control endpoint of the device (Target = device, ReqType = vendor),
+ *  value and index always 0, as for all the CYP_CMD_* commands.
+ *  Replaces the ControlEndPt->Target/ReqType/Direction/... + XferData sequence of CyAPI.
+ *  length: in = bytes to send/receive, out = bytes transferred. */
+static bool vendorRequest(cyw_device * dev, int direction, unsigned char request, unsigned char * buffer, long &length) {
+    return CyUsbWrapper::vendorRequest(dev, direction, request, 0, 0, buffer, &length) == CYW_OK;
+}
+
 UdbUtils::UdbUtils() {
 
 }
 
 bool UdbUtils::getDeviceCount(int &numDevs) {
-    /*! Get the number of connected devices */
-    CCyUSBDevice * tempDev = new CCyUSBDevice;
-    numDevs = tempDev->DeviceCount();
-    delete tempDev;
-    return true;
+    /*! Get the number of connected devices (any device bound to the CyUSB3 driver).
+     *  Fails if e384_cyusb.dll is not loaded. */
+    numDevs = 0;
+    return CyUsbWrapper::deviceCount(&numDevs) == CYW_OK;
+}
+
+bool UdbUtils::isSupportedDevice(uint32_t index) {
+    unsigned short vid = 0;
+    unsigned short pid = 0;
+    if (CyUsbWrapper::deviceInfo(index, &vid, &pid, nullptr, 0) != CYW_OK) {
+        return false;
+    }
+    return vid == UDB_ELEMENTS_VID || (vid == UDB_FX3_BOOTLOADER_VID && pid == UDB_FX3_BOOTLOADER_PID);
 }
 
 int32_t UdbUtils::getDeviceIndex(std::string serial) {
@@ -36,239 +52,128 @@ int32_t UdbUtils::getDeviceIndex(std::string serial) {
 }
 
 std::string UdbUtils::getDeviceSerial(uint32_t index) {
-    std::string serial;
-    int numDevs;
-    UdbUtils::getDeviceCount(numDevs);
-    if (index >= numDevs) {
+    /*! cyw_device_info opens the device at this index: the previous CyAPI code read always the
+     *  serial of device 0, because the CCyUSBDevice constructor opens device 0 */
+    unsigned short vid = 0;
+    unsigned short pid = 0;
+    char serialNumber[255];
+    if (CyUsbWrapper::deviceInfo(index, &vid, &pid, serialNumber, static_cast <int> (sizeof(serialNumber))) != CYW_OK) {
         return "";
     }
-
-    CCyUSBDevice * tempDev = new CCyUSBDevice;
-    char serialNumber[255];
-    sprintf(serialNumber, "%ls", tempDev->SerialNumber);
-    serial = std::string(serialNumber);
-    tempDev->Close();
-    delete tempDev;
-    return serial;
+    return std::string(serialNumber);
 }
 
-void UdbUtils::findBulkEndpoints(CCyUSBDevice * dev, CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout) {
-    int endpointcnt = 0;
-    CCyUSBEndPoint * ept;
+bool UdbUtils::resetBulkEndpoints(cyw_device * dev) {
+    /*! Resets the IN endpoint, then the OUT one, stops at the first failure */
+    return CyUsbWrapper::bulkReset(dev) == CYW_OK;
+}
 
-    endpointcnt = dev->EndPointCount();
-    for (int e = 0; e < endpointcnt; e++) {
-        ept = dev->EndPoints[e];
-        // INTR, BULK and ISO endpoints are supported.
-        if (ept->Attributes == 2) {
-            if (ept->bIn) {
-                eptBulkin = dev->EndPoints[e];
-
-            } else {
-                eptBulkout = dev->EndPoints[e];
-            }
-        }
+void UdbUtils::initEndpoints(uint32_t &readDataTransferSize, cyw_device * dev) {
+    /*! The DLL sets the timeouts, rounds the IN transfer size down to a multiple of the IN
+     *  MaxPktSize and sets the OUT transfer size to the OUT MaxPktSize (same steps as before) */
+    unsigned long actualTransferSize = readDataTransferSize;
+    if (CyUsbWrapper::bulkConfig(dev, readDataTransferSize, &actualTransferSize,
+                                 UDB_BULKIN_ENDPOINT_TIMEOUT, UDB_BULKOUT_ENDPOINT_TIMEOUT) == CYW_OK) {
+        readDataTransferSize = actualTransferSize;
     }
 }
 
-bool UdbUtils::resetBulkEndpoints(CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout) {
-    if (eptBulkin->Reset() == false) {
-        return false;
-    }
-
-    if (eptBulkout->Reset() == false) {
-        return false;
-    }
-    return true;
-}
-
-void UdbUtils::initEndpoints(uint32_t &readDataTransferSize, CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout) {
-    eptBulkin->TimeOut = UDB_BULKIN_ENDPOINT_TIMEOUT;
-    eptBulkout->TimeOut = UDB_BULKOUT_ENDPOINT_TIMEOUT;
-
-    /*! The total transfer must be a multiple of eptBulkin->MaxPktSize */
-    readDataTransferSize = (readDataTransferSize/eptBulkin->MaxPktSize)*eptBulkin->MaxPktSize;
-
-    eptBulkin->SetXferSize(readDataTransferSize);
-    eptBulkout->SetXferSize(eptBulkout->MaxPktSize);
-}
-
-unsigned char UdbUtils::getFwStatus(CCyUSBDevice * dev) {
-    CCyControlEndPoint * ctrept;
+unsigned char UdbUtils::getFwStatus(cyw_device * dev) {
     long ctrlen = 1;
     unsigned char status = 0xFF;
 
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_FROM_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_LOAD_FW_STATUS;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    if (ctrept->XferData((PUCHAR)&status, ctrlen) == false) {
+    if (vendorRequest(dev, CYW_DIR_FROM_DEVICE, CYP_CMD_LOAD_FW_STATUS, &status, ctrlen) == false) {
         status = fwStatusError;
     }
     return status;
 }
 
-unsigned char UdbUtils::getFlashStatus(CCyUSBDevice * dev) {
-    CCyControlEndPoint * ctrept;
-    LONG ctrlen = 1;
+unsigned char UdbUtils::getFlashStatus(cyw_device * dev) {
+    long ctrlen = 1;
     unsigned char status = 0xFF;
 
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_FROM_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_LOAD_FLASH_STATUS;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    if (ctrept->XferData((PUCHAR)&status, ctrlen) == false) {
+    if (vendorRequest(dev, CYW_DIR_FROM_DEVICE, CYP_CMD_LOAD_FLASH_STATUS, &status, ctrlen) == false) {
         /*! \todo FCON manage error */
     }
     return status;
 }
 
-void UdbUtils::switchToConfigMode(CCyUSBDevice * dev,CCyUSBEndPoint * &eptBulkin, CCyUSBEndPoint * &eptBulkout) {
+void UdbUtils::switchToConfigMode(cyw_device * dev) {
     if (UdbUtils::getFwStatus(dev) != UdbUtils::fwStatusConfigMode) {
-        CCyControlEndPoint * ctrept;
-        LONG ctrlen = 0;
+        long ctrlen = 0;
 
-        ctrept = dev->ControlEndPt;
-        ctrept->Target		= TGT_DEVICE;
-        ctrept->ReqType		= REQ_VENDOR;
-        ctrept->Direction	= DIR_TO_DEVICE;
-        ctrept->ReqCode		= CYP_CMD_SET_CONFIGMODE;
-        ctrept->Value		= 0;
-        ctrept->Index		= 0;
-
-        if (ctrept->XferData((PUCHAR)nullptr, ctrlen) == false) {
+        if (vendorRequest(dev, CYW_DIR_TO_DEVICE, CYP_CMD_SET_CONFIGMODE, nullptr, ctrlen) == false) {
             /*! unhandled error */
         }
 
-        UdbUtils::resetBulkEndpoints(eptBulkin, eptBulkout);
+        UdbUtils::resetBulkEndpoints(dev);
     }
 }
 
-void UdbUtils::disableFlashHybridSectors(CCyUSBDevice * dev) {
+void UdbUtils::disableFlashHybridSectors(cyw_device * dev) {
     /*! Needed only on factory new devices */
-    CCyControlEndPoint * ctrept;
-    LONG ctrlen = 0;
+    long ctrlen = 0;
 
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_TO_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_DISABLE_HYBRID_SECTORS;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    if (ctrept->XferData((PUCHAR)nullptr, ctrlen) == false) {
+    if (vendorRequest(dev, CYW_DIR_TO_DEVICE, CYP_CMD_DISABLE_HYBRID_SECTORS, nullptr, ctrlen) == false) {
         /*! unhandled error */
     }
 }
 
-bool UdbUtils::bootFpgafromFLASH(CCyUSBDevice * dev) {
-    CCyControlEndPoint * ctrept;
+bool UdbUtils::bootFpgafromFLASH(cyw_device * dev) {
     long ctrlen = 0;
 
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_TO_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_BOOT_FROM_FLASH;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    return ctrept->XferData((PUCHAR)nullptr, ctrlen);
+    return vendorRequest(dev, CYW_DIR_TO_DEVICE, CYP_CMD_BOOT_FROM_FLASH, nullptr, ctrlen);
 }
 
-unsigned char UdbUtils::fpgaLoadBitstreamStatus(CCyUSBDevice * dev) {
-    CCyControlEndPoint * ctrept;
+unsigned char UdbUtils::fpgaLoadBitstreamStatus(cyw_device * dev) {
     long ctrlen = 1;
     unsigned char status = 0xFF;
 
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_FROM_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_LOAD_BITSTREAM_STATUS;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    if (ctrept->XferData((PUCHAR)&status, ctrlen) == false) {
+    if (vendorRequest(dev, CYW_DIR_FROM_DEVICE, CYP_CMD_LOAD_BITSTREAM_STATUS, &status, ctrlen) == false) {
         status = fpgaLoadingError;
     }
     return status;
 }
 
-void UdbUtils::enableFlashWrite(CCyUSBDevice * dev) {
-    CCyControlEndPoint * ctrept;
-    LONG ctrlen = 0;
+void UdbUtils::enableFlashWrite(cyw_device * dev) {
+    long ctrlen = 0;
 
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_TO_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_ENABLE_FLASH_WRITE;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
-    if (ctrept->XferData((PUCHAR)nullptr, ctrlen) == false) {
+    if (vendorRequest(dev, CYW_DIR_TO_DEVICE, CYP_CMD_ENABLE_FLASH_WRITE, nullptr, ctrlen) == false) {
         /*! unhandled error */
     }
 }
 
-void UdbUtils::eraseFlashSector(CCyUSBDevice * dev, unsigned int address) {
-    CCyControlEndPoint * ctrept;
-    LONG ctrlen = sizeof(unsigned int);
+void UdbUtils::eraseFlashSector(cyw_device * dev, unsigned int address) {
+    long ctrlen = sizeof(unsigned int);
     unsigned int payload;
 
     payload = address;
 
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_TO_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_ERASE_FLASH_SECTOR;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
     int tries = 0;
-    while (ctrept->XferData((PUCHAR)&payload, ctrlen) == false && ++tries <= 3) {
+    while (vendorRequest(dev, CYW_DIR_TO_DEVICE, CYP_CMD_ERASE_FLASH_SECTOR, (unsigned char *)&payload, ctrlen) == false && ++tries <= 3) {
         /*! unhandled error */
+        ctrlen = sizeof(unsigned int); /*!< XferData may have changed it */
     }
 }
 
-void UdbUtils::writeFlash(CCyUSBDevice * dev, unsigned int address, unsigned int length) {
-    CCyControlEndPoint * ctrept;
-    LONG ctrlen = 2 * sizeof(unsigned int);
+void UdbUtils::writeFlash(cyw_device * dev, unsigned int address, unsigned int length) {
+    long ctrlen = 2 * sizeof(unsigned int);
     unsigned int payload[2];
 
     payload[0] = address;
     payload[1] = length;
 
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_TO_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_WRITE_FLASH;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
     int tries = 0;
-    while (ctrept->XferData((PUCHAR)payload, ctrlen) == false && ++tries <= 3) {
+    while (vendorRequest(dev, CYW_DIR_TO_DEVICE, CYP_CMD_WRITE_FLASH, (unsigned char *)payload, ctrlen) == false && ++tries <= 3) {
         /*! unhandled error */
+        ctrlen = 2 * sizeof(unsigned int); /*!< XferData may have changed it */
     }
 
     std::this_thread::sleep_for (std::chrono::milliseconds(500));
 }
 
-void UdbUtils::readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int &length) {
-    CCyControlEndPoint * ctrept;
-    LONG ctrlen = 2 * sizeof(unsigned int);
+void UdbUtils::readFlash(cyw_device * dev, unsigned int address, unsigned int &length) {
+    long ctrlen = 2 * sizeof(unsigned int);
     unsigned int payload[2];
 
     unsigned int readSize = 1024;
@@ -278,16 +183,9 @@ void UdbUtils::readFlash(CCyUSBDevice * dev, unsigned int address, unsigned int 
     payload[0] = address;
     payload[1] = length;
 
-    ctrept = dev->ControlEndPt;
-    ctrept->Target		= TGT_DEVICE;
-    ctrept->ReqType		= REQ_VENDOR;
-    ctrept->Direction	= DIR_TO_DEVICE;
-    ctrept->ReqCode		= CYP_CMD_READ_FLASH;
-    ctrept->Value		= 0;
-    ctrept->Index		= 0;
-
     int tries = 0;
-    while (ctrept->XferData((PUCHAR)payload, ctrlen) == false && ++ tries <= 3) {
+    while (vendorRequest(dev, CYW_DIR_TO_DEVICE, CYP_CMD_READ_FLASH, (unsigned char *)payload, ctrlen) == false && ++ tries <= 3) {
+        ctrlen = 2 * sizeof(unsigned int); /*!< XferData may have changed it */
     }
 
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
