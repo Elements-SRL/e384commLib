@@ -38,6 +38,9 @@
 #define OKY_DEBUG_4_TRIGGER_IN_ADDR 0x53
 #define OKY_DEBUG_4_TRIGGER_IN_BIT 0xF
 #define OKY_MOTHERBOARD_FPGA_BYTES_PER_S 333333
+#define OKY_LIB_TEST_FAKE_ID "DEMO_OK_LibLoadTest" 
+
+#include <memory>
 
 #include "okFrontPanelDLL.h"
 
@@ -141,6 +144,10 @@ public:
     static ErrorCodes_t isDeviceRecognized(std::string deviceId);
     static ErrorCodes_t connectDevice(std::string deviceId, MessageDispatcher * &messageDispatcher, std::string fwPath = UTL_DEFAULT_FW_PATH);
 
+    /*! \brief ErrorOkDriverNotFound if an Opal Kelly device is plugged in and okFrontPanel.dll cannot be loaded.
+     *  details: last loading error (see OkFrontPanelWrapper::getLastLoadError). */
+    static ErrorCodes_t getDriverStatus(std::string &details);
+
     ErrorCodes_t setCalibrationMode(bool calibModeFlag) override;
 
     virtual ErrorCodes_t okMoveCalibrationEepromToRams() override;
@@ -188,7 +195,10 @@ protected:
      *  Parameters  *
     \****************/
 
-    okCFrontPanel dev;
+    /*! Created in startCommunication, i.e. only for real devices: constructing (and destroying) an
+     *  okCFrontPanel calls okFrontPanel.dll, the fake devices override startCommunication and never
+     *  create it, so they work without the DLL */
+    std::unique_ptr <okCFrontPanel> dev;
 
     BoolCoder * calibrationRamSelectorCoder = nullptr;
     BoolCoder * calibrationRamAddressCoder = nullptr;

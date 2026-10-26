@@ -85,6 +85,7 @@ set(LIB_SOURCES
     src/devices/emcrsuperduck_pcbv01.cpp
     src/devices/emcrftdilibloadtestfake.cpp
     src/devices/emcrcyusblibloadtestfake.cpp
+    src/devices/emcroklibloadtestfake.cpp
     src/devices/emcr384nanoporesfake.cpp
     src/devices/emcr384patchclampfake.cpp
     src/devices/emcr10mhzfake.cpp
@@ -99,6 +100,7 @@ set(LIB_SOURCES
     src/peripherals/udbprogrammer.cpp
     src/peripherals/udbutils.cpp
     src/peripherals/cyusbwrapper.cpp
+    src/peripherals/okfrontpanelwrapper.cpp
 )
 
 if(BUILD_FOR_LABVIEW)
@@ -193,6 +195,20 @@ target_link_libraries(${TARGET_NAME}
 target_link_libraries(${TARGET_NAME}
     PRIVATE
     $<$<PLATFORM_ID:Windows>:cfgmgr32>
+)
+
+# FrontPanel (okFrontPanel.dll) is delay-loaded with MSVC: Windows does not load it when the program
+# starts, e384commLib loads it only when an Opal Kelly device is used (src/peripherals/okfrontpanelwrapper.cpp).
+# PUBLIC: /DELAYLOAD is an option of the final link, so it must reach the executable or DLL that links
+# e384commLib (EMCR.exe, e384commlib_labview.dll), also through the installed package.
+# The import library (okFrontPanel.lib) stays linked through FrontPanel::FrontPanel above.
+target_link_options(${TARGET_NAME}
+    PUBLIC
+    $<$<CXX_COMPILER_ID:MSVC>:/DELAYLOAD:okFrontPanel.dll>
+)
+target_link_libraries(${TARGET_NAME}
+    PUBLIC
+    $<$<CXX_COMPILER_ID:MSVC>:delayimp>
 )
 
 # target name debug/release

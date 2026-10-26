@@ -315,6 +315,7 @@ typedef enum DeviceTypes {
     DeviceFakeP8,                               /*!< Fake 8Patch device resembling EL07AB chip. */
     DeviceFtdiLibLoadTestFake,                  /*!< Fake FTDI device: only tests the runtime loading of the FTDI libraries, no data. */
     DeviceCyUsbLibLoadTestFake,                 /*!< Fake UDB device: only tests the runtime loading of e384_cyusb.dll, no data. */
+    DeviceOkLibLoadTestFake,                    /*!< Fake Opal Kelly device: only tests the runtime loading of okFrontPanel.dll, no data. */
     DeviceUnknown,                              /*!< Invalid item used only for initiliazation purposes. */
     DevicesNum
 } DeviceTypes_t;

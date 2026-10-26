@@ -36,6 +36,8 @@ typedef enum ErrorCodes {
                                                                                          *   The libraries are loaded at runtime only when an FTDI device is used. */
     ErrorCyUsbDriverNotFound =              ErrorGroupDeviceDetection +     0x00000005, /*!< Error returned when e384_cyusb.dll, needed by the UDB devices (Cypress FX3), cannot be loaded.
                                                                                          *   The library is loaded at runtime only when a UDB device is used. */
+    ErrorOkDriverNotFound =                 ErrorGroupDeviceDetection +     0x00000006, /*!< Error returned when okFrontPanel.dll (Opal Kelly FrontPanel), needed by the Opal Kelly devices, cannot be loaded.
+                                                                                         *   The library is loaded at runtime only when an Opal Kelly device is used. */
 
     ErrorEepromAlreadyConnected =           ErrorGroupEepromCommunication + 0x00000001, /*!< Error returned when trying to connect to a device eeprom which is already connected. */
     ErrorEepromConnectionFailed =           ErrorGroupEepromCommunication + 0x00000002, /*!< Error returned when connection to a device eeprom fails. */

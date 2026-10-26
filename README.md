@@ -26,7 +26,7 @@ Install EMCR to make sure all the needed drivers are correctly installed [elemen
 ## Dependencies
 The e384commlib requires the following libraries:
 - ftdi_utils for the handling of FTDI based devices [github.com](https://github.com/Elements-SRL/ftdi_utils/)
-- okFrontPanel.dll, okimpl_fpoip.dll as part of FrontPanel driver for the handling of Opal Kelly based devices [opalkelly.com](https://pins.opalkelly.com/downloads?ucacid=1617031807.247011)
+- okFrontPanel.dll as part of FrontPanel driver for the handling of Opal Kelly based devices: linked with /DELAYLOAD (MSVC) and loaded only when an Opal Kelly device is used, from the folder of the executable (or of e384commlib_labview.dll) or from System32, never from the PATH [opalkelly.com](https://pins.opalkelly.com/downloads?ucacid=1617031807.247011)
 - cyUSB.lib as part of the EZ-USB FX3 SDK for the handling of Cypress based devices [infineon.com](https://www.infineon.com/design-resources/development-tools/sdk/usb-controllers-sdk/ez-usb-fx3-software-development-kit)
 - toml++ for toml files parsing [github.com](https://github.com/marzer/tomlplusplus/)
 

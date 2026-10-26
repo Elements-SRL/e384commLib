@@ -100,6 +100,10 @@ ErrorCodes_t MessageDispatcher::getCyUsbDriverStatus(std::string &details) {
     return EmcrUdbDevice::getDriverStatus(details);
 }
 
+ErrorCodes_t MessageDispatcher::getOkDriverStatus(std::string &details) {
+    return EmcrOpalKellyDevice::getDriverStatus(details);
+}
+
 ErrorCodes_t MessageDispatcher::listAllDevices(
     std::vector <std::string> &deviceIds) {
 
