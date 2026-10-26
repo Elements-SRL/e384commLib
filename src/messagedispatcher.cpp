@@ -1283,6 +1283,7 @@ ErrorCodes_t MessageDispatcher::getClockDividers(uint32_t &clockDivider) {
 
 ErrorCodes_t MessageDispatcher::getClockDividerIdx(uint32_t &idx) {
     if (clockDividersArray.empty()) {
+        idx = -1;
         return ErrorFeatureNotImplemented;
     }
     idx = selectedClockDividerIdx;
