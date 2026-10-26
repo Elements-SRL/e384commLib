@@ -149,6 +149,34 @@ public:
      */
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
 
+    /*! \brief Checks whether the FTDI libraries are available when an FTDI device is plugged in.
+     *  \note The FTDI libraries (FTD2XX, libMPSSE) are loaded at runtime, only when an FTDI device is used.
+     *  If they are missing, FTDI devices are not listed by detectDevices: use this method to tell the user why.
+     *
+     * \param details [out] Description of the last library loading error (empty if none).
+     * \return ErrorFtdiDriverNotFound if an FTDI device is plugged in and FTD2XX cannot be loaded, Success otherwise.
+     */
+    static ErrorCodes_t getFtdiDriverStatus(std::string &details);
+
+    /*! \brief Checks whether e384_cyusb.dll is available when a UDB device is plugged in.
+     *  \note e384_cyusb.dll (the only binary containing the Cypress CyAPI library) is loaded at runtime,
+     *  only when a UDB device is used. If it is missing, UDB devices are not listed by detectDevices:
+     *  use this method to tell the user why.
+     *
+     * \param details [out] Description of the last library loading error (empty if none).
+     * \return ErrorCyUsbDriverNotFound if a UDB device is plugged in and e384_cyusb.dll cannot be loaded, Success otherwise.
+     */
+    static ErrorCodes_t getCyUsbDriverStatus(std::string &details);
+
+    /*! \brief Checks whether okFrontPanel.dll is available when an Opal Kelly device is plugged in.
+     *  \note okFrontPanel.dll (Opal Kelly FrontPanel) is delay-loaded, only when an Opal Kelly device is used.
+     *  If it is missing, Opal Kelly devices are not listed by detectDevices: use this method to tell the user why.
+     *
+     * \param details [out] Description of the last library loading error (empty if none).
+     * \return ErrorOkDriverNotFound if an Opal Kelly device is plugged in and okFrontPanel.dll cannot be loaded, Success otherwise.
+     */
+    static ErrorCodes_t getOkDriverStatus(std::string &details);
+
     /*! \brief Lists all plugged in devices.
      *
      * \param deviceIds [out] List of plugged in devices IDs.

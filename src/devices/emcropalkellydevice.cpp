@@ -1,6 +1,7 @@
 #include "emcropalkellydevice.h"
 
 #include "okprogrammer.h"
+#include "okfrontpanelwrapper.h"
 #include "speed_test.h"
 #include "utils.h"
 
@@ -65,6 +66,7 @@
 #include "emcrtestboardel07cdfake.h"
 #include "emcr4x10mhzfake.h"
 #include "emcr2x10mhzfake.h"
+#include "emcroklibloadtestfake.h"
 
 static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion10MHz_SB_EL05a, 1, Device10MHz_SB_V01},                                                  //   11,  3,  1 : 10MHz nanopore reader, single board with EL05a
@@ -185,18 +187,27 @@ EmcrOpalKellyDevice::~EmcrOpalKellyDevice() {
 
 ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
         std::vector <std::string> &deviceIds) {
-    /*! Gets number of devices */
-    int numDevs;
-    bool devCountOk = getDeviceCount(numDevs);
-    if (!devCountOk) {
-        return ErrorListDeviceFailed;
-    }
-    if (!debugLevelEnabled(DebugLevelDevice) && numDevs == 0) {
-        deviceIds.clear();
-        return ErrorNoDeviceFound;
+    deviceIds.clear();
+
+    ErrorCodes_t ret = Success;
+
+    /*! okFrontPanel.dll is loaded only if an Opal Kelly device is plugged in:
+     *  without Opal Kelly devices nothing is loaded and no error is reported */
+    if (OkFrontPanelWrapper::isDevicePresent()) {
+        if (!OkFrontPanelWrapper::load()) {
+            ret = ErrorOkDriverNotFound;
+        }
     }
 
-    deviceIds.clear();
+    /*! Gets number of devices */
+    int numDevs = 0;
+    if (OkFrontPanelWrapper::isLoaded()) {
+        bool devCountOk = getDeviceCount(numDevs);
+        if (!devCountOk) {
+            ret = ErrorListDeviceFailed;
+            numDevs = 0;
+        }
+    }
 
     /*! Lists all serial numbers */
     for (int i = 0; i < numDevs; i++) {
@@ -204,19 +215,19 @@ ErrorCodes_t EmcrOpalKellyDevice::detectDevices(
     }
 
     if (debugLevelEnabled(DebugLevelDevice)) {
-        numDevs++;
         deviceIds.push_back("DEMO_384_SSN");
-        numDevs++;
         deviceIds.push_back("DEMO_384_Patch");
-        numDevs++;
         deviceIds.push_back("DEMO_TB_EL07cd");
-        numDevs++;
         deviceIds.push_back("DEMO_4x10MHz");
-        numDevs++;
         deviceIds.push_back("DEMO_2x10MHz");
+        /*! Listed even if okFrontPanel.dll is missing: its purpose is to test that case */
+        deviceIds.push_back(OKY_LIB_TEST_FAKE_ID);
     }
 
-    return Success;
+    if (!deviceIds.empty()) {
+        return Success;
+    }
+    return (ret == Success) ? ErrorNoDeviceFound : ret;
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch, std::vector <uint8_t> &userInfo) {
@@ -247,6 +258,10 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned i
         userInfo.clear();
     }
     else {
+        /*! OkProgrammer contains an okCFrontPanel: the DLL must be loaded before creating it */
+        if (!OkFrontPanelWrapper::load()) {
+            return ErrorOkDriverNotFound;
+        }
         OkProgrammer * programmer = new OkProgrammer;
         OkProgrammer::InfoStruct_t info;
         programmer->connect(deviceId, true);
@@ -272,6 +287,12 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(std::string deviceId, unsigned i
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
+    /*! Checked before getDeviceInfo, which would treat it as any other "DEMO" device */
+    if (deviceId == OKY_LIB_TEST_FAKE_ID) {
+        type = DeviceOkLibLoadTestFake;
+        return Success;
+    }
+
     unsigned int deviceVersion;
     unsigned int deviceSubVersion;
     unsigned int fwMajor;
@@ -279,7 +300,10 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceType(std::string deviceId, DeviceType
     unsigned int fwPatch;
     std::vector <uint8_t> userInfo;
 
-    EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch, userInfo);
+    ErrorCodes_t ret = EmcrOpalKellyDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch, userInfo);
+    if (ret != Success) {
+        return ret; /*!< okFrontPanel.dll not available: the values above were not set */
+    }
 
     bool deviceFound = false;
     for (unsigned int mappingIdx = 0; mappingIdx < deviceTupleMapping.size(); mappingIdx++) {
@@ -349,6 +373,13 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
     ErrorCodes_t ret = Success;
     if (messageDispatcher != nullptr) {
         return ErrorDeviceAlreadyConnected;
+    }
+
+    /*! Real devices create an okCFrontPanel and a FrontPanelManager: without okFrontPanel.dll the process
+     *  would end (delay-load exception). The DEMO devices do not use the DLL and work without it,
+     *  except DEMO_OK_LibLoadTest, which checks the DLL in its startCommunication. */
+    if (!deviceId.starts_with("DEMO") && !OkFrontPanelWrapper::load()) {
+        return ErrorOkDriverNotFound;
     }
 
     DeviceTypes_t deviceType;
@@ -654,6 +685,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr2x10MHzFake(deviceId);
         break;
 
+    case DeviceOkLibLoadTestFake:
+        messageDispatcher = new EmcrOkLibLoadTestFake(deviceId);
+        break;
+
     default:
         return ErrorDeviceTypeNotRecognized;
     }
@@ -669,6 +704,21 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         }
     }
 
+    return ret;
+}
+
+ErrorCodes_t EmcrOpalKellyDevice::getDriverStatus(std::string &details) {
+    details.clear();
+
+    ErrorCodes_t ret = Success;
+    if (!OkFrontPanelWrapper::isLoaded() && OkFrontPanelWrapper::isDevicePresent()) {
+        /*! An Opal Kelly device is plugged in: okFrontPanel.dll is needed, try to load it */
+        if (!OkFrontPanelWrapper::load()) {
+            ret = ErrorOkDriverNotFound;
+        }
+    }
+    /*! Always return the last loading error (e.g. after a failed connection of the test fake device) */
+    details = OkFrontPanelWrapper::getLastLoadError();
     return ret;
 }
 
@@ -728,6 +778,9 @@ ErrorCodes_t EmcrOpalKellyDevice::getDeviceInfo(unsigned int &deviceVersion, uns
 }
 
 bool EmcrOpalKellyDevice::isDeviceConnected() {
+    if (dev == nullptr) {
+        return true; /* Fake device */
+    }
     if (okManager == nullptr) {
         return false;
     }
@@ -770,32 +823,41 @@ std::string EmcrOpalKellyDevice::getDeviceSerial(uint32_t index) {
 }
 
 bool EmcrOpalKellyDevice::getDeviceCount(int &numDevs) {
+    /*! okCFrontPanel needs okFrontPanel.dll */
+    if (!OkFrontPanelWrapper::isLoaded()) {
+        numDevs = 0;
+        return false;
+    }
     okCFrontPanel okDev;
     numDevs = okDev.GetDeviceCount();
     return true;
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::startCommunication(std::string fwPath) {
-    okCFrontPanel::ErrorCode error = dev.OpenBySerial(deviceId);
+    /*! okFrontPanel.dll is already loaded: connectDevice checks it for every real device */
+    if (dev == nullptr) {
+        dev = std::make_unique <okCFrontPanel> ();
+    }
+    okCFrontPanel::ErrorCode error = dev->OpenBySerial(deviceId);
 
     if (error != okCFrontPanel::NoError) {
         return ErrorDeviceConnectionFailed;
     }
     // okTDeviceInfo info;
-    // dev.GetDeviceInfo(&info);
+    // dev->GetDeviceInfo(&info);
     // if (info.deviceInterface != OK_INTERFACE_USB3) {
     //     return ErrorNotConnectedToUsb3;
     // }
 
-    if (dev.IsFrontPanelEnabled()) {
+    if (dev->IsFrontPanelEnabled()) {
         return Success;
     }
     return ErrorDeviceFwLoadingFailed;
 }
 
 ErrorCodes_t EmcrOpalKellyDevice::stopCommunication() {
-    if (dev.IsOpen()) {
-        dev.Close();
+    if (dev != nullptr && dev->IsOpen()) {
+        dev->Close();
     }
     return Success;
 }
@@ -1031,99 +1093,99 @@ void EmcrOpalKellyDevice::sendCommandsToDevice() {
 }
 
 bool EmcrOpalKellyDevice::writeRegistersAndActivateTriggers(TxTriggerType_t type) {
-    if (dev.WriteRegisters(regs) != okCFrontPanel::NoError) {
+    if (dev->WriteRegisters(regs) != okCFrontPanel::NoError) {
         return false;
     }
     switch (type) {
     case TxTriggerParameteresUpdated:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerStartProtocol:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
-        dev.ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_START_PROTOCOL_TRIGGER_IN_ADDR, OKY_START_PROTOCOL_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerSw:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerStartStateArray:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_START_STATE_ARRAY_TRIGGER_IN_ADDR, OKY_START_STATE_ARRAY_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerZap:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_ZAP_PULSE_TRIGGER_IN_ADDR, OKY_ZAP_PULSE_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_ZAP_PULSE_TRIGGER_IN_ADDR, OKY_ZAP_PULSE_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerSingleChannelRamp:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_SINGLE_CHANNEL_RAMP_TRIGGER_IN_ADDR, OKY_SINGLE_CHANNEL_RAMP_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_SINGLE_CHANNEL_RAMP_TRIGGER_IN_ADDR, OKY_SINGLE_CHANNEL_RAMP_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerReadCalEeprom:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_READ_CAL_EEPROM_TRIGGER_IN_ADDR, OKY_READ_CAL_EEPROM_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_READ_CAL_EEPROM_TRIGGER_IN_ADDR, OKY_READ_CAL_EEPROM_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerGetCalRam:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_GET_CAL_RAM_TRIGGER_IN_ADDR, OKY_GET_CAL_RAM_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_GET_CAL_RAM_TRIGGER_IN_ADDR, OKY_GET_CAL_RAM_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerSetCalRam:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_SET_CAL_RAM_TRIGGER_IN_ADDR, OKY_SET_CAL_RAM_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_SET_CAL_RAM_TRIGGER_IN_ADDR, OKY_SET_CAL_RAM_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerWriteCalEeprom:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_WRITE_CAL_EEPROM_TRIGGER_IN_ADDR, OKY_WRITE_CAL_EEPROM_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_WRITE_CAL_EEPROM_TRIGGER_IN_ADDR, OKY_WRITE_CAL_EEPROM_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerReadOnTime:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_READ_ON_TIME_TRIGGER_IN_ADDR, OKY_READ_ON_TIME_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_READ_ON_TIME_TRIGGER_IN_ADDR, OKY_READ_ON_TIME_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerSpiSendCommand:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_SPI_SEND_COMMAND_TRIGGER_IN_ADDR, OKY_SPI_SEND_COMMAND_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_SPI_SEND_COMMAND_TRIGGER_IN_ADDR, OKY_SPI_SEND_COMMAND_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerDebug1:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_DEBUG_1_TRIGGER_IN_ADDR, OKY_DEBUG_1_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_DEBUG_1_TRIGGER_IN_ADDR, OKY_DEBUG_1_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerDebug2:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_DEBUG_2_TRIGGER_IN_ADDR, OKY_DEBUG_2_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_DEBUG_2_TRIGGER_IN_ADDR, OKY_DEBUG_2_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerDebug3:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_DEBUG_3_TRIGGER_IN_ADDR, OKY_DEBUG_3_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_DEBUG_3_TRIGGER_IN_ADDR, OKY_DEBUG_3_TRIGGER_IN_BIT);
         break;
 
     case TxTriggerDebug4:
-        dev.ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_REGISTERS_CHANGED_TRIGGER_IN_ADDR, OKY_REGISTERS_CHANGED_TRIGGER_IN_BIT);
         std::this_thread::sleep_for(std::chrono::microseconds(100));
-        dev.ActivateTriggerIn(OKY_DEBUG_4_TRIGGER_IN_ADDR, OKY_DEBUG_4_TRIGGER_IN_BIT);
+        dev->ActivateTriggerIn(OKY_DEBUG_4_TRIGGER_IN_ADDR, OKY_DEBUG_4_TRIGGER_IN_BIT);
         break;
     }
     return true;
@@ -1139,16 +1201,16 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
     \******************/
 
     /*! Read the data */
-    bytesRead = dev.ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, okTransferSize, rxRawBuffer+rxRawBufferWriteOffset);
+    bytesRead = dev->ReadFromBlockPipeOut(OKY_RX_PIPE_ADDR, OKY_RX_BLOCK_SIZE, okTransferSize, rxRawBuffer+rxRawBufferWriteOffset);
 
     if (bytesRead > INT32_MAX) {
         if (bytesRead == ok_Timeout || bytesRead == ok_Failed) {
             /*! The device cannot recover from timeout condition */
-            dev.Close();
+            dev->Close();
             std::this_thread::sleep_for (std::chrono::milliseconds(1000));
             txStatus.allChanged();
             this->sendCommands();
-            dev.OpenBySerial(deviceId);
+            dev->OpenBySerial(deviceId);
         }
         std::this_thread::sleep_for (std::chrono::milliseconds(100));
     }
@@ -1355,7 +1417,8 @@ ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {
 
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
-    if (okManagerRequests == 0) {
+    /*! The device monitor (FrontPanelManager) uses okFrontPanel.dll: only for real devices */
+    if (dev != nullptr && okManagerRequests == 0) {
         okManager = new OpalKellyDeviceManager(deviceId);
         monitoringThread = std::thread(&EmcrOpalKellyDevice::monitoringLoop, this);
         okManagerRequests++;
@@ -1371,7 +1434,8 @@ void EmcrOpalKellyDevice::deinitializeMemory() {
     }
     rxRawBuffer16 = nullptr;
 
-    if (okManager != nullptr) {
+    /*! Fake devices never create the device monitor: they must not stop the one of a real device */
+    if (dev != nullptr && okManager != nullptr) {
         okManagerRequests--;
         if (okManagerRequests == 0) {
             okManager->ExitMonitorLoop();

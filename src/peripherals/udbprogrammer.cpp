@@ -11,25 +11,25 @@ UdbProgrammer::UdbProgrammer() {
 
 void UdbProgrammer::connect(int idx, bool flag) {
     if (flag) {
-        CCyFX3Device bootDev;
-        bootDev.Open(idx);
-        if (bootDev.IsBootLoaderRunning()) {
-            bootDev.DownloadFw(const_cast <char *> ((UTL_DEFAULT_FW_PATH + UTL_DEFAULT_FX3_FW_NAME).c_str()), RAM);
-        }
-        bootDev.Close();
+        /*! If the device is running the FX3 bootloader, load the FX3 firmware in RAM
+         *  (same as IsBootLoaderRunning + DownloadFw(..., RAM) with CyAPI before) */
+        std::string fx3FwFile = UTL_DEFAULT_FW_PATH + UTL_DEFAULT_FX3_FW_NAME;
+        int fwLoaded = 0;
+        int fx3Error = 0;
+        CyUsbWrapper::fx3LoadFwIfBootloader(idx, fx3FwFile.c_str(), &fwLoaded, &fx3Error);
 
         std::this_thread::sleep_for (std::chrono::milliseconds(1000));
 
-        dev = new CCyUSBDevice;
-        dev->Open(idx);
+        /*! cyw_open also finds the bulk endpoints */
+        dev = nullptr;
+        CyUsbWrapper::open(idx, &dev);
 
-        UdbUtils::findBulkEndpoints(dev, eptBulkin, eptBulkout);
-        UdbUtils::resetBulkEndpoints(eptBulkin, eptBulkout);
-        UdbUtils::initEndpoints(readDataTransferSize, eptBulkin, eptBulkout);
+        UdbUtils::resetBulkEndpoints(dev);
+        UdbUtils::initEndpoints(readDataTransferSize, dev);
 
     } else {
-        dev->Close();
-        delete dev;
+        CyUsbWrapper::close(dev);
+        dev = nullptr;
     }
 }
 
@@ -147,8 +147,8 @@ int32_t UdbProgrammer::getProgress() {
 
 long UdbProgrammer::writeData(unsigned char * buffer, unsigned long length) {
     long wlen = length;
-    if (eptBulkout->XferData((PUCHAR)buffer, wlen) == false) {
-        eptBulkout->Abort();
+    if (CyUsbWrapper::bulkWrite(dev, buffer, &wlen) != CYW_OK) {
+        CyUsbWrapper::bulkAbort(dev, CYW_DIR_TO_DEVICE);
         std::this_thread::sleep_for (std::chrono::milliseconds(200));
     }
 
@@ -157,8 +157,9 @@ long UdbProgrammer::writeData(unsigned char * buffer, unsigned long length) {
 
 long UdbProgrammer::readData(unsigned char * buffer, unsigned long length) {
     long rlen = length;
-    if (eptBulkin->XferData((PUCHAR)buffer, rlen, nullptr, true) == false) {
-        eptBulkin->Abort();
+    /*! packetMode = 1, as XferData(..., nullptr, true) before */
+    if (CyUsbWrapper::bulkRead(dev, buffer, &rlen, 1) != CYW_OK) {
+        CyUsbWrapper::bulkAbort(dev, CYW_DIR_FROM_DEVICE);
         std::this_thread::sleep_for (std::chrono::milliseconds(200));
         return 0;
     }
@@ -170,7 +171,7 @@ void UdbProgrammer::readFlashBlock(UdbUtils::FlashBlock_t block, char * buffer) 
     unsigned int startAddress = UdbUtils::getStartAddress(block);
     unsigned int length = UdbUtils::getRequiredLength(block);
 
-    UdbUtils::switchToConfigMode(dev, eptBulkin, eptBulkout);
+    UdbUtils::switchToConfigMode(dev);
 
     long rlen = 0;
     while (rlen < length) {
@@ -184,7 +185,7 @@ void UdbProgrammer::eraseFlashBlock(UdbUtils::FlashBlock_t block) {
     unsigned int startAddress = UdbUtils::getStartAddress(block);
     unsigned int length = UdbUtils::getRequiredLength(block);
 
-    UdbUtils::switchToConfigMode(dev, eptBulkin, eptBulkout);
+    UdbUtils::switchToConfigMode(dev);
 
     progress = 0;
 
@@ -214,7 +215,7 @@ void UdbProgrammer::writeFlashBlock(UdbUtils::FlashBlock_t block, char * buffer,
     unsigned int writeSize = 1024;
     int flashWriteLen;
 
-    UdbUtils::switchToConfigMode(dev, eptBulkin, eptBulkout);
+    UdbUtils::switchToConfigMode(dev);
 
     UdbUtils::writeFlash(dev, startAddress, length);
 
