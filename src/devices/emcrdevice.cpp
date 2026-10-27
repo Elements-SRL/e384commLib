@@ -133,6 +133,7 @@ ErrorCodes_t EmcrDevice::resetFpga(bool resetFlag, bool applyFlag) {
 }
 
 ErrorCodes_t EmcrDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) {
+    bool clipFlag = false;
     if (vHoldTunerCoders.empty()) {
         std::vector <Measurement_t> durations(channelIndexes.size(), {0.0, UnitPfxNone, "s"});
         return this->setVoltageRampTuner(channelIndexes, voltages, voltages, durations, applyFlag);
@@ -142,6 +143,9 @@ ErrorCodes_t EmcrDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIndex
     }
     else if (selectedClampingModality != VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
+    }
+    else if (!allInRange(voltages, vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMin(), vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMax())) {
+        clipFlag = true;
     }
 
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -155,13 +159,14 @@ ErrorCodes_t EmcrDevice::setVoltageHoldTuner(std::vector <uint16_t> channelIndex
         this->stackOutgoingMessage(txStatus);
     }
 
-    if (!allInRange(voltages, vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMin(), vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMax())) {
+    if (clipFlag) {
         return WarningValueClipped;
     }
     return Success;
 }
 
 ErrorCodes_t EmcrDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag) {
+    bool clipFlag = false;
     if (cHoldTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -171,6 +176,10 @@ ErrorCodes_t EmcrDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIndex
     else if (selectedClampingModality == VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
     }
+    else if (!allInRange(currents, ccCurrentRangesArray[selectedCcCurrentRangeIdx].getMin(), ccCurrentRangesArray[selectedCcCurrentRangeIdx].getMax())) {
+        clipFlag = true;
+    }
+
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         currents[i].convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
         currents[i].value = cHoldTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus);
@@ -182,13 +191,14 @@ ErrorCodes_t EmcrDevice::setCurrentHoldTuner(std::vector <uint16_t> channelIndex
         this->stackOutgoingMessage(txStatus);
     }
 
-    if (!allInRange(currents, ccCurrentRangesArray[selectedCcCurrentRangeIdx].getMin(), ccCurrentRangesArray[selectedCcCurrentRangeIdx].getMax())) {
+    if (clipFlag) {
         return WarningValueClipped;
     }
     return Success;
 }
 
 ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> initialVoltages, std::vector <Measurement_t> finalVoltages, std::vector <Measurement_t> durations, bool applyFlag) {
+    bool clipFlag = false;
     if (vInitRampTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -197,6 +207,10 @@ ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndex
     }
     else if (selectedClampingModality != VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
+    }
+    else if (!allInRange(initialVoltages, vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMin(), vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMax()) ||
+               !allInRange(finalVoltages, vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMin(), vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMax())) {
+        clipFlag = true;
     }
 
     double q;
@@ -230,14 +244,14 @@ ErrorCodes_t EmcrDevice::setVoltageRampTuner(std::vector <uint16_t> channelIndex
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         activateRampTunerCoders[channelIndexes[i]]->encode(0, txStatus);
     }
-    if (!allInRange(initialVoltages, vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMin(), vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMax()) ||
-        !allInRange(finalVoltages, vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMin(), vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMax())) {
+    if (clipFlag) {
         return WarningValueClipped;
     }
     return Success;
 }
 
 ErrorCodes_t EmcrDevice::setVoltageHalf(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) {
+    bool clipFlag = false;
     if (vHalfTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
@@ -247,6 +261,10 @@ ErrorCodes_t EmcrDevice::setVoltageHalf(std::vector <uint16_t> channelIndexes, s
     } else if (selectedClampingModality != VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
     }
+    else if (!allInRange(voltages, vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMin(), vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMax())) {
+        clipFlag = true;
+    }
+
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         voltages[i].convertValue(vcVoltageRangesArray[selectedVcVoltageRangeIdx].prefix);
         voltages[i].value = vHalfTunerCoders[selectedVcVoltageRangeIdx][channelIndexes[i]]->encode(voltages[i].value, txStatus);
@@ -258,13 +276,14 @@ ErrorCodes_t EmcrDevice::setVoltageHalf(std::vector <uint16_t> channelIndexes, s
         this->stackOutgoingMessage(txStatus);
     }
 
-    if (!allInRange(voltages, vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMin(), vcVoltageRangesArray[selectedVcVoltageRangeIdx].getMax())) {
+    if (clipFlag) {
         return WarningValueClipped;
     }
     return Success;
 }
 
 ErrorCodes_t EmcrDevice::setCurrentHalf(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> currents, bool applyFlag) {
+    bool clipFlag = false;
     if (cHalfTunerCoders.empty()) {
         return ErrorFeatureNotImplemented;
 
@@ -274,6 +293,10 @@ ErrorCodes_t EmcrDevice::setCurrentHalf(std::vector <uint16_t> channelIndexes, s
     } else if (selectedClampingModality == VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
     }
+    else if (!allInRange(currents, ccCurrentRangesArray[selectedCcCurrentRangeIdx].getMin(), ccCurrentRangesArray[selectedCcCurrentRangeIdx].getMax())) {
+        clipFlag = true;
+    }
+
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
         currents[i].convertValue(ccCurrentRangesArray[selectedCcCurrentRangeIdx].prefix);
         currents[i].value = cHalfTunerCoders[selectedCcCurrentRangeIdx][channelIndexes[i]]->encode(currents[i].value, txStatus);
@@ -285,14 +308,14 @@ ErrorCodes_t EmcrDevice::setCurrentHalf(std::vector <uint16_t> channelIndexes, s
         this->stackOutgoingMessage(txStatus);
     }
 
-    if (!allInRange(currents, ccCurrentRangesArray[selectedCcCurrentRangeIdx].getMin(), ccCurrentRangesArray[selectedCcCurrentRangeIdx].getMax())) {
+    if (clipFlag) {
         return WarningValueClipped;
-
     }
     return Success;
 }
 
 ErrorCodes_t EmcrDevice::setLiquidJunctionVoltage(std::vector <uint16_t> channelIndexes, std::vector <Measurement_t> voltages, bool applyFlag) {
+    bool clipFlag = false;
     if (liquidJunctionVoltageCoders.empty()) {
         return ErrorFeatureNotImplemented;
     }
@@ -301,6 +324,9 @@ ErrorCodes_t EmcrDevice::setLiquidJunctionVoltage(std::vector <uint16_t> channel
     }
     else if (selectedClampingModality != VOLTAGE_CLAMP) {
         return ErrorWrongClampModality;
+    }
+    else if (!allInRange(voltages, liquidJunctionRange.getMin(), liquidJunctionRange.getMax())) {
+        clipFlag = true;
     }
 
     for (uint32_t i = 0; i < channelIndexes.size(); i++) {
@@ -313,7 +339,7 @@ ErrorCodes_t EmcrDevice::setLiquidJunctionVoltage(std::vector <uint16_t> channel
         this->stackOutgoingMessage(txStatus);
     }
 
-    if (!allInRange(voltages, liquidJunctionRange.getMin(), liquidJunctionRange.getMax())) {
+    if (clipFlag) {
         return WarningValueClipped;
     }
     return Success;
