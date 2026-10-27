@@ -118,7 +118,7 @@ Emcr8PatchClamp_EL07e_artix7_PCBV03_fw_v01::Emcr8PatchClamp_EL07e_artix7_PCBV03_
     /*! VC */
     vcVoltageRangesNum = VCVoltageRangesNum;
     vcVoltageRangesArray.resize(vcVoltageRangesNum);
-    vcVoltageRangesArray[VCVoltageRange500mV].max = 512.0;
+    vcVoltageRangesArray[VCVoltageRange500mV].max = 511.875;
     vcVoltageRangesArray[VCVoltageRange500mV].min = -512.0;
     vcVoltageRangesArray[VCVoltageRange500mV].step = 0.125;
     vcVoltageRangesArray[VCVoltageRange500mV].prefix = UnitPfxMilli;

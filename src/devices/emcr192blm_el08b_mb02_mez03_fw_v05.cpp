@@ -102,7 +102,7 @@ Emcr192Blm_EL08b_Mb02_Mez03_fw_v05::Emcr192Blm_EL08b_Mb02_Mez03_fw_v05(std::stri
     /*! VC */
     vcVoltageRangesNum = VCVoltageRangesNum;
     vcVoltageRangesArray.resize(vcVoltageRangesNum);
-    vcVoltageRangesArray[VCVoltageRange500mV].max = 512.0;
+    vcVoltageRangesArray[VCVoltageRange500mV].max = 511.9375;
     vcVoltageRangesArray[VCVoltageRange500mV].min = -512.0;
     vcVoltageRangesArray[VCVoltageRange500mV].step = 0.0625;
     vcVoltageRangesArray[VCVoltageRange500mV].prefix = UnitPfxMilli;
