@@ -1176,7 +1176,7 @@ EmcrTestBoardEl05c5ResistiveFeSingleEndedOut::EmcrTestBoardEl05c5ResistiveFeSing
 
     /*! Default status */
     txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x0000; /*! inverting front end */
+    txStatus.encodingWords[0] = 0x0000; /*! non inverting front end */
     txStatus.encodingWords[1] = 0x0002; /*! ADC power enable override */
     txStatus.encodingWords[3] = 0x0008; /*! Select FE */
     txStatus.encodingWords[259] = 0x4000; /*! current gain 1 */
@@ -1773,7 +1773,7 @@ EmcrTestBoardEl05c5TransistorFeDifferentialOut::EmcrTestBoardEl05c5TransistorFeD
 
     /*! Default status */
     txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x0000; /*! inverting front end */
+    txStatus.encodingWords[0] = 0x0000; /*! non-inverting front end */
     txStatus.encodingWords[1] = 0x0002; /*! ADC power enable override */
     txStatus.encodingWords[3] = 0x0010; /*! Select FE */
     txStatus.encodingWords[259] = 0x4000; /*! current gain 1 */
