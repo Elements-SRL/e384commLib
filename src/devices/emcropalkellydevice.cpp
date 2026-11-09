@@ -51,9 +51,11 @@
 #include "emcr24x10mhz_el05c12_pcbv01.h"
 #include "emcr24x10mhz_el05c34_pcbv01.h"
 #include "emcr24x10mhz_el05c1_pcbv02.h"
+#include "emcr24x10mhz_el05c2_pcbv02.h"
 #include "emcr24x10mhz_el05c3_pcbv02.h"
 #include "emcr24x10mhz_el05c4_pcbv02.h"
 #include "emcr24x10mhz_el05c1_pcbv02_fwv05.h"
+#include "emcr24x10mhz_el05c2_pcbv02_fwv05.h"
 #include "emcr24x10mhz_el05c3_pcbv02_fwv05.h"
 #include "emcr24x10mhz_el05c4_pcbv02_fwv05.h"
 #include "emcr24x10mhz_only8ch.h"
@@ -84,9 +86,11 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_PCBV01_EL05c12, 4, Device24x10MHz_PCBV01_EL05c12},                              //   11, 14,  4 : 24 channels 10MHz nanopore reader, slot 1 EL05c1, slot 2 EL05c1P, slot 3 EL05c2
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion32x10MHz_EL05c2_PCBV01, 1, Device32x10MHz_PCBV01_EL05c2},                                //   11, 16,  1 : 32 channels 10MHz nanopore reader, EL05c2
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_EL05c1_PCBV02, 4, Device24x10MHz_PCBV02_EL05c1},                                //   11, 17,  4 : 24 channels 10MHz nanopore reader, EL05c1
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_EL05c2_PCBV02, 4, Device24x10MHz_PCBV02_EL05c2},                                //   11, 20,  4 : 24 channels 10MHz nanopore reader, EL05c2
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_EL05c3_PCBV02, 4, Device24x10MHz_PCBV02_EL05c3},                                //   11, 18,  4 : 24 channels 10MHz nanopore reader, EL05c3
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_EL05c4_PCBV02, 4, Device24x10MHz_PCBV02_EL05c4},                                //   11, 19,  4 : 24 channels 10MHz nanopore reader, EL05c4
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_EL05c1_PCBV02, 5, Device24x10MHz_PCBV02_EL05c1_FWV05},                          //   11, 17,  5 : 24 channels 10MHz nanopore reader, EL05c1
+    {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_EL05c2_PCBV02, 5, Device24x10MHz_PCBV02_EL05c2_FWV05},                          //   11, 20,  5 : 24 channels 10MHz nanopore reader, EL05c2
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_EL05c3_PCBV02, 5, Device24x10MHz_PCBV02_EL05c3_FWV05},                          //   11, 18,  5 : 24 channels 10MHz nanopore reader, EL05c3
     {EmcrOpalKellyDevice::DeviceVersion10MHz, EmcrOpalKellyDevice::DeviceSubversion24x10MHz_EL05c4_PCBV02, 5, Device24x10MHz_PCBV02_EL05c4_FWV05},                          //   11, 19,  5 : 24 channels 10MHz nanopore reader, EL05c4
     {EmcrOpalKellyDevice::DeviceVersion192Blm, EmcrOpalKellyDevice::DeviceSubversion192Blm_EL03c_MB02Mez03, 1, Device192Blm_el03c_mb02_mez03_fw_v01},                       //   13,  1,  1 : 192-channel EL03c (Analog V03, Motherboard V02, Mezzanine V03)
@@ -586,6 +590,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
         messageDispatcher = new Emcr24x10MHz_EL05c1_PCBV02(deviceId);
         break;
 
+    case Device24x10MHz_PCBV02_EL05c2:
+        messageDispatcher = new Emcr24x10MHz_EL05c2_PCBV02(deviceId);
+        break;
+
     case Device24x10MHz_PCBV02_EL05c3:
         messageDispatcher = new Emcr24x10MHz_EL05c3_PCBV02(deviceId);
         break;
@@ -600,6 +608,10 @@ ErrorCodes_t EmcrOpalKellyDevice::connectDevice(std::string deviceId, MessageDis
 
     case Device24x10MHz_PCBV02_EL05c1_FWV05:
         messageDispatcher = new Emcr24x10MHz_EL05c1_PCBV02_FWV05(deviceId);
+        break;
+
+    case Device24x10MHz_PCBV02_EL05c2_FWV05:
+        messageDispatcher = new Emcr24x10MHz_EL05c2_PCBV02_FWV05(deviceId);
         break;
 
     case Device24x10MHz_PCBV02_EL05c3_FWV05:

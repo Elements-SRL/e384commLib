@@ -247,9 +247,11 @@ typedef enum DeviceTypes {
     Device24x10MHz_PCBV01_EL05c34,              /*!< 24 channels 10MHz nanopore reader */
     Device32x10MHz_PCBV01_EL05c2,               /*!< 32 channels 10MHz nanopore reader */
     Device24x10MHz_PCBV02_EL05c1,               /*!< 24 channels 10MHz nanopore reader */
+    Device24x10MHz_PCBV02_EL05c2,               /*!< 24 channels 10MHz nanopore reader */
     Device24x10MHz_PCBV02_EL05c3,               /*!< 24 channels 10MHz nanopore reader */
     Device24x10MHz_PCBV02_EL05c4,               /*!< 24 channels 10MHz nanopore reader */
     Device24x10MHz_PCBV02_EL05c1_FWV05,         /*!< 24 channels 10MHz nanopore reader */
+    Device24x10MHz_PCBV02_EL05c2_FWV05,         /*!< 24 channels 10MHz nanopore reader */
     Device24x10MHz_PCBV02_EL05c3_FWV05,         /*!< 24 channels 10MHz nanopore reader */
     Device24x10MHz_PCBV02_EL05c4_FWV05,         /*!< 24 channels 10MHz nanopore reader */
     Device4x10MHz_QuadAnalog_PCBV01,            /*!< 4 channels 10MHz nanopore reader, one analog board */
