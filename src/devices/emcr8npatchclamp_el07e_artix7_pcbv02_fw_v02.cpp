@@ -15,23 +15,6 @@ Emcr8nPatchClamp_EL07e_artix7_PCBV02_fw_v02::Emcr8nPatchClamp_EL07e_artix7_PCBV0
     /*! T control */
     int fanTrimmerRangesNum = FanTrimmerRangesNum;
 
-    double fanTrimmerLevels = 256.0;
-    double Rb = 90.0;
-    double Rc = 0.06;
-    double Rm = 100.0;
-
-    fanTrimmerRanges.resize(fanTrimmerRangesNum);
-    fanTrimmerRanges[FanTrimmerOff].step = 1.0;
-    fanTrimmerRanges[FanTrimmerOff].min = 0.0;
-    fanTrimmerRanges[FanTrimmerOff].max = 0.0;
-    fanTrimmerRanges[FanTrimmerOff].prefix = UnitPfxKilo;
-    fanTrimmerRanges[FanTrimmerOff].unit = "Ohm";
-    fanTrimmerRanges[FanTrimmerOn].step = Rm/fanTrimmerLevels;
-    fanTrimmerRanges[FanTrimmerOn].min = Rb+Rc;
-    fanTrimmerRanges[FanTrimmerOn].max = fanTrimmerRanges[FanTrimmerOn].min+(fanTrimmerLevels-1.0)*fanTrimmerRanges[FanTrimmerOn].step;
-    fanTrimmerRanges[FanTrimmerOn].prefix = UnitPfxKilo;
-    fanTrimmerRanges[FanTrimmerOn].unit = "Ohm";
-
     boolConfig.initialWord = 4;
     boolConfig.initialBit = 8;
     boolConfig.bitsNum = 2;
