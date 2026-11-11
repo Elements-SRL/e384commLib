@@ -168,6 +168,15 @@ public:
      */
     static ErrorCodes_t getCyUsbDriverStatus(std::string &details);
 
+    /*! \brief Checks whether okFrontPanel.dll is available when an Opal Kelly device is plugged in.
+     *  \note okFrontPanel.dll (Opal Kelly FrontPanel) is delay-loaded, only when an Opal Kelly device is used.
+     *  If it is missing, Opal Kelly devices are not listed by detectDevices: use this method to tell the user why.
+     *
+     * \param details [out] Description of the last library loading error (empty if none).
+     * \return ErrorOkDriverNotFound if an Opal Kelly device is plugged in and okFrontPanel.dll cannot be loaded, Success otherwise.
+     */
+    static ErrorCodes_t getOkDriverStatus(std::string &details);
+
     /*! \brief Lists all plugged in devices.
      *
      * \param deviceIds [out] List of plugged in devices IDs.
