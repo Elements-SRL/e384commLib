@@ -289,9 +289,9 @@ ErrorCodes_t EmcrFtdiDevice::getDriverStatus(std::string &details) {
     details.clear();
 
     ErrorCodes_t ret = Success;
-    if (!Ftd2xxWrapper::isFtd2xxLoaded() && Ftd2xxWrapper::isFtdiDevicePresent()) {
+    if ((!Ftd2xxWrapper::isFtd2xxLoaded() || !Ftd2xxWrapper::isMpsseLoaded()) && Ftd2xxWrapper::isFtdiDevicePresent()) {
         /*! An FTDI device is plugged in: the library is needed, try to load it */
-        if (!Ftd2xxWrapper::loadFtd2xx()) {
+        if (!Ftd2xxWrapper::loadFtd2xx() || !Ftd2xxWrapper::loadMpsse()) {
             ret = ErrorFtdiDriverNotFound;
         }
     }

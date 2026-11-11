@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27) # ftdi_utils >= 1.6 exports $<COMPILE_ONLY:...>
 
 project(e384commlib
-    VERSION 0.48.6
+    VERSION 0.49.0
     LANGUAGES CXX
 )
 
