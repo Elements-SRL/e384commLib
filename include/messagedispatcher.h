@@ -149,6 +149,15 @@ public:
      */
     static ErrorCodes_t detectDevices(std::vector <std::string> &deviceIds);
 
+    /*! \brief Checks whether the FTDI libraries are available when an FTDI device is plugged in.
+     *  \note The FTDI libraries (FTD2XX, libMPSSE) are loaded at runtime, only when an FTDI device is used.
+     *  If they are missing, FTDI devices are not listed by detectDevices: use this method to tell the user why.
+     *
+     * \param details [out] Description of the last library loading error (empty if none).
+     * \return ErrorFtdiDriverNotFound if an FTDI device is plugged in and FTD2XX cannot be loaded, Success otherwise.
+     */
+    static ErrorCodes_t getFtdiDriverStatus(std::string &details);
+
     /*! \brief Lists all plugged in devices.
      *
      * \param deviceIds [out] List of plugged in devices IDs.
