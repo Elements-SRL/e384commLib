@@ -34,6 +34,8 @@ typedef enum ErrorCodes {
     ErrorDeviceNotFound =                   ErrorGroupDeviceDetection +     0x00000003, /*!< Error returned when the required device for connection is not found. */
     ErrorFtdiDriverNotFound =               ErrorGroupDeviceDetection +     0x00000004, /*!< Error returned when the FTDI libraries (FTD2XX, libMPSSE) needed by the device cannot be loaded.
                                                                                          *   The libraries are loaded at runtime only when an FTDI device is used. */
+    ErrorCyUsbDriverNotFound =              ErrorGroupDeviceDetection +     0x00000005, /*!< Error returned when e384_cyusb.dll, needed by the UDB devices (Cypress FX3), cannot be loaded.
+                                                                                         *   The library is loaded at runtime only when a UDB device is used. */
 
     ErrorEepromAlreadyConnected =           ErrorGroupEepromCommunication + 0x00000001, /*!< Error returned when trying to connect to a device eeprom which is already connected. */
     ErrorEepromConnectionFailed =           ErrorGroupEepromCommunication + 0x00000002, /*!< Error returned when connection to a device eeprom fails. */

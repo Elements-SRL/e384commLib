@@ -158,6 +158,16 @@ public:
      */
     static ErrorCodes_t getFtdiDriverStatus(std::string &details);
 
+    /*! \brief Checks whether e384_cyusb.dll is available when a UDB device is plugged in.
+     *  \note e384_cyusb.dll (the only binary containing the Cypress CyAPI library) is loaded at runtime,
+     *  only when a UDB device is used. If it is missing, UDB devices are not listed by detectDevices:
+     *  use this method to tell the user why.
+     *
+     * \param details [out] Description of the last library loading error (empty if none).
+     * \return ErrorCyUsbDriverNotFound if a UDB device is plugged in and e384_cyusb.dll cannot be loaded, Success otherwise.
+     */
+    static ErrorCodes_t getCyUsbDriverStatus(std::string &details);
+
     /*! \brief Lists all plugged in devices.
      *
      * \param deviceIds [out] List of plugged in devices IDs.

@@ -12,6 +12,7 @@
 #define UDB_PACKETS_PER_TRANSFER ((int)64)
 #define UDB_START_PROTOCOL_TRIGGER_IN_ADDR 0x40
 #define UDB_START_PROTOCOL_TRIGGER_IN_BIT 0
+#define UDB_CYUSB_LIB_TEST_FAKE_ID "DEMO_CYUSB_LibLoadTest" /*!< Fake device listed with e384_DEMO.pls, tests only the loading of e384_cyusb.dll */
 
 #include "emcrdevice.h"
 #include "utils.h"
@@ -52,6 +53,7 @@ public:
     static ErrorCodes_t isDeviceUpgradable(std::string deviceId);
     static ErrorCodes_t upgradeDevice(std::string deviceId);
     static ErrorCodes_t getUpgradeProgress(int32_t &progress);
+    static ErrorCodes_t getDriverStatus(std::string &details);
 
     virtual ErrorCodes_t getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) override;
 
@@ -83,11 +85,9 @@ protected:
      *  Parameters  *
     \****************/
 
-    CCyUSBDevice * dev = nullptr;
-
-    /*! endpoints */
-    CCyUSBEndPoint * eptBulkin;
-    CCyUSBEndPoint * eptBulkout;
+    /*! Device opened through e384_cyusb.dll.
+    Bbulk endpoints are managed inside the DLL */
+    cyw_device * dev = nullptr;
 
     /*! Rx consts */
     uint32_t readDataTransferSize = UDB_RX_TRANSFER_SIZE;

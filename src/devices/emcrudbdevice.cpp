@@ -5,6 +5,8 @@
 #include "emcr10mhz.h"
 /*! Fake device that generates synthetic data */
 #include "emcr10mhzfake.h"
+/*! Fake device that only tests the loading of e384_cyusb.dll */
+#include "emcrcyusblibloadtestfake.h"
 
 static UdbProgrammer programmer;
 
@@ -41,30 +43,45 @@ EmcrUdbDevice::~EmcrUdbDevice() {
 
 ErrorCodes_t EmcrUdbDevice::detectDevices(
         std::vector <std::string> &deviceIds) {
-    /*! Gets number of devices */
-    int numDevs;
-    bool devCountOk = UdbUtils::getDeviceCount(numDevs);
-    if (!devCountOk) {
-        return ErrorListDeviceFailed;
-    }
-    if (!debugLevelEnabled(DebugLevelDevice) && numDevs == 0) {
-        deviceIds.clear();
-        return ErrorNoDeviceFound;
-    }
-
     deviceIds.clear();
 
-    /*! Lists all serial numbers */
+    ErrorCodes_t ret = Success;
+
+    /*! e384_cyusb.dll is loaded only if a UDB device (or an FX3 in bootloader) is plugged in:
+     *  without UDB devices nothing is loaded and no error is reported */
+    if (CyUsbWrapper::isDevicePresent()) {
+        if (!CyUsbWrapper::load()) {
+            ret = ErrorCyUsbDriverNotFound;
+        }
+    }
+
+    /*! Gets number of devices */
+    int numDevs = 0;
+    if (CyUsbWrapper::isLoaded()) {
+        bool devCountOk = UdbUtils::getDeviceCount(numDevs);
+        if (!devCountOk) {
+            ret = ErrorListDeviceFailed;
+            numDevs = 0;
+        }
+    }
+
+    /*! Lists the serial numbers of the UDB devices only: other devices may use the CyUSB3 driver */
     for (int i = 0; i < numDevs; i++) {
-        deviceIds.push_back(UdbUtils::getDeviceSerial(i));
+        if (UdbUtils::isSupportedDevice(i)) {
+            deviceIds.push_back(UdbUtils::getDeviceSerial(i));
+        }
     }
 
     if (debugLevelEnabled(DebugLevelDevice)) {
-        numDevs++;
         deviceIds.push_back("DEMO_10MHz");
+        /*! Listed even if e384_cyusb.dll is missing: its purpose is to test that case */
+        deviceIds.push_back(UDB_CYUSB_LIB_TEST_FAKE_ID);
     }
 
-    return Success;
+    if (!deviceIds.empty()) {
+        return Success;
+    }
+    return (ret == Success) ? ErrorNoDeviceFound : ret;
 }
 
 ErrorCodes_t EmcrUdbDevice::getDeviceInfo(std::string deviceId, unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
@@ -106,6 +123,12 @@ ErrorCodes_t EmcrUdbDevice::getDeviceInfo(std::string deviceId, unsigned int &de
 }
 
 ErrorCodes_t EmcrUdbDevice::getDeviceType(std::string deviceId, DeviceTypes_t &type) {
+    /*! Checked before the "DEMO" prefix below, which would map it to Device10MHzFake */
+    if (deviceId == UDB_CYUSB_LIB_TEST_FAKE_ID) {
+        type = DeviceCyUsbLibLoadTestFake;
+        return Success;
+    }
+
     DeviceTuple_t tuple;
     if (deviceId.starts_with("DEMO")) {
         tuple.version = DeviceVersion10MHz;
@@ -197,6 +220,10 @@ ErrorCodes_t EmcrUdbDevice::connectDevice(std::string deviceId, MessageDispatche
         messageDispatcher = new Emcr10MHzFake(deviceId);
         break;
 
+    case DeviceCyUsbLibLoadTestFake:
+        messageDispatcher = new EmcrCyUsbLibLoadTestFake(deviceId);
+        break;
+
     default:
         return ErrorDeviceTypeNotRecognized;
     }
@@ -231,6 +258,10 @@ ErrorCodes_t EmcrUdbDevice::isDeviceUpgradable(std::string deviceId) {
 }
 
 ErrorCodes_t EmcrUdbDevice::upgradeDevice(std::string deviceId) {
+    if (!CyUsbWrapper::load()) {
+        return ErrorCyUsbDriverNotFound;
+    }
+
     DeviceTypes_t deviceType;
 
     ErrorCodes_t ret = EmcrUdbDevice::getDeviceType(deviceId, deviceType);
@@ -323,21 +354,43 @@ ErrorCodes_t EmcrUdbDevice::getUpgradeProgress(int32_t &progress) {
     return Success;
 }
 
+ErrorCodes_t EmcrUdbDevice::getDriverStatus(std::string &details) {
+    details.clear();
+
+    ErrorCodes_t ret = Success;
+    if (!CyUsbWrapper::isLoaded() && CyUsbWrapper::isDevicePresent()) {
+        /*! A UDB device is plugged in: e384_cyusb.dll is needed, try to load it */
+        if (!CyUsbWrapper::load()) {
+            ret = ErrorCyUsbDriverNotFound;
+        }
+    }
+    /*! Always return the last loading error (e.g. after a failed connection of the test fake device) */
+    details = CyUsbWrapper::getLastLoadError();
+    return ret;
+}
+
 ErrorCodes_t EmcrUdbDevice::getDeviceInfo(unsigned int &deviceVersion, unsigned int &deviceSubVersion, unsigned int &fwMajor, unsigned int &fwMinor, unsigned int &fwPatch) {
     return EmcrUdbDevice::getDeviceInfo(deviceId, deviceVersion, deviceSubVersion, fwMajor, fwMinor, fwPatch);
 }
 
 ErrorCodes_t EmcrUdbDevice::startCommunication(std::string) {
+    if (!CyUsbWrapper::load()) {
+        return ErrorCyUsbDriverNotFound;
+    }
+
     int32_t idx = UdbUtils::getDeviceIndex(deviceId);
     if (idx < 0) {
         return ErrorDeviceConnectionFailed;
     }
-    dev = new CCyUSBDevice;
-    dev->Open(idx);
 
-    UdbUtils::findBulkEndpoints(dev, eptBulkin, eptBulkout);
-    UdbUtils::resetBulkEndpoints(eptBulkin, eptBulkout);
-    UdbUtils::initEndpoints(readDataTransferSize, eptBulkin, eptBulkout);
+    /*! cyw_open also finds the bulk endpoints */
+    dev = nullptr;
+    if (CyUsbWrapper::open(idx, &dev) != CYW_OK) {
+        return ErrorDeviceConnectionFailed;
+    }
+
+    UdbUtils::resetBulkEndpoints(dev);
+    UdbUtils::initEndpoints(readDataTransferSize, dev);
     return Success;
 }
 
@@ -371,8 +424,7 @@ ErrorCodes_t EmcrUdbDevice::initializeHW() {
 
 ErrorCodes_t EmcrUdbDevice::stopCommunication() {
     if (dev != nullptr) {
-        dev->Close();
-        delete dev;
+        CyUsbWrapper::close(dev);
         dev = nullptr;
     }
     return Success;
@@ -524,11 +576,12 @@ uint32_t EmcrUdbDevice::readDataFromDevice() {
 
     /*! Read the data */
     bytesRead = readDataTransferSize;
-    if (eptBulkin->XferData((PUCHAR)rxRawBuffer+rxRawBufferWriteOffset, bytesRead, nullptr, false) == false) {
-        /*! XferData, apparently, returns false also if the required data is not available before timeout, so check the amount of available data as well */
+    if (CyUsbWrapper::bulkRead(dev, (unsigned char *)rxRawBuffer+rxRawBufferWriteOffset, &bytesRead, 0) != CYW_OK) {
+        /*! XferData, apparently, returns false also if the required data is not available before timeout, so check the amount of available data as well
+         *  (bytesRead is updated by the DLL also on failure) */
         if (bytesRead <= 0) {
             return 0;
-            /*! \todo eptBulkin->NtStatus controllare per vedere il tipo di fallimento */
+            /*! \todo CyUsbWrapper::lastStatus controllare per vedere il tipo di fallimento (NtStatus/UsbdStatus) */
         }
     }
 
@@ -726,32 +779,26 @@ void EmcrUdbDevice::deinitializeMemory() {
 
 EmcrUdbDevice::DeviceTuple_t EmcrUdbDevice::getDeviceTuple(uint32_t deviceIdx) {
     DeviceTuple_t tuple;
-    CCyUSBDevice * tempDev = new CCyUSBDevice;
-    if (tempDev->DeviceCount() > 0) {
-        tempDev->Open(deviceIdx);
+    if (!CyUsbWrapper::load()) {
+        /*! Without e384_cyusb.dll the tuple stays undefined: the device is not recognized */
+        return tuple;
+    }
 
-        CCyControlEndPoint * ctrept;
+    /*! cyw_open fails if deviceIdx is not a connected device (e.g. -1 from getDeviceIndex) */
+    cyw_device * tempDev = nullptr;
+    if (CyUsbWrapper::open(deviceIdx, &tempDev) == CYW_OK) {
         long ctrlen = 4;
 
         unsigned char		buffer[4];
 
-        ctrept = tempDev->ControlEndPt;
-        ctrept->Target		= TGT_DEVICE;
-        ctrept->ReqType		= REQ_VENDOR;
-        ctrept->Direction	= DIR_FROM_DEVICE;
-        ctrept->ReqCode		= CYP_CMD_GET_TUPLE;
-        ctrept->Value		= 0;
-        ctrept->Index		= 0;
-
-        if (ctrept->XferData((PUCHAR)buffer, ctrlen)) {
+        if (CyUsbWrapper::vendorRequest(tempDev, CYW_DIR_FROM_DEVICE, CYP_CMD_GET_TUPLE, 0, 0, buffer, &ctrlen) == CYW_OK) {
             tuple.version = (DeviceVersion_t)buffer[0];
             tuple.subversion = (DeviceSubversion_t)buffer[1];
             tuple.fwVersion = buffer[2];
         }
 
-        tempDev->Close();
+        CyUsbWrapper::close(tempDev);
     }
-    delete tempDev;
     return tuple;
 }
 
@@ -768,8 +815,8 @@ bool EmcrUdbDevice::activateTriggerIn(int address, int bit) {
 bool EmcrUdbDevice::writeToBulkOut(uint32_t * buffer) {
     long bytesNum = sizeof(uint32_t)*(3+2*buffer[2]);
 
-    if (!(eptBulkout->XferData((PUCHAR)buffer, bytesNum))) {
-        eptBulkout->Abort();
+    if (CyUsbWrapper::bulkWrite(dev, (const unsigned char *)buffer, &bytesNum) != CYW_OK) {
+        CyUsbWrapper::bulkAbort(dev, CYW_DIR_TO_DEVICE);
         return false;
     }
     return true;

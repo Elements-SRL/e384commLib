@@ -34,11 +34,8 @@ private:
     void eraseFlashBlock(UdbUtils::FlashBlock_t block);
     void writeFlashBlock(UdbUtils::FlashBlock_t block, char * buffer, unsigned int length);
 
-    CCyUSBDevice * dev;
-
-    /*! endpoints */
-    CCyUSBEndPoint * eptBulkin;
-    CCyUSBEndPoint * eptBulkout;
+    /*! Device opened through e384_cyusb.dll (the bulk endpoints are managed inside the DLL) */
+    cyw_device * dev = nullptr;
 
     /*! Rx consts */
     uint32_t readDataTransferSize = 0x100000; /*! 1MB, must be lower than 4MB */
