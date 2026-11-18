@@ -6,7 +6,10 @@
 #include <stdint.h>
 #include <vector>
 
-typedef struct CommandStatus {
+class CommandStatus {
+public:
+    CommandStatus() {}
+
     std::vector <bool> changedWords;
     std::vector <uint16_t> encodingWords;
     bool anyChanged;
@@ -41,7 +44,7 @@ typedef struct CommandStatus {
         std::fill(changedWords.begin(), changedWords.end(), false);
         anyChanged = false;
     }
-} CommandStatus_t;
+};
 
 class CommandCoder {
 public:
@@ -49,7 +52,7 @@ public:
     virtual ~CommandCoder() {}
 
 protected:
-    void encodeUint(uint64_t uintValue, CommandStatus_t &status);
+    void encodeUint(uint64_t uintValue, CommandStatus &status);
 
     uint16_t initialWord;
     uint16_t bitsNum;
@@ -69,7 +72,7 @@ public:
     BoolCoder(CoderConfig_t config);
     virtual ~BoolCoder() {}
 
-    virtual void encode(uint64_t value, CommandStatus_t &status) = 0;
+    virtual void encode(uint64_t value, CommandStatus &status) = 0;
 
 protected:
     CoderConfig_t config;
@@ -80,7 +83,7 @@ public:
     BoolArrayCoder(CoderConfig_t config);
     virtual ~BoolArrayCoder() {}
 
-    void encode(uint64_t value, CommandStatus_t &status) override;
+    void encode(uint64_t value, CommandStatus &status) override;
 };
 
 class BoolNegatedArrayCoder : public BoolArrayCoder {
@@ -88,7 +91,7 @@ public:
     BoolNegatedArrayCoder(CoderConfig_t config);
     virtual ~BoolNegatedArrayCoder() {}
 
-    void encode(uint64_t value, CommandStatus_t &status) override;
+    void encode(uint64_t value, CommandStatus &status) override;
 };
 
 class BoolRandomArrayCoder : public BoolArrayCoder {
@@ -96,7 +99,7 @@ public:
     BoolRandomArrayCoder(CoderConfig_t config);
     virtual ~BoolRandomArrayCoder() {}
 
-    void encode(uint64_t value, CommandStatus_t &status) override;
+    void encode(uint64_t value, CommandStatus &status) override;
     void addMapItem(uint64_t to);
 
 private:
@@ -111,7 +114,7 @@ public:
     BoolOneHotCoder(CoderConfig_t config);
     virtual ~BoolOneHotCoder() {}
 
-    void encode(uint64_t value, CommandStatus_t &status) override;
+    void encode(uint64_t value, CommandStatus &status) override;
 };
 
 class DoubleCoder : public CommandCoder {
@@ -128,7 +131,7 @@ public:
     DoubleCoder(CoderConfig_t config);
     virtual ~DoubleCoder() {}
 
-    virtual double encode(double value, CommandStatus_t &status) = 0;
+    virtual double encode(double value, CommandStatus &status) = 0;
 
 protected:
     CoderConfig_t config;
@@ -145,7 +148,7 @@ public:
     DoubleTwosCompCoder(CoderConfig_t config);
     virtual ~DoubleTwosCompCoder() {}
 
-    double encode(double value, CommandStatus_t &status) override;
+    double encode(double value, CommandStatus &status) override;
 };
 
 class DoubleOffsetBinaryCoder : public DoubleCoder {
@@ -153,7 +156,7 @@ public:
     DoubleOffsetBinaryCoder(CoderConfig_t config);
     virtual ~DoubleOffsetBinaryCoder() {}
 
-    double encode(double value, CommandStatus_t &status) override;
+    double encode(double value, CommandStatus &status) override;
 };
 
 class DoubleSignAbsCoder : public DoubleCoder {
@@ -161,7 +164,7 @@ public:
     DoubleSignAbsCoder(CoderConfig_t config);
     virtual ~DoubleSignAbsCoder() {}
 
-    double encode(double value, CommandStatus_t &status) override;
+    double encode(double value, CommandStatus &status) override;
 };
 
 class FloatCoder : public CommandCoder {
@@ -174,7 +177,7 @@ public:
     FloatCoder(CoderConfig_t config);
     virtual ~FloatCoder() {}
 
-    double encode(double value, CommandStatus_t &status);
+    double encode(double value, CommandStatus &status);
 
 protected:
     CoderConfig_t config;
@@ -191,7 +194,7 @@ public:
     MultiCoder(CoderConfig_t config);
     virtual ~MultiCoder() {}
 
-    double encode(double value, CommandStatus_t &status);
+    double encode(double value, CommandStatus &status);
     void setEncodingRange(int rangeIdx);
     void getConfig(CoderConfig_t &config);
 

@@ -62,6 +62,15 @@
 #define TX_MSG_BUFFER_MASK (TX_MSG_BUFFER_SIZE-1)
 #define TX_MAX_WRITE_TRIES 10
 
+class CommandCoder;
+class BoolCoder;
+class BoolArrayCoder;
+class DoubleCoder;
+class MultiCoder;
+class FrameManager;
+class CommandStatus;
+class RxMessage;
+
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
 using namespace e384CommLib;
 #endif
@@ -227,14 +236,14 @@ public:
      * \param fwPath [in] Path to the firmware file (if needed).
      * \return Error code.
      */
-    virtual ErrorCodes_t initialize(std::string fwPath) = 0;
+    ErrorCodes_t initialize(std::string fwPath);
 
     /*! \brief Deinitialize the device.
      *  \note Internal method used by the commlib during the disconnection. Must not be called.
      *
      * \return Error code.
      */
-    virtual void deinitialize() = 0;
+    void deinitialize();
 
     /*! \brief Disconnects from connected device.
      * \param overheatFlag [in] false: standard disconnection; true: enable, (if available) overheating conuntermeasures (e.g. turn off power supplies).
@@ -252,7 +261,7 @@ public:
      * \param flag [in] true to enable the message type, false to disable it.
      * \return Error code.
      */
-    virtual ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag) = 0;
+    virtual ErrorCodes_t enableRxMessageType(MsgTypeId_t messageType, bool flag);
 
     /***************************************\
      *  Channels overview support methods  *
@@ -1133,7 +1142,7 @@ public:
      * \param deltaFlag [in] True if the trigger thresholds are referred to the baseline; False if they are absolute values.
      * \return Error code.
      */
-    virtual ErrorCodes_t setSateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, Measurement_t timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag);
+    virtual ErrorCodes_t setStateArrayState(int stateIdx, Measurement_t voltage, bool timeoutStateFlag, Measurement_t timeout, int timeoutState, Measurement_t minTriggerValue, Measurement_t maxTriggerValue, int triggerState, bool triggerFlag, bool deltaFlag);
 
     /*! \brief Enable state arrays for a given channel
      *
@@ -2303,6 +2312,20 @@ public:
      */
     ErrorCodes_t getCustomDoubles(std::vector <std::string> &customDoubles, std::vector <RangedMeasurement_t> &customDoublesRanges, std::vector <double> &customDoublesDefault);
 
+    /*********************\
+     *  Utility Methods  *
+    \*********************/
+
+    void resetCalibRShuntConductance(std::vector <uint16_t> channelIndexes, bool applyFlag);
+    void processLiquidJunctionData(RxMessage msg);
+    bool computeOffetCorrection();
+    bool computeLiquidJunction();
+    void processTemperatureData(RxMessage msg);
+    uint16_t popUint16FromRxRawBuffer();
+    uint32_t popUint32FromRxRawBuffer();
+    uint16_t readUint16FromRxRawBuffer(uint32_t n);
+    uint32_t readUint32FromRxRawBuffer(uint32_t n);
+
 protected:
     typedef struct MsgResume {
         uint16_t typeId;
@@ -2330,6 +2353,24 @@ protected:
         OffsetRecalibStatesNum
     } OffsetRecalibState_t;
 
+    typedef enum LiquidJunctionState {
+        LiquidJunctionIdle,
+        LiquidJunctionStarting,
+        LiquidJunctionFirstStep,
+        LiquidJunctionOnlyPosSat,
+        LiquidJunctionOnlyNegSat,
+        LiquidJunctionOnlySat,
+        LiquidJunctionOnlyOneVal,
+        LiquidJunctionSatAndOneVal,
+        LiquidJunctionTwoVals,
+        LiquidJunctionTerminate,
+        LiquidJunctionSuccess,
+        LiquidJunctionFailOpenCircuit,
+        LiquidJunctionFailTooManySteps,
+        LiquidJunctionFailSaturation,
+        LiquidJunctionStatesNum
+    } LiquidJunctionState_t;
+
     typedef enum ParsingStatus {
         ParsingNone,
         ParsingPreparing,
@@ -2343,10 +2384,10 @@ protected:
     void createDebugFiles();
     void createDebugFiles(int debugLevel);
     virtual ErrorCodes_t startCommunication(std::string fwPath) = 0;
-    virtual ErrorCodes_t initializeMemory() = 0;
+    ErrorCodes_t initializeMemory();
     virtual void initializeVariables();
     virtual ErrorCodes_t deviceConfiguration();
-    virtual void createCommunicationThreads() = 0;
+    virtual void createCommunicationThreads();
     virtual ErrorCodes_t initializeHW() = 0;
 
     virtual void enableOverheatingCounterMeasures();
@@ -2380,6 +2421,24 @@ protected:
 
     void flushBoardList();
 
+    virtual void handleCommunicationWithDevice() = 0;
+    virtual uint32_t readDataFromDevice() = 0;
+    virtual void parseDataFromDevice() = 0;
+
+    void forceOutMessage();
+    void updateVoltageHoldTuner(bool applyFlag);
+    void updateCurrentHoldTuner(bool applyFlag);
+    ErrorCodes_t resetProtocol();
+
+    void stackOutgoingMessage(CommandStatus &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
+
+    ErrorCodes_t updateLiquidJunctionVoltage(uint16_t channelIdx, bool applyFlag);
+    virtual void processTemperatureData(std::vector <Measurement_t> temperaturesRead);
+    void updateLjState(int channelIdx);
+    void updateLjVoltage(int channelIdx, int gain, std::vector <uint16_t> &channelIndexes, std::vector <Measurement_t> &voltages);
+    bool updateLjRes(int channelIdx);
+    bool updateLjSatRes(int channelIdx, bool posCurr);
+
     /************\
      *  Fields  *
     \************/
@@ -2403,6 +2462,46 @@ protected:
     std::vector <std::string> temperatureChannelsNames;
     std::vector <RangedMeasurement_t> temperatureChannelsRanges;
 
+    FrameManager * frameManager = nullptr;
+
+    unsigned int packetsPerFrame = 1;
+
+    uint32_t rxSyncWord = 0x5aa55aa5;
+    uint32_t rxSyncWordSize = sizeof(rxSyncWord);
+
+    int motherboardBootTime_s = 1;
+    int fwSize_B = 1000;
+
+    /*! Read data buffer management */
+    uint16_t rxMaxWords;
+    uint32_t maxInputDataLoadSize;
+    uint8_t * rxRawBuffer = nullptr; /*!< Raw incoming data from the device */
+    uint16_t * rxRawBuffer16 = nullptr; /*!< Raw incoming data from the device */
+    uint32_t rxRawBufferReadOffset = 0; /*!< Device Rx buffer offset position in which data are collected by the outputDataBuffer */
+    uint32_t rxRawBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
+    bool rxRawBufferEmpty = false; /*!< Debug variable to stop parsing read data pretend that the rawBuffer has always room to write in */
+    bool rxRawBufferFull = false; /*!< Debug variable to stop data reading from the device and pretend that the rawBuffer is always full of data to process */
+    uint32_t maxRxRawBytesRead = 0;
+    uint32_t rxRawBytesAvailable = 0;
+    uint32_t rxRawBufferWriteOffset = 0; /*!< Device Rx buffer offset position in which data are written by FTDI device */
+    uint32_t rxRawBufferMask;
+    uint32_t rxPrevMsgBufferWriteOffset = 0;
+
+    /*! Write data buffer management */
+    std::vector <uint16_t> * txMsgBuffer = nullptr; /*!< Buffer of arrays of bytes to communicate to the device */
+    std::vector <std::vector <uint16_t>> txMsgToBeSentWords; /*!< Buffer of list of words in txMsgBuffer */
+    std::vector <CommandOptions_t> txMsgOption; /*!< Buffer of commandOptions */
+    uint32_t txMsgBufferWriteOffset = 0; /*!< Offset of the part of buffer to be written */
+    uint32_t txMsgBufferReadLength = 0; /*!< Length of the part of the buffer to be processed */
+    uint16_t txDataWords;
+    uint16_t txMaxWords;
+    uint16_t txMaxRegs;
+    CommandStatus txStatus; /*!< Status of the words written */
+
+    std::vector <uint16_t> rxWordOffsets;
+    std::vector <uint16_t> rxWordLengths;
+    uint16_t rxCurrentBlockLength = 1; /*! current data comes in blocks. If rxCurrentBlockLength = 4, then 4 samples for a given channel are obtained before moving to data from the following channel */
+
     bool onTimeHwFlag = false;
     RangedMeasurement_t onTimeRange = {0.0, (std::numeric_limits <double> ::max)(), 1.0, UnitPfxNone, "s"};
 
@@ -2410,6 +2509,7 @@ protected:
     bool properHeaderPackets = false;
 
     bool resetStateFlag = false;
+
     /*! State array params */
     unsigned int stateMaxNum;
     unsigned int stateWordOffset;
@@ -2542,9 +2642,32 @@ protected:
     uint16_t selectedSourceForVoltageChannelIdx;
     uint16_t selectedSourceForCurrentChannelIdx;
 
+    /*! Calibration  */
     CalibrationParams_t calibrationParams;
     CalibrationParams_t originalCalibrationParams;
     std::vector <RangedMeasurement_t> rRShuntConductanceCalibRange;
+
+    // Calibration DAC ranges
+    RangedMeasurement_t calibCcCurrentGainRange;
+    std::vector <RangedMeasurement_t> calibCcCurrentOffsetRanges;
+
+    RangedMeasurement_t calibVcVoltageGainRange;
+    std::vector <RangedMeasurement_t> calibVcVoltageOffsetRanges;
+
+    // Calibration ADC ranges
+    RangedMeasurement_t calibVcCurrentGainRange;
+    std::vector <RangedMeasurement_t> calibVcCurrentOffsetRanges;
+
+    RangedMeasurement_t calibCcVoltageGainRange;
+    std::vector <RangedMeasurement_t> calibCcVoltageOffsetRanges;
+
+    ErrorCodes_t calibrationLoadingError = ErrorCalibrationNotLoadedYet;
+    std::vector <std::string> calibrationFileNames = {""};
+    std::vector <std::vector <bool>> calibrationFilesOkFlags = {{false}};
+    std::string calibrationMappingFileDir = "";
+    std::string calibrationMappingFilePath = "";
+
+    bool calibrationFileRequired = false;
 
     /*! Compensation options  */
     std::vector <uint16_t> selectedRsCorrBws;
@@ -2611,6 +2734,8 @@ protected:
 
     std::vector <uint16_t> allChannelIndexes;
 
+    int digitalOutputsNum = 0;
+
     uint16_t customFlagsNum = 0;
     std::vector <std::string> customFlagsNames;
     std::vector <bool> customFlagsDefault;
@@ -2626,6 +2751,40 @@ protected:
     std::vector <double> customDoublesDefault;
 
     std::vector <LiquidJunctionStatus_t> liquidJunctionStatuses;
+
+    /*******************************\
+     * offset correction variables *
+    \*******************************/
+
+    std::vector <double> offsetRecalibrationReadouts;
+    std::vector <double> offsetRecalibrationReadCount;
+    std::vector <LiquidJunctionState_t> liquidJunctionStates;
+    std::vector <int64_t> liquidJunctionCurrentSums;
+    std::vector <double> liquidJunctionCurrentEstimates;
+    std::vector <double> liquidJunctionResistanceEstimates;
+    std::vector <double> liquidJunctionMinPosSatVoltage;
+    std::vector <double> liquidJunctionMaxNegSatVoltage;
+    std::vector <double> liquidJunctionSatResistanceEstimates;
+    int64_t liquidJunctionCurrentEstimatesNum;
+    std::vector <Measurement_t> liquidJunctionVoltagesBackup;
+    std::vector <double> liquidJunctionDeltaVoltages;
+    std::vector <double> liquidJunctionDeltaCurrents;
+    std::vector <double> liquidJunctionSmallestCurrentChange;
+    std::vector <uint16_t> liquidJunctionConvergingCount;
+    std::vector <uint16_t> liquidJunctionConvergedCount;
+    std::vector <uint16_t> liquidJunctionSaturationCount;
+    std::vector <uint16_t> liquidJunctionOpenCircuitCount;
+    std::vector <int64_t> ljResN;
+    std::vector <double> ljResSx2;
+    std::vector <double> ljResSx;
+    std::vector <double> ljResSy;
+    std::vector <double> ljResSxy;
+    // std::vector <double> ljMaxRes;
+    std::vector <double> ljTargetCurrents;
+    bool targetCurrentEnabled = false;
+
+    double minLiquidJunctionEstimationTimeS = 0.25;
+    double minLiquidJunctionTransientTimeS = 0.25;
 
     /***********************\
      *  Filters variables  *
@@ -2654,9 +2813,156 @@ protected:
 
     uint16_t iirOff = 0;
 
+    /************\
+     *  Coders  *
+    \************/
+
+    std::vector <CommandCoder *> coders;
+
+    BoolCoder * asicResetCoder = nullptr;
+    BoolCoder * fpgaResetCoder = nullptr;
+    BoolCoder * overHeatingModeCoder = nullptr;
+
+    BoolCoder * clampingModeCoder = nullptr;
+    std::vector <BoolCoder *> vcCurrentRangeCoders;
+    std::vector <BoolCoder *> vcVoltageRangeCoders;
+    std::vector <BoolCoder *> ccCurrentRangeCoders;
+    std::vector <BoolCoder *> ccVoltageRangeCoders;
+    BoolCoder * vcCurrentFilterCoder = nullptr;
+    BoolCoder * vcVoltageFilterCoder = nullptr;
+    BoolCoder * ccCurrentFilterCoder = nullptr;
+    BoolCoder * ccVoltageFilterCoder = nullptr;
+
+    std::vector <BoolCoder *> enableStimulusCoders;
+    std::vector <BoolCoder *> turnChannelsOnCoders;
+    BoolCoder * samplingRateCoder = nullptr;
+    BoolCoder * clockDividerCoder = nullptr;
+
+    std::vector <std::vector <DoubleCoder *> > vHoldTunerCoders;
+    std::vector <std::vector <DoubleCoder *> > vHalfTunerCoders;
+    std::vector <std::vector <DoubleCoder *> > cHoldTunerCoders;
+    std::vector <std::vector <DoubleCoder *> > cHalfTunerCoders;
+
+    std::vector <std::vector <DoubleCoder *> > vInitRampTunerCoders;
+    std::vector <std::vector <DoubleCoder *> > vFinalRampTunerCoders;
+    std::vector <DoubleCoder *> tRampTunerCoders;
+    std::vector <std::vector <DoubleCoder *> >  quotRampTunerCoders;
+    std::vector <std::vector <DoubleCoder *> > remRampTunerCoders;
+    std::vector <BoolCoder *> activateRampTunerCoders;
+
+    std::vector <std::vector <DoubleCoder *> > liquidJunctionVoltageCoders;
+    std::vector <std::vector <DoubleCoder *> > currentTrackingCoders;
+    std::vector <DoubleCoder *> calibCcCurrentGainCoders;
+    std::vector <std::vector <DoubleCoder *> > calibCcCurrentOffsetCoders;
+    std::vector <DoubleCoder *> calibVcVoltageGainCoders;
+    std::vector <std::vector <DoubleCoder *> > calibVcVoltageOffsetCoders;
+    std::vector <DoubleCoder *> calibVcCurrentGainCoders;
+    std::vector <std::vector <DoubleCoder *> > calibVcCurrentOffsetCoders;
+    std::vector <DoubleCoder *> calibCcVoltageGainCoders;
+    std::vector <std::vector <DoubleCoder *> > calibCcVoltageOffsetCoders;
+    std::vector <std::vector <DoubleCoder *> > calibRShuntConductanceCoders;
+    std::vector <std::vector <DoubleCoder *> > calibRsCorrOffsetDacCoders;
+    std::vector <DoubleCoder *> gateVoltageCoders;
+    std::vector <DoubleCoder *> sourceVoltageCoders;
+
+    std::vector <BoolCoder *> calSwCoders;
+    std::vector <BoolCoder *> vcSwCoders;
+    std::vector <BoolCoder *> ccSwCoders;
+    std::vector <BoolCoder *> vcCcSelCoders;
+    std::vector <BoolCoder *> ccStimEnCoders;
+    BoolArrayCoder* sourceForVoltageChannelCoder = nullptr;
+    BoolArrayCoder* sourceForCurrentChannelCoder = nullptr;
+
+    BoolCoder * numberOfStatesCoder = nullptr;
+    BoolCoder * initialStateCoder = nullptr;
+    DoubleCoder * stateArrayMovingAverageLengthCoder = nullptr;
+    std::vector <BoolCoder *> enableStateArrayChannelsCoder;
+
+    std::vector <std::vector <DoubleCoder *> > stateAppliedVoltageCoders;
+
+    std::vector <BoolArrayCoder *> stateTimeoutFlagCoders;
+    std::vector <BoolArrayCoder *> stateTriggerFlagCoders;
+    std::vector <BoolArrayCoder *> stateTriggerDeltaFlagCoders;
+    std::vector <DoubleCoder *> stateTimeoutValueCoders;
+    std::vector <BoolCoder *> stateTimeoutNextStateCoders;
+    std::vector <std::vector <DoubleCoder *> > stateMinTriggerCurrentCoders;
+    std::vector <std::vector <DoubleCoder *> > stateMaxTriggerCurrentCoders;
+    std::vector <BoolCoder *> stateTriggerNextStateCoders;
+
+    std::vector <BoolArrayCoder *> zapCoders;
+    DoubleCoder * zapDurationCoder = nullptr;
+
+    DoubleCoder * stimRestCoder = nullptr;
+
+    BoolArrayCoder * bitDebugCoder = nullptr;
+    BoolArrayCoder * wordDebugCoder = nullptr;
+
+    /*! Protocol coders */
+    bool protocolResetFlag = true;
+    BoolArrayCoder * protocolResetCoder = nullptr;
+    BoolArrayCoder * protocolIdCoder = nullptr;
+    BoolArrayCoder * protocolItemsNumberCoder = nullptr;
+    BoolArrayCoder * protocolSweepsNumberCoder = nullptr;
+    std::vector <DoubleCoder *> voltageProtocolRestCoders;
+    std::vector <DoubleCoder *> currentProtocolRestCoders;
+
+    std::vector <std::vector <DoubleCoder *> > voltageProtocolStim0Coders;
+    std::vector <std::vector <DoubleCoder *> > voltageProtocolStim0StepCoders;
+    std::vector <std::vector <DoubleCoder *> > voltageProtocolStim1Coders;
+    std::vector <std::vector <DoubleCoder *> > voltageProtocolStim1StepCoders;
+
+    std::vector <std::vector <DoubleCoder *> > currentProtocolStim0Coders;
+    std::vector <std::vector <DoubleCoder *> > currentProtocolStim0StepCoders;
+    std::vector <std::vector <DoubleCoder *> > currentProtocolStim1Coders;
+    std::vector <std::vector <DoubleCoder *> > currentProtocolStim1StepCoders;
+
+    std::vector <DoubleCoder *> protocolTime0Coders;
+    std::vector <DoubleCoder *> protocolTime0StepCoders;
+    std::vector <DoubleCoder *> protocolFrequency0Coders;
+    std::vector <DoubleCoder *> protocolFrequency0StepCoders;
+
+    std::vector <BoolArrayCoder *> protocolItemIdxCoders;
+    std::vector <BoolArrayCoder *> protocolNextItemIdxCoders;
+    std::vector <BoolArrayCoder *> protocolLoopRepetitionsCoders;
+
+    std::vector <BoolArrayCoder *> protocolApplyStepsCoders;
+    std::vector <BoolArrayCoder *> protocolStimHalfCoders;
+    std::vector <BoolArrayCoder *> protocolItemTypeCoders;
+    std::vector <BoolArrayCoder *> protocolItemDigitalOutCoders;
+
+    std::vector <BoolCoder *> liquidJunctionCompensationCoders;
+    std::vector <BoolCoder *> liquidJunctionAutoStopCoders;
+    std::vector <BoolCoder *> liquidJunctionResetCoders;
+
+    /*! Compensations coders (all in asic domain) */
+    std::vector <BoolCoder*> pipetteCapEnCompensationCoders;
+    std::vector <MultiCoder*> pipetteCapValCompensationMultiCoders;
+    std::vector <BoolCoder*> membraneCapEnCompensationCoders;
+    std::vector <MultiCoder*> membraneCapValCompensationMultiCoders;
+    std::vector <MultiCoder*> membraneCapTauValCompensationMultiCoders; // includes Tau Values and Tau Ranges
+    std::vector <BoolCoder*>  rsCorrEnCompensationCoders;
+    std::vector <DoubleCoder*>  rsCorrValCompensationCoders;
+    std::vector <BoolArrayCoder*>  rsCorrBwCompensationCoders;
+    std::vector <BoolCoder*>  rsPredEnCompensationCoders;
+    std::vector <DoubleCoder*> rsPredGainCompensationCoders;
+    std::vector <DoubleCoder*> rsPredTauCompensationCoders;
+    std::vector <BoolCoder*> pipetteCapCcEnCompensationCoders;
+    std::vector <MultiCoder*> pipetteCapCcValCompensationMultiCoders;
+
+    BoolCoder * spiCommandCoder = nullptr;
+    BoolCoder * spiDataLoadCoder = nullptr;
+
+    std::vector <BoolArrayCoder *> customFlagsCoders;
+    std::vector <BoolArrayCoder *> customOptionsCoders;
+    std::vector <DoubleCoder *> customDoublesCoders;
+
     /********************************************\
      *  Multi-thread synchronization variables  *
     \********************************************/
+
+    mutable std::mutex rxRawMutex;
+    std::condition_variable rxRawBufferNotEmpty;
+    std::condition_variable rxRawBufferNotFull;
 
     mutable std::mutex txMutex;
     std::condition_variable txMsgBufferNotEmpty;
@@ -2666,6 +2972,8 @@ protected:
     bool liquidJunctionControlPending = false;
     LiquidJunctionProcessing_t liquidJunctionProcessing = LiquidJunctionProcessingWaitCommandApplied;
 
+    std::thread deviceCommunicationThread;
+    std::thread rxConsumerThread;
     std::thread liquidJunctionThread;
 
     std::chrono::steady_clock::time_point startPrintfTime;
