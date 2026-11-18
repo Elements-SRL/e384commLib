@@ -1523,14 +1523,14 @@ Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::Emcr8PatchClamp_EL07c_artix7_PCBV0
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[17] = 0x00FF; // GR_EN active
-    txStatus.encodingWords[292] = 0x4040; // Secondary DAC
-    txStatus.encodingWords[293] = 0x4040;
-    txStatus.encodingWords[294] = 0x4040;
-    txStatus.encodingWords[295] = 0x4040;
-    txStatus.encodingWords[326] = 0x1111; // rs bw avoid configuration with all zeros
-    txStatus.encodingWords[327] = 0x1111;
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[17] = 0x00FF; // GR_EN active
+    txStatus->encodingWords[292] = 0x4040; // Secondary DAC
+    txStatus->encodingWords[293] = 0x4040;
+    txStatus->encodingWords[294] = 0x4040;
+    txStatus->encodingWords[295] = 0x4040;
+    txStatus->encodingWords[326] = 0x1111; // rs bw avoid configuration with all zeros
+    txStatus->encodingWords[327] = 0x1111;
 }
 
 ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::initializeHW() {
@@ -1834,7 +1834,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV00_1_fw_v01::setCompRanges(std::ve
         break;
 
     default:
-        return EmcrDevice::setCompRanges(channelIndexes, paramToUpdate, newRanges, applyFlag);
+        return MessageDispatcher::setCompRanges(channelIndexes, paramToUpdate, newRanges, applyFlag);
     }
     return this->setCompValues(channelIndexes, paramToUpdate, newParams, applyFlag);
 }
@@ -3798,14 +3798,14 @@ Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v03::Emcr8PatchClamp_EL07c_artix7_PCBV01_
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[17] = 0x00FF; // GR_EN active
-    txStatus.encodingWords[1076] = 0x4040; // Secondary DAC
-    txStatus.encodingWords[1077] = 0x4040;
-    txStatus.encodingWords[1078] = 0x4040;
-    txStatus.encodingWords[1079] = 0x4040;
-    txStatus.encodingWords[1110] = 0x1111; // rs bw avoid configuration with all zeros
-    txStatus.encodingWords[1111] = 0x1111;
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[17] = 0x00FF; // GR_EN active
+    txStatus->encodingWords[1076] = 0x4040; // Secondary DAC
+    txStatus->encodingWords[1077] = 0x4040;
+    txStatus->encodingWords[1078] = 0x4040;
+    txStatus->encodingWords[1079] = 0x4040;
+    txStatus->encodingWords[1110] = 0x1111; // rs bw avoid configuration with all zeros
+    txStatus->encodingWords[1111] = 0x1111;
 }
 
 ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v03::initializeHW() {
@@ -4109,7 +4109,7 @@ ErrorCodes_t Emcr8PatchClamp_EL07c_artix7_PCBV01_fw_v03::setCompRanges(std::vect
         break;
 
     default:
-        return EmcrDevice::setCompRanges(channelIndexes, paramToUpdate, newRanges, applyFlag);
+        return MessageDispatcher::setCompRanges(channelIndexes, paramToUpdate, newRanges, applyFlag);
     }
     return this->setCompValues(channelIndexes, paramToUpdate, newParams, applyFlag);
 }

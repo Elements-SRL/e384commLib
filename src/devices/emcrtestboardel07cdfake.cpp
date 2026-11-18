@@ -29,7 +29,7 @@ ErrorCodes_t EmcrTestBoardEl07cdFake::startCommunication(std::string) {
 }
 
 void EmcrTestBoardEl07cdFake::initializeVariables() {
-    EmcrDevice::initializeVariables();
+    MessageDispatcher::initializeVariables();
     this->fillBuffer();
     this->initializeLongBuffer();
     startTime = std::chrono::steady_clock::now();

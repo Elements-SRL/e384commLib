@@ -36,7 +36,7 @@ static const std::vector <std::vector <uint32_t> > deviceTupleMapping = {
 };
 
 EmcrFtdiDevice::EmcrFtdiDevice(std::string deviceId) :
-    EmcrDevice(deviceId) {
+    MessageDispatcher(deviceId) {
 
     rxRawBufferMask = FTD_RX_RAW_BUFFER_MASK;
 }
@@ -831,7 +831,7 @@ ErrorCodes_t EmcrFtdiDevice::initializeMemory() {
     }
 
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
-    return EmcrDevice::initializeMemory();
+    return MessageDispatcher::initializeMemory();
 }
 
 void EmcrFtdiDevice::deinitializeMemory() {
@@ -851,7 +851,7 @@ void EmcrFtdiDevice::deinitializeMemory() {
     }
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
-    EmcrDevice::deinitializeMemory();
+    MessageDispatcher::deinitializeMemory();
 }
 
 ErrorCodes_t EmcrFtdiDevice::loadFpgaFw() {

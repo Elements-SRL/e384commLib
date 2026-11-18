@@ -11,5 +11,5 @@ Emcr192Blm_EL03c_Mb03_Mez05_fw_v07::Emcr192Blm_EL03c_Mb03_Mez05_fw_v07(std::stri
     onTimeRange.prefix = UnitPfxNone;
     onTimeRange.unit = "s";
 
-    txStatus.encodingWords[9] = 0x0A;
+    txStatus->encodingWords[9] = 0x0A;
 }

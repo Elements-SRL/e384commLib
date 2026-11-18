@@ -649,9 +649,9 @@ Emcr8Blm_EL03c_DigBrd_fw_v01::Emcr8Blm_EL03c_DigBrd_fw_v01(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
+    txStatus->init(txDataWords);
     for (int c = 275; c < 283; c++) {
-        txStatus.encodingWords[c] = 0x4000; // ODAC gain one
+        txStatus->encodingWords[c] = 0x4000; // ODAC gain one
     }
 }
 

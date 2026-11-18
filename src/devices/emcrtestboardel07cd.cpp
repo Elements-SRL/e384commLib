@@ -1629,13 +1629,13 @@ EmcrTestBoardEl07c::EmcrTestBoardEl07c(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[17] = 0x00FF; // GR_EN active
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[17] = 0x00FF; // GR_EN active
     for (int idx = 284; idx < 288; idx++) {
-        txStatus.encodingWords[idx] = 0x4040; // Set 0 of secondary DAC
+        txStatus->encodingWords[idx] = 0x4040; // Set 0 of secondary DAC
     }
-    txStatus.encodingWords[350] = 0x1111; // rs bw avoid configuration with all zeros
-    txStatus.encodingWords[351] = 0x1111;
+    txStatus->encodingWords[350] = 0x1111; // rs bw avoid configuration with all zeros
+    txStatus->encodingWords[351] = 0x1111;
 }
 
 ErrorCodes_t EmcrTestBoardEl07c::initializeHW() {
@@ -1976,7 +1976,7 @@ ErrorCodes_t EmcrTestBoardEl07c::setCompRanges(std::vector <uint16_t> channelInd
         break;
 
     default:
-        return EmcrDevice::setCompRanges(channelIndexes, paramToUpdate, newRanges, applyFlag);
+        return MessageDispatcher::setCompRanges(channelIndexes, paramToUpdate, newRanges, applyFlag);
     }
     return this->setCompValues(channelIndexes, paramToUpdate, newParams, applyFlag);
 }

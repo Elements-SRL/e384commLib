@@ -1578,9 +1578,9 @@ Emcr16PatchClamp_EL07e_DigBrd_fw_v01::Emcr16PatchClamp_EL07e_DigBrd_fw_v01(std::
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
+    txStatus->init(txDataWords);
     for (int idx = 948; idx < 952; idx++) {
-        txStatus.encodingWords[idx] = 0x1111; // rs bw avoid configuration with all zeros
+        txStatus->encodingWords[idx] = 0x1111; // rs bw avoid configuration with all zeros
     }
 }
 

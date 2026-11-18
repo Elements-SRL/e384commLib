@@ -26,8 +26,6 @@ typedef struct RxDeviceStatus {
     std::list <RxMessage_t> lastDebugDataMessages;
 } RxDeviceStatus_t;
 
-class EmcrDevice;
-
 class FrameManager {
 public:
     FrameManager(MessageDispatcher * md);
@@ -75,7 +73,6 @@ protected:
     RxDeviceStatus rxDeviceStatus; /*! Collects the last message (or several messages, e.g. SpiDataLoad) if they are discarded from the main getNextMessageFlow */
 
     MessageDispatcher * md = nullptr;
-    EmcrDevice * emd = nullptr;
     int currentChannelsNum;
     int voltageChannelsNum;
     int gpChannelsNum;

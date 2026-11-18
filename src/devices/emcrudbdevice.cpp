@@ -32,7 +32,7 @@ static std::unordered_map <DeviceTypes_t, MessageDispatcher::FwUpgradeInfo_t> fw
 };
 
 EmcrUdbDevice::EmcrUdbDevice(std::string deviceId) :
-    EmcrDevice(deviceId) {
+    MessageDispatcher(deviceId) {
 
     rxRawBufferMask = UDB_RX_BUFFER_MASK;
 }
@@ -754,7 +754,7 @@ ErrorCodes_t EmcrUdbDevice::initializeMemory() {
     }
 
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
-    return EmcrDevice::initializeMemory();
+    return MessageDispatcher::initializeMemory();
 }
 
 void EmcrUdbDevice::deinitializeMemory() {
@@ -774,7 +774,7 @@ void EmcrUdbDevice::deinitializeMemory() {
     }
     rxRawBuffer16 = (uint16_t *)rxRawBuffer;
 
-    EmcrDevice::deinitializeMemory();
+    MessageDispatcher::deinitializeMemory();
 }
 
 EmcrUdbDevice::DeviceTuple_t EmcrUdbDevice::getDeviceTuple(uint32_t deviceIdx) {

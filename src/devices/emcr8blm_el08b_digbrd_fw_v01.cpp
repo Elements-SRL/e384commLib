@@ -669,7 +669,7 @@ Emcr8Blm_EL08b_DigBrd_fw_v01::Emcr8Blm_EL08b_DigBrd_fw_v01(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
+    txStatus->init(txDataWords);
 }
 
 ErrorCodes_t Emcr8Blm_EL08b_DigBrd_fw_v01::initializeHW() {

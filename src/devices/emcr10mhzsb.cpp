@@ -564,11 +564,11 @@ Emcr10MHzSB_V01::Emcr10MHzSB_V01(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x2000; /*! stim from reference pin */
-    txStatus.encodingWords[1] = 0x0002; /*! ADC power enable override */
-    txStatus.encodingWords[256] = 0x0400; /*! current gain 1 */
-    txStatus.encodingWords[258] = 0x0400; /*! voltage gain 1 */
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x2000; /*! stim from reference pin */
+    txStatus->encodingWords[1] = 0x0002; /*! ADC power enable override */
+    txStatus->encodingWords[256] = 0x0400; /*! current gain 1 */
+    txStatus->encodingWords[258] = 0x0400; /*! voltage gain 1 */
 }
 
 ErrorCodes_t Emcr10MHzSB_V01::initializeHW() {

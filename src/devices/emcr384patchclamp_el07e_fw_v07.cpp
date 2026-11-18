@@ -52,7 +52,7 @@ Emcr384PatchClamp_EL07e_fw_v07::Emcr384PatchClamp_EL07e_fw_v07(std::string di) :
     }
 
     /*! Default status */
-    txStatus.resize(txDataWords);
+    txStatus->resize(txDataWords);
 }
 
 ErrorCodes_t Emcr384PatchClamp_EL07e_fw_v07::initializeHW() {

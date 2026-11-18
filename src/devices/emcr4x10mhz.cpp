@@ -697,10 +697,10 @@ Emcr4x10MHz_PCBV01_V02::Emcr4x10MHz_PCBV01_V02(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus.encodingWords[13] = 0x00F0; /*! disable the x20 amplification on startup */
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus->encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus->encodingWords[13] = 0x00F0; /*! disable the x20 amplification on startup */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
@@ -1463,10 +1463,10 @@ Emcr4x10MHz_PCBV01_V03::Emcr4x10MHz_PCBV01_V03(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus.encodingWords[13] = 0x00F0; /*! disable the x20 amplification on startup */
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus->encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus->encodingWords[13] = 0x00F0; /*! disable the x20 amplification on startup */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
@@ -1649,10 +1649,10 @@ Emcr4x10MHz_PCBV03_V04::Emcr4x10MHz_PCBV03_V04(std::string di):
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus.encodingWords[13] = 0x00F0; /*! disable the x20 amplification on startup */
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus->encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus->encodingWords[13] = 0x00F0; /*! disable the x20 amplification on startup */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
@@ -1704,7 +1704,7 @@ Emcr4x10MHz_QuadAnalog_PCBV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_V05(std::string
     static_cast <BoolRandomArrayCoder *> (customOptionsCoders[CustomOptionInterposer])->addMapItem(0x0);
     coders.push_back(customOptionsCoders[CustomOptionInterposer]);
 
-    txStatus.encodingWords[0] = (txStatus.encodingWords[0] & 0xFE7F) | 0x0180; /*! Set the default interposer configuration */
+    txStatus->encodingWords[0] = (txStatus->encodingWords[0] & 0xFE7F) | 0x0180; /*! Set the default interposer configuration */
 }
 
 Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05::Emcr4x10MHz_QuadAnalog_PCBV01_DIGV01_V05(std::string id) :

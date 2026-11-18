@@ -16,7 +16,6 @@ set(LIB_SOURCES
     src/commandcoder.cpp
     src/framemanager.cpp
     src/messagedispatcher.cpp
-    src/devices/emcrdevice.cpp
     src/devices/emcropalkellydevice.cpp
     src/devices/emcrudbdevice.cpp
     src/devices/emcrftdidevice.cpp

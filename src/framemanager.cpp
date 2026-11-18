@@ -1,6 +1,5 @@
 #include "framemanager.h"
 
-#include "emcrdevice.h"
 #include "speed_test.h"
 
 #define ACQ_DATA_TYPE type2Pc(MsgTypeIdAcquisitionData)
@@ -9,7 +8,6 @@
 FrameManager::FrameManager(MessageDispatcher * md) :
     md(md) {
 
-    emd = static_cast <EmcrDevice *> (md);
     md->getChannelNumberFeatures(voltageChannelsNum, currentChannelsNum, gpChannelsNum);
     totalChannelsNum = voltageChannelsNum+currentChannelsNum+gpChannelsNum;
     ivChannelsNum = voltageChannelsNum+currentChannelsNum;
@@ -250,10 +248,10 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         lastDataMessage.typeId = rxMsgTypeId;
         lastDataMessage.data.resize(rxDataWords);
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
-            lastDataMessage.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
+            lastDataMessage.data[rxDataBufferWriteIdx] = md->popUint16FromRxRawBuffer();
         }
         lastDataMessageAvailable = true;
-        emd->processLiquidJunctionData(lastDataMessage);
+        md->processLiquidJunctionData(lastDataMessage);
         break;
 
     case MessageDispatcher::RxMessageCurrentDataLoad: {
@@ -272,7 +270,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
 
             /*! Then store the new current values */
             for (int idx = 0; idx < currentChannelsNum; idx++) {
-                lastDataMessage.data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
+                lastDataMessage.data[rxDataBufferWriteIdx++] = md->popUint16FromRxRawBuffer();
             }
 
             // /*! Finally for each gp packet retrieve the last recevied GP values */
@@ -281,7 +279,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             // }
         }
         lastDataMessageAvailable = true;
-        emd->processLiquidJunctionData(lastDataMessage);
+        md->processLiquidJunctionData(lastDataMessage);
         break;
     }
 
@@ -306,7 +304,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             /*! Then store the new current values */
             for (int idx = 0; idx < currentChannelsNum; idx++) {
                 for (uint32_t packetIdx = 0; packetIdx < blockLen; packetIdx++) {
-                    lastDataMessage.data[rxDataBufferWriteIdx+voltageChannelsNum+packetIdx*ivChannelsNum+idx] = emd->popUint16FromRxRawBuffer();
+                    lastDataMessage.data[rxDataBufferWriteIdx+voltageChannelsNum+packetIdx*ivChannelsNum+idx] = md->popUint16FromRxRawBuffer();
                 }
             }
 
@@ -319,22 +317,22 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             rxDataBufferWriteIdx += blockSize;
         }
         lastDataMessageAvailable = true;
-        emd->processLiquidJunctionData(lastDataMessage);
+        md->processLiquidJunctionData(lastDataMessage);
         break;
     }
 
     case MessageDispatcher::RxMessageVoltageDataLoad:
         for (int idx = 0; idx < voltageChannelsNum; idx++) {
-            voltageDataValues[idx] = emd->popUint16FromRxRawBuffer();
+            voltageDataValues[idx] = md->popUint16FromRxRawBuffer();
         }
         break;
 
     case MessageDispatcher::RxMessageVoltageAndGpDataLoad:
         for (int idx = 0; idx < voltageChannelsNum; idx++) {
-            voltageDataValues[idx] = emd->popUint16FromRxRawBuffer();
+            voltageDataValues[idx] = md->popUint16FromRxRawBuffer();
         }
         for (int idx = 0; idx < gpChannelsNum; idx++) {
-            gpDataValues[idx] = emd->popUint16FromRxRawBuffer();
+            gpDataValues[idx] = md->popUint16FromRxRawBuffer();
         }
         break;
 
@@ -349,7 +347,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         for (uint32_t packetIdx = 0; packetIdx < packetsNum; packetIdx++) {
             /*! Store the voltage values first */
             for (int idx = 0; idx < voltageChannelsNum; idx++) {
-                lastDataMessage.data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
+                lastDataMessage.data[rxDataBufferWriteIdx++] = md->popUint16FromRxRawBuffer();
             }
             /*! Leave space for the current */
             rxDataBufferWriteIdx += currentChannelsNum;
@@ -361,22 +359,22 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
             rxDataBufferWriteIdx += voltageChannelsNum;
             /*! Then store the current values */
             for (int idx = 0; idx < currentChannelsNum; idx++) {
-                lastDataMessage.data[rxDataBufferWriteIdx++] = emd->popUint16FromRxRawBuffer();
+                lastDataMessage.data[rxDataBufferWriteIdx++] = md->popUint16FromRxRawBuffer();
             }
         }
         lastDataMessageAvailable = true;
-        emd->processLiquidJunctionData(lastDataMessage);
+        md->processLiquidJunctionData(lastDataMessage);
         break;
     }
 
     case MessageDispatcher::RxMessageDataHeader:
         if (rxWordLength > 4) {
-            newProtocolItemFirstIndex = (((uint32_t)emd->readUint16FromRxRawBuffer(4*2)) + ((emd->readUint16FromRxRawBuffer(5*2)) << 16))*totalChannelsNum;
+            newProtocolItemFirstIndex = (((uint32_t)md->readUint16FromRxRawBuffer(4*2)) + ((md->readUint16FromRxRawBuffer(5*2)) << 16))*totalChannelsNum;
         }
         msg.typeId = rxMsgTypeId;
         msg.data.resize(rxDataWords);
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
-            msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
+            msg.data[rxDataBufferWriteIdx] = md->popUint16FromRxRawBuffer();
         }
         this->pushHeaderMessage(msg, newProtocolItemFirstIndex);
         break;
@@ -391,7 +389,7 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         msg.typeId = rxMsgTypeId;
         msg.data.resize(rxDataWords);
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
-            msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
+            msg.data[rxDataBufferWriteIdx] = md->popUint16FromRxRawBuffer();
         }
         this->pushMessage(msg);
         break;
@@ -402,13 +400,13 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         msg.data.resize(rxDataWords2);
         /*! The order of the bits is inversed with respect to other similar messages, the code below puts them in the same format */
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords2; rxDataBufferWriteIdx++) {
-            uint16_t dat = emd->popUint16FromRxRawBuffer();
+            uint16_t dat = md->popUint16FromRxRawBuffer();
             dat = (dat | (dat << 1)) & 0xAAAA;
             dat = (dat | (dat << 1)) & 0xCCCC;
             dat = (dat | (dat << 2)) & 0xF0F0;
             dat = (dat | (dat << 4)) & 0xFF00;
             msg.data[rxDataBufferWriteIdx] = dat;
-            dat = emd->popUint16FromRxRawBuffer();
+            dat = md->popUint16FromRxRawBuffer();
             dat = (dat | (dat >> 1)) & 0x5555;
             dat = (dat | (dat >> 1)) & 0x3333;
             dat = (dat | (dat >> 2)) & 0x0F0F;
@@ -423,10 +421,10 @@ void FrameManager::storeFrameDataType(uint16_t rxMsgTypeId, MessageDispatcher::R
         msg.typeId = rxMsgTypeId;
         msg.data.resize(rxDataWords);
         for (uint32_t rxDataBufferWriteIdx = 0; rxDataBufferWriteIdx < rxDataWords; rxDataBufferWriteIdx++) {
-            msg.data[rxDataBufferWriteIdx] = emd->popUint16FromRxRawBuffer();
+            msg.data[rxDataBufferWriteIdx] = md->popUint16FromRxRawBuffer();
         }
         this->pushMessage(msg);
-        emd->processTemperatureData(msg);
+        md->processTemperatureData(msg);
         break;
     }
 

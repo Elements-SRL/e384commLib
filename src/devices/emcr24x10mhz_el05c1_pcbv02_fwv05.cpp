@@ -689,35 +689,35 @@ Emcr24x10MHz_EL05c1_PCBV02_FWV05::Emcr24x10MHz_EL05c1_PCBV02_FWV05(std::string d
     coders.push_back(customDoublesCoders[CustomPortHost]);
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x0121; /*! 800kHz default sampling rate */
-    txStatus.encodingWords[2] = 0x0001; /*! 1 voltage frame for every current frame */
-    txStatus.encodingWords[12] = 0xFFFF; /*! Enable all channels by default */
-    txStatus.encodingWords[13] = 0x00FF; /*! Enable all channels by default */
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x0121; /*! 800kHz default sampling rate */
+    txStatus->encodingWords[2] = 0x0001; /*! 1 voltage frame for every current frame */
+    txStatus->encodingWords[12] = 0xFFFF; /*! Enable all channels by default */
+    txStatus->encodingWords[13] = 0x00FF; /*! Enable all channels by default */
     for (int idx = 258; idx < 267; idx++) {
-        txStatus.encodingWords[idx] = 0x6720; /*! Set all DACs at Vcm by default */
+        txStatus->encodingWords[idx] = 0x6720; /*! Set all DACs at Vcm by default */
     }
     for (int idx = 315; idx < 318; idx++) {
-        txStatus.encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
+        txStatus->encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
     }
     for (int idx = 321; idx < 324; idx++) {
-        txStatus.encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
+        txStatus->encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
     }
     for (int idx = 327; idx < 330; idx++) {
-        txStatus.encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
+        txStatus->encodingWords[idx] = 0x0400; /*! Set gain 1 for Dac Zap and Dac Ref */
     }
-    txStatus.encodingWords[334] = 0xDDEE;
-    txStatus.encodingWords[335] = 0xBBCC;
-    txStatus.encodingWords[336] = 0x02AA;
-    txStatus.encodingWords[338] = 0xFFFF;
-    txStatus.encodingWords[339] = 0xFFFF;
-    txStatus.encodingWords[340] = 0xFFFF;
-    txStatus.encodingWords[342] = 0x0101;
-    txStatus.encodingWords[343] = 0xC0A8;
-    txStatus.encodingWords[344] = 0x0102;
-    txStatus.encodingWords[345] = 0xC0A8;
-    txStatus.encodingWords[346] = 0x1F90;
-    txStatus.encodingWords[347] = 0x1F91;
+    txStatus->encodingWords[334] = 0xDDEE;
+    txStatus->encodingWords[335] = 0xBBCC;
+    txStatus->encodingWords[336] = 0x02AA;
+    txStatus->encodingWords[338] = 0xFFFF;
+    txStatus->encodingWords[339] = 0xFFFF;
+    txStatus->encodingWords[340] = 0xFFFF;
+    txStatus->encodingWords[342] = 0x0101;
+    txStatus->encodingWords[343] = 0xC0A8;
+    txStatus->encodingWords[344] = 0x0102;
+    txStatus->encodingWords[345] = 0xC0A8;
+    txStatus->encodingWords[346] = 0x1F90;
+    txStatus->encodingWords[347] = 0x1F91;
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 

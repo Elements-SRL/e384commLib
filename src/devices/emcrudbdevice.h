@@ -3,6 +3,8 @@
 
 #include "udbutils.h"
 #include "udbprogrammer.h"
+#include "commandcoder.h"
+#include "framemanager.h"
 
 #define UDB_RX_BUFFER_SIZE 0x1000000 /*!< Number of bytes. Always use a power of 2 for efficient circular buffer management through index masking */
 #define UDB_RX_BUFFER_MASK (UDB_RX_BUFFER_SIZE-1)
@@ -14,10 +16,10 @@
 #define UDB_START_PROTOCOL_TRIGGER_IN_BIT 0
 #define UDB_CYUSB_LIB_TEST_FAKE_ID "DEMO_CYUSB_LibLoadTest" /*!< Fake device listed with e384_DEMO.pls, tests only the loading of e384_cyusb.dll */
 
-#include "emcrdevice.h"
+#include "messagedispatcher.h"
 #include "utils.h"
 
-class EmcrUdbDevice : public EmcrDevice {
+class EmcrUdbDevice : public MessageDispatcher {
 public:
     EmcrUdbDevice(std::string deviceId);
     virtual ~EmcrUdbDevice();

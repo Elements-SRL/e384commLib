@@ -584,14 +584,14 @@ Emcr32x10MHz_EL05c2_PCBV01::Emcr32x10MHz_EL05c2_PCBV01(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[12] = 0xFFFF;
-    txStatus.encodingWords[13] = 0xFFFF;
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[12] = 0xFFFF;
+    txStatus->encodingWords[13] = 0xFFFF;
     for (uint16_t i = 274; i < 306; i++) {
-        txStatus.encodingWords[i] = 0x0400;
+        txStatus->encodingWords[i] = 0x0400;
     }
     for (uint16_t i = 338; i < 346; i++) {
-        txStatus.encodingWords[i] = 0x0400;
+        txStatus->encodingWords[i] = 0x0400;
     }
 }
 

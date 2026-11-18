@@ -36,7 +36,7 @@ ErrorCodes_t Emcr384FakePatchClamp::startCommunication(std::string fwPath) {
 }
 
 void Emcr384FakePatchClamp::initializeVariables() {
-    EmcrDevice::initializeVariables();
+    MessageDispatcher::initializeVariables();
 #ifdef TEST_DATA
     this->initializeLongBuffer();
 #else

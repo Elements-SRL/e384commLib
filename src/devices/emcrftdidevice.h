@@ -10,12 +10,14 @@
 #define EMF_MAX_WRITE_TRIES 3
 #define EMF_FTDI_LIB_TEST_FAKE_ID "DEMO_FTDI_LibLoadTest" /*!< Fake device listed with e384_DEMO.pls, tests only the loading of the FTDI libraries */
 
-#include "emcrdevice.h"
+#include "messagedispatcher.h"
 #include "ftdicalibrationeeprom.h"
 #include "ftdiutils.h"
 #include "utils.h"
+#include "commandcoder.h"
+#include "framemanager.h"
 
-class EmcrFtdiDevice : public EmcrDevice {
+class EmcrFtdiDevice : public MessageDispatcher {
 public:
     EmcrFtdiDevice(std::string deviceId);
     virtual ~EmcrFtdiDevice();

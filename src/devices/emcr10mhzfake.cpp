@@ -33,7 +33,7 @@ ErrorCodes_t Emcr10MHzFake::startCommunication(std::string) {
 }
 
 void Emcr10MHzFake::initializeVariables() {
-    EmcrDevice::initializeVariables();
+    MessageDispatcher::initializeVariables();
     if (debugLevelEnabled(DebugLevelMaxSpeed)) {
         this->fillBuffer();
     }

@@ -26,6 +26,8 @@ static std::list <MessageDispatcher *> connectedDevices;
 MessageDispatcher::MessageDispatcher(std::string deviceId) :
     deviceId(deviceId) {
 
+    txStatus = new CommandStatus();
+
     /*! Initialize rx word offsets and lengths with default values */
     rxWordOffsets.resize(RxMessageNum);
     rxWordLengths.resize(RxMessageNum);
@@ -3714,9 +3716,9 @@ ErrorCodes_t MessageDispatcher::deviceConfiguration() {
 
 void MessageDispatcher::createCommunicationThreads() {
     if (!threadsStarted) {
-        deviceCommunicationThread = std::thread(&EmcrDevice::handleCommunicationWithDevice, this);
-        rxConsumerThread = std::thread(&EmcrDevice::parseDataFromDevice, this);
-        liquidJunctionThread = std::thread(&EmcrDevice::computeLiquidJunction, this);
+        deviceCommunicationThread = std::thread(&MessageDispatcher::handleCommunicationWithDevice, this);
+        rxConsumerThread = std::thread(&MessageDispatcher::parseDataFromDevice, this);
+        liquidJunctionThread = std::thread(&MessageDispatcher::computeLiquidJunction, this);
 
         threadsStarted = true;
     }
@@ -4367,7 +4369,7 @@ ErrorCodes_t MessageDispatcher::setDebugTrigger(uint16_t bitOffset) {
     }
     /*! Issue a command which doesn't change anything (copy bit 0 in byte 0 and reapply it) */
     /*! This way the stackOutgoingMessage won't be masked by the lack of messages to be sent */
-    this->setDebugBit(0, 0, (txStatus.encodingWords[0] & 0x0001) > 0 ? true : false, false);
+    this->setDebugBit(0, 0, (txStatus->encodingWords[0] & 0x0001) > 0 ? true : false, false);
     this->stackOutgoingMessage(txStatus, {static_cast <TxTriggerType_t> (bitOffset), ResetIndifferent});
     return Success;
 }
@@ -5089,7 +5091,7 @@ void MessageDispatcher::flushBoardList() {
 }
 
 void MessageDispatcher::forceOutMessage() {
-    txStatus.allChanged();
+    txStatus->allChanged();
 }
 
 void MessageDispatcher::updateVoltageHoldTuner(bool applyFlag) {
@@ -5130,8 +5132,8 @@ ErrorCodes_t MessageDispatcher::resetProtocol() {
     return Success;
 }
 
-void MessageDispatcher::stackOutgoingMessage(CommandStatus &txDataMessage, CommandOptions_t commandOptions) {
-    if (txStatus.anyChanged) {
+void MessageDispatcher::stackOutgoingMessage(CommandStatus * txDataMessage, CommandOptions_t commandOptions) {
+    if (txStatus->anyChanged) {
         std::unique_lock <std::mutex> txMutexLock(txMutex);
         while (txMsgBufferReadLength >= TX_MSG_BUFFER_SIZE) {
             txMsgBufferNotFull.wait_for (txMutexLock, std::chrono::milliseconds(100));
@@ -5139,15 +5141,15 @@ void MessageDispatcher::stackOutgoingMessage(CommandStatus &txDataMessage, Comma
 
         txMsgBuffer[txMsgBufferWriteOffset].clear();
         txMsgToBeSentWords[txMsgBufferWriteOffset].clear();
-        for (int idx = 0; idx < txDataMessage.size; idx++) {
-            if (txDataMessage.changedWords[idx]) {
-                txMsgBuffer[txMsgBufferWriteOffset].push_back(txDataMessage.encodingWords[idx]);
+        for (int idx = 0; idx < txDataMessage->size; idx++) {
+            if (txDataMessage->changedWords[idx]) {
+                txMsgBuffer[txMsgBufferWriteOffset].push_back(txDataMessage->encodingWords[idx]);
                 txMsgToBeSentWords[txMsgBufferWriteOffset].push_back(idx);
             }
         }
         txMsgOption[txMsgBufferWriteOffset] = commandOptions;
 
-        txDataMessage.noneChanged();
+        txDataMessage->noneChanged();
 
         txMsgBufferWriteOffset = (txMsgBufferWriteOffset+1)&TX_MSG_BUFFER_MASK;
         txMsgBufferReadLength++;
@@ -5197,6 +5199,10 @@ ErrorCodes_t MessageDispatcher::updateLiquidJunctionVoltage(uint16_t channelIdx,
     }
 
     return Success;
+}
+
+void MessageDispatcher::processTemperatureData(std::vector <Measurement_t> temperaturesRead) {
+    return;
 }
 
 void MessageDispatcher::updateLjState(int channelIdx) {

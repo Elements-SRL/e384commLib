@@ -847,14 +847,14 @@ EmcrQc01aTB_V01::EmcrQc01aTB_V01(std::string di) :
     coders.push_back(customDoublesCoders[SecondaryDacCore2]);
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[1] = 0x0023; /*! DS of AC cores enabled, inputs AC1 DC1 */
-    txStatus.encodingWords[3] = 0x0004; /*! Vcm generated internally */
-    txStatus.encodingWords[6] = 0x0005; /*! FPGA and DCM in reset by default */
-    txStatus.encodingWords[7] = 0x0001; /*! one voltage frame every current frame */
-    txStatus.encodingWords[8] = 0x0040; /*! null offset on secondary DAC for core 1 */
-    txStatus.encodingWords[9] = 0x0040; /*! null offset on secondary DAC for core 2 */
-    txStatus.encodingWords[10] = 0x0090; /*! DC by default in 100nA range */
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[1] = 0x0023; /*! DS of AC cores enabled, inputs AC1 DC1 */
+    txStatus->encodingWords[3] = 0x0004; /*! Vcm generated internally */
+    txStatus->encodingWords[6] = 0x0005; /*! FPGA and DCM in reset by default */
+    txStatus->encodingWords[7] = 0x0001; /*! one voltage frame every current frame */
+    txStatus->encodingWords[8] = 0x0040; /*! null offset on secondary DAC for core 1 */
+    txStatus->encodingWords[9] = 0x0040; /*! null offset on secondary DAC for core 2 */
+    txStatus->encodingWords[10] = 0x0090; /*! DC by default in 100nA range */
 }
 
 ErrorCodes_t EmcrQc01aTB_V01::initializeHW() {
@@ -907,5 +907,5 @@ ErrorCodes_t EmcrQc01aTB_V01::setSamplingRate(uint16_t samplingRateIdx, bool app
 EmcrQc01aTB_ExtVcm_V01::EmcrQc01aTB_ExtVcm_V01(std::string di) :
     EmcrQc01aTB_V01(di) {
 
-    txStatus.encodingWords[3] = 0x0000; /*! Vcm obtained externally */
+    txStatus->encodingWords[3] = 0x0000; /*! Vcm obtained externally */
 }

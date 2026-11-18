@@ -68,8 +68,8 @@ class BoolArrayCoder;
 class DoubleCoder;
 class MultiCoder;
 class FrameManager;
-class CommandStatus;
-class RxMessage;
+struct CommandStatus;
+struct RxMessage;
 
 #ifndef E384COMMLIB_LABVIEW_WRAPPER
 using namespace e384CommLib;
@@ -2384,7 +2384,7 @@ protected:
     void createDebugFiles();
     void createDebugFiles(int debugLevel);
     virtual ErrorCodes_t startCommunication(std::string fwPath) = 0;
-    ErrorCodes_t initializeMemory();
+    virtual ErrorCodes_t initializeMemory();
     virtual void initializeVariables();
     virtual ErrorCodes_t deviceConfiguration();
     virtual void createCommunicationThreads();
@@ -2392,12 +2392,12 @@ protected:
 
     virtual void enableOverheatingCounterMeasures();
     virtual ErrorCodes_t stopCommunication() = 0;
-    virtual void deinitializeMemory() = 0;
+    virtual void deinitializeMemory();
     virtual void deinitializeVariables();
 
     void closeDebugFiles();
     void closeDebugFiles(int debugLevel);
-    virtual void joinCommunicationThreads() = 0;
+    virtual void joinCommunicationThreads();
 
     virtual void initializeCalibration();
     virtual void deinitializeCalibration();
@@ -2430,7 +2430,7 @@ protected:
     void updateCurrentHoldTuner(bool applyFlag);
     ErrorCodes_t resetProtocol();
 
-    void stackOutgoingMessage(CommandStatus &txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
+    void stackOutgoingMessage(CommandStatus * txDataMessage, CommandOptions_t commandOptions = CommandOptions_t());
 
     ErrorCodes_t updateLiquidJunctionVoltage(uint16_t channelIdx, bool applyFlag);
     virtual void processTemperatureData(std::vector <Measurement_t> temperaturesRead);
@@ -2496,7 +2496,7 @@ protected:
     uint16_t txDataWords;
     uint16_t txMaxWords;
     uint16_t txMaxRegs;
-    CommandStatus txStatus; /*!< Status of the words written */
+    CommandStatus * txStatus; /*!< Status of the words written */
 
     std::vector <uint16_t> rxWordOffsets;
     std::vector <uint16_t> rxWordLengths;

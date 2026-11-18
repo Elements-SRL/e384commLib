@@ -267,9 +267,9 @@ EmcrSuperDuck_PCBV01::EmcrSuperDuck_PCBV01(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x000C;
-    txStatus.encodingWords[1] = 0x4000;
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x000C;
+    txStatus->encodingWords[1] = 0x4000;
 }
 
 ErrorCodes_t EmcrSuperDuck_PCBV01::initializeHW() {

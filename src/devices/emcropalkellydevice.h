@@ -44,8 +44,10 @@
 
 #include "okFrontPanelDLL.h"
 
-#include "emcrdevice.h"
+#include "messagedispatcher.h"
 #include "utils.h"
+#include "commandcoder.h"
+#include "framemanager.h"
 
 const uint32_t OKY_RX_TRANSFER_MAX_EXP = LOG2(OKY_RX_TRANSFER_SIZE); /*!< 20. Let's keep the transfer size a power of 2, such that the size doesn't exceed OKY_RX_TRANSFER_SIZE */
 const uint32_t OKY_RX_TRANSFER_MIN_EXP = LOG2(OKY_RX_BLOCK_SIZE); /*!< 14. Let's keep the transfer size a power of 2, such that the size doesn't go below OKY_RX_BLOCK_SIZE */
@@ -65,7 +67,7 @@ private:
     bool deviceRemovedFlag = false;
 };
 
-class EmcrOpalKellyDevice : public EmcrDevice {
+class EmcrOpalKellyDevice : public MessageDispatcher {
 public:
     EmcrOpalKellyDevice(std::string deviceId);
     virtual ~EmcrOpalKellyDevice();

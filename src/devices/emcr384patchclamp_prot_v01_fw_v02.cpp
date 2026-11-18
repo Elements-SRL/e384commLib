@@ -1507,8 +1507,8 @@ Emcr384PatchClamp_prot_v01_fw_v02::Emcr384PatchClamp_prot_v01_fw_v02(std::string
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[2] = 0x0070; // fans on by default
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[2] = 0x0070; // fans on by default
 }
 
 ErrorCodes_t Emcr384PatchClamp_prot_v01_fw_v02::initializeHW() {

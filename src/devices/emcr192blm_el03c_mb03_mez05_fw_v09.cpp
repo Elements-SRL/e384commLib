@@ -36,5 +36,5 @@ Emcr192Blm_EL03c_Mb03_Mez05_fw_v09::Emcr192Blm_EL03c_Mb03_Mez05_fw_v09(std::stri
     boolConfig.bitsNum = 32;
     spiDataLoadCoder = new BoolArrayCoder(boolConfig);
 
-    txStatus.resize(txMaxWords);
+    txStatus->resize(txMaxWords);
 }

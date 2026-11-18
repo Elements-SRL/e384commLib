@@ -1682,12 +1682,12 @@ Emcr384PatchClamp_EL07e_fw_v04::Emcr384PatchClamp_EL07e_fw_v04(std::string di) :
     coders.push_back(fanTrimmerCoder);
 
     /*! Default status */
-    txStatus.init(txDataWords);
+    txStatus->init(txDataWords);
     for (int idx = 1312; idx < 1504; idx++) {
-        txStatus.encodingWords[idx] = 0x4040; // Set 0 of secondary DAC
+        txStatus->encodingWords[idx] = 0x4040; // Set 0 of secondary DAC
     }
     for (int idx = 4384; idx < 4480; idx++) {
-        txStatus.encodingWords[idx] = 0x1111; // rs bw avoid configuration with all zeros
+        txStatus->encodingWords[idx] = 0x1111; // rs bw avoid configuration with all zeros
     }
 }
 

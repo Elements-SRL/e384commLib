@@ -33,7 +33,7 @@ ErrorCodes_t Emcr384FakeNanopores::startCommunication(std::string fwPath) {
 }
 
 void Emcr384FakeNanopores::initializeVariables() {
-    EmcrDevice::initializeVariables();
+    MessageDispatcher::initializeVariables();
     this->fillBuffer();
     startTime = std::chrono::steady_clock::now();
 }

@@ -701,8 +701,8 @@ Emcr384NanoPores_V01::Emcr384NanoPores_V01(std::string di) :
     coders.push_back(minus24VCoder);
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[2] = 0x0070; // fans on by default
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[2] = 0x0070; // fans on by default
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 

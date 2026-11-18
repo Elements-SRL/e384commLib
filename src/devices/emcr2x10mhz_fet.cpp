@@ -660,17 +660,17 @@ Emcr2x10MHz_FET_SB_PCBV01_V01::Emcr2x10MHz_FET_SB_PCBV01_V01(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus.encodingWords[11] = 0x0077; /*! default stimuli filter: min BW for refs and high BW for inputs */
-    txStatus.encodingWords[13] = 0x00FA; /*! disable the x20 amplification on startup; enable stimuli on reference pins */
-    txStatus.encodingWords[259] = 0x9C40; /*! 0mV on ref for channel 1 */
-    txStatus.encodingWords[261] = 0x9C40; /*! 0mV on ref for channel 2 */
-    txStatus.encodingWords[262] = 0x0400; /*! current gain 1 */
-    txStatus.encodingWords[263] = 0x0400; /*! current gain 1 */
-    txStatus.encodingWords[270] = 0x0400; /*! voltage gain 1 */
-    txStatus.encodingWords[271] = 0x0400; /*! voltage gain 1 */
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus->encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus->encodingWords[11] = 0x0077; /*! default stimuli filter: min BW for refs and high BW for inputs */
+    txStatus->encodingWords[13] = 0x00FA; /*! disable the x20 amplification on startup; enable stimuli on reference pins */
+    txStatus->encodingWords[259] = 0x9C40; /*! 0mV on ref for channel 1 */
+    txStatus->encodingWords[261] = 0x9C40; /*! 0mV on ref for channel 2 */
+    txStatus->encodingWords[262] = 0x0400; /*! current gain 1 */
+    txStatus->encodingWords[263] = 0x0400; /*! current gain 1 */
+    txStatus->encodingWords[270] = 0x0400; /*! voltage gain 1 */
+    txStatus->encodingWords[271] = 0x0400; /*! voltage gain 1 */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 

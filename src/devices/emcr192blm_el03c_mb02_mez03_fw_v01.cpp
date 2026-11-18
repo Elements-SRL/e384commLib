@@ -631,13 +631,13 @@ Emcr192Blm_EL03c_Mb02_Mez03_fw_v01::Emcr192Blm_EL03c_Mb02_Mez03_fw_v01(std::stri
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[2] = 0x0070; // fans on
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[2] = 0x0070; // fans on
     for (int c = 36; c < 48; c++) {
-        txStatus.encodingWords[c] = 0xFFFF; // VC_int on
+        txStatus->encodingWords[c] = 0xFFFF; // VC_int on
     }
     for (int c = 700; c < 892; c++) {
-        txStatus.encodingWords[c] = 0x200; // ODAC zero
+        txStatus->encodingWords[c] = 0x200; // ODAC zero
     }
 }
 

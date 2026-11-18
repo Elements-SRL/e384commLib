@@ -617,15 +617,15 @@ Emcr4x10MHz_SB_PCBV02_FEStim_Ch12_V01::Emcr4x10MHz_SB_PCBV02_FEStim_Ch12_V01(std
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus.encodingWords[11] = 0x000F; /*! max BW */
-    txStatus.encodingWords[13] = 0x00FF; /*! disable the x20 amplification on startup; enable stimuli */
-    txStatus.encodingWords[262] = 0x0400; /*! current gain 1 */
-    txStatus.encodingWords[263] = 0x0400; /*! current gain 1 */
-    txStatus.encodingWords[270] = 0x0400; /*! voltage gain 1 */
-    txStatus.encodingWords[271] = 0x0400; /*! voltage gain 1 */
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus->encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus->encodingWords[11] = 0x000F; /*! max BW */
+    txStatus->encodingWords[13] = 0x00FF; /*! disable the x20 amplification on startup; enable stimuli */
+    txStatus->encodingWords[262] = 0x0400; /*! current gain 1 */
+    txStatus->encodingWords[263] = 0x0400; /*! current gain 1 */
+    txStatus->encodingWords[270] = 0x0400; /*! voltage gain 1 */
+    txStatus->encodingWords[271] = 0x0400; /*! voltage gain 1 */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 

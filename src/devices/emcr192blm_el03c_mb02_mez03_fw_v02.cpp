@@ -203,5 +203,5 @@ Emcr192Blm_EL03c_Mb02_Mez03_fw_v02::Emcr192Blm_EL03c_Mb02_Mez03_fw_v02(std::stri
     }
 
     /*! Default status */
-    txStatus.encodingWords[0] = 0x4000;
+    txStatus->encodingWords[0] = 0x4000;
 }

@@ -716,14 +716,14 @@ EmcrQc01aTB_PCBV02::EmcrQc01aTB_PCBV02(std::string di) :
     coders.push_back(customDoublesCoders[SecondaryDacCore2]);
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[1] = 0x000F; /*! DS of AC and DC cores enabled */
-    txStatus.encodingWords[3] = 0x0000; /*! Ignore capacitors on VcCaps, Vcm generated externally */
-    txStatus.encodingWords[6] = 0x0004; /*! FPGA in reset by default */
-    txStatus.encodingWords[7] = 0x0001; /*! one voltage frame every current frame */
-    txStatus.encodingWords[8] = 0x0040; /*! null offset on secondary DAC for core 1 */
-    txStatus.encodingWords[9] = 0x0040; /*! null offset on secondary DAC for core 2 */
-    txStatus.encodingWords[260] = 0x6720; /*! null offset on external DAC */
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[1] = 0x000F; /*! DS of AC and DC cores enabled */
+    txStatus->encodingWords[3] = 0x0000; /*! Ignore capacitors on VcCaps, Vcm generated externally */
+    txStatus->encodingWords[6] = 0x0004; /*! FPGA in reset by default */
+    txStatus->encodingWords[7] = 0x0001; /*! one voltage frame every current frame */
+    txStatus->encodingWords[8] = 0x0040; /*! null offset on secondary DAC for core 1 */
+    txStatus->encodingWords[9] = 0x0040; /*! null offset on secondary DAC for core 2 */
+    txStatus->encodingWords[260] = 0x6720; /*! null offset on external DAC */
 }
 
 ErrorCodes_t EmcrQc01aTB_PCBV02::initializeHW() {
@@ -739,19 +739,7 @@ ErrorCodes_t EmcrQc01aTB_PCBV02::initializeHW() {
 }
 
 ErrorCodes_t EmcrQc01aTB_PCBV02::setSamplingRate(uint16_t samplingRateIdx, bool applyFlag) {
-    // bool adcToBeRenabled = (selectedSamplingRateIdx >= SamplingRate200kHz && samplingRateIdx < SamplingRate200kHz);
-    // if (adcToBeRenabled) {
-    //     /*! Prepare the bit but don't send it yet, send it together with the sampling rate command */
-    //     writeAdcSpiCoder->encode(true, txStatus);
-    // }
-
-    EmcrDevice::setSamplingRate(samplingRateIdx, applyFlag);
-
-    // if (adcToBeRenabled) {
-    //     std::this_thread::sleep_for (std::chrono::milliseconds(100));
-    //     writeAdcSpiCoder->encode(false, txStatus);
-    //     this->stackOutgoingMessage(txStatus);
-    // }
+    MessageDispatcher::setSamplingRate(samplingRateIdx, applyFlag);
     return Success;
 }
 

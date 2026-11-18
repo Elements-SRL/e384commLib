@@ -1562,7 +1562,7 @@ EmcrTestBoardEl07ab::EmcrTestBoardEl07ab(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
+    txStatus->init(txDataWords);
 }
 
 ErrorCodes_t EmcrTestBoardEl07ab::initializeHW() {

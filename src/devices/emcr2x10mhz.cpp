@@ -584,14 +584,14 @@ Emcr2x10MHz_PCBV01_V01::Emcr2x10MHz_PCBV01_V01(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus.encodingWords[13] = 0x00F0; /*! the 4 channels FW wants the voltage range x1 set */
-    txStatus.encodingWords[344] = 0x0400; /*! current gain 1 */
-    txStatus.encodingWords[345] = 0x0400; /*! current gain 1 */
-    txStatus.encodingWords[352] = 0x0400; /*! voltage gain 1 */
-    txStatus.encodingWords[353] = 0x0400; /*! voltage gain 1 */
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus->encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus->encodingWords[13] = 0x00F0; /*! the 4 channels FW wants the voltage range x1 set */
+    txStatus->encodingWords[344] = 0x0400; /*! current gain 1 */
+    txStatus->encodingWords[345] = 0x0400; /*! current gain 1 */
+    txStatus->encodingWords[352] = 0x0400; /*! voltage gain 1 */
+    txStatus->encodingWords[353] = 0x0400; /*! voltage gain 1 */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 
@@ -1231,14 +1231,14 @@ Emcr2x10MHz_PCBV01_V06::Emcr2x10MHz_PCBV01_V06(std::string di) :
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
-    txStatus.encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
-    txStatus.encodingWords[13] = 0x00F0; /*! the 4 channels FW wants the voltage range x1 set */
-    txStatus.encodingWords[344] = 0x0400; /*! current gain 1 */
-    txStatus.encodingWords[345] = 0x0400; /*! current gain 1 */
-    txStatus.encodingWords[352] = 0x0400; /*! voltage gain 1 */
-    txStatus.encodingWords[353] = 0x0400; /*! voltage gain 1 */
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x0003; /*! FPGA and DCM in reset by default */
+    txStatus->encodingWords[2] = 0x0001; /*! one voltage frame every current frame */
+    txStatus->encodingWords[13] = 0x00F0; /*! the 4 channels FW wants the voltage range x1 set */
+    txStatus->encodingWords[344] = 0x0400; /*! current gain 1 */
+    txStatus->encodingWords[345] = 0x0400; /*! current gain 1 */
+    txStatus->encodingWords[352] = 0x0400; /*! voltage gain 1 */
+    txStatus->encodingWords[353] = 0x0400; /*! voltage gain 1 */
     // settare solo i bit che di default sono ad uno e che non hanno un controllo diretto (bit di debug, etc)
 }
 

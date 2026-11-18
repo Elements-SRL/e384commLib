@@ -3,7 +3,6 @@
 #include "okprogrammer.h"
 #include "okfrontpanelwrapper.h"
 #include "speed_test.h"
-#include "utils.h"
 
 #include "emcr192blm_el03c_mb02_mez03_fw_v01.h"
 #include "emcr192blm_el03c_mb02_mez03_fw_v02.h"
@@ -179,7 +178,7 @@ bool OpalKellyDeviceManager::isDeviceRemoved() {
 }
 
 EmcrOpalKellyDevice::EmcrOpalKellyDevice(std::string deviceId) :
-    EmcrDevice(deviceId) {
+    MessageDispatcher(deviceId) {
 
     rxRawBufferMask = OKY_RX_BUFFER_MASK;
     calibrationFileRequired = true;
@@ -1220,7 +1219,7 @@ uint32_t EmcrOpalKellyDevice::readDataFromDevice() {
             /*! The device cannot recover from timeout condition */
             dev->Close();
             std::this_thread::sleep_for (std::chrono::milliseconds(1000));
-            txStatus.allChanged();
+            txStatus->allChanged();
             this->sendCommands();
             dev->OpenBySerial(deviceId);
         }
@@ -1436,7 +1435,7 @@ ErrorCodes_t EmcrOpalKellyDevice::initializeMemory() {
         okManagerRequests++;
     }
 
-    return EmcrDevice::initializeMemory();
+    return MessageDispatcher::initializeMemory();
 }
 
 void EmcrOpalKellyDevice::deinitializeMemory() {
@@ -1457,7 +1456,7 @@ void EmcrOpalKellyDevice::deinitializeMemory() {
         }
     }
 
-    EmcrDevice::deinitializeMemory();
+    MessageDispatcher::deinitializeMemory();
 }
 
 void EmcrOpalKellyDevice::computeDataReadPolicy() {

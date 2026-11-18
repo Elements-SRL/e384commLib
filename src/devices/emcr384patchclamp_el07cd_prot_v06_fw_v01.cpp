@@ -1638,16 +1638,16 @@ Emcr384PatchClamp_EL07c_prot_v06_fw_v01::Emcr384PatchClamp_EL07c_prot_v06_fw_v01
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[2] = 0x0070; // fans on
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[2] = 0x0070; // fans on
     for (int idx = 132; idx < 156; idx++) {
-        txStatus.encodingWords[idx] = 0x1111; // GR_EN active
+        txStatus->encodingWords[idx] = 0x1111; // GR_EN active
     }
     for (int idx = 1312; idx < 1504; idx++) {
-        txStatus.encodingWords[idx] = 0x4040; // Set 0 of secondary DAC
+        txStatus->encodingWords[idx] = 0x4040; // Set 0 of secondary DAC
     }
     for (int idx = 4384; idx < 4480; idx++) {
-        txStatus.encodingWords[idx] = 0x1111; // rs bw avoid configuration with all zeros
+        txStatus->encodingWords[idx] = 0x1111; // rs bw avoid configuration with all zeros
     }
 }
 

@@ -846,8 +846,8 @@ Emcr192Blm_EL08b_Mb02_Mez03_fw_v05::Emcr192Blm_EL08b_Mb02_Mez03_fw_v05(std::stri
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x4000; // data real
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x4000; // data real
 }
 
 ErrorCodes_t Emcr192Blm_EL08b_Mb02_Mez03_fw_v05::initializeHW() {

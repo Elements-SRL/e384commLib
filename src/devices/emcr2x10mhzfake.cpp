@@ -28,7 +28,7 @@ ErrorCodes_t Emcr2x10MHzFake::startCommunication(std::string) {
 }
 
 void Emcr2x10MHzFake::initializeVariables() {
-    EmcrDevice::initializeVariables();
+    MessageDispatcher::initializeVariables();
     this->fillBuffer();
 }
 

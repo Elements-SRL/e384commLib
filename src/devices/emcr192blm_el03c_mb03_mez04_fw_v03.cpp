@@ -206,14 +206,14 @@ Emcr192Blm_EL03c_Mb03_Mez04_fw_v03::Emcr192Blm_EL03c_Mb03_Mez04_fw_v03(std::stri
     }
 
     /*! Default status */
-    txStatus.init(txDataWords);
-    txStatus.encodingWords[0] = 0x4000;
-    txStatus.encodingWords[7] = 0x00FF; // fans max speed
+    txStatus->init(txDataWords);
+    txStatus->encodingWords[0] = 0x4000;
+    txStatus->encodingWords[7] = 0x00FF; // fans max speed
     for (int c = 36; c < 48; c++) {
-        txStatus.encodingWords[c] = 0xFFFF; // VC_int on
+        txStatus->encodingWords[c] = 0xFFFF; // VC_int on
     }
     for (int c = 2044; c < 2236; c++) {
-        txStatus.encodingWords[c] = 0x200; // ODAC zero
+        txStatus->encodingWords[c] = 0x200; // ODAC zero
     }
 }
 

@@ -20,19 +20,19 @@ CommandCoder::CommandCoder(uint16_t initialWord, uint16_t initialBit, uint16_t b
     }
 }
 
-void CommandCoder::encodeUint(uint64_t uintValue, CommandStatus &status) {
+void CommandCoder::encodeUint(uint64_t uintValue, CommandStatus * status) {
     /*! Ensure that the words are changed in blocks of, since the devices might accept only data in blocks of 32 bits */
     if ((initialWord & 0x0001) > 0x0000) {
-        status.changedWords[initialWord-1] = true;
+        status->changedWords[initialWord-1] = true;
     }
     if (((initialWord+wordsNum) & 0x0001) > 0x0000) {
-        status.changedWords[initialWord+wordsNum] = true;
+        status->changedWords[initialWord+wordsNum] = true;
     }
-    status.anyChanged = true;
+    status->anyChanged = true;
     for (uint16_t wordIdx = 0; wordIdx < wordsNum; wordIdx++) {
-        status.encodingWords[wordIdx+initialWord] &= ~bitMasks[wordIdx];
-        status.encodingWords[wordIdx+initialWord] |= (uintValue << bitOffsets[wordIdx]) & bitMasks[wordIdx];
-        status.changedWords[wordIdx+initialWord] = true;
+        status->encodingWords[wordIdx+initialWord] &= ~bitMasks[wordIdx];
+        status->encodingWords[wordIdx+initialWord] |= (uintValue << bitOffsets[wordIdx]) & bitMasks[wordIdx];
+        status->changedWords[wordIdx+initialWord] = true;
         uintValue >>= (CMC_BITS_PER_WORD-bitOffsets[wordIdx]);
     }
 }
@@ -48,7 +48,7 @@ BoolArrayCoder::BoolArrayCoder(CoderConfig_t config) :
 
 }
 
-void BoolArrayCoder::encode(uint64_t value, CommandStatus &status) {
+void BoolArrayCoder::encode(uint64_t value, CommandStatus * status) {
     this->encodeUint(value, status);
 }
 
@@ -57,7 +57,7 @@ BoolNegatedArrayCoder::BoolNegatedArrayCoder(CoderConfig_t config) :
 
 }
 
-void BoolNegatedArrayCoder::encode(uint64_t value, CommandStatus &status) {
+void BoolNegatedArrayCoder::encode(uint64_t value, CommandStatus * status) {
     this->encodeUint(~value, status);
 }
 
@@ -68,7 +68,7 @@ BoolRandomArrayCoder::BoolRandomArrayCoder(CoderConfig_t config) :
     toNum = 0;
 }
 
-void BoolRandomArrayCoder::encode(uint64_t value, CommandStatus &status) {
+void BoolRandomArrayCoder::encode(uint64_t value, CommandStatus * status) {
     this->encodeUint(this->map(value), status);
 }
 
@@ -89,7 +89,7 @@ BoolOneHotCoder::BoolOneHotCoder(CoderConfig_t config) :
 
 }
 
-void BoolOneHotCoder::encode(uint64_t value, CommandStatus &status) {
+void BoolOneHotCoder::encode(uint64_t value, CommandStatus * status) {
     this->encodeUint(1 << value, status);
 }
 
@@ -118,7 +118,7 @@ DoubleTwosCompCoder::DoubleTwosCompCoder(CoderConfig_t config) :
 
 }
 
-double DoubleTwosCompCoder::encode(double value, CommandStatus &status) {
+double DoubleTwosCompCoder::encode(double value, CommandStatus * status) {
     if (!invertedScale) {
         value = clip(value, minValue, maxValue);
         int32_t intValue = (int32_t)round(value/resolution);
@@ -138,7 +138,7 @@ DoubleOffsetBinaryCoder::DoubleOffsetBinaryCoder(CoderConfig_t config) :
 
 }
 
-double DoubleOffsetBinaryCoder::encode(double value, CommandStatus &status) {
+double DoubleOffsetBinaryCoder::encode(double value, CommandStatus * status) {
     if (!invertedScale) {
         value = clip(value, minValue, maxValue);
         uint64_t uintValue = (uint64_t)round((value-minValue)/resolution);
@@ -158,7 +158,7 @@ DoubleSignAbsCoder::DoubleSignAbsCoder(CoderConfig_t config) :
 
 }
 
-double DoubleSignAbsCoder::encode(double value, CommandStatus &status) {
+double DoubleSignAbsCoder::encode(double value, CommandStatus * status) {
     if (!invertedScale) {
         value = clip(value, minValue, maxValue);
         uint64_t uintValue = (uint64_t)round(fabs(value)/resolution);
@@ -191,7 +191,7 @@ FloatCoder::FloatCoder(CoderConfig_t config) :
 
 }
 
-double FloatCoder::encode(double value, CommandStatus &status) {
+double FloatCoder::encode(double value, CommandStatus * status) {
     float fltValue = (float)value;
     uint64_t uintValue = *(uint64_t *)(&fltValue);
     this->encodeUint(uintValue, status);
@@ -205,7 +205,7 @@ MultiCoder::MultiCoder(CoderConfig_t config) :
     rangesNum = config.thresholdVector.size();
 }
 
-double MultiCoder::encode(double value, CommandStatus &status) {
+double MultiCoder::encode(double value, CommandStatus * status) {
     double ret;
     if (rangeSelectedFlag) {
         config.boolCoder->encode(selectedRange, status);
