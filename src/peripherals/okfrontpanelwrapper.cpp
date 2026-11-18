@@ -38,7 +38,6 @@ std::string lastLoadError;
 #ifdef _MSC_VER
 
 /*! Opal Kelly USB vendor ID, as it appears in the USB instance ids (e.g. "USB\VID_151F&PID_xxxx\serial").
- *  \todo Check with Filippo on a real device.
  *  If the Elements boards use a custom VID, add it here. */
 constexpr const wchar_t * OpalKellyVidPattern = L"VID_151F";
 
