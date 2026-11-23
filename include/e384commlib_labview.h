@@ -100,6 +100,42 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t listAllDevices(
         E384CL_ARGOUT LStrHandle * deviceIds);
 
+/*! \brief Checks whether the FTDI libraries (FTD2XX.dll, MPSSE.dll) are available when an FTDI device is plugged in.
+ *  \note The libraries are loaded only when an FTDI device is used, from the folder of e384commlib_labview.dll
+ *  or from System32 (never from the PATH). If they are missing, FTDI devices are not listed by detectDevices.
+ *
+ * \param details [out] Description of the last loading error (empty if none).
+ * \return ErrorFtdiDriverNotFound if an FTDI device is plugged in and the libraries cannot be loaded, Success otherwise.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getFtdiDriverStatus(
+        E384CL_ARGOUT LStrHandle * details);
+
+/*! \brief Checks whether e384_cyusb.dll is available when a UDB device is plugged in.
+ *  \note The library is loaded only when a UDB device is used, from the folder of e384commlib_labview.dll
+ *  or from System32 (never from the PATH). If it is missing, UDB devices are not listed by detectDevices.
+ *
+ * \param details [out] Description of the last loading error (empty if none).
+ * \return ErrorCyUsbDriverNotFound if a UDB device is plugged in and e384_cyusb.dll cannot be loaded, Success otherwise.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCyUsbDriverStatus(
+        E384CL_ARGOUT LStrHandle * details);
+
+/*! \brief Checks whether okFrontPanel.dll is available when an Opal Kelly device is plugged in.
+ *  \note The library is loaded only when an Opal Kelly device is used, from the folder of e384commlib_labview.dll
+ *  or from System32 (never from the PATH). If it is missing, Opal Kelly devices are not listed by detectDevices.
+ *
+ * \param details [out] Description of the last loading error (empty if none).
+ * \return ErrorOkDriverNotFound if an Opal Kelly device is plugged in and okFrontPanel.dll cannot be loaded, Success otherwise.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getOkDriverStatus(
+        E384CL_ARGOUT LStrHandle * details);
+
 /*! \brief Connects to a specific device
  * Calling this method if a device is already connected will return an error code.
  *

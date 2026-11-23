@@ -179,6 +179,36 @@ ErrorCodes_t listAllDevices(
     return Success;
 }
 
+/*! The three functions below do not need a connected device: they can be called after detectDevices
+ *  to tell the user why a plugged in device is not listed */
+
+ErrorCodes_t getFtdiDriverStatus(
+        LStrHandle * detailsOut) {
+
+    std::string details;
+    ErrorCodes_t ret = MessageDispatcher::getFtdiDriverStatus(details);
+    string2Output(details, detailsOut);
+    return ret;
+}
+
+ErrorCodes_t getCyUsbDriverStatus(
+        LStrHandle * detailsOut) {
+
+    std::string details;
+    ErrorCodes_t ret = MessageDispatcher::getCyUsbDriverStatus(details);
+    string2Output(details, detailsOut);
+    return ret;
+}
+
+ErrorCodes_t getOkDriverStatus(
+        LStrHandle * detailsOut) {
+
+    std::string details;
+    ErrorCodes_t ret = MessageDispatcher::getOkDriverStatus(details);
+    string2Output(details, detailsOut);
+    return ret;
+}
+
 ErrorCodes_t connectDevice(
         LStrHandle deviceIdIn) {
 
