@@ -181,8 +181,7 @@ include(${TOML_PP_PATH_CMAKE}/cmake/Findtomlpp.cmake)
 cmake_path(SET FTDI_UTILS_PATH_CMAKE "$ENV{FTDI_UTILS_PATH}")
 list(APPEND CMAKE_PREFIX_PATH "${FTDI_UTILS_PATH_CMAKE}")
 
-# ftdi_utils >= 1.6 loads FTD2XX/MPSSE at runtime: nothing FTDI is linked here
-find_package(ftdi_utils 1.6 REQUIRED CONFIG)
+find_package(ftdi_utils 1.6.1 REQUIRED CONFIG)
 
 target_link_libraries(${TARGET_NAME}
     PUBLIC

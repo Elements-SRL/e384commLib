@@ -8,7 +8,7 @@ cmake_path(SET TOML_PP_PATH_CMAKE "$ENV{TOML_PP_PATH}")
 list(APPEND CMAKE_MODULE_PATH "${TOML_PP_PATH_CMAKE}cmake")
 include(CMakeFindDependencyMacro)
 
-find_dependency(ftdi_utils 1.6 CONFIG)
+find_dependency(ftdi_utils 1.6.1 CONFIG)
 find_dependency(FrontPanel)
 find_dependency(tomlpp)
 
