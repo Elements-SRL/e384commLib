@@ -1460,7 +1460,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setBridgeBalanceResistanceRange(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN double * channelValuesIn,
+        E384CL_ARGIN uint16_t * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -1968,15 +1968,14 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t resetFpga(
         E384CL_ARGIN bool reset);
 
-/*! \brief Reset the device's liquid junction compensation.
+/*! \brief Reset the device's liquid junction compensation value.
  *
- * \param reset [in] False sets the liquid junction compensation in normal operation state, true sets in reset state.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t resetLiquidJunctionCompensation(
-        E384CL_ARGIN bool reset);
+        E384CL_ARGVOID);
 
 /*! \brief Set cooling fans speed.
  *
