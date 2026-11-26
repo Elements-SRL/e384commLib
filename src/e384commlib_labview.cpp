@@ -179,6 +179,36 @@ ErrorCodes_t listAllDevices(
     return Success;
 }
 
+/*! The three functions below do not need a connected device: they can be called after detectDevices
+ *  to tell the user why a plugged in device is not listed */
+
+ErrorCodes_t getFtdiDriverStatus(
+        LStrHandle * detailsOut) {
+
+    std::string details;
+    ErrorCodes_t ret = MessageDispatcher::getFtdiDriverStatus(details);
+    string2Output(details, detailsOut);
+    return ret;
+}
+
+ErrorCodes_t getCyUsbDriverStatus(
+        LStrHandle * detailsOut) {
+
+    std::string details;
+    ErrorCodes_t ret = MessageDispatcher::getCyUsbDriverStatus(details);
+    string2Output(details, detailsOut);
+    return ret;
+}
+
+ErrorCodes_t getOkDriverStatus(
+        LStrHandle * detailsOut) {
+
+    std::string details;
+    ErrorCodes_t ret = MessageDispatcher::getOkDriverStatus(details);
+    string2Output(details, detailsOut);
+    return ret;
+}
+
 ErrorCodes_t connectDevice(
         LStrHandle deviceIdIn) {
 
@@ -672,9 +702,9 @@ ErrorCodes_t digitalOffsetCompensation(
 }
 
 ErrorCodes_t zap(
-        LVMeasurement_t durationIn,
         uint16_t * channelIndexesIn,
-        uint16_t vectorLengthIn) {
+        LVMeasurement_t durationIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -685,10 +715,10 @@ ErrorCodes_t zap(
     return messageDispatcher->zap(channelIndexes, duration);
 }
 
-ErrorCodes_t zap(
-        LMeasHandle * vecIn,
+ErrorCodes_t zapVec(
         uint16_t * channelIndexesIn,
-        uint16_t vectorLengthIn) {
+        LMeasHandle * vecIn,
+        int vectorLengthIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1119,10 +1149,10 @@ ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
     return messageDispatcher->setVoltageProtocolStructure(protId, itemsNum, sweepsNum, vRest, true);
 }
 
-ErrorCodes_t setVoltageProtocolStructure(uint16_t protId,
-                                         uint16_t itemsNum,
-                                         uint16_t sweepsNum,
-                                         LMeasHandle * vecIn) {
+ErrorCodes_t setVoltageProtocolStructureVec(uint16_t protId,
+                                            uint16_t itemsNum,
+                                            uint16_t sweepsNum,
+                                            LMeasHandle * vecIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1297,10 +1327,10 @@ ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
     return messageDispatcher->setCurrentProtocolStructure(protId, itemsNum, sweepsNum, iRest, true);
 }
 
-ErrorCodes_t setCurrentProtocolStructure(uint16_t protId,
-                                         uint16_t itemsNum,
-                                         uint16_t sweepsNum,
-                                         LMeasHandle * vecIn) {
+ErrorCodes_t setCurrentProtocolStructureVec(uint16_t protId,
+                                            uint16_t itemsNum,
+                                            uint16_t sweepsNum,
+                                            LMeasHandle * vecIn) {
     if (messageDispatcher == nullptr) {
         return ErrorDeviceNotConnected;
     }
@@ -1470,7 +1500,7 @@ ErrorCodes_t resetLiquidJunctionCompensation() {
     uint16_t cChNum;
     messageDispatcher->getChannelNumberFeatures(vChNum, cChNum);
     std::vector <uint16_t> channelIndexes(cChNum);
-    for (uint16_t chIdx = 0; chIdx < cChNum; cChNum++) {
+    for (uint16_t chIdx = 0; chIdx < cChNum; chIdx++) {
         channelIndexes[chIdx] = chIdx;
     }
     return messageDispatcher->resetLiquidJunctionVoltage(channelIndexes, true);

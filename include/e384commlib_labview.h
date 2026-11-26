@@ -100,6 +100,42 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t listAllDevices(
         E384CL_ARGOUT LStrHandle * deviceIds);
 
+/*! \brief Checks whether the FTDI libraries (FTD2XX.dll, MPSSE.dll) are available when an FTDI device is plugged in.
+ *  \note The libraries are loaded only when an FTDI device is used, from the folder of e384commlib_labview.dll
+ *  or from System32 (never from the PATH). If they are missing, FTDI devices are not listed by detectDevices.
+ *
+ * \param details [out] Description of the last loading error (empty if none).
+ * \return ErrorFtdiDriverNotFound if an FTDI device is plugged in and the libraries cannot be loaded, Success otherwise.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getFtdiDriverStatus(
+        E384CL_ARGOUT LStrHandle * details);
+
+/*! \brief Checks whether e384_cyusb.dll is available when a UDB device is plugged in.
+ *  \note The library is loaded only when a UDB device is used, from the folder of e384commlib_labview.dll
+ *  or from System32 (never from the PATH). If it is missing, UDB devices are not listed by detectDevices.
+ *
+ * \param details [out] Description of the last loading error (empty if none).
+ * \return ErrorCyUsbDriverNotFound if a UDB device is plugged in and e384_cyusb.dll cannot be loaded, Success otherwise.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getCyUsbDriverStatus(
+        E384CL_ARGOUT LStrHandle * details);
+
+/*! \brief Checks whether okFrontPanel.dll is available when an Opal Kelly device is plugged in.
+ *  \note The library is loaded only when an Opal Kelly device is used, from the folder of e384commlib_labview.dll
+ *  or from System32 (never from the PATH). If it is missing, Opal Kelly devices are not listed by detectDevices.
+ *
+ * \param details [out] Description of the last loading error (empty if none).
+ * \return ErrorOkDriverNotFound if an Opal Kelly device is plugged in and okFrontPanel.dll cannot be loaded, Success otherwise.
+ */
+E384COMMLIB_NAME_MANGLING
+E384COMMLIBSHARED_EXPORT
+ErrorCodes_t getOkDriverStatus(
+        E384CL_ARGOUT LStrHandle * details);
+
 /*! \brief Connects to a specific device
  * Calling this method if a device is already connected will return an error code.
  *
@@ -1424,7 +1460,7 @@ E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t setBridgeBalanceResistanceRange(
         E384CL_ARGIN uint16_t * channelIndexesIn,
-        E384CL_ARGIN double * channelValuesIn,
+        E384CL_ARGIN uint16_t * channelValuesIn,
         E384CL_ARGIN bool applyFlagIn,
         E384CL_ARGIN int vectorLengthIn = 0);
 
@@ -1932,15 +1968,14 @@ E384COMMLIBSHARED_EXPORT
 ErrorCodes_t resetFpga(
         E384CL_ARGIN bool reset);
 
-/*! \brief Reset the device's liquid junction compensation.
+/*! \brief Reset the device's liquid junction compensation value.
  *
- * \param reset [in] False sets the liquid junction compensation in normal operation state, true sets in reset state.
  * \return Error code.
  */
 E384COMMLIB_NAME_MANGLING
 E384COMMLIBSHARED_EXPORT
 ErrorCodes_t resetLiquidJunctionCompensation(
-        E384CL_ARGIN bool reset);
+        E384CL_ARGVOID);
 
 /*! \brief Set cooling fans speed.
  *
